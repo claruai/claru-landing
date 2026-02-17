@@ -4,11 +4,11 @@ import Logo from "../components/ui/Logo";
 export const metadata: Metadata = {
   title: "Terms of Service - Claru",
   description:
-    "Terms of Service for Claru by Moonvalley AI Inc. - Expert Human Intelligence for AI Labs. Read our terms governing the use of our websites, mobile applications, and services.",
+    "Terms of Service for Claru by Reka AI Inc. (d/b/a Claru AI) - Expert Human Intelligence for AI Labs. Read our terms governing the use of our websites, mobile applications, and services.",
   openGraph: {
     title: "Terms of Service - Claru",
     description:
-      "Terms of Service for Claru by Moonvalley AI Inc. - Expert Human Intelligence for AI Labs.",
+      "Terms of Service for Claru by Reka AI Inc. (d/b/a Claru AI) - Expert Human Intelligence for AI Labs.",
     type: "website",
   },
 };
@@ -45,9 +45,9 @@ export default function TermsOfService() {
               <p className="text-[var(--text-secondary)] leading-relaxed mb-4">
                 Welcome to Claru. These Terms of Service (&ldquo;Terms&rdquo;)
                 constitute a legally binding agreement between you
-                (&ldquo;you&rdquo; or &ldquo;User&rdquo;) and Moonvalley AI
-                Inc., doing business as AnnotateNow and Claru
-                (&ldquo;Claru&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;, or
+                (&ldquo;you&rdquo; or &ldquo;User&rdquo;) and Reka AI Inc.,
+                doing business as Claru AI (&ldquo;Claru&rdquo;,
+                &ldquo;we&rdquo;, &ldquo;us&rdquo;, or
                 &ldquo;our&rdquo;).
               </p>
               <p className="text-[var(--text-secondary)] leading-relaxed mb-4">
@@ -643,11 +643,11 @@ export default function TermsOfService() {
                 </p>
                 <p className="text-[var(--text-primary)] mb-2">
                   <span className="text-[var(--accent-primary)]">$</span>{" "}
-                  Company: Moonvalley AI Inc.
+                  Company: Reka AI Inc.
                 </p>
                 <p className="text-[var(--text-primary)]">
                   <span className="text-[var(--accent-primary)]">$</span> DBA:
-                  AnnotateNow, Claru
+                  Claru AI
                 </p>
               </div>
             </section>
@@ -682,7 +682,7 @@ export default function TermsOfService() {
         <div className="container">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-[var(--text-tertiary)] text-sm font-mono">
-              &copy; {new Date().getFullYear()} Moonvalley AI Inc. All rights
+              &copy; {new Date().getFullYear()} Reka AI Inc. All rights
               reserved.
             </p>
             <div className="flex gap-6">

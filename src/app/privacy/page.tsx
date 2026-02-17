@@ -4,11 +4,11 @@ import Logo from "../components/ui/Logo";
 export const metadata: Metadata = {
   title: "Privacy Policy - Claru",
   description:
-    "Privacy Policy for Claru (Moonvalley AI Inc.) - Learn how we collect, use, and protect your personal information.",
+    "Privacy Policy for Claru (Reka AI Inc., d/b/a Claru AI) - Learn how we collect, use, and protect your personal information.",
   openGraph: {
     title: "Privacy Policy - Claru",
     description:
-      "Privacy Policy for Claru (Moonvalley AI Inc.) - Learn how we collect, use, and protect your personal information.",
+      "Privacy Policy for Claru (Reka AI Inc., d/b/a Claru AI) - Learn how we collect, use, and protect your personal information.",
     type: "website",
   },
 };
@@ -30,7 +30,7 @@ export default function PrivacyPolicy() {
         <div className="max-w-3xl mx-auto">
           <h1 className="text-4xl font-bold mb-4">Privacy Policy</h1>
           <p className="text-[var(--text-tertiary)] font-mono text-sm mb-2">
-            Moonvalley AI Inc. (d/b/a AnnotateNow and Claru)
+            Reka AI Inc. (d/b/a Claru AI)
           </p>
           <p className="text-[var(--text-tertiary)] font-mono mb-12">
             Effective Date: January 16, 2026
@@ -43,7 +43,7 @@ export default function PrivacyPolicy() {
                 1. Introduction
               </h2>
               <p className="text-[var(--text-secondary)] leading-relaxed">
-                Moonvalley AI Inc. (d/b/a AnnotateNow and Claru)
+                Reka AI Inc. (d/b/a Claru AI)
                 (&ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;) is
                 committed to protecting your privacy. This Privacy Policy
                 explains how we collect, use, disclose, and safeguard your
@@ -419,7 +419,7 @@ export default function PrivacyPolicy() {
               </p>
               <div className="mt-4 p-4 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg font-mono text-sm">
                 <p className="text-[var(--text-primary)]">
-                  Moonvalley AI Inc. (d/b/a Claru)
+                  Reka AI Inc. (d/b/a Claru AI)
                 </p>
                 <p className="text-[var(--accent-primary)] mt-2">
                   <a href="mailto:support@claru.ai" className="hover:underline">
@@ -600,7 +600,7 @@ export default function PrivacyPolicy() {
       <footer className="border-t border-[var(--border-subtle)] py-8">
         <div className="container">
           <p className="text-center text-[var(--text-muted)] text-sm font-mono">
-            &copy; {new Date().getFullYear()} Moonvalley AI Inc. All rights
+            &copy; {new Date().getFullYear()} Reka AI Inc. All rights
             reserved.
           </p>
         </div>

@@ -39,9 +39,9 @@ export default function Header() {
         <div className="container">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
-            <a href="#hero" className="relative z-10">
+            <Link href="/" className="relative z-10">
               <Logo size="sm" className="text-[var(--text-primary)]" />
-            </a>
+            </Link>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-8">

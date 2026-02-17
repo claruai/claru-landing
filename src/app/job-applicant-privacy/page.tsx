@@ -43,8 +43,8 @@ export default function JobApplicantPrivacy() {
             {/* Introduction */}
             <section>
               <p className="text-[var(--text-secondary)] leading-relaxed">
-                As part of any recruitment process, Moonvalley AI Inc., doing
-                business as Claru AI and its affiliated groups (&quot;the
+                As part of any recruitment process, Reka AI Inc., doing
+                business as Claru AI, and its affiliated groups (&quot;the
                 Company,&quot; &quot;we,&quot; &quot;us&quot;, or
                 &quot;our&quot;), collect, store, and process personal data
                 relating to job applicants. We are committed to being
