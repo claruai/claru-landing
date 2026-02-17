@@ -11,10 +11,11 @@ export const metadata: Metadata = {
 export default function ProhibitedUsePolicy() {
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
-      <Header />
+      <Header opaque />
 
       {/* Content */}
-      <main className="container pt-28 md:pt-36 pb-16 md:pb-24">
+      <main className="pt-28 md:pt-36 pb-16 md:pb-24">
+        <div className="container">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-4xl font-bold mb-8">Prohibited Use Policy</h1>
           <p className="text-[var(--text-tertiary)] font-mono mb-12">
@@ -115,6 +116,7 @@ export default function ProhibitedUsePolicy() {
               &larr; Back to Home
             </a>
           </div>
+        </div>
         </div>
       </main>
 
