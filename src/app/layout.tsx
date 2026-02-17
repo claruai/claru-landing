@@ -49,21 +49,23 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://claru.ai"),
-  title: "Claru | From Raw Footage to Data Moat — Multimodal AI Data Partner",
+  title:
+    "Claru | Purpose-Built Training Data for Frontier Video, Vision & Robotics Labs",
   description:
-    "The complete data engine for frontier Multimodal AI. End-to-end data pipelines for video generation, vision models, and robotics AI. Strategy, sourcing, annotation, validation—one partner.",
+    "Training data built to your model's exact specifications. From raw capture to production-ready dataset — sourced, labeled, and validated for frontier video, vision, and robotics AI.",
   keywords: [
-    "Multimodal AI",
     "AI training data",
-    "video generation data",
-    "vision model annotation",
-    "RLHF",
-    "embodied AI data",
+    "frontier AI data",
+    "video generation training data",
     "robotics training data",
-    "data pipeline",
-    "frontier AI",
-    "multimodal data",
-    "AI data partner",
+    "vision model annotation",
+    "egocentric video data",
+    "RLHF annotation",
+    "manipulation trajectory data",
+    "embodied AI data",
+    "synthetic data generation",
+    "expert annotation",
+    "multimodal AI data",
   ],
   authors: [{ name: "Claru" }],
   creator: "Claru",
@@ -72,23 +74,23 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://claru.ai",
     siteName: "Claru",
-    title: "Claru | From Raw Footage to Data Moat",
+    title: "Claru | Purpose-Built Training Data for Frontier AI Labs",
     description:
-      "The complete data engine for frontier Multimodal AI. End-to-end pipelines for video generation, vision, and robotics. Stop stitching together vendors—one partner, every stage.",
+      "Training data built to your model's exact specifications. Sourced, labeled, and validated for frontier video, vision, and robotics AI.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Claru - From Raw Footage to Data Moat",
+        alt: "Claru - Purpose-Built Training Data for Frontier AI Labs",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Claru | From Raw Footage to Data Moat",
+    title: "Claru | Purpose-Built Training Data for Frontier AI Labs",
     description:
-      "The complete data engine for frontier Multimodal AI labs. End-to-end pipelines for video, vision, and robotics models.",
+      "Training data built to your model's exact specifications. From raw capture to production-ready dataset for video, vision, and robotics AI.",
     images: ["/og-image.png"],
   },
   robots: {
