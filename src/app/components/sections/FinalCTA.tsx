@@ -53,37 +53,20 @@ export default function FinalCTA() {
             whileInView={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            {"// LET'S BUILD TOGETHER"}
+            {"// INITIATE"}
           </motion.span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-            From Raw Footage to <br className="hidden sm:block" />
+            Your next hire isn&apos;t a vendor. <br className="hidden sm:block" />
             <TextScramble
-              text=" Data Moat"
+              text=" It's a data team."
               className="italic text-[var(--accent-primary)]"
               scrambleOnHover={true}
               autoPlay={true}
               delay={400}
             />
-            <span className="text-[var(--accent-primary)]">.</span>
           </h2>
           <p className="text-lg md:text-xl text-[var(--text-secondary)] max-w-2xl mx-auto">
-            Ready to turn your data problem into your competitive advantage?
-            Let&apos;s talk about your Visual AI data pipeline.
-          </p>
-        </motion.div>
-
-        {/* Urgency Banner - TLP Framework */}
-        <motion.div
-          className="max-w-2xl mx-auto mb-8 p-4 rounded-lg border border-[var(--accent-primary)]/30 bg-[var(--accent-primary)]/5 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.15 }}
-        >
-          <p className="text-sm font-mono text-[var(--accent-primary)]">
-            <span className="font-bold">Limited Q1 Capacity:</span> We partner
-            deeply with a select number of labs. Only 2 spots remaining for Q1
-            2026.
+            Tell us what you&apos;re training. We&apos;ll scope the dataset.
           </p>
         </motion.div>
 

@@ -6,7 +6,6 @@ import {
   ShieldCheck,
   ChevronRight,
   ArrowRight,
-  ExternalLink,
   AlertTriangle,
   Target,
   Zap,
@@ -15,70 +14,9 @@ import {
 import Link from "next/link";
 import Logo from "@/app/components/ui/Logo";
 import Button from "@/app/components/ui/Button";
+import Citation from "@/app/components/ui/Citation";
+import FAQItem from "@/app/components/ui/FAQItem";
 import TextScramble from "@/app/components/effects/TextScramble";
-
-// Citation component for inline source links
-function Citation({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-[var(--accent-primary)] hover:underline inline-flex items-center gap-0.5"
-    >
-      {children}
-      <ExternalLink className="w-3 h-3 opacity-60" />
-    </a>
-  );
-}
-
-// FAQ Accordion component
-function FAQItem({
-  question,
-  answer,
-  index,
-}: {
-  question: string;
-  answer: React.ReactNode;
-  index: number;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.1 }}
-      className="border-b border-[var(--border-subtle)]"
-    >
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full py-5 flex items-center justify-between text-left hover:text-[var(--accent-primary)] transition-colors"
-      >
-        <span className="font-medium pr-4">{question}</span>
-        <ChevronRight
-          className={`w-5 h-5 flex-shrink-0 transition-transform ${isOpen ? "rotate-90" : ""}`}
-        />
-      </button>
-      <motion.div
-        initial={false}
-        animate={{ height: isOpen ? "auto" : 0, opacity: isOpen ? 1 : 0 }}
-        className="overflow-hidden"
-      >
-        <div className="pb-5 text-[var(--text-secondary)] leading-relaxed">
-          {answer}
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
 
 export default function RedTeamingPage() {
   const [mounted, setMounted] = useState(false);

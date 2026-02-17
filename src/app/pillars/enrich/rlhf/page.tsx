@@ -6,7 +6,6 @@ import {
   Sparkles,
   ChevronRight,
   ArrowRight,
-  ExternalLink,
   Users,
   Target,
   Layers,
@@ -15,70 +14,9 @@ import {
 import Link from "next/link";
 import Logo from "@/app/components/ui/Logo";
 import Button from "@/app/components/ui/Button";
+import Citation from "@/app/components/ui/Citation";
+import FAQItem from "@/app/components/ui/FAQItem";
 import TextScramble from "@/app/components/effects/TextScramble";
-
-// Citation component for inline source links
-function Citation({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-[var(--accent-primary)] hover:underline inline-flex items-center gap-0.5"
-    >
-      {children}
-      <ExternalLink className="w-3 h-3 opacity-60" />
-    </a>
-  );
-}
-
-// FAQ Accordion component
-function FAQItem({
-  question,
-  answer,
-  index,
-}: {
-  question: string;
-  answer: React.ReactNode;
-  index: number;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.1 }}
-      className="border-b border-[var(--border-subtle)]"
-    >
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full py-5 flex items-center justify-between text-left hover:text-[var(--accent-primary)] transition-colors"
-      >
-        <span className="font-medium pr-4">{question}</span>
-        <ChevronRight
-          className={`w-5 h-5 flex-shrink-0 transition-transform ${isOpen ? "rotate-90" : ""}`}
-        />
-      </button>
-      <motion.div
-        initial={false}
-        animate={{ height: isOpen ? "auto" : 0, opacity: isOpen ? 1 : 0 }}
-        className="overflow-hidden"
-      >
-        <div className="pb-5 text-[var(--text-secondary)] leading-relaxed">
-          {answer}
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
 
 export default function RLHFPage() {
   const [mounted, setMounted] = useState(false);
@@ -115,7 +53,7 @@ export default function RLHFPage() {
           <p>
             Research from{" "}
             <Citation href="https://arxiv.org/abs/2203.02155">
-              Anthropic's RLHF work
+              OpenAI&apos;s InstructGPT research
             </Citation>{" "}
             shows that annotator expertise directly correlates with reward model
             quality. The investment in expert annotation pays off in model
@@ -133,19 +71,18 @@ export default function RLHFPage() {
             <Citation href="https://arxiv.org/abs/2203.02155">
               InstructGPT
             </Citation>{" "}
-            used approximately 33,000 preference comparisons for initial
+            used approximately 36,000 preference comparisons for initial
             training, but modern frontier labs often collect 100,000+ preference
             pairs for comprehensive alignment.
           </p>
           <p className="mb-3">
             However,{" "}
             <Citation href="https://www.perle.ai/resources/2025-ai-training-data-trends-the-future-of-domain-specific-ai-rlhf-and-custom-tooling">
-              targeted approaches like RLTHF
+              active learning approaches to RLHF
             </Citation>{" "}
-            (Reinforcement Learning from Targeted Human Feedback) can achieve
-            comparable results with 6-7% of the annotation effort by focusing
-            expert feedback on the hardest examples where the model is most
-            uncertain.
+            can achieve comparable results with 6-7% of the annotation effort
+            by focusing expert feedback on the hardest examples where the model
+            is most uncertain.
           </p>
           <p>
             We help you determine the right scale for your specific model and
@@ -385,11 +322,13 @@ export default function RLHFPage() {
               </div>
 
               <p className="text-[var(--text-secondary)] text-lg leading-relaxed mb-6">
+                While techniques like{" "}
                 <Citation href="https://www.anthropic.com/news/constitutional-ai-harmlessness-from-ai-feedback">
-                  Anthropic&apos;s Constitutional AI research
+                  Constitutional AI
                 </Citation>{" "}
-                showed that RLHF annotator quality directly impacts model
-                behavior. Models trained on noisy preference data learn noisy
+                reduce annotation volume through AI self-critique, the remaining
+                human preference data becomes even more critical — quality over
+                quantity. Models trained on noisy preference data learn noisy
                 preferences. Models trained on expert preferences learn nuanced
                 quality judgments that generalize to new situations.
               </p>
@@ -556,9 +495,9 @@ export default function RLHFPage() {
                     For teams running iterative RLHF cycles, we support
                     continuous data collection pipelines. As your model
                     improves, we focus annotation effort on the new edge cases
-                    where it still struggles, following the{" "}
+                    where it still struggles — an{" "}
                     <Citation href="https://www.perle.ai/resources/2025-ai-training-data-trends-the-future-of-domain-specific-ai-rlhf-and-custom-tooling">
-                      RLTHF methodology
+                      active learning approach
                     </Citation>{" "}
                     that achieves full performance with 6-7% of brute-force
                     annotation effort.
@@ -836,9 +775,9 @@ export default function RLHFPage() {
                   <Citation href="https://www.anthropic.com/news/constitutional-ai-harmlessness-from-ai-feedback">
                     Anthropic&apos;s Constitutional AI
                   </Citation>{" "}
-                  approach combines AI self-critique with human preference data
-                  on specific value dimensions. This requires multi-dimensional
-                  RLHF annotations where experts evaluate responses across
+                  approach uses AI self-critique (RLAIF) to reduce raw annotation
+                  volume — but the human preference data that remains must be
+                  higher quality than ever. Experts evaluate responses across
                   separate criteria: accuracy, safety, helpfulness, and
                   adherence to specific principles.
                 </p>

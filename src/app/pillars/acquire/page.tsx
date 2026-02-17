@@ -10,118 +10,15 @@ import {
   FileCheck,
   ChevronRight,
   ArrowRight,
-  ExternalLink,
   Camera,
 } from "lucide-react";
 import Link from "next/link";
 import Logo from "@/app/components/ui/Logo";
 import Button from "@/app/components/ui/Button";
+import Citation from "@/app/components/ui/Citation";
+import CapabilityCard from "@/app/components/ui/CapabilityCard";
+import FAQItem from "@/app/components/ui/FAQItem";
 import TextScramble from "@/app/components/effects/TextScramble";
-
-// Citation component for inline source links
-function Citation({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-[var(--accent-primary)] hover:underline inline-flex items-center gap-0.5"
-    >
-      {children}
-      <ExternalLink className="w-3 h-3 opacity-60" />
-    </a>
-  );
-}
-
-// Capability card component
-function CapabilityCard({
-  icon: Icon,
-  title,
-  description,
-  details,
-  index,
-}: {
-  icon: typeof Database;
-  title: string;
-  description: string;
-  details: string[];
-  index: number;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.1, duration: 0.5 }}
-      className="p-6 rounded-xl bg-[var(--bg-secondary)]/60 border border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/30 transition-colors group"
-    >
-      <div className="w-12 h-12 rounded-lg bg-[var(--accent-primary)]/10 flex items-center justify-center mb-4 group-hover:bg-[var(--accent-primary)]/20 transition-colors">
-        <Icon className="w-6 h-6 text-[var(--accent-primary)]" />
-      </div>
-      <h3 className="text-xl font-semibold mb-2">{title}</h3>
-      <p className="text-[var(--text-secondary)] mb-4">{description}</p>
-      <ul className="space-y-2">
-        {details.map((detail, i) => (
-          <li
-            key={i}
-            className="flex items-start gap-2 text-sm text-[var(--text-tertiary)]"
-          >
-            <span className="text-[var(--accent-primary)] mt-0.5">+</span>
-            {detail}
-          </li>
-        ))}
-      </ul>
-    </motion.div>
-  );
-}
-
-// FAQ Accordion component
-function FAQItem({
-  question,
-  answer,
-  index,
-}: {
-  question: string;
-  answer: React.ReactNode;
-  index: number;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.1 }}
-      className="border-b border-[var(--border-subtle)]"
-    >
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full py-5 flex items-center justify-between text-left hover:text-[var(--accent-primary)] transition-colors"
-      >
-        <span className="font-medium pr-4">{question}</span>
-        <ChevronRight
-          className={`w-5 h-5 flex-shrink-0 transition-transform ${isOpen ? "rotate-90" : ""}`}
-        />
-      </button>
-      <motion.div
-        initial={false}
-        animate={{ height: isOpen ? "auto" : 0, opacity: isOpen ? 1 : 0 }}
-        className="overflow-hidden"
-      >
-        <div className="pb-5 text-[var(--text-secondary)] leading-relaxed">
-          {answer}
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
 
 export default function AcquirePage() {
   const [mounted, setMounted] = useState(false);
@@ -629,7 +526,7 @@ export default function AcquirePage() {
                 <Citation href="https://robotics-transformer-x.github.io/">
                   Open X-Embodiment consortium
                 </Citation>{" "}
-                pooled resources from 34 research labs to assemble 1M robot
+                pooled resources from 21+ research institutions to assemble 1M robot
                 episodes. That&apos;s still not enough for general-purpose
                 manipulation.
               </p>
@@ -685,7 +582,7 @@ export default function AcquirePage() {
                     <Citation href="https://robotics-transformer-x.github.io/">
                       Open X-Embodiment dataset
                     </Citation>{" "}
-                    aggregated 1M+ real robot trajectories from 34 research
+                    aggregated 1M+ real robot trajectories from 21 research
                     labs—yet this represents only a fraction of what&apos;s
                     needed for general-purpose robotics
                   </span>
@@ -1158,11 +1055,8 @@ export default function AcquirePage() {
                     Multimodal systems must align different vector spaces so
                     &quot;cat,&quot; an image of a cat, and the sound of a meow
                     all map to the same concept.{" "}
-                    <Citation href="https://www.shaip.com/blog/multimodal-ai-the-complete-guide-to-training-data/">
-                      Research suggests
-                    </Citation>{" "}
-                    multimodal models need{" "}
-                    <strong>10-100x more training data</strong> than
+                    Multimodal models need{" "}
+                    <strong>orders of magnitude more training data</strong> than
                     single-modality systems. CLIP trained on hundreds of
                     millions of image-text pairs—and web-scale corpora are
                     notoriously noisy.
@@ -1188,10 +1082,10 @@ export default function AcquirePage() {
                     </div>
                     <div>
                       <p className="text-[var(--accent-primary)] font-mono text-lg">
-                        &lt;50ms
+                        Sub-frame
                       </p>
                       <p className="text-xs text-[var(--text-tertiary)]">
-                        Sync tolerance
+                        Sync precision
                       </p>
                     </div>
                     <div>

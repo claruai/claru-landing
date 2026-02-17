@@ -1,12 +1,26 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { useRef, useState, useEffect, useCallback } from "react";
 import Logo from "../ui/Logo";
 import Button from "../ui/Button";
 import TextScramble from "../effects/TextScramble";
 
-const teamAlumni = ["OpenAI", "DeepMind", "Meta AI", "Snap"];
+const worksWith = [
+  "Video Generation",
+  "Vision-Language Models",
+  "Robotics & Manipulation",
+  "Embodied AI",
+  "Autonomous Systems",
+  "Egocentric Video",
+];
+
+const rotatingTerms = [
+  "video",
+  "robotics",
+  "multimodal",
+  "vision",
+];
 
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -91,27 +105,23 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.15 }}
           >
-            The complete data engine for frontier Visual AI
+            Source. Label. Ship.
           </motion.p>
 
-          {/* Headline with text effects */}
+          {/* Headline with rotating text */}
           <motion.h1
             className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 leading-[1.1] tracking-tight text-[var(--text-primary)]"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <span className="inline-block">From Raw Footage</span>
-            <br className="hidden sm:block" />
-            <span className="inline-block">to</span>{" "}
-            <TextScramble
-              text="Data Moat"
-              className="inline-block text-[var(--accent-secondary)] italic"
-              scrambleOnHover={true}
-              autoPlay={true}
-              delay={600}
-            />
-            <span className="inline-block">.</span>
+            Purpose-built data for
+            <br className="hidden sm:block" />{" "}
+            frontier{" "}
+            <span className="text-[var(--accent-secondary)] italic">
+              <RotatingText terms={rotatingTerms} interval={3500} />
+            </span>{" "}
+            labs.
           </motion.h1>
 
           {/* Subheadline - End-to-end value prop */}
@@ -121,15 +131,11 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            Most labs treat data as a procurement problem.{" "}
+            Training data built to your model&apos;s exact specifications
+            —{" "}
             <span className="text-[var(--text-primary)]">
-              The ones pulling ahead treat it as strategic advantage.
-            </span>{" "}
-            We build{" "}
-            <span className="text-[var(--accent-secondary)] font-medium">
-              end-to-end data pipelines
-            </span>{" "}
-            for video, vision, and robotics AI.
+              from raw capture to production-ready dataset.
+            </span>
           </motion.p>
 
           {/* CTA Buttons */}
@@ -140,10 +146,10 @@ export default function Hero() {
             transition={{ duration: 0.5, delay: 0.5 }}
           >
             <Button href="#contact" variant="cta-glitch" size="lg">
-              Book a Consultation — Limited Q1 Capacity
+              Request a Sample
             </Button>
-            <Button href="#services" variant="secondary" size="lg">
-              See How We Work
+            <Button href="#contact" variant="secondary" size="lg">
+              Book a Call
             </Button>
           </motion.div>
 
@@ -155,16 +161,16 @@ export default function Hero() {
             transition={{ duration: 0.5, delay: 0.6 }}
           >
             <p className="text-sm text-[var(--text-tertiary)] font-mono uppercase tracking-wider">
-              Trusted by researchers from
+              We work with teams building
             </p>
             <div className="flex items-center gap-6 flex-wrap justify-center">
-              {teamAlumni.map((org) => (
+              {worksWith.map((area) => (
                 <motion.span
-                  key={org}
+                  key={area}
                   className="text-[var(--text-secondary)] text-sm opacity-60 hover:opacity-100 transition-opacity cursor-default"
                   whileHover={{ scale: 1.05 }}
                 >
-                  <TextScramble text={org} scrambleOnHover={true} />
+                  <TextScramble text={area} scrambleOnHover={true} />
                 </motion.span>
               ))}
             </div>
@@ -204,4 +210,69 @@ export default function Hero() {
       <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[var(--bg-primary)]/80 to-transparent pointer-events-none" />
     </section>
   );
+}
+
+function RotatingText({ terms, interval = 3500 }: { terms: string[]; interval?: number }) {
+  const [index, setIndex] = useState(0);
+  const [displayText, setDisplayText] = useState(terms[0]);
+  const [isScrambling, setIsScrambling] = useState(false);
+  const chars = "!<>-_\\/[]{}=+*^?#________";
+
+  const scrambleTo = useCallback((newText: string) => {
+    setIsScrambling(true);
+    const length = Math.max(displayText.length, newText.length);
+    const queue: { from: string; to: string; start: number; end: number; char?: string }[] = [];
+
+    for (let i = 0; i < length; i++) {
+      const from = displayText[i] || "";
+      const to = newText[i] || "";
+      const start = Math.floor(Math.random() * 20);
+      const end = start + Math.floor(Math.random() * 20);
+      queue.push({ from, to, start, end });
+    }
+
+    let frame = 0;
+    const update = () => {
+      let output = "";
+      let complete = 0;
+
+      for (let i = 0; i < queue.length; i++) {
+        const { from, to, start, end } = queue[i];
+        if (frame >= end) {
+          complete++;
+          output += to;
+        } else if (frame >= start) {
+          const char = chars[Math.floor(Math.random() * chars.length)];
+          queue[i].char = char;
+          output += char;
+        } else {
+          output += from;
+        }
+      }
+
+      setDisplayText(output);
+
+      if (complete === queue.length) {
+        setDisplayText(newText);
+        setIsScrambling(false);
+      } else {
+        frame++;
+        requestAnimationFrame(update);
+      }
+    };
+
+    requestAnimationFrame(update);
+  }, [displayText, chars]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const nextIndex = (index + 1) % terms.length;
+      setIndex(nextIndex);
+      scrambleTo(terms[nextIndex]);
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, [index, terms, interval, scrambleTo]);
+
+  return <span className="font-mono">{displayText}</span>;
 }

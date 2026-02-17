@@ -8,92 +8,92 @@ import Button from "../ui/Button";
 const fascinations = [
   // J1 - Mechanism
   {
-    text: "The 'frame-bridging' technique that catches temporal inconsistencies human reviewers miss",
+    text: "How specialist annotators catch temporal drift across 10K+ frame sequences that crowdsourced reviewers miss entirely",
     filter: "mechanism",
   },
-  // J2 - Statement + Interest + Benefit
+  // J2 - Statement
   {
-    text: "Why VFX-trained annotators spot 3x more edge cases than crowdsourced workers",
+    text: "Why video generation labs are hiring from post-production studios instead of annotation farms",
     filter: "statement",
   },
   // J3 - What
   {
-    text: "What frontier labs actually need from annotation partners (hint: it's not more labels)",
+    text: "What actually breaks when you scale robotics datasets without egocentric capture expertise",
     filter: "what",
   },
   // J4 - What never
   {
-    text: "What never works for scaling robotics datasets—and the counterintuitive approach that does",
+    text: "What never works for frame-level RLHF — and the embedded workflow that does",
     filter: "what-never",
   },
-  // J5 - Right? Wrong
+  // J5 - Embedded
   {
-    text: "More data = better models—right? Wrong. Here's what actually moves the needle",
-    filter: "right-wrong",
+    text: "The difference between a vendor behind a portal and a team closely aligned with yours, resolving annotation edge cases in hours instead of weeks",
+    filter: "embedded",
   },
   // J6 - Why
   {
-    text: "Why 93% of video annotation vendors fail at temporal consistency",
+    text: "Why motion continuity labeling requires annotators who think in sequences, not bounding boxes",
     filter: "why",
   },
   // J7 - When
   {
-    text: "When to use synthetic data vs. human collection (the decision framework we use)",
+    text: "When to use synthetic generation vs. licensed egocentric capture for manipulation data",
     filter: "when",
   },
   // J8 - Specific Question
   {
-    text: "Can your current vendor handle frame-level preference ranking? Most can't",
+    text: "Can your current vendor understand your architecture deeply enough to adjust guidelines the same day?",
     filter: "question",
   },
   // J9 - If/Then
   {
-    text: "If you're training video models on web-scraped data, you're hitting a ceiling you can't see",
+    text: "If your annotation team doesn't think in frame sequences, they can't label temporal consistency",
     filter: "if-then",
   },
-  // J10 - Quickest/Easiest
+  // J10 - Pipeline
   {
-    text: "The fastest path from research prototype to production-grade dataset",
-    filter: "quickest",
+    text: "From egocentric video capture to red-teaming — the full pipeline most vendors can't touch",
+    filter: "pipeline",
   },
   // J11 - Number
   {
-    text: "3 annotation errors that add months to your training cycle (and how to prevent them)",
+    text: "3 places sim-to-real robotics datasets silently degrade (and how to catch them before training)",
     filter: "number",
   },
   // J12 - Big Promise
   {
-    text: "The dataset architecture used by labs shipping state-of-the-art video models",
+    text: "How one lab went from zero training data to production-ready video dataset in 8 weeks with an embedded Claru team",
     filter: "big-promise",
   },
   // J13 - How
   {
-    text: "How to get expert-level domain annotation without building an in-house team",
+    text: "How to iterate on annotation guidelines in real-time instead of waiting for the next batch cycle",
     filter: "how",
   },
   // J14 - Caution
   {
-    text: "CAUTION: The 'scale fast' trap that corrupts 80% of visual AI training sets",
+    text: "CAUTION: The scene-transition labeling errors that compound across long-form video generation",
     filter: "caution",
   },
   // J15 - Truth
   {
-    text: "The truth about off-the-shelf datasets (and why frontier labs avoid them)",
+    text: "The truth about 'end-to-end data platforms' — and why video/robotics labs keep switching to embedded teams",
     filter: "truth",
   },
   // J16 - Best
   {
-    text: "The single best predictor of annotation quality (it's not what you think)",
+    text: "The single best signal that your annotation partner actually understands video: they ask about frame rate before label schema",
     filter: "best",
   },
   // J17 - Surprising
   {
-    text: "The surprising reason smaller, curated datasets often outperform massive ones",
+    text: "Why the labs with the smallest datasets are shipping the best robotics models",
     filter: "surprising",
   },
   // J18 - Are you
   {
-    text: "Are you leaving 40% of your model performance on the table with poor data prep?",
+    text: "Are your annotators labeling each frame independently? That's why your video model hallucinates on transitions",
     filter: "are-you",
   },
 ];
@@ -130,17 +130,17 @@ export default function Fascinations() {
             whileInView={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            {"// WHAT WE'VE LEARNED"}
+            {"// FROM THE FIELD"}
           </motion.span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-[var(--text-primary)]">
-            Insider Knowledge from{" "}
+            What We See Inside{" "}
             <span className="italic text-[var(--accent-secondary)]">
-              50+ Visual AI Projects
+              Video and Robotics Labs
             </span>
           </h2>
           <p className="text-[var(--text-secondary)] max-w-2xl mx-auto text-lg">
-            Hard-won lessons from partnering with frontier labs on their most
-            challenging data problems.
+            Patterns from embedding with teams building at the frontier of
+            multimodal AI.
           </p>
         </motion.div>
 
@@ -164,10 +164,10 @@ export default function Fascinations() {
           transition={{ delay: 0.4 }}
         >
           <p className="text-[var(--text-secondary)] mb-6 font-mono text-sm">
-            Ready to apply these insights to your project?
+            Want to see how this applies to your stack?
           </p>
           <Button href="#contact" variant="cta-glitch" size="lg">
-            Book a Strategy Call — Limited Q1 Capacity
+            Talk to Our Team
           </Button>
         </motion.div>
       </div>

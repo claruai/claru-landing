@@ -49,11 +49,11 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://claru.ai"),
-  title: "Claru | From Raw Footage to Data Moat — Visual AI Data Partner",
+  title: "Claru | From Raw Footage to Data Moat — Multimodal AI Data Partner",
   description:
-    "The complete data engine for frontier Visual AI. End-to-end data pipelines for video generation, vision models, and robotics AI. Strategy, sourcing, annotation, validation—one partner.",
+    "The complete data engine for frontier Multimodal AI. End-to-end data pipelines for video generation, vision models, and robotics AI. Strategy, sourcing, annotation, validation—one partner.",
   keywords: [
-    "Visual AI",
+    "Multimodal AI",
     "AI training data",
     "video generation data",
     "vision model annotation",
@@ -74,7 +74,7 @@ export const metadata: Metadata = {
     siteName: "Claru",
     title: "Claru | From Raw Footage to Data Moat",
     description:
-      "The complete data engine for frontier Visual AI. End-to-end pipelines for video generation, vision, and robotics. Stop stitching together vendors—one partner, every stage.",
+      "The complete data engine for frontier Multimodal AI. End-to-end pipelines for video generation, vision, and robotics. Stop stitching together vendors—one partner, every stage.",
     images: [
       {
         url: "/og-image.png",
@@ -88,7 +88,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Claru | From Raw Footage to Data Moat",
     description:
-      "The complete data engine for frontier Visual AI labs. End-to-end pipelines for video, vision, and robotics models.",
+      "The complete data engine for frontier Multimodal AI labs. End-to-end pipelines for video, vision, and robotics models.",
     images: ["/og-image.png"],
   },
   robots: {
@@ -104,6 +104,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="dns-prefetch" href="https://claru.ai" />
+        <link rel="preconnect" href="https://claru.ai" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${jetbrainsMono.variable} antialiased`}
       >

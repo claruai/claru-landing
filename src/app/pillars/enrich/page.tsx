@@ -9,118 +9,15 @@ import {
   Shield,
   ChevronRight,
   ArrowRight,
-  ExternalLink,
   MessageSquare,
 } from "lucide-react";
 import Link from "next/link";
 import Logo from "@/app/components/ui/Logo";
 import Button from "@/app/components/ui/Button";
+import Citation from "@/app/components/ui/Citation";
+import CapabilityCard from "@/app/components/ui/CapabilityCard";
+import FAQItem from "@/app/components/ui/FAQItem";
 import TextScramble from "@/app/components/effects/TextScramble";
-
-// Citation component for inline source links
-function Citation({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-[var(--accent-primary)] hover:underline inline-flex items-center gap-0.5"
-    >
-      {children}
-      <ExternalLink className="w-3 h-3 opacity-60" />
-    </a>
-  );
-}
-
-// Capability card component
-function CapabilityCard({
-  icon: Icon,
-  title,
-  description,
-  details,
-  index,
-}: {
-  icon: typeof Sparkles;
-  title: string;
-  description: string;
-  details: string[];
-  index: number;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.1, duration: 0.5 }}
-      className="p-6 rounded-xl bg-[var(--bg-secondary)]/60 border border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/30 transition-colors group"
-    >
-      <div className="w-12 h-12 rounded-lg bg-[var(--accent-primary)]/10 flex items-center justify-center mb-4 group-hover:bg-[var(--accent-primary)]/20 transition-colors">
-        <Icon className="w-6 h-6 text-[var(--accent-primary)]" />
-      </div>
-      <h3 className="text-xl font-semibold mb-2">{title}</h3>
-      <p className="text-[var(--text-secondary)] mb-4">{description}</p>
-      <ul className="space-y-2">
-        {details.map((detail, i) => (
-          <li
-            key={i}
-            className="flex items-start gap-2 text-sm text-[var(--text-tertiary)]"
-          >
-            <span className="text-[var(--accent-primary)] mt-0.5">+</span>
-            {detail}
-          </li>
-        ))}
-      </ul>
-    </motion.div>
-  );
-}
-
-// FAQ Accordion component
-function FAQItem({
-  question,
-  answer,
-  index,
-}: {
-  question: string;
-  answer: React.ReactNode;
-  index: number;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.1 }}
-      className="border-b border-[var(--border-subtle)]"
-    >
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full py-5 flex items-center justify-between text-left hover:text-[var(--accent-primary)] transition-colors"
-      >
-        <span className="font-medium pr-4">{question}</span>
-        <ChevronRight
-          className={`w-5 h-5 flex-shrink-0 transition-transform ${isOpen ? "rotate-90" : ""}`}
-        />
-      </button>
-      <motion.div
-        initial={false}
-        animate={{ height: isOpen ? "auto" : 0, opacity: isOpen ? 1 : 0 }}
-        className="overflow-hidden"
-      >
-        <div className="pb-5 text-[var(--text-secondary)] leading-relaxed">
-          {answer}
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
 
 export default function EnrichPage() {
   const [mounted, setMounted] = useState(false);
@@ -639,10 +536,10 @@ export default function EnrichPage() {
               <p className="text-[var(--text-secondary)] text-lg leading-relaxed mb-6">
                 The market is responding.{" "}
                 <Citation href="https://foundationcapital.com/metas-bet-on-scale-the-new-ai-data-paradigm/">
-                  Meta invested $14.3B in Scale AI
+                  Meta&apos;s acquisition of Scale AI
                 </Citation>{" "}
-                in 2025—one of its largest acquisitions ever. The frontier labs
-                know annotation quality is a competitive moat. And expert
+                signaled that frontier labs see annotation quality as a
+                competitive moat. And expert
                 annotation is becoming scarce:{" "}
                 <Citation href="https://sacra.com/c/micro1/">
                   platforms accepting only the top 1% of applicants
@@ -688,9 +585,9 @@ export default function EnrichPage() {
                   <span className="text-[var(--accent-primary)] mt-1">+</span>
                   <span className="text-[var(--text-secondary)]">
                     <Citation href="https://www.perle.ai/resources/2025-ai-training-data-trends-the-future-of-domain-specific-ai-rlhf-and-custom-tooling">
-                      RLTHF (Targeted Human Feedback)
+                      Targeted human feedback approaches
                     </Citation>{" "}
-                    achieves full human-annotation performance with only{" "}
+                    achieve full human-annotation performance with only{" "}
                     <strong className="text-[var(--text-primary)]">
                       6-7% of the annotation effort
                     </strong>
@@ -703,11 +600,10 @@ export default function EnrichPage() {
                   <span className="text-[var(--text-secondary)]">
                     The{" "}
                     <Citation href="https://foundationcapital.com/metas-bet-on-scale-the-new-ai-data-paradigm/">
-                      Meta-Scale AI deal
+                      Meta-Scale AI acquisition
                     </Citation>{" "}
-                    triggered customer departures from OpenAI, Google, and
-                    xAI—organizations unwilling to share proprietary data with a
-                    Meta-controlled vendor
+                    raised concerns among OpenAI, Google, and xAI about sharing
+                    proprietary data with a Meta-affiliated vendor
                   </span>
                 </li>
                 <li className="flex items-start gap-3">

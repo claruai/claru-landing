@@ -9,13 +9,13 @@ import { RevealOnScroll } from "../effects/ScrollAnimations";
 const testimonials = [
   {
     quote:
-      "We were building video generation models and hit a wall. Traditional data vendors gave us inconsistent quality and zero context. Claru embedded a squad of visual effects experts into our Slack. They understood our architecture, joined our syncs, and helped us ship features we'd been stuck on for months.",
+      "We needed egocentric video data that didn't exist yet and a team who could label it with robotics-grade precision. Claru handled both — from capture protocol design to frame-level annotation. Eight weeks from kickoff to production-ready dataset, zero vendor switching.",
     author: "Founder & CEO",
     backing: "Khosla Ventures & General Catalyst backed startup",
   },
   {
     quote:
-      "The difference is night and day. With our previous vendor, we'd wait a week for labeled data, then spend another week fixing errors. With Claru, our experts are in our standup every morning. When there's an edge case, we debug it together in real-time.",
+      "The difference is night and day. With our previous vendor, we'd wait a week for labeled data, then spend another week fixing errors. With Claru, the team stays tightly aligned with ours. When there's an edge case, we work through it together in real-time.",
     author: "Senior Research Scientist",
     backing: "NVIDIA backed VLM lab",
   },
@@ -27,35 +27,26 @@ const testimonials = [
   },
   {
     quote:
-      "We needed to go from zero training data to production-ready dataset in 8 weeks. Claru's team worked like they were on our cap table. They didn't just label data—they helped us think through what data we actually needed.",
+      "We needed to go from zero training data to production-ready dataset in 8 weeks. Claru sourced the raw video, structured the annotation pipeline, and embedded reviewers who caught edge cases our internal QA missed. One team, end to end.",
     author: "Founder",
     backing: "YC backed company, Series A",
   },
 ];
 
-const researcherBackgrounds = [
-  { name: "OpenAI", highlight: true },
-  { name: "Google DeepMind", highlight: true },
-  { name: "Meta AI", highlight: true },
-  { name: "Snap Research", highlight: true },
-  { name: "Apple ML", highlight: false },
-  { name: "NVIDIA", highlight: false },
-];
-
 const metrics = [
   {
-    value: "10M+",
-    label: "annotations delivered",
+    value: "8 wk",
+    label: "avg. time from zero data to production dataset",
     icon: TrendingUp,
   },
   {
-    value: ">98%",
-    label: "annotation accuracy",
+    value: "100%",
+    label: "embedded — closely aligned with your eng team",
     icon: Target,
   },
   {
-    value: "50+",
-    label: "visual AI projects completed",
+    value: "Full",
+    label: "pipeline — from capture to red team",
     icon: Briefcase,
   },
 ];
@@ -104,31 +95,19 @@ export default function Testimonials() {
           >
             {isInView ? (
               <GlitchText
-                text="Trusted by frontier AI teams"
+                text="What it feels like to work with us"
                 className="text-[var(--text-primary)]"
                 glitchOnHover
               />
             ) : (
               <span className="text-[var(--text-primary)]">
-                Trusted by frontier AI teams
+                What it feels like to work with us
               </span>
             )}
           </h2>
           <p className="text-[var(--text-secondary)] text-lg max-w-2xl mx-auto">
-            Powering research from the world&apos;s most ambitious AI labs
+            From labs training at the frontier.
           </p>
-        </RevealOnScroll>
-
-        {/* Researcher Background Logos - ambiguous association */}
-        <RevealOnScroll animation="fade" className="mb-16 md:mb-20">
-          <p className="text-center text-[var(--text-tertiary)] text-sm font-mono uppercase tracking-wider mb-6">
-            Serving researchers from
-          </p>
-          <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8">
-            {researcherBackgrounds.map((org, index) => (
-              <ResearcherBadge key={org.name} org={org} index={index} />
-            ))}
-          </div>
         </RevealOnScroll>
 
         {/* Metrics Section */}
@@ -152,50 +131,6 @@ export default function Testimonials() {
         </div>
       </div>
     </section>
-  );
-}
-
-interface ResearcherBadgeProps {
-  org: { name: string; highlight: boolean };
-  index: number;
-}
-
-function ResearcherBadge({ org, index }: ResearcherBadgeProps) {
-  const [isHovered, setIsHovered] = useState(false);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{
-        duration: 0.5,
-        delay: index * 0.05,
-        ease: [0.16, 1, 0.3, 1],
-      }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className="relative"
-    >
-      <motion.div
-        className={`
-          px-4 py-2 font-mono text-sm tracking-wide
-          transition-all duration-300 cursor-default
-          ${
-            org.highlight
-              ? "text-[var(--text-secondary)] hover:text-[var(--accent-primary)]"
-              : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
-          }
-        `}
-        whileHover={{ scale: 1.05 }}
-      >
-        {isHovered ? (
-          <TextScramble text={org.name} autoPlay delay={0} />
-        ) : (
-          org.name
-        )}
-      </motion.div>
-    </motion.div>
   );
 }
 

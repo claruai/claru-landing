@@ -30,7 +30,7 @@ export function ParallaxSection({
 
     const yValue = direction === "up" ? -100 * speed : 100 * speed;
 
-    gsap.to(element, {
+    const tween = gsap.to(element, {
       y: yValue,
       ease: "none",
       scrollTrigger: {
@@ -42,7 +42,8 @@ export function ParallaxSection({
     });
 
     return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      tween.scrollTrigger?.kill();
+      tween.kill();
     };
   }, [speed, direction]);
 
@@ -97,7 +98,7 @@ export function RevealOnScroll({
 
     gsap.set(element, animations[animation]);
 
-    gsap.to(element, {
+    const tween = gsap.to(element, {
       ...endState,
       scrollTrigger: {
         trigger: element,
@@ -107,7 +108,8 @@ export function RevealOnScroll({
     });
 
     return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      tween.scrollTrigger?.kill();
+      tween.kill();
     };
   }, [animation, delay, duration, threshold]);
 
@@ -139,7 +141,7 @@ export function HorizontalScroll({
     const scrollWidth = scrollContent.scrollWidth;
     const viewportWidth = container.offsetWidth;
 
-    gsap.to(scrollContent, {
+    const tween = gsap.to(scrollContent, {
       x: -(scrollWidth - viewportWidth),
       ease: "none",
       scrollTrigger: {
@@ -153,7 +155,8 @@ export function HorizontalScroll({
     });
 
     return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      tween.scrollTrigger?.kill();
+      tween.kill();
     };
   }, []);
 
@@ -196,7 +199,7 @@ export function StaggerReveal({
 
     gsap.set(childElements, animations[animation]);
 
-    gsap.to(childElements, {
+    const tween = gsap.to(childElements, {
       opacity: 1,
       y: 0,
       x: 0,
@@ -211,7 +214,8 @@ export function StaggerReveal({
     });
 
     return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      tween.scrollTrigger?.kill();
+      tween.kill();
     };
   }, [stagger, animation]);
 
@@ -230,7 +234,7 @@ export function ScrollProgress() {
     const element = ref.current;
     if (!element) return;
 
-    gsap.to(element, {
+    const tween = gsap.to(element, {
       scaleX: 1,
       ease: "none",
       scrollTrigger: {
@@ -240,6 +244,11 @@ export function ScrollProgress() {
         scrub: 0.3,
       },
     });
+
+    return () => {
+      tween.scrollTrigger?.kill();
+      tween.kill();
+    };
   }, []);
 
   return (
@@ -277,7 +286,7 @@ export function CharReveal({
       rotateX: -90,
     });
 
-    gsap.to(chars, {
+    const tween = gsap.to(chars, {
       opacity: 1,
       y: 0,
       rotateX: 0,
@@ -292,7 +301,8 @@ export function CharReveal({
     });
 
     return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      tween.scrollTrigger?.kill();
+      tween.kill();
     };
   }, [stagger]);
 

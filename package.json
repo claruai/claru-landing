@@ -11,7 +11,6 @@
   "dependencies": {
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.2.2",
-    "@studio-freight/lenis": "^1.0.42",
     "clsx": "^2.1.1",
     "framer-motion": "^12.24.10",
     "gsap": "^3.14.2",
@@ -22,7 +21,6 @@
     "react-dom": "19.2.3",
     "react-hook-form": "^7.70.0",
     "shaders": "^2.2.41",
-    "split-type": "^0.3.4",
     "zod": "^4.3.5"
   },
   "devDependencies": {

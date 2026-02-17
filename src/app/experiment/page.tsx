@@ -65,7 +65,7 @@ export default function ExperimentPage() {
 
     const img = new Image();
     img.crossOrigin = "anonymous";
-    img.src = "/images/robot-face.png";
+    img.src = "/images/robot-face.webp";
 
     img.onload = () => {
       setImageLoaded(true);

@@ -3,11 +3,11 @@
 import Logo from "../ui/Logo";
 
 const navLinks = [
-  { href: "#hero", label: "Home" },
-  { href: "#services", label: "Services" },
-  { href: "#capabilities", label: "Capabilities" },
-  { href: "#testimonials", label: "Clients" },
-  { href: "#contact", label: "Contact" },
+  { href: "/", label: "Home" },
+  { href: "/data", label: "Training Data" },
+  { href: "/labeling", label: "Expert Labeling" },
+  { href: "/#testimonials", label: "Clients" },
+  { href: "/#contact", label: "Contact" },
 ];
 
 const legalLinks = [
@@ -33,7 +33,7 @@ export default function Footer() {
               <Logo size="md" className="text-[var(--text-primary)]" />
             </a>
             <p className="text-sm text-[var(--text-tertiary)]">
-              The complete data engine for frontier visual AI.
+              Training data and expert labeling for frontier AI labs.
             </p>
           </div>
 

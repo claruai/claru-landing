@@ -18,7 +18,7 @@ const capabilities = [
     icon: Video,
     title: "Video AI",
     description:
-      "Frame-level annotation, temporal consistency labeling, and action recognition data for video generation and understanding models.",
+      "Specialist annotators who think in frame sequences — including VFX and post-production professionals. Temporal consistency, motion continuity, and action recognition labeled with real expertise.",
     asciiIcon: `
     ┌─────────┐
     │ ▶ ◼ ⏸  │
@@ -27,9 +27,9 @@ const capabilities = [
     └─────────┘
     `,
     items: [
-      "Motion & action sequences",
-      "Scene transitions & continuity",
-      "Audio-visual alignment",
+      "Frame-level temporal annotation",
+      "Scene transition & continuity labeling",
+      "RLHF for video generation models",
     ],
     gradient: "from-cyan-500/20 to-blue-500/10",
   },
@@ -37,7 +37,7 @@ const capabilities = [
     icon: Eye,
     title: "Vision AI",
     description:
-      "High-precision image annotation, segmentation masks, and visual reasoning data for next-generation vision models.",
+      "Segmentation, spatial reasoning, and visual QA — from annotators closely aligned with your team. Guidelines iterate in real-time, not on the next batch cycle.",
     asciiIcon: `
     ┌─────────┐
     │  ◉   ◉  │
@@ -46,9 +46,9 @@ const capabilities = [
     └─┴─────┴─┘
     `,
     items: [
-      "Object detection & segmentation",
-      "Visual question answering pairs",
-      "Spatial relationship labeling",
+      "Dense segmentation & object detection",
+      "Visual question-answer pair curation",
+      "Spatial relationship & affordance labeling",
     ],
     gradient: "from-green-500/20 to-emerald-500/10",
   },
@@ -56,7 +56,7 @@ const capabilities = [
     icon: Bot,
     title: "Robotics & Embodied AI",
     description:
-      "Real-world interaction data, simulation-to-reality bridging, and physical manipulation annotations for embodied intelligence.",
+      "Egocentric capture, manipulation sequences, sim-to-real bridging. We source the data, label it, and validate it — end to end, from capture to red team.",
     asciiIcon: `
     ┌─────────┐
     │  [═══]  │
@@ -66,9 +66,9 @@ const capabilities = [
     └─────────┘
     `,
     items: [
-      "Egocentric manipulation data",
-      "Sim-to-real validation sets",
-      "Physical reasoning & affordances",
+      "Egocentric manipulation annotation",
+      "Sim-to-real validation & benchmarking",
+      "Physical reasoning & affordance datasets",
     ],
     gradient: "from-purple-500/20 to-pink-500/10",
   },
@@ -102,22 +102,22 @@ export default function Capabilities() {
             ref={titleRef}
             className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4"
           >
-            Visual AI{" "}
+            Three Modalities.{" "}
             {isInView ? (
               <TextScramble
-                text="Specialization"
+                text="One Embedded Team."
                 className="text-[var(--accent-primary)]"
                 autoPlay
                 delay={500}
               />
             ) : (
               <span className="text-[var(--accent-primary)]">
-                Specialization
+                One Embedded Team.
               </span>
             )}
           </h2>
           <p className="text-xl text-[var(--text-secondary)] font-mono max-w-2xl mx-auto">
-            Domain expertise for the visual intelligence era.
+            Domain-specialist annotators aligned with your team, not behind a portal.
           </p>
         </motion.div>
 
@@ -141,7 +141,7 @@ export default function Capabilities() {
           transition={{ delay: 0.4 }}
         >
           <Button href="#contact" variant="cta-glitch" size="md">
-            Discuss Your Visual AI Needs →
+            Embed a Team for Your Modality →
           </Button>
         </motion.div>
       </div>

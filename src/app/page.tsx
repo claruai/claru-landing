@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { motion } from "framer-motion";
 import Header from "./components/layout/Header";
 import Hero from "./components/sections/Hero";
 import Footer from "./components/sections/Footer";
@@ -13,15 +14,15 @@ const ProblemAgitation = dynamic(
   { ssr: false, loading: () => <SectionSkeleton /> },
 );
 
-const FourPillars = dynamic(() => import("./components/sections/FourPillars"), {
+const TwoPaths = dynamic(() => import("./components/sections/TwoPaths"), {
   ssr: false,
   loading: () => <SectionSkeleton />,
 });
 
-const Capabilities = dynamic(
-  () => import("./components/sections/Capabilities"),
-  { ssr: false, loading: () => <SectionSkeleton /> },
-);
+const Origin = dynamic(() => import("./components/sections/Origin"), {
+  ssr: false,
+  loading: () => <SectionSkeleton minHeight="min-h-[30vh]" />,
+});
 
 const Testimonials = dynamic(
   () => import("./components/sections/Testimonials"),
@@ -49,6 +50,22 @@ const HeroBackground = dynamic(
   { ssr: false },
 );
 
+function SectionBridge({ text }: { text: string }) {
+  return (
+    <motion.div
+      className="py-6 md:py-8 text-center"
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
+    >
+      <p className="font-mono text-sm text-[var(--text-tertiary)] tracking-wide">
+        {text}
+      </p>
+    </motion.div>
+  );
+}
+
 export default function Home() {
   const [mounted, setMounted] = useState(false);
 
@@ -73,8 +90,9 @@ export default function Home() {
       <main className="relative z-10">
         <Hero />
         <ProblemAgitation />
-        <FourPillars />
-        <Capabilities />
+        <SectionBridge text="So we built something different." />
+        <Origin />
+        <TwoPaths />
         <Testimonials />
         <FinalCTA />
         <AnimatedLogo />

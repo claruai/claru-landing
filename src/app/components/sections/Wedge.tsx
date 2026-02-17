@@ -19,9 +19,9 @@ const offerings = [
   {
     number: "02",
     title: "The Embedded Squad",
-    subtitle: "Slack-Ops, Not Tickets.",
+    subtitle: "Aligned, Not Arms-Length.",
     description:
-      'Lease a dedicated pod of pre-aligned experts who live in your Slack, join your standups, and share your context. No "Project Managers" in the middle. Just engineers talking to experts.',
+      'Lease a dedicated pod of pre-aligned experts who stay close to your team, share your context, and iterate fast. No "Project Managers" in the middle. Just engineers talking to experts.',
     tagline: "End the game of telephone.",
     icon: Users,
     ascii: "◇",

@@ -274,31 +274,6 @@ h1, h2, h3, h4, h5, h6 {
   );
 }
 
-/* ============================================
-   FORM STYLES
-   ============================================ */
-
-.input-terminal {
-  width: 100%;
-  padding: 1rem 1.25rem;
-  font-family: var(--font-sans);
-  font-size: 0.9375rem;
-  color: var(--text-primary);
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.5rem;
-  outline: none;
-  transition: all var(--duration-normal) var(--ease-out-expo);
-}
-
-.input-terminal:focus {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--accent-glow);
-}
-
-.input-terminal::placeholder {
-  color: var(--text-tertiary);
-}
 
 /* ============================================
    ANIMATIONS
@@ -372,13 +347,6 @@ h1, h2, h3, h4, h5, h6 {
   animation: glitch-2 0.4s ease-in-out infinite;
 }
 
-.animate-chromatic {
-  animation: chromatic-shift 0.3s ease-in-out infinite;
-}
-
-.animate-flicker {
-  animation: flicker 2s linear infinite;
-}
 
 /* ============================================
    UTILITIES
@@ -409,54 +377,6 @@ h1, h2, h3, h4, h5, h6 {
 /* ============================================
    ASCII-INSPIRED CTA BUTTON EFFECTS
    ============================================ */
-
-/* Animated gradient sweep */
-@keyframes ascii-gradient-sweep {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-/* Scanline effect */
-@keyframes scanline-move {
-  0% {
-    transform: translateY(-100%);
-  }
-  100% {
-    transform: translateY(100%);
-  }
-}
-
-/* Matrix rain effect */
-@keyframes matrix-fall {
-  0% {
-    transform: translateY(-100%) translateX(0);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100%) translateX(0);
-    opacity: 0;
-  }
-}
-
-/* Pulse glow */
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 20px var(--accent-glow), 0 0 40px var(--accent-glow);
-  }
-  50% {
-    box-shadow: 0 0 30px var(--accent-glow-strong), 0 0 60px var(--accent-glow);
-  }
-}
 
 /* CTA Button with ASCII gradient effect */
 .btn-cta {
@@ -538,59 +458,6 @@ h1, h2, h3, h4, h5, h6 {
 
 .btn-cta:active {
   transform: translateY(0);
-}
-
-/* Variant: Matrix style with more dramatic effect */
-.btn-cta-matrix {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 1rem 2rem;
-  font-family: var(--font-sans);
-  font-size: 0.9375rem;
-  font-weight: 500;
-  color: var(--bg-primary);
-  background:
-    linear-gradient(135deg, var(--accent-tertiary) 0%, var(--accent-primary) 50%, var(--accent-secondary) 100%);
-  background-size: 200% 200%;
-  border: 1px solid var(--accent-primary);
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: all var(--duration-normal) var(--ease-out-expo);
-  text-decoration: none;
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-cta-matrix::before {
-  content: '░▒▓█▓▒░';
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-mono);
-  font-size: 1.5rem;
-  letter-spacing: 0.5em;
-  color: rgba(255, 255, 255, 0.1);
-  transform: translateX(-100%);
-  transition: transform 0s;
-}
-
-.btn-cta-matrix:hover {
-  background-position: 100% 100%;
-  transform: translateY(-2px);
-  box-shadow:
-    0 0 20px var(--accent-glow-strong),
-    0 0 40px var(--accent-glow),
-    0 8px 32px rgba(0, 0, 0, 0.3);
-  border-color: var(--accent-secondary);
-}
-
-.btn-cta-matrix:hover::before {
-  transform: translateX(100%);
-  transition: transform 1.2s linear;
 }
 
 /* Variant: Glitch effect - subtle text chromatic aberration */
