@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Logo from "../components/ui/Logo";
+import Header from "../components/layout/Header";
+import Footer from "../components/sections/Footer";
 
 export const metadata: Metadata = {
   title: "Job Applicant Privacy Policy - Claru",
@@ -20,17 +21,10 @@ export const metadata: Metadata = {
 export default function JobApplicantPrivacy() {
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
-      {/* Header */}
-      <header className="border-b border-[var(--border-subtle)]">
-        <div className="container py-6">
-          <a href="/">
-            <Logo size="sm" className="text-[var(--text-primary)]" />
-          </a>
-        </div>
-      </header>
+      <Header />
 
       {/* Content */}
-      <main className="container py-16 md:py-24">
+      <main className="container pt-28 md:pt-36 pb-16 md:pb-24">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-4xl font-bold mb-8">
             Job Applicant Privacy Policy
@@ -545,6 +539,8 @@ export default function JobApplicantPrivacy() {
           </div>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }

@@ -29,7 +29,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
           {/* Logo and tagline */}
           <div className="flex flex-col items-center md:items-start gap-2">
-            <a href="#hero">
+            <a href="/">
               <Logo size="md" className="text-[var(--text-primary)]" />
             </a>
             <p className="text-sm text-[var(--text-tertiary)]">

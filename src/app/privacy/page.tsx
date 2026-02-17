@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Logo from "../components/ui/Logo";
+import Header from "../components/layout/Header";
+import Footer from "../components/sections/Footer";
 
 export const metadata: Metadata = {
   title: "Privacy Policy - Claru",
@@ -16,17 +17,10 @@ export const metadata: Metadata = {
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
-      {/* Header */}
-      <header className="border-b border-[var(--border-subtle)]">
-        <div className="container py-6">
-          <a href="/">
-            <Logo size="sm" className="text-[var(--text-primary)]" />
-          </a>
-        </div>
-      </header>
+      <Header />
 
       {/* Content */}
-      <main className="container py-16 md:py-24">
+      <main className="container pt-28 md:pt-36 pb-16 md:pb-24">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-4xl font-bold mb-4">Privacy Policy</h1>
           <p className="text-[var(--text-tertiary)] font-mono text-sm mb-2">
@@ -596,15 +590,7 @@ export default function PrivacyPolicy() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-[var(--border-subtle)] py-8">
-        <div className="container">
-          <p className="text-center text-[var(--text-muted)] text-sm font-mono">
-            &copy; {new Date().getFullYear()} Reka AI Inc. All rights
-            reserved.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

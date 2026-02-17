@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Logo from "../components/ui/Logo";
+import Header from "../components/layout/Header";
+import Footer from "../components/sections/Footer";
 
 export const metadata: Metadata = {
   title: "Terms of Service - Claru",
@@ -16,17 +17,10 @@ export const metadata: Metadata = {
 export default function TermsOfService() {
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
-      {/* Header */}
-      <header className="border-b border-[var(--border-subtle)]">
-        <div className="container py-6">
-          <a href="/">
-            <Logo size="sm" className="text-[var(--text-primary)]" />
-          </a>
-        </div>
-      </header>
+      <Header />
 
       {/* Content */}
-      <main className="container py-16 md:py-24">
+      <main className="container pt-28 md:pt-36 pb-16 md:pb-24">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-4xl font-bold mb-4">Terms of Service</h1>
           <p className="text-[var(--text-tertiary)] font-mono text-sm mb-2">
@@ -677,31 +671,7 @@ export default function TermsOfService() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-[var(--border-subtle)] py-8">
-        <div className="container">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-[var(--text-tertiary)] text-sm font-mono">
-              &copy; {new Date().getFullYear()} Reka AI Inc. All rights
-              reserved.
-            </p>
-            <div className="flex gap-6">
-              <a
-                href="/privacy"
-                className="text-[var(--text-tertiary)] text-sm font-mono hover:text-[var(--accent-primary)] transition-colors"
-              >
-                Privacy Policy
-              </a>
-              <a
-                href="/terms"
-                className="text-[var(--accent-primary)] text-sm font-mono"
-              >
-                Terms of Service
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
