@@ -1,0 +1,32 @@
+{
+  "slug": "ai-response-ranking-specialist",
+  "title": "AI Response Ranking Specialist",
+  "category": "rlhf",
+  "description": "You will sit at the intersection of AI training and human judgment. Each task presents a prompt-response pair (or set of pairs) that you evaluate against a detailed rubric covering accuracy, helpfulness, safety, and style. Your evaluations feed directly into the reward model that steers how the LLM is fine-tuned. This means your judgment literally changes the behavior of the model millions of people interact with.\n\nIdeal candidates have a graduate-level education or equivalent professional experience in a field that requires careful argumentation and evidence evaluation. We have had especially strong results from people with backgrounds in academic research, technical writing, legal analysis, and scientific peer review. Familiarity with LLM failure modes -- hallucination, sycophancy, refusal errors -- is valuable.\n\nAnnotators work in focused sessions of 3-6 hours at a time, scheduling their own shifts within project windows. Weekly volume targets are typically 20-30 hours but can scale up during surge periods. A weekly calibration meeting aligns the team on rubric updates and tricky edge cases.",
+  "skills": [
+    "Background in linguistics, philosophy, law, or STEM",
+    "Good judgment on safety and sensitivity issues",
+    "Experience with AI evaluation rubrics",
+    "Ability to follow detailed annotation guidelines consistently",
+    "Comfort evaluating content across diverse subject areas",
+    "Familiarity with LLM capabilities and failure modes"
+  ],
+  "compensationMin": 40,
+  "compensationMax": 50,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "datePosted": "2026-01-19",
+  "validThrough": "2026-04-18",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "What does a typical workday look like?",
+      "answer": "You receive batches of prompt-response pairs to evaluate. Each batch includes a rubric. Most annotators work 4-6 hour focused sessions and choose their own schedules within project deadlines."
+    },
+    {
+      "question": "How subjective are the judgments?",
+      "answer": "The rubric constrains most subjectivity. You will find that roughly 70% of comparisons have a clear best answer. The remaining 30% involve genuine tradeoffs, and those are where your written justifications matter most."
+    }
+  ]
+}

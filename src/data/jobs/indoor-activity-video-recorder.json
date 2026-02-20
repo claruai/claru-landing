@@ -1,0 +1,33 @@
+{
+  "slug": "indoor-activity-video-recorder",
+  "title": "Indoor Activity Video Recorder",
+  "category": "video-capture",
+  "description": "This role involves wearing a body-mounted camera and recording yourself performing scripted household or workspace activities. The footage is used to train robotic manipulation models and indoor navigation systems. You will receive a schedule of activities to record each week, along with setup instructions for camera placement and lighting. After recording, you upload the files through our portal and fill out a brief metadata form describing what happened in each clip.\n\nYou need a reliable indoor space where you can control lighting -- a kitchen, home office, or workshop works well. We provide all camera equipment and ship it to your address at no cost. Basic tech comfort is important: you should be able to charge a device, pair it via Bluetooth, and upload large files. No filmmaking experience is needed; we care about following the protocol, not cinematic quality.\n\nScheduling is up to you within weekly targets. Some contributors record daily in short bursts; others batch sessions into two or three longer days. We ask for a minimum of 10 hours of accepted footage per week to stay active on the project.",
+  "skills": [
+    "Availability for at least 10-15 hours per week",
+    "Basic technical literacy (Bluetooth pairing, device charging)",
+    "Strong attention to detail and consistency",
+    "Ability to follow detailed recording protocols",
+    "Reliable access to varied indoor environments",
+    "Patience for repetitive recording sessions"
+  ],
+  "compensationMin": 20,
+  "compensationMax": 30,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "EU",
+  "datePosted": "2026-02-15",
+  "validThrough": "2026-05-14",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "How long does onboarding take?",
+      "answer": "About one hour. A data collection lead will walk you through equipment setup and your first practice recording on a video call."
+    },
+    {
+      "question": "Is my face visible in the recordings?",
+      "answer": "Egocentric cameras face outward, so your face is generally not visible. Hands, arms, and torso may appear depending on the activity. All footage is used solely for model training and is not published."
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "slug": "scene-understanding-labeler",
+  "title": "Scene Understanding Labeler",
+  "category": "vision-annotation",
+  "description": "We need annotators who can mark visual data accurately and efficiently. You will work through image queues, applying labels, bounding boxes, keypoints, or segmentation masks according to project-specific guidelines. Some tasks involve single-frame annotation; others require tracking objects across video sequences. Attention to spatial detail is critical -- the difference between a good and bad annotation is often just a few pixels.\n\nPrior experience with annotation tools like CVAT, Labelbox, V7, or Supervisely is preferred but not required -- our platform is intuitive and we train you during onboarding. What we cannot teach is visual acuity and spatial precision. You should have a good eye for detail and the patience to outline objects carefully rather than rushing through tasks. Familiarity with basic computer vision concepts (object detection, segmentation, keypoints) is a plus.\n\nProjects run in weekly sprints with clear volume targets. You will know at the start of each week how many images or frames to annotate. Most annotators work 15-25 hours per week. A brief weekly call with the project lead covers guideline updates and quality feedback.",
+  "skills": [
+    "Attention to detail in bounding box and segmentation tasks",
+    "Monitor with at least 1080p resolution",
+    "Strong visual acuity and spatial precision",
+    "Familiarity with computer vision concepts",
+    "Patience for detailed, repetitive visual work"
+  ],
+  "compensationMin": 20,
+  "compensationMax": 30,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "datePosted": "2026-02-16",
+  "validThrough": "2026-05-15",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "What types of images will I annotate?",
+      "answer": "Projects cover autonomous driving scenes, medical imagery, satellite photos, retail product images, and more. You will be assigned projects based on your skills and clearances."
+    },
+    {
+      "question": "Do I need special hardware?",
+      "answer": "A computer with a mouse (trackpad is not recommended for precision tasks) and a monitor of at least 1080p. A graphics tablet is optional but can improve segmentation speed."
+    }
+  ]
+}

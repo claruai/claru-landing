@@ -1,0 +1,143 @@
+# Ralph Progress Log - Claru Pillar Pages
+
+Project: Build PREPARE, ENRICH, and VALIDATE pillar pages
+Branch: ralph/pillar-pages
+Started: 2026-01-13
+
+## Reference Implementation
+- /src/app/pillars/acquire/page.tsx - Gold standard for all pillar pages
+- /src/app/pillars/acquire/layout.tsx - Metadata and JSON-LD schema pattern
+
+## Key Patterns
+- Citation component for inline source links with ExternalLink icon
+- CapabilityCard component for capabilities grid
+- FAQItem component accepts React.ReactNode for JSX answers
+- Page flow: Hero → Problem → Market Context → Proof → Capabilities → Process → Use Cases → FAQ → CTA
+
+---
+
+## US-001: Create PREPARE layout.tsx with metadata and JSON-LD schema
+- Status: COMPLETE
+- Created /src/app/pillars/prepare/layout.tsx
+- Metadata with title under 60 chars, description 140-160 chars
+- Keywords array covering data preparation, ML datasets, deduplication, multimodal alignment
+- JSON-LD schema with Service, BreadcrumbList, and FAQPage (5 questions)
+- Build passes
+
+### Learnings:
+- Follow exact structure from acquire/layout.tsx
+- Keep FAQ questions in JSON-LD consistent with page content
+- Title must be under 60 chars for SEO
+
+---
+
+## US-002 through US-011: Complete PREPARE page.tsx with all sections
+- Status: COMPLETE
+- Created /src/app/pillars/prepare/page.tsx with all sections in one commit
+- Hero: "02" pillar number, "PREPARE" TextScramble, "Raw Data Is Worthless. Prepared Data Is Everything." subtitle
+- Problem section "The Preparation Bottleneck" with VentureBeat 80% stat, Zilliz deduplication bottleneck citation
+- Market Context with RefinedWeb (5T tokens), RedPajama-V2 (30T tokens), deduplication research citations
+- Proof section with placeholder cards: Foundation Model Lab, Video AI Startup
+- Capabilities: Layers (Deduplication), Filter (Quality Filtering), FileText (Format Normalization), Cpu (Multimodal Alignment)
+- Process: Data Audit -> Pipeline Configuration -> Processing & Validation -> Delivery & Integration
+- Use Cases: LLM Pre-Training (RefinedWeb citation), Video-Language Models (TALC citation), Robotics (Open X-Embodiment citation)
+- FAQ with 5 JSX answers about dedup methods, quality tradeoffs, multimodal, scale, lineage
+- CTA: "Stop Fighting Your Data Pipeline"
+- 15+ inline citations with real URLs
+- Build passes
+
+### Learnings:
+- More efficient to create full page.tsx with all sections at once following acquire pattern
+- Deduplication stats: 30%+ removal typical, 77% NearDup content has 50+ token exact matches
+- RefinedWeb: 5T tokens from CommonCrawl with strict deduplication
+- RedPajama-V2: 30T tokens with 40+ quality signals
+- SlimPajama: higher information density through extensive deduplication
+- Multimodal alignment requires <50ms sync tolerance for video-text
+- Key technical terms: MinHashLSH, perplexity scoring, semantic dedup, cross-modal embeddings
+- Icons used: Layers, Filter, FileText, Cpu, Video, ChevronRight, ArrowRight, ExternalLink
+
+---
+
+## US-014: Create VALIDATE layout.tsx with metadata and JSON-LD schema
+- Status: COMPLETE
+- Created /src/app/pillars/validate/layout.tsx
+- Metadata title: "AI Red Teaming & Data Validation | Claru" (under 60 chars)
+- Description covers red teaming, benchmark curation, bias detection, safety evaluation
+- Keywords: AI red teaming, data validation, benchmark curation, bias detection, AI safety evaluation, adversarial testing, model validation, EU AI Act compliance
+- JSON-LD schema with Service (AI Data Validation Services), BreadcrumbList (Home -> Validate), FAQPage (5 questions)
+- Build passes
+
+### Learnings:
+- Followed exact structure from acquire/layout.tsx
+- VALIDATE theme focuses on safety/risk - red teaming, bias, benchmark contamination
+- EU AI Act compliance is a key regulatory angle for this pillar
+
+---
+
+## US-012: Create ENRICH layout.tsx with metadata and JSON-LD schema
+- Status: COMPLETE
+- Created /src/app/pillars/enrich/layout.tsx
+- Metadata title: "Expert Data Annotation for AI Labs | Claru" (under 60 chars)
+- Description covers RLHF, expert annotation, PhD-level specialists, frame-level video labeling, red teaming
+- Keywords: data annotation, RLHF, expert labeling, AI training data, human feedback, preference data, video annotation, red teaming, AI safety
+- JSON-LD schema with Service (Expert Data Annotation Services), BreadcrumbList (Home -> Enrich), FAQPage (5 questions)
+- Build passes
+
+### Learnings:
+- ENRICH pillar is about human intelligence, not just human time
+- Key services: RLHF preference data, frame-level video annotation, expert domain annotation, red teaming
+- Quality metrics: IAA >85%, Krippendorff's Alpha >0.80
+
+---
+
+## US-013: Create ENRICH page.tsx with full content
+- Status: COMPLETE
+- Created /src/app/pillars/enrich/page.tsx with all sections
+- Hero: "03" pillar number, "ENRICH" TextScramble, "Your Model Is Only as Smart as Its Teachers." subtitle
+- Problem section "The Annotation Quality Gap" with Gartner 30% GenAI abandonment stat, Meta Scale AI investment
+- Market Context with RLTHF 6-7% efficiency, HackerOne 750+ AI red teamers, video annotation challenges
+- Proof section with placeholder cards: Frontier LLM Lab (RLHF), Safety Research Team (red teaming)
+- Capabilities: Sparkles (RLHF & Preference), Video (Frame-Level Annotation), Users (Expert Domain), Shield (Red Teaming)
+- Process: Requirements Discovery -> Annotator Matching -> Annotation & QA -> Delivery & Iteration
+- Use Cases: RLHF for LLMs (IAA, Krippendorff's Alpha), Video Understanding (temporal annotation), Safety & Alignment (red teaming)
+- FAQ with 5 JSX answers about expert vs crowd, quality at scale, domain coverage, RLHF process, quality metrics
+- CTA: "Stop Settling for Generic Annotation"
+- 10+ inline citations with real URLs
+- Build passes
+
+### Learnings:
+- RLTHF (Targeted Human Feedback) achieves full annotation quality with 6-7% effort - strong efficiency stat
+- Meta invested $14.3B in Scale AI (49% stake) - shows annotation market importance
+- HackerOne maintains 750+ AI-focused researchers - red teaming becoming standard
+- Video annotation: 10-minute video at 30fps = 18,000 frames - quantifies challenge
+- Expert STEM annotation commands $40+/hour vs $20 for general tasks
+- Inter-annotator agreement thresholds: 85%+ for objective, 0.80+ Krippendorff's Alpha
+- Icons used: Sparkles, Video, Users, Shield, MessageSquare, ChevronRight, ArrowRight, ExternalLink
+
+---
+
+## US-015: Create VALIDATE page.tsx with full content
+- Status: COMPLETE
+- Created /src/app/pillars/validate/page.tsx with all sections
+- Hero: "04" pillar number, "VALIDATE" TextScramble, "Ship Broken Models, Break User Trust." subtitle
+- Problem section "The Hidden Quality Crisis" with citations on red team bypass rates, benchmark contamination, and bias
+- Market Context with EU AI Act, NIST AI RMF, and AI Safety Index citations
+- Proof section with placeholder cards: Foundation Model Company, Enterprise AI Team
+- Capabilities: ShieldCheck (Red Teaming), Database (Benchmark Curation), Scale (Bias Detection), CheckCircle (Post-Training Eval)
+- Process: Scope Definition -> Test Design -> Evaluation Execution -> Reporting & Remediation
+- Use Cases: LLM Safety Evaluation, Benchmark Integrity, Bias & Fairness Audits
+- FAQ with 5 JSX answers covering red teaming methods, benchmark contamination, bias types, golden sets, EU AI Act compliance
+- CTA: "Don't Ship Until You're Sure"
+- 9+ inline citations with real URLs
+- Build passes
+
+### Learnings:
+- Direct-response copy for VALIDATE emphasizes risk/fear (broken models, user trust, regulatory fines)
+- Red teaming research shows >90% attack success rates against defenses - strong stat for urgency
+- Benchmark contamination is well-documented (100% leakage ratios, 4.9x score inflation)
+- EU AI Act has specific deadlines (Aug 2025 GPAI, Aug 2026 high-risk) - useful for urgency
+- Bias research has concrete examples (salary recommendations $120K lower for women)
+- Icons used: ShieldCheck, Database, Scale, CheckCircle, AlertTriangle, Target
+
+---
+

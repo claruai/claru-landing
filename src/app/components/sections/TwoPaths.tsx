@@ -16,9 +16,9 @@ const paths = [
       "Raw data for frontier models — egocentric video, manipulation trajectories, synthetic environments, and licensed datasets. Purpose-built, not scraped.",
     items: [
       "Egocentric & manipulation video capture",
+      "Proprietary video game capture platform",
       "Synthetic data generation (Unreal, Omniverse)",
-      "Licensed dataset sourcing & curation",
-      "Deduplication, alignment & quality scoring",
+      "Proprietary labeling & QA platform",
     ],
     href: "/data",
     cta: "Explore Data Services",
@@ -33,8 +33,8 @@ const paths = [
     items: [
       "RLHF & preference ranking",
       "Frame-level video & spatial annotation",
-      "Red teaming & safety evaluation",
-      "Benchmark curation & bias detection",
+      "Embedded in your Slack — real-time feedback, not batch cycles",
+      "Proprietary VLM for machine-assisted captioning & labeling",
     ],
     href: "/labeling",
     cta: "Explore Labeling Services",
@@ -90,6 +90,17 @@ export default function TwoPaths() {
             <PathCard key={path.title} path={path} index={index} />
           ))}
         </div>
+
+        {/* Speed / flexibility callout */}
+        <motion.p
+          className="text-center mt-10 font-mono text-sm text-[var(--accent-secondary)]"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          First samples in 48 hours. Requirements change mid-project — we adapt in hours, not weeks.
+        </motion.p>
 
         {/* Modality line */}
         <motion.div

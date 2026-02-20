@@ -17,6 +17,7 @@ import Button from "@/app/components/ui/Button";
 import Citation from "@/app/components/ui/Citation";
 import FAQItem from "@/app/components/ui/FAQItem";
 import TextScramble from "@/app/components/effects/TextScramble";
+import CaseStudyCallout from "@/app/components/ui/CaseStudyCallout";
 
 export default function BenchmarkCurationPage() {
   const [mounted, setMounted] = useState(false);
@@ -780,8 +781,49 @@ export default function BenchmarkCurationPage() {
         </div>
       </section>
 
+      {/* See It In Practice */}
+      <section className="py-20">
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-5xl mx-auto"
+          >
+            <span className="font-mono text-sm text-[var(--accent-primary)] mb-4 block">
+              {"// SEE IT IN PRACTICE"}
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold mb-8">
+              Case Studies
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              <CaseStudyCallout
+                index={0}
+                caseStudy={{
+                  slug: "video-model-evaluation",
+                  headlineStat: "39K",
+                  headlineStatLabel: "Pairwise human evaluations completed",
+                  title: "Human Evaluation of Video Generation Model Configurations",
+                  teaser: "39,000 pairwise human evaluations across 51 model configurations — replacing uncertain aggregate metrics with statistically defensible ELO rankings.",
+                }}
+              />
+              <CaseStudyCallout
+                index={1}
+                caseStudy={{
+                  slug: "prompt-enhancement-benchmark",
+                  headlineStat: "180",
+                  headlineStatLabel: "Prompts benchmarked across modalities",
+                  title: "Benchmarking Prompt Enhancement Quality Across Leading LLMs",
+                  teaser: "180 prompts benchmarked across text and video generation — replacing guesswork with large-scale human evaluation to identify the best prompt enhancement solution for production.",
+                }}
+              />
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* CTA Section */}
-      <section id="contact" className="py-20">
+      <section id="contact" className="py-20 bg-[var(--bg-secondary)]/30">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 30 }}

@@ -1,0 +1,34 @@
+{
+  "slug": "rlhf-preference-annotator",
+  "title": "RLHF Preference Annotator",
+  "category": "rlhf",
+  "description": "You will sit at the intersection of AI training and human judgment. Each task presents a prompt-response pair (or set of pairs) that you evaluate against a detailed rubric covering accuracy, helpfulness, safety, and style. Your evaluations feed directly into the reward model that steers how the LLM is fine-tuned. This means your judgment literally changes the behavior of the model millions of people interact with.\n\nStrong analytical writing is the single most important skill. You need to be able to read a complex response, identify what is good and what is wrong with it, and explain your assessment in 2-3 sentences. Backgrounds in philosophy, journalism, law, science, or education tend to produce strong RLHF annotators because those fields train exactly this kind of evaluative thinking.\n\nAnnotators work in focused sessions of 3-6 hours at a time, scheduling their own shifts within project windows. Weekly volume targets are typically 20-30 hours but can scale up during surge periods. A weekly calibration meeting aligns the team on rubric updates and tricky edge cases.",
+  "skills": [
+    "Familiarity with LLM capabilities and failure modes",
+    "Experience with RLHF or preference labeling pipelines",
+    "Comfort evaluating content across diverse subject areas",
+    "Ability to follow detailed annotation guidelines consistently",
+    "Experience with AI evaluation rubrics",
+    "Excellent written English communication",
+    "Strong analytical and critical thinking skills"
+  ],
+  "compensationMin": 60,
+  "compensationMax": 85,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "US",
+  "datePosted": "2026-02-11",
+  "validThrough": "2026-05-10",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "Is there a calibration process?",
+      "answer": "Yes. Onboarding includes a calibration exam where your ratings are compared against gold-standard responses. You receive detailed feedback and must reach a threshold accuracy before starting live work."
+    },
+    {
+      "question": "What does a typical workday look like?",
+      "answer": "You receive batches of prompt-response pairs to evaluate. Each batch includes a rubric. Most annotators work 4-6 hour focused sessions and choose their own schedules within project deadlines."
+    }
+  ]
+}

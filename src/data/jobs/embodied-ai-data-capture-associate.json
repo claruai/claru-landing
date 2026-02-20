@@ -1,0 +1,33 @@
+{
+  "slug": "embodied-ai-data-capture-associate",
+  "title": "Embodied AI Data Capture Associate",
+  "category": "video-capture",
+  "description": "This role involves wearing a body-mounted camera and recording yourself performing scripted household or workspace activities. The footage is used to train robotic manipulation models and indoor navigation systems. You will receive a schedule of activities to record each week, along with setup instructions for camera placement and lighting. After recording, you upload the files through our portal and fill out a brief metadata form describing what happened in each clip.\n\nPhysical comfort and patience are the key qualifications. Recording sessions require you to wear camera equipment while performing activities naturally -- stiffness or self-consciousness shows up in the data and reduces its value. You should also have access to at least two different indoor environments (e.g., kitchen and living room) to provide scene variety.\n\nMost contributors record 3-5 sessions per week, each lasting 60-120 minutes. Payment is per accepted recording hour -- footage that does not meet quality standards may need to be re-captured. Expect to earn for 15-25 billable hours per week once you hit your stride.",
+  "skills": [
+    "Availability for at least 10-15 hours per week",
+    "Strong attention to detail and consistency",
+    "Comfort wearing and operating body-mounted cameras",
+    "Access to a kitchen or workshop environment",
+    "Good spatial awareness and natural movement on camera",
+    "Basic technical literacy (Bluetooth pairing, device charging)"
+  ],
+  "compensationMin": 25,
+  "compensationMax": 35,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "US",
+  "datePosted": "2026-02-13",
+  "validThrough": "2026-05-12",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "Is my face visible in the recordings?",
+      "answer": "Egocentric cameras face outward, so your face is generally not visible. Hands, arms, and torso may appear depending on the activity. All footage is used solely for model training and is not published."
+    },
+    {
+      "question": "What happens if my footage does not pass quality checks?",
+      "answer": "You will get specific feedback about what went wrong -- usually lighting, framing, or protocol deviations -- and can re-record the session. Re-captures are not penalized as long as they are completed within the project window."
+    }
+  ]
+}

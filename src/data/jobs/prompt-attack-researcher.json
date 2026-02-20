@@ -1,0 +1,37 @@
+{
+  "slug": "prompt-attack-researcher",
+  "title": "Prompt Attack Researcher",
+  "category": "red-teaming",
+  "description": "We need people who can think like attackers. You will methodically test AI models against a taxonomy of failure modes: harmful content generation, jailbreak susceptibility, PII leakage, bias amplification, and more. Each test is logged in a structured format that feeds into the safety team's tracking system. Successful exploits are prioritized for mitigation; unsuccessful attempts still provide valuable negative evidence.\n\nA background in cybersecurity, penetration testing, or adversarial ML is ideal, but we have also had strong hires from journalism, law, and creative writing -- anyone who is good at finding holes in systems and articulating what they found. You need to be comfortable working with sensitive content categories (violence, hate speech, self-harm) in a clinical, analytical context. Emotional resilience is not optional.\n\nRed team sessions are scheduled in 3-4 hour blocks. Most testers work 3-5 sessions per week. The work is mentally intense, so we encourage breaks between sessions. A weekly debrief with the safety team reviews top findings and updates attack priorities.",
+  "skills": [
+    "Strong written communication for vulnerability reporting",
+    "Creative and lateral thinking about system vulnerabilities",
+    "Systematic approach to testing and documentation",
+    "Understanding of AI safety concepts and failure modes",
+    "Familiarity with prompt engineering techniques",
+    "Ability to reproduce and clearly document exploits",
+    "Comfort working with sensitive content categories"
+  ],
+  "compensationMin": 35,
+  "compensationMax": 50,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "datePosted": "2026-02-07",
+  "validThrough": "2026-05-06",
+  "featured": true,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "Will I be exposed to disturbing content?",
+      "answer": "Yes. Red teaming by definition involves attempting to elicit harmful outputs. We provide content warnings, mental health resources, and encourage regular breaks. You should be confident in your ability to work with this material professionally."
+    },
+    {
+      "question": "What models will I be testing?",
+      "answer": "We work with frontier language models from several major AI labs. Specific model details are shared under NDA during onboarding."
+    },
+    {
+      "question": "How are findings prioritized?",
+      "answer": "We use a severity scale similar to CVSS. Critical findings (reliable jailbreaks, PII leakage) are escalated immediately. Lower-severity issues (mild bias, style inconsistencies) are batched for review."
+    }
+  ]
+}

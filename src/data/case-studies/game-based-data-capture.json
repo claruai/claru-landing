@@ -1,0 +1,68 @@
+{
+  "slug": "game-based-data-capture",
+  "title": "Game-Based Data Capture for Real-World Simulation",
+  "category": "gaming",
+  "teaser": "10,000+ hours of synchronized gameplay footage and raw timestamped control data — captured with a custom solution built from scratch because no off-the-shelf tool existed.",
+  "headlineStat": "10,000+",
+  "headlineStatLabel": "Hours of synchronized gameplay data",
+  "summary": "Built a custom video game capture solution that records high-fidelity gameplay footage alongside timestamped raw keystroke and control data. No off-the-shelf tool existed for this requirement. Delivered 10,000+ hours of synchronized gameplay and control data across first-person and third-person 3D games, enabling simulation of human behavior in complex 3D environments for agent training and world-model research.",
+  "challenge": "Training agents to behave like humans in 3D environments requires paired observation-action data — synchronized video of what the player sees with a precise record of what they do — and no commercial capture tool provides this. Existing screen-recording software captures pixels but discards control inputs entirely. Game telemetry APIs expose some state variables but not raw keystrokes at frame-level resolution. The lab needed a purpose-built solution that could record both streams with sub-frame temporal alignment, scale across different game engines and input devices, and sustain long capture sessions (4+ hours) without data loss, clock drift, or performance degradation on consumer hardware.",
+  "approach": "We designed and built a custom capture application from scratch. The system performs simultaneous screen recording at native resolution and raw input logging, capturing every keystroke, mouse movement, and controller input as structured data with microsecond-precision timestamps. Frame-level alignment between the video and control streams is maintained via a shared monotonic clock, with periodic sync markers to detect and correct any drift.\n\nThe application was engineered for robustness during sustained sessions. Memory management, disk I/O buffering, and CPU scheduling were tuned to prevent frame drops or input lag during 4+ hour recording windows. We validated capture fidelity by replaying logged inputs against recorded footage and measuring temporal alignment error — consistently under 16ms (one frame at 60fps).\n\nThe solution scaled across multiple game titles spanning first-person and third-person 3D environments. Player profiles were diverse by skill level and playstyle. Output format was standardized: per-frame JPEG streams paired with CSV control logs, each row containing timestamp, input device, key/axis, and value. A master manifest mapped each session to game title, player demographics, and session metadata.",
+  "results": [
+    { "value": "10,000+", "label": "Hours of synchronized gameplay data" },
+    { "value": "<16ms", "label": "Video-to-input temporal alignment error" },
+    { "value": "Custom", "label": "Capture solution built from scratch" },
+    { "value": "0", "label": "Data loss incidents across all sessions" }
+  ],
+  "impact": "The synchronized dataset enabled the lab to train agents that predict human actions from visual observations with significantly higher fidelity than models trained on video-only data. The frame-level action labels eliminated the need for inverse dynamics models to infer intent from pixel changes — a noisy and lossy intermediate step that had been a primary error source in prior work. The dataset also served as a benchmark for evaluating action-prediction architectures, with the control stream providing ground-truth supervision.",
+  "whyItMatters": "High-quality simulation of human behavior requires understanding not just what people see but what they do and when they do it. Without synchronized control data, systems must infer intent from visuals alone — an inherently underdetermined problem. By closing the gap between observation and action at frame-level resolution, this dataset unlocks training paradigms for embodied agents that were previously bottlenecked by data, not compute or architecture.",
+  "faqs": [
+    {
+      "question": "Why couldn't existing screen-recording tools be used?",
+      "answer": "No commercial or open-source screen recorder captures raw control inputs with frame-level temporal alignment. Tools like OBS or NVIDIA ShadowPlay record pixels but discard all input data. Game telemetry APIs expose aggregate state but not raw keystrokes at the required temporal resolution. The lab needed both streams synchronized to sub-frame precision, which required a purpose-built solution."
+    },
+    {
+      "question": "How is temporal alignment between video and control data maintained?",
+      "answer": "Both streams share a monotonic system clock with microsecond precision. Periodic sync markers are injected into both the video and control logs to detect and correct any drift during long sessions. Post-capture validation replays logged inputs against recorded footage and measures alignment error, which consistently remained under 16ms — one frame at 60fps."
+    },
+    {
+      "question": "What games and genres were included?",
+      "answer": "The dataset spans first-person and third-person 3D games across multiple genres and engines. Specific titles are under NDA, but the capture system is engine-agnostic — it operates at the OS input layer rather than hooking into game internals, so it works with any game that accepts standard keyboard, mouse, or controller input."
+    },
+    {
+      "question": "How were long recording sessions handled without data loss?",
+      "answer": "The application was engineered for sustained 4+ hour sessions. Disk I/O uses double-buffered writes to prevent frame drops during flush operations. Memory allocation is pre-reserved to avoid garbage collection pauses. CPU scheduling prioritizes the input capture thread. Across all sessions in the engagement, zero data loss incidents were recorded."
+    },
+    {
+      "question": "Can this capture system be adapted for other domains?",
+      "answer": "Yes. The core architecture — synchronized multi-stream capture with shared clock — generalizes to any domain requiring paired observation-action data. We have discussed adaptations for desktop productivity workflows, CAD software usage, and robotic teleoperation interfaces. The primary engineering work for a new domain is integrating the relevant input devices and tuning performance for the target application's resource profile."
+    }
+  ],
+  "relatedSlugs": [
+    "egocentric-video-collection",
+    "data-engine-world-models"
+  ],
+  "pillarLink": {
+    "href": "/pillars/acquire/synthetic-data",
+    "label": "Synthetic Data Generation"
+  },
+  "targetKeyword": "game-based data collection AI training",
+  "metaTitle": "Game-Based Data Capture for AI Training | Claru",
+  "metaDescription": "Custom capture system delivering 10,000+ hours of synchronized gameplay footage and control data for training embodied AI agents. Methodology and results.",
+  "processSteps": [
+    { "step": "01", "title": "Design", "description": "Build custom capture application" },
+    { "step": "02", "title": "Record", "description": "Simultaneous video + raw input logging" },
+    { "step": "03", "title": "Sync", "description": "Frame-level timestamp alignment" },
+    { "step": "04", "title": "Scale", "description": "10,000+ hours across game types" }
+  ],
+  "images": [
+    "/images/case-studies/game-based-data-capture/hero.png",
+    "/images/case-studies/game-based-data-capture/challenge.png",
+    "/images/case-studies/game-based-data-capture/process.png",
+    "/images/case-studies/game-based-data-capture/results.png",
+    "/images/case-studies/game-based-data-capture/scope.png",
+    "/images/case-studies/game-based-data-capture/why-it-matters.png"
+  ],
+  "datePublished": "2025-11-20",
+  "sampleData": { "type": "game-capture" }
+}

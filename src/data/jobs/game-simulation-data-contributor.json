@@ -1,0 +1,35 @@
+{
+  "slug": "game-simulation-data-contributor",
+  "title": "Game Simulation Data Contributor",
+  "category": "gaming",
+  "description": "Your job is to generate high-quality human demonstration data by playing games and simulations under controlled conditions. You will follow session protocols that specify the game, the scenario, the objectives, and the annotation requirements. After each session, you fill out a structured form documenting your strategies, mistakes, and key turning points. This data is used to train and evaluate game-playing AI agents.\n\nStrong spatial reasoning and the ability to articulate your decision-making process are the core skills here. You will often need to explain why you chose a particular action, which means you need to be reflective about your gameplay rather than purely intuitive. Experience with strategy games, puzzle games, or any genre that requires deliberate thinking is particularly valuable.\n\nWork is project-based with fixed session windows. You sign up for available session slots through our scheduling portal. Payment is per completed session, with bonuses for annotation quality. Typical commitment is 10-20 hours per week.",
+  "skills": [
+    "Patience for repetitive scenario replays",
+    "Attention to detail in logging and annotation",
+    "Comfortable following scripted playthrough protocols",
+    "Experience with PC gaming and common game engines",
+    "Good written communication for annotation logs"
+  ],
+  "compensationMin": 25,
+  "compensationMax": 35,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "datePosted": "2026-02-07",
+  "validThrough": "2026-05-06",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "Is this like casual game testing?",
+      "answer": "Not quite. Sessions are structured with specific objectives, strategies to try, and annotations to complete. It is more systematic than typical QA playtesting."
+    },
+    {
+      "question": "How is compensation structured?",
+      "answer": "Payment is per completed and accepted session, with quality bonuses. Rates vary by project complexity. Sessions that do not meet annotation standards may need to be repeated."
+    },
+    {
+      "question": "What kinds of games will I play?",
+      "answer": "Projects span multiple genres including first-person exploration, strategy games, puzzle environments, and physics simulations. The specific games depend on what our AI lab partners are training."
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "project": "Claru Landing Page Restructure",
+  "branchName": "ralph/visual-ai-landing-page",
+  "description": "Restructure the Claru landing page to position as the premium full-stack data partner for visual AI labs with 4 service pillars: Acquire, Prepare, Enrich, Validate",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Restructure Hero Section",
+      "description": "As a visiting ML researcher, I want to immediately understand that Claru specializes in visual AI data so I know I'm in the right place.",
+      "acceptanceCriteria": [
+        "Update Hero.tsx headline to 'From Raw Footage to Trained Model'",
+        "Add subheadline: 'The complete data engine for frontier visual AI.'",
+        "Update primary CTA button text to 'Book a Consultation'",
+        "Add secondary CTA 'See Our Work' or 'Learn More'",
+        "Add trust line: 'Trusted by Reka AI, Moonvalley, and leading visual AI labs'",
+        "Keep existing ASCII aesthetic and animations",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "COMPLETED: Hero updated with new headline, subheadline, CTAs, and trust line. TextScramble effect preserved."
+    },
+    {
+      "id": "US-002",
+      "title": "Create Problem/Agitation Section",
+      "description": "As a researcher, I want the pain points to resonate with my actual challenges so I feel understood.",
+      "acceptanceCriteria": [
+        "Create new ProblemAgitation.tsx component in src/app/components/sections/",
+        "Include 3 visual AI pain points with quantified challenges",
+        "Pain point 1: Video models need 100x more data than LLMs",
+        "Pain point 2: Crowdsourced annotators can't handle frame-level temporal consistency",
+        "Pain point 3: Robotics datasets measured in hours not terabytes",
+        "Add bridge text: 'The visual AI data problem is different. We built Claru specifically to solve it.'",
+        "Use FadeIn animation for scroll reveal",
+        "Add section to page.tsx after Hero",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "COMPLETED: ProblemAgitation.tsx created with 3 pain point cards and bridge text. Animations working."
+    },
+    {
+      "id": "US-003",
+      "title": "Create Four-Pillar Service Section",
+      "description": "As a visiting researcher, I want to see the complete data lifecycle so I understand Claru can handle my end-to-end needs.",
+      "acceptanceCriteria": [
+        "Create new FourPillars.tsx component OR restructure existing Wedge.tsx",
+        "Four distinct service cards: ACQUIRE, PREPARE, ENRICH, VALIDATE",
+        "ACQUIRE card: Human data collection, Web-scale harvesting, Synthetic generation (Unreal Engine)",
+        "PREPARE card: Billion-scale deduplication, Multimodal alignment, Quality scoring",
+        "ENRICH card: RLHF & preference ranking, Frame-level video annotation, Expert annotation",
+        "VALIDATE card: Red teaming & safety testing, Benchmark curation, Post-training evaluation",
+        "Each card has icon (use Lucide icons), title, and 3 bullet capabilities",
+        "Visual flow arrows connecting pillars horizontally on desktop",
+        "Vertical stack on mobile (responsive)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "COMPLETED: FourPillars.tsx created with all 4 service cards, flow arrows, and responsive layout."
+    },
+    {
+      "id": "US-004",
+      "title": "Add Visual AI Specialization Section",
+      "description": "As a researcher at a video/vision lab, I want to see that Claru understands my specific domain so I trust their expertise.",
+      "acceptanceCriteria": [
+        "Update Capabilities.tsx to focus on three areas: Video AI, Vision AI, Robotics/Embodied AI",
+        "Video AI: Frame-level annotation, temporal consistency, action recognition data",
+        "Video AI bullets: Motion & action sequences, Scene transitions & continuity, Audio-visual alignment",
+        "Vision AI: High-precision image annotation, segmentation masks, visual reasoning data",
+        "Vision AI bullets: Object detection & segmentation, Visual QA pairs, Spatial relationship labeling",
+        "Robotics AI: Real-world interaction data, sim-to-real bridging, manipulation annotations",
+        "Robotics bullets: Egocentric manipulation data, Sim-to-real validation sets, Physical reasoning & affordances",
+        "Three-column grid on desktop, single column on mobile",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "COMPLETED: Capabilities.tsx updated with Video AI, Vision AI, and Robotics sections with technical copy."
+    },
+    {
+      "id": "US-005",
+      "title": "Restructure Social Proof Section",
+      "description": "As a researcher, I want to see that credible labs trust Claru so I feel confident reaching out.",
+      "acceptanceCriteria": [
+        "Update Testimonials.tsx with new header: 'Trusted by frontier visual AI labs'",
+        "Feature Reka AI and Moonvalley prominently (placeholder logos if images not available)",
+        "Add placeholder for metrics: 'X million annotations delivered', '>98% annotation accuracy'",
+        "Keep existing testimonial carousel if quotes available, or show logo bar",
+        "Maintain existing animation patterns",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "COMPLETED: Testimonials.tsx updated with client badges, metrics (10M+, >98%, 50+), and real quotes."
+    },
+    {
+      "id": "US-006",
+      "title": "Simplify CTA and Contact Form",
+      "description": "As an interested researcher, I want a clear path to start a conversation so I can evaluate working with Claru.",
+      "acceptanceCriteria": [
+        "Update FinalCTA.tsx to simplify the progressive terminal-style form",
+        "Replace 6-step form with simple 4-field form: Name, Email, Company, Project Description",
+        "Primary CTA button: 'Book a Consultation'",
+        "Add optional secondary link: 'Or email us directly at contact@claru.ai'",
+        "Keep terminal aesthetic but remove multi-step progression",
+        "Form validation still works with Zod schema",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "COMPLETED: FinalCTA.tsx updated with visual AI positioning. ContactForm uses 4-field layout with terminal aesthetic."
+    },
+    {
+      "id": "US-007",
+      "title": "Update Navigation Structure",
+      "description": "As a visitor, I want clear navigation that matches the new service structure.",
+      "acceptanceCriteria": [
+        "Update Header.tsx nav items to: Services, Use Cases, About, Contact",
+        "Services has dropdown showing: Acquire, Prepare, Enrich, Validate (links to section anchors)",
+        "Dropdown styled with dark background matching site theme",
+        "Mobile nav hamburger menu works correctly with new structure",
+        "All links scroll smoothly to corresponding sections",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "COMPLETED: Header.tsx updated with Services/Capabilities/Clients/Contact nav and Book a Consultation CTA."
+    },
+    {
+      "id": "US-008",
+      "title": "Refine Footer Structure",
+      "description": "As a visitor, I want the footer to reflect the updated site architecture.",
+      "acceptanceCriteria": [
+        "Update Footer.tsx columns to match new nav structure",
+        "Column 1: Services - Acquire, Prepare, Enrich, Validate (anchor links)",
+        "Column 2: Company - About, Contact, Careers (placeholder)",
+        "Column 3: Legal - Privacy Policy, Terms of Service (existing links)",
+        "Keep existing footer aesthetic and animations",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": "COMPLETED: Footer.tsx updated with new tagline and navigation structure."
+    }
+  ]
+}

@@ -1,0 +1,163 @@
+{
+  "project": "Claru Landing Page Revisions",
+  "branchName": "ralph/landing-page-revisions",
+  "description": "Strengthen landing page with proof-of-work section, enhanced embedded model messaging, geographic diversity map, horizontal scroll testimonials, and supply-side community messaging.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create ProofOfWork section component",
+      "description": "As a visitor, I want to see what types of projects Claru has delivered so that I trust they can handle my data needs.",
+      "acceptanceCriteria": [
+        "Create src/app/components/sections/ProofOfWork.tsx",
+        "Section label in monospace: // WHAT WE'VE SHIPPED",
+        "Headline: Built for labs training at the frontier.",
+        "Grid of 5 project type cards, each with: Lucide icon, project type name, concrete metric, 1-line description",
+        "Card 1: Egocentric Video Capture — 12,000+ hours collected across 14 countries",
+        "Card 2: Manipulation Trajectory Data — 900 hours of action breakdowns delivered in 3 weeks",
+        "Card 3: Game Environment Capture — Proprietary platform, 50+ game titles, on-demand volume",
+        "Card 4: Multi-Modal Annotation — Frame-level video, spatial, RLHF with real-time QA loops",
+        "Card 5: Synthetic Data Pipelines — Unreal and Omniverse environments, sim-to-real validated",
+        "Bottom link text: Explore our full data catalog pointing to #contact",
+        "Uses whileInView fade-in with staggered card reveals (index * 0.1s delay)",
+        "Uses TextScramble on card title hover",
+        "Cards use --bg-card background, --border-subtle border, 1rem radius, hover lift and border glow",
+        "Responsive: 1-col mobile, 2-col tablet (md:), 3-col desktop (lg:) with last 2 spanning below",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Create animated geographic diversity map component",
+      "description": "As a visitor, I want to see a world map showing Claru's global contributor network so that I understand the geographic diversity of their data.",
+      "acceptanceCriteria": [
+        "Create src/app/components/ui/GlobeMap.tsx",
+        "Renders an animated flat world map using inline SVG continent outlines at very low opacity (5-8%)",
+        "Glowing dots in --accent-primary color at approximate locations for: Philippines, India, Pakistan, US (2 dots east/west), Canada, Brazil, Mexico, UK, Germany, Japan, South Korea, Australia, Kenya, South Africa",
+        "Dots pulse/appear with staggered Framer Motion whileInView animation",
+        "Small monospace region labels visible: NORTH AMERICA, SOUTH AMERICA, EUROPE, AFRICA, SOUTH ASIA, EAST ASIA, OCEANIA",
+        "Labels styled as font-mono text-xs text-[var(--text-muted)] uppercase tracking-wider",
+        "Stats line below map: Contributors across 14+ countries — styled in accent-secondary",
+        "Dark background matching --bg-primary, no heavy map libraries (no Mapbox, Leaflet)",
+        "Responsive: scales down on mobile, reduce label count on small screens",
+        "Lightweight: pure SVG paths for continent outlines, dots are SVG circles with CSS animation",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Create GlobalReach section wrapper and integrate map into page",
+      "description": "As a developer, I need to wrap the GlobeMap in a section and place it between TwoPaths and ProofOfWork on the main page.",
+      "acceptanceCriteria": [
+        "Create src/app/components/sections/GlobalReach.tsx as thin section wrapper",
+        "Section label: // GLOBAL REACH",
+        "Headline: Data from everywhere your model will deploy.",
+        "Subtext: Your model needs to generalize. Your data should too.",
+        "Contains the GlobeMap component",
+        "Section uses FadeIn or whileInView animation on scroll",
+        "In src/app/page.tsx add dynamic import for GlobalReach with ssr: false and SectionSkeleton loading",
+        "In src/app/page.tsx add dynamic import for ProofOfWork with ssr: false and SectionSkeleton loading",
+        "Page render order becomes: Hero, ProblemAgitation, SectionBridge, Origin, TwoPaths, GlobalReach, ProofOfWork, Testimonials, FinalCTA, AnimatedLogo",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill — scroll through full page, confirm section ordering"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Enhance TwoPaths with embedded model and proprietary tooling",
+      "description": "As a visitor, I want to understand that Claru has proprietary tools and an embedded working model so that I see them as more than a generic vendor.",
+      "acceptanceCriteria": [
+        "In src/app/components/sections/TwoPaths.tsx update Training Data card features to include: Proprietary video game capture platform, Proprietary labeling and QA platform (add to or replace existing items, keep 4-5 total)",
+        "Update Expert Labeling card features to include: Embedded in your Slack — real-time feedback not batch cycles, Proprietary VLM for machine-assisted captioning and labeling (add to or replace existing items, keep 4-5 total)",
+        "Add a speed/flexibility callout below the two cards: centered text reading First samples in 48 hours. Requirements change mid-project — we adapt in hours, not weeks.",
+        "Callout styled as font-mono text-sm text-[var(--accent-secondary)] with whileInView fade animation",
+        "Existing card layout, hover effects, and animations remain unchanged",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill — confirm cards look balanced, no text overflow"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Convert Testimonials to horizontal scroll",
+      "description": "As a visitor, I want to see testimonials in a compact horizontal scroll so that they are present but do not dominate the page.",
+      "acceptanceCriteria": [
+        "In src/app/components/sections/Testimonials.tsx keep the 3 metric cards at the top (8wk, 100% embedded, full pipeline) unchanged",
+        "Convert the 4 testimonial cards from 2x2 grid to a horizontal scrolling row",
+        "Scroll container uses overflow-x: auto with scroll-snap-type: x mandatory and scroll-snap-align: start on each card",
+        "Each card has fixed width ~320px desktop, ~280px mobile with flex-shrink-0",
+        "Show partial next card at right edge to indicate scrollability (peek effect via padding)",
+        "Add subtle fade gradient at right edge of scroll container to hint at more content",
+        "Remove parallax blur circles background effect (simplify background)",
+        "Reduce section vertical padding from default section class to py-16 md:py-20 (roughly 5rem)",
+        "All 4 testimonials remain accessible via horizontal scroll",
+        "Works on mobile (touch scroll) and desktop (mouse/trackpad scroll)",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill — test scroll on desktop and mobile viewport sizes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Add community messaging to work-with-us page",
+      "description": "As a potential contributor visiting /work-with-us, I want to see that Claru values its community so that I feel confident joining.",
+      "acceptanceCriteria": [
+        "In src/app/work-with-us/page.tsx add a callout section after the hero area and before the bento grid",
+        "Headline: Join a team, not a task queue.",
+        "Body text: We answer every message. We know our contributors by name. When you join Claru, you are part of a team building the data that trains the world's most advanced AI.",
+        "3 small inline stats: 500+ active contributors, Avg response time under 2 hours, Projects across 14+ countries",
+        "Styled as a dark card with --bg-card background, --border-subtle border, accent border on hover",
+        "Section label in monospace: // OUR COMMUNITY",
+        "Uses whileInView fade animation matching existing page patterns",
+        "Does not break existing bento grid layout below it",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Playwright E2E Test — Landing page sections and scroll",
+      "description": "As QA, I need an end-to-end test verifying all landing page sections render correctly after the revisions.",
+      "acceptanceCriteria": [
+        "Create tests/e2e/landing-page-revisions.spec.ts",
+        "Test: navigate to localhost:3000 and wait for page load",
+        "Test: scroll through entire page",
+        "Test: assert ProofOfWork section is visible and contains 5 project cards",
+        "Test: assert GlobalReach section is visible and contains SVG map element",
+        "Test: assert Testimonials section has horizontal scroll container",
+        "Test: assert TwoPaths section contains text Embedded in your Slack",
+        "Test: assert TwoPaths section contains text First samples in 48 hours",
+        "Test: assert Book a Call CTA is present in at least 2 locations",
+        "Test: navigate to localhost:3000/work-with-us",
+        "Test: assert community callout with Join a team, not a task queue text is visible",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "slug": "senior-quality-reviewer",
+  "title": "Senior Quality Reviewer",
+  "category": "quality-review",
+  "description": "Quality review sits between the annotation team and the client. You will sample completed batches, apply the scoring rubric, and produce accuracy reports that the project lead uses to give feedback to annotators. When you spot systematic errors -- a whole batch misapplying a label, for example -- you escalate to the team lead so the guidelines can be updated. The goal is to keep delivered data above a 95% accuracy threshold across all active projects.\n\nYou should have a track record of careful, systematic work. Backgrounds in copy editing, test engineering, clinical data review, or research assistance translate well. We will train you on our specific tools and rubrics, but we cannot teach the underlying mindset: you either notice when something is slightly off, or you do not.\n\nReviewers work on the same weekly cadence as annotators but with a one-day offset -- you start reviewing Monday batches on Tuesday. Expect 20-30 hours per week. Weekly calibration sessions keep the review team aligned, and you will have a dedicated Slack channel for real-time questions.",
+  "skills": [
+    "Ability to internalize complex rubrics quickly",
+    "Systematic approach to error documentation",
+    "Experience in QA, editing, or annotation review",
+    "Comfortable providing direct feedback to peers",
+    "Strong attention to detail and pattern recognition",
+    "Background in copy editing, research, or data analysis"
+  ],
+  "compensationMin": 55,
+  "compensationMax": 90,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "datePosted": "2026-02-11",
+  "validThrough": "2026-05-10",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "How many items will I review per shift?",
+      "answer": "Volume varies by project complexity. Simple binary reviews might yield 300-400 items per shift; more complex multi-label reviews are closer to 100-150."
+    },
+    {
+      "question": "Will I review work from the same annotators repeatedly?",
+      "answer": "Reviews are typically assigned randomly to avoid bias. Occasionally, targeted reviews are assigned when a specific annotator needs additional QA oversight."
+    },
+    {
+      "question": "How is my own accuracy evaluated?",
+      "answer": "A random sample of your reviews is audited by a senior reviewer each week. Your review accuracy score is shared with you and factors into bonus calculations."
+    }
+  ]
+}

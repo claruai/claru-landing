@@ -20,6 +20,7 @@ import Logo from "@/app/components/ui/Logo";
 import Button from "@/app/components/ui/Button";
 import Citation from "@/app/components/ui/Citation";
 import FAQItem from "@/app/components/ui/FAQItem";
+import CaseStudyCallout from "@/app/components/ui/CaseStudyCallout";
 
 export default function SyntheticDataPage() {
   const [mounted, setMounted] = useState(false);
@@ -757,8 +758,39 @@ export default function SyntheticDataPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* See It In Practice */}
       <section className="py-20">
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-5xl mx-auto"
+          >
+            <span className="font-mono text-sm text-[var(--accent-primary)] mb-4 block">
+              {"// SEE IT IN PRACTICE"}
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold mb-8">
+              Case Studies
+            </h2>
+            <div className="grid md:grid-cols-1 gap-6 max-w-xl">
+              <CaseStudyCallout
+                index={0}
+                caseStudy={{
+                  slug: "game-based-data-capture",
+                  headlineStat: "10,000+",
+                  headlineStatLabel: "Hours of synchronized gameplay data",
+                  title: "Game-Based Data Capture for Real-World Simulation",
+                  teaser: "10,000+ hours of synchronized gameplay footage and raw timestamped control data — captured with a custom solution built from scratch because no off-the-shelf tool existed.",
+                }}
+              />
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-[var(--bg-secondary)]/30">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 30 }}

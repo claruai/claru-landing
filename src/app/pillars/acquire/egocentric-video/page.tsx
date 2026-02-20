@@ -20,6 +20,8 @@ import Logo from "@/app/components/ui/Logo";
 import Button from "@/app/components/ui/Button";
 import Citation from "@/app/components/ui/Citation";
 import FAQItem from "@/app/components/ui/FAQItem";
+import CaseStudyCallout from "@/app/components/ui/CaseStudyCallout";
+import type { CaseStudyCalloutData } from "@/app/components/ui/CaseStudyCallout";
 
 export default function EgocentricVideoPage() {
   const [mounted, setMounted] = useState(false);
@@ -731,6 +733,47 @@ export default function EgocentricVideoPage() {
               {faqs.map((faq, index) => (
                 <FAQItem key={index} {...faq} index={index} />
               ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* See It In Practice */}
+      <section className="py-20 bg-[var(--bg-secondary)]/30">
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-5xl mx-auto"
+          >
+            <span className="font-mono text-sm text-[var(--accent-primary)] mb-4 block">
+              {"// SEE IT IN PRACTICE"}
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold mb-8">
+              Case Studies
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              <CaseStudyCallout
+                index={0}
+                caseStudy={{
+                  slug: "egocentric-video-collection",
+                  headlineStat: "1,000+",
+                  headlineStatLabel: "Hours of egocentric video collected",
+                  title: "Egocentric Video Data Collection for Robotics and World Modeling",
+                  teaser: "1,000+ hours of geographically diverse, research-grade egocentric video delivered under aggressive timelines — platform launched in days, full delivery in weeks.",
+                }}
+              />
+              <CaseStudyCallout
+                index={1}
+                caseStudy={{
+                  slug: "workplace-egocentric-data",
+                  headlineStat: "Global pilot",
+                  headlineStatLabel: "Workplace egocentric capture validated",
+                  title: "Workplace Egocentric Video Data for General-Purpose Robotics",
+                  teaser: "Piloted first-person video capture inside active workplaces globally — validating that real businesses can serve as a scalable, cost-efficient source of robotics training data.",
+                }}
+              />
             </div>
           </motion.div>
         </div>

@@ -37,7 +37,17 @@
       "Bash(vercel --yes)",
       "Bash(git push)",
       "Bash(vercel:*)",
-      "mcp__playwright__browser_console_messages"
+      "mcp__playwright__browser_console_messages",
+      "Bash(git merge:*)",
+      "Bash(git fetch:*)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "playwright",
+    "glif",
+    "supabase",
+    "google-workspace",
+    "domain-finder"
+  ],
+  "enableAllProjectMcpServers": true
 }

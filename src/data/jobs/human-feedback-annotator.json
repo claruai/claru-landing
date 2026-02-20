@@ -1,0 +1,31 @@
+{
+  "slug": "human-feedback-annotator",
+  "title": "Human Feedback Annotator",
+  "category": "rlhf",
+  "description": "We need evaluators who can read AI-generated text critically and make consistent quality judgments under detailed rubrics. On a given day you might compare two explanations of quantum mechanics, two pieces of marketing copy, and two responses to a sensitive personal question. The common thread is careful reading, rubric application, and clear written justifications. Speed matters, but not at the expense of thoughtfulness.\n\nWe look for people with sharp critical reading skills and the intellectual range to evaluate responses on topics they may not be experts in. You do not need to know everything -- but you do need to know how to spot when an AI is confidently wrong, subtly misleading, or superficially helpful without actually addressing the question. Prior experience with RLHF annotation pipelines (e.g., at Scale, Surge, or Invisible) is a strong plus.\n\nOnboarding takes about one week and includes rubric training, practice tasks with feedback, and a calibration exam. After onboarding, you work asynchronously on your own schedule. A Slack workspace provides real-time access to project leads and fellow annotators for guideline questions.",
+  "skills": [
+    "Background in linguistics, philosophy, law, or STEM",
+    "Comfort evaluating content across diverse subject areas",
+    "Experience with RLHF or preference labeling pipelines",
+    "Ability to follow detailed annotation guidelines consistently",
+    "Good judgment on safety and sensitivity issues"
+  ],
+  "compensationMin": 35,
+  "compensationMax": 40,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "datePosted": "2026-02-14",
+  "validThrough": "2026-05-13",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "What does a typical workday look like?",
+      "answer": "You receive batches of prompt-response pairs to evaluate. Each batch includes a rubric. Most annotators work 4-6 hour focused sessions and choose their own schedules within project deadlines."
+    },
+    {
+      "question": "How subjective are the judgments?",
+      "answer": "The rubric constrains most subjectivity. You will find that roughly 70% of comparisons have a clear best answer. The remaining 30% involve genuine tradeoffs, and those are where your written justifications matter most."
+    }
+  ]
+}

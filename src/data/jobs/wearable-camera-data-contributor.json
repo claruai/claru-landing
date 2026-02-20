@@ -1,0 +1,36 @@
+{
+  "slug": "wearable-camera-data-contributor",
+  "title": "Wearable Camera Data Contributor",
+  "category": "video-capture",
+  "description": "Record high-quality egocentric video data that feeds directly into computer vision and robotics research. You will use provided wearable cameras to capture footage of daily activities in your own environment. Each recording follows a specific protocol covering what to do, how to position the camera, and what conditions need to be met for the footage to pass quality checks. Sessions are typically scheduled in 90-minute blocks.\n\nComfort with wearable technology is essential. You will wear a small camera mounted on a head strap or chest harness for extended periods. If you have experience with action cameras like GoPro, that helps, but it is not required. What matters most is your ability to follow step-by-step instructions precisely and maintain consistent recording conditions across sessions.\n\nMost contributors record 3-5 sessions per week, each lasting 60-120 minutes. Payment is per accepted recording hour -- footage that does not meet quality standards may need to be re-captured. Expect to earn for 15-25 billable hours per week once you hit your stride.",
+  "skills": [
+    "Strong attention to detail and consistency",
+    "Ability to follow detailed recording protocols",
+    "Good spatial awareness and natural movement on camera",
+    "Basic video file management skills (uploading, naming)",
+    "Comfort wearing and operating body-mounted cameras"
+  ],
+  "compensationMin": 35,
+  "compensationMax": 40,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "US",
+  "datePosted": "2026-02-06",
+  "validThrough": "2026-05-05",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "Is my face visible in the recordings?",
+      "answer": "Egocentric cameras face outward, so your face is generally not visible. Hands, arms, and torso may appear depending on the activity. All footage is used solely for model training and is not published."
+    },
+    {
+      "question": "Do I need my own camera equipment?",
+      "answer": "No. We ship all cameras and accessories to you at no charge. Equipment must be returned when the engagement ends."
+    },
+    {
+      "question": "Where do recordings take place?",
+      "answer": "Mostly in your home or a similar everyday environment. You will need access to spaces like a kitchen, living room, or home office depending on the recording protocol for that session."
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "slug": "gaming-ai-feedback-specialist",
+  "title": "Gaming AI Feedback Specialist",
+  "category": "gaming",
+  "description": "Your job is to generate high-quality human demonstration data by playing games and simulations under controlled conditions. You will follow session protocols that specify the game, the scenario, the objectives, and the annotation requirements. After each session, you fill out a structured form documenting your strategies, mistakes, and key turning points. This data is used to train and evaluate game-playing AI agents.\n\nStrong spatial reasoning and the ability to articulate your decision-making process are the core skills here. You will often need to explain why you chose a particular action, which means you need to be reflective about your gameplay rather than purely intuitive. Experience with strategy games, puzzle games, or any genre that requires deliberate thinking is particularly valuable.\n\nOnboarding includes a practice session where you get familiar with the annotation tools and logging workflow. After that, you receive session assignments weekly. The time commitment is flexible within project deadlines, but we ask for at least 10 hours per week.",
+  "skills": [
+    "Reliable PC meeting minimum hardware requirements",
+    "Familiarity with Unity or Unreal Engine is a plus",
+    "Attention to detail in logging and annotation",
+    "Comfortable following scripted playthrough protocols",
+    "Experience with PC gaming and common game engines"
+  ],
+  "compensationMin": 40,
+  "compensationMax": 45,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "datePosted": "2026-01-23",
+  "validThrough": "2026-04-22",
+  "featured": true,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "Do I need a high-end gaming PC?",
+      "answer": "You need a reasonably capable PC. We will provide minimum specs during onboarding, but generally a mid-range GPU from the last 3-4 years and 16GB of RAM will suffice."
+    },
+    {
+      "question": "How is compensation structured?",
+      "answer": "Payment is per completed and accepted session, with quality bonuses. Rates vary by project complexity. Sessions that do not meet annotation standards may need to be repeated."
+    }
+  ]
+}

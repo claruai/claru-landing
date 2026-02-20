@@ -1,0 +1,33 @@
+{
+  "slug": "ai-red-team-specialist",
+  "title": "AI Red Team Specialist",
+  "category": "red-teaming",
+  "description": "This role is adversarial by design. You will probe language models for weaknesses by writing creative, unusual, and sometimes uncomfortable prompts designed to surface failure modes. Think of yourself as a security researcher, but for AI behavior instead of network infrastructure. Every vulnerability you find helps the model become safer for end users. The work requires creativity, persistence, and a willingness to explore dark corners of model behavior systematically.\n\nYou need strong written communication skills -- every finding must be documented well enough that someone who was not in the room can understand what you did, why it matters, and how to reproduce it. Comfort with structured reporting formats (similar to CVE reports or bug bounty submissions) is a plus.\n\nRed team sessions are scheduled in 3-4 hour blocks. Most testers work 3-5 sessions per week. The work is mentally intense, so we encourage breaks between sessions. A weekly debrief with the safety team reviews top findings and updates attack priorities.",
+  "skills": [
+    "Understanding of AI safety concepts and failure modes",
+    "Ability to reproduce and clearly document exploits",
+    "Familiarity with prompt engineering techniques",
+    "Emotional resilience when encountering disturbing content",
+    "Comfort working with sensitive content categories",
+    "Strong written communication for vulnerability reporting",
+    "Background in security research, journalism, or law"
+  ],
+  "compensationMin": 40,
+  "compensationMax": 45,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "datePosted": "2026-01-26",
+  "validThrough": "2026-04-25",
+  "featured": true,
+  "archived": true,
+  "faqs": [
+    {
+      "question": "What models will I be testing?",
+      "answer": "We work with frontier language models from several major AI labs. Specific model details are shared under NDA during onboarding."
+    },
+    {
+      "question": "How are findings prioritized?",
+      "answer": "We use a severity scale similar to CVSS. Critical findings (reliable jailbreaks, PII leakage) are escalated immediately. Lower-severity issues (mild bias, style inconsistencies) are batched for review."
+    }
+  ]
+}

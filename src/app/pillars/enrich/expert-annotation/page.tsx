@@ -20,6 +20,7 @@ import Button from "@/app/components/ui/Button";
 import Citation from "@/app/components/ui/Citation";
 import FAQItem from "@/app/components/ui/FAQItem";
 import TextScramble from "@/app/components/effects/TextScramble";
+import CaseStudyCallout from "@/app/components/ui/CaseStudyCallout";
 
 // Domain card component
 function DomainCard({
@@ -1059,8 +1060,49 @@ export default function ExpertAnnotationPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* See It In Practice */}
       <section className="py-20 bg-[var(--bg-secondary)]/30">
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-5xl mx-auto"
+          >
+            <span className="font-mono text-sm text-[var(--accent-primary)] mb-4 block">
+              {"// SEE IT IN PRACTICE"}
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold mb-8">
+              Case Studies
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              <CaseStudyCallout
+                index={0}
+                caseStudy={{
+                  slug: "fashion-ai-annotation",
+                  headlineStat: "3M+",
+                  headlineStatLabel: "Fashion images annotated",
+                  title: "Large-Scale Image Annotation for Fashion AI",
+                  teaser: "Deployed 1,000+ trained annotators to label 3M+ fashion and lifestyle images with structured taxonomy and multi-layer QA — materially improving model robustness and recognition accuracy.",
+                }}
+              />
+              <CaseStudyCallout
+                index={1}
+                caseStudy={{
+                  slug: "video-content-classification",
+                  headlineStat: "105K",
+                  headlineStatLabel: "Video clips classified in 7 days",
+                  title: "High-Confidence Video Content Classification at Scale",
+                  teaser: "105,000 video clips classified in just seven days — after rapidly redesigning the annotation framework mid-project to eliminate subjectivity and deliver zero downstream rework.",
+                }}
+              />
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 30 }}

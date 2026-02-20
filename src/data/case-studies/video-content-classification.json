@@ -1,0 +1,73 @@
+{
+  "slug": "video-content-classification",
+  "title": "High-Confidence Video Content Classification at Scale",
+  "category": "annotation",
+  "teaser": "105,000 video clips classified in just seven days — after rapidly redesigning the annotation framework mid-project to eliminate subjectivity and deliver zero downstream rework.",
+  "headlineStat": "105K",
+  "headlineStatLabel": "Video clips classified in 7 days",
+  "summary": "Annotated 105,000 video clips in seven days for AI-powered content selection and deduplication. The task was binary organic/not-organic classification. Early batches revealed inconsistent annotator decisions driven by ambiguous definitions, so the annotation framework was rapidly redesigned mid-project: abstract definitions were replaced with criteria-driven decision paths, self-reported confidence was replaced with automated confidence tiers, and embedded examples were added at each decision point. The final dataset was approved for direct model training with zero downstream rework.",
+  "challenge": "Binary classification tasks appear simple but produce unreliable labels when the category boundary is ambiguous — and organic/not-organic classification for video content has exactly this problem. Early annotation batches showed inter-annotator disagreement rates above 15%, driven by subjective interpretation of what constitutes \"organic\" content. Left unaddressed, this inconsistency would propagate into the training data, teaching the model a noisy decision boundary that reflects annotator confusion rather than a meaningful content distinction. The client needed 105,000 clips classified within a seven-day window to meet their model training schedule, leaving no room for extended iteration cycles or post-hoc data cleaning.",
+  "approach": "We identified the quality problem within the first 2,000 annotations by monitoring inter-annotator agreement in real time. The root cause was clear: the original annotation guidelines defined \"organic\" using abstract criteria that annotators interpreted differently depending on their background and the specific content of each clip.\n\nThe framework was redesigned mid-project in under 24 hours. Abstract definitions were replaced with explicit Yes/No decision paths — annotators followed a branching series of concrete questions (\"Does the video show a real person in a non-studio environment?\" \"Is the audio ambient rather than post-produced?\") rather than making a holistic judgment call. Self-reported confidence scoring was removed entirely because it introduced subjective noise without actionable signal; instead, automated confidence tiers were computed from decision-path consistency (how many decision points agreed) and inter-annotator overlap.\n\nThe annotator UX was simplified with embedded visual examples at each decision point, showing canonical examples of organic and not-organic content for that specific criterion. Early outputs produced under the original framework were revalidated under the new decision paths. Pre-production quality checkpoints were introduced: every batch of 500 clips was sampled and validated before being committed to the final dataset, catching drift before it could propagate.",
+  "results": [
+    { "value": "105,000", "label": "Video clips classified in 7 days" },
+    { "value": "4", "label": "Automated confidence tiers delivered" },
+    { "value": "0", "label": "Downstream rework required" },
+    { "value": "<24h", "label": "Framework redesign turnaround time" }
+  ],
+  "impact": "The classified dataset was accepted for direct model training without any downstream rework — a result the client attributed directly to the mid-project framework redesign. The four-tier confidence scoring enabled the client to weight training examples by classification confidence rather than treating all labels as equally reliable, improving model calibration on boundary cases. The decision-path framework was retained by the client for subsequent annotation campaigns as an internal best practice.",
+  "whyItMatters": "Training data quality directly determines model performance and time-to-market. Resolving subjectivity early in the annotation process prevents hidden quality debt that only surfaces after deployment — when the cost of rework is orders of magnitude higher. The mid-project framework redesign demonstrates that annotation quality problems can be identified and fixed in real time if you monitor inter-annotator agreement continuously rather than reviewing quality after the fact. For time-constrained annotation campaigns, this operational discipline is the difference between shipping clean data and shipping noise.",
+  "faqs": [
+    {
+      "question": "Why was the annotation framework redesigned mid-project?",
+      "answer": "Inter-annotator disagreement in the first 2,000 annotations exceeded 15%, indicating that annotators were interpreting the classification criteria inconsistently. The abstract definition of \"organic\" was the root cause. Continuing with the original framework would have produced a dataset where 10,000+ clips carried unreliable labels — enough to materially degrade model training. Redesigning in 24 hours and revalidating early outputs was cheaper than cleaning the full dataset after completion."
+    },
+    {
+      "question": "How do automated confidence tiers work?",
+      "answer": "Confidence tiers are computed from two signals: decision-path consistency (how many of the branching criteria agreed on the same classification) and inter-annotator overlap (when multiple annotators classify the same clip, how often they agree). Clips where all criteria and all annotators agree receive the highest tier; clips with split decisions or mixed criteria receive lower tiers. This replaces subjective self-reported confidence with a reproducible, auditable metric."
+    },
+    {
+      "question": "How were early annotations handled after the framework change?",
+      "answer": "All annotations produced under the original framework (approximately 2,000 clips) were revalidated under the new decision-path criteria. Clips whose original classification disagreed with the new framework's output were re-annotated from scratch. This ensured the final dataset was internally consistent — every label was produced by the same methodology."
+    },
+    {
+      "question": "What happens if quality degrades again during the remaining annotation?",
+      "answer": "Pre-production checkpoints sample every batch of 500 clips and validate agreement rates before committing to the final dataset. If a batch falls below the agreement threshold, it is held for investigation before any additional annotation proceeds. This catches quality drift within hours rather than discovering it at the end of the campaign."
+    }
+  ],
+  "relatedSlugs": [
+    "fashion-ai-annotation",
+    "generative-ai-safety"
+  ],
+  "pillarLink": {
+    "href": "/pillars/enrich/expert-annotation",
+    "label": "Expert Annotation"
+  },
+  "targetKeyword": "video content classification training data",
+  "metaTitle": "Video Content Classification at Scale | Claru",
+  "metaDescription": "105,000 video clips classified in 7 days with zero rework. How mid-project framework redesign eliminated annotator subjectivity. Process and results.",
+  "processSteps": [
+    { "step": "01", "title": "Redesign", "description": "Replace abstract definitions with Yes/No paths" },
+    { "step": "02", "title": "Annotate", "description": "105K clips with automated confidence tiers" },
+    { "step": "03", "title": "Validate", "description": "Pre-production quality checkpoints" },
+    { "step": "04", "title": "Deliver", "description": "4-tier dataset ready for model training" }
+  ],
+  "images": [
+    "/images/case-studies/video-content-classification/hero.png",
+    "/images/case-studies/video-content-classification/impact.png",
+    "/images/case-studies/video-content-classification/objective.png",
+    "/images/case-studies/video-content-classification/process.png",
+    "/images/case-studies/video-content-classification/results.png",
+    "/images/case-studies/video-content-classification/why-it-matters.png"
+  ],
+  "datePublished": "2026-01-10",
+  "sampleData": {
+    "type": "platform-screenshots",
+    "images": [
+      {
+        "src": "/images/case-studies/video-content-classification/process.png",
+        "label": "ANNOTATION INTERFACE",
+        "description": "The redesigned classification workflow with criteria-driven Yes/No decision paths, category selection, and theme checklist. Video player at top, structured decision flow below."
+      }
+    ]
+  }
+}

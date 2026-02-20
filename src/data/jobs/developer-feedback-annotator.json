@@ -1,0 +1,31 @@
+{
+  "slug": "developer-feedback-annotator",
+  "title": "Developer Feedback Annotator",
+  "category": "coding-review",
+  "description": "This role feeds directly into code-generation model training. You will review AI-written code across multiple languages and evaluate it on dimensions like functional correctness, runtime efficiency, code style, and security. Each review includes running the code (or mentally tracing it) to verify it produces the expected output, then scoring it against a rubric. You also write short explanations of any issues you find -- these justifications become part of the training signal.\n\nProficiency in at least two programming languages is required. You should be able to spot off-by-one errors, recognize when an algorithm has worse-than-necessary time complexity, and tell the difference between code that works and code that is actually good. Professional software development experience is strongly preferred. If you regularly do code reviews as part of your day job, this work will feel familiar.\n\nWork is fully asynchronous. You choose which tasks to pick up based on language and difficulty filters. A weekly sync call with the project lead covers rubric updates and edge-case discussions. Minimum commitment is 10 hours per week.",
+  "skills": [
+    "Clear written communication for evaluation justifications",
+    "Proficiency in Python, JavaScript/TypeScript, or Java",
+    "Knowledge of software testing principles",
+    "At least 2 years professional software development experience",
+    "Ability to identify bugs, anti-patterns, and security issues"
+  ],
+  "compensationMin": 35,
+  "compensationMax": 50,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "datePosted": "2026-02-16",
+  "validThrough": "2026-05-15",
+  "featured": false,
+  "archived": true,
+  "faqs": [
+    {
+      "question": "What programming languages will I review?",
+      "answer": "Most tasks involve Python, JavaScript/TypeScript, Java, or C++. Less common tasks may involve Go, Rust, or SQL. You can filter for languages you are comfortable with."
+    },
+    {
+      "question": "Can I specialize in one language?",
+      "answer": "Yes, though reviewers who cover multiple languages get access to more tasks and higher volume. We recommend being comfortable in at least two languages."
+    }
+  ]
+}

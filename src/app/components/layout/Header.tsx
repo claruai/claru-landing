@@ -9,6 +9,8 @@ import Button from "../ui/Button";
 const navLinks = [
   { href: "/data", label: "Training Data" },
   { href: "/labeling", label: "Expert Labeling" },
+  { href: "/case-studies", label: "Case Studies" },
+  { href: "/work-with-us", label: "Work With Us" },
 ];
 
 export default function Header({ opaque = false }: { opaque?: boolean }) {

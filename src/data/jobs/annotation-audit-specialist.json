@@ -1,0 +1,32 @@
+{
+  "slug": "annotation-audit-specialist",
+  "title": "Annotation Audit Specialist",
+  "category": "quality-review",
+  "description": "Quality review sits between the annotation team and the client. You will sample completed batches, apply the scoring rubric, and produce accuracy reports that the project lead uses to give feedback to annotators. When you spot systematic errors -- a whole batch misapplying a label, for example -- you escalate to the team lead so the guidelines can be updated. The goal is to keep delivered data above a 95% accuracy threshold across all active projects.\n\nPrior experience in QA, editing, proofreading, or annotation review is strongly preferred. You need to be comfortable giving direct, constructive feedback -- annotators see your rejection notes, so clarity matters. Familiarity with inter-annotator agreement metrics (Cohen's kappa, Krippendorff's alpha) is a plus. Most important is an eye for detail and the patience to review item after item without letting accuracy slip.\n\nThis is remote, asynchronous work. You set your own schedule within project timelines. We pay hourly, with a performance bonus tied to your own review accuracy (audited by a third reviewer on a random sample). Typical reviewers work 15-25 hours per week.",
+  "skills": [
+    "Ability to internalize complex rubrics quickly",
+    "Clear, constructive written feedback",
+    "Comfortable providing direct feedback to peers",
+    "Experience with quality assurance tooling",
+    "Systematic approach to error documentation",
+    "Background in copy editing, research, or data analysis"
+  ],
+  "compensationMin": 35,
+  "compensationMax": 50,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "datePosted": "2026-01-20",
+  "validThrough": "2026-04-19",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "How many items will I review per shift?",
+      "answer": "Volume varies by project complexity. Simple binary reviews might yield 300-400 items per shift; more complex multi-label reviews are closer to 100-150."
+    },
+    {
+      "question": "Will I review work from the same annotators repeatedly?",
+      "answer": "Reviews are typically assigned randomly to avoid bias. Occasionally, targeted reviews are assigned when a specific annotator needs additional QA oversight."
+    }
+  ]
+}

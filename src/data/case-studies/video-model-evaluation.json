@@ -1,0 +1,64 @@
+{
+  "slug": "video-model-evaluation",
+  "title": "Human Evaluation of Video Generation Model Configurations",
+  "category": "evaluation",
+  "teaser": "39,000 pairwise human evaluations across 51 model configurations — replacing uncertain aggregate metrics with statistically defensible ELO rankings for text-to-video, image-to-video, and video-to-video.",
+  "headlineStat": "39K",
+  "headlineStatLabel": "Pairwise human evaluations completed",
+  "summary": "Designed and executed a rigorous ELO-based human evaluation framework to identify the best-performing video generation models globally and by input modality. Compared 51 configurations across text-to-video, image-to-video, and video-to-video using 120 prompts and approximately 6,000 generated videos. A pilot study validated which evaluation metrics produce reliable human judgments (measured by Krippendorff's alpha) before scaling to 39,000 pairwise evaluations with Swiss-style tournament pairing.",
+  "challenge": "Automated quality metrics for video generation (FVD, FID, CLIP score) correlate poorly with human perception of visual quality, temporal coherence, and prompt fidelity — the metrics that actually determine which model configuration a customer should use. The client had 51 model configurations across three input modalities and no reliable way to rank them. Internal evaluation was ad hoc: engineers compared cherry-picked samples, producing contradictory conclusions depending on which prompts were tested. They needed a statistically defensible ranking system that could identify the best configuration per modality with quantified confidence, not subjective impressions.",
+  "approach": "Phase 1 was a pilot study designed to validate the evaluation methodology before committing to scale. We tested 6 candidate evaluation metrics — overall quality, temporal consistency, prompt adherence, visual fidelity, motion naturalness, and aesthetic appeal — with 5 trained annotators. Inter-annotator agreement was measured using Krippendorff's alpha. Two metrics (overall quality and prompt adherence) achieved alpha > 0.70 and were retained for the main evaluation. The remaining four were dropped due to insufficient reliability, preventing the main study from producing noisy rankings on poorly calibrated dimensions.\n\nPhase 2 scaled to a full ELO-based evaluation using Swiss-style tournament pairing. For each of 120 prompts, all relevant model configurations generated outputs, producing approximately 6,000 videos. Annotators viewed side-by-side pairs and selected the better output on the retained metrics. Swiss-style pairing meant that after each round, similarly ranked models were paired against each other — maximizing the information gained per comparison and converging on stable rankings faster than random pairing. A fixed baseline model was included in every round to anchor the ELO scale and prevent rating drift across the six tournament rounds.\n\nSeparate ELO rankings were maintained per input modality (text-to-video, image-to-video, video-to-video) to ensure the results were actionable at the workflow level. Final rankings included 95% confidence intervals computed via bootstrap resampling of the pairwise comparison data.",
+  "results": [
+    { "value": "39,000", "label": "Pairwise human evaluations completed" },
+    { "value": "51", "label": "Model configurations compared" },
+    { "value": "3", "label": "Input modalities ranked (T2V, I2V, V2V)" },
+    { "value": ">0.70", "label": "Krippendorff's alpha on retained metrics" }
+  ],
+  "impact": "The ELO rankings replaced subjective model selection with a governed, evidence-based process. The client deployed the top-ranked configuration per modality to their respective customer workflows, reducing the risk of shipping a suboptimal model and enabling per-workflow optimization that aggregate benchmarks could not support. The evaluation framework was retained as a reusable asset — each new model checkpoint is now evaluated against the existing ELO ladder with a fraction of the comparisons needed for a from-scratch evaluation.",
+  "whyItMatters": "Video generation model selection has been driven by automated metrics that poorly correlate with human perception and by ad hoc internal comparisons that produce contradictory results. Statistically defensible human evaluation — with validated metrics, calibrated annotators, and quantified confidence intervals — turns model selection from an art into a governed process. As the number of model configurations grows, having a reusable evaluation framework becomes infrastructure, not a one-off project.",
+  "faqs": [
+    {
+      "question": "Why use ELO ranking instead of absolute quality scores?",
+      "answer": "ELO ranking produces reliable relative orderings from pairwise comparisons, which are cognitively easier and more consistent for human annotators than assigning absolute scores on a Likert scale. Pairwise judgments also eliminate scale bias — annotators do not need to maintain a consistent internal reference across hundreds of evaluations. The Swiss-style tournament pairing further improves efficiency by concentrating comparisons among similarly ranked models."
+    },
+    {
+      "question": "How did the pilot study inform the main evaluation?",
+      "answer": "The pilot tested 6 candidate evaluation metrics and retained only the 2 with Krippendorff's alpha above 0.70. This prevented the main study from producing noisy rankings on unreliable dimensions. Without the pilot, the client would have invested 39,000 evaluations across metrics that annotators could not apply consistently — wasting budget and producing misleading rankings."
+    },
+    {
+      "question": "What is Swiss-style tournament pairing?",
+      "answer": "Swiss-style pairing matches similarly ranked models against each other in each round, rather than using random or round-robin pairing. This maximizes the information gained per comparison: early rounds identify the approximate ranking tier, and later rounds refine the ordering within tiers. The result is convergence to stable rankings in fewer total comparisons than exhaustive pairwise evaluation."
+    },
+    {
+      "question": "How were confidence intervals computed?",
+      "answer": "95% confidence intervals on final ELO rankings were computed via bootstrap resampling of the pairwise comparison data. The pairwise results were resampled with replacement 10,000 times, and the ELO algorithm was re-run on each bootstrap sample. The resulting distribution of rankings provides a direct measure of ranking stability. Models whose confidence intervals overlap are reported as statistically tied."
+    }
+  ],
+  "relatedSlugs": [
+    "prompt-enhancement-benchmark",
+    "generative-ai-safety"
+  ],
+  "pillarLink": {
+    "href": "/pillars/validate/benchmark-curation",
+    "label": "Benchmark Curation"
+  },
+  "targetKeyword": "video generation model evaluation service",
+  "metaTitle": "Video Generation Model Evaluation | Claru",
+  "metaDescription": "39,000 pairwise evaluations across 51 video generation model configs using ELO ranking. Pilot-validated metrics, Swiss-style pairing, and per-modality results.",
+  "processSteps": [
+    { "step": "01", "title": "Pilot", "description": "Test 6 metrics, validate inter-annotator agreement" },
+    { "step": "02", "title": "Refine", "description": "Focus on Overall Quality + Aesthetic Quality" },
+    { "step": "03", "title": "Rank", "description": "ELO-based pairwise evaluation, Swiss-style pairing" },
+    { "step": "04", "title": "Deliver", "description": "Modality-specific model rankings" }
+  ],
+  "images": [
+    "/images/case-studies/video-model-evaluation/hero.png",
+    "/images/case-studies/video-model-evaluation/impact.png",
+    "/images/case-studies/video-model-evaluation/objective.png",
+    "/images/case-studies/video-model-evaluation/scope.png"
+  ],
+  "sampleData": {
+    "type": "aesthetic-evaluation"
+  },
+  "datePublished": "2025-12-10"
+}

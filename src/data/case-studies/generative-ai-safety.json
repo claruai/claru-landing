@@ -1,0 +1,67 @@
+{
+  "slug": "generative-ai-safety",
+  "title": "Scaling Generative AI Safety Through Human-Led Data Labeling",
+  "category": "safety",
+  "teaser": "205,000 safety annotations across text and video — validating content moderation pipelines and delivering defensible evidence of safety performance for audits and governance.",
+  "headlineStat": "205K",
+  "headlineStatLabel": "Safety annotations completed",
+  "summary": "Executed a multi-modal data labeling program for a leading generative AI company to validate, strengthen, and operationalize content safety at scale. Annotators reviewed text and video outputs that had already passed automated moderation, measuring residual risk against a 2% violation rate threshold. The program delivered 205,000 safety annotations and defensible evidence of safety performance for audits and governance frameworks.",
+  "challenge": "Automated content moderation pipelines produce binary safe/unsafe classifications but cannot quantify their own residual risk — the rate at which harmful content passes through undetected. The client needed ground-truth human labels on outputs that had already cleared automated filters to measure actual violation rates, identify systematic gaps in their moderation stack, and produce audit-ready documentation for enterprise customers and regulators. The challenge was operational: labeling safety-sensitive content at scale requires annotators trained on nuanced policy definitions, consistent application of multi-dimensional safety taxonomies across modalities (text and video), and continuous monitoring to prevent annotator fatigue and desensitization from degrading label quality.",
+  "approach": "We built a high-throughput, quality-controlled annotation workflow focused exclusively on residual risk — only reviewing outputs that had already passed the client's automated moderation pipeline. This design choice was deliberate: the goal was not to replicate automated filtering but to measure its failure rate and characterize the types of violations it misses.\n\nAnnotators evaluated text and video outputs against a multi-dimensional safety taxonomy covering nudity/NSFW content, violence and gore, hate speech and harassment, self-harm, and illegal activity. Each output received a binary safety label (safe/violation) plus a category tag when violations were identified. Policy definitions were developed collaboratively with the client's trust and safety team and included visual exemplars, boundary cases, and explicit guidance on culturally variable norms.\n\nLive dashboards tracked violation rates by product, modality, and safety category in real time. Weekly reporting identified emerging patterns — for example, a spike in near-miss violent content from a specific model configuration — enabling the client to update their automated filters proactively rather than reactively. Annotator consistency was monitored via calibration sets (pre-labeled items seeded into the workflow at a 5% rate), with annotators falling below 92% agreement on calibration items pulled for retraining.",
+  "results": [
+    { "value": "205,000", "label": "Safety annotations completed" },
+    { "value": "<2%", "label": "Violation rate maintained below threshold" },
+    { "value": "Multi-modal", "label": "Coverage across text and video outputs" },
+    { "value": "92%+", "label": "Annotator calibration agreement maintained" }
+  ],
+  "impact": "The annotation program provided the client with defensible, quantitative evidence of safety performance — residual violation rates broken down by product, modality, and safety category — that satisfied both internal governance requirements and external audit requests from enterprise customers. The pattern analysis surfaced three systematic gaps in their automated moderation pipeline that had not been detected through aggregate metrics alone, leading to targeted model retraining that reduced residual violation rates by an estimated 40% in subsequent measurement cycles.",
+  "whyItMatters": "As generative AI moves toward mission-critical deployment, safety must be measured with the same rigor as model accuracy or latency. Automated moderation is necessary but not sufficient — it produces classifications without quantifying confidence or characterizing failure modes. Human-labeled ground truth provides the residual risk metrics needed to validate automated pipelines, satisfy audit requirements, and build the governance frameworks that regulators and enterprise customers demand. Without it, safety claims are assertions rather than evidence.",
+  "faqs": [
+    {
+      "question": "Why label outputs that already passed automated moderation?",
+      "answer": "The goal is to measure residual risk — the rate at which harmful content slips through automated filters undetected. Automated systems produce binary classifications but cannot quantify their own error rate. Human labels on post-filter outputs provide the ground truth needed to calculate actual violation rates, identify systematic gaps, and produce audit-ready safety metrics."
+    },
+    {
+      "question": "How do you prevent annotator desensitization when reviewing safety-sensitive content?",
+      "answer": "Annotators rotate between safety-sensitive and non-sensitive tasks on scheduled intervals. Session lengths for safety content are capped at 2 hours with mandatory breaks. Calibration sets are seeded continuously to detect accuracy degradation. Annotators whose calibration scores drop are immediately rotated out for retraining. We also provide access to well-being support resources as standard practice for safety annotation teams."
+    },
+    {
+      "question": "What safety categories were covered?",
+      "answer": "The taxonomy covered nudity/NSFW content, violence and gore, hate speech and harassment, self-harm, and illegal activity. Each category included detailed policy definitions with visual exemplars, boundary cases, and guidance on culturally variable norms. The taxonomy was developed collaboratively with the client's trust and safety team."
+    },
+    {
+      "question": "How is annotation consistency measured?",
+      "answer": "Calibration sets — pre-labeled items with known ground truth — are seeded into the annotation workflow at a 5% rate. Annotator agreement on these items is tracked continuously. Annotators falling below 92% agreement are pulled for retraining. Additionally, a subset of items receives redundant labels from multiple annotators to measure inter-annotator agreement across the team."
+    },
+    {
+      "question": "Can this framework scale to new modalities or policy updates?",
+      "answer": "Yes. The framework is modality-agnostic at the infrastructure level — adding a new output type (e.g., audio, 3D) requires only annotator training and interface adaptation, not pipeline rebuilding. Policy updates are handled via versioned taxonomy definitions: when the client updates their safety policy, we retrain annotators on the delta and re-calibrate agreement thresholds. Typical turnaround for a policy update is 3-5 business days."
+    }
+  ],
+  "relatedSlugs": [
+    "video-model-evaluation",
+    "video-content-classification"
+  ],
+  "pillarLink": {
+    "href": "/pillars/validate/red-teaming",
+    "label": "Red Teaming & Safety"
+  },
+  "targetKeyword": "generative AI safety labeling service",
+  "metaTitle": "Generative AI Safety Labeling at Scale | Claru",
+  "metaDescription": "205,000 safety annotations across text and video to validate automated moderation and deliver audit-ready evidence of safety performance. Methodology inside.",
+  "processSteps": [
+    { "step": "01", "title": "Sample", "description": "Select outputs that passed automated moderation" },
+    { "step": "02", "title": "Annotate", "description": "Binary safety labels per category" },
+    { "step": "03", "title": "Aggregate", "description": "Track violation rates vs 2% threshold" },
+    { "step": "04", "title": "Report", "description": "Live dashboards for ongoing monitoring" }
+  ],
+  "images": [
+    "/images/case-studies/generative-ai-safety/hero.png",
+    "/images/case-studies/generative-ai-safety/challenge.png",
+    "/images/case-studies/generative-ai-safety/process.png",
+    "/images/case-studies/generative-ai-safety/results.png",
+    "/images/case-studies/generative-ai-safety/safety-categories.png"
+  ],
+  "datePublished": "2025-12-05",
+  "sampleData": { "type": "safety-label" }
+}

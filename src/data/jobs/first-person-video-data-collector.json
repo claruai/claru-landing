@@ -1,0 +1,38 @@
+{
+  "slug": "first-person-video-data-collector",
+  "title": "First-Person Video Data Collector",
+  "category": "video-capture",
+  "description": "You will record first-person video of everyday activities using wearable cameras that we ship to you. The footage trains embodied AI and computer vision models -- these systems need thousands of hours of people doing ordinary things like cooking, tidying, assembling furniture, and moving through rooms. Each recording session follows a detailed protocol that specifies the activity, camera angle, lighting requirements, and duration. Typical sessions last 1-2 hours.\n\nYou need a reliable indoor space where you can control lighting -- a kitchen, home office, or workshop works well. We provide all camera equipment and ship it to your address at no cost. Basic tech comfort is important: you should be able to charge a device, pair it via Bluetooth, and upload large files. No filmmaking experience is needed; we care about following the protocol, not cinematic quality.\n\nScheduling is up to you within weekly targets. Some contributors record daily in short bursts; others batch sessions into two or three longer days. We ask for a minimum of 10 hours of accepted footage per week to stay active on the project.",
+  "skills": [
+    "Comfort wearing and operating body-mounted cameras",
+    "Availability for at least 10-15 hours per week",
+    "Ability to follow detailed recording protocols",
+    "Basic video file management skills (uploading, naming)",
+    "Basic technical literacy (Bluetooth pairing, device charging)",
+    "Access to a kitchen or workshop environment",
+    "Strong attention to detail and consistency"
+  ],
+  "compensationMin": 35,
+  "compensationMax": 55,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "US",
+  "datePosted": "2026-02-06",
+  "validThrough": "2026-05-05",
+  "featured": true,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "How long does onboarding take?",
+      "answer": "About one hour. A data collection lead will walk you through equipment setup and your first practice recording on a video call."
+    },
+    {
+      "question": "Do I need my own camera equipment?",
+      "answer": "No. We ship all cameras and accessories to you at no charge. Equipment must be returned when the engagement ends."
+    },
+    {
+      "question": "Where do recordings take place?",
+      "answer": "Mostly in your home or a similar everyday environment. You will need access to spaces like a kitchen, living room, or home office depending on the recording protocol for that session."
+    }
+  ]
+}

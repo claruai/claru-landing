@@ -1,0 +1,269 @@
+{
+  "project": "Claru Performance Optimization",
+  "branchName": "ralph/performance-optimization",
+  "description": "Mobile and speed optimization for the Claru landing site without changing aesthetics. Target: <5s TTI on mobile 4G, Lighthouse 80+.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Audit and remove unused three.js dependency",
+      "description": "As a developer, I need to remove unused dependencies to reduce bundle size.",
+      "acceptanceCriteria": [
+        "Check if ShaderBackground.tsx is imported anywhere in the codebase",
+        "Check if AsciiEffect.tsx and AsciiScene.tsx are used anywhere",
+        "If unused, delete ShaderBackground.tsx, AsciiEffect.tsx, AsciiScene.tsx",
+        "Remove 'three' from package.json dependencies if no imports remain",
+        "Run npm install to update lockfile",
+        "npm run build passes with no errors",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Quick win - three.js is ~150KB. Verify no active usage before removal."
+    },
+    {
+      "id": "US-002",
+      "title": "Configure Next.js for WebP/AVIF image optimization",
+      "description": "As a developer, I need to enable modern image formats for automatic optimization.",
+      "acceptanceCriteria": [
+        "Update next.config.js (or next.config.ts) to include images configuration",
+        "Set formats: ['image/avif', 'image/webp']",
+        "Set deviceSizes: [640, 750, 828, 1080, 1200, 1920]",
+        "Set imageSizes: [16, 32, 48, 64, 96, 128, 256, 384]",
+        "npm run build passes",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Foundation for image optimization in subsequent stories"
+    },
+    {
+      "id": "US-003",
+      "title": "Optimize ASCII robot background images for web",
+      "description": "As a visitor, I want the hero ASCII effect images to load faster.",
+      "acceptanceCriteria": [
+        "Convert robot-face2.png and robot-face7.png to WebP format at 85% quality",
+        "Save as robot-face2.webp and robot-face7.webp in public/images/",
+        "Create mobile versions at 800px max width: robot-face2-mobile.webp, robot-face7-mobile.webp",
+        "Target file sizes: <150KB each for desktop, <80KB for mobile (vs current ~1MB+)",
+        "Update ASCIIRobotBackground.tsx to use .webp versions",
+        "Add device detection to load mobile images on screens < 768px",
+        "ASCII effect still renders correctly",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "Use sharp or squoosh CLI for conversion. Keep originals as backup."
+    },
+    {
+      "id": "US-004",
+      "title": "Create useDeviceCapability hook for performance detection",
+      "description": "As a developer, I need a hook to detect device capabilities for adaptive rendering.",
+      "acceptanceCriteria": [
+        "Create /src/app/hooks/useDeviceCapability.ts",
+        "Export useDeviceCapability hook returning { isMobile, isLowPower, prefersReducedMotion }",
+        "isMobile: detect via userAgent or screen width < 768px",
+        "isLowPower: navigator.hardwareConcurrency <= 4",
+        "prefersReducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches",
+        "Handle SSR safely (return defaults until mounted)",
+        "Add listener for reduced motion changes",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "This hook will be used by animation components to adjust behavior"
+    },
+    {
+      "id": "US-005",
+      "title": "Optimize ASCII background for mobile devices",
+      "description": "As a mobile visitor, I want smooth performance with the ASCII background.",
+      "acceptanceCriteria": [
+        "Import useDeviceCapability hook in ASCIIRobotBackground.tsx",
+        "Reduce animation FPS from ~20 to 10 when isMobile is true",
+        "Reduce canvas resolution on mobile (scale by 0.75 or use smaller fontSize)",
+        "Skip wave/distortion effects on mobile for simpler rendering",
+        "Desktop animation fidelity remains unchanged",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill - test mobile viewport"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "Keep the aesthetic, just reduce computation on mobile"
+    },
+    {
+      "id": "US-006",
+      "title": "Add prefers-reduced-motion support to ASCII background",
+      "description": "As a visitor with motion sensitivity, I want a static experience.",
+      "acceptanceCriteria": [
+        "Check prefersReducedMotion from useDeviceCapability hook",
+        "When true, render a single static frame of ASCII art (no animation loop)",
+        "Cancel requestAnimationFrame when reduced motion is preferred",
+        "Show static gradient overlay as fallback if needed",
+        "Typecheck passes",
+        "Verify in browser - enable reduced motion in system settings"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "Accessibility requirement - respect user preferences"
+    },
+    {
+      "id": "US-007",
+      "title": "Optimize Framer Motion with LazyMotion",
+      "description": "As a visitor, I want faster initial load by lazy-loading animation features.",
+      "acceptanceCriteria": [
+        "Create /src/app/components/providers/MotionProvider.tsx",
+        "Import LazyMotion and domAnimation from framer-motion",
+        "Wrap children in LazyMotion with features={domAnimation}",
+        "Export MotionProvider component",
+        "Update layout.tsx or page.tsx to wrap app in MotionProvider",
+        "All existing Framer Motion animations still work",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "LazyMotion reduces Framer Motion bundle by ~50%"
+    },
+    {
+      "id": "US-008",
+      "title": "Add reduced motion support to Framer Motion animations",
+      "description": "As a visitor with motion sensitivity, I want animations disabled.",
+      "acceptanceCriteria": [
+        "Update MotionProvider to check prefersReducedMotion",
+        "When reduced motion preferred, use MotionConfig with reducedMotion='always'",
+        "Alternatively, pass reduced motion to LazyMotion context",
+        "Test that motion.div animations are disabled with reduced motion",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": "Framer Motion has built-in reduced motion support"
+    },
+    {
+      "id": "US-009",
+      "title": "Code-split below-the-fold sections on homepage",
+      "description": "As a visitor, I want the hero to load immediately while other content loads progressively.",
+      "acceptanceCriteria": [
+        "Keep Hero and Header as static imports in page.tsx",
+        "Convert ProblemAgitation to dynamic import with { ssr: false }",
+        "Convert FourPillars to dynamic import",
+        "Convert Capabilities to dynamic import",
+        "Convert Testimonials to dynamic import",
+        "Convert FinalCTA to dynamic import",
+        "Hero renders immediately on page load",
+        "npm run build passes",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": true,
+      "notes": "Use next/dynamic for all below-fold sections"
+    },
+    {
+      "id": "US-010",
+      "title": "Add loading skeletons for dynamic sections",
+      "description": "As a visitor, I want visual feedback while sections load.",
+      "acceptanceCriteria": [
+        "Create /src/app/components/ui/Skeleton.tsx component",
+        "Skeleton uses bg-[var(--bg-secondary)] with subtle pulse animation",
+        "Create SectionSkeleton variant with height matching typical section",
+        "Add loading prop to dynamic imports: loading: () => <SectionSkeleton />",
+        "No Cumulative Layout Shift from skeleton to content transition",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill - throttle network to see skeletons"
+      ],
+      "priority": 10,
+      "passes": true,
+      "notes": "Match site aesthetic - dark bg, subtle animation"
+    },
+    {
+      "id": "US-011",
+      "title": "Optimize font loading with next/font",
+      "description": "As a visitor, I want text to appear quickly without layout shift.",
+      "acceptanceCriteria": [
+        "Verify next/font is used in layout.tsx for Geist Sans and JetBrains Mono",
+        "Ensure display: 'swap' is set for both fonts",
+        "Ensure preload: true is set",
+        "Add fallback fonts to font definitions",
+        "No Flash of Unstyled Text (FOUT) on page load",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": true,
+      "notes": "Check existing font configuration, optimize if needed"
+    },
+    {
+      "id": "US-012",
+      "title": "Add resource hints for pillar page navigation",
+      "description": "As a visitor, I want fast navigation to pillar pages.",
+      "acceptanceCriteria": [
+        "Ensure Next.js Link components have prefetch enabled (default behavior)",
+        "Add dns-prefetch for any external domains used (analytics, fonts CDN if any)",
+        "Verify pillar page links in header dropdown use Next.js Link",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": true,
+      "notes": "Next.js handles most prefetching automatically"
+    },
+    {
+      "id": "US-013",
+      "title": "Disable Lenis smooth scroll on reduced motion",
+      "description": "As a visitor with motion sensitivity, I want native scroll behavior.",
+      "acceptanceCriteria": [
+        "Update LenisProvider.tsx to check prefersReducedMotion",
+        "When reduced motion preferred, don't initialize Lenis",
+        "Return children without Lenis wrapper when disabled",
+        "Native browser scrolling works when Lenis is disabled",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": true,
+      "notes": "Smooth scroll can cause discomfort for motion-sensitive users"
+    },
+    {
+      "id": "US-014",
+      "title": "Disable TextScramble effect on reduced motion",
+      "description": "As a visitor with motion sensitivity, I want static text.",
+      "acceptanceCriteria": [
+        "Update TextScramble.tsx to check prefersReducedMotion",
+        "When reduced motion preferred, render final text immediately without animation",
+        "No scramble animation plays",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": true,
+      "notes": "Text scramble can be disorienting for motion-sensitive users"
+    },
+    {
+      "id": "US-015",
+      "title": "Audit and clean up unused CSS",
+      "description": "As a developer, I want to remove unused CSS to reduce stylesheet size.",
+      "acceptanceCriteria": [
+        "Review globals.css for unused keyframes or styles",
+        "Remove any CSS that's not referenced by components",
+        "Ensure Tailwind purges unused classes in production (verify in next.config)",
+        "No visual regressions after cleanup",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": true,
+      "notes": "Be careful not to remove CSS used by dynamic content"
+    },
+    {
+      "id": "US-016",
+      "title": "Run Lighthouse audit and document results",
+      "description": "As a developer, I want to verify all optimizations achieve target performance.",
+      "acceptanceCriteria": [
+        "Run npm run build to create production build",
+        "Run npm run start to serve production build",
+        "Run Lighthouse audit in Chrome DevTools (mobile mode)",
+        "Document Performance score (target: ≥80)",
+        "Document LCP (target: <2.5s)",
+        "Document CLS (target: <0.1)",
+        "Create brief summary of results and any remaining issues",
+        "Typecheck passes"
+      ],
+      "priority": 16,
+      "passes": true,
+      "notes": "Final verification - document actual scores achieved"
+    }
+  ]
+}

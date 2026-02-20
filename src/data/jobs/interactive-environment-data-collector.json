@@ -1,0 +1,36 @@
+{
+  "slug": "interactive-environment-data-collector",
+  "title": "Interactive Environment Data Collector",
+  "category": "gaming",
+  "description": "We are collecting human gameplay data to train AI agents that operate in interactive 3D environments. You will work through scripted scenarios in various game engines, logging your actions and annotating key decision points. Some sessions require you to play optimally; others ask you to intentionally explore suboptimal strategies so the AI can learn from a broader range of behaviors. Each session produces a replay file and a structured annotation log.\n\nYou should be a competent gamer with experience across multiple genres -- FPS, strategy, puzzle, and open-world. We do not need esports-level skill, but you do need to be comfortable learning new game mechanics quickly and playing systematically rather than casually. Familiarity with game engines (Unity, Unreal) is helpful for debugging session issues but not required.\n\nWork is project-based with fixed session windows. You sign up for available session slots through our scheduling portal. Payment is per completed session, with bonuses for annotation quality. Typical commitment is 10-20 hours per week.",
+  "skills": [
+    "Reliable PC meeting minimum hardware requirements",
+    "Experience with PC gaming and common game engines",
+    "Broad gaming experience across multiple genres",
+    "Comfortable following scripted playthrough protocols",
+    "Familiarity with Unity or Unreal Engine is a plus"
+  ],
+  "compensationMin": 40,
+  "compensationMax": 50,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "US",
+  "datePosted": "2026-02-17",
+  "validThrough": "2026-05-16",
+  "featured": true,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "How is compensation structured?",
+      "answer": "Payment is per completed and accepted session, with quality bonuses. Rates vary by project complexity. Sessions that do not meet annotation standards may need to be repeated."
+    },
+    {
+      "question": "What kinds of games will I play?",
+      "answer": "Projects span multiple genres including first-person exploration, strategy games, puzzle environments, and physics simulations. The specific games depend on what our AI lab partners are training."
+    },
+    {
+      "question": "Do I need a high-end gaming PC?",
+      "answer": "You need a reasonably capable PC. We will provide minimum specs during onboarding, but generally a mid-range GPU from the last 3-4 years and 16GB of RAM will suffice."
+    }
+  ]
+}

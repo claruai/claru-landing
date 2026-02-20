@@ -11,8 +11,8 @@ const worksWith = [
   "Vision-Language Models",
   "Robotics & Manipulation",
   "Embodied AI",
-  "Autonomous Systems",
-  "Egocentric Video",
+  "World Models",
+  "Simulation & Synthetic Environments",
 ];
 
 const rotatingTerms = [

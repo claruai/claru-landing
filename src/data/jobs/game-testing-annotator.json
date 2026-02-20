@@ -1,0 +1,38 @@
+{
+  "slug": "game-testing-annotator",
+  "title": "Game Testing Annotator",
+  "category": "gaming",
+  "description": "We are collecting human gameplay data to train AI agents that operate in interactive 3D environments. You will work through scripted scenarios in various game engines, logging your actions and annotating key decision points. Some sessions require you to play optimally; others ask you to intentionally explore suboptimal strategies so the AI can learn from a broader range of behaviors. Each session produces a replay file and a structured annotation log.\n\nWe are looking for people who can play systematically and document their reasoning. Gaming experience is important, but so is the ability to follow protocols and produce clean annotation logs. If you have done game QA, speedrunning, or competitive gaming, those backgrounds translate well.\n\nSessions run 2-4 hours and are scheduled in advance. Most contributors complete 3-4 sessions per week. You will need a PC that meets minimum specs for the game engines we use (we will provide these during onboarding). A stable internet connection is required for real-time data upload.",
+  "skills": [
+    "Familiarity with Unity or Unreal Engine is a plus",
+    "Attention to detail in logging and annotation",
+    "Reliable PC meeting minimum hardware requirements",
+    "Comfortable following scripted playthrough protocols",
+    "Experience with PC gaming and common game engines",
+    "Ability to articulate decision-making processes clearly",
+    "Strong spatial reasoning and strategic thinking"
+  ],
+  "compensationMin": 25,
+  "compensationMax": 35,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "US",
+  "datePosted": "2026-02-03",
+  "validThrough": "2026-05-02",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "What kinds of games will I play?",
+      "answer": "Projects span multiple genres including first-person exploration, strategy games, puzzle environments, and physics simulations. The specific games depend on what our AI lab partners are training."
+    },
+    {
+      "question": "Is this like casual game testing?",
+      "answer": "Not quite. Sessions are structured with specific objectives, strategies to try, and annotations to complete. It is more systematic than typical QA playtesting."
+    },
+    {
+      "question": "How is compensation structured?",
+      "answer": "Payment is per completed and accepted session, with quality bonuses. Rates vary by project complexity. Sessions that do not meet annotation standards may need to be repeated."
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "slug": "adversarial-prompt-engineer",
+  "title": "Adversarial Prompt Engineer",
+  "category": "red-teaming",
+  "description": "You will try to break AI systems. Your job is to craft prompts that cause language models to produce harmful, inaccurate, biased, or policy-violating outputs. Each session focuses on a specific attack vector -- jailbreaking, prompt injection, social engineering, bias elicitation, or factual manipulation. You document every attempt, successful or not, in a structured report that the safety team uses to patch vulnerabilities before the model ships.\n\nA background in cybersecurity, penetration testing, or adversarial ML is ideal, but we have also had strong hires from journalism, law, and creative writing -- anyone who is good at finding holes in systems and articulating what they found. You need to be comfortable working with sensitive content categories (violence, hate speech, self-harm) in a clinical, analytical context. Emotional resilience is not optional.\n\nOnboarding includes a detailed walkthrough of our taxonomy of failure modes, the reporting template, and the specific model you will be testing. After onboarding, you work independently but can raise urgent findings through a priority Slack channel.",
+  "skills": [
+    "Systematic approach to testing and documentation",
+    "Comfort working with sensitive content categories",
+    "Creative and lateral thinking about system vulnerabilities",
+    "Ability to reproduce and clearly document exploits",
+    "Background in security research, journalism, or law",
+    "Emotional resilience when encountering disturbing content"
+  ],
+  "compensationMin": 40,
+  "compensationMax": 55,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "US",
+  "datePosted": "2026-01-27",
+  "validThrough": "2026-04-26",
+  "featured": false,
+  "archived": true,
+  "faqs": [
+    {
+      "question": "Do I need a technical background?",
+      "answer": "It helps but is not strictly required. We look for creative, methodical thinkers. Some of our most effective red teamers come from non-technical backgrounds like investigative journalism or legal analysis."
+    },
+    {
+      "question": "What models will I be testing?",
+      "answer": "We work with frontier language models from several major AI labs. Specific model details are shared under NDA during onboarding."
+    },
+    {
+      "question": "Will I be exposed to disturbing content?",
+      "answer": "Yes. Red teaming by definition involves attempting to elicit harmful outputs. We provide content warnings, mental health resources, and encourage regular breaks. You should be confident in your ability to work with this material professionally."
+    }
+  ]
+}

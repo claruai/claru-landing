@@ -1,0 +1,32 @@
+{
+  "slug": "structured-data-tagger",
+  "title": "Structured Data Tagger",
+  "category": "data-labeling",
+  "description": "Your main job is to turn unstructured data into labeled training examples. Depending on the project, that might mean highlighting spans of text, drawing bounding boxes, assigning categorical labels, or ranking items by relevance. We provide annotation guidelines for every project, and you will go through a short calibration set before starting live work. The labels you produce feed directly into model training runs, so accuracy and consistency have a real impact.\n\nStrong reading comprehension is non-negotiable. You should be comfortable reading dense material -- legal text, scientific abstracts, user reviews -- and making quick, accurate decisions about what category or tag applies. Prior experience with tools like Label Studio, Prodigy, or Scale AI is a plus but not required; our platform is browser-based and we will train you on it during onboarding.\n\nSchedule is flexible within project deadlines. Most annotators work 15-25 hours per week, though some projects offer surge periods at higher rates. You will communicate with project leads through Slack and attend a brief weekly sync call.",
+  "skills": [
+    "Ability to maintain consistency across large task volumes",
+    "Comfortable working with ambiguous or edge-case data",
+    "Reliable internet connection and quiet workspace",
+    "Experience with data labeling or annotation platforms",
+    "Ability to internalize complex annotation guidelines quickly",
+    "Strong reading comprehension and attention to detail"
+  ],
+  "compensationMin": 40,
+  "compensationMax": 50,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "datePosted": "2026-01-22",
+  "validThrough": "2026-04-21",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "What types of data will I be labeling?",
+      "answer": "Projects vary and may include text classification, named entity recognition, image tagging, or multimodal alignment tasks. Detailed instructions and examples are provided for each project."
+    },
+    {
+      "question": "Is there a minimum weekly time commitment?",
+      "answer": "Most projects require 10-15 hours per week minimum. Higher-volume contributors typically get priority access to new projects."
+    }
+  ]
+}

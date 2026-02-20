@@ -1,0 +1,32 @@
+{
+  "slug": "code-correctness-analyst",
+  "title": "Code Correctness Analyst",
+  "category": "coding-review",
+  "description": "This role feeds directly into code-generation model training. You will review AI-written code across multiple languages and evaluate it on dimensions like functional correctness, runtime efficiency, code style, and security. Each review includes running the code (or mentally tracing it) to verify it produces the expected output, then scoring it against a rubric. You also write short explanations of any issues you find -- these justifications become part of the training signal.\n\nYou should be a working or recently active software developer with at least 2 years of professional experience. We need you to be genuinely comfortable reading and understanding code in at least two of the following: Python, JavaScript/TypeScript, Java, C++, Go, Rust. A CS degree is not required, but you do need solid fundamentals -- data structures, algorithms, common design patterns, and an understanding of time/space complexity.\n\nEvaluations are available around the clock and you can work whenever suits you. Most reviewers work 15-25 hours per week. Languages and task difficulty are tagged, so you can filter for tasks that match your strongest skills. Compensation is hourly, scaled by task complexity.",
+  "skills": [
+    "Proficiency in Python, JavaScript/TypeScript, or Java",
+    "At least 2 years professional software development experience",
+    "Ability to identify bugs, anti-patterns, and security issues",
+    "Strong understanding of data structures and algorithms",
+    "Clear written communication for evaluation justifications"
+  ],
+  "compensationMin": 70,
+  "compensationMax": 80,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "US",
+  "datePosted": "2026-01-27",
+  "validThrough": "2026-04-26",
+  "featured": true,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "What programming languages will I review?",
+      "answer": "Most tasks involve Python, JavaScript/TypeScript, Java, or C++. Less common tasks may involve Go, Rust, or SQL. You can filter for languages you are comfortable with."
+    },
+    {
+      "question": "Do I need to run the code?",
+      "answer": "Some tasks provide test cases and expect you to verify output. Others rely on manual code tracing. We provide a sandboxed execution environment for tasks that require running code."
+    }
+  ]
+}

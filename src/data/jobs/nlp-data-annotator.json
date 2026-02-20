@@ -1,0 +1,34 @@
+{
+  "slug": "nlp-data-annotator",
+  "title": "NLP Data Annotator",
+  "category": "data-labeling",
+  "description": "We need people who can label data accurately at scale. You will work through queues of text snippets, images, or document-image pairs, tagging each item according to a detailed schema. The schemas change from project to project -- one week you might be marking named entities in news articles, the next you might be rating the relevance of search results. Consistency matters more than speed, though we do expect you to hit reasonable throughput targets after the ramp-up period.\n\nIdeal candidates have a background in linguistics, library science, content moderation, or a related field, but we have also had strong results from career changers who simply care about getting things right. The work is repetitive by nature, so you need to be someone who finds satisfaction in precision rather than novelty. You should be comfortable working independently and hitting deadlines without constant supervision.\n\nMost projects run on weekly cycles. You will receive a batch of tasks on Monday, and the team expects completed work by Friday. Weekly calibration meetings happen over Zoom to align on edge cases and guideline updates. Minimum commitment is 15 hours per week; top contributors regularly log 30+.",
+  "skills": [
+    "Strong reading comprehension and attention to detail",
+    "Comfortable working with ambiguous or edge-case data",
+    "Background in linguistics, library science, or content moderation",
+    "Experience with data labeling or annotation platforms",
+    "Reliable internet connection and quiet workspace",
+    "Familiarity with NLP concepts (tokenization, NER, POS tagging)",
+    "Ability to internalize complex annotation guidelines quickly"
+  ],
+  "compensationMin": 60,
+  "compensationMax": 85,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "US",
+  "datePosted": "2026-02-07",
+  "validThrough": "2026-05-06",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "Do I need special software?",
+      "answer": "No. Our annotation platform runs in any modern web browser. We will walk you through setup during onboarding."
+    },
+    {
+      "question": "Is there a minimum weekly time commitment?",
+      "answer": "Most projects require 10-15 hours per week minimum. Higher-volume contributors typically get priority access to new projects."
+    }
+  ]
+}

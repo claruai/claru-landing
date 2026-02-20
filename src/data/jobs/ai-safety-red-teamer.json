@@ -1,0 +1,36 @@
+{
+  "slug": "ai-safety-red-teamer",
+  "title": "AI Safety Red Teamer",
+  "category": "red-teaming",
+  "description": "This role is adversarial by design. You will probe language models for weaknesses by writing creative, unusual, and sometimes uncomfortable prompts designed to surface failure modes. Think of yourself as a security researcher, but for AI behavior instead of network infrastructure. Every vulnerability you find helps the model become safer for end users. The work requires creativity, persistence, and a willingness to explore dark corners of model behavior systematically.\n\nA background in cybersecurity, penetration testing, or adversarial ML is ideal, but we have also had strong hires from journalism, law, and creative writing -- anyone who is good at finding holes in systems and articulating what they found. You need to be comfortable working with sensitive content categories (violence, hate speech, self-harm) in a clinical, analytical context. Emotional resilience is not optional.\n\nThis is project-based work with defined evaluation periods. You will be assigned specific models and attack categories for each evaluation cycle (typically 2-4 weeks). Compensation is hourly with significant bonuses for high-severity findings. Expect 15-25 hours per week.",
+  "skills": [
+    "Understanding of AI safety concepts and failure modes",
+    "Familiarity with prompt engineering techniques",
+    "Creative and lateral thinking about system vulnerabilities",
+    "Ability to reproduce and clearly document exploits",
+    "Background in security research, journalism, or law"
+  ],
+  "compensationMin": 65,
+  "compensationMax": 85,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "EU",
+  "datePosted": "2026-02-08",
+  "validThrough": "2026-05-07",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "Do I need a technical background?",
+      "answer": "It helps but is not strictly required. We look for creative, methodical thinkers. Some of our most effective red teamers come from non-technical backgrounds like investigative journalism or legal analysis."
+    },
+    {
+      "question": "How are findings prioritized?",
+      "answer": "We use a severity scale similar to CVSS. Critical findings (reliable jailbreaks, PII leakage) are escalated immediately. Lower-severity issues (mild bias, style inconsistencies) are batched for review."
+    },
+    {
+      "question": "What models will I be testing?",
+      "answer": "We work with frontier language models from several major AI labs. Specific model details are shared under NDA during onboarding."
+    }
+  ]
+}

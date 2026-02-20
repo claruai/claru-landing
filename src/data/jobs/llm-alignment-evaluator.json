@@ -1,0 +1,37 @@
+{
+  "slug": "llm-alignment-evaluator",
+  "title": "LLM Alignment Evaluator",
+  "category": "rlhf",
+  "description": "We need evaluators who can read AI-generated text critically and make consistent quality judgments under detailed rubrics. On a given day you might compare two explanations of quantum mechanics, two pieces of marketing copy, and two responses to a sensitive personal question. The common thread is careful reading, rubric application, and clear written justifications. Speed matters, but not at the expense of thoughtfulness.\n\nStrong analytical writing is the single most important skill. You need to be able to read a complex response, identify what is good and what is wrong with it, and explain your assessment in 2-3 sentences. Backgrounds in philosophy, journalism, law, science, or education tend to produce strong RLHF annotators because those fields train exactly this kind of evaluative thinking.\n\nAnnotators work in focused sessions of 3-6 hours at a time, scheduling their own shifts within project windows. Weekly volume targets are typically 20-30 hours but can scale up during surge periods. A weekly calibration meeting aligns the team on rubric updates and tricky edge cases.",
+  "skills": [
+    "Ability to follow detailed annotation guidelines consistently",
+    "Familiarity with LLM capabilities and failure modes",
+    "Excellent written English communication",
+    "Strong analytical and critical thinking skills",
+    "Good judgment on safety and sensitivity issues",
+    "Graduate-level education or equivalent professional experience"
+  ],
+  "compensationMin": 35,
+  "compensationMax": 45,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "EU",
+  "datePosted": "2026-02-08",
+  "validThrough": "2026-05-07",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "What does a typical workday look like?",
+      "answer": "You receive batches of prompt-response pairs to evaluate. Each batch includes a rubric. Most annotators work 4-6 hour focused sessions and choose their own schedules within project deadlines."
+    },
+    {
+      "question": "Do I need prior RLHF experience?",
+      "answer": "It helps but is not required. Candidates with strong analytical writing backgrounds and familiarity with AI systems are encouraged to apply. We provide thorough onboarding and calibration training."
+    },
+    {
+      "question": "What tools are used?",
+      "answer": "Our proprietary annotation platform runs in any modern browser. No special hardware or software needed beyond a stable internet connection and a keyboard."
+    }
+  ]
+}

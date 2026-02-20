@@ -1,0 +1,32 @@
+{
+  "slug": "visual-data-annotator",
+  "title": "Visual Data Annotator",
+  "category": "vision-annotation",
+  "description": "This role is about precision marking. You will use our web-based annotation tool to identify and outline objects in images, classify their properties, and annotate spatial relationships. Some projects involve simple bounding boxes; others require polygon segmentation at near-pixel accuracy. The quality bar is high because the models trained on your annotations will make real-world decisions -- a mislabeled pedestrian in a driving data set is not a minor error.\n\nPrior experience with annotation tools like CVAT, Labelbox, V7, or Supervisely is preferred but not required -- our platform is intuitive and we train you during onboarding. What we cannot teach is visual acuity and spatial precision. You should have a good eye for detail and the patience to outline objects carefully rather than rushing through tasks. Familiarity with basic computer vision concepts (object detection, segmentation, keypoints) is a plus.\n\nAfter onboarding, you will complete a calibration set for each new project type. Once you pass calibration, live tasks become available. Volume scales with your accuracy -- high-quality annotators get priority access to new projects and premium tasks.",
+  "skills": [
+    "Attention to detail in bounding box and segmentation tasks",
+    "Strong visual acuity and spatial precision",
+    "Comfortable working with diverse image domains",
+    "Experience with image annotation tools (CVAT, Labelbox, V7)",
+    "Monitor with at least 1080p resolution"
+  ],
+  "compensationMin": 40,
+  "compensationMax": 45,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "EU",
+  "datePosted": "2026-02-11",
+  "validThrough": "2026-05-10",
+  "featured": false,
+  "archived": true,
+  "faqs": [
+    {
+      "question": "What is the turnaround time for feedback?",
+      "answer": "Quality scores update daily. If an annotation is rejected, you receive specific feedback within 24 hours explaining what to correct."
+    },
+    {
+      "question": "Can I work on multiple project types?",
+      "answer": "Yes. After completing calibration for a project type, you can take on tasks from that category. Most annotators qualify for 2-3 project types within their first month."
+    }
+  ]
+}

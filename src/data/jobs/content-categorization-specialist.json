@@ -1,0 +1,33 @@
+{
+  "slug": "content-categorization-specialist",
+  "title": "Content Categorization Specialist",
+  "category": "data-labeling",
+  "description": "This role puts you at the center of the data pipeline. You will apply annotation schemas to raw text and images so that downstream ML models can learn from clean, consistent labels. Day to day, that means opening a queue of tasks, reading the guidelines for the current project, and working through items one by one. Some projects focus on sentiment, others on entity extraction, and a few involve content moderation categories. Every project ships with examples and edge-case documentation, but you still need good instincts for ambiguity.\n\nWe are looking for people who pay attention to the small stuff. The difference between a good annotator and a great one is usually consistency: can you apply the same judgment to item 500 that you applied to item 5? If you have worked in research, editing, QA, or any job that demanded sustained focus on detail, you will do well here. Familiarity with NLP concepts like tokenization, part-of-speech tagging, or named entity recognition helps but is not a hard requirement.\n\nSchedule is flexible within project deadlines. Most annotators work 15-25 hours per week, though some projects offer surge periods at higher rates. You will communicate with project leads through Slack and attend a brief weekly sync call.",
+  "skills": [
+    "Background in linguistics, library science, or content moderation",
+    "Reliable internet connection and quiet workspace",
+    "Experience with data labeling or annotation platforms",
+    "Strong reading comprehension and attention to detail",
+    "Proficient in written English",
+    "Familiarity with NLP concepts (tokenization, NER, POS tagging)",
+    "Experience with Label Studio, Prodigy, or similar tools"
+  ],
+  "compensationMin": 40,
+  "compensationMax": 45,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "datePosted": "2026-01-19",
+  "validThrough": "2026-04-18",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "What types of data will I be labeling?",
+      "answer": "Projects vary and may include text classification, named entity recognition, image tagging, or multimodal alignment tasks. Detailed instructions and examples are provided for each project."
+    },
+    {
+      "question": "Is there a minimum weekly time commitment?",
+      "answer": "Most projects require 10-15 hours per week minimum. Higher-volume contributors typically get priority access to new projects."
+    }
+  ]
+}

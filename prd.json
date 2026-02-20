@@ -1,269 +1,174 @@
 {
-  "project": "Claru Performance Optimization",
-  "branchName": "ralph/performance-optimization",
-  "description": "Mobile and speed optimization for the Claru landing site without changing aesthetics. Target: <5s TTI on mobile 4G, Lighthouse 80+.",
+  "project": "Claru Case Studies Section",
+  "branchName": "ralph/case-studies",
+  "description": "Build /case-studies section with 10 SEO/AEO-optimized case study pages, filterable index, JSON-LD schema, internal linking to pillar pages, and site navigation integration.",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Audit and remove unused three.js dependency",
-      "description": "As a developer, I need to remove unused dependencies to reduce bundle size.",
+      "title": "Case study data schema, types, and utility functions",
+      "description": "As a developer, I need a typed CaseStudy interface and utility functions so all downstream pages can load and display case studies.",
       "acceptanceCriteria": [
-        "Check if ShaderBackground.tsx is imported anywhere in the codebase",
-        "Check if AsciiEffect.tsx and AsciiScene.tsx are used anywhere",
-        "If unused, delete ShaderBackground.tsx, AsciiEffect.tsx, AsciiScene.tsx",
-        "Remove 'three' from package.json dependencies if no imports remain",
-        "Run npm install to update lockfile",
-        "npm run build passes with no errors",
+        "Create src/types/case-study.ts with CaseStudy interface: slug, title, category (union: 'data-collection' | 'annotation' | 'safety' | 'evaluation' | 'video' | 'robotics' | 'gaming' | 'fashion-ai'), teaser (string), headlineStat (string), headlineStatLabel (string), summary (string), challenge (string), approach (string), results (array of {value: string, label: string}), impact (string), whyItMatters (string), faqs (array of {question: string, answer: string}), relatedSlugs (string[]), pillarLink ({href: string, label: string}), targetKeyword (string), metaTitle (string), metaDescription (string), images (string[]), datePublished (ISO string)",
+        "Create src/lib/case-studies.ts with: getAllCaseStudies() returning CaseStudy[], getCaseStudyBySlug(slug: string) returning CaseStudy | null, getCaseStudiesByCategory(category: string) returning CaseStudy[], getRelatedCaseStudies(slug: string, limit?: number) returning CaseStudy[]",
+        "Functions read from src/data/case-studies/*.json files using fs/path (server-side only, same pattern as src/lib/jobs.ts)",
+        "Create src/data/case-studies/ directory",
+        "Add 1 sample JSON file for testing (egocentric-video-collection.json)",
+        "npm run build succeeds",
         "Typecheck passes"
       ],
       "priority": 1,
-      "passes": true,
-      "notes": "Quick win - three.js is ~150KB. Verify no active usage before removal."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-002",
-      "title": "Configure Next.js for WebP/AVIF image optimization",
-      "description": "As a developer, I need to enable modern image formats for automatic optimization.",
+      "title": "Seed all 10 case study JSON files from markdown docs",
+      "description": "As a developer, I need all 10 case study JSON files populated with content so the pages have real data.",
       "acceptanceCriteria": [
-        "Update next.config.js (or next.config.ts) to include images configuration",
-        "Set formats: ['image/avif', 'image/webp']",
-        "Set deviceSizes: [640, 750, 828, 1080, 1200, 1920]",
-        "Set imageSizes: [16, 32, 48, 64, 96, 128, 256, 384]",
-        "npm run build passes",
+        "Read each markdown doc in docs/case-studies/*.md and create corresponding JSON file in src/data/case-studies/",
+        "All 10 files created: egocentric-video-collection.json, game-based-data-capture.json, fashion-ai-annotation.json, generative-ai-safety.json, video-model-evaluation.json, workplace-egocentric-data.json, object-identity-persistence.json, prompt-enhancement-benchmark.json, video-content-classification.json, data-engine-world-models.json",
+        "Each JSON includes expanded content: challenge (2-4 sentences, answer-first), approach (2-3 paragraphs with methodology detail using technical vocabulary), results (3-4 stat objects), impact paragraph, whyItMatters paragraph",
+        "Each JSON includes 3-5 FAQs with answer-first format — direct statement then elaboration",
+        "Content tone: written for skeptical AI researcher, NO marketing fluff, concrete methodology, technical terms (egocentric POV, semantic segmentation, Krippendorff alpha, ELO ranking)",
+        "Each JSON includes metaTitle (<60 chars) and metaDescription (<155 chars) targeting the primary keyword",
+        "Target keywords per case study: egocentric-video-collection targets 'egocentric video data collection robotics', game-based-data-capture targets 'game-based data collection AI training', fashion-ai-annotation targets 'fashion image annotation AI training data', generative-ai-safety targets 'generative AI safety labeling service', video-model-evaluation targets 'video generation model evaluation service', workplace-egocentric-data targets 'workplace egocentric data robotics training', object-identity-persistence targets 'object identity tracking video annotation AI', prompt-enhancement-benchmark targets 'prompt enhancement benchmarking training data', video-content-classification targets 'video content classification training data', data-engine-world-models targets 'data engine for world models AI'",
+        "Each JSON includes pillarLink mapping: egocentric-video -> /pillars/acquire/egocentric-video, game-based -> /pillars/acquire/synthetic-data, fashion-ai -> /pillars/enrich/expert-annotation, safety -> /pillars/validate/red-teaming, video-model-eval -> /pillars/validate/benchmark-curation, workplace -> /pillars/acquire/egocentric-video, object-identity -> /pillars/enrich/video-annotation, prompt-benchmark -> /pillars/validate/benchmark-curation, video-classification -> /pillars/enrich/expert-annotation, data-engine -> /pillars/acquire",
+        "Each JSON includes relatedSlugs array with 2-3 thematically adjacent case studies",
+        "Each JSON includes images array with placeholder paths like /images/case-studies/[slug]/hero.png (assets downloaded in US-003)",
+        "npm run build succeeds",
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": true,
-      "notes": "Foundation for image optimization in subsequent stories"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-003",
-      "title": "Optimize ASCII robot background images for web",
-      "description": "As a visitor, I want the hero ASCII effect images to load faster.",
+      "title": "Download media assets from Notion case study pages",
+      "description": "As a developer, I need a script that downloads images from the Notion case study pages to public/images/case-studies/[slug]/ so pages can reference local assets.",
       "acceptanceCriteria": [
-        "Convert robot-face2.png and robot-face7.png to WebP format at 85% quality",
-        "Save as robot-face2.webp and robot-face7.webp in public/images/",
-        "Create mobile versions at 800px max width: robot-face2-mobile.webp, robot-face7-mobile.webp",
-        "Target file sizes: <150KB each for desktop, <80KB for mobile (vs current ~1MB+)",
-        "Update ASCIIRobotBackground.tsx to use .webp versions",
-        "Add device detection to load mobile images on screens < 768px",
-        "ASCII effect still renders correctly",
+        "Create scripts/download-case-study-assets.ts runnable with npx tsx scripts/download-case-study-assets.ts",
+        "Script reads the Notion image URLs listed in each docs/case-studies/*.md file under the Notion Asset URLs section",
+        "For each case study, creates public/images/case-studies/[slug]/ directory",
+        "Downloads each image URL and saves with descriptive filename (hero.png, metrics.png, process.png, etc.)",
+        "Script handles expired Notion S3 URLs gracefully — logs warning but does not crash",
+        "Script outputs summary: X images downloaded for Y case studies",
+        "After running, update the images arrays in src/data/case-studies/*.json to reference the actual downloaded file paths",
+        "npm run build succeeds",
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": true,
-      "notes": "Use sharp or squoosh CLI for conversion. Keep originals as backup."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-004",
-      "title": "Create useDeviceCapability hook for performance detection",
-      "description": "As a developer, I need a hook to detect device capabilities for adaptive rendering.",
+      "title": "Case studies index page with filterable card grid",
+      "description": "As a visitor, I want to browse all case studies on a filterable index page so I can find projects relevant to my needs.",
       "acceptanceCriteria": [
-        "Create /src/app/hooks/useDeviceCapability.ts",
-        "Export useDeviceCapability hook returning { isMobile, isLowPower, prefersReducedMotion }",
-        "isMobile: detect via userAgent or screen width < 768px",
-        "isLowPower: navigator.hardwareConcurrency <= 4",
-        "prefersReducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches",
-        "Handle SSR safely (return defaults until mounted)",
-        "Add listener for reduced motion changes",
-        "Typecheck passes"
+        "Create src/app/case-studies/page.tsx",
+        "Create src/app/case-studies/layout.tsx with metadata: title 'Case Studies | AI Training Data Projects at Scale | Claru', description targeting 'AI training data case studies'",
+        "Uses shared Header (with opaque prop) and Footer components",
+        "Section label: // CASE STUDIES in monospace accent-secondary",
+        "Headline: What we have shipped.",
+        "Subheadline: From egocentric video to model evaluation — real projects, real numbers.",
+        "Category filter pills: All, Data Collection, Annotation, Safety, Evaluation, Video, Robotics, Gaming — clicking filters the grid",
+        "Card grid: responsive 1-col mobile, 2-col tablet, 3-col desktop",
+        "Each card shows: category badge (colored by type), headline stat in large monospace, title, 2-line teaser, arrow link to /case-studies/[slug]",
+        "Cards use --bg-card background, --border-subtle border, hover lift and border glow matching existing site patterns",
+        "TextScramble on card title hover",
+        "whileInView staggered fade-in animations",
+        "Count display: Showing X case studies",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 4,
-      "passes": true,
-      "notes": "This hook will be used by animation components to adjust behavior"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-005",
-      "title": "Optimize ASCII background for mobile devices",
-      "description": "As a mobile visitor, I want smooth performance with the ASCII background.",
+      "title": "Individual case study page template with full SEO",
+      "description": "As a visitor, I want to read a detailed case study page with methodology, results, and related content so I can evaluate Claru's capabilities.",
       "acceptanceCriteria": [
-        "Import useDeviceCapability hook in ASCIIRobotBackground.tsx",
-        "Reduce animation FPS from ~20 to 10 when isMobile is true",
-        "Reduce canvas resolution on mobile (scale by 0.75 or use smaller fontSize)",
-        "Skip wave/distortion effects on mobile for simpler rendering",
-        "Desktop animation fidelity remains unchanged",
+        "Create src/app/case-studies/[slug]/page.tsx with generateStaticParams for static generation",
+        "Page structure in order: (1) Hero with outcome-led headline + category badge + headline stat, (2) Quick Summary terminal-style callout block with challenge/solution/result in 3 lines, (3) Snapshot bar with 3-4 inline stats, (4) Challenge section (answer-first: direct statement then 2-4 sentences), (5) Our Approach section (2-3 paragraphs with methodology detail), (6) Results section (3-column stat grid with large monospace numbers in accent-primary), (7) Impact section (1 paragraph), (8) Service Used callout linking to the relevant pillar page with keyword-rich anchor text, (9) Related Case Studies 3-card grid using getRelatedCaseStudies, (10) FAQ accordion section with 3-5 Qs answer-first, (11) CTA section with Book a Call button",
+        "Article JSON-LD schema injected via script tag: headline, datePublished, author (Claru AI org), publisher, image, description",
+        "FAQPage JSON-LD schema injected for the FAQ section",
+        "BreadcrumbList JSON-LD schema: Home > Case Studies > [Title]",
+        "Open Graph meta tags: title, description, image, type article",
+        "Twitter card meta tags: summary_large_image",
+        "Dynamic generateMetadata using the case study metaTitle and metaDescription fields",
+        "Images from public/images/case-studies/[slug]/ displayed where relevant (hero image, process diagrams)",
+        "Responsive layout matching existing site dark terminal aesthetic",
+        "TextScramble on headline, FadeIn scroll animations on sections",
+        "404 handling: return notFound() if slug not found",
+        "npm run build succeeds — all 10 pages generate statically",
         "Typecheck passes",
-        "Verify in browser using dev-browser skill - test mobile viewport"
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 5,
-      "passes": true,
-      "notes": "Keep the aesthetic, just reduce computation on mobile"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-006",
-      "title": "Add prefers-reduced-motion support to ASCII background",
-      "description": "As a visitor with motion sensitivity, I want a static experience.",
+      "title": "Add Case Studies to site navigation",
+      "description": "As a visitor, I want to see Case Studies in the header navigation so I can discover the section from any page.",
       "acceptanceCriteria": [
-        "Check prefersReducedMotion from useDeviceCapability hook",
-        "When true, render a single static frame of ASCII art (no animation loop)",
-        "Cancel requestAnimationFrame when reduced motion is preferred",
-        "Show static gradient overlay as fallback if needed",
+        "In src/app/components/layout/Header.tsx add Case Studies link to navLinks array",
+        "Nav order: Training Data, Expert Labeling, Case Studies, Work With Us, [Book a Call CTA]",
+        "Link appears in both desktop nav and mobile menu",
+        "In src/app/components/sections/Footer.tsx add Case Studies link in the navigation section",
+        "npm run build succeeds",
         "Typecheck passes",
-        "Verify in browser - enable reduced motion in system settings"
+        "Verify in browser using dev-browser skill — check desktop and mobile nav"
       ],
       "priority": 6,
-      "passes": true,
-      "notes": "Accessibility requirement - respect user preferences"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-007",
-      "title": "Optimize Framer Motion with LazyMotion",
-      "description": "As a visitor, I want faster initial load by lazy-loading animation features.",
+      "title": "Add case study callout cards to pillar pages",
+      "description": "As a visitor browsing a pillar page, I want to see relevant case studies so I can see proof that Claru has done this work.",
       "acceptanceCriteria": [
-        "Create /src/app/components/providers/MotionProvider.tsx",
-        "Import LazyMotion and domAnimation from framer-motion",
-        "Wrap children in LazyMotion with features={domAnimation}",
-        "Export MotionProvider component",
-        "Update layout.tsx or page.tsx to wrap app in MotionProvider",
-        "All existing Framer Motion animations still work",
-        "Typecheck passes"
+        "Create a reusable CaseStudyCallout component that takes a case study slug and renders: headline stat, title, 1-line teaser, Read case study arrow link",
+        "Component styled as a dark card with accent border, matching existing pillar page design",
+        "Add a See It In Practice section to these pillar pages with the mapped case study callout(s): /pillars/acquire/egocentric-video gets egocentric-video-collection + workplace-egocentric-data, /pillars/acquire/synthetic-data gets game-based-data-capture, /pillars/enrich/expert-annotation gets fashion-ai-annotation + video-content-classification, /pillars/enrich/video-annotation gets object-identity-persistence, /pillars/enrich/rlhf gets prompt-enhancement-benchmark, /pillars/validate/red-teaming gets generative-ai-safety, /pillars/validate/benchmark-curation gets video-model-evaluation + prompt-enhancement-benchmark",
+        "Section label on pillar pages: // SEE IT IN PRACTICE",
+        "Placed before the CTA section on each pillar page",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill — check at least 3 pillar pages"
       ],
       "priority": 7,
-      "passes": true,
-      "notes": "LazyMotion reduces Framer Motion bundle by ~50%"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-008",
-      "title": "Add reduced motion support to Framer Motion animations",
-      "description": "As a visitor with motion sensitivity, I want animations disabled.",
+      "title": "Playwright E2E tests for case studies section",
+      "description": "As QA, I need end-to-end tests verifying the case studies index, individual pages, structured data, and navigation.",
       "acceptanceCriteria": [
-        "Update MotionProvider to check prefersReducedMotion",
-        "When reduced motion preferred, use MotionConfig with reducedMotion='always'",
-        "Alternatively, pass reduced motion to LazyMotion context",
-        "Test that motion.div animations are disabled with reduced motion",
+        "Create tests/e2e/case-studies.spec.ts",
+        "Test: navigate to /case-studies, verify 10 case study cards render",
+        "Test: click a category filter pill, verify cards filter correctly",
+        "Test: click a case study card, verify navigation to /case-studies/[slug]",
+        "Test: on individual page verify: headline, quick summary block, snapshot stats, challenge section, approach section, results grid, FAQ accordion, related case studies, CTA button",
+        "Test: verify Article JSON-LD exists in page source with required fields (headline, datePublished, author)",
+        "Test: verify FAQPage JSON-LD exists with at least 3 questions",
+        "Test: verify BreadcrumbList JSON-LD exists with 3 items",
+        "Test: verify breadcrumb navigation renders (Home > Case Studies > Title)",
+        "Test: verify Service Used callout links to a pillar page",
+        "Test: verify Case Studies link exists in header navigation",
+        "Test: check a pillar page has See It In Practice section with case study callout",
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": true,
-      "notes": "Framer Motion has built-in reduced motion support"
-    },
-    {
-      "id": "US-009",
-      "title": "Code-split below-the-fold sections on homepage",
-      "description": "As a visitor, I want the hero to load immediately while other content loads progressively.",
-      "acceptanceCriteria": [
-        "Keep Hero and Header as static imports in page.tsx",
-        "Convert ProblemAgitation to dynamic import with { ssr: false }",
-        "Convert FourPillars to dynamic import",
-        "Convert Capabilities to dynamic import",
-        "Convert Testimonials to dynamic import",
-        "Convert FinalCTA to dynamic import",
-        "Hero renders immediately on page load",
-        "npm run build passes",
-        "Typecheck passes"
-      ],
-      "priority": 9,
-      "passes": true,
-      "notes": "Use next/dynamic for all below-fold sections"
-    },
-    {
-      "id": "US-010",
-      "title": "Add loading skeletons for dynamic sections",
-      "description": "As a visitor, I want visual feedback while sections load.",
-      "acceptanceCriteria": [
-        "Create /src/app/components/ui/Skeleton.tsx component",
-        "Skeleton uses bg-[var(--bg-secondary)] with subtle pulse animation",
-        "Create SectionSkeleton variant with height matching typical section",
-        "Add loading prop to dynamic imports: loading: () => <SectionSkeleton />",
-        "No Cumulative Layout Shift from skeleton to content transition",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill - throttle network to see skeletons"
-      ],
-      "priority": 10,
-      "passes": true,
-      "notes": "Match site aesthetic - dark bg, subtle animation"
-    },
-    {
-      "id": "US-011",
-      "title": "Optimize font loading with next/font",
-      "description": "As a visitor, I want text to appear quickly without layout shift.",
-      "acceptanceCriteria": [
-        "Verify next/font is used in layout.tsx for Geist Sans and JetBrains Mono",
-        "Ensure display: 'swap' is set for both fonts",
-        "Ensure preload: true is set",
-        "Add fallback fonts to font definitions",
-        "No Flash of Unstyled Text (FOUT) on page load",
-        "Typecheck passes"
-      ],
-      "priority": 11,
-      "passes": true,
-      "notes": "Check existing font configuration, optimize if needed"
-    },
-    {
-      "id": "US-012",
-      "title": "Add resource hints for pillar page navigation",
-      "description": "As a visitor, I want fast navigation to pillar pages.",
-      "acceptanceCriteria": [
-        "Ensure Next.js Link components have prefetch enabled (default behavior)",
-        "Add dns-prefetch for any external domains used (analytics, fonts CDN if any)",
-        "Verify pillar page links in header dropdown use Next.js Link",
-        "Typecheck passes"
-      ],
-      "priority": 12,
-      "passes": true,
-      "notes": "Next.js handles most prefetching automatically"
-    },
-    {
-      "id": "US-013",
-      "title": "Disable Lenis smooth scroll on reduced motion",
-      "description": "As a visitor with motion sensitivity, I want native scroll behavior.",
-      "acceptanceCriteria": [
-        "Update LenisProvider.tsx to check prefersReducedMotion",
-        "When reduced motion preferred, don't initialize Lenis",
-        "Return children without Lenis wrapper when disabled",
-        "Native browser scrolling works when Lenis is disabled",
-        "Typecheck passes"
-      ],
-      "priority": 13,
-      "passes": true,
-      "notes": "Smooth scroll can cause discomfort for motion-sensitive users"
-    },
-    {
-      "id": "US-014",
-      "title": "Disable TextScramble effect on reduced motion",
-      "description": "As a visitor with motion sensitivity, I want static text.",
-      "acceptanceCriteria": [
-        "Update TextScramble.tsx to check prefersReducedMotion",
-        "When reduced motion preferred, render final text immediately without animation",
-        "No scramble animation plays",
-        "Typecheck passes"
-      ],
-      "priority": 14,
-      "passes": true,
-      "notes": "Text scramble can be disorienting for motion-sensitive users"
-    },
-    {
-      "id": "US-015",
-      "title": "Audit and clean up unused CSS",
-      "description": "As a developer, I want to remove unused CSS to reduce stylesheet size.",
-      "acceptanceCriteria": [
-        "Review globals.css for unused keyframes or styles",
-        "Remove any CSS that's not referenced by components",
-        "Ensure Tailwind purges unused classes in production (verify in next.config)",
-        "No visual regressions after cleanup",
-        "Typecheck passes"
-      ],
-      "priority": 15,
-      "passes": true,
-      "notes": "Be careful not to remove CSS used by dynamic content"
-    },
-    {
-      "id": "US-016",
-      "title": "Run Lighthouse audit and document results",
-      "description": "As a developer, I want to verify all optimizations achieve target performance.",
-      "acceptanceCriteria": [
-        "Run npm run build to create production build",
-        "Run npm run start to serve production build",
-        "Run Lighthouse audit in Chrome DevTools (mobile mode)",
-        "Document Performance score (target: ≥80)",
-        "Document LCP (target: <2.5s)",
-        "Document CLS (target: <0.1)",
-        "Create brief summary of results and any remaining issues",
-        "Typecheck passes"
-      ],
-      "priority": 16,
-      "passes": true,
-      "notes": "Final verification - document actual scores achieved"
+      "passes": false,
+      "notes": ""
     }
   ]
 }

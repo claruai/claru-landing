@@ -1,0 +1,32 @@
+{
+  "slug": "senior-rlhf-evaluator",
+  "title": "Senior RLHF Evaluator",
+  "category": "rlhf",
+  "description": "We need evaluators who can read AI-generated text critically and make consistent quality judgments under detailed rubrics. On a given day you might compare two explanations of quantum mechanics, two pieces of marketing copy, and two responses to a sensitive personal question. The common thread is careful reading, rubric application, and clear written justifications. Speed matters, but not at the expense of thoughtfulness.\n\nIdeal candidates have a graduate-level education or equivalent professional experience in a field that requires careful argumentation and evidence evaluation. We have had especially strong results from people with backgrounds in academic research, technical writing, legal analysis, and scientific peer review. Familiarity with LLM failure modes -- hallucination, sycophancy, refusal errors -- is valuable.\n\nOnboarding takes about one week and includes rubric training, practice tasks with feedback, and a calibration exam. After onboarding, you work asynchronously on your own schedule. A Slack workspace provides real-time access to project leads and fellow annotators for guideline questions.",
+  "skills": [
+    "Experience with RLHF or preference labeling pipelines",
+    "Comfort evaluating content across diverse subject areas",
+    "Good judgment on safety and sensitivity issues",
+    "Graduate-level education or equivalent professional experience",
+    "Background in linguistics, philosophy, law, or STEM"
+  ],
+  "compensationMin": 65,
+  "compensationMax": 75,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "EU",
+  "datePosted": "2026-02-13",
+  "validThrough": "2026-05-12",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "Do I need prior RLHF experience?",
+      "answer": "It helps but is not required. Candidates with strong analytical writing backgrounds and familiarity with AI systems are encouraged to apply. We provide thorough onboarding and calibration training."
+    },
+    {
+      "question": "How subjective are the judgments?",
+      "answer": "The rubric constrains most subjectivity. You will find that roughly 70% of comparisons have a clear best answer. The remaining 30% involve genuine tradeoffs, and those are where your written justifications matter most."
+    }
+  ]
+}

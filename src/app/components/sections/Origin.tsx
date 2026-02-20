@@ -44,7 +44,7 @@ export default function Origin() {
               </p>
 
               <p className="text-base md:text-lg text-[var(--accent-primary)] font-mono">
-                A labor marketplace can&apos;t build that. A team can.
+                A labor marketplace can&apos;t build that. A team that&apos;s trained frontier models can.
               </p>
             </div>
           </FadeIn>

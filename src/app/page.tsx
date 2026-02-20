@@ -24,6 +24,16 @@ const Origin = dynamic(() => import("./components/sections/Origin"), {
   loading: () => <SectionSkeleton minHeight="min-h-[30vh]" />,
 });
 
+const GlobalReach = dynamic(
+  () => import("./components/sections/GlobalReach"),
+  { ssr: false, loading: () => <SectionSkeleton /> },
+);
+
+const ProofOfWork = dynamic(
+  () => import("./components/sections/ProofOfWork"),
+  { ssr: false, loading: () => <SectionSkeleton /> },
+);
+
 const Testimonials = dynamic(
   () => import("./components/sections/Testimonials"),
   { ssr: false, loading: () => <SectionSkeleton minHeight="min-h-[40vh]" /> },
@@ -93,6 +103,8 @@ export default function Home() {
         <SectionBridge text="So we built something different." />
         <Origin />
         <TwoPaths />
+        <GlobalReach />
+        <ProofOfWork />
         <Testimonials />
         <FinalCTA />
         <AnimatedLogo />

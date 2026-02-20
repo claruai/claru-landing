@@ -1,0 +1,34 @@
+{
+  "slug": "bounding-box-annotation-expert",
+  "title": "Bounding Box Annotation Expert",
+  "category": "vision-annotation",
+  "description": "Your work turns raw images into structured training data for vision models. On any given day you might label objects in street scenes, segment tumors in medical scans, or identify products on retail shelves. Every project has a detailed visual guide with annotated examples, edge-case documentation, and quality criteria. You will go through a calibration set before starting live work on each new project.\n\nWe look for annotators who balance speed and accuracy well. Some people are very precise but too slow; others are fast but sloppy. The sweet spot is consistent, efficient annotation that stays within quality thresholds. A background in any visually detailed field -- illustration, photography, radiology, geographic mapping -- is a strong signal.\n\nAfter onboarding, you will complete a calibration set for each new project type. Once you pass calibration, live tasks become available. Volume scales with your accuracy -- high-quality annotators get priority access to new projects and premium tasks.",
+  "skills": [
+    "Experience with image annotation tools (CVAT, Labelbox, V7)",
+    "Background in graphic design, GIS, or medical imaging is a plus",
+    "Ability to follow visual annotation guidelines consistently",
+    "Strong visual acuity and spatial precision",
+    "Monitor with at least 1080p resolution",
+    "Good hand-eye coordination for precise polygon drawing",
+    "Patience for detailed, repetitive visual work"
+  ],
+  "compensationMin": 65,
+  "compensationMax": 85,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "EU",
+  "datePosted": "2026-02-04",
+  "validThrough": "2026-05-03",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "What is the turnaround time for feedback?",
+      "answer": "Quality scores update daily. If an annotation is rejected, you receive specific feedback within 24 hours explaining what to correct."
+    },
+    {
+      "question": "What types of images will I annotate?",
+      "answer": "Projects cover autonomous driving scenes, medical imagery, satellite photos, retail product images, and more. You will be assigned projects based on your skills and clearances."
+    }
+  ]
+}

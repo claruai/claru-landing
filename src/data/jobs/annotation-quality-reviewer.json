@@ -1,0 +1,34 @@
+{
+  "slug": "annotation-quality-reviewer",
+  "title": "Annotation Quality Reviewer",
+  "category": "quality-review",
+  "description": "You will audit completed annotations produced by other team members, checking each one against the project rubric and flagging errors. This is second-pass work: someone else has already labeled the data, and your job is to verify that the labels are correct, consistent, and complete. On a typical day you will review 200-400 items, writing short justifications for every rejection. The work requires sharp attention and the ability to hold a full annotation schema in your head while scanning at speed.\n\nYou should have a track record of careful, systematic work. Backgrounds in copy editing, test engineering, clinical data review, or research assistance translate well. We will train you on our specific tools and rubrics, but we cannot teach the underlying mindset: you either notice when something is slightly off, or you do not.\n\nReviewers work on the same weekly cadence as annotators but with a one-day offset -- you start reviewing Monday batches on Tuesday. Expect 20-30 hours per week. Weekly calibration sessions keep the review team aligned, and you will have a dedicated Slack channel for real-time questions.",
+  "skills": [
+    "Proficient in written English",
+    "Ability to internalize complex rubrics quickly",
+    "Background in copy editing, research, or data analysis",
+    "Comfortable providing direct feedback to peers",
+    "Familiarity with inter-annotator agreement metrics",
+    "Experience with quality assurance tooling",
+    "Clear, constructive written feedback"
+  ],
+  "compensationMin": 40,
+  "compensationMax": 45,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "EU",
+  "datePosted": "2026-02-10",
+  "validThrough": "2026-05-09",
+  "featured": true,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "Do I interact with annotators directly?",
+      "answer": "Generally no. Your rejection notes are the primary feedback channel. If a systemic issue arises, the project lead handles the conversation with the annotation team."
+    },
+    {
+      "question": "How is my own accuracy evaluated?",
+      "answer": "A random sample of your reviews is audited by a senior reviewer each week. Your review accuracy score is shared with you and factors into bonus calculations."
+    }
+  ]
+}

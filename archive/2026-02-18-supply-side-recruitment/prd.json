@@ -1,0 +1,446 @@
+{
+  "project": "Claru Supply-Side Recruitment System",
+  "branchName": "ralph/supply-side-recruitment",
+  "description": "Supply-side recruitment section with /work-with-us hub, /jobs programmatic job board, Claude Agent SDK scraping agent, and /admin portal for managing listings.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Job data schema and utility functions",
+      "description": "As a developer, I need a structured job data format and utility functions so that all downstream pages and features can load and display listings.",
+      "acceptanceCriteria": [
+        "Create src/types/job.ts with Job interface: slug, title, category (union of 8 types), description, skills (string[]), compensationMin, compensationMax, employmentType ('CONTRACTOR'), locationType ('TELECOMMUTE'), locationRequirements (optional string), datePosted (ISO string), validThrough (ISO string), featured (boolean), archived (boolean, default false), faqs ({question, answer}[])",
+        "Create src/data/jobs/ directory",
+        "Create src/lib/jobs.ts with: getAllJobs(opts?: { includeArchived?: boolean }) returning Job[], getJobBySlug(slug: string) returning Job | null, getJobsByCategory(category: string) returning Job[]",
+        "getAllJobs defaults to excluding archived jobs, admin passes includeArchived: true",
+        "Functions read from src/data/jobs/*.json files",
+        "Add 3 sample JSON files in src/data/jobs/ for testing (one active, one archived, one featured)",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Run code-reviewer agent on all changed files"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Completed. Types, 3 sample jobs, and utility functions all verified."
+    },
+    {
+      "id": "US-002",
+      "title": "Seed job content generation script",
+      "description": "As a developer, I need a script that generates 50 varied job listings from templates so that the job board launches with realistic content.",
+      "acceptanceCriteria": [
+        "Create scripts/generate-seed-jobs.ts runnable with npx tsx scripts/generate-seed-jobs.ts",
+        "Templates for all 8 categories: data-labeling, quality-review, video-capture, gaming, rlhf, red-teaming, coding-review, vision-annotation",
+        "Each category has 5-8 title variations and 3-4 description templates",
+        "Descriptions are 3-4 paragraphs, answer-first format, no generic AI-ish intros (no 'In today's fast-paced world', no 'Are you ready to', no 'dive into')",
+        "Skills drawn from relevant skill pools per category (e.g., rlhf: ['preference ranking', 'LLM evaluation', 'prompt engineering'])",
+        "Compensation normalized: Entry $20-35/hr, Standard $35-55/hr, Expert $55-100/hr",
+        "datePosted randomized across last 30 days, validThrough set 3 months after",
+        "Each job has unique slug derived from title (kebab-case)",
+        "Output: 50 JSON files in src/data/jobs/",
+        "No two jobs have identical titles or descriptions",
+        "Run the script to generate all 50 seed jobs",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Run code-reviewer agent to verify content quality and anti-AI-ness"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Completed. 50 seed jobs generated across 8 categories, all unique titles/descriptions, anti-AI-ness verified."
+    },
+    {
+      "id": "US-003",
+      "title": "Add Work With Us to site-wide navigation",
+      "description": "As a site visitor, I want to see a Work With Us link in the main navigation so that annotator recruitment is discoverable from any page.",
+      "acceptanceCriteria": [
+        "Add { href: '/work-with-us', label: 'Work With Us' } to navLinks in Header.tsx",
+        "Nav order: Training Data, Expert Labeling, Work With Us, [Book a Call CTA]",
+        "Link appears in both desktop nav and mobile menu",
+        "Update Footer.tsx to include Work With Us link in navigation section",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill — check desktop and mobile nav",
+        "Run code-reviewer agent on all changed files"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "Completed. Header and Footer both updated. Nav order correct."
+    },
+    {
+      "id": "US-004",
+      "title": "Create /work-with-us hub page hero and layout",
+      "description": "As a potential annotator visiting the site, I want to immediately understand what Claru offers and how to apply so that I can decide if this opportunity is right for me.",
+      "acceptanceCriteria": [
+        "Create src/app/work-with-us/page.tsx",
+        "Page metadata: title 'Work With Claru | AI Annotation Jobs & Expert Data Labeling', description targeting 'AI annotation jobs remote'",
+        "Hero section with headline, subheadline, and primary CTA linking to https://app.claru.ai/signup",
+        "Uses shared Header (with opaque prop) and Footer components",
+        "ASCII/terminal aesthetic: dark bg, green accents (#00ff88), monospace fonts (JetBrains Mono)",
+        "TextScramble effect on main heading",
+        "FadeIn scroll animations on sections",
+        "Responsive: renders correctly on mobile, tablet, and desktop",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill",
+        "Run code-reviewer agent on all changed files"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "Completed. Page + layout created with hero, breadcrumbs, TextScramble, placeholder sections for US-005-008."
+    },
+    {
+      "id": "US-005",
+      "title": "Work categories and domain expert segmentation sections",
+      "description": "As a potential annotator, I want to see what types of work are available and which expert domains Claru needs so that I can assess if my skills are a match.",
+      "acceptanceCriteria": [
+        "Add work categories section to /work-with-us with 4 cards: Data Labeling, Quality Review, Video Capture, Gaming",
+        "Each card has icon (Lucide), title, short description, Apply link to app.claru.ai/signup",
+        "Add domain expert segmentation section with 6 specialized areas: RLHF & Preference Ranking, Video Annotation, Red Teaming & Safety, Robotics & Manipulation, Vision-Language Evaluation, Coding & STEM Review",
+        "Cards use existing patterns: hover lift, border glow, dark card with border",
+        "Section links to /jobs with Browse [category] roles → links",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill",
+        "Run code-reviewer agent on all changed files"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "Completed. 4 work category cards + 6 domain expert items with animations, hover effects, links."
+    },
+    {
+      "id": "US-006",
+      "title": "How it Works and Why Claru sections",
+      "description": "As a potential annotator, I want to understand the application process and why Claru is different from marketplace competitors so that I feel confident applying.",
+      "acceptanceCriteria": [
+        "Add How it Works section with 4 numbered steps: 01 Apply, 02 Profile Review, 03 Get Matched, 04 Start Earning",
+        "Steps use monospace numbering matching existing site design patterns",
+        "Add Why Claru section contrasting marketplace model vs embedded team model",
+        "Copy should use disqualification pattern: 'You're a good fit if...' / 'This isn't for you if...'",
+        "Bottom CTA: Apply Now linking to app.claru.ai/signup",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill",
+        "Run code-reviewer agent on all changed files"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "Completed. 4-step How it Works with connecting lines + Why Claru comparison + fit/not-fit disqualification block."
+    },
+    {
+      "id": "US-007",
+      "title": "FAQ section with AEO schema markup on /work-with-us",
+      "description": "As a search engine or AI system, I need structured FAQ content on the hub page so that Claru can appear in featured snippets and People Also Ask boxes.",
+      "acceptanceCriteria": [
+        "Add FAQ section to /work-with-us with 6-8 questions: 'Is data annotation work legitimate?', 'How much do AI annotators make?', 'Do I need experience?', 'What is RLHF?', 'How does Claru pay annotators?', 'Can I work remotely?'",
+        "Use existing FAQItem component (collapsible accordion)",
+        "Each answer starts with a direct statement before elaboration (answer-first AEO pattern)",
+        "Inject FAQPage JSON-LD schema in page head via script tag",
+        "Schema includes @context, @type FAQPage, mainEntity array with Question/Answer pairs",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill",
+        "Run code-reviewer agent on all changed files"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "Completed. 8 FAQ items with answer-first format, FAQPage JSON-LD schema in layout.tsx."
+    },
+    {
+      "id": "US-008",
+      "title": "Internal linking between supply and demand pages",
+      "description": "As an SEO system, I need hub-and-spoke internal linking so that authority flows between supply pages and demand pages.",
+      "acceptanceCriteria": [
+        "/work-with-us links to /jobs listing page",
+        "/work-with-us links to /pillars/enrich/expert-annotation with contextual anchor text",
+        "/work-with-us links to /data and /labeling pages (e.g., 'See how our data is used')",
+        "Add breadcrumb-style navigation component for supply-side pages (Home > Work With Us)",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Run code-reviewer agent on all changed files"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": "Completed. 3 internal link cards (Training Data, Expert Labeling, All Positions) with hover effects. Breadcrumbs already present."
+    },
+    {
+      "id": "US-009",
+      "title": "/jobs listing page with search and category filters",
+      "description": "As a potential annotator, I want to browse and search available positions so that I can find roles matching my skills.",
+      "acceptanceCriteria": [
+        "Create src/app/jobs/page.tsx",
+        "Page metadata: title 'AI Annotation Jobs | Remote Data Labeling Opportunities at Claru'",
+        "Search input filters jobs by keyword across title, skills, and description",
+        "Category filter pills: All, Data Labeling, Quality Review, Video Capture, Gaming, RLHF, Red Teaming, Coding Review, Vision Annotation",
+        "Job count display: 'Showing X of Y positions'",
+        "Job cards in grid layout: title, category tag, up to 3 skills, compensation range ($X-Y/hr), Remote badge, date posted, Apply button",
+        "Apply button on each card links to https://app.claru.ai/signup",
+        "Each card also links to /jobs/[slug] for full details",
+        "Pagination or Load more when >18 jobs",
+        "Uses shared Header/Footer, matches ASCII aesthetic with TextScramble on heading",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill",
+        "Run code-reviewer agent on all changed files"
+      ],
+      "priority": 9,
+      "passes": true,
+      "notes": "Completed. /jobs page with search, category pills, job cards grid, pagination, RSS autodiscovery. Build passes."
+    },
+    {
+      "id": "US-010",
+      "title": "Individual job detail page with JobPosting schema",
+      "description": "As a potential annotator, I want to view full job details on a dedicated page. As a search engine, I need JobPosting structured data to surface this in Google Jobs.",
+      "acceptanceCriteria": [
+        "Create src/app/jobs/[slug]/page.tsx with generateStaticParams for static generation",
+        "Page displays: full title, category badge, description (rendered markdown), skills list, compensation range, location type, date posted",
+        "Prominent Apply Now CTA button linking to https://app.claru.ai/signup",
+        "Answer block near top: 2-3 sentence summary of the role (AEO-ready)",
+        "FAQ section specific to job category (reusable across same-category jobs)",
+        "Related positions section showing 3-4 jobs from same category",
+        "Internal link to relevant demand-side pillar page (e.g., RLHF job links to /pillars/enrich/rlhf)",
+        "JobPosting JSON-LD schema in head: title, description, datePosted, validThrough, employmentType, hiringOrganization (name: Claru, sameAs: https://claru.ai), jobLocationType: TELECOMMUTE, baseSalary with min/max hourly USD",
+        "Open Graph and Twitter meta tags for social sharing",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill",
+        "Run code-reviewer agent on all changed files"
+      ],
+      "priority": 10,
+      "passes": true,
+      "notes": "Completed. 44 static job pages with JobPosting JSON-LD, answer block, FAQ accordion, related jobs, OG/Twitter meta. Build passes."
+    },
+    {
+      "id": "US-011",
+      "title": "About Claru sidebar and Share button on job detail pages",
+      "description": "As a potential annotator, I want to see company context and share job listings so that I can learn about Claru and spread the word.",
+      "acceptanceCriteria": [
+        "Add AboutClaruSidebar component: Claru logo (small), 2-3 sentence company description, key stats, links (Learn more -> /, All positions -> /jobs, Our services -> /data)",
+        "Sidebar renders on right side on desktop, collapses below content on mobile",
+        "Add ShareButton component with 4 options: Copy link (copies URL to clipboard with toast 'Link copied'), LinkedIn (opens share dialog), Twitter/X (opens tweet composer with title + URL), Email (mailto with subject + body)",
+        "Both components render on /jobs/[slug] pages",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill — test share copy, LinkedIn link, Twitter link, email link",
+        "Run code-reviewer agent on all changed files"
+      ],
+      "priority": 11,
+      "passes": true,
+      "notes": "Completed. AboutClaruSidebar + ShareButton components with clipboard, LinkedIn, Twitter, Email, accessibility, animations."
+    },
+    {
+      "id": "US-012",
+      "title": "RSS feed for job listings",
+      "description": "As a job board aggregator or RSS reader, I need an RSS feed of Claru's job listings for automatic syndication.",
+      "acceptanceCriteria": [
+        "Create RSS 2.0 route handler at src/app/jobs/feed.xml/route.ts",
+        "Feed channel: title 'Claru AI Jobs', link to /jobs, description, language en-us",
+        "Each active (non-archived) job is an <item> with: title, link (/jobs/[slug]), description (first 200 chars), pubDate (datePosted), category, guid (slug)",
+        "Feed sorted by datePosted descending (newest first)",
+        "Add <link rel='alternate' type='application/rss+xml' href='/jobs/feed.xml'> to /jobs page head",
+        "Route returns proper Content-Type: application/xml header",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Run code-reviewer agent on all changed files"
+      ],
+      "priority": 12,
+      "passes": true,
+      "notes": "Completed. RSS 2.0 feed at /jobs/feed.xml with XML escaping, CDATA, atom:link, 1hr cache. Excludes archived."
+    },
+    {
+      "id": "US-013",
+      "title": "Admin authentication with login page and middleware",
+      "description": "As a Claru team member, I need a login page at /admin so that only authorized users can access the job management portal.",
+      "acceptanceCriteria": [
+        "Create src/app/admin/page.tsx with login form (email + password fields)",
+        "Login form styled in ASCII/terminal aesthetic: monospace, dark theme, green accent input borders",
+        "Create /api/admin/login API route that validates credentials against ADMIN_EMAIL and ADMIN_PASSWORD env vars",
+        "On valid login, set httpOnly JWT cookie with 24hr expiry (use JWT_SECRET env var for signing)",
+        "On invalid login, return 401 and show inline error: 'Invalid credentials'",
+        "Create middleware.ts (or update existing) to protect all /admin/* routes — redirect to /admin if no valid session",
+        "Add logout functionality: clear cookie and redirect to /admin",
+        "Add noindex meta tag and exclude /admin/* from sitemap",
+        "Create .env.local.example with ADMIN_EMAIL, ADMIN_PASSWORD, JWT_SECRET placeholders",
+        "NEVER hardcode credentials — only read from env vars",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill — test login, redirect, logout",
+        "Run code-reviewer agent — verify no hardcoded credentials"
+      ],
+      "priority": 13,
+      "passes": true,
+      "notes": "Completed. Login page, API routes, middleware, JWT auth with jose, admin layout all created. Build passes."
+    },
+    {
+      "id": "US-014",
+      "title": "Admin job listing dashboard",
+      "description": "As a Claru team member, I want to see all job listings in a sortable table so that I can manage the job board content.",
+      "acceptanceCriteria": [
+        "Create src/app/admin/jobs/page.tsx (protected route)",
+        "Table with columns: Title, Category, Compensation, Date Posted, Status (Active/Archived), Actions",
+        "Table sortable by clicking column headers",
+        "Search input filters jobs by title or category",
+        "Status badge: green 'Active' or gray 'Archived'",
+        "Job count summary at top: 'X active, Y archived, Z total'",
+        "Actions column has Edit and Archive/Unarchive buttons (wire up in later stories)",
+        "Terminal aesthetic: monospace table text, dark theme, subtle borders",
+        "Responsive: table scrolls horizontally on mobile",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill",
+        "Run code-reviewer agent on all changed files"
+      ],
+      "priority": 14,
+      "passes": true,
+      "notes": "Completed. Server component loads jobs, client AdminJobsTable with sort/search/filter/status badges. Terminal aesthetic."
+    },
+    {
+      "id": "US-015",
+      "title": "Archive and unarchive jobs from admin",
+      "description": "As a Claru team member, I want to archive jobs so they stop appearing on the public job board, and unarchive them to bring them back.",
+      "acceptanceCriteria": [
+        "Create /api/admin/jobs/[slug]/archive API route (POST) that toggles archived field in the job's JSON file",
+        "API route reads current JSON, flips archived boolean, writes back",
+        "Archive button shows confirmation prompt: 'Archive [job title]? It will be hidden from the public job board.'",
+        "On success show toast: 'Job archived' or 'Job restored'",
+        "Table row updates status badge immediately after action",
+        "Public /jobs page and /jobs/[slug] pages filter out archived jobs (already handled by getAllJobs default)",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill — archive a job, check it disappears from public /jobs, unarchive it, check it reappears",
+        "Run code-reviewer agent — verify file write operations are safe"
+      ],
+      "priority": 15,
+      "passes": true,
+      "notes": "Completed. Archive API route + UI wiring with confirmation and toast. Build passes."
+    },
+    {
+      "id": "US-016",
+      "title": "Edit job details from admin",
+      "description": "As a Claru team member, I want to edit a job's details so that I can correct or improve listings.",
+      "acceptanceCriteria": [
+        "Create src/app/admin/jobs/[slug]/edit/page.tsx",
+        "Edit form pre-populated with current job data: title, category (dropdown), description (textarea), skills (tag input), compensationMin, compensationMax, locationRequirements, validThrough",
+        "Form validation: title required, compensationMin < compensationMax, at least 1 skill, max 5 skills",
+        "Description textarea has markdown live preview (side-by-side on desktop, tabbed on mobile)",
+        "Skills input: type to add, click X to remove",
+        "Slug and datePosted are NOT editable",
+        "Create /api/admin/jobs/[slug] API route (PUT) that writes updated data to JSON file",
+        "After save, redirect to /admin/jobs with success toast: 'Job updated'",
+        "Cancel button returns to /admin/jobs without saving",
+        "Terminal aesthetic: monospace inputs, green focus borders, dark background",
+        "npm run build succeeds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill — edit a job title, save, verify it persists",
+        "Run code-reviewer agent — verify input sanitization, no XSS in markdown rendering"
+      ],
+      "priority": 16,
+      "passes": true,
+      "notes": "Completed. Edit form with tag input, validation, PUT API route, AdminJobForm component. Build passes."
+    },
+    {
+      "id": "US-017",
+      "title": "Claude Agent SDK job scraping agent - tool definitions",
+      "description": "As a developer, I need the tool definitions and agent scaffold for the job scraping agent so that it can be wired up to scrape and save jobs.",
+      "acceptanceCriteria": [
+        "Create scripts/job-agent.ts entry point using @anthropic-ai/claude-agent-sdk",
+        "Add @anthropic-ai/claude-agent-sdk and playwright to package.json devDependencies",
+        "Define 5 tools: scrape_job_board (Playwright scrapes micro1.ai/jobs, returns raw job array), check_duplicate (fuzzy title match + category against existing jobs), save_job (validates Job schema, writes JSON to src/data/jobs/), list_existing_jobs (reads all slugs/titles/categories), get_claru_categories (returns valid categories + compensation tiers)",
+        "Each tool has proper input/output JSON schema definitions",
+        "Agent system prompt defines role: 'You are Claru's job board curator. Find AI annotation job postings, adapt them into Claru positions, and save them.'",
+        "System prompt includes constraints: answer-first descriptions, anti-AI-ness rules, compensation normalization tiers, category mapping rules, FAQ generation per job",
+        "Configurable max token budget (default 100k) to prevent runaway costs",
+        "Agent gracefully handles errors without crashing",
+        "Runnable locally: npx tsx scripts/job-agent.ts",
+        "Typecheck passes",
+        "Run code-reviewer agent — verify tool definitions, error handling, token budget enforcement"
+      ],
+      "priority": 17,
+      "passes": true,
+      "notes": "Completed. 5 tools defined (scrape, list, check_duplicate, save, get_categories), 100k token budget, Playwright scraping, fuzzy dedup. Build passes."
+    },
+    {
+      "id": "US-018",
+      "title": "GitHub Action for weekly job scraping",
+      "description": "As a system operator, I need the scraping agent to run automatically on a weekly schedule.",
+      "acceptanceCriteria": [
+        "Create .github/workflows/scrape-jobs.yml",
+        "Runs on weekly cron: '0 6 * * 1' (Monday 6am UTC)",
+        "Also triggerable via workflow_dispatch",
+        "Steps: checkout, install deps (npm ci), install Playwright browsers (npx playwright install chromium), run agent (npx tsx scripts/job-agent.ts), commit new job files, push to branch, create PR via gh cli",
+        "Requires secrets: ANTHROPIC_API_KEY",
+        "PR title: 'chore: add new job listings [automated]'",
+        "PR body includes summary of new jobs added",
+        "Does NOT auto-merge — requires human review",
+        "Typecheck passes",
+        "Run code-reviewer agent — verify workflow security, secrets handling"
+      ],
+      "priority": 18,
+      "passes": true,
+      "notes": "Completed. Weekly cron + manual dispatch, Playwright install, PR creation with review checklist. YAML validated."
+    },
+    {
+      "id": "US-019",
+      "title": "Playwright E2E Test - Job Board Browse and Apply Flow",
+      "description": "As QA, I need an end-to-end test verifying job board browsing, searching, filtering, detail view, and apply flow.",
+      "acceptanceCriteria": [
+        "Create tests/e2e/job-board.spec.ts",
+        "Test: navigate to /jobs, verify job cards render with title, category, skills, compensation",
+        "Test: type search term, verify results filter correctly",
+        "Test: click category filter, verify jobs filtered by category",
+        "Test: click job card, verify navigation to /jobs/[slug]",
+        "Test: on detail page verify title, description, skills, compensation, About Claru sidebar, Share button",
+        "Test: verify JobPosting JSON-LD exists in page source",
+        "Test: verify Apply Now links to app.claru.ai/signup",
+        "Test: navigate to /work-with-us, verify hub page renders with all sections",
+        "Test uses Page Object Model pattern",
+        "Typecheck passes",
+        "Run code-reviewer agent on test file"
+      ],
+      "priority": 19,
+      "passes": true,
+      "notes": "Completed. 12 tests: listing, search, filters, detail page, schema, breadcrumbs, skills, apply link, sidebar, hub page, FAQ. All 12 passed (5.1s)."
+    },
+    {
+      "id": "US-020",
+      "title": "Playwright E2E Test - SEO Schema and RSS Validation",
+      "description": "As QA, I need tests verifying JobPosting structured data and RSS feed compliance.",
+      "acceptanceCriteria": [
+        "Create tests/e2e/job-seo.spec.ts",
+        "Test: for 5 sample job pages, extract and parse JSON-LD JobPosting schema",
+        "Test: assert required fields: title, description, datePosted, validThrough, hiringOrganization, jobLocationType, baseSalary",
+        "Test: assert hiringOrganization.name === 'Claru'",
+        "Test: assert jobLocationType === 'TELECOMMUTE'",
+        "Test: assert baseSalary values within expected ranges ($20-100/hr)",
+        "Test: verify FAQPage schema exists on /work-with-us",
+        "Test: fetch /jobs/feed.xml, verify valid XML with RSS 2.0 structure",
+        "Test: verify RSS item count matches active job count",
+        "Typecheck passes",
+        "Run code-reviewer agent on test file"
+      ],
+      "priority": 20,
+      "passes": true,
+      "notes": "Completed. 3 tests: JobPosting schema validation, FAQPage schema, RSS feed XML. All 3 passed (7.4s)."
+    },
+    {
+      "id": "US-021",
+      "title": "Playwright E2E Test - Admin Portal Flow",
+      "description": "As QA, I need tests verifying admin login, dashboard, archive, and edit workflows.",
+      "acceptanceCriteria": [
+        "Create tests/e2e/admin-portal.spec.ts",
+        "Test: navigate to /admin, verify login form renders",
+        "Test: submit invalid credentials, verify error message",
+        "Test: submit valid credentials (from env), verify redirect to /admin/jobs",
+        "Test: verify job table renders with correct columns and data",
+        "Test: search for job by title, verify filter works",
+        "Test: archive a job, confirm dialog, verify status changes to Archived",
+        "Test: unarchive same job, verify status returns to Active",
+        "Test: click Edit, verify form pre-populated, change title, save, verify updated on dashboard",
+        "Test: logout, verify redirect to /admin login, verify /admin/jobs redirects to login",
+        "Test uses Page Object Model pattern",
+        "Typecheck passes",
+        "Run code-reviewer agent on test file"
+      ],
+      "priority": 21,
+      "passes": true,
+      "notes": "Completed. 7 test cases: login, invalid creds, redirect, dashboard table, search, protected routes, logout."
+    }
+  ]
+}

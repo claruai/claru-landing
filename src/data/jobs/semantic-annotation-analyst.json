@@ -1,0 +1,36 @@
+{
+  "slug": "semantic-annotation-analyst",
+  "title": "Semantic Annotation Analyst",
+  "category": "data-labeling",
+  "description": "You will classify and label text, image, and mixed-media data sets that go straight into training pipelines at major AI research labs. The work is detail-heavy: every annotation you submit gets checked against a rubric before it counts. Most tasks involve reading a piece of content, deciding which labels from a predefined taxonomy apply, and marking spans or bounding regions where relevant. Expect a steady mix of short-burst tasks (a few seconds each) and longer judgment calls that require reading full documents.\n\nIdeal candidates have a background in linguistics, library science, content moderation, or a related field, but we have also had strong results from career changers who simply care about getting things right. The work is repetitive by nature, so you need to be someone who finds satisfaction in precision rather than novelty. You should be comfortable working independently and hitting deadlines without constant supervision.\n\nMost projects run on weekly cycles. You will receive a batch of tasks on Monday, and the team expects completed work by Friday. Weekly calibration meetings happen over Zoom to align on edge cases and guideline updates. Minimum commitment is 15 hours per week; top contributors regularly log 30+.",
+  "skills": [
+    "Ability to internalize complex annotation guidelines quickly",
+    "Experience with data labeling or annotation platforms",
+    "Experience with Label Studio, Prodigy, or similar tools",
+    "Background in linguistics, library science, or content moderation",
+    "Strong reading comprehension and attention to detail"
+  ],
+  "compensationMin": 40,
+  "compensationMax": 50,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "US",
+  "datePosted": "2026-01-23",
+  "validThrough": "2026-04-22",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "How is quality measured?",
+      "answer": "We use inter-annotator agreement and gold-standard checks. You will receive regular feedback on your accuracy scores and can always ask project leads to clarify guidelines."
+    },
+    {
+      "question": "Do I need special software?",
+      "answer": "No. Our annotation platform runs in any modern web browser. We will walk you through setup during onboarding."
+    },
+    {
+      "question": "Is there a minimum weekly time commitment?",
+      "answer": "Most projects require 10-15 hours per week minimum. Higher-volume contributors typically get priority access to new projects."
+    }
+  ]
+}

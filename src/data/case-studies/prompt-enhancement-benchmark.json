@@ -1,0 +1,65 @@
+{
+  "slug": "prompt-enhancement-benchmark",
+  "title": "Benchmarking Prompt Enhancement Quality Across Leading LLMs",
+  "category": "evaluation",
+  "teaser": "180 prompts benchmarked across text and video generation — replacing guesswork with large-scale human evaluation to identify the best prompt enhancement solution for production.",
+  "headlineStat": "180",
+  "headlineStatLabel": "Prompts benchmarked across modalities",
+  "summary": "Executed a multi-phase benchmark to identify the most effective prompt enhancement solution for text and video generation workflows. 180 prompts were evaluated across both modalities using side-by-side and pairwise human comparison protocols. Text evaluation used 3 independent annotators per comparison; video evaluation used multiple annotators rating downstream output quality. Two models emerged as clear statistical leaders, delivering a confident production recommendation backed by a reusable evaluation framework.",
+  "challenge": "Prompt enhancement — rewriting user prompts to improve downstream model output — directly shapes generation quality, cost, and user trust, yet no standard benchmark exists for comparing enhancement approaches. The client was evaluating multiple LLM-based enhancement solutions and could not determine which produced the best downstream results. Internal A/B tests on small prompt sets produced inconsistent conclusions depending on prompt selection, evaluator, and modality. For video generation, where each iteration cycle is expensive (minutes of GPU time per render), deploying a suboptimal enhancement solution compounds cost across every user request. They needed a statistically rigorous comparison framework, not another subjective review.",
+  "approach": "The evaluation was structured in two phases, one per modality, with a shared methodology for aggregating human judgments into statistically defensible recommendations.\n\nThe text phase used side-by-side comparisons: for each of 180 prompts, all candidate enhancement solutions produced an enhanced version, and 3 independent annotators selected the best one. Annotators evaluated holistic quality across three dimensions — intent preservation (does the enhanced prompt maintain the user's original goal?), structural clarity (is the enhanced prompt well-organized and unambiguous?), and effectiveness (would the enhanced prompt produce better downstream output?). Majority vote determined the winner per prompt; prompts with no majority were flagged as ties.\n\nThe video phase evaluated enhancement quality indirectly through downstream output. Enhanced prompts were fed to the client's video generation model, and annotators compared the resulting videos in pairwise format. This design is critical: a prompt enhancement that reads well as text but produces worse video is a net negative. By evaluating the enhancement's effect on the final output, the benchmark measured what actually matters for production deployment.\n\nResults were aggregated across annotators using weighted voting (annotators with higher calibration scores received proportionally more weight) and tested for statistical significance using a paired permutation test. Two models emerged as clear leaders with p < 0.01 separation from the remaining candidates.",
+  "results": [
+    { "value": "180", "label": "Prompts evaluated across 2 modalities" },
+    { "value": "2", "label": "Clear statistical winners identified (p < 0.01)" },
+    { "value": "3", "label": "Evaluation dimensions (intent, clarity, effectiveness)" },
+    { "value": "Reusable", "label": "Evaluation framework retained for future benchmarks" }
+  ],
+  "impact": "The benchmark replaced subjective internal debate with a quantitative production recommendation. The client deployed the top-ranked enhancement model for their video generation workflow, where the cost impact is highest. The evaluation framework was retained as organizational infrastructure — each new candidate enhancement solution can now be benchmarked against the existing leader using a subset of the original prompt set, reducing evaluation cost for future decisions by an estimated 60%.",
+  "whyItMatters": "Prompt enhancement sits upstream of every model interaction. A suboptimal enhancement solution degrades every downstream output — and in video generation, where each render costs meaningful GPU time, that degradation compounds across millions of user requests. Yet most teams select enhancement approaches based on qualitative impressions or small-scale tests that lack statistical power. This benchmark demonstrates that prompt enhancement selection can and should be treated with the same evaluation rigor as model selection: validated metrics, multiple annotators, statistical significance testing, and quantified confidence in the recommendation.",
+  "faqs": [
+    {
+      "question": "Why evaluate prompt enhancement through downstream video output instead of prompt quality alone?",
+      "answer": "A prompt that reads well to a human may produce worse model output — the relationship between prompt text quality and downstream generation quality is not linear or always positive. By evaluating the enhanced prompt's effect on the final video, the benchmark measures what matters for production: does this enhancement improve the outputs users actually see?"
+    },
+    {
+      "question": "How were the 180 evaluation prompts selected?",
+      "answer": "Prompts were sampled from the client's production traffic to ensure the benchmark reflected real usage patterns, not synthetic test cases. The sample was stratified by prompt length, complexity, domain (creative, technical, instructional), and modality (text-native vs. video-native) to ensure results generalize across the client's actual use-case distribution."
+    },
+    {
+      "question": "What does statistical significance mean in this context?",
+      "answer": "The paired permutation test compares each candidate's win rate against every other candidate by resampling the pairwise results 10,000 times. A p < 0.01 result means there is less than a 1% probability that the observed performance difference is due to chance. Models that do not achieve significance against each other are reported as statistically tied."
+    },
+    {
+      "question": "Can this framework evaluate new enhancement solutions without re-running the full benchmark?",
+      "answer": "Yes. New candidates are evaluated against the current leader on a subset of the original 180 prompts (typically 60 prompts is sufficient for statistical power given the effect sizes observed). This reduces evaluation cost by approximately 60% while maintaining the same confidence level in the recommendation. The framework includes a power analysis tool to determine the minimum sample size needed for a given expected effect size."
+    }
+  ],
+  "relatedSlugs": [
+    "video-model-evaluation",
+    "generative-ai-safety"
+  ],
+  "pillarLink": {
+    "href": "/pillars/validate/benchmark-curation",
+    "label": "Benchmark Curation"
+  },
+  "targetKeyword": "prompt enhancement benchmarking training data",
+  "metaTitle": "Prompt Enhancement Benchmarking | Claru",
+  "metaDescription": "180 prompts benchmarked across text and video to identify optimal prompt enhancement for production. Human evaluation with statistical significance testing.",
+  "processSteps": [
+    { "step": "01", "title": "Generate", "description": "Enhance 180 prompts across LLMs" },
+    { "step": "02", "title": "Compare", "description": "Side-by-side human evaluation (text)" },
+    { "step": "03", "title": "Rank", "description": "Pairwise comparison with annotators (video)" },
+    { "step": "04", "title": "Recommend", "description": "Identify top 2 models for production" }
+  ],
+  "images": [
+    "/images/case-studies/prompt-enhancement-benchmark/hero.png",
+    "/images/case-studies/prompt-enhancement-benchmark/impact.png",
+    "/images/case-studies/prompt-enhancement-benchmark/results.png",
+    "/images/case-studies/prompt-enhancement-benchmark/scope.png",
+    "/images/case-studies/prompt-enhancement-benchmark/why-it-matters.png"
+  ],
+  "datePublished": "2026-01-05",
+  "sampleData": {
+    "type": "prompt-enhancement"
+  }
+}

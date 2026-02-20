@@ -1,0 +1,32 @@
+{
+  "slug": "data-labeling-specialist",
+  "title": "Data Labeling Specialist",
+  "category": "data-labeling",
+  "description": "You will classify and label text, image, and mixed-media data sets that go straight into training pipelines at major AI research labs. The work is detail-heavy: every annotation you submit gets checked against a rubric before it counts. Most tasks involve reading a piece of content, deciding which labels from a predefined taxonomy apply, and marking spans or bounding regions where relevant. Expect a steady mix of short-burst tasks (a few seconds each) and longer judgment calls that require reading full documents.\n\nWe are looking for people who pay attention to the small stuff. The difference between a good annotator and a great one is usually consistency: can you apply the same judgment to item 500 that you applied to item 5? If you have worked in research, editing, QA, or any job that demanded sustained focus on detail, you will do well here. Familiarity with NLP concepts like tokenization, part-of-speech tagging, or named entity recognition helps but is not a hard requirement.\n\nMost projects run on weekly cycles. You will receive a batch of tasks on Monday, and the team expects completed work by Friday. Weekly calibration meetings happen over Zoom to align on edge cases and guideline updates. Minimum commitment is 15 hours per week; top contributors regularly log 30+.",
+  "skills": [
+    "Experience with data labeling or annotation platforms",
+    "Familiarity with NLP concepts (tokenization, NER, POS tagging)",
+    "Strong reading comprehension and attention to detail",
+    "Reliable internet connection and quiet workspace",
+    "Background in linguistics, library science, or content moderation"
+  ],
+  "compensationMin": 20,
+  "compensationMax": 25,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "US",
+  "datePosted": "2026-01-26",
+  "validThrough": "2026-04-25",
+  "featured": false,
+  "archived": true,
+  "faqs": [
+    {
+      "question": "What types of data will I be labeling?",
+      "answer": "Projects vary and may include text classification, named entity recognition, image tagging, or multimodal alignment tasks. Detailed instructions and examples are provided for each project."
+    },
+    {
+      "question": "Is there a minimum weekly time commitment?",
+      "answer": "Most projects require 10-15 hours per week minimum. Higher-volume contributors typically get priority access to new projects."
+    }
+  ]
+}

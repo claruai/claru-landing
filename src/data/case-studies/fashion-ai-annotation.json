@@ -1,0 +1,92 @@
+{
+  "slug": "fashion-ai-annotation",
+  "title": "Large-Scale Image Annotation for Fashion AI",
+  "category": "fashion-ai",
+  "teaser": "Deployed 1,000+ trained annotators to label 3M+ fashion and lifestyle images with structured taxonomy and multi-layer QA \u2014 materially improving model robustness and recognition accuracy.",
+  "headlineStat": "3M+",
+  "headlineStatLabel": "Fashion images annotated",
+  "summary": "Partnered with a fashion AI platform to strengthen SKU conditioning and visual product recognition. Deployed 1,000+ trained annotators with a structured taxonomy across apparel, accessories, and household products. Each item received product labels plus short and long descriptions. A multi-layer QA process ensured consistency at scale, materially improving model robustness and recognition accuracy.",
+  "challenge": "Fashion AI models trained on inconsistently labeled data develop silent failure modes \u2014 misclassifying garment subcategories, confusing product attributes, or hallucinating descriptions that diverge from visual content. The client's existing annotation pipeline produced acceptable per-item accuracy but lacked the structural consistency needed for SKU-level conditioning: annotators applied labels from memory rather than a governed taxonomy, descriptions varied in style and specificity, and QA was sample-based rather than systematic. Scaling from tens of thousands to millions of images under these conditions would compound inconsistency into a dataset-level quality problem that downstream models would inherit as systematic bias.",
+  "approach": "We deployed a distributed workforce of 1,000+ annotators and QA reviewers, organized into specialized teams by product category \u2014 apparel, accessories, beauty, and household. Each team received category-specific training materials with visual exemplars, edge-case galleries, and decision trees for ambiguous classifications. The structured taxonomy covered product type, material, pattern, color, fit, occasion, and style attributes, with controlled vocabularies enforced at the annotation interface level.\n\nAnnotators labeled both product images (white-background, single-item) and lifestyle images (styled, multi-item, environmental context). For each item, they applied structured product labels and authored both short descriptions (1-2 sentences, factual attributes) and long descriptions (3-5 sentences, contextual styling and use-case information). Description templates enforced consistent structure while allowing natural language variation.\n\nQuality control operated at three layers: automated validation caught structural errors (missing required fields, taxonomy violations, description length bounds), peer review compared annotations for the same product across annotators to flag inconsistencies, and expert auditors performed targeted deep-dives on categories with historically high disagreement rates. Inter-annotator agreement was tracked weekly using Cohen's kappa, with categories falling below 0.80 triggering retraining interventions.",
+  "results": [
+    {
+      "value": "3M+",
+      "label": "Images annotated with structured taxonomy"
+    },
+    {
+      "value": "1,000+",
+      "label": "Trained annotators deployed"
+    },
+    {
+      "value": ">0.85",
+      "label": "Cohen's kappa inter-annotator agreement"
+    },
+    {
+      "value": "3-layer",
+      "label": "QA process (automated + peer + expert)"
+    }
+  ],
+  "impact": "The annotated dataset materially improved the client's visual product recognition accuracy and SKU conditioning performance. Models trained on the Claru-annotated data showed measurable gains in attribute-level classification accuracy compared to the prior dataset, with the largest improvements in fine-grained subcategories (e.g., distinguishing blazer from sport coat, or crossbody from messenger bag) where annotation consistency matters most. The structured descriptions also enabled a new text-conditioned generation feature that was not feasible with the previous unstructured label set.",
+  "whyItMatters": "Success in fashion AI depends on disciplined annotation workflows and rigorous quality control. When training models for SKU conditioning and visual recognition, consistency is as critical as volume \u2014 and scaling one without the other creates hidden quality debt that undermines downstream performance. At 3M+ images, even a 2% inconsistency rate means 60,000+ mislabeled items propagating systematic errors into model weights. The multi-layer QA framework ensures that scale amplifies signal, not noise.",
+  "faqs": [
+    {
+      "question": "How was the annotation taxonomy designed?",
+      "answer": "The taxonomy was co-developed with the client's ML team and refined through iterative pilot rounds. It covers product type, material, pattern, color, fit, occasion, and style attributes with controlled vocabularies. Edge cases and ambiguous classifications are handled by decision trees embedded in the annotation interface, not left to annotator judgment."
+    },
+    {
+      "question": "How do you maintain consistency across 1,000+ annotators?",
+      "answer": "Three mechanisms: controlled vocabularies enforced at the interface level prevent free-text drift; inter-annotator agreement is tracked weekly using Cohen's kappa with retraining triggered below 0.80; and a three-layer QA process (automated, peer, expert) catches inconsistencies at progressively finer granularity. Annotators are organized into category-specialized teams to build domain expertise."
+    },
+    {
+      "question": "What types of images were annotated?",
+      "answer": "Both product images (white-background, single-item studio shots) and lifestyle images (styled, multi-item, environmental context). Product images require precise attribute labeling; lifestyle images additionally require identifying and separately labeling each visible item within a complex scene. The annotation interface supports both workflows with task-specific UX."
+    },
+    {
+      "question": "How were short and long descriptions quality-controlled?",
+      "answer": "Description templates enforced consistent structure \u2014 short descriptions followed a factual attribute pattern, long descriptions followed a contextual styling pattern. Automated checks validated length bounds, required attribute mentions, and vocabulary compliance. Peer review compared descriptions for visually similar products to catch stylistic drift. Expert auditors reviewed samples stratified by category and annotator."
+    }
+  ],
+  "relatedSlugs": [
+    "video-content-classification",
+    "object-identity-persistence"
+  ],
+  "pillarLink": {
+    "href": "/pillars/enrich/expert-annotation",
+    "label": "Expert Annotation"
+  },
+  "targetKeyword": "fashion image annotation AI training data",
+  "metaTitle": "Fashion Image Annotation at Scale | Claru",
+  "metaDescription": "How Claru deployed 1,000+ annotators to label 3M+ fashion images with structured taxonomy and multi-layer QA for AI training. Process and results.",
+  "processSteps": [
+    {
+      "step": "01",
+      "title": "Ingest",
+      "description": "Curate product URLs with images"
+    },
+    {
+      "step": "02",
+      "title": "Label",
+      "description": "1,000+ annotators apply structured taxonomy"
+    },
+    {
+      "step": "03",
+      "title": "Describe",
+      "description": "Short + long-form product descriptions"
+    },
+    {
+      "step": "04",
+      "title": "Validate",
+      "description": "Multi-layer quality review"
+    }
+  ],
+  "images": [
+    "/images/case-studies/fashion-ai-annotation/hero.png",
+    "/images/case-studies/fashion-ai-annotation/metrics.png",
+    "/images/case-studies/fashion-ai-annotation/process.png",
+    "/images/case-studies/fashion-ai-annotation/sample-data.png"
+  ],
+  "datePublished": "2025-12-01",
+  "sampleData": {
+    "type": "fashion-annotation"
+  }
+}

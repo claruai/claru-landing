@@ -1,0 +1,78 @@
+{
+  "slug": "data-engine-world-models",
+  "title": "Data Engine to Collect and Label Real-World Data for World Models",
+  "category": "data-collection",
+  "teaser": "Built a custom capture and ingestion system delivering thousands of hours of first-person video — with structured activity labels and enriched metadata for world model training.",
+  "headlineStat": "Thousands",
+  "headlineStatLabel": "Hours of labeled first-person video",
+  "summary": "Built a custom data collection and annotation system for a robotics-focused AI company developing world models. The system handled first-person video capture of everyday human activities via mobile phones and GoPros, with all videos labeled using structured activity classifications and enriched metadata. A clear taxonomy of target actions was co-developed with the customer, and a dedicated QA team validated every submission against agreed quality standards before delivery.",
+  "challenge": "World models require training data that captures the full complexity of how humans interact with physical environments — but no off-the-shelf data collection platform supports the specific combination of first-person video capture, structured activity labeling, and enriched metadata that frontier robotics research demands. Generic crowdsourcing platforms can collect video, but they lack the task-specific annotation interfaces, taxonomy enforcement, and quality validation workflows needed to produce research-grade labeled data. The client needed a purpose-built capture and ingestion system — engineered alongside their research requirements — that could scale from prototype to thousands of hours without accumulating technical debt in the data pipeline.",
+  "approach": "We built a dedicated capture and ingestion system from scratch, designed around the client's specific research requirements rather than adapting a general-purpose tool. Contributors recorded first-person video from smartphones or GoPros and uploaded directly to a custom portal with built-in validation checks (resolution, duration, orientation, file integrity) at upload time.\n\nA clear taxonomy of target actions was defined in close collaboration with the customer's research team through iterative refinement: initial taxonomy drafts were tested against real captured footage, revealing gaps and ambiguities that were resolved before scaling. The final taxonomy covered everyday human activities organized by environment (kitchen, workshop, outdoor), motor complexity (gross motor, fine manipulation, locomotion), and interaction type (tool use, object transfer, environmental navigation).\n\nAnnotators used a dedicated labeling interface to apply structured activity classifications and enriched metadata — environment type, lighting conditions, number of objects involved, interaction complexity score — to each submission. The interface enforced taxonomy compliance at the UI level, preventing free-text drift. A specialized QA team validated all submissions against the agreed taxonomy and quality standards, with feedback loops to contributors whose submissions consistently required revision.",
+  "results": [
+    { "value": "Thousands", "label": "Hours of labeled first-person video" },
+    { "value": "Custom", "label": "Capture and ingestion system built from scratch" },
+    { "value": "Structured", "label": "Activity labels with enriched metadata" },
+    { "value": "Co-developed", "label": "Taxonomy defined with customer research team" }
+  ],
+  "impact": "The purpose-built data engine delivered a training dataset that met the client's research specifications without the compromises that come from adapting generic collection tools. The structured activity labels and enriched metadata enabled the client to train world models with activity-conditioned generation — producing plausible future frames conditioned on both visual context and the type of human action occurring. The system architecture was designed for continued operation, with the client retaining the capture portal and annotation interface for ongoing data collection beyond the initial engagement.",
+  "whyItMatters": "Purpose-built capture systems and close collaboration on action taxonomies are critical for delivering high-value training data in emerging AI domains. Off-the-shelf tools cannot accommodate the specificity that frontier robotics and world model research demands — the data pipeline must be engineered alongside the research itself. Building this infrastructure as a reusable system rather than a one-off collection campaign means the cost is amortized across every subsequent data batch, and the client's data quality improves continuously as the taxonomy and QA processes mature.",
+  "faqs": [
+    {
+      "question": "Why build a custom capture system instead of using an existing platform?",
+      "answer": "No existing platform supports the specific combination of first-person video capture, structured activity labeling with enforced taxonomies, enriched metadata annotation, and upload-time quality validation that this engagement required. Adapting a generic crowdsourcing platform would have required extensive customization that costs as much as building purpose-built — with the added technical debt of working around the platform's assumptions about data types and workflows."
+    },
+    {
+      "question": "How was the activity taxonomy developed?",
+      "answer": "The taxonomy was co-developed iteratively with the client's research team. Initial drafts were tested against real captured footage, revealing gaps (activities that didn't fit any category) and ambiguities (activities that fit multiple categories). Three revision cycles produced a final taxonomy organized by environment, motor complexity, and interaction type, with clear decision criteria for edge cases."
+    },
+    {
+      "question": "What capture devices were supported?",
+      "answer": "Smartphones and GoPros. Both are widely available, produce sufficient video quality for training data, and can capture first-person perspectives with minimal setup. The capture portal normalizes uploads from both device types to a consistent format, resolution, and metadata schema. No specialized or research-grade hardware was required."
+    },
+    {
+      "question": "How does the QA process work?",
+      "answer": "QA operates at two levels. Automated checks at upload time validate resolution, duration, orientation, and file integrity — rejecting non-compliant submissions before they enter the annotation pipeline. A specialized QA team then reviews annotated submissions against taxonomy compliance, metadata completeness, and activity classification accuracy. Contributors whose submissions consistently require revision receive targeted feedback and, if necessary, additional training on the taxonomy."
+    },
+    {
+      "question": "Can the data engine be reused for future collection campaigns?",
+      "answer": "Yes — the system was designed for ongoing operation, not a single engagement. The capture portal, annotation interface, QA workflows, and taxonomy management tools are retained by the client. New collection campaigns require only taxonomy updates and contributor onboarding, not infrastructure rebuilding. This amortizes the initial build cost across every subsequent data batch."
+    }
+  ],
+  "relatedSlugs": [
+    "egocentric-video-collection",
+    "workplace-egocentric-data"
+  ],
+  "pillarLink": {
+    "href": "/pillars/acquire",
+    "label": "Data Acquisition"
+  },
+  "targetKeyword": "data engine for world models AI",
+  "metaTitle": "Data Engine for World Models | Claru",
+  "metaDescription": "Custom data engine delivering thousands of hours of labeled first-person video for world model training. Purpose-built capture, structured taxonomy, and QA.",
+  "processSteps": [
+    { "step": "01", "title": "Build", "description": "Custom capture + ingestion portal" },
+    { "step": "02", "title": "Define", "description": "Co-develop action taxonomy with researchers" },
+    { "step": "03", "title": "Label", "description": "Structured activity classification + metadata" },
+    { "step": "04", "title": "QA", "description": "Specialized review against quality standards" }
+  ],
+  "images": [
+    "/images/case-studies/data-engine-world-models/hero.png",
+    "/images/case-studies/data-engine-world-models/process.png"
+  ],
+  "datePublished": "2026-01-15",
+  "sampleData": {
+    "type": "platform-screenshots",
+    "images": [
+      {
+        "src": "/images/case-studies/data-engine-world-models/hero.png",
+        "label": "VIDEO UPLOAD PORTAL",
+        "description": "Contributors upload first-person video directly to the capture portal. Activity classification (Main Category, Subcategory) applied at upload time."
+      },
+      {
+        "src": "/images/case-studies/data-engine-world-models/process.png",
+        "label": "CAPTURE WORKFLOW",
+        "description": "Three-step ingestion process: upload video, select activity flow type, tag activities present in the clip."
+      }
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "slug": "semantic-segmentation-annotator",
+  "title": "Semantic Segmentation Annotator",
+  "category": "vision-annotation",
+  "description": "We need annotators who can mark visual data accurately and efficiently. You will work through image queues, applying labels, bounding boxes, keypoints, or segmentation masks according to project-specific guidelines. Some tasks involve single-frame annotation; others require tracking objects across video sequences. Attention to spatial detail is critical -- the difference between a good and bad annotation is often just a few pixels.\n\nWe look for annotators who balance speed and accuracy well. Some people are very precise but too slow; others are fast but sloppy. The sweet spot is consistent, efficient annotation that stays within quality thresholds. A background in any visually detailed field -- illustration, photography, radiology, geographic mapping -- is a strong signal.\n\nProjects run in weekly sprints with clear volume targets. You will know at the start of each week how many images or frames to annotate. Most annotators work 15-25 hours per week. A brief weekly call with the project lead covers guideline updates and quality feedback.",
+  "skills": [
+    "Monitor with at least 1080p resolution",
+    "Familiarity with computer vision concepts",
+    "Attention to detail in bounding box and segmentation tasks",
+    "Ability to follow visual annotation guidelines consistently",
+    "Comfortable working with diverse image domains",
+    "Good hand-eye coordination for precise polygon drawing"
+  ],
+  "compensationMin": 65,
+  "compensationMax": 75,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "US",
+  "datePosted": "2026-02-11",
+  "validThrough": "2026-05-10",
+  "featured": true,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "Do I need special hardware?",
+      "answer": "A computer with a mouse (trackpad is not recommended for precision tasks) and a monitor of at least 1080p. A graphics tablet is optional but can improve segmentation speed."
+    },
+    {
+      "question": "Can I work on multiple project types?",
+      "answer": "Yes. After completing calibration for a project type, you can take on tasks from that category. Most annotators qualify for 2-3 project types within their first month."
+    },
+    {
+      "question": "What is the turnaround time for feedback?",
+      "answer": "Quality scores update daily. If an annotation is rejected, you receive specific feedback within 24 hours explaining what to correct."
+    }
+  ]
+}

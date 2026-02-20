@@ -1,0 +1,37 @@
+{
+  "slug": "video-data-collection-specialist",
+  "title": "Video Data Collection Specialist",
+  "category": "video-capture",
+  "description": "Record high-quality egocentric video data that feeds directly into computer vision and robotics research. You will use provided wearable cameras to capture footage of daily activities in your own environment. Each recording follows a specific protocol covering what to do, how to position the camera, and what conditions need to be met for the footage to pass quality checks. Sessions are typically scheduled in 90-minute blocks.\n\nYou need a reliable indoor space where you can control lighting -- a kitchen, home office, or workshop works well. We provide all camera equipment and ship it to your address at no cost. Basic tech comfort is important: you should be able to charge a device, pair it via Bluetooth, and upload large files. No filmmaking experience is needed; we care about following the protocol, not cinematic quality.\n\nScheduling is up to you within weekly targets. Some contributors record daily in short bursts; others batch sessions into two or three longer days. We ask for a minimum of 10 hours of accepted footage per week to stay active on the project.",
+  "skills": [
+    "Ability to follow detailed recording protocols",
+    "Availability for at least 10-15 hours per week",
+    "Reliable access to varied indoor environments",
+    "Good spatial awareness and natural movement on camera",
+    "Comfort wearing and operating body-mounted cameras",
+    "Strong attention to detail and consistency"
+  ],
+  "compensationMin": 20,
+  "compensationMax": 30,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "US",
+  "datePosted": "2026-02-03",
+  "validThrough": "2026-05-02",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "Is my face visible in the recordings?",
+      "answer": "Egocentric cameras face outward, so your face is generally not visible. Hands, arms, and torso may appear depending on the activity. All footage is used solely for model training and is not published."
+    },
+    {
+      "question": "What happens if my footage does not pass quality checks?",
+      "answer": "You will get specific feedback about what went wrong -- usually lighting, framing, or protocol deviations -- and can re-record the session. Re-captures are not penalized as long as they are completed within the project window."
+    },
+    {
+      "question": "Do I need my own camera equipment?",
+      "answer": "No. We ship all cameras and accessories to you at no charge. Equipment must be returned when the engagement ends."
+    }
+  ]
+}

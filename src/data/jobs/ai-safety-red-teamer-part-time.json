@@ -1,0 +1,32 @@
+{
+  "slug": "ai-safety-red-teamer-part-time",
+  "title": "AI Safety Red Teamer — Part Time",
+  "category": "red-teaming",
+  "description": "We need people who can think like attackers. You will methodically test AI models against a taxonomy of failure modes: harmful content generation, jailbreak susceptibility, PII leakage, bias amplification, and more. Each test is logged in a structured format that feeds into the safety team's tracking system. Successful exploits are prioritized for mitigation; unsuccessful attempts still provide valuable negative evidence.\n\nThe strongest red teamers combine technical curiosity with lateral thinking. You should be the kind of person who reads a policy document and immediately starts thinking about edge cases and loopholes. Familiarity with prompt engineering techniques, model architectures, and AI safety research literature is valuable. You should also be comfortable writing clear, detailed vulnerability reports.\n\nRed team sessions are scheduled in 3-4 hour blocks. Most testers work 3-5 sessions per week. The work is mentally intense, so we encourage breaks between sessions. A weekly debrief with the safety team reviews top findings and updates attack priorities.",
+  "skills": [
+    "Background in security research, journalism, or law",
+    "Comfort working with sensitive content categories",
+    "Ability to reproduce and clearly document exploits",
+    "Experience in cybersecurity, pen testing, or adversarial ML",
+    "Creative and lateral thinking about system vulnerabilities"
+  ],
+  "compensationMin": 35,
+  "compensationMax": 45,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "US",
+  "datePosted": "2026-01-26",
+  "validThrough": "2026-04-25",
+  "featured": true,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "What models will I be testing?",
+      "answer": "We work with frontier language models from several major AI labs. Specific model details are shared under NDA during onboarding."
+    },
+    {
+      "question": "Do I need a technical background?",
+      "answer": "It helps but is not strictly required. We look for creative, methodical thinkers. Some of our most effective red teamers come from non-technical backgrounds like investigative journalism or legal analysis."
+    }
+  ]
+}

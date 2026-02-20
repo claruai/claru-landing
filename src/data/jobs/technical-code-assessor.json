@@ -1,0 +1,37 @@
+{
+  "slug": "technical-code-assessor",
+  "title": "Technical Code Assessor",
+  "category": "coding-review",
+  "description": "Your job is to serve as the human quality bar for AI-generated code. You will review solutions to programming tasks ranging from simple algorithm problems to multi-file application scaffolding. For each solution, you verify correctness (does it actually work?), assess quality (is it well-structured and readable?), and identify issues (bugs, security holes, anti-patterns). Your evaluations train the next generation of coding assistants.\n\nProficiency in at least two programming languages is required. You should be able to spot off-by-one errors, recognize when an algorithm has worse-than-necessary time complexity, and tell the difference between code that works and code that is actually good. Professional software development experience is strongly preferred. If you regularly do code reviews as part of your day job, this work will feel familiar.\n\nEvaluations are available around the clock and you can work whenever suits you. Most reviewers work 15-25 hours per week. Languages and task difficulty are tagged, so you can filter for tasks that match your strongest skills. Compensation is hourly, scaled by task complexity.",
+  "skills": [
+    "Familiarity with multiple programming paradigms",
+    "Ability to identify bugs, anti-patterns, and security issues",
+    "Experience with code review processes and tools",
+    "Strong understanding of data structures and algorithms",
+    "Experience with version control (Git)",
+    "Clear written communication for evaluation justifications"
+  ],
+  "compensationMin": 40,
+  "compensationMax": 50,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "EU",
+  "datePosted": "2026-02-16",
+  "validThrough": "2026-05-15",
+  "featured": true,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "What programming languages will I review?",
+      "answer": "Most tasks involve Python, JavaScript/TypeScript, Java, or C++. Less common tasks may involve Go, Rust, or SQL. You can filter for languages you are comfortable with."
+    },
+    {
+      "question": "Do I need to run the code?",
+      "answer": "Some tasks provide test cases and expect you to verify output. Others rely on manual code tracing. We provide a sandboxed execution environment for tasks that require running code."
+    },
+    {
+      "question": "How long does each review take?",
+      "answer": "Simple function-level tasks take 5-10 minutes. More complex multi-file evaluations can take 15-30 minutes. Compensation scales with task complexity."
+    }
+  ]
+}

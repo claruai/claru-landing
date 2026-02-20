@@ -1,0 +1,62 @@
+{
+  "slug": "object-identity-persistence",
+  "title": "Preserving Object Identity Across Video Time",
+  "category": "video",
+  "teaser": "Designed a scalable pipeline that pairs objects across time in video — teaching models to maintain identity despite viewpoint, motion, and lighting changes.",
+  "headlineStat": "Scalable pipeline",
+  "headlineStatLabel": "Identity-persistence dataset system",
+  "summary": "Designed a scalable identity-persistence dataset pipeline for video understanding. The system pairs a clearly defined object from one moment with a later clip from the same licensed source, combining semantic segmentation, temporal sampling, and human validation to produce training data that teaches models to maintain object identity despite viewpoint, motion, and lighting changes. The hybrid automation-validation approach minimized annotator effort while maintaining high confidence in identity pairs across broad category coverage.",
+  "challenge": "Video understanding models struggle with identity persistence — maintaining that object A at time T is the same entity as object A at time T+N when appearance changes due to viewpoint rotation, partial occlusion, lighting shifts, or motion blur. Existing datasets for re-identification focus narrowly on pedestrians or vehicles, and constructing identity-persistence training data manually is prohibitively expensive because annotators must watch extended video sequences and make subtle perceptual judgments about whether two object instances are genuinely the same entity. The client needed a pipeline that could produce high-confidence identity pairs at scale across diverse object categories (products, people, animals) from licensed video sources, without requiring annotators to watch hours of footage per pair.",
+  "approach": "The pipeline operates in four stages. Stage 1 selects two clips from the same licensed video source separated by a configurable time gap — the temporal distance between the clips is a tunable parameter that controls the difficulty of the identity-persistence task. Stage 2 samples frames from each clip and runs semantic segmentation to identify candidate objects, filtering for objects that are sufficiently complete, unobstructed, and visually distinct to serve as identity anchors.\n\nStage 3 is human validation: annotators confirm whether a candidate object from the earlier clip is identifiable in the later clip, applying strict criteria for identity confidence. This is a targeted perceptual judgment (\"Is this the same blue mug?\") rather than an open-ended annotation task, keeping per-item annotation time under 30 seconds. Stage 4 forms the final identity pairs, with optional similarity labeling that provides finer-grained supervision (identical, same-category-different-instance, or unrelated).\n\nThe hybrid automation-validation architecture is deliberate: automation handles the computationally tractable parts (temporal sampling, object detection, segmentation), while humans handle the perceptually difficult part (identity confirmation) that current vision models cannot reliably perform. This division minimizes annotator effort while maintaining high confidence in the resulting pairs.",
+  "results": [
+    { "value": "High-confidence", "label": "Identity pairs produced at scale" },
+    { "value": "Broad", "label": "Category coverage (products, people, animals)" },
+    { "value": "<30s", "label": "Per-item annotation time via targeted validation" },
+    { "value": "Licensed", "label": "All source video from licensed content" }
+  ],
+  "impact": "Models trained on the identity-persistence pairs showed measurable improvement in re-identification and tracking tasks compared to models trained on static image pairs or single-frame datasets. A key finding was that temporal distance proved as critical as visual clarity — sampling farther apart in time increased the difficulty and diversity of appearance changes, producing more robust identity representations without adding annotation cost. The pipeline's configurable time-gap parameter allows the client to generate progressively harder training curricula for curriculum-learning approaches.",
+  "whyItMatters": "Identity persistence is foundational for both video understanding and video generation. A model that cannot maintain object identity across frames will hallucinate object splits, merges, and disappearances — failure modes that are immediately visible to human observers and that undermine trust in generated video. By producing identity-persistence training data at scale through a hybrid pipeline that combines automated segmentation with targeted human validation, this work addresses a data bottleneck that affects every video foundation model.",
+  "faqs": [
+    {
+      "question": "Why not use fully automated re-identification models instead of human validators?",
+      "answer": "Current re-identification models are the systems this dataset is designed to improve — using them to generate their own training data creates a circular dependency that amplifies existing failure modes. Human validators provide ground truth that is independent of the model being trained. The targeted validation design (binary identity judgment, not open-ended annotation) keeps human cost manageable while maintaining label quality that automated approaches cannot match."
+    },
+    {
+      "question": "How does temporal distance affect the dataset?",
+      "answer": "Larger temporal gaps between paired clips increase the magnitude and diversity of appearance changes (viewpoint, lighting, occlusion, pose) that the model must learn to see through. In our experiments, pairs separated by 10+ seconds produced more robust identity representations than pairs separated by 1-2 seconds, without increasing annotation cost — the human validation task is equally fast regardless of temporal distance."
+    },
+    {
+      "question": "What object categories are covered?",
+      "answer": "The pipeline covers products (consumer goods, packaged items), people (face and full-body), and animals. Category coverage is determined by the source video content and the client's training priorities. The semantic segmentation stage is category-agnostic, so adding new object types requires only updating the category filter, not rebuilding the pipeline."
+    },
+    {
+      "question": "Why use only licensed video content?",
+      "answer": "Licensed content provides clear legal provenance for model training, which is increasingly important as regulatory frameworks around training data evolve. It also ensures consistent video quality (professional production standards) and eliminates the consent and privacy complications associated with scraped web video. The trade-off is cost per hour of source material, which the pipeline's efficiency (high yield of pairs per source hour) mitigates."
+    }
+  ],
+  "sampleData": { "type": "object-identity" },
+  "relatedSlugs": [
+    "video-content-classification",
+    "fashion-ai-annotation"
+  ],
+  "pillarLink": {
+    "href": "/pillars/enrich/video-annotation",
+    "label": "Video Annotation"
+  },
+  "targetKeyword": "object identity tracking video annotation AI",
+  "metaTitle": "Object Identity Persistence in Video | Claru",
+  "metaDescription": "Scalable pipeline pairing objects across video time using semantic segmentation and human validation. Teaches models identity persistence across appearance changes.",
+  "processSteps": [
+    { "step": "01", "title": "Sample", "description": "Select two clips separated by time gap" },
+    { "step": "02", "title": "Segment", "description": "Automated semantic segmentation of objects" },
+    { "step": "03", "title": "Validate", "description": "Human confirmation of identity continuity" },
+    { "step": "04", "title": "Pair", "description": "Form image-video identity training examples" }
+  ],
+  "images": [
+    "/images/case-studies/object-identity-persistence/hero.png",
+    "/images/case-studies/object-identity-persistence/objective.png",
+    "/images/case-studies/object-identity-persistence/results.png",
+    "/images/case-studies/object-identity-persistence/why-it-matters.png"
+  ],
+  "datePublished": "2025-12-20"
+}

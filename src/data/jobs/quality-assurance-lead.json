@@ -1,0 +1,32 @@
+{
+  "slug": "quality-assurance-lead",
+  "title": "Quality Assurance Lead",
+  "category": "quality-review",
+  "description": "This position is about catching errors before labeled data ships to the client. You will open completed annotation batches in our review tool, compare labels against the rubric, and mark each item as accepted, rejected, or flagged for discussion. Rejected items go back to the original annotator with your notes explaining what went wrong. You will also generate weekly quality summary reports for project leads.\n\nPrior experience in QA, editing, proofreading, or annotation review is strongly preferred. You need to be comfortable giving direct, constructive feedback -- annotators see your rejection notes, so clarity matters. Familiarity with inter-annotator agreement metrics (Cohen's kappa, Krippendorff's alpha) is a plus. Most important is an eye for detail and the patience to review item after item without letting accuracy slip.\n\nShifts are flexible. Some reviewers prefer to batch their work into two or three longer sessions per week; others spread it out daily. We are agnostic about schedule as long as turnaround targets are met. A weekly 30-minute sync call with the quality team is the only fixed calendar item.",
+  "skills": [
+    "Clear, constructive written feedback",
+    "Strong attention to detail and pattern recognition",
+    "Ability to internalize complex rubrics quickly",
+    "Background in copy editing, research, or data analysis",
+    "Familiarity with inter-annotator agreement metrics"
+  ],
+  "compensationMin": 65,
+  "compensationMax": 75,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "US",
+  "datePosted": "2026-02-02",
+  "validThrough": "2026-05-01",
+  "featured": true,
+  "archived": true,
+  "faqs": [
+    {
+      "question": "Do I interact with annotators directly?",
+      "answer": "Generally no. Your rejection notes are the primary feedback channel. If a systemic issue arises, the project lead handles the conversation with the annotation team."
+    },
+    {
+      "question": "How is my own accuracy evaluated?",
+      "answer": "A random sample of your reviews is audited by a senior reviewer each week. Your review accuracy score is shared with you and factors into bonus calculations."
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "slug": "gameplay-annotation-specialist",
+  "title": "Gameplay Annotation Specialist",
+  "category": "gaming",
+  "description": "Your job is to generate high-quality human demonstration data by playing games and simulations under controlled conditions. You will follow session protocols that specify the game, the scenario, the objectives, and the annotation requirements. After each session, you fill out a structured form documenting your strategies, mistakes, and key turning points. This data is used to train and evaluate game-playing AI agents.\n\nWe are looking for people who can play systematically and document their reasoning. Gaming experience is important, but so is the ability to follow protocols and produce clean annotation logs. If you have done game QA, speedrunning, or competitive gaming, those backgrounds translate well.\n\nSessions run 2-4 hours and are scheduled in advance. Most contributors complete 3-4 sessions per week. You will need a PC that meets minimum specs for the game engines we use (we will provide these during onboarding). A stable internet connection is required for real-time data upload.",
+  "skills": [
+    "Reliable PC meeting minimum hardware requirements",
+    "Familiarity with Unity or Unreal Engine is a plus",
+    "Comfortable following scripted playthrough protocols",
+    "Experience with PC gaming and common game engines",
+    "Attention to detail in logging and annotation",
+    "Patience for repetitive scenario replays"
+  ],
+  "compensationMin": 20,
+  "compensationMax": 25,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "US",
+  "datePosted": "2026-01-26",
+  "validThrough": "2026-04-25",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "What kinds of games will I play?",
+      "answer": "Projects span multiple genres including first-person exploration, strategy games, puzzle environments, and physics simulations. The specific games depend on what our AI lab partners are training."
+    },
+    {
+      "question": "Do I need a high-end gaming PC?",
+      "answer": "You need a reasonably capable PC. We will provide minimum specs during onboarding, but generally a mid-range GPU from the last 3-4 years and 16GB of RAM will suffice."
+    },
+    {
+      "question": "Is this like casual game testing?",
+      "answer": "Not quite. Sessions are structured with specific objectives, strategies to try, and annotations to complete. It is more systematic than typical QA playtesting."
+    }
+  ]
+}

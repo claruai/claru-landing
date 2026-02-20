@@ -1,0 +1,36 @@
+{
+  "slug": "text-classification-annotator",
+  "title": "Text Classification Annotator",
+  "category": "data-labeling",
+  "description": "Your main job is to turn unstructured data into labeled training examples. Depending on the project, that might mean highlighting spans of text, drawing bounding boxes, assigning categorical labels, or ranking items by relevance. We provide annotation guidelines for every project, and you will go through a short calibration set before starting live work. The labels you produce feed directly into model training runs, so accuracy and consistency have a real impact.\n\nStrong reading comprehension is non-negotiable. You should be comfortable reading dense material -- legal text, scientific abstracts, user reviews -- and making quick, accurate decisions about what category or tag applies. Prior experience with tools like Label Studio, Prodigy, or Scale AI is a plus but not required; our platform is browser-based and we will train you on it during onboarding.\n\nMost projects run on weekly cycles. You will receive a batch of tasks on Monday, and the team expects completed work by Friday. Weekly calibration meetings happen over Zoom to align on edge cases and guideline updates. Minimum commitment is 15 hours per week; top contributors regularly log 30+.",
+  "skills": [
+    "Proficient in written English",
+    "Familiarity with NLP concepts (tokenization, NER, POS tagging)",
+    "Experience with data labeling or annotation platforms",
+    "Experience with Label Studio, Prodigy, or similar tools",
+    "Background in linguistics, library science, or content moderation",
+    "Ability to internalize complex annotation guidelines quickly"
+  ],
+  "compensationMin": 25,
+  "compensationMax": 35,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "datePosted": "2026-01-24",
+  "validThrough": "2026-04-23",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "Do I need special software?",
+      "answer": "No. Our annotation platform runs in any modern web browser. We will walk you through setup during onboarding."
+    },
+    {
+      "question": "How is quality measured?",
+      "answer": "We use inter-annotator agreement and gold-standard checks. You will receive regular feedback on your accuracy scores and can always ask project leads to clarify guidelines."
+    },
+    {
+      "question": "Is there a minimum weekly time commitment?",
+      "answer": "Most projects require 10-15 hours per week minimum. Higher-volume contributors typically get priority access to new projects."
+    }
+  ]
+}

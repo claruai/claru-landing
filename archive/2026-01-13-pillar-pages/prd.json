@@ -1,0 +1,350 @@
+{
+  "project": "Claru Pillar Pages",
+  "branchName": "ralph/pillar-pages",
+  "description": "Build PREPARE, ENRICH, and VALIDATE pillar pages following the ACQUIRE pattern with direct-response copy, substantive content, inline citations, and conversion-optimized flow.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create PREPARE layout.tsx with metadata and JSON-LD schema",
+      "description": "As a developer, I need to create the layout file for the PREPARE pillar page with SEO metadata and structured data.",
+      "acceptanceCriteria": [
+        "Create /src/app/pillars/prepare/layout.tsx",
+        "Include Metadata export with title 'Data Preparation Services for AI Labs | Claru' (under 60 chars)",
+        "Include description 140-160 chars about ML data preparation, deduplication, multimodal alignment",
+        "Include keywords array: 'data preparation', 'ML datasets', 'deduplication', 'multimodal alignment', etc.",
+        "Include alternates.canonical: '/pillars/prepare'",
+        "Include openGraph metadata matching title/description",
+        "Add JSON-LD script with @graph containing Service, BreadcrumbList, and FAQPage schemas",
+        "Service schema: name 'AI Data Preparation Services', serviceType 'Data Preparation Services'",
+        "BreadcrumbList: Home -> Prepare",
+        "FAQPage: Include 5 questions matching FAQ section content",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Reference /src/app/pillars/acquire/layout.tsx for exact structure"
+    },
+    {
+      "id": "US-002",
+      "title": "Create PREPARE page.tsx scaffold with header, breadcrumb, and footer",
+      "description": "As a developer, I need to create the basic page structure for PREPARE that matches ACQUIRE's layout.",
+      "acceptanceCriteria": [
+        "Create /src/app/pillars/prepare/page.tsx as 'use client' component",
+        "Import useState, useEffect from react",
+        "Import motion from framer-motion",
+        "Import Layers, FileText, Cpu, Database, Filter, ChevronRight, ArrowRight, ExternalLink from lucide-react",
+        "Import Link from next/link, Logo, Button, TextScramble components",
+        "Add Citation component (copy from acquire/page.tsx)",
+        "Add CapabilityCard component (copy from acquire/page.tsx)",
+        "Add FAQItem component that accepts React.ReactNode for answer prop (copy from acquire/page.tsx)",
+        "Add mounted state with useEffect pattern for hydration safety",
+        "Add fixed header with Logo, nav links (Services, Capabilities, Contact), and Get Started button",
+        "Add breadcrumb: Home > Services > Prepare (Prepare in accent color)",
+        "Add footer with Logo, Privacy/Terms/Contact links, copyright",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "This is the scaffold only - content sections will be added in subsequent stories"
+    },
+    {
+      "id": "US-003",
+      "title": "Add PREPARE Hero section with direct-response copy",
+      "description": "As a user, I want a punchy hero section that establishes the data preparation value proposition.",
+      "acceptanceCriteria": [
+        "Add Hero section after breadcrumb with pt-16 pb-20 relative overflow-hidden",
+        "Include pillar indicator: '02' number, accent line, 'Data Preparation' label",
+        "H1 with TextScramble for 'PREPARE' and subtitle in accent-secondary italic",
+        "Subtitle: 'Raw Data Is Worthless. Prepared Data Is Everything.' or similar transformation-focused",
+        "Two paragraphs of subtext: first short punch about 80% ML time on data, second longer with bold kicker",
+        "Include inline Citation linking to VentureBeat 80% stat",
+        "Bold kicker: 'We turn petabytes of noise into training-ready signal.'",
+        "Two CTAs: primary 'Transform Your Pipeline' and secondary 'Explore Capabilities'",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "Copy should sound like a technical expert, not marketing. Use direct-response rhythm."
+    },
+    {
+      "id": "US-004",
+      "title": "Add PREPARE Problem section (The Preparation Bottleneck)",
+      "description": "As a user, I want a compelling problem section that establishes data preparation challenges.",
+      "acceptanceCriteria": [
+        "Add section with py-20 bg-[var(--bg-secondary)]/30 after Hero",
+        "H2: 'The Preparation Bottleneck' (punchy naming, not generic)",
+        "Opening paragraph with citation about data prep consuming most ML project time",
+        "Paragraph about deduplication being 'biggest bottleneck of LLM training' with citation",
+        "Paragraph about quality filtering tradeoffs - over-filter lose diversity, under-filter add noise",
+        "Border-left styled list of 'You can't just...' statements (4 items): run naive dedup on trillion tokens, use one-size-fits-all quality thresholds, ignore multimodal alignment, skip data versioning",
+        "Paragraph about industry investment in data infrastructure with citation",
+        "Callout box with kicker: 'The labs with rigorous data preparation ship better models. The rest debug training failures for months.'",
+        "At least 3 inline Citation components with real URLs",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "Research needed: find citations for deduplication bottleneck, quality filtering stats, industry investment"
+    },
+    {
+      "id": "US-005",
+      "title": "Add PREPARE Market Context section",
+      "description": "As a user, I want to understand why data preparation matters at industry scale.",
+      "acceptanceCriteria": [
+        "Add section with py-20 after Problem section",
+        "H2: 'Why Data Preparation Is the Hidden Multiplier'",
+        "Opening paragraph about scale of data preparation challenge",
+        "Bulleted list with 4 items, each with inline Citation: trillion-token dataset examples (RefinedWeb, RedPajama scale), deduplication research (finding 30%+ duplicates in web corpora), multimodal alignment requirements, data quality impact on model performance",
+        "Paragraph about video/robotics requiring specialized preparation (temporal alignment, sensor normalization)",
+        "Closing paragraph about purposeful preparation vs ad-hoc processing",
+        "At least 4 inline citations with real URLs to research papers or industry reports",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "Research: RefinedWeb, RedPajama, deduplication papers, multimodal alignment research"
+    },
+    {
+      "id": "US-006",
+      "title": "Add PREPARE Proof section (Results placeholder)",
+      "description": "As a user, I want to see proof of Claru's data preparation capabilities before the capabilities pitch.",
+      "acceptanceCriteria": [
+        "Add section with py-20 bg-[var(--bg-secondary)]/30 after Market Context",
+        "Section label: '// PROOF' in mono font accent color",
+        "H2: 'Results From the Field'",
+        "Introductory text: 'Detailed case studies coming soon.' with link to contact",
+        "Two placeholder cards in grid md:grid-cols-2 gap-6",
+        "Card 1: Layers icon, 'Foundation Model Lab' title (tertiary), '10T+ tokens deduplicated and quality-filtered for pre-training' description",
+        "Card 2: Cpu icon, 'Video AI Startup' title (tertiary), 'Cross-modal alignment pipeline for 5M video-caption pairs' description",
+        "Cards use border-dashed border-[var(--border-subtle)] bg-[var(--bg-primary)]",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "Placeholder content - will be replaced with real case studies later"
+    },
+    {
+      "id": "US-007",
+      "title": "Add PREPARE Capabilities section",
+      "description": "As a user, I want to understand Claru's four data preparation capabilities.",
+      "acceptanceCriteria": [
+        "Add section with id='capabilities' py-20 bg-[var(--bg-secondary)]/30 after Proof section",
+        "Section label: '// CAPABILITIES' in mono font",
+        "H2: 'How We Prepare Data'",
+        "Subtitle: 'Four specialized pipelines for transforming raw data into ML-ready datasets.'",
+        "Define capabilities array with 4 objects using Lucide icons",
+        "Capability 1: Layers icon, 'Deduplication', 'Multi-level deduplication from documents to n-grams', details: MinHashLSH at scale, Embedding-based semantic dedup, Paragraph and line-level matching, Cross-document detection",
+        "Capability 2: Filter icon, 'Quality Filtering', 'Configurable thresholds that balance quality and diversity', details: Perplexity and fluency scoring, Domain-specific classifiers, Toxicity and safety filters, Configurable threshold tuning",
+        "Capability 3: FileText icon, 'Format Normalization', 'Standardization and noise removal at petabyte scale', details: Schema standardization, Encoding normalization, Metadata extraction, Format conversion pipelines",
+        "Capability 4: Cpu icon, 'Multimodal Alignment', 'Cross-modal synchronization for video, audio, and text', details: Temporal alignment, Caption-frame matching, Audio-video sync, Cross-modal embeddings",
+        "Render using CapabilityCard component in grid md:grid-cols-2 gap-6",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "Use technical terminology accurately - MinHashLSH, perplexity scoring, etc."
+    },
+    {
+      "id": "US-008",
+      "title": "Add PREPARE Process section",
+      "description": "As a user, I want to understand Claru's data preparation process flow.",
+      "acceptanceCriteria": [
+        "Add section with py-20 after Capabilities",
+        "H2: 'Our Preparation Process'",
+        "Define 4-step process array with step numbers 01-04",
+        "Step 01: 'Data Audit', 'We analyze your raw data to understand formats, quality distribution, and preparation requirements. This shapes deduplication strategies and filtering thresholds.'",
+        "Step 02: 'Pipeline Configuration', 'Based on your model architecture and data characteristics, we configure deduplication, filtering, and normalization stages with domain-specific tuning.'",
+        "Step 03: 'Processing & Validation', 'Data flows through multi-stage processing with continuous quality monitoring. We validate outputs against expected distributions and catch anomalies early.'",
+        "Step 04: 'Delivery & Integration', 'Clean, deduplicated, properly formatted data delivered in your preferred format with full lineage documentation for reproducibility.'",
+        "Render as vertical timeline with step number in accent color, title, and description",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Add PREPARE Use Cases section (expanded cards)",
+      "description": "As a user, I want to see detailed use cases for data preparation with specific metrics.",
+      "acceptanceCriteria": [
+        "Add section with py-20 bg-[var(--bg-secondary)]/30 after Process",
+        "Section label: '// USE CASES' in mono font",
+        "H2: 'Data Preparation for Frontier Applications'",
+        "Subtitle about each domain having unique preparation requirements",
+        "Use Case 1: LLM Pre-Training - FileText icon, subtitle 'GPT, Llama, Mistral', paragraph about trillion-token scale with RefinedWeb citation (5T tokens), 'The challenge' paragraph about dedup ratios, stats bar: '30%+ typical dedup' | '10x quality filter' | 'TB/day throughput' | 'Full lineage'",
+        "Use Case 2: Video-Language Models - Video icon, subtitle 'Sora, Runway, Veo', paragraph about video-caption alignment with citation, 'The challenge' about temporal sync, stats bar: '<50ms sync' | 'Frame-level' | 'Multi-resolution' | 'Caption density'",
+        "Use Case 3: Robotics Datasets - Cpu icon, subtitle 'RT-X, OpenVLA', paragraph about trajectory normalization with DROID/Open-X citation, 'The challenge' about cross-embodiment, stats bar: '6-DOF actions' | 'Multi-sensor' | 'Cross-platform' | 'Task labels'",
+        "Each use case as motion.div with p-8 rounded-xl border with stats bar grid at bottom",
+        "At least 1 inline Citation per use case",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 9,
+      "passes": true,
+      "notes": "Research: RefinedWeb scale, dedup stats, video alignment requirements, robotics data normalization"
+    },
+    {
+      "id": "US-010",
+      "title": "Add PREPARE FAQ section with JSX answers",
+      "description": "As a user, I want detailed answers to common data preparation questions.",
+      "acceptanceCriteria": [
+        "Add section with py-20 after Use Cases",
+        "Section label: '// FAQ' in mono font",
+        "H2: 'Common Questions'",
+        "Define faqs array with 5 objects, each with question string and answer as React.ReactNode (JSX)",
+        "FAQ 1: 'What deduplication methods do you use?' - Multi-paragraph answer covering MinHashLSH, embedding-based semantic dedup, multi-level (doc/para/line), with citation to dedup research",
+        "FAQ 2: 'How do you handle quality vs. quantity tradeoffs?' - Answer about configurable thresholds, domain-specific tuning, diversity preservation",
+        "FAQ 3: 'Can you process multimodal data?' - Answer about video-text alignment, temporal sync, cross-modal embeddings with citation",
+        "FAQ 4: 'What scale can you handle?' - Answer with specific throughput numbers, infrastructure (parallel processing, distributed systems)",
+        "FAQ 5: 'How do you ensure data lineage and versioning?' - Answer about provenance tracking, audit trails, reproducibility",
+        "Each answer uses <> fragments with <p> paragraphs and <ul> bullet lists",
+        "At least 3 answers have inline Citation components",
+        "Render using FAQItem component with accordion behavior",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 10,
+      "passes": true,
+      "notes": "FAQItem must accept React.ReactNode for answer prop, not string"
+    },
+    {
+      "id": "US-011",
+      "title": "Add PREPARE CTA section",
+      "description": "As a user, I want a clear call to action to engage with Claru's data preparation services.",
+      "acceptanceCriteria": [
+        "Add section with id='contact' py-20 bg-[var(--bg-secondary)]/30 after FAQ",
+        "Centered content with max-w-3xl mx-auto text-center",
+        "H2: 'Stop Fighting Your Data Pipeline' (benefit-oriented, not generic)",
+        "Two paragraphs: first about researchers not spending 80% time on data logistics, second about scoping a preparation pipeline",
+        "Button with 'Discuss Your Data Requirements' text and ArrowRight icon, linking to /#contact",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 11,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Create ENRICH layout.tsx with metadata and JSON-LD schema",
+      "description": "As a developer, I need to create the layout file for the ENRICH pillar page.",
+      "acceptanceCriteria": [
+        "Create /src/app/pillars/enrich/layout.tsx",
+        "Include Metadata export with title 'Expert Data Annotation for AI Labs | Claru' (under 60 chars)",
+        "Description 140-160 chars about RLHF, expert annotation, PhD-level specialists",
+        "Keywords: 'data annotation', 'RLHF', 'expert labeling', 'AI training data', etc.",
+        "alternates.canonical: '/pillars/enrich'",
+        "openGraph metadata",
+        "JSON-LD @graph with Service (name: 'Expert Data Annotation Services'), BreadcrumbList (Home -> Enrich), FAQPage (5 questions)",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": true,
+      "notes": "Reference acquire/layout.tsx for structure"
+    },
+    {
+      "id": "US-013",
+      "title": "Create ENRICH page.tsx with full content",
+      "description": "As a developer, I need to create the complete ENRICH page following ACQUIRE pattern.",
+      "acceptanceCriteria": [
+        "Create /src/app/pillars/enrich/page.tsx matching PREPARE structure exactly",
+        "Hero: '03' pillar number, 'ENRICH' TextScramble, subtitle about human intelligence (e.g., 'Your Model Is Only as Smart as Its Teachers')",
+        "Hero subtext about annotation quality compounding, bold kicker about expert judgment",
+        "Problem section 'The Annotation Quality Gap': 26% AI failures from poor data quality (with citation), generic annotators miss nuance, RLHF requires judgment, expert vs crowdsourced comparison",
+        "Market Context section with citations: RLTHF efficiency (6-7% effort), Scale AI $15B Meta investment, xAI specialist pivot, expert annotator scarcity",
+        "Proof section with placeholder cards: 'Frontier LLM Lab' (RLHF preference data), 'Safety Research Team' (red teaming dataset)",
+        "Capabilities: Sparkles icon for RLHF & Preference, Video for Frame-Level Annotation, Users for Expert Domain, Shield for Red Teaming",
+        "Process: Requirements Discovery -> Annotator Matching -> Annotation & QA -> Delivery & Iteration",
+        "Use Cases expanded: RLHF for LLMs (preference pairs, IAA), Video Understanding (temporal annotation), Safety & Alignment (red teaming)",
+        "FAQ with 5 JSX answers about expert vs crowd, quality at scale, domain coverage, RLHF process, quality metrics (IAA >85%, Krippendorff's Alpha)",
+        "CTA: 'Stop Settling for Generic Annotation'",
+        "At least 5 inline citations total",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 13,
+      "passes": true,
+      "notes": "This is a large story but follows exact PREPARE pattern. All sections in one file."
+    },
+    {
+      "id": "US-014",
+      "title": "Create VALIDATE layout.tsx with metadata and JSON-LD schema",
+      "description": "As a developer, I need to create the layout file for the VALIDATE pillar page.",
+      "acceptanceCriteria": [
+        "Create /src/app/pillars/validate/layout.tsx",
+        "Metadata title: 'AI Red Teaming & Data Validation | Claru' (under 60 chars)",
+        "Description about red teaming, benchmark curation, bias detection, safety evaluation",
+        "Keywords: 'AI red teaming', 'data validation', 'benchmark curation', 'bias detection', etc.",
+        "alternates.canonical: '/pillars/validate'",
+        "openGraph metadata",
+        "JSON-LD @graph with Service (name: 'AI Data Validation Services'), BreadcrumbList (Home -> Validate), FAQPage (5 questions)",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Create VALIDATE page.tsx with full content",
+      "description": "As a developer, I need to create the complete VALIDATE page following ACQUIRE pattern.",
+      "acceptanceCriteria": [
+        "Create /src/app/pillars/validate/page.tsx matching PREPARE/ENRICH structure",
+        "Hero: '04' pillar number, 'VALIDATE' TextScramble, subtitle about risk/safety (e.g., 'Ship Broken Models, Break User Trust')",
+        "Hero subtext about validation catching issues before they compound, bold kicker",
+        "Problem section 'The Hidden Quality Crisis': problems surface late in training, bias compounds, safety issues need adversarial testing, benchmark contamination risks, with citations",
+        "Market Context: red teaming becoming standard, benchmark integrity concerns, EU AI Act compliance requirements, safety evaluation frameworks",
+        "Proof section placeholder cards: 'Foundation Model Company' (pre-deployment red teaming), 'Enterprise AI Team' (bias audit)",
+        "Capabilities: ShieldCheck for Red Teaming, Database for Benchmark Curation, Scale for Bias Detection, CheckCircle for Post-Training Eval",
+        "Process: Scope Definition -> Test Design -> Evaluation Execution -> Reporting & Remediation",
+        "Use Cases expanded: LLM Safety (attack categories, jailbreaks), Benchmark Integrity (contamination, golden sets), Bias & Fairness (representation, systematic errors)",
+        "FAQ with 5 JSX answers about red teaming methods, benchmark contamination, bias types, golden sets, safety standards",
+        "CTA: 'Don't Ship Until You're Sure'",
+        "At least 5 inline citations total",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 15,
+      "passes": true,
+      "notes": "Research: red teaming frameworks, benchmark contamination studies, EU AI Act"
+    },
+    {
+      "id": "US-016",
+      "title": "Update navigation to include all pillar pages",
+      "description": "As a user, I want to navigate between all four pillar pages from any page.",
+      "acceptanceCriteria": [
+        "Update header nav in each pillar page to include dropdown or links to all 4 pillars",
+        "Each pillar page footer includes links to other pillars in 'Related Services' or similar section",
+        "Verify breadcrumb works correctly on all 4 pillar pages",
+        "All internal links use Next.js Link component",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill - navigate between all pillars"
+      ],
+      "priority": 16,
+      "passes": true,
+      "notes": "Keep navigation consistent across all pillar pages"
+    },
+    {
+      "id": "US-017",
+      "title": "Final build verification and QA",
+      "description": "As a developer, I need to verify all pillar pages build and meet quality standards.",
+      "acceptanceCriteria": [
+        "npm run build passes with no errors",
+        "All 4 pillar pages (/pillars/acquire, /pillars/prepare, /pillars/enrich, /pillars/validate) generate as static pages in build output",
+        "No TypeScript errors or warnings",
+        "All Citation component hrefs are valid URLs (not placeholder)",
+        "Typecheck passes"
+      ],
+      "priority": 17,
+      "passes": true,
+      "notes": "Final verification before merge"
+    }
+  ]
+}

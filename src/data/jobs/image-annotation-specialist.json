@@ -1,0 +1,34 @@
+{
+  "slug": "image-annotation-specialist",
+  "title": "Image Annotation Specialist",
+  "category": "vision-annotation",
+  "description": "We need annotators who can mark visual data accurately and efficiently. You will work through image queues, applying labels, bounding boxes, keypoints, or segmentation masks according to project-specific guidelines. Some tasks involve single-frame annotation; others require tracking objects across video sequences. Attention to spatial detail is critical -- the difference between a good and bad annotation is often just a few pixels.\n\nYou should be comfortable working with visual data for extended periods. The work requires sustained focus and steady hand-eye coordination, especially for segmentation tasks. A monitor with at least 1080p resolution is required; larger screens are better. If you have experience in graphic design, medical imaging, cartography, or GIS, those skills transfer directly.\n\nWork is fully remote and available around the clock. You can work in any time zone. Compensation is per accepted annotation with bonuses for high accuracy. We recommend working in focused 2-3 hour blocks to maintain annotation quality.",
+  "skills": [
+    "Familiarity with computer vision concepts",
+    "Background in graphic design, GIS, or medical imaging is a plus",
+    "Experience with image annotation tools (CVAT, Labelbox, V7)",
+    "Patience for detailed, repetitive visual work",
+    "Monitor with at least 1080p resolution",
+    "Comfortable working with diverse image domains",
+    "Good hand-eye coordination for precise polygon drawing"
+  ],
+  "compensationMin": 35,
+  "compensationMax": 50,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "EU",
+  "datePosted": "2026-02-08",
+  "validThrough": "2026-05-07",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "What types of images will I annotate?",
+      "answer": "Projects cover autonomous driving scenes, medical imagery, satellite photos, retail product images, and more. You will be assigned projects based on your skills and clearances."
+    },
+    {
+      "question": "Do I need special hardware?",
+      "answer": "A computer with a mouse (trackpad is not recommended for precision tasks) and a monitor of at least 1080p. A graphics tablet is optional but can improve segmentation speed."
+    }
+  ]
+}

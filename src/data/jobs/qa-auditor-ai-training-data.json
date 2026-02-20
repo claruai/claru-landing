@@ -1,0 +1,36 @@
+{
+  "slug": "qa-auditor-ai-training-data",
+  "title": "QA Auditor — AI Training Data",
+  "category": "quality-review",
+  "description": "You will audit completed annotations produced by other team members, checking each one against the project rubric and flagging errors. This is second-pass work: someone else has already labeled the data, and your job is to verify that the labels are correct, consistent, and complete. On a typical day you will review 200-400 items, writing short justifications for every rejection. The work requires sharp attention and the ability to hold a full annotation schema in your head while scanning at speed.\n\nYou should have a track record of careful, systematic work. Backgrounds in copy editing, test engineering, clinical data review, or research assistance translate well. We will train you on our specific tools and rubrics, but we cannot teach the underlying mindset: you either notice when something is slightly off, or you do not.\n\nShifts are flexible. Some reviewers prefer to batch their work into two or three longer sessions per week; others spread it out daily. We are agnostic about schedule as long as turnaround targets are met. A weekly 30-minute sync call with the quality team is the only fixed calendar item.",
+  "skills": [
+    "Comfortable providing direct feedback to peers",
+    "Experience with quality assurance tooling",
+    "Systematic approach to error documentation",
+    "Clear, constructive written feedback",
+    "Experience in QA, editing, or annotation review",
+    "Background in copy editing, research, or data analysis"
+  ],
+  "compensationMin": 40,
+  "compensationMax": 45,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "datePosted": "2026-01-24",
+  "validThrough": "2026-04-23",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "Do I interact with annotators directly?",
+      "answer": "Generally no. Your rejection notes are the primary feedback channel. If a systemic issue arises, the project lead handles the conversation with the annotation team."
+    },
+    {
+      "question": "How is my own accuracy evaluated?",
+      "answer": "A random sample of your reviews is audited by a senior reviewer each week. Your review accuracy score is shared with you and factors into bonus calculations."
+    },
+    {
+      "question": "Will I review work from the same annotators repeatedly?",
+      "answer": "Reviews are typically assigned randomly to avoid bias. Occasionally, targeted reviews are assigned when a specific annotator needs additional QA oversight."
+    }
+  ]
+}

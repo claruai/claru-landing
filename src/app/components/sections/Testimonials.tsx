@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { TrendingUp, Target, Briefcase } from "lucide-react";
 import TextScramble, { GlitchText } from "../effects/TextScramble";
 import { RevealOnScroll } from "../effects/ScrollAnimations";
@@ -52,36 +52,16 @@ const metrics = [
 ];
 
 export default function Testimonials() {
-  const containerRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const isInView = useInView(titleRef, { once: true, amount: 0.5 });
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"],
-  });
-
-  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
-
   return (
     <section
-      ref={containerRef}
       id="testimonials"
-      className="section relative overflow-hidden bg-transparent"
+      className="py-16 md:py-20 relative bg-transparent"
     >
       {/* Section divider */}
       <div className="section-divider mb-16 md:mb-24" />
-
-      {/* Background decoration */}
-      <motion.div
-        className="absolute inset-0 pointer-events-none"
-        style={{ y: backgroundY }}
-      >
-        <div className="absolute top-0 left-0 w-full h-full opacity-30">
-          <div className="absolute top-1/4 right-1/4 w-64 h-64 rounded-full bg-[var(--accent-primary)]/5 blur-3xl" />
-          <div className="absolute bottom-1/4 left-1/4 w-48 h-48 rounded-full bg-[var(--accent-primary)]/3 blur-2xl" />
-        </div>
-      </motion.div>
 
       <div className="container relative">
         {/* Section Header */}
@@ -119,15 +99,27 @@ export default function Testimonials() {
           </div>
         </RevealOnScroll>
 
-        {/* Testimonials - Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-5xl mx-auto">
-          {testimonials.map((testimonial, index) => (
-            <TestimonialCard
-              key={testimonial.author + index}
-              testimonial={testimonial}
-              index={index}
-            />
-          ))}
+        {/* Testimonials - Horizontal Scroll */}
+        <div className="relative">
+          <div
+            className="flex gap-4 md:gap-6 overflow-x-auto pb-4 pr-8 md:pr-12 scroll-smooth [&::-webkit-scrollbar]:hidden"
+            style={{
+              scrollSnapType: "x mandatory",
+              WebkitOverflowScrolling: "touch",
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }}
+          >
+            {testimonials.map((testimonial, index) => (
+              <TestimonialCard
+                key={testimonial.author + index}
+                testimonial={testimonial}
+                index={index}
+              />
+            ))}
+          </div>
+          {/* Right fade gradient to hint more content */}
+          <div className="pointer-events-none absolute top-0 right-0 h-full w-16 md:w-24 bg-gradient-to-l from-[var(--bg-primary)] to-transparent" />
         </div>
       </div>
     </section>
@@ -231,11 +223,9 @@ interface TestimonialCardProps {
 
 function TestimonialCard({ testimonial, index }: TestimonialCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
 
   return (
     <motion.div
-      ref={cardRef}
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
@@ -246,7 +236,8 @@ function TestimonialCard({ testimonial, index }: TestimonialCardProps) {
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="h-full"
+      className="w-[280px] md:w-[320px] flex-shrink-0"
+      style={{ scrollSnapAlign: "start" }}
     >
       <motion.div
         className="relative p-6 md:p-8 overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-secondary)] h-full flex flex-col"

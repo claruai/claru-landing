@@ -1,0 +1,37 @@
+{
+  "slug": "multimodal-data-labeler",
+  "title": "Multimodal Data Labeler",
+  "category": "data-labeling",
+  "description": "You will classify and label text, image, and mixed-media data sets that go straight into training pipelines at major AI research labs. The work is detail-heavy: every annotation you submit gets checked against a rubric before it counts. Most tasks involve reading a piece of content, deciding which labels from a predefined taxonomy apply, and marking spans or bounding regions where relevant. Expect a steady mix of short-burst tasks (a few seconds each) and longer judgment calls that require reading full documents.\n\nIdeal candidates have a background in linguistics, library science, content moderation, or a related field, but we have also had strong results from career changers who simply care about getting things right. The work is repetitive by nature, so you need to be someone who finds satisfaction in precision rather than novelty. You should be comfortable working independently and hitting deadlines without constant supervision.\n\nSchedule is flexible within project deadlines. Most annotators work 15-25 hours per week, though some projects offer surge periods at higher rates. You will communicate with project leads through Slack and attend a brief weekly sync call.",
+  "skills": [
+    "Proficient in written English",
+    "Ability to maintain consistency across large task volumes",
+    "Background in linguistics, library science, or content moderation",
+    "Experience with data labeling or annotation platforms",
+    "Comfortable working with ambiguous or edge-case data",
+    "Familiarity with NLP concepts (tokenization, NER, POS tagging)",
+    "Ability to internalize complex annotation guidelines quickly"
+  ],
+  "compensationMin": 35,
+  "compensationMax": 45,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "datePosted": "2026-01-30",
+  "validThrough": "2026-04-29",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "How is quality measured?",
+      "answer": "We use inter-annotator agreement and gold-standard checks. You will receive regular feedback on your accuracy scores and can always ask project leads to clarify guidelines."
+    },
+    {
+      "question": "What happens if I disagree with the guidelines?",
+      "answer": "Flag it. We have a formal escalation process. If you think a guideline is ambiguous or wrong, the project lead reviews it and issues a clarification within 24 hours."
+    },
+    {
+      "question": "Is there a minimum weekly time commitment?",
+      "answer": "Most projects require 10-15 hours per week minimum. Higher-volume contributors typically get priority access to new projects."
+    }
+  ]
+}

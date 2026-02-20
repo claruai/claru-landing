@@ -1,0 +1,63 @@
+{
+  "slug": "workplace-egocentric-data",
+  "title": "Workplace Egocentric Video Data for General-Purpose Robotics",
+  "category": "robotics",
+  "teaser": "Piloted first-person video capture inside active workplaces globally — validating that real businesses can serve as a scalable, cost-efficient source of robotics training data.",
+  "headlineStat": "Global pilot",
+  "headlineStatLabel": "Workplace egocentric capture validated",
+  "summary": "Piloted a new approach to robotics data: capturing first-person video directly inside active workplaces across food service, tailoring, cleaning, furniture assembly, and factory settings globally. Workers captured egocentric footage with smartphones during normal workflow with minimal disruption. The pilot validated that real workplaces can serve as a scalable, cost-efficient source of robotics training data — capturing the improvisation, physical constraints, and contextual decision-making that staged environments cannot replicate.",
+  "challenge": "Robotics training datasets are overwhelmingly collected in controlled lab environments or staged settings that fail to represent real-world work conditions — cluttered spaces, time pressure, improvised tool use, and the contextual decision-making that workers perform unconsciously. Existing egocentric video datasets capture household tasks performed by research participants, but the distribution gap between a researcher's kitchen and a commercial kitchen during service is enormous. The fundamental question was whether data collection could be embedded into actual business operations without disrupting workflows, while still meeting the quality and diversity requirements of frontier robotics research.",
+  "approach": "We embedded data capture directly into real-world business operations across multiple countries and workplace types. Business owners and workers were onboarded as contributors through a lightweight side-revenue model that kept participation voluntary and minimally disruptive to normal workflow.\n\nTasks were designed for handheld smartphone recording — no specialized hardware required. Research-level specifications for camera angle, framing, and activity coverage were translated into practical instructions that respected workplace realities: space constraints, safety requirements, hygiene protocols, and varying levels of technical comfort among workers. Each contributor received visual guides with annotated examples from their specific workplace type.\n\nActivity coverage and task diversity were tracked continuously through a real-time monitoring dashboard. We balanced collection across workplace types (food service, tailoring, cleaning, furniture assembly, factory work) and across task complexity levels within each type. QA validation focused on the characteristics that distinguish genuine workplace data from staged alternatives: natural pacing, contextual tool selection, environmental adaptation, and multi-step task sequencing under real constraints.",
+  "results": [
+    { "value": "Global", "label": "Geographic coverage across multiple countries" },
+    { "value": "5+", "label": "Workplace types (food, tailoring, cleaning, assembly, factory)" },
+    { "value": "Smartphone", "label": "Capture hardware — no specialized equipment" },
+    { "value": "Minimal", "label": "Disruption to normal business operations" }
+  ],
+  "impact": "The pilot validated a fundamentally new data source for robotics research: active workplaces as scalable, cost-efficient contributors of egocentric training data. The behaviors captured — improvisation under time pressure, adaptation to cluttered and constrained spaces, contextual tool selection — represent precisely the distribution that lab-collected datasets lack. The operational model (side-revenue for businesses, smartphone capture, lightweight onboarding) proved economically viable for sustained collection at scale, not just pilot volumes.",
+  "whyItMatters": "General-purpose robotics requires training data from the environments where robots will actually be deployed. The behaviors captured in active work environments — the improvisation, the physical constraints, the contextual decision-making — cannot be replicated in staged settings. This pilot demonstrated that real workplaces can be a scalable, cost-efficient dataset source without requiring specialized hardware or disrupting operations. For robotics labs, this opens a data collection channel that scales with the number of participating businesses rather than the number of available research facilities.",
+  "faqs": [
+    {
+      "question": "Why use smartphones instead of specialized cameras?",
+      "answer": "Smartphones eliminate the hardware logistics barrier that limits traditional egocentric data collection. Workers already own and are comfortable with their phones, so there is no device onboarding, no shipping, and no maintenance overhead. Image quality from modern smartphones meets the resolution and frame-rate requirements for robotics training data. The trade-off is less precise IMU synchronization compared to dedicated hardware — acceptable for this use case but a known limitation for manipulation-focused research."
+    },
+    {
+      "question": "How do you ensure minimal disruption to business operations?",
+      "answer": "Recording sessions are short (5-15 minutes), scheduled during natural workflow pauses or low-traffic periods identified by the business owner, and use the worker's own smartphone in a handheld configuration. No workspace modifications are required. The side-revenue model means participation is voluntary and opt-in at the individual worker level, not mandated by management."
+    },
+    {
+      "question": "What makes workplace data different from lab-collected egocentric data?",
+      "answer": "Three properties distinguish it: genuine environmental constraints (cluttered spaces, safety hazards, time pressure), naturalistic behavior (improvised tool use, adaptive task sequencing, contextual decision-making), and demographic diversity (workers of varying age, experience, and physical ability performing the same tasks differently). Lab datasets control for these variables; workplace datasets capture them — and that variation is exactly what general-purpose robotics models need."
+    },
+    {
+      "question": "How was this pilot designed to scale?",
+      "answer": "The operational model was built around unit economics that improve with scale. Business onboarding is templated by workplace type. Task instructions are parameterized and reusable. QA criteria are automated where possible. The primary scaling vector is the number of participating businesses, not the number of Claru staff — meaning collection volume grows linearly with business partnerships rather than headcount."
+    }
+  ],
+  "relatedSlugs": [
+    "egocentric-video-collection",
+    "data-engine-world-models"
+  ],
+  "pillarLink": {
+    "href": "/pillars/acquire/egocentric-video",
+    "label": "Egocentric Video Collection"
+  },
+  "targetKeyword": "workplace egocentric data robotics training",
+  "metaTitle": "Workplace Egocentric Data for Robotics | Claru",
+  "metaDescription": "Piloting first-person video capture inside active workplaces for robotics training data. Smartphone capture, minimal disruption, global coverage.",
+  "processSteps": [
+    { "step": "01", "title": "Partner", "description": "Onboard businesses as data sources" },
+    { "step": "02", "title": "Instruct", "description": "Translate research needs to smartphone tasks" },
+    { "step": "03", "title": "Capture", "description": "Workers record during normal workflow" },
+    { "step": "04", "title": "Review", "description": "Track coverage + validate quality" }
+  ],
+  "images": [
+    "/images/case-studies/workplace-egocentric-data/hero.png",
+    "/images/case-studies/workplace-egocentric-data/impact.png",
+    "/images/case-studies/workplace-egocentric-data/objective.png",
+    "/images/case-studies/workplace-egocentric-data/process.png",
+    "/images/case-studies/workplace-egocentric-data/why-it-matters.png"
+  ],
+  "datePublished": "2025-12-15",
+  "sampleData": { "type": "workplace-video-analysis" }
+}

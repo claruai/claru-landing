@@ -1,0 +1,33 @@
+{
+  "slug": "virtual-environment-tester",
+  "title": "Virtual Environment Tester",
+  "category": "gaming",
+  "description": "Your job is to generate high-quality human demonstration data by playing games and simulations under controlled conditions. You will follow session protocols that specify the game, the scenario, the objectives, and the annotation requirements. After each session, you fill out a structured form documenting your strategies, mistakes, and key turning points. This data is used to train and evaluate game-playing AI agents.\n\nYou should be a competent gamer with experience across multiple genres -- FPS, strategy, puzzle, and open-world. We do not need esports-level skill, but you do need to be comfortable learning new game mechanics quickly and playing systematically rather than casually. Familiarity with game engines (Unity, Unreal) is helpful for debugging session issues but not required.\n\nSessions run 2-4 hours and are scheduled in advance. Most contributors complete 3-4 sessions per week. You will need a PC that meets minimum specs for the game engines we use (we will provide these during onboarding). A stable internet connection is required for real-time data upload.",
+  "skills": [
+    "Ability to articulate decision-making processes clearly",
+    "Broad gaming experience across multiple genres",
+    "Experience with PC gaming and common game engines",
+    "Good written communication for annotation logs",
+    "Attention to detail in logging and annotation",
+    "Comfortable following scripted playthrough protocols"
+  ],
+  "compensationMin": 20,
+  "compensationMax": 25,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "US",
+  "datePosted": "2026-01-21",
+  "validThrough": "2026-04-20",
+  "featured": false,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "Is this like casual game testing?",
+      "answer": "Not quite. Sessions are structured with specific objectives, strategies to try, and annotations to complete. It is more systematic than typical QA playtesting."
+    },
+    {
+      "question": "How is compensation structured?",
+      "answer": "Payment is per completed and accepted session, with quality bonuses. Rates vary by project complexity. Sessions that do not meet annotation standards may need to be repeated."
+    }
+  ]
+}
