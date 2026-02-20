@@ -10,15 +10,15 @@ import Button from "../ui/Button";
 const paths = [
   {
     icon: Database,
-    title: "Training Data",
-    subtitle: "Source. Curate. License.",
+    title: "Training Data & Pipelines",
+    subtitle: "Source. Process. Ship.",
     description:
-      "Raw data for frontier models — egocentric video, manipulation trajectories, synthetic environments, and licensed datasets. Purpose-built, not scraped.",
+      "Raw data for frontier models — egocentric video, manipulation trajectories, synthetic environments. Plus the pipelines to clean, deduplicate, align, and format it into golden datasets.",
     items: [
       "Egocentric & manipulation video capture",
-      "Proprietary video game capture platform",
-      "Synthetic data generation (Unreal, Omniverse)",
-      "Proprietary labeling & QA platform",
+      "Proprietary game capture + synthetic data (Unreal, Omniverse)",
+      "Data processing pipelines — dedup, alignment, quality scoring",
+      "Training-ready dataset delivery, not raw dumps",
     ],
     href: "/data",
     cta: "Explore Data Services",
@@ -29,11 +29,11 @@ const paths = [
     title: "Expert Labeling",
     subtitle: "Annotate. Evaluate. Validate.",
     description:
-      "Domain-specialist annotators embedded with your team. RLHF, video annotation, red teaming — with real-time feedback loops, not batch cycles.",
+      "Domain-specialist annotators embedded with your team — in your Slack, on your timeline. RLHF, video annotation, red teaming, with real-time feedback loops.",
     items: [
       "RLHF & preference ranking",
       "Frame-level video & spatial annotation",
-      "Embedded in your Slack — real-time feedback, not batch cycles",
+      "Red teaming, safety evaluation & bias detection",
       "Proprietary VLM for machine-assisted captioning & labeling",
     ],
     href: "/labeling",
@@ -65,14 +65,14 @@ export default function TwoPaths() {
             {"// TWO SERVICES. ONE PARTNER."}
           </motion.span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-[var(--text-primary)]">
-            Most labs buy data from one vendor{" "}
+            One vendor collects. Another labels.{" "}
             <br className="hidden sm:block" />
-            and hire another to label it.
+            You stitch it all together.
           </h2>
           <p className="text-xl text-[var(--text-secondary)] max-w-2xl mx-auto">
-            We do both —{" "}
+            We handle the full pipeline —{" "}
             <span className="italic text-[var(--accent-secondary)]">
-              so nothing gets lost in translation.
+              from raw capture to training-ready dataset.
             </span>
           </p>
         </motion.div>
@@ -99,7 +99,7 @@ export default function TwoPaths() {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          First samples in 48 hours. Requirements change mid-project — we adapt in hours, not weeks.
+          Requirements change mid-project. We adapt in hours, not weeks — in your Slack, with your team.
         </motion.p>
 
         {/* Modality line */}

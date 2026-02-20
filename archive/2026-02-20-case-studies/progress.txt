@@ -1,0 +1,8 @@
+# Ralph Progress Log - Case Studies Section
+
+## Session Start
+Branch: ralph/case-studies
+Stories: US-001 through US-008
+
+---
+

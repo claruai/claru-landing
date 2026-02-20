@@ -28,7 +28,7 @@ export default function AdminLoginPage() {
         });
 
         if (response.ok) {
-          router.push("/admin/jobs");
+          router.push("/admin/dashboard");
         } else {
           const data = await response.json();
           setError(data.error || "Invalid credentials");
@@ -89,7 +89,7 @@ export default function AdminLoginPage() {
               autoComplete="email"
               autoFocus
               disabled={isLoading}
-              placeholder="team@claru.ai"
+              placeholder="admin@example.com"
               className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] transition-colors duration-200 disabled:opacity-50"
             />
           </div>

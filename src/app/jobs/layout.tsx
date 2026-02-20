@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "AI Annotation Jobs | Remote Data Labeling Opportunities at Claru",
+  title: "Remote AI Annotation Jobs | Claru",
   description:
     "Browse remote data annotation jobs at Claru. Join frontier AI labs as a contractor — RLHF, red teaming, coding review, vision annotation, and more. AI training jobs with expert-tier pay ($20\u2013100/hr).",
   keywords: [
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     "coding review jobs",
   ],
   openGraph: {
-    title: "AI Annotation Jobs | Remote Data Labeling Opportunities at Claru",
+    title: "Remote AI Annotation Jobs | Claru",
     description:
       "Browse remote data annotation jobs at Claru. Join frontier AI labs as a contractor with expert-tier pay.",
     type: "website",

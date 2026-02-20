@@ -146,10 +146,7 @@ export default function Hero() {
             transition={{ duration: 0.5, delay: 0.5 }}
           >
             <Button href="#contact" variant="cta-glitch" size="lg">
-              Request a Sample
-            </Button>
-            <Button href="#contact" variant="secondary" size="lg">
-              Book a Call
+              Learn More
             </Button>
           </motion.div>
 

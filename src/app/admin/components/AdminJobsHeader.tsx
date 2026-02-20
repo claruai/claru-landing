@@ -20,18 +20,28 @@ export default function AdminJobsHeader() {
   return (
     <header className="border-b border-[var(--border-subtle)] px-6 py-4 flex items-center justify-between">
       <h1 className="text-lg font-mono font-semibold tracking-tight">
-        claru
-        <span className="text-[var(--accent-primary)]">/</span>
-        admin
+        <a href="/admin/dashboard" className="hover:text-[var(--accent-primary)] transition-colors duration-150">
+          claru
+          <span className="text-[var(--accent-primary)]">/</span>
+          admin
+        </a>
         <span className="text-[var(--text-muted)]">/</span>
         <span className="text-[var(--text-secondary)]">jobs</span>
       </h1>
-      <button
-        onClick={handleLogout}
-        className="text-xs font-mono text-[var(--text-muted)] hover:text-[var(--error)] transition-colors duration-200"
-      >
-        [logout]
-      </button>
+      <div className="flex items-center gap-4">
+        <a
+          href="/admin/settings"
+          className="text-xs font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors duration-200"
+        >
+          [settings]
+        </a>
+        <button
+          onClick={handleLogout}
+          className="text-xs font-mono text-[var(--text-muted)] hover:text-[var(--error)] transition-colors duration-200"
+        >
+          [logout]
+        </button>
+      </div>
     </header>
   );
 }

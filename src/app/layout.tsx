@@ -50,7 +50,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://claru.ai"),
   title:
-    "Claru | Purpose-Built Training Data for Frontier Video, Vision & Robotics Labs",
+    "Claru | Purpose-Built Training Data for Frontier AI Labs",
   description:
     "Training data built to your model's exact specifications. From raw capture to production-ready dataset — sourced, labeled, and validated for frontier video, vision, and robotics AI.",
   keywords: [

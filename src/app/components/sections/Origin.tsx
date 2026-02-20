@@ -30,7 +30,9 @@ export default function Origin() {
                 Before this, we were on the other side — hunting for training
                 data our models needed, filing tickets to annotation vendors,
                 waiting for batch cycles, fixing labels that missed the context
-                of what we were building.
+                of what we were building. Then spending weeks building the
+                pipelines to clean, deduplicate, align, and format everything
+                into something actually training-ready.
               </p>
 
               <p className="text-base md:text-lg text-[var(--text-secondary)] leading-relaxed">
@@ -38,13 +40,15 @@ export default function Origin() {
                 architecture. They&apos;ll differentiate on data. Not volume
                 —{" "}
                 <span className="text-[var(--text-primary)] font-medium">
-                  quality, specificity, and the feedback loop between the people
-                  labeling and the people training.
-                </span>
+                  quality, specificity, and the end-to-end pipeline from raw
+                  capture to golden dataset.
+                </span>{" "}
+                Most vendors handle a single piece — collection or labeling. We&apos;ve
+                helped train frontier models end to end.
               </p>
 
               <p className="text-base md:text-lg text-[var(--accent-primary)] font-mono">
-                A labor marketplace can&apos;t build that. A team that&apos;s trained frontier models can.
+                A labor marketplace can&apos;t build that. A team that&apos;s shipped production datasets for frontier labs can.
               </p>
             </div>
           </FadeIn>

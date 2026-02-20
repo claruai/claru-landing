@@ -1,8 +1,8 @@
-# Ralph Progress Log - Case Studies Section
+# Ralph Progress Log - Catalog Sample Refactor
 
 ## Session Start
-Branch: ralph/case-studies
-Stories: US-001 through US-008
+Branch: ralph/catalog-sample-refactor
+Stories: US-001 through US-011
 
 ---
 

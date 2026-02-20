@@ -8,45 +8,60 @@ import {
   Gamepad2,
   Layers,
   Box,
+  Shield,
   ArrowRight,
 } from "lucide-react";
+import Link from "next/link";
 import TextScramble from "../effects/TextScramble";
 
 const projects = [
   {
     icon: Video,
     title: "Egocentric Video Capture",
-    metric: "12,000+ hours collected across 14 countries",
+    metric: "Global collection, multi-device, real-world environments",
     description:
       "First-person video data captured by domain specialists wearing head-mounted cameras in real-world environments.",
+    slug: "egocentric-video-collection",
   },
   {
     icon: Joystick,
     title: "Manipulation Trajectory Data",
-    metric: "900 hours of action breakdowns delivered in 3 weeks",
+    metric: "Fine-grained kinematic capture and task decomposition",
     description:
       "Granular robotic manipulation recordings with full kinematic annotations and task decomposition.",
+    slug: "data-engine-world-models",
   },
   {
     icon: Gamepad2,
     title: "Game Environment Capture",
-    metric: "Proprietary platform, 50+ game titles, on-demand volume",
+    metric: "Proprietary capture platform, on-demand volume",
     description:
       "Structured gameplay data from our proprietary capture platform across diverse game environments.",
+    slug: "game-based-data-capture",
   },
   {
     icon: Layers,
     title: "Multi-Modal Annotation",
-    metric: "Frame-level video, spatial, RLHF with real-time QA loops",
+    metric: "Frame-level video, spatial, and preference annotation",
     description:
       "Expert-labeled datasets combining video, spatial, and preference annotations with continuous quality assurance.",
+    slug: "fashion-ai-annotation",
   },
   {
     icon: Box,
     title: "Synthetic Data Pipelines",
-    metric: "Unreal and Omniverse environments, sim-to-real validated",
+    metric: "Unreal and Omniverse, sim-to-real validated",
     description:
       "Photorealistic synthetic data generation with domain-randomization and validated sim-to-real transfer.",
+    slug: "video-model-evaluation",
+  },
+  {
+    icon: Shield,
+    title: "AI Safety & Red Teaming",
+    metric: "Multi-modal content moderation and adversarial testing",
+    description:
+      "Content moderation systems built, calibrated, and stress-tested across text and video for production generative AI.",
+    slug: "generative-ai-safety",
   },
 ];
 
@@ -96,13 +111,23 @@ export default function ProofOfWork() {
           viewport={{ once: true }}
           transition={{ delay: 0.4 }}
         >
-          <a
-            href="#contact"
-            className="inline-flex items-center gap-2 text-[var(--accent-primary)] font-mono text-sm hover:gap-3 transition-all duration-300 group"
-          >
-            Explore our full data catalog
-            <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-          </a>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/case-studies"
+              className="inline-flex items-center gap-2 text-[var(--accent-primary)] font-mono text-sm hover:gap-3 transition-all duration-300 group"
+            >
+              View all case studies
+              <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </Link>
+            <span className="hidden sm:inline text-[var(--text-muted)] font-mono text-xs">|</span>
+            <Link
+              href="/data-catalog"
+              className="inline-flex items-center gap-2 text-[var(--text-secondary)] font-mono text-sm hover:text-[var(--accent-primary)] hover:gap-3 transition-all duration-300 group"
+            >
+              Explore data catalog
+              <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </Link>
+          </div>
         </motion.div>
       </div>
     </section>
@@ -183,9 +208,18 @@ function ProjectCard({ project, index }: ProjectCardProps) {
           </p>
 
           {/* Description */}
-          <p className="text-sm text-[var(--text-secondary)] leading-relaxed flex-grow">
+          <p className="text-sm text-[var(--text-secondary)] leading-relaxed flex-grow mb-4">
             {project.description}
           </p>
+
+          {/* Case study link */}
+          <Link
+            href={`/case-studies/${project.slug}`}
+            className="inline-flex items-center gap-1.5 text-xs font-mono text-[var(--accent-primary)] hover:gap-2.5 transition-all duration-300"
+          >
+            Read case study
+            <ArrowRight className="w-3 h-3" />
+          </Link>
         </div>
 
         {/* Corner decoration */}

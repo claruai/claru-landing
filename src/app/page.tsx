@@ -103,7 +103,7 @@ export default function Home() {
         <SectionBridge text="So we built something different." />
         <Origin />
         <TwoPaths />
-        <GlobalReach />
+        {/* <GlobalReach /> */}
         <ProofOfWork />
         <Testimonials />
         <FinalCTA />

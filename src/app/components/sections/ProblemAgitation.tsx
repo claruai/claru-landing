@@ -31,7 +31,7 @@ const painPoints: PainPoint[] = [
     icon: AlertTriangle,
     title: "Your vendor has never seen your model",
     description:
-      "Upload data, wait a week, get labels back, spend another week fixing them. Annotators who never see your architecture can't understand your edge cases.",
+      "Upload data, wait a week, fix labels, then build the pipeline to make it training-ready. Vendors who never see your model can't understand your edge cases.",
   },
   {
     number: "03",
