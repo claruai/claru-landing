@@ -249,6 +249,29 @@ export default function CaseStudiesIndex({
             )}
           </div>
         </section>
+
+        {/* CTA Section */}
+        <section className="py-16 md:py-24 bg-[var(--bg-secondary)]/30">
+          <div className="container">
+            <div className="max-w-3xl mx-auto text-center">
+              <span className="font-mono text-sm text-[var(--accent-primary)] block mb-4">
+                {"// GET STARTED"}
+              </span>
+              <h2 className="text-2xl md:text-3xl font-bold mb-4">
+                Ready to build your dataset?
+              </h2>
+              <p className="text-[var(--text-secondary)] text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
+                Tell us what you&apos;re training. We&apos;ll scope the data, design the pipeline, and deliver.
+              </p>
+              <a
+                href="/#contact"
+                className="btn-cta inline-flex items-center gap-2"
+              >
+                Book a Call
+              </a>
+            </div>
+          </div>
+        </section>
       </main>
 
       <Footer />

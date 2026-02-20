@@ -59,7 +59,7 @@ export default function Header({ opaque = false }: { opaque?: boolean }) {
                   <span className="absolute -bottom-1 left-0 w-0 h-px bg-[var(--text-primary)] transition-all duration-300 group-hover:w-full" />
                 </Link>
               ))}
-              <Button href="#contact" variant="cta-glitch" size="sm">
+              <Button href="/#contact" variant="cta-glitch" size="sm">
                 Book a Call
               </Button>
             </nav>
@@ -130,7 +130,7 @@ export default function Header({ opaque = false }: { opaque?: boolean }) {
                 transition={{ delay: 0.3 }}
               >
                 <Button
-                  href="#contact"
+                  href="/#contact"
                   size="lg"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
