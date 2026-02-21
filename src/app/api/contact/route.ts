@@ -3,6 +3,15 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export async function POST(request: NextRequest) {
   let body: Record<string, string>;
   try {
@@ -31,10 +40,10 @@ export async function POST(request: NextRequest) {
             <h2 style="margin: 0; color: #92B090; font-size: 14px; letter-spacing: 0.05em;">// NEW CONSULTATION REQUEST</h2>
           </div>
           <table style="width: 100%; border-collapse: collapse;">
-            <tr><td style="padding: 8px 0; color: #92B090; width: 120px; vertical-align: top;">Name</td><td style="padding: 8px 0;">${name}</td></tr>
-            <tr><td style="padding: 8px 0; color: #92B090; vertical-align: top;">Email</td><td style="padding: 8px 0;"><a href="mailto:${email}" style="color: #a8c4a6;">${email}</a></td></tr>
-            <tr><td style="padding: 8px 0; color: #92B090; vertical-align: top;">Company</td><td style="padding: 8px 0;">${company}</td></tr>
-            ${project_description ? `<tr><td style="padding: 8px 0; color: #92B090; vertical-align: top;">Project</td><td style="padding: 8px 0;">${project_description}</td></tr>` : ""}
+            <tr><td style="padding: 8px 0; color: #92B090; width: 120px; vertical-align: top;">Name</td><td style="padding: 8px 0;">${escapeHtml(name)}</td></tr>
+            <tr><td style="padding: 8px 0; color: #92B090; vertical-align: top;">Email</td><td style="padding: 8px 0;"><a href="mailto:${escapeHtml(email)}" style="color: #a8c4a6;">${escapeHtml(email)}</a></td></tr>
+            <tr><td style="padding: 8px 0; color: #92B090; vertical-align: top;">Company</td><td style="padding: 8px 0;">${escapeHtml(company)}</td></tr>
+            ${project_description ? `<tr><td style="padding: 8px 0; color: #92B090; vertical-align: top;">Project</td><td style="padding: 8px 0;">${escapeHtml(project_description)}</td></tr>` : ""}
           </table>
           <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 12px; color: rgba(255,255,255,0.4);">
             Claru AI — Consultation Request

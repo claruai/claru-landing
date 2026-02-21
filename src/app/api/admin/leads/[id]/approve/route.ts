@@ -126,7 +126,6 @@ export async function POST(
 
   return NextResponse.json({
     lead: updatedLead,
-    magic_link: magicLink,
     message: "Lead approved successfully",
   });
 }
