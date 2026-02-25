@@ -5,6 +5,7 @@ import { X, ChevronLeft, ChevronRight, Copy, Check } from "lucide-react";
 import type { DatasetSample } from "@/types/data-catalog";
 import { getRendererForMime } from "@/lib/file-renderers";
 import { DownloadLink } from "./DownloadLink";
+import { VideoPlayer } from "./VideoPlayer";
 
 // =============================================================================
 // SampleDetailModal -- Split-view modal: media left, JSON right (US-008)
@@ -281,17 +282,12 @@ export function SampleDetailModal({
         {/* ------------------------------------------------------------- */}
         <div className="lg:w-[60%] flex-shrink-0 bg-[var(--bg-primary)] flex items-center justify-center min-h-[240px] lg:min-h-0">
           {rendererComponent === "VideoPlayer" && (
-            <video
-              key={signedUrl}
-              controls
+            <VideoPlayer
+              src={signedUrl}
+              mimeType={sample.mime_type}
               autoPlay
-              muted
-              playsInline
-              className="w-full h-full max-h-[50vh] lg:max-h-[90vh] object-contain"
-              style={{ colorScheme: "dark" }}
-            >
-              <source src={signedUrl} type={sample.mime_type} />
-            </video>
+              className="w-full h-full max-h-[50vh] lg:max-h-[90vh]"
+            />
           )}
 
           {rendererComponent === "ImageViewer" && (

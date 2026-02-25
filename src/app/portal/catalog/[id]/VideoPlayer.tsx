@@ -1,29 +1,143 @@
 "use client";
 
+import { useRef, useState, useEffect, useCallback } from "react";
+import { Download } from "lucide-react";
+
 // =============================================================================
 // VideoPlayer -- Client component for inline video playback
-// Dark terminal-styled player with native controls
+// Dark terminal-styled player with native controls.
+// Detects unsupported formats (e.g. .MOV in Firefox) via canplay timeout
+// and onerror, then shows a terminal-styled fallback with download link.
 // =============================================================================
 
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
 interface VideoPlayerProps {
+  /** Presigned URL or direct URL to the video file */
   src: string;
+  /** MIME type of the video (e.g. "video/mp4", "video/quicktime") */
   mimeType: string;
+  /** Additional CSS classes for the outer container */
+  className?: string;
+  /** Whether to autoplay (muted) when the video loads */
+  autoPlay?: boolean;
 }
 
-export function VideoPlayer({ src, mimeType }: VideoPlayerProps) {
+// ---------------------------------------------------------------------------
+// Fallback panel
+// ---------------------------------------------------------------------------
+
+function FormatFallback({ src }: { src: string }) {
   return (
-    <div className="rounded-lg overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-primary)]">
+    <div className="flex items-center justify-center w-full h-full min-h-[240px] bg-[var(--bg-tertiary)]">
+      <div className="flex flex-col items-center gap-4 p-8 rounded-lg border border-[var(--accent-primary)]/30 bg-[var(--bg-tertiary)] max-w-sm text-center">
+        <span className="font-mono text-xs tracking-wider text-[var(--accent-primary)]">
+          {"// FORMAT NOT SUPPORTED"}
+        </span>
+        <p className="font-mono text-xs text-[var(--text-muted)] leading-relaxed">
+          This video format may not be supported in your browser. Try Safari or
+          download the file.
+        </p>
+        <a
+          href={src}
+          download
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-md font-mono text-xs bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/40 text-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/20 hover:border-[var(--accent-primary)]/60 transition-colors duration-200"
+        >
+          <Download className="w-3.5 h-3.5" />
+          Download
+        </a>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
+/** Time (ms) to wait for the `canplay` event before showing the fallback. */
+const CANPLAY_TIMEOUT_MS = 5_000;
+
+export function VideoPlayer({
+  src,
+  mimeType,
+  className,
+  autoPlay = false,
+}: VideoPlayerProps) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [showFallback, setShowFallback] = useState(false);
+
+  // Track whether canplay has fired so the timeout handler can bail out.
+  const canPlayFiredRef = useRef(false);
+
+  // -------------------------------------------------------------------------
+  // canplay timeout + onerror detection
+  // -------------------------------------------------------------------------
+
+  const handleCanPlay = useCallback(() => {
+    canPlayFiredRef.current = true;
+  }, []);
+
+  const handleError = useCallback(() => {
+    setShowFallback(true);
+  }, []);
+
+  useEffect(() => {
+    // Reset state when src changes (e.g. navigating between samples)
+    canPlayFiredRef.current = false;
+    setShowFallback(false);
+
+    const timer = window.setTimeout(() => {
+      if (!canPlayFiredRef.current) {
+        setShowFallback(true);
+      }
+    }, CANPLAY_TIMEOUT_MS);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [src]);
+
+  // -------------------------------------------------------------------------
+  // Render
+  // -------------------------------------------------------------------------
+
+  if (showFallback) {
+    return (
+      <div
+        className={
+          className ??
+          "rounded-lg overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-primary)]"
+        }
+      >
+        <FormatFallback src={src} />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={
+        className ??
+        "rounded-lg overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-primary)]"
+      }
+    >
       <video
+        ref={videoRef}
+        key={src}
         controls
+        autoPlay={autoPlay}
+        muted={autoPlay}
         preload="metadata"
         playsInline
-        className="w-full h-auto max-h-[480px] object-contain"
+        className="w-full h-full object-contain"
         style={{ colorScheme: "dark" }}
+        onCanPlay={handleCanPlay}
+        onError={handleError}
       >
         <source src={src} type={mimeType} />
-        <p className="p-4 font-mono text-xs text-[var(--text-muted)]">
-          Your browser does not support the video element.
-        </p>
       </video>
     </div>
   );

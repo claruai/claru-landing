@@ -40,7 +40,6 @@ export interface Dataset {
   geographic_coverage: string;
   annotation_types: string[];
   thumbnail_url: string;
-  tags: string[];
   is_published: boolean;
   created_at: string;
   updated_at: string;
