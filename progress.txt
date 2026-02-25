@@ -45,3 +45,51 @@ Stories: US-001 through US-025
 - Tagged union pattern `{ _type, data }` makes downstream pattern matching clean
 - Zod v4 (used in this project) has slightly different API from v3 docs online
 
+## US-002 - S3 Presigned URL API Route (DONE)
+- Created `src/app/api/portal/s3-signed-url/route.ts` with POST handler
+- Zod-validated request body, Supabase session auth, path traversal rejection
+- Logs objectKey + user ID + timestamp for audit trail
+- Returns 500 with generic message on AWS SDK failure
+
+### Learnings
+- Existing middleware at `/api/portal/*` provides first layer of auth; route-level check is defense-in-depth
+- The US-002 agent also re-created presigner.ts (already existed from US-001) — worktree agents can't see the feature branch head if they fork from an older commit
+
+## US-003 - S3 Annotation Fetch Utility and API Route (DONE)
+- Created `src/lib/s3/annotation.ts` with `fetchAnnotationJson(objectKey)` — presigned URL + fetch + JSON parse with 10s timeout
+- Created `src/app/api/portal/s3-annotation/route.ts` with same auth/validation pattern as US-002
+- AbortController pattern for timeout, returns null on all failure paths
+
+### Learnings
+- AbortController must be cleaned up in `finally` block to prevent timer leaks
+- Annotation API returns 502 (not 500) for upstream S3 failures — clearer error semantics
+
+## US-006 - Update Dataset Detail Page for S3 Presigned URLs (DONE)
+- Updated signed URL resolution in `src/app/portal/catalog/[id]/page.tsx`
+- New priority: s3_object_key → media_url → storage_path → empty string
+- Existing null coercion (`?? ""`) handles null returns from `getS3SignedUrl`
+- No Supabase query changes needed — `*` selector picks up new columns automatically
+
+## US-010 - Tag-Based Filtering in CatalogBrowser (DONE)
+- Added `selectedTags` state with URL sync via `useSearchParams`/`router.replace`
+- AND-based filter: dataset must have ALL selected tags
+- Tag pills with `#` prefix, accent border when active, clear-all button
+- Wrapped CatalogBrowser in Suspense (required by useSearchParams)
+- Fixed duplicate `tags` field in data-catalog.ts (US-004 merge artifact)
+
+### Learnings
+- `useSearchParams()` requires parent Suspense boundary in Next.js App Router
+- URL sync uses `router.replace` with `scroll: false` to prevent scroll jumps
+
+## US-012 - CSV Ingestion Script (DONE)
+- Created `scripts/ingest-csv.ts` (976 lines) — runs with `npx tsx scripts/ingest-csv.ts`
+- Custom CSV parser handles double-double-quote escaping for inline JSON
+- Brace-balancing merge for split JSON columns (metadata + chunking)
+- Outputs 5 JSON files to `scripts/output/`: 72 total records across 5 groups
+- `--dry-run` flag for summary-only mode
+
+### Learnings
+- CSV header detection needs heuristic (2+ keyword matches in short cells) to avoid false positives from URLs containing "annotation"
+- No external CSV lib needed — custom parser handles the edge cases specific to this CSV format
+- Brace imbalance where CSV split cuts mid-JSON-object requires counting `{`/`}` and auto-closing
+

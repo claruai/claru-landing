@@ -35,7 +35,7 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "notes": "Import getS3SignedUrl from src/lib/s3/presigner.ts (US-001). Follow pattern from existing admin API routes for auth checking."
     },
     {
@@ -55,7 +55,7 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "Reuse getS3SignedUrl from US-001. Pattern matches US-002 API route."
     },
     {
@@ -110,7 +110,7 @@
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "The page.tsx already has signedUrls Promise.all pattern. Just add the s3_object_key branch first in the conditional chain."
     },
     {
@@ -189,7 +189,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "notes": "CatalogBrowser.tsx already has searchQuery and selectedCategory state. Add selectedTags alongside. Tags come from datasets.tags column added in US-004."
     },
     {
@@ -232,7 +232,7 @@
         "Typecheck passes"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "notes": "CSV file is at project root: 'Data Catalog Samples.csv'. It has 4 sections separated by blank rows with different column schemas. The inline JSON in the CSV uses double-double-quotes for escaping."
     },
     {
