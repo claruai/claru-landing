@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { X, ChevronLeft, ChevronRight, Copy, Check } from "lucide-react";
 import type { DatasetSample } from "@/types/data-catalog";
+import { getRendererForMime } from "@/lib/file-renderers";
+import { DownloadLink } from "./DownloadLink";
 
 // =============================================================================
 // SampleDetailModal -- Split-view modal: media left, JSON right (US-008)
@@ -22,24 +24,6 @@ export interface SampleDetailModalProps {
   selectedIndex: number;
   onClose: () => void;
   onNavigate: (index: number) => void;
-}
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function isVideoUrl(url: string, mimeType: string): boolean {
-  if (mimeType.startsWith("video/")) return true;
-  const videoExts = [".mp4", ".webm", ".mov", ".avi", ".mkv"];
-  const urlLower = url.split("?")[0].toLowerCase();
-  return videoExts.some((ext) => urlLower.endsWith(ext));
-}
-
-function isImageUrl(url: string, mimeType: string): boolean {
-  if (mimeType.startsWith("image/")) return true;
-  const imgExts = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif", ".svg"];
-  const urlLower = url.split("?")[0].toLowerCase();
-  return imgExts.some((ext) => urlLower.endsWith(ext));
 }
 
 /** Extract common key-value fields from metadata_json for the summary strip. */
@@ -164,8 +148,8 @@ export function SampleDetailModal({
   if (!current) return null;
 
   const { sample, signedUrl } = current;
-  const isVideo = isVideoUrl(signedUrl, sample.mime_type);
-  const isImage = isImageUrl(signedUrl, sample.mime_type);
+  const renderer = getRendererForMime(sample.mime_type);
+  const rendererComponent = renderer?.component ?? null;
   const metadata = sample.metadata_json ?? {};
   const commonFields = extractCommonFields(metadata);
   const jsonString = JSON.stringify(metadata, null, 2);
@@ -296,7 +280,7 @@ export function SampleDetailModal({
         {/* Left side -- Media (60% desktop, full width mobile)            */}
         {/* ------------------------------------------------------------- */}
         <div className="lg:w-[60%] flex-shrink-0 bg-[var(--bg-primary)] flex items-center justify-center min-h-[240px] lg:min-h-0">
-          {isVideo && (
+          {rendererComponent === "VideoPlayer" && (
             <video
               key={signedUrl}
               controls
@@ -310,7 +294,7 @@ export function SampleDetailModal({
             </video>
           )}
 
-          {isImage && (
+          {rendererComponent === "ImageViewer" && (
             <img
               src={signedUrl}
               alt={`Sample ${selectedIndex + 1}`}
@@ -318,7 +302,18 @@ export function SampleDetailModal({
             />
           )}
 
-          {!isVideo && !isImage && (
+          {rendererComponent === "DownloadLink" && (
+            <div className="flex items-center justify-center p-12">
+              <DownloadLink
+                href={signedUrl}
+                filename={sample.filename}
+                fileSizeBytes={sample.file_size_bytes}
+                label={renderer?.label}
+              />
+            </div>
+          )}
+
+          {rendererComponent === null && (
             <div className="flex items-center justify-center p-12">
               <span className="font-mono text-sm text-[var(--text-muted)]">
                 No preview available
