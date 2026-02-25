@@ -13,7 +13,7 @@
         "Reads S3_BUCKET_NAME and AWS_REGION from process.env",
         "Default expiry: 3600 seconds",
         "Returns null and logs error on failure",
-        "Handles keys with spaces and special characters (no manual encoding needed — SDK handles it)",
+        "Handles keys with spaces and special characters (no manual encoding needed \u2014 SDK handles it)",
         "Typecheck passes"
       ],
       "priority": 1,
@@ -28,8 +28,8 @@
         "Create src/app/api/portal/s3-signed-url/route.ts with POST handler",
         "Request body validated with Zod: { objectKey: string }",
         "Response: { signedUrl: string } on success, { error: string } on failure",
-        "Validates Supabase session via createSupabaseServerClient() — returns 401 if unauthenticated",
-        "Rejects objectKey containing '..' (path traversal) — returns 400",
+        "Validates Supabase session via createSupabaseServerClient() \u2014 returns 401 if unauthenticated",
+        "Rejects objectKey containing '..' (path traversal) \u2014 returns 400",
         "Logs request: objectKey + user ID + timestamp via console.log",
         "Returns 500 with generic message on AWS SDK failure",
         "Typecheck passes"
@@ -49,8 +49,8 @@
         "Returns null and logs warning on failure (network error, invalid JSON, timeout)",
         "Create src/app/api/portal/s3-annotation/route.ts with POST handler",
         "Request body validated with Zod: { objectKey: string }",
-        "Validates Supabase session — returns 401 if unauthenticated",
-        "Rejects objectKey containing '..' — returns 400",
+        "Validates Supabase session \u2014 returns 401 if unauthenticated",
+        "Rejects objectKey containing '..' \u2014 returns 400",
         "Returns parsed JSON on success, { error: string } on failure",
         "Typecheck passes"
       ],
@@ -74,7 +74,7 @@
       ],
       "priority": 4,
       "passes": true,
-      "notes": "Nullable columns are backward-compatible. Existing samples use storage_path or media_url — S3 fields are for new samples only. Check existing migration files in supabase/migrations/ for naming convention."
+      "notes": "Nullable columns are backward-compatible. Existing samples use storage_path or media_url \u2014 S3 fields are for new samples only. Check existing migration files in supabase/migrations/ for naming convention."
     },
     {
       "id": "US-005",
@@ -87,7 +87,7 @@
         "VideoGameSchema: z.object({ selectedGame: z.string() }).passthrough()",
         "RekVisionMetadataSchema: z.object({ domain: z.string(), task: z.string().optional(), task_description: z.string().optional(), technical_specs: z.object({ duration_s: z.number(), resolution_px: z.object({ width: z.number(), height: z.number() }).optional(), fps_estimate: z.number().optional(), aspect_ratio: z.string().optional() }).optional(), environment_label: z.string().optional(), environment_description: z.string().optional(), hands: z.object({ hands_visible: z.boolean(), right_hand_pct: z.number(), left_hand_pct: z.number(), both_hands_pct: z.number(), primary_hand: z.string(), confidence: z.number() }).optional() }).passthrough()",
         "ChunkingItemSchema: z.object({ start_s: z.number(), end_s: z.number(), label: z.string(), objects: z.array(z.string()).optional(), actions: z.array(z.string()).optional(), confidence: z.number().optional() })",
-        "parseAnnotationMetadata(raw: unknown) function that tries each generalData schema and returns { _type: 'short_form' | 'long_form' | 'game' | 'unknown', data: parsed } — returns _type: 'unknown' with raw data for unrecognized shapes",
+        "parseAnnotationMetadata(raw: unknown) function that tries each generalData schema and returns { _type: 'short_form' | 'long_form' | 'game' | 'unknown', data: parsed } \u2014 returns _type: 'unknown' with raw data for unrecognized shapes",
         "All schemas use .passthrough() so unknown fields are preserved",
         "Export all schemas and types",
         "Typecheck passes"
@@ -102,11 +102,11 @@
       "description": "As a portal user, I want to view S3-hosted video samples in the dataset detail page.",
       "acceptanceCriteria": [
         "Update src/app/portal/catalog/[id]/page.tsx signed URL resolution (around line 103-111)",
-        "New resolution order: if sample.s3_object_key → call getS3SignedUrl(sample.s3_object_key), else if sample.media_url → use directly, else if sample.storage_path → call getSignedUrl(sample.storage_path)",
+        "New resolution order: if sample.s3_object_key \u2192 call getS3SignedUrl(sample.s3_object_key), else if sample.media_url \u2192 use directly, else if sample.storage_path \u2192 call getSignedUrl(sample.storage_path)",
         "Import getS3SignedUrl from src/lib/s3/presigner.ts",
-        "Presigned URLs generated server-side in RSC — no client-side API calls needed for initial load",
+        "Presigned URLs generated server-side in RSC \u2014 no client-side API calls needed for initial load",
         "Null presigned URLs coerced to empty string (existing pattern on line 118)",
-        "No changes to VideoPlayer.tsx — it already handles video URLs",
+        "No changes to VideoPlayer.tsx \u2014 it already handles video URLs",
         "Typecheck passes"
       ],
       "priority": 6,
@@ -115,7 +115,7 @@
     },
     {
       "id": "US-007",
-      "title": "MetaTable Component — Core with FIELD_LABELS",
+      "title": "MetaTable Component \u2014 Core with FIELD_LABELS",
       "description": "As a portal user, I want annotation metadata displayed in a structured, readable format instead of raw JSON.",
       "acceptanceCriteria": [
         "Create src/app/portal/catalog/[id]/MetaTable.tsx as a client component",
@@ -145,7 +145,7 @@
         "On fetch success: pass result as annotationData prop to MetaTable",
         "On fetch failure: show only existing metadata_json in MetaTable (no error shown to user)",
         "Keep existing extractCommonFields() summary strip above MetaTable",
-        "Keep existing 'Copy JSON' button — copies full merged metadata as raw JSON",
+        "Keep existing 'Copy JSON' button \u2014 copies full merged metadata as raw JSON",
         "Keep existing keyboard navigation (arrows, Escape) and click-outside-to-close",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
@@ -160,11 +160,11 @@
       "description": "As a developer, I need a file type registry mapping MIME types to renderer components for extensible file handling.",
       "acceptanceCriteria": [
         "Create src/lib/file-renderers.ts with FILE_RENDERERS record mapping MIME types to { component: string, label: string }",
-        "Registered types: video/mp4 → VideoPlayer, video/quicktime → VideoPlayer, video/webm → VideoPlayer, application/json → MetadataJsonViewer, application/gzip → DownloadLink, image/jpeg → ImageViewer, image/png → ImageViewer",
-        "getRendererForMime(mimeType: string) function: tries exact match first, then wildcard (video/* → VideoPlayer), then returns null",
-        "Create src/app/portal/catalog/[id]/DownloadLink.tsx — minimal component: terminal-styled anchor tag with download icon and file size display",
+        "Registered types: video/mp4 \u2192 VideoPlayer, video/quicktime \u2192 VideoPlayer, video/webm \u2192 VideoPlayer, application/json \u2192 MetadataJsonViewer, application/gzip \u2192 DownloadLink, image/jpeg \u2192 ImageViewer, image/png \u2192 ImageViewer",
+        "getRendererForMime(mimeType: string) function: tries exact match first, then wildcard (video/* \u2192 VideoPlayer), then returns null",
+        "Create src/app/portal/catalog/[id]/DownloadLink.tsx \u2014 minimal component: terminal-styled anchor tag with download icon and file size display",
         "Update SampleDetailModal.tsx to use getRendererForMime() instead of inline isVideoUrl()/isImageUrl() checks",
-        "Existing video and image rendering behavior unchanged — just refactored to use registry",
+        "Existing video and image rendering behavior unchanged \u2014 just refactored to use registry",
         "Typecheck passes"
       ],
       "priority": 9,
@@ -198,12 +198,12 @@
       "description": "As a portal user, I want visual indicators on dataset cards showing what data is available.",
       "acceptanceCriteria": [
         "Update CatalogBrowser.tsx dataset card rendering to show badges based on dataset.tags",
-        "Badge mapping: tag 'annotated' → [ANNOTATED] in accent green (bg-[var(--accent-primary)]/10 text-[var(--accent-primary)])",
-        "Tag 'video-only' → [VIDEO] in muted (bg-[var(--bg-tertiary)] text-[var(--text-muted)])",
-        "Tag 'game-specs' → [GAME SPECS] in blue (bg-blue-500/10 text-blue-400)",
-        "Tag 'hand-tracking' → [HAND TRACKING] in accent green",
+        "Badge mapping: tag 'annotated' \u2192 [ANNOTATED] in accent green (bg-[var(--accent-primary)]/10 text-[var(--accent-primary)])",
+        "Tag 'video-only' \u2192 [VIDEO] in muted (bg-[var(--bg-tertiary)] text-[var(--text-muted)])",
+        "Tag 'game-specs' \u2192 [GAME SPECS] in blue (bg-blue-500/10 text-blue-400)",
+        "Tag 'hand-tracking' \u2192 [HAND TRACKING] in accent green",
         "Badges render in card footer area, monospace, uppercase, text-[10px]",
-        "Badge visibility driven entirely by dataset.tags array — no hardcoded per-dataset logic",
+        "Badge visibility driven entirely by dataset.tags array \u2014 no hardcoded per-dataset logic",
         "Datasets with no tags show no badges",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
@@ -217,7 +217,7 @@
       "title": "CSV Ingestion Script",
       "description": "As a developer, I need a script to transform the Data Catalog Samples.csv into bulk import JSON format.",
       "acceptanceCriteria": [
-        "Create scripts/ingest-csv.ts — runs with npx tsx scripts/ingest-csv.ts",
+        "Create scripts/ingest-csv.ts \u2014 runs with npx tsx scripts/ingest-csv.ts",
         "Reads Data Catalog Samples.csv from project root",
         "Detects 4 section boundaries by header rows: 'Egocentric Crowd', 'Egocentric Workplaces', 'Video Game', 'Cinematic Licensed Data'",
         "Each section has its own column mapping based on header row detection",
@@ -226,7 +226,7 @@
         "Handles paths with spaces, trailing spaces, mixed-case extensions (.mov .MP4 .MOV), and paths without extensions",
         "Merges inline JSON metadata from two CSV columns (Metadata & Labeling + Chunking) into single reka_vision_metadata object",
         "Handles 'na' or empty annotation IDs gracefully",
-        "Guesses MIME type from file extension: .mp4/.MP4 → video/mp4, .mov/.MOV → video/quicktime, .json → application/json",
+        "Guesses MIME type from file extension: .mp4/.MP4 \u2192 video/mp4, .mov/.MOV \u2192 video/quicktime, .json \u2192 application/json",
         "Outputs JSON files to scripts/output/ directory, one per dataset group (e.g. egocentric-crowd-short-form.json)",
         "Dry-run mode with --dry-run flag: prints summary table without writing files",
         "Typecheck passes"
@@ -276,7 +276,7 @@
       "description": "As an admin, I want to see which video samples have format compatibility issues reported by users.",
       "acceptanceCriteria": [
         "Create Supabase migration adding format_issues table: id uuid, sample_id uuid (FK to dataset_samples), mime_type text, user_agent text, created_at timestamptz",
-        "Create src/app/api/portal/format-issue/route.ts — POST handler: validates session, accepts { sampleId, mimeType, userAgent }, inserts row",
+        "Create src/app/api/portal/format-issue/route.ts \u2014 POST handler: validates session, accepts { sampleId, mimeType, userAgent }, inserts row",
         "Update VideoPlayer fallback (US-014) to POST to this endpoint when fallback is triggered",
         "In admin sample list (src/app/admin/catalog/[id]/ area), show orange warning icon on samples that have format_issues rows",
         "Warning icon tooltip shows count of reports",
@@ -292,16 +292,16 @@
       "description": "As a developer, I want fetched annotation JSONs cached in Supabase so repeat views don't re-fetch from S3.",
       "acceptanceCriteria": [
         "Update src/app/api/portal/s3-annotation/route.ts (US-003):",
-        "Before fetching from S3: check if sample's metadata_json has _cached_at field — if yes, return metadata_json directly without S3 fetch",
+        "Before fetching from S3: check if sample's metadata_json has _cached_at field \u2014 if yes, return metadata_json directly without S3 fetch",
         "Need to query dataset_samples to check cache: accept sampleId in request body alongside objectKey",
         "After successful S3 fetch: background PATCH dataset_samples.metadata_json with merged annotation data + _cached_at timestamp using admin Supabase client",
         "Background write uses Promise but does NOT await (non-blocking to response)",
-        "If s3_annotation_key changes on the sample, cache is stale (_cached_at should be ignored) — compare objectKey param with stored s3_annotation_key",
+        "If s3_annotation_key changes on the sample, cache is stale (_cached_at should be ignored) \u2014 compare objectKey param with stored s3_annotation_key",
         "Typecheck passes"
       ],
       "priority": 16,
       "passes": true,
-      "notes": "Uses createSupabaseAdminClient() for the background write to bypass RLS. The initial response is still fast — caching happens async."
+      "notes": "Uses createSupabaseAdminClient() for the background write to bypass RLS. The initial response is still fast \u2014 caching happens async."
     },
     {
       "id": "US-017",
@@ -312,8 +312,8 @@
         "Export DataPanelProps interface: { data: Record<string, unknown>, sampleId: string }",
         "Export PANEL_REGISTRY: Record<string, { component: ComponentType<DataPanelProps>, label: string, icon: LucideIcon }>",
         "Register 'annotation' panel type pointing to MetaTable component with FileJson icon",
-        "Register 'game_specs' panel type (component placeholder for now — will be built in US-018)",
-        "Create src/app/portal/catalog/[id]/DataPanels/DataPanelTabs.tsx — client component",
+        "Register 'game_specs' panel type (component placeholder for now \u2014 will be built in US-018)",
+        "Create src/app/portal/catalog/[id]/DataPanels/DataPanelTabs.tsx \u2014 client component",
         "Props: { panels: Array<{ type: string, data: Record<string, unknown> }>, sampleId: string }",
         "Renders tab buttons at top for each panel in the panels array (only tabs with data)",
         "Active tab styled with accent border-bottom, inactive tabs muted",
@@ -351,24 +351,24 @@
       "acceptanceCriteria": [
         "Update SampleDetailModal.tsx right panel to use DataPanelTabs instead of direct MetaTable",
         "Build panels array dynamically from sample data: always include 'annotation' panel if metadata exists, include 'game_specs' panel if sample has specs data in metadata_json or s3_specs_key",
-        "If sample has s3_specs_key, fetch specs JSON on-demand (same pattern as annotation fetch — POST to /api/portal/s3-annotation with the specs key)",
+        "If sample has s3_specs_key, fetch specs JSON on-demand (same pattern as annotation fetch \u2014 POST to /api/portal/s3-annotation with the specs key)",
         "Single-tab case: don't show tab bar, just render the panel content directly",
         "Multi-tab case: show tab bar with panel labels and icons",
-        "Keep existing Copy JSON button below the tabs — copies all panel data as merged JSON",
+        "Keep existing Copy JSON button below the tabs \u2014 copies all panel data as merged JSON",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 19,
-      "passes": false,
+      "passes": true,
       "notes": "This connects US-017 (DataPanelTabs) and US-018 (GameSpecsPanel) into the existing modal. Be careful not to break the annotation fetch flow from US-008."
     },
     {
       "id": "US-020",
-      "title": "Admin CSV Import — Upload and Parse",
+      "title": "Admin CSV Import \u2014 Upload and Parse",
       "description": "As an admin, I want to upload a CSV file and see it parsed with section detection.",
       "acceptanceCriteria": [
         "Install papaparse: npm install papaparse && npm install -D @types/papaparse",
-        "Create src/app/admin/catalog/import/page.tsx — admin import page",
+        "Create src/app/admin/catalog/import/page.tsx \u2014 admin import page",
         "Terminal-styled file upload dropzone accepting .csv files",
         "Parse CSV client-side using papaparse on file select",
         "Auto-detect section boundaries (blank rows followed by section header text)",
@@ -384,15 +384,15 @@
     },
     {
       "id": "US-021",
-      "title": "Admin CSV Import — Column Mapping UI",
+      "title": "Admin CSV Import \u2014 Column Mapping UI",
       "description": "As an admin, I want to map CSV columns to dataset fields for each detected section.",
       "acceptanceCriteria": [
         "Add Step 2 UI to admin import page (src/app/admin/catalog/import/page.tsx)",
         "For each detected CSV section, show column mapping form:",
         "Dropdown per target field: video_s3_key, annotation_s3_key, specs_s3_key, type, category, subcategory, annotation_id, metadata_json",
         "Each dropdown lists the CSV column headers from that section",
-        "Auto-suggest mappings based on column header text (e.g. 'S3 URI - Video' → video_s3_key)",
-        "Toggle option: 'Strip S3 prefix' — when enabled, auto-strips 's3://bucket-name/' from S3 URI columns to extract object keys",
+        "Auto-suggest mappings based on column header text (e.g. 'S3 URI - Video' \u2192 video_s3_key)",
+        "Toggle option: 'Strip S3 prefix' \u2014 when enabled, auto-strips 's3://bucket-name/' from S3 URI columns to extract object keys",
         "Dataset selector per section: dropdown of existing datasets or 'Create new' option",
         "Step navigation: Back to Step 1, Next to Step 3",
         "Mapping state stored in component state (not persisted)",
@@ -401,11 +401,11 @@
       ],
       "priority": 21,
       "passes": true,
-      "notes": "Column mapping is the most complex UI step. Keep it focused on mapping — validation happens in Step 3."
+      "notes": "Column mapping is the most complex UI step. Keep it focused on mapping \u2014 validation happens in Step 3."
     },
     {
       "id": "US-022",
-      "title": "Admin CSV Import — Preview, Validate, and Execute",
+      "title": "Admin CSV Import \u2014 Preview, Validate, and Execute",
       "description": "As an admin, I want to preview parsed samples, see validation errors, and execute the import.",
       "acceptanceCriteria": [
         "Add Step 3 (Preview & Validate) to admin import page:",
@@ -426,18 +426,18 @@
     },
     {
       "id": "US-023",
-      "title": "Playwright E2E — Catalog Browse and Filter Flow",
+      "title": "Playwright E2E \u2014 Catalog Browse and Filter Flow",
       "description": "As QA, I need an end-to-end test verifying catalog browse, category filtering, tag filtering, and search.",
       "acceptanceCriteria": [
         "Create tests/e2e/catalog-browse.spec.ts",
         "Test setup: navigate to /portal/catalog authenticated as test lead (john+client@claru.ai)",
         "Verify dataset cards render on the page",
-        "Click a category filter pill — verify filtered results change",
-        "Select a tag filter — verify AND filtering with category",
-        "Type in search box — verify results filter by query",
-        "Clear all filters — verify full list restores",
+        "Click a category filter pill \u2014 verify filtered results change",
+        "Select a tag filter \u2014 verify AND filtering with category",
+        "Type in search box \u2014 verify results filter by query",
+        "Clear all filters \u2014 verify full list restores",
         "Verify URL query params update with each filter change",
-        "Refresh page — verify filters persist from URL params",
+        "Refresh page \u2014 verify filters persist from URL params",
         "Verify metadata completeness badges visible on cards",
         "Test uses Playwright MCP browser automation tools",
         "Typecheck passes"
@@ -448,29 +448,29 @@
     },
     {
       "id": "US-024",
-      "title": "Playwright E2E — Sample Detail and Video Playback Flow",
+      "title": "Playwright E2E \u2014 Sample Detail and Video Playback Flow",
       "description": "As QA, I need an end-to-end test verifying S3 video playback and metadata display in the sample detail modal.",
       "acceptanceCriteria": [
         "Create tests/e2e/sample-detail.spec.ts",
         "Test setup: navigate to /portal/catalog/[dataset-id] authenticated as test lead",
         "Verify sample gallery grid renders",
-        "Click first sample — verify detail modal opens",
+        "Click first sample \u2014 verify detail modal opens",
         "Verify video element exists with src containing presigned URL (X-Amz-Signature in URL)",
         "Verify MetaTable section renders (look for '// DOMAIN' or '// TASK' section headers if metadata exists)",
         "Verify Copy JSON button exists and is clickable",
-        "Navigate to next sample via arrow button — verify modal content updates",
-        "Close modal via Escape key — verify return to gallery",
-        "Open a sample without annotation data — verify no stuck loading spinner",
+        "Navigate to next sample via arrow button \u2014 verify modal content updates",
+        "Close modal via Escape key \u2014 verify return to gallery",
+        "Open a sample without annotation data \u2014 verify no stuck loading spinner",
         "Test uses Playwright MCP browser automation tools",
         "Typecheck passes"
       ],
       "priority": 24,
       "passes": false,
-      "notes": "Presigned URLs contain X-Amz-Signature query parameter — check for this to verify S3 integration. Use mcp__playwright__browser_snapshot to inspect DOM."
+      "notes": "Presigned URLs contain X-Amz-Signature query parameter \u2014 check for this to verify S3 integration. Use mcp__playwright__browser_snapshot to inspect DOM."
     },
     {
       "id": "US-025",
-      "title": "Playwright E2E — Full User Acceptance Flow",
+      "title": "Playwright E2E \u2014 Full User Acceptance Flow",
       "description": "As QA, I need a comprehensive acceptance test covering the full user journey from browse to playback to metadata.",
       "acceptanceCriteria": [
         "Create tests/e2e/user-acceptance.spec.ts",
