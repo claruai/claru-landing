@@ -341,7 +341,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 18,
-      "passes": false,
+      "passes": true,
       "notes": "Game specs JSON structure: { System: { OperatingSystem, ProcessorName, GraphicsCards: [{ Name, VideoMemoryMB }], TotalMemoryGB }, Game: { GameName, ProcessName, WindowTitle }, Displays: [{ Width, Height, RefreshRate }], Application: { Version, BuildDate } }"
     },
     {
@@ -400,7 +400,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 21,
-      "passes": false,
+      "passes": true,
       "notes": "Column mapping is the most complex UI step. Keep it focused on mapping — validation happens in Step 3."
     },
     {
@@ -443,7 +443,7 @@
         "Typecheck passes"
       ],
       "priority": 23,
-      "passes": false,
+      "passes": true,
       "notes": "Test lead john+client@claru.ai has Supabase auth (magic link). For Playwright MCP, use mcp__playwright__browser_navigate, mcp__playwright__browser_click, mcp__playwright__browser_snapshot, etc. Dev server must be running on localhost:3000."
     },
     {
