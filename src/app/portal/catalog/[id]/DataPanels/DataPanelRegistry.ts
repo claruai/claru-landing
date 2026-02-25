@@ -3,7 +3,7 @@ import type { LucideIcon } from "lucide-react";
 import { FileJson, Gamepad2 } from "lucide-react";
 
 import { AnnotationPanelWrapper } from "./AnnotationPanelWrapper";
-import { GameSpecsPlaceholder } from "./GameSpecsPlaceholder";
+import { GameSpecsPanel } from "./GameSpecsPanel";
 
 // =============================================================================
 // DataPanelRegistry -- Extensible panel type registry for DataPanelTabs
@@ -44,7 +44,7 @@ export const PANEL_REGISTRY: Record<string, PanelRegistryEntry> = {
     icon: FileJson,
   },
   game_specs: {
-    component: GameSpecsPlaceholder,
+    component: GameSpecsPanel,
     label: "Game Specs",
     icon: Gamepad2,
   },
