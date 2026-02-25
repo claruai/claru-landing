@@ -9,6 +9,10 @@ const CHUNK_SIZE = 100;
 interface BulkSampleInput {
   media_url: string;
   metadata_json?: Record<string, unknown>;
+  mime_type?: string;
+  s3_object_key?: string | null;
+  s3_annotation_key?: string | null;
+  s3_specs_key?: string | null;
 }
 
 interface BulkError {
@@ -19,9 +23,17 @@ interface BulkError {
 /**
  * POST /api/admin/catalog/[id]/samples/bulk
  *
- * Batch-creates dataset samples from an array of media URL + metadata JSON pairs.
+ * Batch-creates dataset samples from an array of media URL + metadata JSON pairs,
+ * with optional S3 object key fields for samples stored in S3.
  *
- * Body: { samples: Array<{ media_url: string, metadata_json?: object }> }
+ * Body: { samples: Array<{
+ *   media_url: string,
+ *   metadata_json?: object,
+ *   mime_type?: string,
+ *   s3_object_key?: string | null,
+ *   s3_annotation_key?: string | null,
+ *   s3_specs_key?: string | null,
+ * }> }
  *
  * Inserts in chunks of 100 for performance. Returns a summary with inserted count
  * and per-item errors.
@@ -86,11 +98,52 @@ export async function POST(
       continue;
     }
 
+    if (
+      item.mime_type !== undefined &&
+      item.mime_type !== null &&
+      typeof item.mime_type !== "string"
+    ) {
+      errors.push({ index: i, error: "mime_type must be a string when provided" });
+      continue;
+    }
+
+    // Validate S3 key fields — each must be a string or null/undefined
+    if (
+      item.s3_object_key !== undefined &&
+      item.s3_object_key !== null &&
+      typeof item.s3_object_key !== "string"
+    ) {
+      errors.push({ index: i, error: "s3_object_key must be a string when provided" });
+      continue;
+    }
+
+    if (
+      item.s3_annotation_key !== undefined &&
+      item.s3_annotation_key !== null &&
+      typeof item.s3_annotation_key !== "string"
+    ) {
+      errors.push({ index: i, error: "s3_annotation_key must be a string when provided" });
+      continue;
+    }
+
+    if (
+      item.s3_specs_key !== undefined &&
+      item.s3_specs_key !== null &&
+      typeof item.s3_specs_key !== "string"
+    ) {
+      errors.push({ index: i, error: "s3_specs_key must be a string when provided" });
+      continue;
+    }
+
     validItems.push({
       index: i,
       item: {
         media_url: mediaUrl,
         metadata_json: (item.metadata_json as Record<string, unknown>) ?? {},
+        mime_type: (item.mime_type as string) ?? undefined,
+        s3_object_key: (item.s3_object_key as string) ?? null,
+        s3_annotation_key: (item.s3_annotation_key as string) ?? null,
+        s3_specs_key: (item.s3_specs_key as string) ?? null,
       },
     });
   }
@@ -107,9 +160,12 @@ export async function POST(
       filename: item.media_url.split("/").pop()?.split("?")[0] || "sample",
       media_url: item.media_url,
       storage_path: null,
-      mime_type: guessMimeType(item.media_url),
+      mime_type: resolveMimeType(item),
       file_size_bytes: 0,
       metadata_json: item.metadata_json ?? {},
+      s3_object_key: item.s3_object_key ?? null,
+      s3_annotation_key: item.s3_annotation_key ?? null,
+      s3_specs_key: item.s3_specs_key ?? null,
     }));
 
     const { data, error } = await supabase
@@ -135,9 +191,31 @@ export async function POST(
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** Best-effort MIME type guess from a URL extension. */
-function guessMimeType(url: string): string {
-  const ext = url.split("?")[0].split(".").pop()?.toLowerCase();
+/**
+ * Resolves the MIME type for a sample. Priority:
+ * 1. Explicit `mime_type` field from the input
+ * 2. Guess from `s3_object_key` extension (if present)
+ * 3. Guess from `media_url` extension
+ * 4. Fall back to `application/octet-stream`
+ */
+function resolveMimeType(item: BulkSampleInput): string {
+  if (item.mime_type) {
+    return item.mime_type;
+  }
+
+  if (item.s3_object_key) {
+    const guessed = guessMimeType(item.s3_object_key);
+    if (guessed !== "application/octet-stream") {
+      return guessed;
+    }
+  }
+
+  return guessMimeType(item.media_url);
+}
+
+/** Best-effort MIME type guess from a URL or key extension. */
+function guessMimeType(pathOrUrl: string): string {
+  const ext = pathOrUrl.split("?")[0].split(".").pop()?.toLowerCase();
   const map: Record<string, string> = {
     mp4: "video/mp4",
     webm: "video/webm",
@@ -150,6 +228,10 @@ function guessMimeType(url: string): string {
     gif: "image/gif",
     webp: "image/webp",
     svg: "image/svg+xml",
+    json: "application/json",
+    csv: "text/csv",
+    txt: "text/plain",
+    pdf: "application/pdf",
   };
   return (ext && map[ext]) || "application/octet-stream";
 }
