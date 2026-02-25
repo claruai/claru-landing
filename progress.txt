@@ -1,8 +1,8 @@
-# Ralph Progress Log - Catalog Sample Refactor
+# Ralph Progress Log - S3 Data Catalog Integration
 
 ## Session Start
-Branch: ralph/catalog-sample-refactor
-Stories: US-001 through US-011
+Branch: ralph/s3-data-catalog
+Stories: US-001 through US-025
 
 ---
 
