@@ -9,6 +9,7 @@ import {
   FileWarning,
   Loader2,
   X,
+  AlertTriangle,
 } from "lucide-react";
 import type { DatasetSample } from "@/types/data-catalog";
 
@@ -29,6 +30,8 @@ interface SampleCardProps {
   onRequestDelete: () => void;
   onConfirmDelete: () => void;
   onCancelDelete: () => void;
+  /** Number of format compatibility issues reported for this sample */
+  formatIssueCount: number;
 }
 
 interface UploadingFile {
@@ -116,6 +119,7 @@ export default function DatasetUploader({ datasetId, refreshKey }: DatasetUpload
   const [uploading, setUploading] = useState<UploadingFile[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+  const [formatIssueCounts, setFormatIssueCounts] = useState<Record<string, number>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // -------------------------------------------------------------------------
@@ -128,6 +132,7 @@ export default function DatasetUploader({ datasetId, refreshKey }: DatasetUpload
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
       setSamples(data.samples ?? []);
+      setFormatIssueCounts(data.formatIssueCounts ?? {});
     } catch (err) {
       console.error("[DatasetUploader] Failed to fetch samples:", err);
     } finally {
@@ -503,6 +508,7 @@ export default function DatasetUploader({ datasetId, refreshKey }: DatasetUpload
                 onRequestDelete={() => setConfirmDeleteId(sample.id)}
                 onConfirmDelete={() => deleteSample(sample.id)}
                 onCancelDelete={() => setConfirmDeleteId(null)}
+                formatIssueCount={formatIssueCounts[sample.id] ?? 0}
               />
             ))}
           </div>
@@ -523,6 +529,7 @@ function SampleCard({
   onRequestDelete,
   onConfirmDelete,
   onCancelDelete,
+  formatIssueCount,
 }: SampleCardProps) {
   const mediaUrl = sample.media_url || "";
   const isSampleVideo = isVideoUrl(mediaUrl, sample.mime_type);
@@ -560,6 +567,17 @@ function SampleCard({
         <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded text-[10px] font-mono uppercase tracking-wider bg-black/60 text-[var(--text-secondary)] backdrop-blur-sm">
           {isSampleVideo ? "video" : "image"}
         </span>
+
+        {/* Format issue warning badge */}
+        {formatIssueCount > 0 && (
+          <span
+            className="absolute bottom-2 left-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono bg-orange-500/20 border border-orange-500/40 text-orange-400 backdrop-blur-sm cursor-default"
+            title={`${formatIssueCount} format issue${formatIssueCount !== 1 ? "s" : ""} reported`}
+          >
+            <AlertTriangle className="w-3 h-3" />
+            {formatIssueCount}
+          </span>
+        )}
 
         {/* Delete button */}
         <div className="absolute top-1.5 right-1.5">

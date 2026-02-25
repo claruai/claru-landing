@@ -8,6 +8,8 @@ import { Download } from "lucide-react";
 // Dark terminal-styled player with native controls.
 // Detects unsupported formats (e.g. .MOV in Firefox) via canplay timeout
 // and onerror, then shows a terminal-styled fallback with download link.
+// When fallback activates, reports the format issue to the tracking API
+// so admins can see which samples have compatibility problems.
 // =============================================================================
 
 // ---------------------------------------------------------------------------
@@ -23,6 +25,8 @@ interface VideoPlayerProps {
   className?: string;
   /** Whether to autoplay (muted) when the video loads */
   autoPlay?: boolean;
+  /** Sample ID used to report format issues (optional -- omit to skip reporting) */
+  sampleId?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -65,12 +69,17 @@ export function VideoPlayer({
   mimeType,
   className,
   autoPlay = false,
+  sampleId,
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [showFallback, setShowFallback] = useState(false);
 
   // Track whether canplay has fired so the timeout handler can bail out.
   const canPlayFiredRef = useRef(false);
+
+  // Track whether a format issue report has already been sent for this src
+  // to avoid duplicate reports on re-renders.
+  const reportedRef = useRef(false);
 
   // -------------------------------------------------------------------------
   // canplay timeout + onerror detection
@@ -87,6 +96,7 @@ export function VideoPlayer({
   useEffect(() => {
     // Reset state when src changes (e.g. navigating between samples)
     canPlayFiredRef.current = false;
+    reportedRef.current = false;
     setShowFallback(false);
 
     const timer = window.setTimeout(() => {
@@ -99,6 +109,28 @@ export function VideoPlayer({
       window.clearTimeout(timer);
     };
   }, [src]);
+
+  // -------------------------------------------------------------------------
+  // Report format issue to tracking API when fallback activates
+  // -------------------------------------------------------------------------
+
+  useEffect(() => {
+    if (!showFallback || !sampleId || reportedRef.current) return;
+    reportedRef.current = true;
+
+    fetch("/api/portal/format-issue", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sampleId,
+        mimeType,
+        userAgent: navigator.userAgent,
+      }),
+    }).catch((err) => {
+      // Best-effort -- do not disrupt user experience
+      console.warn("[VideoPlayer] Failed to report format issue:", err);
+    });
+  }, [showFallback, sampleId, mimeType]);
 
   // -------------------------------------------------------------------------
   // Render

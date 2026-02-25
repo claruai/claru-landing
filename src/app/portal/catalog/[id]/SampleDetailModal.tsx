@@ -286,6 +286,7 @@ export function SampleDetailModal({
               src={signedUrl}
               mimeType={sample.mime_type}
               autoPlay
+              sampleId={sample.id}
               className="w-full h-full max-h-[50vh] lg:max-h-[90vh]"
             />
           )}

@@ -36,7 +36,28 @@ export async function GET(
     );
   }
 
-  return NextResponse.json({ samples: samples ?? [] });
+  // Fetch format issue counts per sample for admin badge display
+  const sampleIds = (samples ?? []).map((s: { id: string }) => s.id);
+  let formatIssueCounts: Record<string, number> = {};
+
+  if (sampleIds.length > 0) {
+    const { data: issues } = await supabase
+      .from("format_issues")
+      .select("sample_id")
+      .in("sample_id", sampleIds);
+
+    if (issues) {
+      formatIssueCounts = issues.reduce<Record<string, number>>((acc, row: { sample_id: string }) => {
+        acc[row.sample_id] = (acc[row.sample_id] || 0) + 1;
+        return acc;
+      }, {});
+    }
+  }
+
+  return NextResponse.json({
+    samples: samples ?? [],
+    formatIssueCounts,
+  });
 }
 
 /**
