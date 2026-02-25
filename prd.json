@@ -73,7 +73,7 @@
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "Nullable columns are backward-compatible. Existing samples use storage_path or media_url — S3 fields are for new samples only. Check existing migration files in supabase/migrations/ for naming convention."
     },
     {
@@ -93,7 +93,7 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "The three generalData shapes come from S3 annotation-data.json files. RekVision metadata comes from CSV inline metadata. Chunking is an array of timestamped segments."
     },
     {

@@ -20,3 +20,28 @@ Stories: US-001 through US-025
 - The `getSignedUrl` export from `@aws-sdk/s3-request-presigner` has the same name as the Supabase storage helper in `storage.ts`; the S3 import is scoped to its own module so no conflict
 - S3Client region config reads from `AWS_REGION` env var automatically, but we pass it explicitly for clarity
 
+## US-004 - Database Migration: Add tags and S3 columns (DONE)
+- Created `supabase/migrations/004_s3_integration.sql` with idempotent `ADD COLUMN IF NOT EXISTS`
+- Added `tags text[] DEFAULT '{}'` to datasets table
+- Added `s3_object_key`, `s3_annotation_key`, `s3_specs_key` (nullable text) to dataset_samples table
+- Updated `src/types/data-catalog.ts` with matching TypeScript types
+- Typecheck passes cleanly
+
+### Learnings
+- Used `ADD COLUMN IF NOT EXISTS` for idempotent migration (safe to re-run)
+- Nullable columns are backward-compatible — existing samples keep null for S3 fields
+- TypeScript types must match exactly: `string | null` for nullable columns, `string[]` for text arrays
+
+## US-005 - Zod Schemas for Polymorphic Annotation Metadata (DONE)
+- Created `src/lib/schemas/annotation-metadata.ts` with all schemas
+- Three generalData shapes: EgocentricShortForm ({mainCategory, subcategory}), EgocentricLongForm ({flow, activities[]}), VideoGame ({selectedGame})
+- RekVisionMetadataSchema for inline CSV metadata (domain, task, technical_specs, hands, environment)
+- ChunkingItemSchema for timestamped video segments
+- `parseAnnotationMetadata(raw)` returns tagged union `{ _type: 'short_form'|'long_form'|'game'|'unknown', data }`
+- All schemas use `.passthrough()` to preserve unknown fields
+
+### Learnings
+- `.passthrough()` is critical for extensibility — unknown fields are preserved instead of stripped
+- Tagged union pattern `{ _type, data }` makes downstream pattern matching clean
+- Zod v4 (used in this project) has slightly different API from v3 docs online
+
