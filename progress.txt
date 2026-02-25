@@ -134,3 +134,35 @@ Stories: US-001 through US-025
 - US-009 and US-014 both modify SampleDetailModal — cherry-pick conflict resolved by keeping MIME registry + using VideoPlayer component for video rendering
 - State reset on `src` change needed when navigating between samples
 
+## US-008 - Integrate MetaTable and Annotation Fetch into SampleDetailModal (DONE)
+- Replaced raw JSON viewer with MetaTable component in SampleDetailModal right panel
+- Added annotation fetch useEffect triggered on selectedIndex change
+- Terminal blinking cursor loading state while fetching
+- Copy JSON merges metadata + annotation data
+- Cancellation pattern to prevent stale updates when navigating between samples
+
+## US-015 - Format Issue Tracking API and Admin Badge (DONE)
+- Created migration 005_format_issues.sql with format_issues table
+- API route at /api/portal/format-issue for reporting issues
+- VideoPlayer posts to endpoint when fallback triggers (fire-and-forget, deduped)
+- Admin sample list shows orange warning badge with count
+
+## US-016 - Annotation JSON Caching in Supabase (DONE)
+- Rewrote s3-annotation route with cache-check-before-S3-fetch pattern
+- Cache key: `_cached_at` timestamp in metadata_json, validated against s3_annotation_key for staleness
+- Background write via admin client (fire-and-forget, non-blocking response)
+- Accepts optional `sampleId` in request body alongside `objectKey`
+
+## US-017 - Data Panel Registry and Tabs Container (DONE)
+- Created DataPanels/ directory with registry pattern
+- PANEL_REGISTRY maps panel types to components (annotation → MetaTable, game_specs → placeholder)
+- DataPanelTabs: terminal-styled tab bar with ARIA attributes
+- AnnotationPanelWrapper adapts DataPanelProps to MetaTable props
+
+## US-020 - Admin CSV Import — Upload and Parse (DONE)
+- Created /admin/catalog/import page with papaparse CSV parsing
+- Terminal-styled dropzone with drag-and-drop and click-to-select
+- Section detection heuristic for multi-section CSVs
+- Preview tables showing first 5 rows per section
+- Added [import csv] link to AdminCatalogHeader
+
