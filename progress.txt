@@ -6,3 +6,17 @@ Stories: US-001 through US-025
 
 ---
 
+## US-001 - S3 Presigner Utility (DONE)
+- Created `src/lib/s3/presigner.ts` with `getS3SignedUrl(objectKey, expiresIn?)` function
+- Followed the same patterns as `src/lib/supabase/storage.ts`: default 3600s expiry, returns `Promise<string | null>`, logs errors with `[s3]` prefix
+- Uses `@aws-sdk/client-s3` (`GetObjectCommand`) and `@aws-sdk/s3-request-presigner` (`getSignedUrl`)
+- Reads `S3_BUCKET_NAME` and `AWS_REGION` from `process.env` at call time (not module scope) for serverless compatibility
+- AWS SDK handles URL-encoding of keys with spaces/special characters natively; no manual encoding needed
+- Returns null with console.error on failure (missing env var or SDK error)
+- Typecheck passes cleanly
+
+### Learnings
+- AWS SDK packages (`@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner`) were not in package.json despite story notes; had to install them
+- The `getSignedUrl` export from `@aws-sdk/s3-request-presigner` has the same name as the Supabase storage helper in `storage.ts`; the S3 import is scoped to its own module so no conflict
+- S3Client region config reads from `AWS_REGION` env var automatically, but we pass it explicitly for clarity
+
