@@ -93,3 +93,44 @@ Stories: US-001 through US-025
 - No external CSV lib needed — custom parser handles the edge cases specific to this CSV format
 - Brace imbalance where CSV split cuts mid-JSON-object requires counting `{`/`}` and auto-closing
 
+## US-007 - MetaTable Component with FIELD_LABELS (DONE)
+- Created `src/app/portal/catalog/[id]/MetaTable.tsx` (554 lines)
+- FIELD_LABELS map with formatters for all known fields (domain, task, specs, hands, generalData, etc.)
+- Tiered rendering: Tier 1 (known fields structured) + Tier 2 (unknown fields collapsible raw JSON)
+- Chunking array formatted as `[0s-35s] label (confidence)` per line
+- `getNestedValue()` helper for dot-notation paths
+
+### Learnings
+- Percentage formatter needs to detect 0-1 range vs already-percentage values
+- Section grouping from field path prefixes provides clean visual organization
+
+## US-009 - MIME-to-Renderer Registry and DownloadLink (DONE)
+- Created `src/lib/file-renderers.ts` with FILE_RENDERERS registry + wildcard fallback
+- Created `src/app/portal/catalog/[id]/DownloadLink.tsx` — minimal download component
+- Refactored SampleDetailModal to use registry instead of inline isVideoUrl/isImageUrl
+- Exact match → wildcard prefix match → null
+
+## US-011 - Metadata Completeness Badges on Dataset Cards (DONE)
+- Added TAG_BADGE_CONFIG map to CatalogBrowser.tsx
+- Badges: [ANNOTATED] green, [VIDEO] muted, [GAME SPECS] blue, [HAND TRACKING] green
+- Monospace, uppercase, text-[10px], in card footer
+
+### Learnings
+- Multiple agents adding `tags` field to data-catalog.ts caused duplicate — need to check for existing fields before adding
+
+## US-013 - Update Bulk Import API for S3 Fields (DONE)
+- Updated `src/app/api/admin/catalog/[id]/samples/bulk/route.ts`
+- Added s3_object_key, s3_annotation_key, s3_specs_key as optional fields
+- MIME type resolution: explicit → guess from s3_object_key → guess from media_url → fallback
+- Backward compatible — existing imports unchanged
+
+## US-014 - VideoPlayer Format Fallback Message (DONE)
+- Rebuilt `src/app/portal/catalog/[id]/VideoPlayer.tsx` with format detection
+- 5s canplay timeout + onerror immediate detection → FormatFallback panel
+- Terminal-styled fallback with '// FORMAT NOT SUPPORTED' header and Download button
+- Updated SampleDetailModal to use VideoPlayer component via MIME registry
+
+### Learnings
+- US-009 and US-014 both modify SampleDetailModal — cherry-pick conflict resolved by keeping MIME registry + using VideoPlayer component for video rendering
+- State reset on `src` change needed when navigating between samples
+

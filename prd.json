@@ -129,7 +129,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "This is the main metadata rendering component. Look at SampleDetailModal.tsx for existing highlightJson() function and extractCommonFields() helper to understand current patterns. Use existing Badge pattern from portal/catalog/[id]/page.tsx lines 45-61."
     },
     {
@@ -168,7 +168,7 @@
         "Typecheck passes"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": "SampleDetailModal.tsx already has isVideoUrl() and isImageUrl() helpers. Replace the conditional rendering logic with registry lookup. DownloadLink is a simple component."
     },
     {
@@ -209,7 +209,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "notes": "Tags are string arrays on the Dataset type. Badge component pattern exists in portal/catalog/[id]/page.tsx."
     },
     {
@@ -248,7 +248,7 @@
         "Typecheck passes"
       ],
       "priority": 13,
-      "passes": false,
+      "passes": true,
       "notes": "Read the existing bulk route to understand current validation and insert patterns. The route already handles chunked insertion (100 per batch)."
     },
     {
@@ -267,7 +267,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 14,
-      "passes": false,
+      "passes": true,
       "notes": "This primarily affects .MOV files (QuickTime) which have inconsistent browser support. Safari supports natively, Chrome since v108, Firefox limited."
     },
     {
