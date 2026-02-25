@@ -6,6 +6,7 @@ import type { DatasetSample } from "@/types/data-catalog";
 import { getRendererForMime } from "@/lib/file-renderers";
 import { DownloadLink } from "./DownloadLink";
 import { VideoPlayer } from "./VideoPlayer";
+import { MetaTable } from "./MetaTable";
 
 // =============================================================================
 // SampleDetailModal -- Split-view modal: media left, JSON right (US-008)
@@ -142,6 +143,8 @@ export function SampleDetailModal({
   onNavigate,
 }: SampleDetailModalProps) {
   const [copied, setCopied] = useState(false);
+  const [annotationData, setAnnotationData] = useState<Record<string, unknown> | null>(null);
+  const [annotationLoading, setAnnotationLoading] = useState(false);
   const backdropRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -153,7 +156,10 @@ export function SampleDetailModal({
   const rendererComponent = renderer?.component ?? null;
   const metadata = sample.metadata_json ?? {};
   const commonFields = extractCommonFields(metadata);
-  const jsonString = JSON.stringify(metadata, null, 2);
+  const mergedJson = annotationData
+    ? { ...metadata, _annotation: annotationData }
+    : metadata;
+  const jsonString = JSON.stringify(mergedJson, null, 2);
 
   const hasPrev = selectedIndex > 0;
   const hasNext = selectedIndex < samples.length - 1;
@@ -175,6 +181,45 @@ export function SampleDetailModal({
   useEffect(() => {
     setCopied(false);
   }, [selectedIndex]);
+
+  // -------------------------------------------------------------------------
+  // Fetch annotation data from S3 on-demand
+  // -------------------------------------------------------------------------
+  useEffect(() => {
+    setAnnotationData(null);
+    setAnnotationLoading(false);
+
+    const currentSample = samples[selectedIndex]?.sample;
+    if (!currentSample?.s3_annotation_key) return;
+
+    let cancelled = false;
+    setAnnotationLoading(true);
+
+    fetch("/api/portal/s3-annotation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        objectKey: currentSample.s3_annotation_key,
+        sampleId: currentSample.id,
+      }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data) {
+          setAnnotationData(data);
+        }
+      })
+      .catch(() => {
+        // Silent failure — show metadata_json only
+      })
+      .finally(() => {
+        if (!cancelled) setAnnotationLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedIndex, samples]);
 
   // -------------------------------------------------------------------------
   // Keyboard navigation
@@ -368,11 +413,15 @@ export function SampleDetailModal({
               </div>
             )}
 
-            {/* Full JSON block with syntax highlighting */}
+            {/* Structured metadata table */}
             <div className="p-4">
-              <pre className="font-mono text-xs leading-relaxed whitespace-pre-wrap break-words">
-                <code>{highlightJson(jsonString)}</code>
-              </pre>
+              {annotationLoading && (
+                <div className="flex items-center gap-2 mb-3 font-mono text-xs text-[var(--text-muted)]">
+                  <span className="inline-block w-2 h-4 bg-[var(--accent-primary)] animate-[terminal-blink_1s_step-end_infinite]" />
+                  Fetching annotation...
+                </div>
+              )}
+              <MetaTable metadata={metadata} annotationData={annotationData} />
             </div>
           </div>
 

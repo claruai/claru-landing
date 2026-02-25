@@ -288,6 +288,11 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+@keyframes terminal-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 @keyframes glitch-1 {
   0% {
     clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
