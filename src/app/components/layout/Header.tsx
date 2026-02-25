@@ -59,6 +59,14 @@ export default function Header({ opaque = false }: { opaque?: boolean }) {
                   <span className="absolute -bottom-1 left-0 w-0 h-px bg-[var(--text-primary)] transition-all duration-300 group-hover:w-full" />
                 </Link>
               ))}
+              <Button
+                href="https://app.claru.ai/auth/signin"
+                variant="ghost"
+                size="sm"
+                className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              >
+                Sign In
+              </Button>
               <Button href="/#contact" variant="cta-glitch" size="sm">
                 Book a Call
               </Button>
@@ -123,6 +131,22 @@ export default function Header({ opaque = false }: { opaque?: boolean }) {
                   </Link>
                 </motion.div>
               ))}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ delay: 0.3 }}
+              >
+                <Button
+                  href="https://app.claru.ai/auth/signin"
+                  variant="ghost"
+                  size="lg"
+                  className="text-[var(--text-primary)]"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Sign In
+                </Button>
+              </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

@@ -413,6 +413,9 @@ export default function WorkWithUsPage() {
                 <Button href="https://app.claru.ai/signup" variant="cta-glitch" size="lg">
                   Apply Now <ArrowRight className="w-4 h-4" />
                 </Button>
+                <Button href="https://app.claru.ai/auth/signin" variant="secondary" size="lg">
+                  Sign In
+                </Button>
                 <Button href="/jobs" variant="secondary" size="lg">
                   Browse Open Roles
                 </Button>
