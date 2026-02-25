@@ -1,24 +1,96 @@
 "use client";
 
-import { MetaTable } from "../MetaTable";
 import type { DataPanelProps } from "./DataPanelRegistry";
 
 // =============================================================================
-// AnnotationPanelWrapper -- Adapts DataPanelProps to MetaTable's prop shape
+// AnnotationPanelWrapper -- Renders annotation data as syntax-highlighted JSON
+//
+// Adapts DataPanelProps for the annotation panel. Displays the annotation data
+// in a formatted, syntax-highlighted JSON viewer matching the terminal aesthetic.
 // =============================================================================
 
+// ---------------------------------------------------------------------------
+// JSON Syntax Highlighter -- green keys on dark background
+// ---------------------------------------------------------------------------
+
+function highlightJson(jsonStr: string): React.ReactNode[] {
+  const lines = jsonStr.split("\n");
+  return lines.map((line, lineIdx) => {
+    const parts: React.ReactNode[] = [];
+    const remaining = line;
+    let partIdx = 0;
+
+    const keyRegex = /("(?:[^"\\]|\\.)*")\s*:/g;
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = keyRegex.exec(remaining)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(
+          <span key={`${lineIdx}-pre-${partIdx}`} className="text-[var(--text-secondary)]">
+            {remaining.slice(lastIndex, match.index)}
+          </span>
+        );
+        partIdx++;
+      }
+
+      parts.push(
+        <span key={`${lineIdx}-key-${partIdx}`} className="text-[var(--accent-primary)]">
+          {match[1]}
+        </span>
+      );
+      partIdx++;
+
+      parts.push(
+        <span key={`${lineIdx}-colon-${partIdx}`} className="text-[var(--text-muted)]">
+          :
+        </span>
+      );
+      partIdx++;
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    if (lastIndex < remaining.length) {
+      const rest = remaining.slice(lastIndex);
+      const valueParts = rest.split(/("(?:[^"\\]|\\.)*")/g);
+      for (const vp of valueParts) {
+        if (vp.startsWith('"') && vp.endsWith('"')) {
+          parts.push(
+            <span key={`${lineIdx}-val-${partIdx}`} className="text-[var(--text-secondary)]">
+              {vp}
+            </span>
+          );
+        } else {
+          parts.push(
+            <span key={`${lineIdx}-other-${partIdx}`} className="text-[var(--text-tertiary)]">
+              {vp}
+            </span>
+          );
+        }
+        partIdx++;
+      }
+    }
+
+    return (
+      <span key={lineIdx}>
+        {parts.length > 0 ? parts : <span className="text-[var(--text-secondary)]">{line}</span>}
+        {lineIdx < lines.length - 1 ? "\n" : ""}
+      </span>
+    );
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
 export function AnnotationPanelWrapper({ data }: DataPanelProps) {
-  // Separate annotation-specific fields from general metadata.
-  // The `data` object is the full annotation record; we pass it as both
-  // metadata (for generic key-value display) and annotationData (if MetaTable
-  // wants to render annotation-specific UI in the future).
-  const annotationData = data.annotation
-    ? (data.annotation as Record<string, unknown>)
-    : undefined;
+  const jsonString = JSON.stringify(data, null, 2);
 
-  // Strip the nested annotation key from the top-level metadata to avoid
-  // duplication if it exists.
-  const { annotation: _annotation, ...metadata } = data;
-
-  return <MetaTable metadata={metadata} annotationData={annotationData} />;
+  return (
+    <pre className="font-mono text-xs leading-relaxed whitespace-pre-wrap break-words">
+      <code>{highlightJson(jsonString)}</code>
+    </pre>
+  );
 }

@@ -9,6 +9,7 @@ import { PANEL_REGISTRY } from "./DataPanelRegistry";
 // Renders a terminal-styled tab bar at the top. Each tab maps to a registered
 // panel type in PANEL_REGISTRY. The active tab's component is rendered below.
 //
+// Single-tab case: renders the panel content directly without a tab bar.
 // Adding a new panel type requires only a registry entry -- no changes here.
 // =============================================================================
 
@@ -49,6 +50,24 @@ export function DataPanelTabs({ panels, sampleId }: DataPanelTabsProps) {
     ? PANEL_REGISTRY[activePanel.type]?.component
     : null;
 
+  // -----------------------------------------------------------------
+  // Single-tab case: render the panel content directly without tab bar
+  // -----------------------------------------------------------------
+  if (registeredPanels.length === 1) {
+    const singlePanel = registeredPanels[0];
+    const SingleComponent = PANEL_REGISTRY[singlePanel.type]?.component;
+    if (!SingleComponent) return null;
+
+    return (
+      <div>
+        <SingleComponent data={singlePanel.data} sampleId={sampleId} />
+      </div>
+    );
+  }
+
+  // -----------------------------------------------------------------
+  // Multi-tab case: show tab bar with panel labels and icons
+  // -----------------------------------------------------------------
   return (
     <div className="rounded-lg border border-[var(--border-subtle)] overflow-hidden bg-[var(--bg-secondary)]">
       {/* ------------------------------------------------------------------ */}
