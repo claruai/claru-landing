@@ -54,6 +54,7 @@ async function getCatalogData() {
         total_samples,
         total_duration_hours,
         thumbnail_url,
+        tags,
         is_published,
         category_id,
         dataset_categories ( id, name, slug )

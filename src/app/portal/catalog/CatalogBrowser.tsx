@@ -46,6 +46,29 @@ function parseTagsParam(raw: string | null): string[] {
 }
 
 // ---------------------------------------------------------------------------
+// Tag Badge Config
+// ---------------------------------------------------------------------------
+
+const TAG_BADGE_CONFIG: Record<string, { label: string; className: string }> = {
+  annotated: {
+    label: "ANNOTATED",
+    className: "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]",
+  },
+  "video-only": {
+    label: "VIDEO",
+    className: "bg-[var(--bg-tertiary)] text-[var(--text-muted)]",
+  },
+  "game-specs": {
+    label: "GAME SPECS",
+    className: "bg-blue-500/10 text-blue-400",
+  },
+  "hand-tracking": {
+    label: "HAND TRACKING",
+    className: "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]",
+  },
+};
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -306,6 +329,24 @@ export function CatalogBrowser({ datasets, categories }: CatalogBrowserProps) {
                   </span>
                 )}
               </div>
+
+              {/* Tag badges */}
+              {ds.tags && ds.tags.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5 pt-2.5">
+                  {ds.tags.map((tag) => {
+                    const config = TAG_BADGE_CONFIG[tag];
+                    if (!config) return null;
+                    return (
+                      <span
+                        key={tag}
+                        className={`inline-flex items-center px-1.5 py-0.5 rounded font-mono text-[10px] uppercase ${config.className}`}
+                      >
+                        [{config.label}]
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
             </Link>
           ))}
         </div>
