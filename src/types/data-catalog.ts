@@ -34,11 +34,11 @@ export interface Dataset {
   description: string;
   type: DatasetType;
   subcategory: string;
+  tags: string[];
   total_samples: number;
   total_duration_hours: number;
   geographic_coverage: string;
   annotation_types: string[];
-  tags: string[];
   thumbnail_url: string;
   is_published: boolean;
   created_at: string;
