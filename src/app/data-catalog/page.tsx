@@ -179,14 +179,7 @@ export default function DataCatalogPage() {
               </p>
 
               <div className="flex flex-wrap gap-4 justify-center">
-                <Button
-                  href="/data-catalog/request"
-                  variant="cta-glitch"
-                  size="lg"
-                >
-                  Request Catalog Access
-                </Button>
-                <Button calendly variant="secondary" size="lg">
+                <Button calendly variant="cta-glitch" size="lg">
                   Book a Call
                 </Button>
               </div>
@@ -434,14 +427,7 @@ export default function DataCatalogPage() {
                 </p>
 
                 <div className="flex flex-wrap gap-4 justify-center">
-                  <Button
-                    href="/data-catalog/request"
-                    variant="cta-glitch"
-                    size="lg"
-                  >
-                    Request Catalog Access
-                  </Button>
-                  <Button href="/#contact" variant="secondary" size="lg">
+                  <Button calendly variant="cta-glitch" size="lg">
                     Book a Call
                   </Button>
                 </div>
