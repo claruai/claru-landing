@@ -421,7 +421,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 22,
-      "passes": false,
+      "passes": true,
       "notes": "This combines Steps 3 and 4 since validation and execution are closely coupled. Uses the bulk import API updated in US-013."
     },
     {
@@ -465,7 +465,7 @@
         "Typecheck passes"
       ],
       "priority": 24,
-      "passes": false,
+      "passes": true,
       "notes": "Presigned URLs contain X-Amz-Signature query parameter \u2014 check for this to verify S3 integration. Use mcp__playwright__browser_snapshot to inspect DOM."
     },
     {
@@ -493,7 +493,7 @@
         "Typecheck passes"
       ],
       "priority": 25,
-      "passes": false,
+      "passes": true,
       "notes": "This is the comprehensive acceptance test. It validates the entire integration end-to-end. Screenshots saved to tests/e2e/screenshots/."
     }
   ]

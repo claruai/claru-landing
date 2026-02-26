@@ -15,6 +15,10 @@ import {
   Columns3,
   Database,
   Scissors,
+  Loader2,
+  Play,
+  RotateCcw,
+  XCircle,
 } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -76,6 +80,37 @@ interface DatasetOption {
   id: string;
   name: string;
   slug: string;
+}
+
+/** A single sample row after column-mapping transformation */
+interface ParsedSample {
+  sectionName: string;
+  datasetId: string;
+  datasetName: string;
+  rowNumber: number;
+  video_s3_key: string | null;
+  annotation_s3_key: string | null;
+  specs_s3_key: string | null;
+  type: string | null;
+  category: string | null;
+  subcategory: string | null;
+  annotation_id: string | null;
+  metadata_json_raw: string | null;
+  filename: string;
+  mime_type: string;
+  errors: string[];
+  warnings: string[];
+}
+
+/** Per-dataset import execution result */
+interface DatasetImportResult {
+  datasetId: string;
+  datasetName: string;
+  sampleCount: number;
+  status: "pending" | "importing" | "done" | "error";
+  inserted: number;
+  failed: number;
+  errorMessage?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -281,6 +316,155 @@ function buildInitialMappings(sections: DetectedSection[]): SectionMapping[] {
 }
 
 // ---------------------------------------------------------------------------
+// Step 3 Helpers — Transform + Validate
+// ---------------------------------------------------------------------------
+
+function stripS3PrefixFn(val: string): string {
+  return val.replace(/^s3:\/\/[^/]+\//, "");
+}
+
+function guessFileMimeType(key: string | null): string {
+  if (!key) return "application/octet-stream";
+  const ext = key.split("?")[0].split(".").pop()?.toLowerCase();
+  const mimeMap: Record<string, string> = {
+    mp4: "video/mp4",
+    mov: "video/quicktime",
+    webm: "video/webm",
+    avi: "video/x-msvideo",
+    mkv: "video/x-matroska",
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+    gif: "image/gif",
+    json: "application/json",
+    gz: "application/gzip",
+  };
+  return (ext && mimeMap[ext]) || "application/octet-stream";
+}
+
+function buildParsedSamples(
+  parseState: ParseState,
+  sectionMappings: SectionMapping[],
+  datasets: DatasetOption[]
+): ParsedSample[] {
+  const allSamples: ParsedSample[] = [];
+
+  parseState.sections.forEach((section, sectionIdx) => {
+    const mapping = sectionMappings[sectionIdx];
+    if (!mapping) return;
+
+    // Build reverse map: TargetField -> column index
+    const fieldToCol: Partial<Record<TargetField, number>> = {};
+    Object.entries(mapping.columnMap).forEach(([colIdxStr, field]) => {
+      if (field) fieldToCol[field as TargetField] = Number(colIdxStr);
+    });
+
+    const getCell = (row: string[], field: TargetField): string | null => {
+      const colIdx = fieldToCol[field];
+      if (colIdx === undefined) return null;
+      const v = row[colIdx]?.trim() ?? "";
+      return v || null;
+    };
+
+    const maybeStrip = (val: string | null): string | null => {
+      if (!val || !mapping.stripS3Prefix) return val;
+      return stripS3PrefixFn(val);
+    };
+
+    const datasetName =
+      datasets.find((d) => d.id === mapping.datasetId)?.name ??
+      mapping.datasetId;
+
+    const annotationIdsSeen = new Map<string, number>();
+
+    section.rows.forEach((row, rowIdx) => {
+      const video_s3_key = maybeStrip(getCell(row, "video_s3_key"));
+      const annotation_s3_key = maybeStrip(getCell(row, "annotation_s3_key"));
+      const specs_s3_key = maybeStrip(getCell(row, "specs_s3_key"));
+      const type = getCell(row, "type");
+      const category = getCell(row, "category");
+      const subcategory = getCell(row, "subcategory");
+      const annotation_id = getCell(row, "annotation_id");
+      const metadata_json_raw = getCell(row, "metadata_json");
+
+      const filename =
+        video_s3_key?.split("/").pop()?.split("?")[0] ?? `row-${rowIdx + 1}`;
+      const mime_type = guessFileMimeType(video_s3_key);
+
+      const errors: string[] = [];
+      const warnings: string[] = [];
+
+      if (!video_s3_key) errors.push("video_s3_key is required");
+
+      if (!mapping.datasetId || mapping.datasetId === "__new__") {
+        warnings.push("No target dataset selected");
+      }
+
+      if (annotation_id) {
+        if (annotationIdsSeen.has(annotation_id)) {
+          errors.push(
+            `Duplicate annotation_id '${annotation_id}' (first seen row ${annotationIdsSeen.get(annotation_id)})`
+          );
+        } else {
+          annotationIdsSeen.set(annotation_id, rowIdx + 1);
+        }
+      }
+
+      allSamples.push({
+        sectionName: section.name,
+        datasetId: mapping.datasetId,
+        datasetName,
+        rowNumber: rowIdx + 1,
+        video_s3_key,
+        annotation_s3_key,
+        specs_s3_key,
+        type,
+        category,
+        subcategory,
+        annotation_id,
+        metadata_json_raw,
+        filename,
+        mime_type,
+        errors,
+        warnings,
+      });
+    });
+  });
+
+  return allSamples;
+}
+
+function toBulkPayload(samples: ParsedSample[]): object[] {
+  return samples.map((s) => {
+    const metadata: Record<string, unknown> = {};
+    if (s.type) metadata.type = s.type;
+    if (s.category) metadata.category = s.category;
+    if (s.subcategory) metadata.subcategory = s.subcategory;
+    if (s.annotation_id) metadata.annotation_id = s.annotation_id;
+    if (s.metadata_json_raw) {
+      try {
+        const parsed = JSON.parse(s.metadata_json_raw);
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          Object.assign(metadata, parsed);
+        }
+      } catch {
+        // ignore invalid JSON
+      }
+    }
+    return {
+      media_url: s.video_s3_key
+        ? `https://s3-import.placeholder/${s.video_s3_key}`
+        : "https://s3-import.placeholder/unknown",
+      s3_object_key: s.video_s3_key ?? null,
+      s3_annotation_key: s.annotation_s3_key ?? null,
+      s3_specs_key: s.specs_s3_key ?? null,
+      mime_type: s.mime_type,
+      metadata_json: metadata,
+    };
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -288,8 +472,8 @@ export default function AdminCatalogImportPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Step state: 1 = upload/parse, 2 = column mapping
-  const [step, setStep] = useState<1 | 2>(1);
+  // Step state: 1 = upload/parse, 2 = column mapping, 3 = validate, 4 = import
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
 
   // Step 1 state
   const [isDragOver, setIsDragOver] = useState(false);
@@ -302,6 +486,14 @@ export default function AdminCatalogImportPage() {
   const [datasets, setDatasets] = useState<DatasetOption[]>([]);
   const [datasetsLoading, setDatasetsLoading] = useState(false);
   const [datasetsError, setDatasetsError] = useState<string | null>(null);
+
+  // Step 3 state
+  const [parsedSamples, setParsedSamples] = useState<ParsedSample[]>([]);
+
+  // Step 4 state
+  const [importResults, setImportResults] = useState<DatasetImportResult[]>([]);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importDone, setImportDone] = useState(false);
 
   // ---------------------------------------------------------------------------
   // Fetch datasets for the selector
@@ -442,6 +634,10 @@ export default function AdminCatalogImportPage() {
     setIsParsing(false);
     setStep(1);
     setSectionMappings([]);
+    setParsedSamples([]);
+    setImportResults([]);
+    setIsImporting(false);
+    setImportDone(false);
   }, []);
 
   // ---------------------------------------------------------------------------
@@ -459,6 +655,120 @@ export default function AdminCatalogImportPage() {
     setStep(1);
     // Keep sectionMappings in state so the user doesn't lose work if they go back
   }, []);
+
+  const handleNextToStep3 = useCallback(() => {
+    if (!parseState) return;
+    const samples = buildParsedSamples(parseState, sectionMappings, datasets);
+    setParsedSamples(samples);
+    setStep(3);
+  }, [parseState, sectionMappings, datasets]);
+
+  const handleBackToStep2 = useCallback(() => {
+    setStep(2);
+  }, []);
+
+  const handleBackToStep3 = useCallback(() => {
+    if (isImporting) return;
+    setImportResults([]);
+    setImportDone(false);
+    setStep(3);
+  }, [isImporting]);
+
+  const handleStartImport = useCallback(async () => {
+    if (isImporting) return;
+
+    // Only import samples with no errors and a valid dataset
+    const readySamples = parsedSamples.filter(
+      (s) => s.errors.length === 0 && s.datasetId && s.datasetId !== "__new__"
+    );
+    if (readySamples.length === 0) return;
+
+    // Group by datasetId
+    const groupMap = new Map<string, ParsedSample[]>();
+    readySamples.forEach((s) => {
+      const existing = groupMap.get(s.datasetId) ?? [];
+      groupMap.set(s.datasetId, [...existing, s]);
+    });
+
+    // Build initial results state
+    const initialResults: DatasetImportResult[] = Array.from(
+      groupMap.entries()
+    ).map(([datasetId, samples]) => ({
+      datasetId,
+      datasetName: samples[0].datasetName,
+      sampleCount: samples.length,
+      status: "pending",
+      inserted: 0,
+      failed: 0,
+    }));
+
+    setImportResults(initialResults);
+    setIsImporting(true);
+    setImportDone(false);
+    setStep(4);
+
+    // Process datasets sequentially
+    for (const [datasetId, samples] of groupMap.entries()) {
+      setImportResults((prev) =>
+        prev.map((r) =>
+          r.datasetId === datasetId ? { ...r, status: "importing" } : r
+        )
+      );
+
+      try {
+        const payload = toBulkPayload(samples);
+        const res = await fetch(
+          `/api/admin/catalog/${datasetId}/samples/bulk`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ samples: payload }),
+          }
+        );
+
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(
+            (body as { error?: string }).error ?? `HTTP ${res.status}`
+          );
+        }
+
+        const body = (await res.json()) as {
+          inserted: number;
+          errors: { index: number; error: string }[];
+        };
+
+        setImportResults((prev) =>
+          prev.map((r) =>
+            r.datasetId === datasetId
+              ? {
+                  ...r,
+                  status: "done",
+                  inserted: body.inserted,
+                  failed: body.errors?.length ?? 0,
+                }
+              : r
+          )
+        );
+      } catch (err) {
+        setImportResults((prev) =>
+          prev.map((r) =>
+            r.datasetId === datasetId
+              ? {
+                  ...r,
+                  status: "error",
+                  errorMessage:
+                    err instanceof Error ? err.message : "Unknown error",
+                }
+              : r
+          )
+        );
+      }
+    }
+
+    setIsImporting(false);
+    setImportDone(true);
+  }, [isImporting, parsedSamples]);
 
   // ---------------------------------------------------------------------------
   // Mapping update helpers
@@ -585,9 +895,37 @@ export default function AdminCatalogImportPage() {
             2. Column Mapping
           </span>
           <ChevronRight className="w-3 h-3 text-[var(--text-muted)]" />
-          <span className="text-[var(--text-muted)]">3. Validate</span>
+          <span
+            className={
+              step === 3
+                ? "text-[var(--accent-primary)] font-semibold"
+                : step === 4
+                ? "text-[var(--text-muted)] cursor-pointer hover:text-[var(--text-secondary)] transition-colors"
+                : "text-[var(--text-muted)]"
+            }
+            onClick={step === 4 ? handleBackToStep3 : undefined}
+            role={step === 4 ? "button" : undefined}
+            tabIndex={step === 4 ? 0 : undefined}
+            onKeyDown={
+              step === 4
+                ? (e) => {
+                    if (e.key === "Enter" || e.key === " ") handleBackToStep3();
+                  }
+                : undefined
+            }
+          >
+            3. Validate
+          </span>
           <ChevronRight className="w-3 h-3 text-[var(--text-muted)]" />
-          <span className="text-[var(--text-muted)]">4. Import</span>
+          <span
+            className={
+              step === 4
+                ? "text-[var(--accent-primary)] font-semibold"
+                : "text-[var(--text-muted)]"
+            }
+          >
+            4. Import
+          </span>
         </div>
       </div>
 
@@ -866,14 +1204,356 @@ export default function AdminCatalogImportPage() {
                 Back to Upload
               </button>
               <button
-                disabled
-                title="Validation step not yet implemented"
-                className="flex items-center gap-2 px-4 py-2 text-xs font-mono font-semibold rounded-md bg-[var(--accent-primary)]/40 text-[var(--bg-primary)] cursor-not-allowed"
+                onClick={handleNextToStep3}
+                className="flex items-center gap-2 px-4 py-2 text-xs font-mono font-semibold rounded-md bg-[var(--accent-primary)] text-[var(--bg-primary)] hover:bg-[var(--accent-primary)]/90 transition-colors duration-150"
               >
                 Next: Validate
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
+          </>
+        )}
+
+        {/* ============================================================== */}
+        {/* STEP 3: Preview & Validate                                      */}
+        {/* ============================================================== */}
+        {step === 3 && parseState && (
+          <>
+            <div>
+              <h2 className="text-xl font-mono font-semibold text-[var(--text-primary)] mb-1">
+                Preview &amp; Validate
+              </h2>
+              <p className="text-sm font-mono text-[var(--text-muted)]">
+                Review parsed samples and validation results. Step 3 of 4.
+              </p>
+            </div>
+
+            {/* Summary stats */}
+            {(() => {
+              const readyCount = parsedSamples.filter(
+                (s) => s.errors.length === 0
+              ).length;
+              const warnCount = parsedSamples.filter(
+                (s) => s.errors.length === 0 && s.warnings.length > 0
+              ).length;
+              const errorCount = parsedSamples.filter(
+                (s) => s.errors.length > 0
+              ).length;
+              return (
+                <div className="flex flex-wrap items-center gap-4 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-4 py-3">
+                  <span className="text-xs font-mono">
+                    <span className="text-[var(--accent-primary)] font-semibold">
+                      {readyCount}
+                    </span>
+                    <span className="text-[var(--text-muted)]">
+                      {" "}
+                      samples ready
+                    </span>
+                  </span>
+                  {warnCount > 0 && (
+                    <span className="text-xs font-mono">
+                      <span
+                        className="font-semibold"
+                        style={{ color: "var(--warning)" }}
+                      >
+                        {warnCount}
+                      </span>
+                      <span className="text-[var(--text-muted)]">
+                        {" "}
+                        warnings
+                      </span>
+                    </span>
+                  )}
+                  {errorCount > 0 && (
+                    <span className="text-xs font-mono">
+                      <span className="text-[var(--error)] font-semibold">
+                        {errorCount}
+                      </span>
+                      <span className="text-[var(--text-muted)]"> errors</span>
+                    </span>
+                  )}
+                  <span className="text-xs font-mono text-[var(--text-muted)]">
+                    {parsedSamples.length} total
+                  </span>
+                </div>
+              );
+            })()}
+
+            {/* Sample table */}
+            <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] overflow-hidden">
+              <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
+                <table className="w-full text-xs font-mono">
+                  <thead className="sticky top-0 z-10">
+                    <tr className="border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]">
+                      <th className="text-left px-3 py-2.5 text-[var(--text-muted)] uppercase tracking-wider font-medium whitespace-nowrap">
+                        Section
+                      </th>
+                      <th className="text-left px-3 py-2.5 text-[var(--text-muted)] uppercase tracking-wider font-medium w-12">
+                        Row
+                      </th>
+                      <th className="text-left px-3 py-2.5 text-[var(--text-muted)] uppercase tracking-wider font-medium">
+                        Filename
+                      </th>
+                      <th className="text-left px-3 py-2.5 text-[var(--text-muted)] uppercase tracking-wider font-medium">
+                        Dataset
+                      </th>
+                      <th className="text-left px-3 py-2.5 text-[var(--text-muted)] uppercase tracking-wider font-medium">
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {parsedSamples.map((sample, idx) => {
+                      const hasError = sample.errors.length > 0;
+                      const hasWarning =
+                        !hasError && sample.warnings.length > 0;
+                      return (
+                        <tr
+                          key={idx}
+                          className={`border-b border-[var(--border-subtle)] last:border-b-0 ${
+                            hasError
+                              ? "bg-[var(--error)]/5"
+                              : hasWarning
+                              ? "bg-yellow-500/5"
+                              : ""
+                          }`}
+                        >
+                          <td className="px-3 py-2 text-[var(--text-muted)] whitespace-nowrap">
+                            {sample.sectionName}
+                          </td>
+                          <td className="px-3 py-2 text-[var(--text-muted)] tabular-nums">
+                            {sample.rowNumber}
+                          </td>
+                          <td className="px-3 py-2 text-[var(--text-secondary)] max-w-[200px] truncate">
+                            {sample.filename}
+                          </td>
+                          <td className="px-3 py-2 max-w-[150px] truncate">
+                            {sample.datasetName ? (
+                              <span className="text-[var(--text-secondary)]">
+                                {sample.datasetName}
+                              </span>
+                            ) : (
+                              <span className="text-[var(--error)] italic">
+                                not set
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-3 py-2">
+                            {hasError ? (
+                              <div className="flex items-start gap-1.5">
+                                <XCircle className="w-3.5 h-3.5 text-[var(--error)] mt-0.5 shrink-0" />
+                                <div className="space-y-0.5">
+                                  {sample.errors.map((e, ei) => (
+                                    <p
+                                      key={ei}
+                                      className="text-[var(--error)] leading-tight"
+                                    >
+                                      {e}
+                                    </p>
+                                  ))}
+                                </div>
+                              </div>
+                            ) : hasWarning ? (
+                              <div className="flex items-start gap-1.5">
+                                <AlertCircle
+                                  className="w-3.5 h-3.5 mt-0.5 shrink-0"
+                                  style={{ color: "var(--warning)" }}
+                                />
+                                <div className="space-y-0.5">
+                                  {sample.warnings.map((w, wi) => (
+                                    <p
+                                      key={wi}
+                                      className="leading-tight"
+                                      style={{ color: "var(--warning)" }}
+                                    >
+                                      {w}
+                                    </p>
+                                  ))}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-1.5">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+                                <span className="text-[var(--accent-primary)]">
+                                  ready
+                                </span>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Navigation */}
+            {(() => {
+              const readyCount = parsedSamples.filter(
+                (s) =>
+                  s.errors.length === 0 &&
+                  s.datasetId &&
+                  s.datasetId !== "__new__"
+              ).length;
+              const errorCount = parsedSamples.filter(
+                (s) => s.errors.length > 0
+              ).length;
+              return (
+                <div className="flex items-center justify-between pt-2">
+                  <button
+                    onClick={handleBackToStep2}
+                    className="flex items-center gap-2 px-3 py-1.5 text-xs font-mono rounded-md border border-[var(--border-medium)] text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:border-[var(--border-strong)] transition-colors duration-150"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    Back to Mapping
+                  </button>
+                  <button
+                    onClick={handleStartImport}
+                    disabled={readyCount === 0}
+                    className={`flex items-center gap-2 px-4 py-2 text-xs font-mono font-semibold rounded-md transition-colors duration-150 ${
+                      readyCount > 0
+                        ? "bg-[var(--accent-primary)] text-[var(--bg-primary)] hover:bg-[var(--accent-primary)]/90"
+                        : "bg-[var(--accent-primary)]/40 text-[var(--bg-primary)] cursor-not-allowed"
+                    }`}
+                  >
+                    <Play className="w-3.5 h-3.5" />
+                    Import {readyCount} sample{readyCount !== 1 ? "s" : ""}
+                    {errorCount > 0 && ` (${errorCount} skipped)`}
+                  </button>
+                </div>
+              );
+            })()}
+          </>
+        )}
+
+        {/* ============================================================== */}
+        {/* STEP 4: Execute Import                                          */}
+        {/* ============================================================== */}
+        {step === 4 && (
+          <>
+            <div>
+              <h2 className="text-xl font-mono font-semibold text-[var(--text-primary)] mb-1">
+                {importDone ? "Import Complete" : "Importing..."}
+              </h2>
+              <p className="text-sm font-mono text-[var(--text-muted)]">
+                {importDone
+                  ? "All imports have finished."
+                  : "Importing samples into the database. Do not close this page."}
+              </p>
+            </div>
+
+            {/* Per-dataset status */}
+            <div className="space-y-3">
+              {importResults.map((result, idx) => (
+                <div
+                  key={idx}
+                  className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-4 py-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {result.status === "pending" && (
+                        <div className="w-4 h-4 rounded-full border border-[var(--border-medium)]" />
+                      )}
+                      {result.status === "importing" && (
+                        <Loader2 className="w-4 h-4 text-[var(--accent-primary)] animate-spin" />
+                      )}
+                      {result.status === "done" && (
+                        <CheckCircle2 className="w-4 h-4 text-[var(--accent-primary)]" />
+                      )}
+                      {result.status === "error" && (
+                        <XCircle className="w-4 h-4 text-[var(--error)]" />
+                      )}
+                      <div>
+                        <p className="text-sm font-mono font-medium text-[var(--text-primary)]">
+                          {result.datasetName}
+                        </p>
+                        <p className="text-[10px] font-mono text-[var(--text-muted)]">
+                          {result.sampleCount} sample
+                          {result.sampleCount !== 1 ? "s" : ""}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      {result.status === "pending" && (
+                        <span className="text-xs font-mono text-[var(--text-muted)]">
+                          waiting
+                        </span>
+                      )}
+                      {result.status === "importing" && (
+                        <span className="text-xs font-mono text-[var(--accent-primary)]">
+                          importing...
+                        </span>
+                      )}
+                      {result.status === "done" && (
+                        <div>
+                          <span className="text-xs font-mono text-[var(--accent-primary)]">
+                            {result.inserted} imported
+                          </span>
+                          {result.failed > 0 && (
+                            <span className="ml-2 text-xs font-mono text-[var(--error)]">
+                              {result.failed} failed
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      {result.status === "error" && (
+                        <span className="text-xs font-mono text-[var(--error)]">
+                          {result.errorMessage}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Summary and reset when done */}
+            {importDone && (() => {
+              const totalInserted = importResults.reduce(
+                (sum, r) => sum + r.inserted,
+                0
+              );
+              const totalFailed = importResults.reduce(
+                (sum, r) => sum + r.failed,
+                0
+              );
+              const totalError = importResults.filter(
+                (r) => r.status === "error"
+              ).length;
+              return (
+                <>
+                  <div className="rounded-lg border border-[var(--accent-primary)]/20 bg-[var(--accent-primary)]/5 px-4 py-3">
+                    <p className="text-sm font-mono text-[var(--text-primary)]">
+                      <span className="text-[var(--accent-primary)] font-semibold">
+                        {totalInserted}
+                      </span>{" "}
+                      imported
+                      {totalFailed > 0 && (
+                        <span className="ml-3 text-[var(--error)]">
+                          {totalFailed} failed
+                        </span>
+                      )}
+                      {totalError > 0 && (
+                        <span className="ml-3 text-[var(--error)]">
+                          {totalError} dataset{totalError !== 1 ? "s" : ""}{" "}
+                          errored
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-end pt-2">
+                    <button
+                      onClick={handleReset}
+                      className="flex items-center gap-2 px-4 py-2 text-xs font-mono font-semibold rounded-md border border-[var(--border-medium)] text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:border-[var(--border-strong)] transition-colors duration-150"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      Import Another File
+                    </button>
+                  </div>
+                </>
+              );
+            })()}
           </>
         )}
       </div>

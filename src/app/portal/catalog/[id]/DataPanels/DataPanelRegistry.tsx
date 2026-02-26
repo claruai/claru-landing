@@ -1,9 +1,11 @@
+import React from "react";
 import type { ComponentType } from "react";
 import type { LucideIcon } from "lucide-react";
-import { FileJson, Gamepad2 } from "lucide-react";
+import { FileJson, Gamepad2, Archive } from "lucide-react";
 
-import { AnnotationPanelWrapper } from "./AnnotationPanelWrapper";
 import { GameSpecsPanel } from "./GameSpecsPanel";
+import { DataFilesPanel } from "./DataFilesPanel";
+import { MetaTable } from "../MetaTable";
 
 // =============================================================================
 // DataPanelRegistry -- Extensible panel type registry for DataPanelTabs
@@ -21,6 +23,7 @@ import { GameSpecsPanel } from "./GameSpecsPanel";
 export interface DataPanelProps {
   data: Record<string, unknown>;
   sampleId: string;
+  apiBase?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -34,12 +37,20 @@ export interface PanelRegistryEntry {
 }
 
 // ---------------------------------------------------------------------------
+// MetaTableAdapter -- thin adapter wrapping MetaTable for the registry
+// ---------------------------------------------------------------------------
+
+function MetaTableAdapter({ data }: DataPanelProps) {
+  return <MetaTable metadata={data} />;
+}
+
+// ---------------------------------------------------------------------------
 // Panel registry
 // ---------------------------------------------------------------------------
 
 export const PANEL_REGISTRY: Record<string, PanelRegistryEntry> = {
   annotation: {
-    component: AnnotationPanelWrapper,
+    component: MetaTableAdapter,
     label: "Annotation",
     icon: FileJson,
   },
@@ -47,5 +58,10 @@ export const PANEL_REGISTRY: Record<string, PanelRegistryEntry> = {
     component: GameSpecsPanel,
     label: "Game Specs",
     icon: Gamepad2,
+  },
+  data_files: {
+    component: DataFilesPanel,
+    label: "Data Files",
+    icon: Archive,
   },
 };

@@ -25,13 +25,14 @@ export interface PanelDescriptor {
 interface DataPanelTabsProps {
   panels: PanelDescriptor[];
   sampleId: string;
+  apiBase?: string;
 }
 
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
-export function DataPanelTabs({ panels, sampleId }: DataPanelTabsProps) {
+export function DataPanelTabs({ panels, sampleId, apiBase }: DataPanelTabsProps) {
   // Filter to only panels that have a registry entry and non-empty data.
   const registeredPanels = panels.filter(
     (p) => PANEL_REGISTRY[p.type] && p.data && Object.keys(p.data).length > 0
@@ -60,7 +61,7 @@ export function DataPanelTabs({ panels, sampleId }: DataPanelTabsProps) {
 
     return (
       <div>
-        <SingleComponent data={singlePanel.data} sampleId={sampleId} />
+        <SingleComponent data={singlePanel.data} sampleId={sampleId} apiBase={apiBase} />
       </div>
     );
   }
@@ -131,7 +132,7 @@ export function DataPanelTabs({ panels, sampleId }: DataPanelTabsProps) {
         className="p-4"
       >
         {ActiveComponent && activePanel && (
-          <ActiveComponent data={activePanel.data} sampleId={sampleId} />
+          <ActiveComponent data={activePanel.data} sampleId={sampleId} apiBase={apiBase} />
         )}
       </div>
     </div>

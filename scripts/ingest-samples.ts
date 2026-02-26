@@ -95,10 +95,25 @@ interface NotionStyleSample {
   metadata?: Record<string, unknown>;
 }
 
-type InputSample = SimpleSample | NotionStyleSample;
+/** S3 format — output of scripts/ingest-csv.ts (US-012) */
+interface S3Sample {
+  filename: string;
+  s3_object_key: string;
+  s3_annotation_key?: string | null;
+  s3_specs_key?: string | null;
+  mime_type?: string;
+  metadata_json?: Record<string, unknown>;
+}
+
+type InputSample = SimpleSample | NotionStyleSample | S3Sample;
 
 interface NormalizedSample {
+  filename: string;
   media_url: string;
+  s3_object_key: string | null;
+  s3_annotation_key: string | null;
+  s3_specs_key: string | null;
+  mime_type: string;
   metadata_json: Record<string, unknown>;
 }
 
@@ -106,22 +121,43 @@ interface NormalizedSample {
 // Format detection and normalization
 // ---------------------------------------------------------------------------
 
+function isS3Format(sample: InputSample): sample is S3Sample {
+  return "s3_object_key" in sample && typeof (sample as S3Sample).s3_object_key === "string";
+}
+
 function isNotionStyle(sample: InputSample): sample is NotionStyleSample {
   return "file_url" in sample && typeof (sample as NotionStyleSample).file_url === "string";
 }
 
 function normalizeSample(sample: InputSample): NormalizedSample {
+  if (isS3Format(sample)) {
+    return {
+      filename: sample.filename,
+      // Placeholder URL so the NOT NULL constraint is satisfied;
+      // the portal resolves video delivery via s3_object_key first.
+      media_url: `https://s3-import.placeholder/${sample.s3_object_key}`,
+      s3_object_key: sample.s3_object_key,
+      s3_annotation_key: sample.s3_annotation_key ?? null,
+      s3_specs_key: sample.s3_specs_key ?? null,
+      mime_type: sample.mime_type ?? guessMimeType(sample.s3_object_key),
+      metadata_json: sample.metadata_json ?? {},
+    };
+  }
+
   if (isNotionStyle(sample)) {
     const metadata: Record<string, unknown> = { ...(sample.metadata ?? {}) };
-
-    // Merge Notion-specific fields into metadata_json
     if (sample.type !== undefined) metadata.type = sample.type;
     if (sample.category !== undefined) metadata.category = sample.category;
     if (sample.subcategory !== undefined) metadata.subcategory = sample.subcategory;
     if (sample.annotation_id !== undefined) metadata.annotation_id = sample.annotation_id;
 
     return {
+      filename: sample.file_url.split("/").pop()?.split("?")[0] || "sample",
       media_url: sample.file_url,
+      s3_object_key: null,
+      s3_annotation_key: null,
+      s3_specs_key: null,
+      mime_type: guessMimeType(sample.file_url),
       metadata_json: metadata,
     };
   }
@@ -129,7 +165,12 @@ function normalizeSample(sample: InputSample): NormalizedSample {
   // Simple format
   const simple = sample as SimpleSample;
   return {
+    filename: simple.media_url.split("/").pop()?.split("?")[0] || "sample",
     media_url: simple.media_url,
+    s3_object_key: null,
+    s3_annotation_key: null,
+    s3_specs_key: null,
+    mime_type: guessMimeType(simple.media_url),
     metadata_json: simple.metadata ?? {},
   };
 }
@@ -205,10 +246,10 @@ async function main() {
   // -- Normalize all samples --
   const normalized: NormalizedSample[] = rawSamples.map(normalizeSample);
 
-  // -- Fetch existing media_urls for this dataset (idempotency check) --
+  // -- Fetch existing keys for this dataset (idempotency check) --
   const { data: existingRows, error: existingError } = await supabase
     .from("dataset_samples")
-    .select("media_url")
+    .select("media_url, s3_object_key")
     .eq("dataset_id", datasetId);
 
   if (existingError) {
@@ -217,13 +258,23 @@ async function main() {
   }
 
   const existingUrls = new Set((existingRows ?? []).map((r) => r.media_url));
+  const existingS3Keys = new Set(
+    (existingRows ?? [])
+      .map((r) => r.s3_object_key)
+      .filter(Boolean)
+  );
 
   // -- Filter out duplicates --
   const toInsert: NormalizedSample[] = [];
   let skippedCount = 0;
 
   for (const sample of normalized) {
-    if (existingUrls.has(sample.media_url)) {
+    // For S3 samples deduplicate on s3_object_key; for URL samples on media_url
+    const isDuplicate = sample.s3_object_key
+      ? existingS3Keys.has(sample.s3_object_key)
+      : existingUrls.has(sample.media_url);
+
+    if (isDuplicate) {
       skippedCount++;
     } else {
       toInsert.push(sample);
@@ -248,19 +299,18 @@ async function main() {
     const chunk = toInsert.slice(i, i + CHUNK_SIZE);
     const chunkEnd = Math.min(i + CHUNK_SIZE, toInsert.length);
 
-    const rows = chunk.map((sample) => {
-      const urlFilename =
-        sample.media_url.split("/").pop()?.split("?")[0] || "sample";
-      return {
-        dataset_id: datasetId,
-        filename: urlFilename,
-        media_url: sample.media_url,
-        storage_path: null,
-        mime_type: guessMimeType(sample.media_url),
-        file_size_bytes: 0,
-        metadata_json: sample.metadata_json,
-      };
-    });
+    const rows = chunk.map((sample) => ({
+      dataset_id: datasetId,
+      filename: sample.filename,
+      media_url: sample.media_url,
+      storage_path: null,
+      mime_type: sample.mime_type,
+      file_size_bytes: 0,
+      metadata_json: sample.metadata_json,
+      s3_object_key: sample.s3_object_key,
+      s3_annotation_key: sample.s3_annotation_key,
+      s3_specs_key: sample.s3_specs_key,
+    }));
 
     const { data, error } = await supabase
       .from("dataset_samples")

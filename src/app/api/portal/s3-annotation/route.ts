@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { fetchAnnotationJson } from "@/lib/s3/annotation";
 
 // =============================================================================
 // POST /api/portal/s3-annotation
@@ -35,33 +36,6 @@ const requestSchema = z.object({
 // Helpers
 // ---------------------------------------------------------------------------
 
-/**
- * Fetch an annotation JSON file from S3 via its object key (full URL).
- * Returns the parsed JSON object, or null on failure.
- */
-async function fetchAnnotationJson(
-  objectKey: string
-): Promise<Record<string, unknown> | null> {
-  try {
-    const response = await fetch(objectKey, {
-      method: "GET",
-      headers: { Accept: "application/json" },
-    });
-
-    if (!response.ok) {
-      console.error(
-        `[s3-annotation] S3 fetch failed: ${response.status} ${response.statusText} for key ${objectKey}`
-      );
-      return null;
-    }
-
-    const json = (await response.json()) as Record<string, unknown>;
-    return json;
-  } catch (err) {
-    console.error("[s3-annotation] S3 fetch error:", err);
-    return null;
-  }
-}
 
 /**
  * Fire-and-forget: merge annotation data + `_cached_at` timestamp into the

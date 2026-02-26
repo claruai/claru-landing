@@ -35,6 +35,12 @@ export interface SampleDetailModalProps {
   selectedIndex: number;
   onClose: () => void;
   onNavigate: (index: number) => void;
+  /** API endpoint for fetching annotation / specs JSON from S3.
+   *  Defaults to the portal route; pass the admin route when used outside the portal. */
+  annotationEndpoint?: string;
+  /** API base prefix for signed-URL requests (portal panels vs admin panels).
+   *  Derived automatically from annotationEndpoint when not provided. */
+  apiBase?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -73,7 +79,13 @@ export function SampleDetailModal({
   selectedIndex,
   onClose,
   onNavigate,
+  annotationEndpoint = "/api/portal/s3-annotation",
+  apiBase: apiBaseProp,
 }: SampleDetailModalProps) {
+  // Derive apiBase from annotationEndpoint when the caller does not supply it explicitly
+  const apiBase =
+    apiBaseProp ??
+    (annotationEndpoint.startsWith("/api/admin") ? "/api/admin" : "/api/portal");
   const [copied, setCopied] = useState(false);
   const [annotationData, setAnnotationData] = useState<Record<string, unknown> | null>(null);
   const [annotationLoading, setAnnotationLoading] = useState(false);
@@ -101,9 +113,23 @@ export function SampleDetailModal({
     const result: PanelDescriptor[] = [];
 
     // Always include annotation panel if metadata or annotation data exists
+    // Strip internal/noisy fields before merging annotation into the display object
+    const ANNOTATION_NOISE_KEYS = new Set([
+      "userId", "reviewerId", "payoutId", "paymentStatus", "paymentDate",
+      "cost", "project", "rejectionReason", "rejectionCount", "isTestTemplate",
+      "key", "browserMetadata", "projectId", "savedAt", "notes",
+      "comment", "templateData",
+    ]);
+
+    const cleanedAnnotation = annotationData
+      ? Object.fromEntries(
+          Object.entries(annotationData).filter(([k]) => !ANNOTATION_NOISE_KEYS.has(k))
+        )
+      : null;
+
     const annotationPanelData: Record<string, unknown> = {
       ...metadata,
-      ...(annotationData ? { annotation: annotationData } : {}),
+      ...(cleanedAnnotation ?? {}),
     };
     if (Object.keys(annotationPanelData).length > 0) {
       result.push({ type: "annotation", data: annotationPanelData });
@@ -115,6 +141,18 @@ export function SampleDetailModal({
     } else if (sample.s3_specs_key && specsLoading) {
       // Show a loading placeholder -- will be replaced once specs arrive
       // We still include an empty placeholder so the tab appears
+    }
+
+    // Add Data Files panel when annotation has non-video attached files
+    const rawFiles = cleanedAnnotation?.files;
+    if (Array.isArray(rawFiles)) {
+      const dataFiles = (rawFiles as Array<Record<string, unknown>>).filter((f) => {
+        const oid = String(f.objectId ?? "").toLowerCase();
+        return !oid.endsWith(".mp4") && !oid.endsWith(".mov") && !oid.endsWith(".webm");
+      });
+      if (dataFiles.length > 0) {
+        result.push({ type: "data_files", data: { files: dataFiles } });
+      }
     }
 
     return result;
@@ -167,7 +205,7 @@ export function SampleDetailModal({
     let cancelled = false;
     setAnnotationLoading(true);
 
-    fetch("/api/portal/s3-annotation", {
+    fetch(annotationEndpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -178,7 +216,9 @@ export function SampleDetailModal({
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (!cancelled && data) {
-          setAnnotationData(data);
+          // API returns { annotation: {...}, cached: bool } — unwrap the payload
+          const payload = data.annotation ?? data;
+          setAnnotationData(payload);
         }
       })
       .catch(() => {
@@ -191,7 +231,7 @@ export function SampleDetailModal({
     return () => {
       cancelled = true;
     };
-  }, [selectedIndex, samples]);
+  }, [selectedIndex, samples, annotationEndpoint]);
 
   // -------------------------------------------------------------------------
   // Fetch specs data from S3 on-demand (same pattern as annotation fetch)
@@ -206,7 +246,7 @@ export function SampleDetailModal({
     let cancelled = false;
     setSpecsLoading(true);
 
-    fetch("/api/portal/s3-annotation", {
+    fetch(annotationEndpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -217,7 +257,8 @@ export function SampleDetailModal({
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (!cancelled && data) {
-          setSpecsData(data as Record<string, unknown>);
+          const payload = data.annotation ?? data;
+          setSpecsData(payload as Record<string, unknown>);
         }
       })
       .catch(() => {
@@ -230,7 +271,7 @@ export function SampleDetailModal({
     return () => {
       cancelled = true;
     };
-  }, [selectedIndex, samples]);
+  }, [selectedIndex, samples, annotationEndpoint]);
 
   // -------------------------------------------------------------------------
   // Keyboard navigation
@@ -445,7 +486,7 @@ export function SampleDetailModal({
             {/* Data panel tabs (or single panel content) */}
             <div className="p-4">
               {panels.length > 0 ? (
-                <DataPanelTabs panels={panels} sampleId={sample.id} />
+                <DataPanelTabs panels={panels} sampleId={sample.id} apiBase={apiBase} />
               ) : (
                 <div className="font-mono text-xs text-[var(--text-muted)] text-center py-6">
                   No metadata available.

@@ -314,6 +314,43 @@ export function MetaTable({ metadata, annotationData }: MetaTableProps) {
     ...(annotationData ?? {}),
   };
 
+  // Extract technical_specs from annotation MediaInfo files[] if not already present
+  if (!merged.technical_specs && Array.isArray(merged.files)) {
+    const files = merged.files as Array<Record<string, unknown>>;
+    const videoFile = files.find((f) => {
+      const oid = String(f.objectId ?? "").toLowerCase();
+      return oid.endsWith(".mp4") || oid.endsWith(".mov") || oid.endsWith(".webm");
+    });
+    if (videoFile) {
+      const tracks = (
+        (videoFile.attributes as Record<string, unknown> | undefined)
+          ?.media as Record<string, unknown> | undefined
+      )?.track as Array<Record<string, unknown>> | undefined;
+
+      const videoTrack = tracks?.find((t) => t["@type"] === "Video");
+      const generalTrack = tracks?.find((t) => t["@type"] === "General");
+
+      if (videoTrack || generalTrack) {
+        const duration =
+          (videoTrack?.Duration as number | undefined) ??
+          (generalTrack?.Duration as number | undefined);
+        const width = videoTrack?.Width as number | undefined;
+        const height = videoTrack?.Height as number | undefined;
+        const fps = videoTrack?.FrameRate as number | undefined;
+        const dar = videoTrack?.DisplayAspectRatio as number | undefined;
+
+        merged.technical_specs = {
+          duration_s: duration,
+          resolution_px: width && height ? { width, height } : undefined,
+          fps_estimate: fps,
+          aspect_ratio: dar
+            ? `${Math.round(dar * 9 * 10) / 10}:9`
+            : undefined,
+        };
+      }
+    }
+  }
+
   // -------------------------------------------------------------------------
   // Tier 1: Render known fields from FIELD_LABELS
   // -------------------------------------------------------------------------
@@ -438,6 +475,8 @@ export function MetaTable({ metadata, annotationData }: MetaTableProps) {
   const unknownFields: Record<string, unknown> = {};
   for (const key of Object.keys(merged)) {
     if (!KNOWN_TOP_LEVEL_KEYS.has(key) && !chunkingKeys.includes(key)) {
+      // Also exclude 'files' — it's MediaInfo data already consumed by technical_specs extraction
+      if (key === "files") continue;
       unknownFields[key] = merged[key];
     }
   }

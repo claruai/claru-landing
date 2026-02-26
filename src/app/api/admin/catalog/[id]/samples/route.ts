@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { verifyAdminToken } from "@/lib/admin-auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { generateSignedUploadUrl } from "@/lib/supabase/storage";
+import { getS3SignedUrl } from "@/lib/s3/presigner";
 
 /**
  * GET /api/admin/catalog/[id]/samples
@@ -54,8 +55,21 @@ export async function GET(
     }
   }
 
+  // Presign S3 URLs so admin thumbnails and video previews work
+  const samplesWithUrls = await Promise.all(
+    (samples ?? []).map(async (sample: Record<string, unknown>) => {
+      if (typeof sample.s3_object_key === "string" && sample.s3_object_key) {
+        const signedUrl = await getS3SignedUrl(sample.s3_object_key);
+        if (signedUrl) {
+          return { ...sample, media_url: signedUrl };
+        }
+      }
+      return sample;
+    })
+  );
+
   return NextResponse.json({
-    samples: samples ?? [],
+    samples: samplesWithUrls,
     formatIssueCounts,
   });
 }
