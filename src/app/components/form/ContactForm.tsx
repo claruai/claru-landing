@@ -211,9 +211,9 @@ export default function ContactForm() {
           <div className="space-y-2">
             <label
               htmlFor="projectDescription"
-              className="block font-mono text-sm text-[var(--accent-primary)]"
+              className="flex flex-wrap gap-x-1.5 font-mono text-sm text-[var(--accent-primary)]"
             >
-              $ project_description{" "}
+              <span>$ project_description</span>
               <span className="text-[var(--text-muted)]">(optional)</span>
             </label>
             <textarea

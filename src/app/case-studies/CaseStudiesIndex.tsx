@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import Header from "@/app/components/layout/Header";
 import Footer from "@/app/components/sections/Footer";
+import Button from "@/app/components/ui/Button";
 import TextScramble from "@/app/components/effects/TextScramble";
 import FadeIn from "@/app/components/effects/FadeIn";
 import type { CaseStudy, CaseStudyCategory } from "@/types/case-study";
@@ -263,12 +264,9 @@ export default function CaseStudiesIndex({
               <p className="text-[var(--text-secondary)] text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
                 Tell us what you&apos;re training. We&apos;ll scope the data, design the pipeline, and deliver.
               </p>
-              <a
-                href="/#contact"
-                className="btn-cta inline-flex items-center gap-2"
-              >
+              <Button calendly variant="cta">
                 Book a Call
-              </a>
+              </Button>
             </div>
           </div>
         </section>

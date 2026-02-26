@@ -1,7 +1,9 @@
 "use client";
 
+import { useContext } from "react";
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
+import { CalendlyContext } from "../providers/CalendlyProvider";
 
 interface ButtonProps {
   children: ReactNode;
@@ -12,6 +14,7 @@ interface ButtonProps {
   href?: string;
   disabled?: boolean;
   type?: "button" | "submit" | "reset";
+  calendly?: boolean;
 }
 
 export default function Button({
@@ -23,7 +26,18 @@ export default function Button({
   href,
   disabled = false,
   type = "button",
+  calendly = false,
 }: ButtonProps) {
+  const calendlyCtx = useContext(CalendlyContext);
+
+  const handleCalendlyClick = () => {
+    calendlyCtx?.openCalendly();
+    onClick?.();
+  };
+
+  // When calendly is true, always render as a button (no href navigation)
+  const effectiveHref = calendly ? undefined : href;
+  const effectiveOnClick = calendly ? handleCalendlyClick : onClick;
   // CTA variants use CSS classes from globals.css for ASCII-inspired effects
   if (variant === "cta" || variant === "cta-glitch") {
     const ctaSizeClasses = {
@@ -35,9 +49,9 @@ export default function Button({
     const baseClass = variant === "cta-glitch" ? "btn-cta-glitch" : "btn-cta";
     const ctaClasses = `${baseClass} ${ctaSizeClasses[size]} ${className}`;
 
-    if (href) {
+    if (effectiveHref) {
       return (
-        <a href={href} className={ctaClasses} onClick={onClick} rel="noopener noreferrer">
+        <a href={effectiveHref} className={ctaClasses} onClick={effectiveOnClick} rel="noopener noreferrer">
           <span className="relative z-10">{children}</span>
         </a>
       );
@@ -47,7 +61,7 @@ export default function Button({
       <button
         type={type}
         className={ctaClasses}
-        onClick={onClick}
+        onClick={effectiveOnClick}
         disabled={disabled}
       >
         <span className="relative z-10">{children}</span>
@@ -89,12 +103,12 @@ export default function Button({
     </>
   );
 
-  if (href) {
+  if (effectiveHref) {
     return (
       <motion.a
-        href={href}
+        href={effectiveHref}
         className={allClasses}
-        onClick={onClick}
+        onClick={effectiveOnClick}
         rel="noopener noreferrer"
         whileHover={{ y: -2, boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)" }}
         whileTap={{ y: 0 }}
@@ -108,7 +122,7 @@ export default function Button({
     <motion.button
       type={type}
       className={allClasses}
-      onClick={onClick}
+      onClick={effectiveOnClick}
       disabled={disabled}
       whileHover={
         !disabled ? { y: -2, boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)" } : {}

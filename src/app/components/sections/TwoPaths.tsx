@@ -133,7 +133,7 @@ export default function TwoPaths() {
           viewport={{ once: true }}
           transition={{ delay: 0.4 }}
         >
-          <Button href="#contact" variant="cta-glitch" size="md">
+          <Button calendly variant="cta-glitch" size="md">
             Book a Call
           </Button>
         </motion.div>
