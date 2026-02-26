@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Work With Claru | AI Annotation Jobs & Expert Data Labeling",
+  title: "For Annotators | AI Annotation Jobs & Expert Data Labeling",
   description:
     "Join Claru's team of domain experts embedded with frontier AI labs. Remote AI annotation jobs, expert data labeling, RLHF, and more — apply today.",
   openGraph: {
-    title: "Work With Claru | AI Annotation Jobs",
+    title: "For Annotators | Claru AI Annotation Jobs",
     description:
       "Join Claru's team of domain experts embedded with frontier AI labs. Remote AI annotation jobs, expert data labeling, and more.",
   },
   twitter: {
-    title: "Work With Claru | AI Annotation Jobs",
+    title: "For Annotators | Claru AI Annotation Jobs",
     description:
       "Join Claru's team of domain experts embedded with frontier AI labs. Remote AI annotation jobs, expert data labeling, and more.",
   },

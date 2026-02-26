@@ -1,21 +1,25 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Logo from "../ui/Logo";
 import Button from "../ui/Button";
+import { APP_URLS } from "../../lib/constants";
 
 const navLinks = [
   { href: "/data", label: "Training Data" },
   { href: "/labeling", label: "Expert Labeling" },
   { href: "/case-studies", label: "Case Studies" },
-  { href: "/work-with-us", label: "Work With Us" },
+  { href: "/for-annotators", label: "For Annotators" },
 ];
 
 export default function Header({ opaque = false }: { opaque?: boolean }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const isAnnotatorsPage = pathname === "/for-annotators";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -49,19 +53,39 @@ export default function Header({ opaque = false }: { opaque?: boolean }) {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-8">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-300 relative group"
-                >
-                  {link.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-px bg-[var(--text-primary)] transition-all duration-300 group-hover:w-full" />
-                </Link>
-              ))}
-              <Button href="/#contact" variant="cta-glitch" size="sm">
-                Book a Call
-              </Button>
+              {isAnnotatorsPage ? (
+                <>
+                  <Link
+                    href="/jobs"
+                    className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-300 relative group"
+                  >
+                    Browse Open Roles
+                    <span className="absolute -bottom-1 left-0 w-0 h-px bg-[var(--text-primary)] transition-all duration-300 group-hover:w-full" />
+                  </Link>
+                  <Button href={APP_URLS.signIn} variant="secondary" size="sm">
+                    Sign In to Portal
+                  </Button>
+                  <Button href={APP_URLS.signUp} variant="cta-glitch" size="sm">
+                    Apply Now
+                  </Button>
+                </>
+              ) : (
+                <>
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-300 relative group"
+                    >
+                      {link.label}
+                      <span className="absolute -bottom-1 left-0 w-0 h-px bg-[var(--text-primary)] transition-all duration-300 group-hover:w-full" />
+                    </Link>
+                  ))}
+                  <Button href="/#contact" variant="cta-glitch" size="sm">
+                    Book a Call
+                  </Button>
+                </>
+              )}
             </nav>
 
             {/* Mobile Menu Button */}
@@ -106,37 +130,88 @@ export default function Header({ opaque = false }: { opaque?: boolean }) {
             transition={{ duration: 0.3 }}
           >
             <div className="flex flex-col items-center justify-center h-full gap-6 py-20 overflow-y-auto">
-              {navLinks.map((link, index) => (
-                <motion.div
-                  key={link.href}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <Link
-                    href={link.href}
-                    className="text-xl text-[var(--text-primary)] hover:text-[var(--text-secondary)] transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
+              {isAnnotatorsPage ? (
+                <>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    transition={{ delay: 0.05 }}
                   >
-                    {link.label}
-                  </Link>
-                </motion.div>
-              ))}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ delay: 0.3 }}
-              >
-                <Button
-                  href="/#contact"
-                  size="lg"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Book a Call
-                </Button>
-              </motion.div>
+                    <Link
+                      href="/jobs"
+                      className="text-xl text-[var(--text-primary)] hover:text-[var(--text-secondary)] transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Browse Open Roles
+                    </Link>
+                  </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    transition={{ delay: 0.1 }}
+                  >
+                    <Button
+                      href={APP_URLS.signIn}
+                      variant="secondary"
+                      size="lg"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Sign In to Portal
+                    </Button>
+                  </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    transition={{ delay: 0.15 }}
+                  >
+                    <Button
+                      href={APP_URLS.signUp}
+                      variant="cta-glitch"
+                      size="lg"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Apply Now
+                    </Button>
+                  </motion.div>
+                </>
+              ) : (
+                <>
+                  {navLinks.map((link, index) => (
+                    <motion.div
+                      key={link.href}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 20 }}
+                      transition={{ delay: index * 0.05 }}
+                    >
+                      <Link
+                        href={link.href}
+                        className="text-xl text-[var(--text-primary)] hover:text-[var(--text-secondary)] transition-colors"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        {link.label}
+                      </Link>
+                    </motion.div>
+                  ))}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    transition={{ delay: 0.25 }}
+                  >
+                    <Button
+                      href="/#contact"
+                      size="lg"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Book a Call
+                    </Button>
+                  </motion.div>
+                </>
+              )}
             </div>
           </motion.div>
         )}
