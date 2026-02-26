@@ -5,7 +5,8 @@ import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Check, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { CALENDLY_URL_BASE } from "../../lib/constants";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -16,9 +17,58 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+function CalendlyStep({ name, email }: { name: string; email: string }) {
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const calendlyUrl = `${CALENDLY_URL_BASE}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="bg-[var(--bg-secondary)] border border-[var(--border-subtle)] overflow-hidden max-w-2xl mx-auto"
+    >
+      {/* Terminal header */}
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--border-subtle)] bg-[var(--bg-tertiary)]">
+        <div className="flex gap-1.5">
+          <div className="w-3 h-3 rounded-full bg-red-500/80" />
+          <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+          <div className="w-3 h-3 rounded-full bg-green-500/80" />
+        </div>
+        <span className="text-xs text-[var(--text-tertiary)] ml-2 font-mono">
+          claru@contact ~ SCHEDULE
+        </span>
+        <div className="flex-1" />
+        <span className="text-xs text-[var(--accent-primary)] font-mono animate-pulse">
+          CONNECTED
+        </span>
+      </div>
+
+      {/* Calendly iframe */}
+      <div className="relative" style={{ height: "620px" }}>
+        {!iframeLoaded && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+            <Loader2 className="w-6 h-6 text-[var(--accent-primary)] animate-spin" />
+            <span className="font-mono text-xs text-[var(--text-muted)] animate-pulse">
+              // LOADING...
+            </span>
+          </div>
+        )}
+        <iframe
+          src={calendlyUrl}
+          title="Schedule a call with Claru"
+          className={`w-full h-full border-0 transition-opacity duration-300 ${
+            iframeLoaded ? "opacity-100" : "opacity-0"
+          }`}
+          onLoad={() => setIframeLoaded(true)}
+        />
+      </div>
+    </motion.div>
+  );
+}
+
 export default function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [leadData, setLeadData] = useState<FormData | null>(null);
 
   const {
     register,
@@ -39,78 +89,15 @@ export default function ContactForm() {
         body: JSON.stringify(data),
       });
     } catch {
-      // Silently handle — still show success to user
+      // Silently handle — still advance to booking
     }
 
     setIsSubmitting(false);
-    setIsSuccess(true);
+    setLeadData(data);
   };
 
-  if (isSuccess) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-[var(--bg-secondary)] border border-[var(--border-subtle)] p-6 font-mono max-w-2xl mx-auto"
-      >
-        {/* Terminal header */}
-        <div className="flex items-center gap-2 mb-4 pb-4 border-b border-[var(--border-subtle)]">
-          <div className="flex gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-red-500" />
-            <div className="w-3 h-3 rounded-full bg-yellow-500" />
-            <div className="w-3 h-3 rounded-full bg-green-500" />
-          </div>
-          <span className="text-xs text-[var(--text-tertiary)] ml-2">
-            claru@contact ~ SUCCESS
-          </span>
-        </div>
-
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.2, type: "spring" }}
-          className="w-16 h-16 mx-auto mb-6 bg-[var(--accent-primary)] flex items-center justify-center"
-        >
-          <Check className="w-8 h-8 text-[var(--bg-primary)]" />
-        </motion.div>
-
-        <div className="text-center space-y-2">
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="text-[var(--accent-primary)]"
-          >
-            &gt; Signal received.
-          </motion.p>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="text-[var(--accent-primary)]"
-          >
-            &gt; Processing request...
-          </motion.p>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="text-[var(--accent-primary)]"
-          >
-            &gt; Connection initialized.
-          </motion.p>
-        </div>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          className="text-[var(--text-secondary)] text-center mt-6"
-        >
-          We&apos;ll be in touch within 24 hours.
-        </motion.p>
-      </motion.div>
-    );
+  if (leadData) {
+    return <CalendlyStep name={leadData.name} email={leadData.email} />;
   }
 
   return (
@@ -245,7 +232,7 @@ export default function ContactForm() {
               PROCESSING...
             </>
           ) : (
-            "Book a Consultation"
+            "Next: Choose a Time →"
           )}
         </motion.button>
 
