@@ -55,14 +55,6 @@ export default function Header({ opaque = false }: { opaque?: boolean }) {
             <nav className="hidden md:flex items-center gap-8">
               {isAnnotatorsPage ? (
                 <>
-                  <Button
-                    href={APP_URLS.signIn}
-                    variant="ghost"
-                    size="sm"
-                    className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                  >
-                    Sign In to Portal
-                  </Button>
                   <Link
                     href="/jobs"
                     className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-300 relative group"
@@ -70,6 +62,9 @@ export default function Header({ opaque = false }: { opaque?: boolean }) {
                     Browse Open Roles
                     <span className="absolute -bottom-1 left-0 w-0 h-px bg-[var(--text-primary)] transition-all duration-300 group-hover:w-full" />
                   </Link>
+                  <Button href={APP_URLS.signIn} variant="secondary" size="sm">
+                    Sign In to Portal
+                  </Button>
                   <Button href={APP_URLS.signUp} variant="cta-glitch" size="sm">
                     Apply Now
                   </Button>
@@ -143,22 +138,6 @@ export default function Header({ opaque = false }: { opaque?: boolean }) {
                     exit={{ opacity: 0, y: 20 }}
                     transition={{ delay: 0.05 }}
                   >
-                    <Button
-                      href={APP_URLS.signIn}
-                      variant="ghost"
-                      size="lg"
-                      className="text-[var(--text-primary)]"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Sign In to Portal
-                    </Button>
-                  </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 20 }}
-                    transition={{ delay: 0.1 }}
-                  >
                     <Link
                       href="/jobs"
                       className="text-xl text-[var(--text-primary)] hover:text-[var(--text-secondary)] transition-colors"
@@ -166,6 +145,21 @@ export default function Header({ opaque = false }: { opaque?: boolean }) {
                     >
                       Browse Open Roles
                     </Link>
+                  </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    transition={{ delay: 0.1 }}
+                  >
+                    <Button
+                      href={APP_URLS.signIn}
+                      variant="secondary"
+                      size="lg"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Sign In to Portal
+                    </Button>
                   </motion.div>
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
