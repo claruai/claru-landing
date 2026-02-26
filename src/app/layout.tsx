@@ -3,6 +3,8 @@ import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import "lenis/dist/lenis.css";
 import MotionProvider from "./components/providers/MotionProvider";
+import CalendlyProvider from "./components/providers/CalendlyProvider";
+import CalendlyModal from "./components/ui/CalendlyModal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -109,11 +111,17 @@ export default function RootLayout({
       <head>
         <link rel="dns-prefetch" href="https://claru.ai" />
         <link rel="preconnect" href="https://claru.ai" />
+        <link rel="preconnect" href="https://calendly.com" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${jetbrainsMono.variable} antialiased`}
       >
-        <MotionProvider>{children}</MotionProvider>
+        <MotionProvider>
+          <CalendlyProvider>
+            {children}
+            <CalendlyModal />
+          </CalendlyProvider>
+        </MotionProvider>
       </body>
     </html>
   );

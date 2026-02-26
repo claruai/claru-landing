@@ -186,7 +186,7 @@ export default function DataCatalogPage() {
                 >
                   Request Catalog Access
                 </Button>
-                <Button href="/#contact" variant="secondary" size="lg">
+                <Button calendly variant="secondary" size="lg">
                   Book a Call
                 </Button>
               </div>

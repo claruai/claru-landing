@@ -597,7 +597,7 @@ export default function CaseStudyDetailClient({
                 Tell us about your project and we will scope a plan within 48
                 hours.
               </p>
-              <Button href="/#contact" variant="cta-glitch" size="lg">
+              <Button calendly variant="cta-glitch" size="lg">
                 Book a Call
               </Button>
             </FadeIn>
