@@ -1,8 +1,9 @@
 "use client";
 
+import { useContext } from "react";
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
-import { useCalendly } from "../providers/CalendlyProvider";
+import { CalendlyContext } from "../providers/CalendlyProvider";
 
 interface ButtonProps {
   children: ReactNode;
@@ -27,10 +28,10 @@ export default function Button({
   type = "button",
   calendly = false,
 }: ButtonProps) {
-  const { openCalendly } = useCalendly();
+  const calendlyCtx = useContext(CalendlyContext);
 
   const handleCalendlyClick = () => {
-    openCalendly();
+    calendlyCtx?.openCalendly();
     onClick?.();
   };
 
@@ -50,7 +51,7 @@ export default function Button({
 
     if (effectiveHref) {
       return (
-        <a href={effectiveHref} className={ctaClasses}>
+        <a href={effectiveHref} className={ctaClasses} onClick={effectiveOnClick} rel="noopener noreferrer">
           <span className="relative z-10">{children}</span>
         </a>
       );
@@ -107,6 +108,8 @@ export default function Button({
       <motion.a
         href={effectiveHref}
         className={allClasses}
+        onClick={effectiveOnClick}
+        rel="noopener noreferrer"
         whileHover={{ y: -2, boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)" }}
         whileTap={{ y: 0 }}
       >
