@@ -175,33 +175,6 @@ export default function Hero() {
         </div>
       </motion.div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-      >
-        <div className="flex flex-col items-center gap-2">
-          <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-widest font-mono">
-            Scroll
-          </span>
-          <motion.div
-            className="w-6 h-10 border border-[var(--border-medium)] rounded-full flex items-start justify-center p-2"
-            whileHover={{ borderColor: "var(--accent-primary)" }}
-          >
-            <motion.div
-              className="w-1 h-2 bg-[var(--accent-secondary)] rounded-full"
-              animate={{ y: [0, 16, 0] }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-          </motion.div>
-        </div>
-      </motion.div>
 
       {/* Bottom gradient fade to dark */}
       <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[var(--bg-primary)]/80 to-transparent pointer-events-none" />
