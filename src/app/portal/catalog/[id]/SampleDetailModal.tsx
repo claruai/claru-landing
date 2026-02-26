@@ -1,13 +1,26 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { X, ChevronLeft, ChevronRight, Copy, Check } from "lucide-react";
 import type { DatasetSample } from "@/types/data-catalog";
+import { getRendererForMime } from "@/lib/file-renderers";
+import { DownloadLink } from "./DownloadLink";
+import { VideoPlayer } from "./VideoPlayer";
+import { DataPanelTabs } from "./DataPanels";
+import type { PanelDescriptor } from "./DataPanels";
 
 // =============================================================================
-// SampleDetailModal -- Split-view modal: media left, JSON right (US-008)
+// SampleDetailModal -- Split-view modal: media left, data panels right (US-019)
 // Opens when a gallery card is clicked. Supports prev/next navigation,
 // keyboard shortcuts, and click-outside-to-close.
+//
+// Right panel uses the extensible DataPanelTabs system. Panels are built
+// dynamically from sample data:
+//   - "annotation" panel: always included if metadata or annotation data exists
+//   - "game_specs" panel: included if sample has s3_specs_key or specs in metadata
+//
+// Single-tab case: DataPanelTabs renders the panel content directly without
+// a tab bar. Multi-tab case: tab bar with panel labels and icons.
 // =============================================================================
 
 // ---------------------------------------------------------------------------
@@ -22,25 +35,17 @@ export interface SampleDetailModalProps {
   selectedIndex: number;
   onClose: () => void;
   onNavigate: (index: number) => void;
+  /** API endpoint for fetching annotation / specs JSON from S3.
+   *  Defaults to the portal route; pass the admin route when used outside the portal. */
+  annotationEndpoint?: string;
+  /** API base prefix for signed-URL requests (portal panels vs admin panels).
+   *  Derived automatically from annotationEndpoint when not provided. */
+  apiBase?: string;
 }
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-function isVideoUrl(url: string, mimeType: string): boolean {
-  if (mimeType.startsWith("video/")) return true;
-  const videoExts = [".mp4", ".webm", ".mov", ".avi", ".mkv"];
-  const urlLower = url.split("?")[0].toLowerCase();
-  return videoExts.some((ext) => urlLower.endsWith(ext));
-}
-
-function isImageUrl(url: string, mimeType: string): boolean {
-  if (mimeType.startsWith("image/")) return true;
-  const imgExts = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif", ".svg"];
-  const urlLower = url.split("?")[0].toLowerCase();
-  return imgExts.some((ext) => urlLower.endsWith(ext));
-}
 
 /** Extract common key-value fields from metadata_json for the summary strip. */
 function extractCommonFields(
@@ -66,87 +71,6 @@ function extractCommonFields(
 }
 
 // ---------------------------------------------------------------------------
-// JSON Syntax Highlighter -- green keys on dark background
-// ---------------------------------------------------------------------------
-
-function highlightJson(jsonStr: string): React.ReactNode[] {
-  // Split into lines and process each
-  const lines = jsonStr.split("\n");
-  return lines.map((line, lineIdx) => {
-    // Match JSON key pattern: "key":
-    const parts: React.ReactNode[] = [];
-    let remaining = line;
-    let partIdx = 0;
-
-    // Match quoted keys followed by colon
-    const keyRegex = /("(?:[^"\\]|\\.)*")\s*:/g;
-    let lastIndex = 0;
-    let match: RegExpExecArray | null;
-
-    while ((match = keyRegex.exec(remaining)) !== null) {
-      // Text before the key
-      if (match.index > lastIndex) {
-        parts.push(
-          <span key={`${lineIdx}-pre-${partIdx}`} className="text-[var(--text-secondary)]">
-            {remaining.slice(lastIndex, match.index)}
-          </span>
-        );
-        partIdx++;
-      }
-
-      // The key itself (green)
-      parts.push(
-        <span key={`${lineIdx}-key-${partIdx}`} className="text-[var(--accent-primary)]">
-          {match[1]}
-        </span>
-      );
-      partIdx++;
-
-      // The colon
-      parts.push(
-        <span key={`${lineIdx}-colon-${partIdx}`} className="text-[var(--text-muted)]">
-          :
-        </span>
-      );
-      partIdx++;
-
-      lastIndex = match.index + match[0].length;
-    }
-
-    // Remaining text after last key
-    if (lastIndex < remaining.length) {
-      const rest = remaining.slice(lastIndex);
-      // Highlight string values in a slightly different shade
-      const valueParts = rest.split(/("(?:[^"\\]|\\.)*")/g);
-      for (const vp of valueParts) {
-        if (vp.startsWith('"') && vp.endsWith('"')) {
-          parts.push(
-            <span key={`${lineIdx}-val-${partIdx}`} className="text-[var(--text-secondary)]">
-              {vp}
-            </span>
-          );
-        } else {
-          // Numbers, booleans, nulls, structural chars
-          parts.push(
-            <span key={`${lineIdx}-other-${partIdx}`} className="text-[var(--text-tertiary)]">
-              {vp}
-            </span>
-          );
-        }
-        partIdx++;
-      }
-    }
-
-    return (
-      <span key={lineIdx}>
-        {parts.length > 0 ? parts : <span className="text-[var(--text-secondary)]">{line}</span>}
-        {lineIdx < lines.length - 1 ? "\n" : ""}
-      </span>
-    );
-  });
-}
-
-// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -155,8 +79,18 @@ export function SampleDetailModal({
   selectedIndex,
   onClose,
   onNavigate,
+  annotationEndpoint = "/api/portal/s3-annotation",
+  apiBase: apiBaseProp,
 }: SampleDetailModalProps) {
+  // Derive apiBase from annotationEndpoint when the caller does not supply it explicitly
+  const apiBase =
+    apiBaseProp ??
+    (annotationEndpoint.startsWith("/api/admin") ? "/api/admin" : "/api/portal");
   const [copied, setCopied] = useState(false);
+  const [annotationData, setAnnotationData] = useState<Record<string, unknown> | null>(null);
+  const [annotationLoading, setAnnotationLoading] = useState(false);
+  const [specsData, setSpecsData] = useState<Record<string, unknown> | null>(null);
+  const [specsLoading, setSpecsLoading] = useState(false);
   const backdropRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -164,14 +98,81 @@ export function SampleDetailModal({
   if (!current) return null;
 
   const { sample, signedUrl } = current;
-  const isVideo = isVideoUrl(signedUrl, sample.mime_type);
-  const isImage = isImageUrl(signedUrl, sample.mime_type);
+  const renderer = getRendererForMime(sample.mime_type);
+  const rendererComponent = renderer?.component ?? null;
   const metadata = sample.metadata_json ?? {};
   const commonFields = extractCommonFields(metadata);
-  const jsonString = JSON.stringify(metadata, null, 2);
 
   const hasPrev = selectedIndex > 0;
   const hasNext = selectedIndex < samples.length - 1;
+
+  // -------------------------------------------------------------------------
+  // Build panels array dynamically from sample data
+  // -------------------------------------------------------------------------
+  const panels = useMemo<PanelDescriptor[]>(() => {
+    const result: PanelDescriptor[] = [];
+
+    // Always include annotation panel if metadata or annotation data exists
+    // Strip internal/noisy fields before merging annotation into the display object
+    const ANNOTATION_NOISE_KEYS = new Set([
+      "userId", "reviewerId", "payoutId", "paymentStatus", "paymentDate",
+      "cost", "project", "rejectionReason", "rejectionCount", "isTestTemplate",
+      "key", "browserMetadata", "projectId", "savedAt", "notes",
+      "comment", "templateData",
+    ]);
+
+    const cleanedAnnotation = annotationData
+      ? Object.fromEntries(
+          Object.entries(annotationData).filter(([k]) => !ANNOTATION_NOISE_KEYS.has(k))
+        )
+      : null;
+
+    const annotationPanelData: Record<string, unknown> = {
+      ...metadata,
+      ...(cleanedAnnotation ?? {}),
+    };
+    if (Object.keys(annotationPanelData).length > 0) {
+      result.push({ type: "annotation", data: annotationPanelData });
+    }
+
+    // Include game_specs panel if sample has specs data
+    if (specsData && Object.keys(specsData).length > 0) {
+      result.push({ type: "game_specs", data: specsData });
+    } else if (sample.s3_specs_key && specsLoading) {
+      // Show a loading placeholder -- will be replaced once specs arrive
+      // We still include an empty placeholder so the tab appears
+    }
+
+    // Add Data Files panel when annotation has non-video attached files
+    const rawFiles = cleanedAnnotation?.files;
+    if (Array.isArray(rawFiles)) {
+      const dataFiles = (rawFiles as Array<Record<string, unknown>>).filter((f) => {
+        const oid = String(f.objectId ?? "").toLowerCase();
+        return !oid.endsWith(".mp4") && !oid.endsWith(".mov") && !oid.endsWith(".webm");
+      });
+      if (dataFiles.length > 0) {
+        result.push({ type: "data_files", data: { files: dataFiles } });
+      }
+    }
+
+    return result;
+  }, [metadata, annotationData, specsData, sample.s3_specs_key, specsLoading]);
+
+  // -------------------------------------------------------------------------
+  // Merged JSON for copy button -- combines all panel data
+  // -------------------------------------------------------------------------
+  const mergedJson = useMemo<Record<string, unknown>>(() => {
+    const merged: Record<string, unknown> = { ...metadata };
+    if (annotationData) {
+      merged._annotation = annotationData;
+    }
+    if (specsData) {
+      merged._game_specs = specsData;
+    }
+    return merged;
+  }, [metadata, annotationData, specsData]);
+
+  const jsonString = JSON.stringify(mergedJson, null, 2);
 
   // -------------------------------------------------------------------------
   // Copy JSON to clipboard
@@ -190,6 +191,87 @@ export function SampleDetailModal({
   useEffect(() => {
     setCopied(false);
   }, [selectedIndex]);
+
+  // -------------------------------------------------------------------------
+  // Fetch annotation data from S3 on-demand (US-008 pattern)
+  // -------------------------------------------------------------------------
+  useEffect(() => {
+    setAnnotationData(null);
+    setAnnotationLoading(false);
+
+    const currentSample = samples[selectedIndex]?.sample;
+    if (!currentSample?.s3_annotation_key) return;
+
+    let cancelled = false;
+    setAnnotationLoading(true);
+
+    fetch(annotationEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        objectKey: currentSample.s3_annotation_key,
+        sampleId: currentSample.id,
+      }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data) {
+          // API returns { annotation: {...}, cached: bool } — unwrap the payload
+          const payload = data.annotation ?? data;
+          setAnnotationData(payload);
+        }
+      })
+      .catch(() => {
+        // Silent failure -- show metadata_json only
+      })
+      .finally(() => {
+        if (!cancelled) setAnnotationLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedIndex, samples, annotationEndpoint]);
+
+  // -------------------------------------------------------------------------
+  // Fetch specs data from S3 on-demand (same pattern as annotation fetch)
+  // -------------------------------------------------------------------------
+  useEffect(() => {
+    setSpecsData(null);
+    setSpecsLoading(false);
+
+    const currentSample = samples[selectedIndex]?.sample;
+    if (!currentSample?.s3_specs_key) return;
+
+    let cancelled = false;
+    setSpecsLoading(true);
+
+    fetch(annotationEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        objectKey: currentSample.s3_specs_key,
+        sampleId: currentSample.id,
+      }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data) {
+          const payload = data.annotation ?? data;
+          setSpecsData(payload as Record<string, unknown>);
+        }
+      })
+      .catch(() => {
+        // Silent failure -- skip specs panel
+      })
+      .finally(() => {
+        if (!cancelled) setSpecsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedIndex, samples, annotationEndpoint]);
 
   // -------------------------------------------------------------------------
   // Keyboard navigation
@@ -296,21 +378,17 @@ export function SampleDetailModal({
         {/* Left side -- Media (60% desktop, full width mobile)            */}
         {/* ------------------------------------------------------------- */}
         <div className="lg:w-[60%] flex-shrink-0 bg-[var(--bg-primary)] flex items-center justify-center min-h-[240px] lg:min-h-0">
-          {isVideo && (
-            <video
-              key={signedUrl}
-              controls
+          {rendererComponent === "VideoPlayer" && (
+            <VideoPlayer
+              src={signedUrl}
+              mimeType={sample.mime_type}
               autoPlay
-              muted
-              playsInline
+              sampleId={sample.id}
               className="w-full h-full max-h-[50vh] lg:max-h-[90vh] object-contain"
-              style={{ colorScheme: "dark" }}
-            >
-              <source src={signedUrl} type={sample.mime_type} />
-            </video>
+            />
           )}
 
-          {isImage && (
+          {rendererComponent === "ImageViewer" && (
             <img
               src={signedUrl}
               alt={`Sample ${selectedIndex + 1}`}
@@ -318,7 +396,18 @@ export function SampleDetailModal({
             />
           )}
 
-          {!isVideo && !isImage && (
+          {rendererComponent === "DownloadLink" && (
+            <div className="flex items-center justify-center p-12">
+              <DownloadLink
+                href={signedUrl}
+                filename={sample.filename ?? "download"}
+                fileSizeBytes={0}
+                label={renderer?.label}
+              />
+            </div>
+          )}
+
+          {!rendererComponent && (
             <div className="flex items-center justify-center p-12">
               <span className="font-mono text-sm text-[var(--text-muted)]">
                 No preview available
@@ -328,7 +417,7 @@ export function SampleDetailModal({
         </div>
 
         {/* ------------------------------------------------------------- */}
-        {/* Right side -- Metadata JSON (40% desktop, full width mobile)   */}
+        {/* Right side -- Data Panels (40% desktop, full width mobile)     */}
         {/* ------------------------------------------------------------- */}
         <div className="lg:w-[40%] flex flex-col min-h-0 border-t lg:border-t-0 lg:border-l border-[var(--border-subtle)] bg-[var(--bg-secondary)]">
           {/* Header bar */}
@@ -360,7 +449,7 @@ export function SampleDetailModal({
             </button>
           </div>
 
-          {/* Scrollable metadata content */}
+          {/* Scrollable panel content */}
           <div className="flex-1 overflow-y-auto min-h-0">
             {/* Common fields summary */}
             {commonFields.length > 0 && (
@@ -376,11 +465,33 @@ export function SampleDetailModal({
               </div>
             )}
 
-            {/* Full JSON block with syntax highlighting */}
+            {/* Loading indicators */}
+            {(annotationLoading || specsLoading) && (
+              <div className="px-4 py-3 border-b border-[var(--border-subtle)]">
+                {annotationLoading && (
+                  <div className="flex items-center gap-2 font-mono text-xs text-[var(--text-muted)]">
+                    <span className="inline-block w-2 h-4 bg-[var(--accent-primary)] animate-[terminal-blink_1s_step-end_infinite]" />
+                    Fetching annotation...
+                  </div>
+                )}
+                {specsLoading && (
+                  <div className="flex items-center gap-2 font-mono text-xs text-[var(--text-muted)] mt-1">
+                    <span className="inline-block w-2 h-4 bg-[var(--accent-primary)] animate-[terminal-blink_1s_step-end_infinite]" />
+                    Fetching specs...
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Data panel tabs (or single panel content) */}
             <div className="p-4">
-              <pre className="font-mono text-xs leading-relaxed whitespace-pre-wrap break-words">
-                <code>{highlightJson(jsonString)}</code>
-              </pre>
+              {panels.length > 0 ? (
+                <DataPanelTabs panels={panels} sampleId={sample.id} apiBase={apiBase} />
+              ) : (
+                <div className="font-mono text-xs text-[var(--text-muted)] text-center py-6">
+                  No metadata available.
+                </div>
+              )}
             </div>
           </div>
 

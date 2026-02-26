@@ -1,0 +1,214 @@
+{
+  "project": "Data Catalog Sample Refactor",
+  "branchName": "ralph/catalog-sample-refactor",
+  "description": "Refactor data catalog samples from file uploads to external URL + metadata JSON pairs. Admin gets single add, bulk JSON paste, and CSV upload. Portal gets gallery grid with hover video preview and split detail view (media left, JSON right).",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Add media_url column to dataset_samples and update types",
+      "description": "As a developer, I need to update the schema and types to support external URLs as the primary sample source.",
+      "acceptanceCriteria": [
+        "Create supabase/migrations/003_simplify_samples.sql that adds media_url text column to dataset_samples",
+        "Copy existing storage_path values into media_url for any existing samples",
+        "Keep storage_path column as nullable for Supabase Storage fallback",
+        "Update src/types/data-catalog.ts — add media_url: string to DatasetSample interface",
+        "Mark duration_seconds, resolution_width, resolution_height, fps as optional (number | null) in the interface",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Update samples API for URL+JSON model",
+      "description": "As a developer, I need the samples API to accept media_url + metadata_json as the primary creation method.",
+      "acceptanceCriteria": [
+        "Update POST /api/admin/catalog/[id]/samples to accept body { media_url, metadata_json } — creates sample with media_url and metadata_json fields",
+        "If media_url provided: no storage_path needed, just insert DB record",
+        "Keep existing signed URL upload path working as fallback",
+        "Add POST /api/admin/catalog/[id]/samples/bulk endpoint accepting JSON array of { media_url, metadata_json } objects",
+        "Bulk endpoint batch-inserts in chunks of 100 rows for performance",
+        "Bulk endpoint returns { inserted: number, errors: Array<{ index: number, error: string }> }",
+        "Update GET /api/admin/catalog/[id]/samples to return media_url in response",
+        "Update DELETE — if sample has storage_path delete from storage, if only media_url just delete DB record",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Admin single sample add — URL + JSON form",
+      "description": "As an admin, I want to add a sample by pasting a media URL and metadata JSON.",
+      "acceptanceCriteria": [
+        "On dataset edit page /admin/catalog/[id], replace or augment the DatasetUploader with a new Add Sample section",
+        "Form has: Media URL text input (required, validates starts with http:// or https://) and Metadata JSON textarea (monospace font, optional, defaults to {})",
+        "JSON textarea shows red border and error message if invalid JSON is entered",
+        "Add Sample button calls POST /api/admin/catalog/[id]/samples with { media_url, metadata_json }",
+        "On success sample appears in samples list below without page reload",
+        "Keep existing Supabase Storage upload as a secondary Or upload a file option below the URL form",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Admin bulk import — JSON array paste",
+      "description": "As an admin, I want to paste a JSON array of URL+metadata pairs to add many samples at once.",
+      "acceptanceCriteria": [
+        "Bulk Import button or tab on the dataset edit page samples section",
+        "Opens expanded panel with large monospace textarea",
+        "Accepts JSON array: [{media_url: string, metadata: object}, ...]",
+        "Preview shows count: X samples to import before submitting",
+        "Validates all items have media_url and all metadata values are valid objects",
+        "Import All button calls POST /api/admin/catalog/[id]/samples/bulk",
+        "Progress indicator during import showing X of Y",
+        "On completion shows summary: Imported X samples, Y errors",
+        "Errors displayed with index and reason",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Admin bulk import — CSV upload",
+      "description": "As an admin, I want to upload a CSV to bulk-add samples.",
+      "acceptanceCriteria": [
+        "Upload CSV button alongside the JSON bulk import panel",
+        "Accepts CSV with columns: media_url (required), metadata_json (optional JSON string)",
+        "Parses CSV client-side using simple split or papaparse",
+        "Shows preview table with first 5 rows before import",
+        "Same batch import flow: progress indicator, summary, error display",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Admin samples grid display",
+      "description": "As an admin, I want to see all samples in a visual grid with thumbnails and metadata previews.",
+      "acceptanceCriteria": [
+        "Replace current file-list table on dataset edit page with visual grid of sample cards",
+        "Each card shows: video poster frame or image thumbnail, media URL truncated, first 2-3 metadata key-value pairs, delete button",
+        "For video URLs: render <video> element with preload=metadata to get poster frame",
+        "For image URLs: show image directly via <img> tag",
+        "Cards fit 3-4 per row on desktop, 2 on tablet, 1 on mobile",
+        "Total sample count displayed above grid",
+        "Delete button with confirmation removes sample",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Portal gallery grid with hover video preview",
+      "description": "As an approved lead, I want to see a grid of samples with auto-play on hover.",
+      "acceptanceCriteria": [
+        "Replace current portal dataset detail sample list at /portal/catalog/[id] with responsive gallery grid",
+        "Grid: 2 columns mobile, 3 tablet, 4 desktop",
+        "Each card shows thumbnail — video poster frame for videos, image preview for images",
+        "On hover: video auto-plays muted inline within the card",
+        "On mouse leave: video pauses and resets to start",
+        "Subcategory badge overlay on card if metadata_json.subcategory exists",
+        "Duration overlay on video cards if metadata_json.duration_seconds exists",
+        "Clicking card opens detail split view (US-008)",
+        "Smooth transitions: fade-in on load, slight scale on hover",
+        "For external URLs serve directly, for Supabase Storage use signed URLs",
+        "Use IntersectionObserver to only load videos when cards are in viewport",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Portal detail split view — media left, JSON right",
+      "description": "As an approved lead, I want to click a sample and see media on the left and metadata on the right.",
+      "acceptanceCriteria": [
+        "Clicking a gallery card opens a modal overlay with backdrop blur",
+        "Left side 60% width on desktop: full media player — video with controls autoplay muted, or full-size image",
+        "Right side 40% width: terminal-style JSON viewer matching existing SampleDataViewer aesthetic",
+        "JSON panel shows key-value pairs at top for common fields (subcategory, duration, resolution, fps, annotation_id) then full JSON below",
+        "Copy JSON button copies metadata_json to clipboard",
+        "Mobile: stacks vertically — media on top, metadata below",
+        "Close button and click-outside-to-close",
+        "Previous/Next arrows to browse samples without closing modal",
+        "Keyboard navigation: left/right arrows for prev/next, Escape to close",
+        "Dark terminal aesthetic consistent with portal",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Bulk ingest script for programmatic population",
+      "description": "As a developer, I need a script to populate samples from a JSON file at scale.",
+      "acceptanceCriteria": [
+        "Script at scripts/ingest-samples.ts runnable with npx tsx scripts/ingest-samples.ts --dataset <slug> --file <path>",
+        "Reads JSON file with array of objects",
+        "Supports simple format: { media_url, metadata }",
+        "Also supports Notion-style format: { type, category, subcategory, annotation_id, file_url, metadata } — maps file_url to media_url and merges subcategory+annotation_id into metadata_json",
+        "Uses Supabase admin client for batch inserts in chunks of 100",
+        "Idempotent: skips samples where media_url already exists for that dataset",
+        "Outputs progress: Inserted X of Y samples (Z skipped, W errors)",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Playwright E2E — admin sample management",
+      "description": "As QA, I need E2E tests for admin sample add and bulk import.",
+      "acceptanceCriteria": [
+        "Create tests/e2e/data-catalog-samples.spec.ts",
+        "Test: login as admin, navigate to /admin/catalog, click a dataset",
+        "Test: add single sample via URL+JSON form, verify it appears in grid",
+        "Test: open bulk import, paste JSON array with 2 samples, verify import succeeds",
+        "Test: delete a sample, verify removed from grid",
+        "Test: validation errors shown for bad URL and invalid JSON",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Playwright E2E — portal gallery and detail view",
+      "description": "As QA, I need E2E tests for the portal gallery and split detail view.",
+      "acceptanceCriteria": [
+        "Create tests/e2e/data-catalog-portal-gallery.spec.ts",
+        "Test: navigate to portal dataset with samples, verify gallery grid renders",
+        "Test: click sample card, verify split detail view opens with media and JSON panel",
+        "Test: verify Copy JSON button works",
+        "Test: test next/previous navigation between samples",
+        "Test: press Escape to close, verify return to gallery",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

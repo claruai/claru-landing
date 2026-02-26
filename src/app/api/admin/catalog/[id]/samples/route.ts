@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { verifyAdminToken } from "@/lib/admin-auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { generateSignedUploadUrl } from "@/lib/supabase/storage";
+import { getS3SignedUrl } from "@/lib/s3/presigner";
 
 /**
  * GET /api/admin/catalog/[id]/samples
@@ -36,7 +37,41 @@ export async function GET(
     );
   }
 
-  return NextResponse.json({ samples: samples ?? [] });
+  // Fetch format issue counts per sample for admin badge display
+  const sampleIds = (samples ?? []).map((s: { id: string }) => s.id);
+  let formatIssueCounts: Record<string, number> = {};
+
+  if (sampleIds.length > 0) {
+    const { data: issues } = await supabase
+      .from("format_issues")
+      .select("sample_id")
+      .in("sample_id", sampleIds);
+
+    if (issues) {
+      formatIssueCounts = issues.reduce<Record<string, number>>((acc, row: { sample_id: string }) => {
+        acc[row.sample_id] = (acc[row.sample_id] || 0) + 1;
+        return acc;
+      }, {});
+    }
+  }
+
+  // Presign S3 URLs so admin thumbnails and video previews work
+  const samplesWithUrls = await Promise.all(
+    (samples ?? []).map(async (sample: Record<string, unknown>) => {
+      if (typeof sample.s3_object_key === "string" && sample.s3_object_key) {
+        const signedUrl = await getS3SignedUrl(sample.s3_object_key);
+        if (signedUrl) {
+          return { ...sample, media_url: signedUrl };
+        }
+      }
+      return sample;
+    })
+  );
+
+  return NextResponse.json({
+    samples: samplesWithUrls,
+    formatIssueCounts,
+  });
 }
 
 /**

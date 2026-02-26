@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Search, X } from "lucide-react";
 import Link from "next/link";
 import type { Dataset, DatasetCategory } from "@/types/data-catalog";
@@ -35,19 +36,118 @@ function formatDuration(hours: number): string {
   return `${hours.toFixed(0)} hrs`;
 }
 
+/** Parse comma-separated tag string from URL into a clean string array. */
+function parseTagsParam(raw: string | null): string[] {
+  if (!raw) return [];
+  return raw
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
+}
+
+// ---------------------------------------------------------------------------
+// Tag Badge Config
+// ---------------------------------------------------------------------------
+
+const TAG_BADGE_CONFIG: Record<string, { label: string; className: string }> = {
+  annotated: {
+    label: "ANNOTATED",
+    className: "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]",
+  },
+  "video-only": {
+    label: "VIDEO",
+    className: "bg-[var(--bg-tertiary)] text-[var(--text-muted)]",
+  },
+  "game-specs": {
+    label: "GAME SPECS",
+    className: "bg-blue-500/10 text-blue-400",
+  },
+  "hand-tracking": {
+    label: "HAND TRACKING",
+    className: "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]",
+  },
+};
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 export function CatalogBrowser({ datasets, categories }: CatalogBrowserProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>(() =>
+    parseTagsParam(searchParams.get("tags"))
+  );
+
+  // -------------------------------------------------------------------------
+  // Derived: deduplicated, alphabetically sorted tags across all datasets
+  // -------------------------------------------------------------------------
+
+  const availableTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    for (const ds of datasets) {
+      if (ds.tags) {
+        for (const tag of ds.tags) {
+          tagSet.add(tag);
+        }
+      }
+    }
+    return Array.from(tagSet).sort((a, b) => a.localeCompare(b));
+  }, [datasets]);
+
+  // -------------------------------------------------------------------------
+  // URL sync: persist selected tags in ?tags= query param
+  // -------------------------------------------------------------------------
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (selectedTags.length > 0) {
+      params.set("tags", selectedTags.join(","));
+    } else {
+      params.delete("tags");
+    }
+
+    const newQuery = params.toString();
+    const currentQuery = searchParams.toString();
+
+    if (newQuery !== currentQuery) {
+      router.replace(`?${newQuery}`, { scroll: false });
+    }
+  }, [selectedTags, router, searchParams]);
+
+  // -------------------------------------------------------------------------
+  // Tag toggle handler
+  // -------------------------------------------------------------------------
+
+  const toggleTag = useCallback((tag: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  }, []);
+
+  const clearAllTags = useCallback(() => {
+    setSelectedTags([]);
+  }, []);
+
+  // -------------------------------------------------------------------------
+  // Filtering: category -> tags (AND) -> search
+  // -------------------------------------------------------------------------
 
   const filteredDatasets = useMemo(() => {
     let result = datasets;
 
     if (selectedCategory) {
       result = result.filter((ds) => ds.category?.id === selectedCategory);
+    }
+
+    if (selectedTags.length > 0) {
+      result = result.filter((ds) =>
+        selectedTags.every((tag) => ds.tags?.includes(tag))
+      );
     }
 
     if (searchQuery.trim()) {
@@ -62,7 +162,7 @@ export function CatalogBrowser({ datasets, categories }: CatalogBrowserProps) {
     }
 
     return result;
-  }, [datasets, searchQuery, selectedCategory]);
+  }, [datasets, searchQuery, selectedCategory, selectedTags]);
 
   return (
     <>
@@ -123,6 +223,39 @@ export function CatalogBrowser({ datasets, categories }: CatalogBrowserProps) {
             ))}
           </div>
         )}
+
+        {/* Tag pills */}
+        {availableTags.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            {availableTags.map((tag) => {
+              const isActive = selectedTags.includes(tag);
+              return (
+                <button
+                  key={tag}
+                  onClick={() => toggleTag(tag)}
+                  className={`rounded-full px-3 py-1.5 text-xs font-mono transition-colors duration-200 ${
+                    isActive
+                      ? "bg-[var(--bg-secondary)] text-[var(--accent-primary)] border border-[var(--accent-primary)]"
+                      : "bg-[var(--bg-secondary)] text-[var(--text-tertiary)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] hover:text-[var(--text-secondary)]"
+                  }`}
+                >
+                  #{tag}
+                </button>
+              );
+            })}
+
+            {/* Clear all tags button */}
+            {selectedTags.length > 0 && (
+              <button
+                onClick={clearAllTags}
+                className="rounded-full px-3 py-1.5 text-xs font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors duration-200 flex items-center gap-1"
+              >
+                <X className="h-3 w-3" strokeWidth={1.5} />
+                Clear tags
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Dataset Grid */}
@@ -165,6 +298,20 @@ export function CatalogBrowser({ datasets, categories }: CatalogBrowserProps) {
                 </p>
               )}
 
+              {/* Tags on card */}
+              {ds.tags && ds.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  {ds.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center px-1.5 py-0.5 rounded font-mono text-[10px] bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-muted)]"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
               {/* Stats */}
               <div className="flex items-center gap-4 pt-3 border-t border-[var(--border-subtle)] font-mono text-[10px] text-[var(--text-muted)]">
                 <span>
@@ -182,6 +329,24 @@ export function CatalogBrowser({ datasets, categories }: CatalogBrowserProps) {
                   </span>
                 )}
               </div>
+
+              {/* Tag badges */}
+              {ds.tags && ds.tags.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5 pt-2.5">
+                  {ds.tags.map((tag) => {
+                    const config = TAG_BADGE_CONFIG[tag];
+                    if (!config) return null;
+                    return (
+                      <span
+                        key={tag}
+                        className={`inline-flex items-center px-1.5 py-0.5 rounded font-mono text-[10px] uppercase ${config.className}`}
+                      >
+                        [{config.label}]
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
             </Link>
           ))}
         </div>
@@ -199,12 +364,13 @@ export function CatalogBrowser({ datasets, categories }: CatalogBrowserProps) {
           ) : (
             <>
               <p className="text-sm font-mono text-[var(--text-muted)] mb-1">
-                No datasets match your search.
+                No datasets match the selected filters.
               </p>
               <button
                 onClick={() => {
                   setSearchQuery("");
                   setSelectedCategory(null);
+                  setSelectedTags([]);
                 }}
                 className="mt-3 text-xs font-mono text-[var(--accent-primary)] hover:underline"
               >

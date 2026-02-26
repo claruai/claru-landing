@@ -1,8 +1,168 @@
-# Ralph Progress Log - Catalog Sample Refactor
+# Ralph Progress Log - S3 Data Catalog Integration
 
 ## Session Start
-Branch: ralph/catalog-sample-refactor
-Stories: US-001 through US-011
+Branch: ralph/s3-data-catalog
+Stories: US-001 through US-025
 
 ---
+
+## US-001 - S3 Presigner Utility (DONE)
+- Created `src/lib/s3/presigner.ts` with `getS3SignedUrl(objectKey, expiresIn?)` function
+- Followed the same patterns as `src/lib/supabase/storage.ts`: default 3600s expiry, returns `Promise<string | null>`, logs errors with `[s3]` prefix
+- Uses `@aws-sdk/client-s3` (`GetObjectCommand`) and `@aws-sdk/s3-request-presigner` (`getSignedUrl`)
+- Reads `S3_BUCKET_NAME` and `AWS_REGION` from `process.env` at call time (not module scope) for serverless compatibility
+- AWS SDK handles URL-encoding of keys with spaces/special characters natively; no manual encoding needed
+- Returns null with console.error on failure (missing env var or SDK error)
+- Typecheck passes cleanly
+
+### Learnings
+- AWS SDK packages (`@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner`) were not in package.json despite story notes; had to install them
+- The `getSignedUrl` export from `@aws-sdk/s3-request-presigner` has the same name as the Supabase storage helper in `storage.ts`; the S3 import is scoped to its own module so no conflict
+- S3Client region config reads from `AWS_REGION` env var automatically, but we pass it explicitly for clarity
+
+## US-004 - Database Migration: Add tags and S3 columns (DONE)
+- Created `supabase/migrations/004_s3_integration.sql` with idempotent `ADD COLUMN IF NOT EXISTS`
+- Added `tags text[] DEFAULT '{}'` to datasets table
+- Added `s3_object_key`, `s3_annotation_key`, `s3_specs_key` (nullable text) to dataset_samples table
+- Updated `src/types/data-catalog.ts` with matching TypeScript types
+- Typecheck passes cleanly
+
+### Learnings
+- Used `ADD COLUMN IF NOT EXISTS` for idempotent migration (safe to re-run)
+- Nullable columns are backward-compatible — existing samples keep null for S3 fields
+- TypeScript types must match exactly: `string | null` for nullable columns, `string[]` for text arrays
+
+## US-005 - Zod Schemas for Polymorphic Annotation Metadata (DONE)
+- Created `src/lib/schemas/annotation-metadata.ts` with all schemas
+- Three generalData shapes: EgocentricShortForm ({mainCategory, subcategory}), EgocentricLongForm ({flow, activities[]}), VideoGame ({selectedGame})
+- RekVisionMetadataSchema for inline CSV metadata (domain, task, technical_specs, hands, environment)
+- ChunkingItemSchema for timestamped video segments
+- `parseAnnotationMetadata(raw)` returns tagged union `{ _type: 'short_form'|'long_form'|'game'|'unknown', data }`
+- All schemas use `.passthrough()` to preserve unknown fields
+
+### Learnings
+- `.passthrough()` is critical for extensibility — unknown fields are preserved instead of stripped
+- Tagged union pattern `{ _type, data }` makes downstream pattern matching clean
+- Zod v4 (used in this project) has slightly different API from v3 docs online
+
+## US-002 - S3 Presigned URL API Route (DONE)
+- Created `src/app/api/portal/s3-signed-url/route.ts` with POST handler
+- Zod-validated request body, Supabase session auth, path traversal rejection
+- Logs objectKey + user ID + timestamp for audit trail
+- Returns 500 with generic message on AWS SDK failure
+
+### Learnings
+- Existing middleware at `/api/portal/*` provides first layer of auth; route-level check is defense-in-depth
+- The US-002 agent also re-created presigner.ts (already existed from US-001) — worktree agents can't see the feature branch head if they fork from an older commit
+
+## US-003 - S3 Annotation Fetch Utility and API Route (DONE)
+- Created `src/lib/s3/annotation.ts` with `fetchAnnotationJson(objectKey)` — presigned URL + fetch + JSON parse with 10s timeout
+- Created `src/app/api/portal/s3-annotation/route.ts` with same auth/validation pattern as US-002
+- AbortController pattern for timeout, returns null on all failure paths
+
+### Learnings
+- AbortController must be cleaned up in `finally` block to prevent timer leaks
+- Annotation API returns 502 (not 500) for upstream S3 failures — clearer error semantics
+
+## US-006 - Update Dataset Detail Page for S3 Presigned URLs (DONE)
+- Updated signed URL resolution in `src/app/portal/catalog/[id]/page.tsx`
+- New priority: s3_object_key → media_url → storage_path → empty string
+- Existing null coercion (`?? ""`) handles null returns from `getS3SignedUrl`
+- No Supabase query changes needed — `*` selector picks up new columns automatically
+
+## US-010 - Tag-Based Filtering in CatalogBrowser (DONE)
+- Added `selectedTags` state with URL sync via `useSearchParams`/`router.replace`
+- AND-based filter: dataset must have ALL selected tags
+- Tag pills with `#` prefix, accent border when active, clear-all button
+- Wrapped CatalogBrowser in Suspense (required by useSearchParams)
+- Fixed duplicate `tags` field in data-catalog.ts (US-004 merge artifact)
+
+### Learnings
+- `useSearchParams()` requires parent Suspense boundary in Next.js App Router
+- URL sync uses `router.replace` with `scroll: false` to prevent scroll jumps
+
+## US-012 - CSV Ingestion Script (DONE)
+- Created `scripts/ingest-csv.ts` (976 lines) — runs with `npx tsx scripts/ingest-csv.ts`
+- Custom CSV parser handles double-double-quote escaping for inline JSON
+- Brace-balancing merge for split JSON columns (metadata + chunking)
+- Outputs 5 JSON files to `scripts/output/`: 72 total records across 5 groups
+- `--dry-run` flag for summary-only mode
+
+### Learnings
+- CSV header detection needs heuristic (2+ keyword matches in short cells) to avoid false positives from URLs containing "annotation"
+- No external CSV lib needed — custom parser handles the edge cases specific to this CSV format
+- Brace imbalance where CSV split cuts mid-JSON-object requires counting `{`/`}` and auto-closing
+
+## US-007 - MetaTable Component with FIELD_LABELS (DONE)
+- Created `src/app/portal/catalog/[id]/MetaTable.tsx` (554 lines)
+- FIELD_LABELS map with formatters for all known fields (domain, task, specs, hands, generalData, etc.)
+- Tiered rendering: Tier 1 (known fields structured) + Tier 2 (unknown fields collapsible raw JSON)
+- Chunking array formatted as `[0s-35s] label (confidence)` per line
+- `getNestedValue()` helper for dot-notation paths
+
+### Learnings
+- Percentage formatter needs to detect 0-1 range vs already-percentage values
+- Section grouping from field path prefixes provides clean visual organization
+
+## US-009 - MIME-to-Renderer Registry and DownloadLink (DONE)
+- Created `src/lib/file-renderers.ts` with FILE_RENDERERS registry + wildcard fallback
+- Created `src/app/portal/catalog/[id]/DownloadLink.tsx` — minimal download component
+- Refactored SampleDetailModal to use registry instead of inline isVideoUrl/isImageUrl
+- Exact match → wildcard prefix match → null
+
+## US-011 - Metadata Completeness Badges on Dataset Cards (DONE)
+- Added TAG_BADGE_CONFIG map to CatalogBrowser.tsx
+- Badges: [ANNOTATED] green, [VIDEO] muted, [GAME SPECS] blue, [HAND TRACKING] green
+- Monospace, uppercase, text-[10px], in card footer
+
+### Learnings
+- Multiple agents adding `tags` field to data-catalog.ts caused duplicate — need to check for existing fields before adding
+
+## US-013 - Update Bulk Import API for S3 Fields (DONE)
+- Updated `src/app/api/admin/catalog/[id]/samples/bulk/route.ts`
+- Added s3_object_key, s3_annotation_key, s3_specs_key as optional fields
+- MIME type resolution: explicit → guess from s3_object_key → guess from media_url → fallback
+- Backward compatible — existing imports unchanged
+
+## US-014 - VideoPlayer Format Fallback Message (DONE)
+- Rebuilt `src/app/portal/catalog/[id]/VideoPlayer.tsx` with format detection
+- 5s canplay timeout + onerror immediate detection → FormatFallback panel
+- Terminal-styled fallback with '// FORMAT NOT SUPPORTED' header and Download button
+- Updated SampleDetailModal to use VideoPlayer component via MIME registry
+
+### Learnings
+- US-009 and US-014 both modify SampleDetailModal — cherry-pick conflict resolved by keeping MIME registry + using VideoPlayer component for video rendering
+- State reset on `src` change needed when navigating between samples
+
+## US-008 - Integrate MetaTable and Annotation Fetch into SampleDetailModal (DONE)
+- Replaced raw JSON viewer with MetaTable component in SampleDetailModal right panel
+- Added annotation fetch useEffect triggered on selectedIndex change
+- Terminal blinking cursor loading state while fetching
+- Copy JSON merges metadata + annotation data
+- Cancellation pattern to prevent stale updates when navigating between samples
+
+## US-015 - Format Issue Tracking API and Admin Badge (DONE)
+- Created migration 005_format_issues.sql with format_issues table
+- API route at /api/portal/format-issue for reporting issues
+- VideoPlayer posts to endpoint when fallback triggers (fire-and-forget, deduped)
+- Admin sample list shows orange warning badge with count
+
+## US-016 - Annotation JSON Caching in Supabase (DONE)
+- Rewrote s3-annotation route with cache-check-before-S3-fetch pattern
+- Cache key: `_cached_at` timestamp in metadata_json, validated against s3_annotation_key for staleness
+- Background write via admin client (fire-and-forget, non-blocking response)
+- Accepts optional `sampleId` in request body alongside `objectKey`
+
+## US-017 - Data Panel Registry and Tabs Container (DONE)
+- Created DataPanels/ directory with registry pattern
+- PANEL_REGISTRY maps panel types to components (annotation → MetaTable, game_specs → placeholder)
+- DataPanelTabs: terminal-styled tab bar with ARIA attributes
+- AnnotationPanelWrapper adapts DataPanelProps to MetaTable props
+
+## US-020 - Admin CSV Import — Upload and Parse (DONE)
+- Created /admin/catalog/import page with papaparse CSV parsing
+- Terminal-styled dropzone with drag-and-drop and click-to-select
+- Section detection heuristic for multi-section CSVs
+- Preview tables showing first 5 rows per section
+- Added [import csv] link to AdminCatalogHeader
 

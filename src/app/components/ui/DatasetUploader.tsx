@@ -3,14 +3,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Upload,
-  Trash2,
   Film,
   Image as ImageIcon,
   FileWarning,
   Loader2,
   X,
+  AlertTriangle,
 } from "lucide-react";
 import type { DatasetSample } from "@/types/data-catalog";
+import { SampleDetailModal } from "@/app/portal/catalog/[id]/SampleDetailModal";
+import type { SampleWithUrl } from "@/app/portal/catalog/[id]/SampleGallery";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -24,11 +26,16 @@ interface DatasetUploaderProps {
 
 interface SampleCardProps {
   sample: DatasetSample;
+  index: number;
   isDeleting: boolean;
   isConfirmingDelete: boolean;
   onRequestDelete: () => void;
   onConfirmDelete: () => void;
   onCancelDelete: () => void;
+  /** Number of format compatibility issues reported for this sample */
+  formatIssueCount: number;
+  /** Called when the card is clicked to open the detail modal */
+  onSelect: (index: number) => void;
 }
 
 interface UploadingFile {
@@ -116,6 +123,8 @@ export default function DatasetUploader({ datasetId, refreshKey }: DatasetUpload
   const [uploading, setUploading] = useState<UploadingFile[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+  const [formatIssueCounts, setFormatIssueCounts] = useState<Record<string, number>>({});
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // -------------------------------------------------------------------------
@@ -128,6 +137,7 @@ export default function DatasetUploader({ datasetId, refreshKey }: DatasetUpload
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
       setSamples(data.samples ?? []);
+      setFormatIssueCounts(data.formatIssueCounts ?? {});
     } catch (err) {
       console.error("[DatasetUploader] Failed to fetch samples:", err);
     } finally {
@@ -494,20 +504,40 @@ export default function DatasetUploader({ datasetId, refreshKey }: DatasetUpload
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {samples.map((sample) => (
+            {samples.map((sample, index) => (
               <SampleCard
                 key={sample.id}
                 sample={sample}
+                index={index}
                 isDeleting={deletingIds.has(sample.id)}
                 isConfirmingDelete={confirmDeleteId === sample.id}
                 onRequestDelete={() => setConfirmDeleteId(sample.id)}
                 onConfirmDelete={() => deleteSample(sample.id)}
                 onCancelDelete={() => setConfirmDeleteId(null)}
+                formatIssueCount={formatIssueCounts[sample.id] ?? 0}
+                onSelect={setSelectedIndex}
               />
             ))}
           </div>
         )}
       </div>
+
+      {/* Detail modal */}
+      {selectedIndex !== null && (() => {
+        const samplesWithUrls: SampleWithUrl[] = samples.map((s) => ({
+          sample: s,
+          signedUrl: s.media_url || "",
+        }));
+        return (
+          <SampleDetailModal
+            samples={samplesWithUrls}
+            selectedIndex={selectedIndex}
+            onClose={() => setSelectedIndex(null)}
+            onNavigate={setSelectedIndex}
+            annotationEndpoint="/api/admin/s3-annotation"
+          />
+        );
+      })()}
     </div>
   );
 }
@@ -518,21 +548,54 @@ export default function DatasetUploader({ datasetId, refreshKey }: DatasetUpload
 
 function SampleCard({
   sample,
+  index,
   isDeleting,
   isConfirmingDelete,
   onRequestDelete,
   onConfirmDelete,
   onCancelDelete,
+  formatIssueCount,
+  onSelect,
 }: SampleCardProps) {
   const mediaUrl = sample.media_url || "";
   const isSampleVideo = isVideoUrl(mediaUrl, sample.mime_type);
   const metadataEntries = getMetadataPreview(sample.metadata_json);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isInView, setIsInView] = useState(false);
+
+  // Lazy-load: only set video src when card enters the viewport vicinity
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true);
+          observer.unobserve(card);
+        }
+      },
+      { rootMargin: "200px 0px" }
+    );
+
+    observer.observe(card);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <div className="group relative rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] overflow-hidden transition-colors hover:border-[var(--border-medium)]">
+    <div
+      ref={cardRef}
+      className="group relative rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] overflow-hidden transition-colors hover:border-[var(--border-medium)] cursor-pointer"
+      onClick={() => onSelect(index)}
+    >
       {/* Thumbnail / poster */}
       <div className="relative aspect-video bg-[var(--bg-tertiary)] flex items-center justify-center overflow-hidden">
-        {mediaUrl ? (
+        {/* Shimmer placeholder while not in view */}
+        {!isInView && (
+          <div className="absolute inset-0 animate-pulse bg-[var(--bg-tertiary)]" />
+        )}
+
+        {mediaUrl && isInView ? (
           isSampleVideo ? (
             <video
               src={mediaUrl}
@@ -550,7 +613,7 @@ function SampleCard({
               className="absolute inset-0 w-full h-full object-cover"
             />
           )
-        ) : isSampleVideo ? (
+        ) : !isInView ? null : isSampleVideo ? (
           <Film className="w-8 h-8 text-[var(--text-muted)]" />
         ) : (
           <ImageIcon className="w-8 h-8 text-[var(--text-muted)]" />
@@ -561,8 +624,19 @@ function SampleCard({
           {isSampleVideo ? "video" : "image"}
         </span>
 
+        {/* Format issue warning badge */}
+        {formatIssueCount > 0 && (
+          <span
+            className="absolute bottom-2 left-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono bg-orange-500/20 border border-orange-500/40 text-orange-400 backdrop-blur-sm cursor-default"
+            title={`${formatIssueCount} format issue${formatIssueCount !== 1 ? "s" : ""} reported`}
+          >
+            <AlertTriangle className="w-3 h-3" />
+            {formatIssueCount}
+          </span>
+        )}
+
         {/* Delete button */}
-        <div className="absolute top-1.5 right-1.5">
+        <div className="absolute top-1.5 right-1.5" onClick={(e) => e.stopPropagation()}>
           {isConfirmingDelete ? (
             <div className="flex items-center gap-1 rounded bg-black/80 backdrop-blur-sm p-1">
               <button

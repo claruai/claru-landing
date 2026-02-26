@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
@@ -49,9 +50,11 @@ async function getCatalogData() {
         description,
         type,
         subcategory,
+        tags,
         total_samples,
         total_duration_hours,
         thumbnail_url,
+        tags,
         is_published,
         category_id,
         dataset_categories ( id, name, slug )
@@ -127,10 +130,12 @@ export default async function PortalCatalogPage() {
       </section>
 
       {/* Client-side browsing UI (search, filter, grid) */}
-      <CatalogBrowser
-        datasets={datasets}
-        categories={categories}
-      />
+      <Suspense>
+        <CatalogBrowser
+          datasets={datasets}
+          categories={categories}
+        />
+      </Suspense>
     </div>
   );
 }

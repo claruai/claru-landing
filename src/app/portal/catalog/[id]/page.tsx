@@ -4,6 +4,7 @@ import { ArrowLeft, Clock, MapPin, Database, Film } from "lucide-react";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getSignedUrl } from "@/lib/supabase/storage";
+import { getS3SignedUrl } from "@/lib/s3/presigner";
 import type { Dataset, DatasetCategory, DatasetSample } from "@/types/data-catalog";
 
 import { SampleGallery } from "./SampleGallery";
@@ -98,15 +99,20 @@ export default async function DatasetDetailPage({
 
   const samplesList = samples ?? [];
 
-  // Generate signed URLs for samples that use Supabase Storage;
-  // for samples with media_url, use that directly.
+  // Generate signed URLs for each sample. Resolution order:
+  // 1. s3_object_key  -> AWS S3 presigned URL (primary for new uploads)
+  // 2. media_url      -> direct URL (legacy / external hosting)
+  // 3. storage_path   -> Supabase Storage signed URL (legacy)
+  // 4. fallback       -> empty string (no preview available)
   const signedUrls = await Promise.all(
     samplesList.map((sample) =>
-      sample.media_url
-        ? Promise.resolve(sample.media_url)
-        : sample.storage_path
-          ? getSignedUrl(sample.storage_path)
-          : Promise.resolve("")
+      sample.s3_object_key
+        ? getS3SignedUrl(sample.s3_object_key)
+        : sample.media_url
+          ? Promise.resolve(sample.media_url)
+          : sample.storage_path
+            ? getSignedUrl(sample.storage_path)
+            : Promise.resolve("")
     )
   );
 

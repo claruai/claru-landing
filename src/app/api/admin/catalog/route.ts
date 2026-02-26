@@ -4,6 +4,36 @@ import { verifyAdminToken } from "@/lib/admin-auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 /**
+ * GET /api/admin/catalog
+ *
+ * Returns all datasets (id, name, slug) for use in selectors.
+ */
+export async function GET() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("admin-token");
+  if (!token?.value || !(await verifyAdminToken(token.value))) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const supabase = createSupabaseAdminClient();
+
+  const { data, error } = await supabase
+    .from("datasets")
+    .select("id, name, slug")
+    .order("name");
+
+  if (error) {
+    console.error("[GET /api/admin/catalog]", error);
+    return NextResponse.json(
+      { error: error.message ?? "Fetch failed" },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json({ datasets: data });
+}
+
+/**
  * POST /api/admin/catalog
  *
  * Creates a new dataset in the catalog.

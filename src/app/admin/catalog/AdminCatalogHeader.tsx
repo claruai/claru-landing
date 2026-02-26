@@ -35,6 +35,12 @@ export default function AdminCatalogHeader() {
 
       <div className="flex items-center gap-4">
         <Link
+          href="/admin/catalog/import"
+          className="px-3 py-1.5 text-xs font-mono rounded-md bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/20 transition-colors duration-150"
+        >
+          [import csv]
+        </Link>
+        <Link
           href="/admin/catalog/new"
           className="px-3 py-1.5 text-xs font-mono rounded-md bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/20 transition-colors duration-150"
         >

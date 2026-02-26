@@ -34,6 +34,7 @@ export interface Dataset {
   description: string;
   type: DatasetType;
   subcategory: string;
+  tags: string[];
   total_samples: number;
   total_duration_hours: number;
   geographic_coverage: string;
@@ -58,6 +59,9 @@ export interface DatasetSample {
   fps: number | null;
   metadata_json: Record<string, unknown>;
   annotation_id: string;
+  s3_object_key: string | null;
+  s3_annotation_key: string | null;
+  s3_specs_key: string | null;
   created_at: string;
 }
 
