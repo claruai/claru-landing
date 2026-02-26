@@ -142,8 +142,8 @@ function StepForm({ onSuccess }: { onSuccess: (data: LeadData) => void }) {
 
         {/* Project Description */}
         <div className="space-y-1.5">
-          <label className="block font-mono text-sm text-[var(--accent-primary)]">
-            $ project_description{" "}
+          <label className="flex flex-wrap gap-x-1.5 font-mono text-sm text-[var(--accent-primary)]">
+            <span>$ project_description</span>
             <span className="text-[var(--text-muted)]">(optional)</span>
           </label>
           <textarea
