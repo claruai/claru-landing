@@ -37,7 +37,7 @@ export default function Button({
 
     if (href) {
       return (
-        <a href={href} className={ctaClasses}>
+        <a href={href} className={ctaClasses} onClick={onClick} rel="noopener noreferrer">
           <span className="relative z-10">{children}</span>
         </a>
       );
@@ -94,6 +94,8 @@ export default function Button({
       <motion.a
         href={href}
         className={allClasses}
+        onClick={onClick}
+        rel="noopener noreferrer"
         whileHover={{ y: -2, boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)" }}
         whileTap={{ y: 0 }}
       >

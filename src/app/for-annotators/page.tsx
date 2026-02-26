@@ -18,6 +18,7 @@ import Header from "../components/layout/Header";
 import Footer from "../components/sections/Footer";
 import Button from "../components/ui/Button";
 import FAQItem from "../components/ui/FAQItem";
+import { APP_URLS } from "../lib/constants";
 import FadeIn from "../components/effects/FadeIn";
 import TextScramble from "../components/effects/TextScramble";
 
@@ -410,14 +411,14 @@ export default function WorkWithUsPage() {
               </p>
 
               <div className="flex flex-wrap gap-4">
-                <Button href="https://app.claru.ai/signup" variant="cta-glitch" size="lg">
+                <Button href={APP_URLS.signUp} variant="cta-glitch" size="lg">
                   Apply Now <ArrowRight className="w-4 h-4" />
-                </Button>
-                <Button href="https://app.claru.ai/auth/signin" variant="secondary" size="lg">
-                  Sign In
                 </Button>
                 <Button href="/jobs" variant="secondary" size="lg">
                   Browse Open Roles
+                </Button>
+                <Button href={APP_URLS.signIn} variant="secondary" size="lg">
+                  Sign In
                 </Button>
               </div>
             </motion.div>
@@ -543,7 +544,7 @@ export default function WorkWithUsPage() {
                           {category.description}
                         </p>
                         <a
-                          href="https://app.claru.ai/signup"
+                          href={APP_URLS.signUp}
                           className="inline-flex items-center gap-1.5 font-mono text-sm text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] transition-colors group/link"
                         >
                           Apply
@@ -647,7 +648,7 @@ export default function WorkWithUsPage() {
                           {category.description}
                         </p>
                         <a
-                          href="https://app.claru.ai/signup"
+                          href={APP_URLS.signUp}
                           className="inline-flex items-center gap-1.5 font-mono text-sm text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] transition-colors group/link"
                         >
                           Apply
@@ -793,7 +794,7 @@ export default function WorkWithUsPage() {
             {/* Bottom CTA */}
             <FadeIn delay={0.4}>
               <div className="text-center mt-14">
-                <Button href="https://app.claru.ai/signup" variant="cta-glitch" size="lg">
+                <Button href={APP_URLS.signUp} variant="cta-glitch" size="lg">
                   Apply Now <ArrowRight className="w-4 h-4" />
                 </Button>
               </div>

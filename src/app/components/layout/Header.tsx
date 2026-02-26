@@ -1,21 +1,25 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Logo from "../ui/Logo";
 import Button from "../ui/Button";
+import { APP_URLS } from "../../lib/constants";
 
 const navLinks = [
   { href: "/data", label: "Training Data" },
   { href: "/labeling", label: "Expert Labeling" },
   { href: "/case-studies", label: "Case Studies" },
-  { href: "/work-with-us", label: "Work With Us" },
+  { href: "/for-annotators", label: "For Annotators" },
 ];
 
 export default function Header({ opaque = false }: { opaque?: boolean }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const isAnnotatorsPage = pathname === "/for-annotators";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -59,14 +63,16 @@ export default function Header({ opaque = false }: { opaque?: boolean }) {
                   <span className="absolute -bottom-1 left-0 w-0 h-px bg-[var(--text-primary)] transition-all duration-300 group-hover:w-full" />
                 </Link>
               ))}
-              <Button
-                href="https://app.claru.ai/auth/signin"
-                variant="ghost"
-                size="sm"
-                className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-              >
-                Sign In
-              </Button>
+              {isAnnotatorsPage && (
+                <Button
+                  href={APP_URLS.signIn}
+                  variant="ghost"
+                  size="sm"
+                  className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                >
+                  Sign In
+                </Button>
+              )}
               <Button href="/#contact" variant="cta-glitch" size="sm">
                 Book a Call
               </Button>
@@ -131,27 +137,29 @@ export default function Header({ opaque = false }: { opaque?: boolean }) {
                   </Link>
                 </motion.div>
               ))}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ delay: 0.3 }}
-              >
-                <Button
-                  href="https://app.claru.ai/auth/signin"
-                  variant="ghost"
-                  size="lg"
-                  className="text-[var(--text-primary)]"
-                  onClick={() => setIsMobileMenuOpen(false)}
+              {isAnnotatorsPage && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{ delay: 0.2 }}
                 >
-                  Sign In
-                </Button>
-              </motion.div>
+                  <Button
+                    href={APP_URLS.signIn}
+                    variant="ghost"
+                    size="lg"
+                    className="text-[var(--text-primary)]"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Sign In
+                  </Button>
+                </motion.div>
+              )}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
-                transition={{ delay: 0.3 }}
+                transition={{ delay: 0.25 }}
               >
                 <Button
                   href="/#contact"
