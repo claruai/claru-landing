@@ -187,6 +187,139 @@ export async function POST(
   return NextResponse.json({ inserted, errors }, { status: 201 });
 }
 
+/**
+ * PATCH /api/admin/catalog/[id]/samples/bulk
+ *
+ * Batch-updates the same field(s) across multiple samples.
+ *
+ * Body: {
+ *   sample_ids: string[],
+ *   updates: { s3_object_key?, s3_annotation_key?, s3_specs_key?, metadata_json?, media_url? }
+ * }
+ */
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("admin-token");
+  if (!token?.value || !(await verifyAdminToken(token.value))) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id: datasetId } = await params;
+
+  let body: { sample_ids?: unknown; updates?: unknown };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  // Validate sample_ids
+  if (!Array.isArray(body.sample_ids) || body.sample_ids.length === 0) {
+    return NextResponse.json(
+      { error: "sample_ids must be a non-empty array" },
+      { status: 400 }
+    );
+  }
+
+  const sampleIds = body.sample_ids as string[];
+
+  // Validate updates
+  if (!body.updates || typeof body.updates !== "object") {
+    return NextResponse.json(
+      { error: "updates must be an object" },
+      { status: 400 }
+    );
+  }
+
+  const allowedFields = [
+    "s3_object_key",
+    "s3_annotation_key",
+    "s3_specs_key",
+    "metadata_json",
+    "media_url",
+  ];
+
+  const updates: Record<string, unknown> = {};
+  const rawUpdates = body.updates as Record<string, unknown>;
+  for (const field of allowedFields) {
+    if (field in rawUpdates) {
+      updates[field] = rawUpdates[field];
+    }
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json(
+      { error: "updates must contain at least one field" },
+      { status: 400 }
+    );
+  }
+
+  // Validate metadata_json is valid JSON if provided
+  if ("metadata_json" in updates && updates.metadata_json != null) {
+    if (typeof updates.metadata_json === "string") {
+      try {
+        JSON.parse(updates.metadata_json);
+      } catch {
+        return NextResponse.json(
+          { error: "metadata_json must be valid JSON" },
+          { status: 400 }
+        );
+      }
+    }
+  }
+
+  const supabase = createSupabaseAdminClient();
+
+  // Verify all sample_ids belong to this dataset
+  const { data: existing, error: fetchError } = await supabase
+    .from("dataset_samples")
+    .select("id")
+    .eq("dataset_id", datasetId)
+    .in("id", sampleIds);
+
+  if (fetchError) {
+    console.error("[PATCH /api/admin/catalog/[id]/samples/bulk] fetch error", fetchError);
+    return NextResponse.json(
+      { error: "Failed to verify samples" },
+      { status: 500 }
+    );
+  }
+
+  const existingIds = new Set((existing ?? []).map((s) => s.id));
+  const errors: { id: string; message: string }[] = [];
+
+  for (const id of sampleIds) {
+    if (!existingIds.has(id)) {
+      errors.push({ id, message: "Sample not found in this dataset" });
+    }
+  }
+
+  const validIds = sampleIds.filter((id) => existingIds.has(id));
+
+  let updated = 0;
+  if (validIds.length > 0) {
+    const { count, error: updateError } = await supabase
+      .from("dataset_samples")
+      .update(updates)
+      .eq("dataset_id", datasetId)
+      .in("id", validIds);
+
+    if (updateError) {
+      console.error("[PATCH /api/admin/catalog/[id]/samples/bulk] update error", updateError);
+      for (const id of validIds) {
+        errors.push({ id, message: updateError.message });
+      }
+    } else {
+      updated = count ?? validIds.length;
+    }
+  }
+
+  return NextResponse.json({ updated, errors });
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
