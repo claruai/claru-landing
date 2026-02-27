@@ -41,6 +41,10 @@ export interface SampleDetailModalProps {
   /** API base prefix for signed-URL requests (portal panels vs admin panels).
    *  Derived automatically from annotationEndpoint when not provided. */
   apiBase?: string;
+  /** Whether the dataset has enrichment visibility enabled for clients. */
+  showEnrichment?: boolean;
+  /** Whether the viewer is admin (always shows enrichment regardless of toggle). */
+  isAdmin?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -81,6 +85,8 @@ export function SampleDetailModal({
   onNavigate,
   annotationEndpoint = "/api/portal/s3-annotation",
   apiBase: apiBaseProp,
+  showEnrichment = false,
+  isAdmin = false,
 }: SampleDetailModalProps) {
   // Derive apiBase from annotationEndpoint when the caller does not supply it explicitly
   const apiBase =
@@ -155,8 +161,20 @@ export function SampleDetailModal({
       }
     }
 
+    // Include enrichment panel when enrichment_json is non-empty
+    const enrichment = sample.enrichment_json;
+    const hasEnrichment =
+      enrichment && typeof enrichment === "object" && Object.keys(enrichment).length > 0;
+
+    if (hasEnrichment && (isAdmin || showEnrichment)) {
+      // Admin sees "enrichment" panel type (label: "Enrichment")
+      // Portal sees "additional_metadata" panel type (label: "Additional Metadata")
+      const panelType = isAdmin ? "enrichment" : "additional_metadata";
+      result.push({ type: panelType, data: enrichment });
+    }
+
     return result;
-  }, [metadata, annotationData, specsData, sample.s3_specs_key, specsLoading]);
+  }, [metadata, annotationData, specsData, sample.s3_specs_key, specsLoading, sample.enrichment_json, isAdmin, showEnrichment]);
 
   // -------------------------------------------------------------------------
   // Merged JSON for copy button -- combines all panel data

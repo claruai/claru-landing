@@ -131,7 +131,7 @@
         "Run code-reviewer agent to verify panel registration and conditional visibility logic"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "Read src/app/portal/catalog/[id]/SampleDetailModal.tsx for the DataPanelTabs system. Read DataPanelRegistry if it exists, or look at how existing panels (Annotation, Game Specs, Data Files) are registered. The SampleDetailModal already accepts annotationEndpoint and apiBase props for context — add enrichment_json and showEnrichment props. Use frontend-expert agent."
     },
     {

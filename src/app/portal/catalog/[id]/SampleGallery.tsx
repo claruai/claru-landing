@@ -21,13 +21,14 @@ export interface SampleWithUrl {
 
 interface SampleGalleryProps {
   samplesWithUrls: SampleWithUrl[];
+  showEnrichment?: boolean;
 }
 
 // ---------------------------------------------------------------------------
 // SampleGallery -- Main exported grid component
 // ---------------------------------------------------------------------------
 
-export function SampleGallery({ samplesWithUrls }: SampleGalleryProps) {
+export function SampleGallery({ samplesWithUrls, showEnrichment = false }: SampleGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const handleSelect = useCallback((index: number) => {
@@ -64,6 +65,7 @@ export function SampleGallery({ samplesWithUrls }: SampleGalleryProps) {
           selectedIndex={selectedIndex}
           onClose={handleClose}
           onNavigate={handleNavigate}
+          showEnrichment={showEnrichment}
         />
       )}
     </div>
