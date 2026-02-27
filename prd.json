@@ -258,7 +258,7 @@
         "Run code-reviewer agent to verify pagination, selection state, and component integration"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "notes": "Use frontend-expert agent. This is the main samples display component. It integrates SampleEditPanel (US-010) and BatchEditModal (US-011). The paginated GET API is from US-005. Read existing DatasetUploader.tsx for reference on how samples are currently displayed."
     },
     {
