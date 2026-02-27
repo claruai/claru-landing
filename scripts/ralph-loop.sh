@@ -136,8 +136,9 @@ run_iteration() {
     # Run Claude Code with the prompt
     # --dangerously-skip-permissions allows autonomous operation
     # --print outputs to stdout for capture
+    # Unset CLAUDECODE to allow spawning from within a Claude Code session
     local output
-    output=$(claude --dangerously-skip-permissions --print "$prompt" 2>&1) || true
+    output=$(unset CLAUDECODE && claude --dangerously-skip-permissions --print "$prompt" 2>&1) || true
 
     echo "$output"
 

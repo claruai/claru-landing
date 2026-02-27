@@ -302,10 +302,7 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
                 >
                   <td
                     className="px-3 py-2"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleSelect(sample.id);
-                    }}
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <input
                       type="checkbox"
