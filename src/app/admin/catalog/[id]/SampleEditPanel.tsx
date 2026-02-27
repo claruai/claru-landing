@@ -33,6 +33,9 @@ export default function SampleEditPanel({
   const [metadataJson, setMetadataJson] = useState(
     JSON.stringify(sample.metadata_json ?? {}, null, 2)
   );
+  const [enrichmentJson, setEnrichmentJson] = useState(
+    JSON.stringify(sample.enrichment_json ?? {}, null, 2)
+  );
   const [mediaUrl, setMediaUrl] = useState(sample.media_url ?? "");
 
   const [saving, setSaving] = useState(false);
@@ -57,7 +60,7 @@ export default function SampleEditPanel({
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [s3ObjectKey, s3AnnotationKey, s3SpecsKey, metadataJson, mediaUrl]);
+  }, [s3ObjectKey, s3AnnotationKey, s3SpecsKey, metadataJson, enrichmentJson, mediaUrl]);
 
   // -----------------------------------------------------------------------
   // Format JSON
@@ -72,6 +75,15 @@ export default function SampleEditPanel({
     }
   }, [metadataJson]);
 
+  const formatEnrichmentJson = useCallback(() => {
+    try {
+      const parsed = JSON.parse(enrichmentJson);
+      setEnrichmentJson(JSON.stringify(parsed, null, 2));
+    } catch {
+      // leave as-is if invalid
+    }
+  }, [enrichmentJson]);
+
   // -----------------------------------------------------------------------
   // Save
   // -----------------------------------------------------------------------
@@ -85,6 +97,15 @@ export default function SampleEditPanel({
         JSON.parse(metadataJson);
       } catch {
         setError("Metadata JSON is invalid");
+        return;
+      }
+    }
+
+    if (enrichmentJson.trim()) {
+      try {
+        JSON.parse(enrichmentJson);
+      } catch {
+        setError("Enrichment JSON is invalid");
         return;
       }
     }
@@ -107,6 +128,11 @@ export default function SampleEditPanel({
     const originalJson = JSON.stringify(sample.metadata_json ?? {}, null, 2);
     if (metadataJson.trim() !== originalJson) {
       updates.metadata_json = metadataJson.trim() || "{}";
+    }
+
+    const originalEnrichment = JSON.stringify(sample.enrichment_json ?? {}, null, 2);
+    if (enrichmentJson.trim() !== originalEnrichment) {
+      updates.enrichment_json = enrichmentJson.trim() || "{}";
     }
 
     if (Object.keys(updates).length === 0) {
@@ -143,6 +169,7 @@ export default function SampleEditPanel({
     s3AnnotationKey,
     s3SpecsKey,
     metadataJson,
+    enrichmentJson,
     mediaUrl,
     onSave,
     onClose,
@@ -281,6 +308,31 @@ export default function SampleEditPanel({
             <textarea
               value={metadataJson}
               onChange={(e) => setMetadataJson(e.target.value)}
+              rows={8}
+              spellCheck={false}
+              className={`${inputBase} resize-y`}
+              style={{ fontFamily: "var(--font-mono)" }}
+            />
+          </div>
+
+          {/* Enrichment JSON */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider">
+                Enrichment JSON
+              </label>
+              <button
+                type="button"
+                onClick={formatEnrichmentJson}
+                className="flex items-center gap-1 text-xs font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors"
+              >
+                <Code className="w-3 h-3" />
+                Format
+              </button>
+            </div>
+            <textarea
+              value={enrichmentJson}
+              onChange={(e) => setEnrichmentJson(e.target.value)}
               rows={8}
               spellCheck={false}
               className={`${inputBase} resize-y`}

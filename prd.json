@@ -149,7 +149,7 @@
         "Run code-reviewer agent to verify form integration"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "notes": "Read CatalogEditClient.tsx for the existing form state management and save logic. The is_published toggle is a good pattern to follow. The PATCH API should already accept show_enrichment from US-005. Use frontend-expert agent."
     },
     {
@@ -167,7 +167,7 @@
         "Run code-reviewer agent to verify edit panel integration"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": "Read SampleEditPanel.tsx for the existing metadata_json textarea pattern — the enrichment textarea is identical in behavior. The diff detection compares initial vs current values to only send changed fields. The PATCH endpoint already accepts enrichment_json from US-005. Use frontend-expert agent."
     },
     {

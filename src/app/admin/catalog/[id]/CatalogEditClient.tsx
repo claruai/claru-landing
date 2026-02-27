@@ -94,6 +94,7 @@ export default function CatalogEditClient({
     dataset.annotation_types?.join(", ") ?? ""
   );
   const [isPublished, setIsPublished] = useState(dataset.is_published);
+  const [showEnrichment, setShowEnrichment] = useState(dataset.show_enrichment ?? false);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,6 +120,7 @@ export default function CatalogEditClient({
             .map((s) => s.trim())
             .filter(Boolean),
           is_published: isPublished,
+          show_enrichment: showEnrichment,
         }),
       });
 
@@ -263,6 +265,22 @@ export default function CatalogEditClient({
             />
             Published
           </label>
+
+          {/* Show additional metadata to clients */}
+          <div>
+            <label className="flex items-center gap-2 text-sm font-mono text-[var(--text-secondary)] cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={showEnrichment}
+                onChange={(e) => setShowEnrichment(e.target.checked)}
+                className="accent-[var(--accent-primary)]"
+              />
+              Show additional metadata to clients
+            </label>
+            <p className="text-xs font-mono text-[var(--text-muted)] mt-1 ml-5">
+              When enabled, clients can browse AI-generated metadata for each sample
+            </p>
+          </div>
 
           {/* Save + Delete buttons */}
           <div className="flex items-center justify-between pt-2">
