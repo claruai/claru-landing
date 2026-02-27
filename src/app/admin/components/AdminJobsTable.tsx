@@ -60,7 +60,7 @@ function ToastContainer({ toasts }: { toasts: Toast[] }) {
           className={`px-4 py-3 rounded-lg font-mono text-sm shadow-lg border animate-toast-in ${
             toast.type === "success"
               ? "bg-[var(--bg-secondary)] text-[var(--accent-primary)] border-[var(--accent-primary)]/30"
-              : "bg-[var(--bg-secondary)] text-red-400 border-red-400/30"
+              : "bg-[var(--bg-secondary)] text-[var(--error)] border-[var(--error)]/30"
           }`}
         >
           {toast.type === "success" ? "> " : "! "}

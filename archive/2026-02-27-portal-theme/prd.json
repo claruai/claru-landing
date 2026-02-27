@@ -1,0 +1,129 @@
+{
+  "project": "Portal Light/Dark Mode Theme System",
+  "branchName": "ralph/portal-theme",
+  "description": "Add light/dark mode toggle to the Claru portal (/portal/* routes) while keeping marketing pages permanently dark. Uses next-themes with CSS variable overrides scoped via .portal-theme-scope class.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Install next-themes and create PortalThemeProvider",
+      "description": "As a developer, I need the next-themes package installed and a scoped ThemeProvider wrapping the portal layout.",
+      "acceptanceCriteria": [
+        "Run npm install next-themes and verify it appears in package.json dependencies",
+        "Create src/app/portal/PortalThemeProvider.tsx as a 'use client' component",
+        "PortalThemeProvider wraps children with ThemeProvider from next-themes with: attribute='data-theme', defaultTheme='system', storageKey='claru-portal-theme', enableSystem=true",
+        "Update src/app/portal/layout.tsx: import and wrap children with PortalThemeProvider",
+        "Update src/app/portal/layout.tsx: add class 'portal-theme-scope' to the wrapper div (the one with min-h-screen)",
+        "Marketing pages (/, /case-studies, /privacy, /terms) must NOT have portal-theme-scope class or ThemeProvider",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Portal layout is at src/app/portal/layout.tsx. It wraps all /portal/* routes. The root layout (src/app/layout.tsx) must NOT be modified. next-themes docs: attribute sets the HTML attribute used for theme, storageKey controls localStorage key name."
+    },
+    {
+      "id": "US-002",
+      "title": "Define light theme CSS variables in globals.css",
+      "description": "As a developer, I need the light theme color palette defined as CSS variable overrides scoped to the portal.",
+      "acceptanceCriteria": [
+        "Add light theme variable overrides in src/app/globals.css using selector: [data-theme='light'] .portal-theme-scope",
+        "Override all background variables: --bg-primary: #FAFAF8, --bg-secondary: #F2F1EF, --bg-tertiary: #E8E7E4, --bg-elevated: #FFFFFF, --bg-card: #FFFFFF, --bg-card-hover: #F7F6F4",
+        "Override all text variables: --text-primary: #1A1A1A, --text-secondary: rgba(26,26,26,0.8), --text-tertiary: rgba(26,26,26,0.55), --text-muted: rgba(26,26,26,0.4)",
+        "Override accent variables: --accent-primary: #5E8A5A, --accent-secondary: #4A7346, --accent-tertiary: #92B090, --accent-glow: rgba(94,138,90,0.15), --accent-glow-strong: rgba(94,138,90,0.3)",
+        "Override border variables: --border-subtle: rgba(0,0,0,0.06), --border-medium: rgba(0,0,0,0.12), --border-strong: rgba(0,0,0,0.2), --border-accent: rgba(94,138,90,0.3)",
+        "Override semantic colors: --error: #d32f2f, --warning: #f57c00, --success: #5E8A5A",
+        "Add smooth transition to .portal-theme-scope: transition: background-color 200ms ease, color 200ms ease",
+        "Add scoped ::selection override for light theme: [data-theme='light'] .portal-theme-scope ::selection { background: var(--accent-primary); color: #FFFFFF }",
+        "Verify marketing landing page (/) has zero visual changes — inspect in browser",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Add the light theme block AFTER the existing :root variables in globals.css. The .portal-theme-scope class was added to portal layout in US-001. CSS specificity: [data-theme='light'] .portal-theme-scope is more specific than :root, so variables inside portal will override correctly."
+    },
+    {
+      "id": "US-003",
+      "title": "Add theme toggle button to PortalNav",
+      "description": "As a portal user, I want a toggle button in the navigation bar to switch between light and dark modes.",
+      "acceptanceCriteria": [
+        "Update src/app/portal/PortalNav.tsx to add a theme toggle button",
+        "Position the toggle between the nav links (Catalog, Request) and the existing divider/Sign Out section",
+        "Add a new divider before the toggle to visually separate it from nav links",
+        "Import Sun and Moon icons from lucide-react",
+        "Import useTheme from next-themes",
+        "Add a mounted state (useState + useEffect) to prevent hydration mismatch — only render the icon after mount",
+        "When mounted=false, render a placeholder div with same dimensions (w-8 h-8) to prevent layout shift",
+        "Toggle onClick: if theme is 'dark' or 'system' with dark preference, set to 'light'; otherwise set to 'dark'",
+        "Show Moon icon when current resolved theme is dark, Sun icon when light",
+        "Button styling matches existing nav items: px-2 py-2 rounded-md, text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-colors duration-200",
+        "Icon size: h-4 w-4 with strokeWidth={1.5} (matching other nav icons)",
+        "Add aria-label: 'Switch to light mode' or 'Switch to dark mode' based on current theme",
+        "No hydration mismatch warnings in browser console",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "PortalNav.tsx is a 'use client' component at src/app/portal/PortalNav.tsx. useTheme() returns { theme, setTheme, resolvedTheme }. resolvedTheme resolves 'system' to actual 'light' or 'dark'. The mounted guard pattern: const [mounted, setMounted] = useState(false); useEffect(() => setMounted(true), []); — render placeholder until mounted."
+    },
+    {
+      "id": "US-004",
+      "title": "Apply theme scope to portal login page",
+      "description": "As a portal user, I want the login page to also respect the light/dark theme preference.",
+      "acceptanceCriteria": [
+        "Check if src/app/portal/login/page.tsx is within the portal layout tree (src/app/portal/layout.tsx)",
+        "If login page IS within the portal layout tree: it automatically gets portal-theme-scope from layout.tsx — verify this works and no additional changes needed",
+        "If login page is NOT within the portal layout tree: wrap its root element with the portal-theme-scope class and import PortalThemeProvider",
+        "Login page form elements (email input, submit button, text) all properly styled in both light and dark themes via CSS variables",
+        "The login page header text 'claru/portal' with accent slash displays correctly in both themes",
+        "The '$ passwordless authentication' footer text is readable in both themes",
+        "No hydration issues on login page",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "The login page is at src/app/portal/login/page.tsx. Since it's under src/app/portal/, it should inherit the portal layout.tsx which now has PortalThemeProvider and portal-theme-scope. Check by navigating to /portal/login and toggling theme. Also check /portal/login path in middleware.ts — it should be accessible without auth."
+    },
+    {
+      "id": "US-005",
+      "title": "Light theme scrollbar and form element polish",
+      "description": "As a portal user, I want scrollbars and native form elements to look correct in light mode.",
+      "acceptanceCriteria": [
+        "Add scoped scrollbar styles for light theme in globals.css: [data-theme='light'] .portal-theme-scope ::-webkit-scrollbar-track { background: var(--bg-secondary) }",
+        "[data-theme='light'] .portal-theme-scope ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px }",
+        "[data-theme='light'] .portal-theme-scope ::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary) }",
+        "Verify select dropdowns (modality dropdown on /portal/request) render with correct background/text colors in light mode",
+        "Verify textarea and input focus rings (focus:border-[var(--accent-primary)] focus:ring-[var(--accent-primary)]) work in both themes",
+        "Verify error message boxes (bg-[var(--error)]/10 border-[var(--error)]/30) render correctly in light mode",
+        "Verify disabled states (opacity-50) look correct in both themes",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "The request form page is at src/app/portal/request/page.tsx. It has textarea, select, and error message rendering. Navigate to /portal/request and test all form elements in both themes. The /portal/request page may require auth — if so, test by temporarily checking the login page form elements instead."
+    },
+    {
+      "id": "US-006",
+      "title": "Visual QA of all portal pages in both themes",
+      "description": "As QA, I need to verify all portal pages render correctly in both light and dark modes.",
+      "acceptanceCriteria": [
+        "Navigate to /portal/login in light mode — verify nav, form, footer all styled correctly",
+        "Navigate to /portal/login in dark mode — verify no regressions from current appearance",
+        "Navigate to /portal/catalog (if accessible) — verify dataset cards, search bar, filter buttons, tag pills all correct in both themes",
+        "Navigate to /portal/request — verify form fields, submit button, 'or' divider, 'Book a call' button, footer text all correct in both themes",
+        "Verify the PortalNav theme toggle icon updates correctly when switching themes",
+        "Verify theme persists after page navigation between portal pages (e.g. catalog → request → catalog)",
+        "Verify navigating to marketing page (/) shows dark theme always, then back to portal shows saved theme",
+        "Check browser console for zero hydration mismatch warnings",
+        "Check that no portal component has hardcoded color values that break in light mode (search .tsx files under src/app/portal/ for hex color codes like #0a0908, #121110, etc.)",
+        "If any hardcoded colors found, fix them to use CSS variables",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "This is the final QA pass. Use Playwright browser automation to navigate and screenshot each page in both themes. Focus on contrast — text should be clearly readable against backgrounds in both themes. Key pages: /portal/login, /portal/catalog, /portal/catalog/[id], /portal/request. Auth may be required for catalog pages."
+    }
+  ]
+}

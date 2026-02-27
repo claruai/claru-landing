@@ -1,56 +1,55 @@
-# Ralph Progress Log - Portal Light/Dark Mode Theme System
+# Ralph Progress Log - Admin Portal Light/Dark Mode Theme System
 
 ## Session Start
-Branch: ralph/portal-theme
+Branch: ralph/admin-theme
 Stories: US-001 through US-006
 
 ---
 
-## US-001 - Install next-themes and create PortalThemeProvider (DONE)
-- Installed next-themes@^0.4.6
-- Created src/app/portal/PortalThemeProvider.tsx with attribute="data-theme", storageKey="claru-portal-theme", enableSystem
-- Updated src/app/portal/layout.tsx: wrapped children with PortalThemeProvider, added portal-theme-scope class
-- Root layout untouched — marketing pages unaffected
+## US-001 - Wrap admin layout with ThemeProvider and theme scope (DONE)
+- Updated src/app/admin/layout.tsx: imported PortalThemeProvider, wrapped children, added portal-theme-scope class
+- Reuses same ThemeProvider and CSS variables as portal — no new CSS needed
+- Admin login page inherits theme scope automatically
 - Typecheck passes
 
-## US-002 - Define light theme CSS variables in globals.css (DONE)
-- Added [data-theme="light"] .portal-theme-scope block after :root, before @theme inline
-- All variable categories covered: bg, text, accent, border, semantic
-- Added .portal-theme-scope transition (200ms ease)
-- Added scoped ::selection and scrollbar overrides for light theme
-- No existing CSS modified
+## US-002 - Add theme toggle to admin dashboard header and fix hardcoded colors (DONE)
+- Extracted inline header into new client component: src/app/admin/dashboard/AdminDashboardHeader.tsx
+- Dashboard page remains async server component for data fetching
+- Added Sun/Moon toggle with mounted guard pattern
+- Fixed: text-blue-400 (Job Board) → text-[var(--accent-tertiary)]
+- Fixed: text-purple-400 (Data Catalog) → text-[var(--accent-primary)]
 - Typecheck passes
 
-## US-003 - Add theme toggle button to PortalNav (DONE)
-- Added Sun/Moon toggle between nav links and Sign Out in PortalNav.tsx
-- Mounted guard with useState/useEffect prevents hydration mismatch
-- Placeholder div (h-4 w-4) rendered before mount to prevent layout shift
-- Dynamic aria-label based on resolvedTheme
-- Styled consistently with existing nav items
+## US-003 - Add theme toggle to AdminJobsHeader, AdminCatalogHeader, AdminLeadsHeader (DONE)
+- Added Sun/Moon toggle to all three headers with mounted guard
+- Toggle positioned before [settings] link in each header's action area
+- All use same pattern: useTheme + useState + useEffect
 - Typecheck passes
 
-## US-004 - Apply theme scope to portal login page (DONE)
-- Login page at src/app/portal/login/ inherits portal layout automatically
-- Full audit: zero hardcoded hex colors in login page — all CSS variables
-- Middleware confirms /portal/login is excluded from auth gate
-- No code changes required
+## US-004 - Fix hardcoded colors in admin catalog components (DONE)
+- DatasetForm.tsx: replaced all text-red-400, bg-red-500/10, border-red-500/20, hover variants → var(--error)
+- CatalogEditClient.tsx: same replacements
+- Zero hardcoded red color classes remaining in either file
 - Typecheck passes
 
-## US-005 - Light theme scrollbar and form element polish (DONE)
-- Scrollbar styles already implemented in US-002 — verified
-- All form elements (textarea, select, input) use CSS variables — verified
-- Fixed: CatalogBrowser.tsx game-specs badge used hardcoded bg-blue-500/10 text-blue-400 → changed to var(--accent-tertiary)
-- Fixed: DataFilesPanel.tsx download error state used hardcoded border-red-500/40 text-red-400 → changed to var(--error)
-- Intentionally kept: SampleGallery.tsx and SampleDetailModal.tsx overlays use bg-black/50, text-white for media overlays (correct for both themes)
-- Error states, focus rings, disabled states all use CSS variables — adapt automatically
+## US-005 - Fix hardcoded colors in admin leads and jobs components (DONE)
+- AdminLeadsTable.tsx: replaced yellow-400/500 → var(--warning), red-400/500 → var(--error)
+- AdminJobsTable.tsx: replaced text-red-400, border-red-400/30 → var(--error)
+- LeadDetailClient.tsx: replaced text-red-400, border-red-400/30 → var(--error)
+- import/page.tsx: replaced bg-yellow-500/5 → bg-[var(--warning)]/5
+- Zero hardcoded red/yellow classes remaining
 - Typecheck passes
 
-## US-006 - Visual QA of all portal pages in both themes (DONE)
-- Login page verified in both dark and light modes via Playwright screenshots
-- Theme toggle works correctly — Sun/Moon icon toggles, CSS variables cascade
-- Fixed hydration mismatch: added suppressHydrationWarning to <html> in root layout (officially recommended by next-themes)
-- Hardcoded color scan: zero breaking colors found in portal .tsx files
-- 3 low-opacity decorative shadows (rgba at 6-8%) left as-is — imperceptible in either theme
+## US-006 - Visual QA of all admin pages in both themes (DONE)
+- Admin login (/admin): both themes verified — CSS variables adapt correctly
+- Dashboard (/admin/dashboard): module cards, header, stats correct in both themes
+- Catalog (/admin/catalog): table, badges, filters correct in light mode
+- Leads (/admin/leads): status badges (Pending=warning, Approved=success) correct
+- Theme toggle icon updates correctly (Moon=dark, Sun=light)
+- Theme syncs between admin and portal via shared localStorage key (claru-portal-theme)
+- Marketing page (/) stays permanently dark
+- Console: zero errors, zero hydration warnings
+- Grep scan: zero hardcoded red/blue/purple/yellow classes in admin (excluding settings email templates)
 - Typecheck passes
 
 ---

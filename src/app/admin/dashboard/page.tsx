@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { getAllJobs } from "@/lib/jobs";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { AdminDashboardHeader } from "./AdminDashboardHeader";
 
 export default async function AdminDashboardPage() {
   // Fetch stats from each module
@@ -48,7 +49,7 @@ export default async function AdminDashboardPage() {
       title: "Job Board",
       description: "Manage job listings, archive positions, edit content",
       stat: `${activeJobCount} active / ${jobCount} total`,
-      color: "text-blue-400",
+      color: "text-[var(--accent-tertiary)]",
     },
     {
       href: "/admin/leads",
@@ -66,7 +67,7 @@ export default async function AdminDashboardPage() {
       title: "Data Catalog",
       description: "Manage datasets, upload samples, organize categories",
       stat: `${datasetCount} datasets`,
-      color: "text-purple-400",
+      color: "text-[var(--accent-primary)]",
     },
     {
       href: "/admin/settings",
@@ -82,25 +83,7 @@ export default async function AdminDashboardPage() {
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
       {/* Header */}
-      <div className="border-b border-[var(--border-subtle)] bg-[var(--bg-secondary)]">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="font-mono text-sm text-[var(--accent-primary)]">
-              claru
-            </span>
-            <span className="text-[var(--text-muted)]">/</span>
-            <span className="font-mono text-sm text-[var(--text-secondary)]">
-              admin
-            </span>
-          </div>
-          <Link
-            href="/api/admin/logout"
-            className="font-mono text-xs text-[var(--text-muted)] hover:text-[var(--error)] transition-colors"
-          >
-            [logout]
-          </Link>
-        </div>
-      </div>
+      <AdminDashboardHeader />
 
       {/* Content */}
       <div className="max-w-5xl mx-auto px-6 py-12">

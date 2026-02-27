@@ -1,8 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
 
 /**
  * Admin header bar for the leads page with breadcrumb navigation and logout.
@@ -11,6 +13,9 @@ import Link from "next/link";
  */
 export default function AdminLeadsHeader() {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+  const { resolvedTheme, setTheme } = useTheme();
+  useEffect(() => setMounted(true), []);
 
   const handleLogout = useCallback(async () => {
     await fetch("/api/admin/logout", { method: "POST" });
@@ -32,6 +37,19 @@ export default function AdminLeadsHeader() {
         <span className="text-[var(--text-secondary)]">leads</span>
       </h1>
       <div className="flex items-center gap-4">
+        <button
+          onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+          className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200"
+          aria-label={mounted && resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          {!mounted ? (
+            <div className="h-4 w-4" />
+          ) : resolvedTheme === "dark" ? (
+            <Moon className="h-4 w-4" strokeWidth={1.5} />
+          ) : (
+            <Sun className="h-4 w-4" strokeWidth={1.5} />
+          )}
+        </button>
         <a
           href="/admin/settings"
           className="text-xs font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors duration-200"

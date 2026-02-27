@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PortalThemeProvider } from "../portal/PortalThemeProvider";
 
 export const metadata: Metadata = {
   title: "Admin | Claru",
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 
 /**
  * Admin layout -- minimal chrome, no public Header/Footer.
- * Dark background consistent with the Claru design system.
+ * Supports light/dark mode via shared PortalThemeProvider.
  */
 export default function AdminLayout({
   children,
@@ -18,8 +19,10 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
-      {children}
-    </div>
+    <PortalThemeProvider>
+      <div className="portal-theme-scope min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
+        {children}
+      </div>
+    </PortalThemeProvider>
   );
 }
