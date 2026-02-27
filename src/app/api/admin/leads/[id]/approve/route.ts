@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifyAdminToken } from "@/lib/admin-auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { sendInviteEmail } from "@/lib/email/invite";
 
 /**
  * POST /api/admin/leads/[id]/approve
@@ -11,9 +12,10 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
  * 2. Creates a Supabase Auth user (or reuses existing)
  * 3. Generates a magic link
  * 4. Stores supabase_user_id on the lead record
+ * 5. Optionally sends an invite email with the magic link
  *
  * Request body (optional):
- *   { admin_notes?: string }
+ *   { send_invite?: boolean, admin_notes?: string }
  */
 export async function POST(
   request: NextRequest,
@@ -41,10 +43,14 @@ export async function POST(
 
   // Parse optional body
   let adminNotes: string | undefined;
+  let sendInvite = false;
   try {
     const body = await request.json();
     if (typeof body.admin_notes === "string") {
       adminNotes = body.admin_notes;
+    }
+    if (body.send_invite === true) {
+      sendInvite = true;
     }
   } catch {
     // Body is optional
@@ -125,8 +131,30 @@ export async function POST(
     );
   }
 
+  // Optionally send invite email
+  let inviteSent = false;
+  let inviteError: string | undefined;
+
+  if (sendInvite && magicLink) {
+    const result = await sendInviteEmail({
+      to: lead.email,
+      name: lead.name,
+      magicLink,
+    });
+    inviteSent = result.success;
+    if (!result.success) {
+      inviteError = result.error;
+      console.error("[approve] Invite email failed:", result.error);
+    }
+  } else if (sendInvite && !magicLink) {
+    inviteError = "Magic link generation failed — cannot send invite";
+    console.error("[approve] send_invite requested but no magic link available");
+  }
+
   return NextResponse.json({
     lead: updatedLead,
     message: "Lead approved successfully",
+    invite_sent: inviteSent,
+    ...(inviteError ? { invite_error: inviteError } : {}),
   });
 }

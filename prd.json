@@ -97,7 +97,7 @@
         "Run code-reviewer agent to verify backward compatibility and error isolation"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "Read src/app/api/admin/leads/[id]/approve/route.ts — the magic link is already generated at line 92 (supabase.auth.admin.generateLink) and stored in magicLink variable, but never returned or used. Import sendInviteEmail from @/lib/email/invite (created in US-004). Use general-purpose agent."
     },
     {
