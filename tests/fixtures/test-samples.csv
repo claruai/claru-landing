@@ -1,0 +1,6 @@
+s3_uri,annotation_key,specs_key,type,category,subcategory
+s3://moonvalley-test/e2e/clip-001.mp4,e2e/annotations/clip-001.json,e2e/specs/clip-001.json,short_form,cinematic,urban
+s3://moonvalley-test/e2e/clip-002.mp4,e2e/annotations/clip-002.json,e2e/specs/clip-002.json,short_form,cinematic,nature
+s3://moonvalley-test/e2e/clip-003.mp4,e2e/annotations/clip-003.json,,long_form,documentary,wildlife
+s3://moonvalley-test/e2e/clip-004.mp4,,,short_form,game_capture,fps
+s3://moonvalley-test/e2e/clip-005.mp4,e2e/annotations/clip-005.json,e2e/specs/clip-005.json,cinematic,aerial,drone
