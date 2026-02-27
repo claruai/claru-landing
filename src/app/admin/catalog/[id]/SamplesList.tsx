@@ -46,6 +46,7 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
   const [totalPages, setTotalPages] = useState(1);
   const [formatIssueCounts, setFormatIssueCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Selection
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -67,19 +68,21 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
   const fetchSamples = useCallback(
     async (p: number) => {
       setLoading(true);
+      setError(null);
       try {
         const res = await fetch(
           `/api/admin/catalog/${datasetId}/samples?page=${p}&per_page=${PER_PAGE}`
         );
-        if (!res.ok) throw new Error("Failed to fetch");
+        if (!res.ok) throw new Error("Failed to fetch samples");
         const data: PaginatedResponse = await res.json();
         setSamples(data.samples);
         setTotal(data.total);
         setPage(data.page);
         setTotalPages(data.total_pages);
         setFormatIssueCounts(data.formatIssueCounts ?? {});
-      } catch {
+      } catch (err) {
         setSamples([]);
+        setError(err instanceof Error ? err.message : "Failed to load samples");
       } finally {
         setLoading(false);
       }
@@ -137,19 +140,23 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
     setBatchDeleting(true);
     const idsToDelete = Array.from(selectedIds);
 
-    for (const id of idsToDelete) {
-      try {
-        await fetch(`/api/admin/catalog/${datasetId}/samples/${id}`, {
+    const results = await Promise.allSettled(
+      idsToDelete.map(async (id) => {
+        const res = await fetch(`/api/admin/catalog/${datasetId}/samples/${id}`, {
           method: "DELETE",
         });
-      } catch {
-        // continue deleting others
-      }
-    }
+        if (!res.ok) throw new Error(`Failed to delete ${id}`);
+      })
+    );
+
+    const failed = results.filter((r) => r.status === "rejected").length;
 
     setSelectedIds(new Set());
     setConfirmBatchDelete(false);
     setBatchDeleting(false);
+    if (failed > 0) {
+      setError(`${failed} of ${idsToDelete.length} deletes failed`);
+    }
     fetchSamples(page);
   }, [datasetId, selectedIds, fetchSamples, page]);
 
@@ -160,6 +167,8 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
   const goToPage = useCallback(
     (p: number) => {
       if (p < 1 || p > totalPages) return;
+      setSelectedIds(new Set());
+      setConfirmBatchDelete(false);
       fetchSamples(p);
     },
     [fetchSamples, totalPages]
@@ -225,6 +234,19 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
         </h4>
         {loading && <Loader2 className="w-4 h-4 animate-spin text-[var(--text-muted)]" />}
       </div>
+
+      {/* Error banner */}
+      {error && (
+        <div className="flex items-center justify-between rounded-md border border-[var(--error)] bg-[var(--error)]/10 px-4 py-2">
+          <span className="text-xs font-mono text-[var(--error)]">{error}</span>
+          <button
+            onClick={() => setError(null)}
+            className="text-xs font-mono text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Batch action bar */}
       {selectedIds.size > 0 && (
