@@ -33,7 +33,7 @@
         "Run code-reviewer agent to verify security, validation, and error handling"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "notes": "Read existing DELETE handler in src/app/api/admin/catalog/[id]/samples/[sampleId]/route.ts for auth pattern. Use Explore agent to study the auth middleware. The file already has NextRequest + params pattern — follow it exactly."
     },
     {
