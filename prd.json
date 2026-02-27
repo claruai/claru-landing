@@ -155,7 +155,7 @@
         "Run code-reviewer agent to verify CSV parsing and mapping logic"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "notes": "Use frontend-expert agent to build this component. PapaParse is already in package.json. This story covers ONLY the upload, parse, and mapping UI — the actual import execution is US-009. Use Explore agent to study the existing import wizard at src/app/admin/catalog/import/page.tsx for PapaParse usage patterns."
     },
     {
