@@ -70,6 +70,7 @@ export async function PATCH(
     "geographic_coverage",
     "annotation_types",
     "is_published",
+    "show_enrichment",
   ];
 
   const updateFields: Record<string, unknown> = {};
