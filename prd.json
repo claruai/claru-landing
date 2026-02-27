@@ -205,7 +205,7 @@
         "Run code-reviewer agent to verify state management and API integration"
       ],
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "notes": "Use frontend-expert agent to build this. The PATCH endpoint is from US-002. The DELETE endpoint already exists. Read src/types/data-catalog.ts for DatasetSample interface to understand available fields."
     },
     {
