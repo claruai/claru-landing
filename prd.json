@@ -52,7 +52,7 @@
         "Run code-reviewer agent to verify API contract and extraction logic"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "Read src/app/api/admin/catalog/[id]/samples/bulk/route.ts for the existing POST handler. The chunking logic inserts 100 samples at a time — add enrichment_json to the insert columns. Tech extraction runs before insert on each row. Use general-purpose agent."
     },
     {
@@ -72,7 +72,7 @@
         "Run code-reviewer agent to verify S3 access patterns, error handling, and concurrency"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "The S3 bucket is moonvalley-annotation-platform. Three path prefixes observed: video_capture/completed/, video-capture-activities/completed/, and 'Video Capture: First Person Videos (Phone)/completed/'. Annotation JSONs are 1.7-5.8KB. Look at existing S3 presigning code for AWS client setup. The MediaInfo path is files[0].attributes.media.track[] — track is an array of objects with @type field. Use general-purpose agent."
     },
     {
@@ -90,7 +90,7 @@
         "Run code-reviewer agent to verify API contracts and type safety"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "Most of these changes are small — Supabase SELECT * already returns new columns. The main work is updating PATCH handlers to accept enrichment_json and show_enrichment. Read each API route file to understand the existing update patterns. The portal page.tsx may need to pass show_enrichment from the dataset to the SampleDetailModal. Use general-purpose agent."
     },
     {

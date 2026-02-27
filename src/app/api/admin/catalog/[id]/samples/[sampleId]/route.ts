@@ -34,6 +34,7 @@ export async function PATCH(
     "s3_annotation_key",
     "s3_specs_key",
     "metadata_json",
+    "enrichment_json",
     "media_url",
   ];
 
