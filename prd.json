@@ -110,7 +110,7 @@
         "Run code-reviewer agent to verify all modes still work"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "The POST handler already supports 3 modes. Add s3_uri as a 4th mode. The MIME guessing logic already exists in the bulk route — reuse or extract a shared helper. Use Explore agent to find existing MIME detection patterns."
     },
     {
