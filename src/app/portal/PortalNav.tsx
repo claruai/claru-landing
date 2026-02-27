@@ -21,6 +21,8 @@ export function PortalNav() {
   const router = useRouter();
   const pathname = usePathname();
 
+  const isLoginPage = pathname === "/portal/login";
+
   async function handleSignOut() {
     const supabase = getSupabaseBrowserClient();
     await supabase.auth.signOut();
@@ -40,7 +42,7 @@ export function PortalNav() {
 
         {/* Navigation */}
         <nav className="flex items-center gap-1">
-          {navItems.map((item) => {
+          {!isLoginPage && navItems.map((item) => {
             const isActive =
               pathname === item.href || pathname.startsWith(item.href + "/");
             return (
@@ -59,17 +61,21 @@ export function PortalNav() {
             );
           })}
 
-          {/* Divider */}
-          <div className="mx-2 h-5 w-px bg-[var(--border-subtle)]" />
+          {!isLoginPage && (
+            <>
+              {/* Divider */}
+              <div className="mx-2 h-5 w-px bg-[var(--border-subtle)]" />
 
-          {/* Sign Out */}
-          <button
-            onClick={handleSignOut}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-mono text-[var(--text-muted)] hover:text-[var(--error)] hover:bg-[var(--error)]/5 transition-colors duration-200"
-          >
-            <LogOut className="h-4 w-4" strokeWidth={1.5} />
-            <span className="hidden sm:inline">Sign Out</span>
-          </button>
+              {/* Sign Out */}
+              <button
+                onClick={handleSignOut}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-mono text-[var(--text-muted)] hover:text-[var(--error)] hover:bg-[var(--error)]/5 transition-colors duration-200"
+              >
+                <LogOut className="h-4 w-4" strokeWidth={1.5} />
+                <span className="hidden sm:inline">Sign Out</span>
+              </button>
+            </>
+          )}
         </nav>
       </div>
     </header>
