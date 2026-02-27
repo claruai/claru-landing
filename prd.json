@@ -54,7 +54,7 @@
         "Run code-reviewer agent to verify security and edge cases"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "Read existing POST handler in src/app/api/admin/catalog/[id]/samples/bulk/route.ts for auth and Supabase patterns. Use Explore agent first."
     },
     {
