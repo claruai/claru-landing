@@ -50,7 +50,7 @@ export async function POST(
 
   const { id: datasetId } = await params;
 
-  let body: { samples?: unknown };
+  let body: { samples?: unknown; skip_duplicates?: boolean };
   try {
     body = await request.json();
   } catch {
@@ -148,12 +148,39 @@ export async function POST(
     });
   }
 
-  // ---- Batch insert valid items in chunks ----
+  // ---- Duplicate detection (optional) ----
   const supabase = createSupabaseAdminClient();
+  let skipped = 0;
+  let itemsToInsert = validItems;
+
+  if (body.skip_duplicates) {
+    // Fetch all existing s3_object_keys for this dataset in one query
+    const { data: existingRows } = await supabase
+      .from("dataset_samples")
+      .select("s3_object_key")
+      .eq("dataset_id", datasetId)
+      .not("s3_object_key", "is", null);
+
+    const existingKeys = new Set(
+      (existingRows ?? []).map((r) => r.s3_object_key).filter(Boolean)
+    );
+
+    itemsToInsert = [];
+    for (const entry of validItems) {
+      const key = entry.item.s3_object_key;
+      if (key && existingKeys.has(key)) {
+        skipped++;
+      } else {
+        itemsToInsert.push(entry);
+      }
+    }
+  }
+
+  // ---- Batch insert in chunks ----
   let inserted = 0;
 
-  for (let offset = 0; offset < validItems.length; offset += CHUNK_SIZE) {
-    const chunk = validItems.slice(offset, offset + CHUNK_SIZE);
+  for (let offset = 0; offset < itemsToInsert.length; offset += CHUNK_SIZE) {
+    const chunk = itemsToInsert.slice(offset, offset + CHUNK_SIZE);
 
     const rows = chunk.map(({ item }) => ({
       dataset_id: datasetId,
@@ -174,7 +201,6 @@ export async function POST(
       .select("id");
 
     if (error) {
-      // If the whole chunk fails, mark each item in the chunk as errored
       console.error("[POST /api/admin/catalog/[id]/samples/bulk] chunk error", error);
       for (const entry of chunk) {
         errors.push({ index: entry.index, error: error.message });
@@ -184,7 +210,7 @@ export async function POST(
     }
   }
 
-  return NextResponse.json({ inserted, errors }, { status: 201 });
+  return NextResponse.json({ inserted, skipped, errors }, { status: 201 });
 }
 
 /**
