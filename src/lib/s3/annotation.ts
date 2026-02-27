@@ -12,7 +12,14 @@ import { getS3SignedUrl } from "./presigner";
 export async function fetchAnnotationJson(
   objectKey: string
 ): Promise<Record<string, unknown> | null> {
-  const url = await getS3SignedUrl(objectKey);
+  // Strip s3://bucket-name/ prefix if present — some keys are stored as full S3 URIs
+  let cleanKey = objectKey;
+  const s3UriMatch = cleanKey.match(/^s3:\/\/[^/]+\/(.+)$/);
+  if (s3UriMatch) {
+    cleanKey = s3UriMatch[1];
+  }
+
+  const url = await getS3SignedUrl(cleanKey);
 
   if (!url) {
     console.warn(

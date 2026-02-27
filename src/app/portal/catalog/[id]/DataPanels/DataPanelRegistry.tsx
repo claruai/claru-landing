@@ -55,7 +55,7 @@ function EnrichmentAdapter({ data }: DataPanelProps) {
 
 export const PANEL_REGISTRY: Record<string, PanelRegistryEntry> = {
   annotation: {
-    component: MetaTableAdapter,
+    component: EnrichmentAdapter,
     label: "Annotation",
     icon: FileJson,
   },
@@ -72,11 +72,6 @@ export const PANEL_REGISTRY: Record<string, PanelRegistryEntry> = {
   enrichment: {
     component: EnrichmentAdapter,
     label: "Enrichment",
-    icon: Sparkles,
-  },
-  additional_metadata: {
-    component: EnrichmentAdapter,
-    label: "Additional Metadata",
     icon: Sparkles,
   },
 };

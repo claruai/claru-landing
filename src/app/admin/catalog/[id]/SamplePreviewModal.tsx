@@ -48,7 +48,6 @@ export default function SamplePreviewModal({
         onNavigate={onNavigate}
         annotationEndpoint="/api/admin/s3-annotation"
         apiBase="/api/admin"
-        isAdmin={true}
       />
 
       {/* Floating Edit button -- positioned in the modal overlay area */}

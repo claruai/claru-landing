@@ -236,7 +236,7 @@ export default async function DatasetDetailPage({
               </p>
             </div>
           ) : (
-            <SampleGallery samplesWithUrls={samplesWithUrls} showEnrichment={dataset.show_enrichment ?? false} />
+            <SampleGallery samplesWithUrls={samplesWithUrls} />
           )}
         </div>
       </div>

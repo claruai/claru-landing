@@ -41,10 +41,6 @@ export interface SampleDetailModalProps {
   /** API base prefix for signed-URL requests (portal panels vs admin panels).
    *  Derived automatically from annotationEndpoint when not provided. */
   apiBase?: string;
-  /** Whether the dataset has enrichment visibility enabled for clients. */
-  showEnrichment?: boolean;
-  /** Whether the viewer is admin (always shows enrichment regardless of toggle). */
-  isAdmin?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -85,8 +81,6 @@ export function SampleDetailModal({
   onNavigate,
   annotationEndpoint = "/api/portal/s3-annotation",
   apiBase: apiBaseProp,
-  showEnrichment = false,
-  isAdmin = false,
 }: SampleDetailModalProps) {
   // Derive apiBase from annotationEndpoint when the caller does not supply it explicitly
   const apiBase =
@@ -118,24 +112,10 @@ export function SampleDetailModal({
   const panels = useMemo<PanelDescriptor[]>(() => {
     const result: PanelDescriptor[] = [];
 
-    // Always include annotation panel if metadata or annotation data exists
-    // Strip internal/noisy fields before merging annotation into the display object
-    const ANNOTATION_NOISE_KEYS = new Set([
-      "userId", "reviewerId", "payoutId", "paymentStatus", "paymentDate",
-      "cost", "project", "rejectionReason", "rejectionCount", "isTestTemplate",
-      "key", "browserMetadata", "projectId", "savedAt", "notes",
-      "comment", "templateData",
-    ]);
-
-    const cleanedAnnotation = annotationData
-      ? Object.fromEntries(
-          Object.entries(annotationData).filter(([k]) => !ANNOTATION_NOISE_KEYS.has(k))
-        )
-      : null;
-
+    // Always include annotation panel if metadata or annotation data exists.
+    // Show the full raw annotation JSON via JsonTree (no field filtering).
     const annotationPanelData: Record<string, unknown> = {
-      ...metadata,
-      ...(cleanedAnnotation ?? {}),
+      ...(annotationData ?? metadata),
     };
     if (Object.keys(annotationPanelData).length > 0) {
       result.push({ type: "annotation", data: annotationPanelData });
@@ -150,7 +130,7 @@ export function SampleDetailModal({
     }
 
     // Add Data Files panel when annotation has non-video attached files
-    const rawFiles = cleanedAnnotation?.files;
+    const rawFiles = annotationData?.files;
     if (Array.isArray(rawFiles)) {
       const dataFiles = (rawFiles as Array<Record<string, unknown>>).filter((f) => {
         const oid = String(f.objectId ?? "").toLowerCase();
@@ -166,15 +146,12 @@ export function SampleDetailModal({
     const hasEnrichment =
       enrichment && typeof enrichment === "object" && Object.keys(enrichment).length > 0;
 
-    if (hasEnrichment && (isAdmin || showEnrichment)) {
-      // Admin sees "enrichment" panel type (label: "Enrichment")
-      // Portal sees "additional_metadata" panel type (label: "Additional Metadata")
-      const panelType = isAdmin ? "enrichment" : "additional_metadata";
-      result.push({ type: panelType, data: enrichment });
+    if (hasEnrichment) {
+      result.push({ type: "enrichment", data: enrichment });
     }
 
     return result;
-  }, [metadata, annotationData, specsData, sample.s3_specs_key, specsLoading, sample.enrichment_json, isAdmin, showEnrichment]);
+  }, [metadata, annotationData, specsData, sample.s3_specs_key, specsLoading, sample.enrichment_json]);
 
   // -------------------------------------------------------------------------
   // Merged JSON for copy button -- combines all panel data
