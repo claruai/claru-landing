@@ -6,7 +6,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
-import { CALENDLY_URL_BASE } from "../../lib/constants";
+import { useCalendly } from "../providers/CalendlyProvider";
+import { buildCalendlyEmbedUrl } from "../../lib/constants";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -17,9 +18,9 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-function CalendlyStep({ name, email }: { name: string; email: string }) {
+function CalendlyStep({ name, email, bookingUrl }: { name: string; email: string; bookingUrl: string }) {
   const [iframeLoaded, setIframeLoaded] = useState(false);
-  const calendlyUrl = `${CALENDLY_URL_BASE}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
+  const calendlyUrl = buildCalendlyEmbedUrl(bookingUrl, { name, email });
 
   return (
     <motion.div
@@ -67,6 +68,7 @@ function CalendlyStep({ name, email }: { name: string; email: string }) {
 }
 
 export default function ContactForm() {
+  const { bookingUrl } = useCalendly();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [leadData, setLeadData] = useState<FormData | null>(null);
 
@@ -97,7 +99,7 @@ export default function ContactForm() {
   };
 
   if (leadData) {
-    return <CalendlyStep name={leadData.name} email={leadData.email} />;
+    return <CalendlyStep name={leadData.name} email={leadData.email} bookingUrl={bookingUrl} />;
   }
 
   return (

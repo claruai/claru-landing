@@ -320,8 +320,20 @@ function buildRejectionHtml(
   lead: RejectionLeadInfo,
   feedback?: string
 ): string {
-  const bookingUrl =
-    process.env.NEXT_PUBLIC_BOOKING_URL ?? 'https://claru.ai/#contact';
+  // Read booking URL from the database setting, falling back to env/default.
+  let bookingUrl = process.env.NEXT_PUBLIC_BOOKING_URL ?? 'https://claru.ai/#contact';
+  try {
+    const { createSupabaseAdminClient } = await import('@/lib/supabase/admin');
+    const supabase = createSupabaseAdminClient();
+    const { data } = await supabase
+      .from('settings')
+      .select('value')
+      .eq('key', 'booking_url')
+      .single<{ value: string }>();
+    if (data?.value) bookingUrl = data.value;
+  } catch {
+    // Use fallback
+  }
 
   const feedbackBlock = feedback
     ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">

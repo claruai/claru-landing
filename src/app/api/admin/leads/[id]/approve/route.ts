@@ -86,13 +86,14 @@ export async function POST(
     }
   }
 
-  // Generate magic link
+  // Generate magic link — redirect through the auth callback so the code
+  // can be exchanged for a session (sets auth cookies on the response).
   const { data: linkData, error: linkErr } =
     await supabase.auth.admin.generateLink({
       type: "magiclink",
       email: lead.email,
       options: {
-        redirectTo: `${siteUrl}/portal`,
+        redirectTo: `${siteUrl}/portal/auth/callback`,
       },
     });
 

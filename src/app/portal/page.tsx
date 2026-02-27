@@ -80,7 +80,7 @@ async function getPortalData() {
   const { data: bookingSetting } = await supabase
     .from("settings")
     .select("value")
-    .eq("key", "call_booking_url")
+    .eq("key", "booking_url")
     .single<{ value: string }>();
 
   return {

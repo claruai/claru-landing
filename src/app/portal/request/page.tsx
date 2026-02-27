@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { ArrowLeft, ExternalLink, BookOpen } from "lucide-react";
 import Link from "next/link";
 import {
   submitCustomRequest,
   type RequestFormState,
 } from "./actions";
+import { DEFAULT_BOOKING_URL } from "../../lib/constants";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -26,9 +27,6 @@ const INITIAL_STATE: RequestFormState = {
   message: "",
 };
 
-// Default booking URL fallback (admin can configure via settings table)
-const DEFAULT_BOOKING_URL = "https://calendly.com/claru-ai/30min";
-
 // ---------------------------------------------------------------------------
 // Page Component
 // ---------------------------------------------------------------------------
@@ -38,6 +36,16 @@ export default function PortalRequestPage() {
     submitCustomRequest,
     INITIAL_STATE
   );
+  const [bookingUrl, setBookingUrl] = useState(DEFAULT_BOOKING_URL);
+
+  useEffect(() => {
+    fetch("/api/booking-url")
+      .then((res) => res.json())
+      .then((data: { url: string | null }) => {
+        if (data.url) setBookingUrl(data.url);
+      })
+      .catch(() => {});
+  }, []);
 
   // --- Success State --------------------------------------------------------
 
@@ -59,7 +67,7 @@ export default function PortalRequestPage() {
             {/* CTAs */}
             <div className="space-y-3">
               <a
-                href={DEFAULT_BOOKING_URL}
+                href={bookingUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-[var(--accent-primary)] text-[var(--bg-primary)] font-mono text-sm font-medium rounded-lg hover:bg-[var(--accent-secondary)] transition-colors duration-200"
@@ -212,7 +220,7 @@ export default function PortalRequestPage() {
         {/* Secondary CTAs */}
         <div className="space-y-3">
           <a
-            href={DEFAULT_BOOKING_URL}
+            href={bookingUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-transparent border border-[var(--border-subtle)] text-[var(--text-secondary)] font-mono text-sm rounded-lg hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] transition-colors duration-200"
