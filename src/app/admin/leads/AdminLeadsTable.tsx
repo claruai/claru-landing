@@ -37,13 +37,13 @@ function statusBadge(status: LeadStatus) {
       );
     case "pending":
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--warning)]/10 text-[var(--warning)] border border-[var(--warning)]/20">
           Pending
         </span>
       );
     case "rejected":
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--error)]/10 text-[var(--error)] border border-[var(--error)]/20">
           Rejected
         </span>
       );
@@ -206,7 +206,7 @@ export default function AdminLeadsTable({ leads }: AdminLeadsTableProps) {
           <span className="text-[var(--text-muted)] text-xs uppercase tracking-wider">
             Pending
           </span>
-          <p className="text-lg text-yellow-400 font-semibold">
+          <p className="text-lg text-[var(--warning)] font-semibold">
             {counts.pending}
           </p>
         </div>
@@ -222,7 +222,7 @@ export default function AdminLeadsTable({ leads }: AdminLeadsTableProps) {
           <span className="text-[var(--text-muted)] text-xs uppercase tracking-wider">
             Rejected
           </span>
-          <p className="text-lg text-red-400 font-semibold">
+          <p className="text-lg text-[var(--error)] font-semibold">
             {counts.rejected}
           </p>
         </div>

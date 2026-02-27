@@ -217,8 +217,8 @@ export default function DatasetForm({ dataset, categories }: DatasetFormProps) {
     <div className="px-6 py-6 max-w-3xl mx-auto space-y-6">
       {/* Error banner */}
       {error && (
-        <div className="px-4 py-3 rounded-lg border border-red-500/20 bg-red-500/10">
-          <p className="text-sm font-mono text-red-400">
+        <div className="px-4 py-3 rounded-lg border border-[var(--error)]/20 bg-[var(--error)]/10">
+          <p className="text-sm font-mono text-[var(--error)]">
             <span className="opacity-60">error: </span>
             {error}
           </p>
@@ -393,7 +393,7 @@ export default function DatasetForm({ dataset, categories }: DatasetFormProps) {
                 <button
                   type="button"
                   onClick={() => removeTag(tag)}
-                  className="ml-0.5 hover:text-red-400 transition-colors duration-150"
+                  className="ml-0.5 hover:text-[var(--error)] transition-colors duration-150"
                   aria-label={`Remove ${tag}`}
                 >
                   x
@@ -455,13 +455,13 @@ export default function DatasetForm({ dataset, categories }: DatasetFormProps) {
           <div className="relative">
             {showDeleteConfirm ? (
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono text-red-400">
+                <span className="text-xs font-mono text-[var(--error)]">
                   confirm delete?
                 </span>
                 <button
                   onClick={handleDelete}
                   disabled={deleting}
-                  className="px-3 py-1.5 text-xs font-mono rounded-md bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 disabled:opacity-50 transition-colors duration-150"
+                  className="px-3 py-1.5 text-xs font-mono rounded-md bg-[var(--error)]/10 text-[var(--error)] border border-[var(--error)]/20 hover:bg-[var(--error)]/20 disabled:opacity-50 transition-colors duration-150"
                 >
                   {deleting ? "deleting..." : "[yes, delete]"}
                 </button>
@@ -475,7 +475,7 @@ export default function DatasetForm({ dataset, categories }: DatasetFormProps) {
             ) : (
               <button
                 onClick={() => setShowDeleteConfirm(true)}
-                className="text-xs font-mono text-red-400/60 hover:text-red-400 transition-colors duration-150"
+                className="text-xs font-mono text-[var(--error)]/60 hover:text-[var(--error)] transition-colors duration-150"
               >
                 [delete dataset]
               </button>
