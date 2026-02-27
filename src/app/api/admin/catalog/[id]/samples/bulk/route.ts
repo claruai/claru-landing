@@ -7,6 +7,15 @@ import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 /** Maximum rows per Supabase insert call. */
 const CHUNK_SIZE = 100;
 
+/** Lazily-initialised S3 client for annotation fetching. */
+let _s3Client: S3Client | null = null;
+function getAnnotationS3Client(): S3Client {
+  if (!_s3Client) {
+    _s3Client = new S3Client({ region: process.env.AWS_REGION });
+  }
+  return _s3Client;
+}
+
 interface BulkSampleInput {
   media_url: string;
   metadata_json?: Record<string, unknown>;
@@ -363,6 +372,20 @@ export async function PATCH(
     }
   }
 
+  // Validate enrichment_json is valid JSON if provided
+  if ("enrichment_json" in updates && updates.enrichment_json != null) {
+    if (typeof updates.enrichment_json === "string") {
+      try {
+        JSON.parse(updates.enrichment_json);
+      } catch {
+        return NextResponse.json(
+          { error: "enrichment_json must be valid JSON" },
+          { status: 400 }
+        );
+      }
+    }
+  }
+
   const supabase = createSupabaseAdminClient();
 
   // Verify all sample_ids belong to this dataset
@@ -435,7 +458,7 @@ async function fetchS3AnnotationTechMetadata(
   if (!bucket) return null;
 
   try {
-    const client = new S3Client({ region: process.env.AWS_REGION });
+    const client = getAnnotationS3Client();
     const cmd = new GetObjectCommand({ Bucket: bucket, Key: annotationKey });
     const response = await client.send(cmd);
     const bodyStr = await response.Body?.transformToString("utf-8");
