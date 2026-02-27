@@ -38,7 +38,7 @@
         "Run code-reviewer agent to verify cascade logic and error recovery"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "notes": "Read src/app/api/admin/leads/[id]/route.ts for the existing GET/PATCH handlers — add DELETE in the same file. Read src/app/api/admin/leads/[id]/approve/route.ts for the supabase.auth.admin pattern (createSupabaseAdminClient). Deletion order matters: grants first, then auth user, then lead row. Use general-purpose agent."
     },
     {

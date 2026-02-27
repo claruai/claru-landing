@@ -92,3 +92,80 @@ export async function PATCH(
 
   return NextResponse.json({ lead: data });
 }
+
+/**
+ * DELETE /api/admin/leads/[id]
+ *
+ * Deletes a lead with full cleanup:
+ * 1. Removes all dataset access grants
+ * 2. Deletes the Supabase Auth user (if exists)
+ * 3. Deletes the lead row
+ */
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("admin-token");
+  if (!token?.value || !(await verifyAdminToken(token.value))) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+  const supabase = createSupabaseAdminClient();
+
+  // Fetch lead — 404 if not found
+  const { data: lead, error: fetchErr } = await supabase
+    .from("leads")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (fetchErr || !lead) {
+    return NextResponse.json({ error: "Lead not found" }, { status: 404 });
+  }
+
+  // 1. Delete all dataset access grants for this lead
+  const { error: grantsErr } = await supabase
+    .from("lead_dataset_access")
+    .delete()
+    .eq("lead_id", id);
+
+  if (grantsErr) {
+    console.error("[DELETE /api/admin/leads/[id]] Failed to delete grants:", grantsErr);
+    return NextResponse.json(
+      { error: "Failed to delete dataset access grants" },
+      { status: 500 }
+    );
+  }
+
+  // 2. Delete Supabase Auth user if one exists
+  if (lead.supabase_user_id) {
+    const { error: authErr } = await supabase.auth.admin.deleteUser(
+      lead.supabase_user_id
+    );
+    if (authErr) {
+      // User may already be gone — log warning but continue
+      console.warn(
+        "[DELETE /api/admin/leads/[id]] Failed to delete auth user (may already be gone):",
+        authErr
+      );
+    }
+  }
+
+  // 3. Delete the lead row
+  const { error: deleteErr } = await supabase
+    .from("leads")
+    .delete()
+    .eq("id", id);
+
+  if (deleteErr) {
+    console.error("[DELETE /api/admin/leads/[id]] Failed to delete lead:", deleteErr);
+    return NextResponse.json(
+      { error: "Failed to delete lead" },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json({ message: "Lead deleted" });
+}
