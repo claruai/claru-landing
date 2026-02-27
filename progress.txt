@@ -1,69 +1,12 @@
-# Ralph Progress Log - Adaptive Data Catalog
+# Progress Log
 
-## Session Start
-Branch: ralph/adaptive-data-catalog
-Stories: US-001 through US-010
-
----
-
-## 2026-02-27 — US-001 + US-002: Schema & CSV Mapping
-
-**What I did:**
-- Created migration 006_enrichment_json.sql (enrichment_json JSONB + show_enrichment BOOLEAN)
-- Updated DatasetSample and Dataset TypeScript interfaces
-- Added enrichment_json to MappableField, FIELD_LABELS, AUTO_MAP_RULES
-- Added standardized template aliases: s3_video_uri, s3_annotation_uri, enrichment, ai_metadata
-- Updated buildSampleRows() with enrichment JSON parsing and { _raw } fallback
-
-**Learnings:**
-- AUTO_MAP_RULES normalize column names (lowercase, replace spaces with _) before matching
-- enrichment column parse failure stores raw as { _raw: value } instead of silently dropping
+Started: Fri Feb 27 18:52:31 EST 2026
+Project: Admin Lead Management
+Goal: Unknown
 
 ---
 
-## 2026-02-27 — US-003 + US-004 + US-005: Backend APIs
-
-**What I did:**
-- Bulk POST: accepts enrichment_json, extracts tech metadata from technical_specs
-- Bulk POST: fetches S3 annotation JSONs for samples missing tech fields (max 10 concurrent)
-- MediaInfo extraction: files[0].attributes.media.track[] for Video/General tracks
-- Added enrichment_json to PATCH allowedFields (single sample, bulk, dataset)
-- Added enrichment_json validation to bulk PATCH
-
-**Code Review Fixes:**
-- S3 client: module-level singleton instead of per-request creation
-- PATCH route: added enrichment_json JSON.parse validation
-
-**Learnings:**
-- S3 annotation bucket: env var S3_ANNOTATION_BUCKET with fallback to S3_BUCKET_NAME
-- MediaInfo path: track[].@type === "Video" for Width/Height/Duration/FrameRate
-- extractTechMetadata priority: enrichment > S3 annotation > null
-
----
-
-## 2026-02-27 — US-006: JsonTree Component
-
-**What I did:**
-- Created adaptive JSON tree renderer at src/app/components/catalog/JsonTree.tsx
-- Collapsible nodes, type-specific rendering, search with auto-expand
-- Top-level expanded by default, nested collapsed
-- Empty state, no-results state, highlight matches
-
----
-
-## 2026-02-27 — US-007 + US-008 + US-009: Frontend Integration
-
-**What I did:**
-- Registered enrichment + additional_metadata panel types in DataPanelRegistry
-- Admin label: "Enrichment", portal label: "Additional Metadata" (different panel types)
-- SampleDetailModal: showEnrichment + isAdmin props for conditional visibility
-- CatalogEditClient: show_enrichment checkbox with helper text
-- SampleEditPanel: enrichment_json textarea with Format button, validation, diff detection
-
-**Learnings:**
-- Panel registry supports multiple types pointing to same component
-- Admin context determined by isAdmin prop (set by SamplePreviewModal wrapper)
-- Portal context uses showEnrichment from dataset config
-
----
-
+## US-001: Create lead API endpoint
+**What I did:** Created POST /api/admin/leads endpoint that accepts { name, email, company, role, data_needs, use_case, admin_notes }, validates required fields (name, email) and email format via regex, inserts into Supabase leads table with status 'pending', returns 409 on duplicate email (error code 23505), and returns 201 with the created lead object. Uses the same cookie-based admin auth pattern (verifyAdminToken) as other admin routes.
+**Files changed:** src/app/api/admin/leads/route.ts (new), prd.json (US-001 passes: true), progress.txt
+**Learnings:** The leads table has a UNIQUE constraint on email, and Supabase surfaces PostgreSQL error code 23505 for unique violations. The existing admin routes all follow the same auth pattern: read admin-token cookie, verify via verifyAdminToken, return 401 if invalid. The insert data is built incrementally with optional fields only included if they are non-empty strings.
