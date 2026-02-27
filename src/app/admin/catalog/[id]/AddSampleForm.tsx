@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Loader2, Plus, AlertCircle } from "lucide-react";
+import { Loader2, Plus, AlertCircle, CheckCircle } from "lucide-react";
 import type { DatasetSample } from "@/types/data-catalog";
 
 // ---------------------------------------------------------------------------
@@ -17,8 +17,12 @@ interface AddSampleFormProps {
 // Validation helpers
 // ---------------------------------------------------------------------------
 
-function isValidUrl(value: string): boolean {
-  return value.startsWith("http://") || value.startsWith("https://");
+function isValidS3Uri(value: string): boolean {
+  return (
+    value.startsWith("s3://") ||
+    value.startsWith("http://") ||
+    value.startsWith("https://")
+  );
 }
 
 function tryParseJson(value: string): { valid: boolean; parsed: Record<string, unknown> } {
@@ -42,27 +46,30 @@ function tryParseJson(value: string): { valid: boolean; parsed: Record<string, u
 // ---------------------------------------------------------------------------
 
 export default function AddSampleForm({ datasetId, onSampleAdded }: AddSampleFormProps) {
-  const [mediaUrl, setMediaUrl] = useState("");
+  const [s3Uri, setS3Uri] = useState("");
+  const [annotationKey, setAnnotationKey] = useState("");
+  const [specsKey, setSpecsKey] = useState("");
   const [metadataJson, setMetadataJson] = useState("{}");
-  const [urlError, setUrlError] = useState<string | null>(null);
+
+  const [uriError, setUriError] = useState<string | null>(null);
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
   // -----------------------------------------------------------------------
-  // URL validation
+  // URI validation
   // -----------------------------------------------------------------------
 
-  const validateUrl = useCallback((value: string) => {
+  const validateUri = useCallback((value: string) => {
     if (value.trim() === "") {
-      setUrlError(null);
+      setUriError(null);
       return;
     }
-    if (!isValidUrl(value.trim())) {
-      setUrlError("URL must start with http:// or https://");
+    if (!isValidS3Uri(value.trim())) {
+      setUriError("Must start with s3://, http://, or https://");
     } else {
-      setUrlError(null);
+      setUriError(null);
     }
   }, []);
 
@@ -94,14 +101,14 @@ export default function AddSampleForm({ datasetId, onSampleAdded }: AddSampleFor
       setSubmitError(null);
       setSubmitSuccess(false);
 
-      // Validate URL
-      const trimmedUrl = mediaUrl.trim();
-      if (!trimmedUrl) {
-        setUrlError("Media URL is required.");
+      // Validate S3 URI
+      const trimmedUri = s3Uri.trim();
+      if (!trimmedUri) {
+        setUriError("S3 Object URI is required.");
         return;
       }
-      if (!isValidUrl(trimmedUrl)) {
-        setUrlError("URL must start with http:// or https://");
+      if (!isValidS3Uri(trimmedUri)) {
+        setUriError("Must start with s3://, http://, or https://");
         return;
       }
 
@@ -119,8 +126,11 @@ export default function AddSampleForm({ datasetId, onSampleAdded }: AddSampleFor
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            media_url: trimmedUrl,
-            metadata_json: parsed,
+            mode: "s3_uri",
+            s3_object_key: trimmedUri,
+            s3_annotation_key: annotationKey.trim() || undefined,
+            s3_specs_key: specsKey.trim() || undefined,
+            metadata_json: JSON.stringify(parsed),
           }),
         });
 
@@ -135,9 +145,11 @@ export default function AddSampleForm({ datasetId, onSampleAdded }: AddSampleFor
         onSampleAdded(sample as DatasetSample);
 
         // Reset form
-        setMediaUrl("");
+        setS3Uri("");
+        setAnnotationKey("");
+        setSpecsKey("");
         setMetadataJson("{}");
-        setUrlError(null);
+        setUriError(null);
         setJsonError(null);
         setSubmitSuccess(true);
 
@@ -149,8 +161,17 @@ export default function AddSampleForm({ datasetId, onSampleAdded }: AddSampleFor
         setSubmitting(false);
       }
     },
-    [datasetId, mediaUrl, metadataJson, onSampleAdded]
+    [datasetId, s3Uri, annotationKey, specsKey, metadataJson, onSampleAdded]
   );
+
+  // -----------------------------------------------------------------------
+  // Shared input styles
+  // -----------------------------------------------------------------------
+
+  const inputBase =
+    "w-full rounded-md bg-[var(--bg-secondary)] border px-3 py-2 text-sm font-mono text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none transition-colors";
+  const borderNormal = "border-[var(--border-subtle)] focus:border-[var(--accent-primary)]";
+  const borderError = "border-[var(--error)] focus:border-[var(--error)]";
 
   // -----------------------------------------------------------------------
   // Render
@@ -158,35 +179,58 @@ export default function AddSampleForm({ datasetId, onSampleAdded }: AddSampleFor
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Media URL */}
+      {/* S3 Object URI */}
       <div>
         <label className="block text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
-          Media URL <span className="text-[var(--error)]">*</span>
+          S3 Object URI <span className="text-[var(--error)]">*</span>
         </label>
         <input
           type="text"
-          value={mediaUrl}
+          value={s3Uri}
           onChange={(e) => {
-            setMediaUrl(e.target.value);
-            // Clear error as user types if it becomes valid
-            if (urlError && isValidUrl(e.target.value.trim())) {
-              setUrlError(null);
+            setS3Uri(e.target.value);
+            if (uriError && isValidS3Uri(e.target.value.trim())) {
+              setUriError(null);
             }
           }}
-          onBlur={() => validateUrl(mediaUrl)}
-          placeholder="https://storage.example.com/video.mp4"
-          className={`w-full rounded-md bg-[var(--bg-secondary)] border px-3 py-2 text-sm font-mono text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none transition-colors ${
-            urlError
-              ? "border-[var(--error)] focus:border-[var(--error)]"
-              : "border-[var(--border-subtle)] focus:border-[var(--accent-primary)]"
-          }`}
+          onBlur={() => validateUri(s3Uri)}
+          placeholder="s3://bucket-name/path/to/file.mp4"
+          className={`${inputBase} ${uriError ? borderError : borderNormal}`}
         />
-        {urlError && (
+        {uriError && (
           <p className="mt-1 flex items-center gap-1 text-xs font-mono text-[var(--error)]">
             <AlertCircle className="w-3 h-3 shrink-0" />
-            {urlError}
+            {uriError}
           </p>
         )}
+      </div>
+
+      {/* S3 Annotation Key */}
+      <div>
+        <label className="block text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
+          S3 Annotation Key <span className="text-[var(--text-muted)]">(optional)</span>
+        </label>
+        <input
+          type="text"
+          value={annotationKey}
+          onChange={(e) => setAnnotationKey(e.target.value)}
+          placeholder="path/to/annotation.json"
+          className={`${inputBase} ${borderNormal}`}
+        />
+      </div>
+
+      {/* S3 Specs Key */}
+      <div>
+        <label className="block text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
+          S3 Specs Key <span className="text-[var(--text-muted)]">(optional)</span>
+        </label>
+        <input
+          type="text"
+          value={specsKey}
+          onChange={(e) => setSpecsKey(e.target.value)}
+          placeholder="path/to/specs.json"
+          className={`${inputBase} ${borderNormal}`}
+        />
       </div>
 
       {/* Metadata JSON */}
@@ -198,7 +242,6 @@ export default function AddSampleForm({ datasetId, onSampleAdded }: AddSampleFor
           value={metadataJson}
           onChange={(e) => {
             setMetadataJson(e.target.value);
-            // Clear error as user types if it becomes valid
             if (jsonError) {
               const { valid } = tryParseJson(e.target.value);
               if (valid) setJsonError(null);
@@ -207,11 +250,7 @@ export default function AddSampleForm({ datasetId, onSampleAdded }: AddSampleFor
           onBlur={() => validateJson(metadataJson)}
           rows={5}
           spellCheck={false}
-          className={`w-full rounded-md bg-[var(--bg-secondary)] border px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none transition-colors resize-y ${
-            jsonError
-              ? "border-[var(--error)] focus:border-[var(--error)]"
-              : "border-[var(--border-subtle)] focus:border-[var(--accent-primary)]"
-          }`}
+          className={`${inputBase} resize-y ${jsonError ? borderError : borderNormal}`}
           style={{ fontFamily: "var(--font-mono)" }}
         />
         {jsonError && (
@@ -238,7 +277,8 @@ export default function AddSampleForm({ datasetId, onSampleAdded }: AddSampleFor
         </button>
 
         {submitSuccess && (
-          <span className="text-sm font-mono text-[var(--accent-primary)]">
+          <span className="flex items-center gap-1 text-sm font-mono text-[var(--accent-primary)]">
+            <CheckCircle className="w-4 h-4" />
             Sample added.
           </span>
         )}
