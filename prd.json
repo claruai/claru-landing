@@ -178,7 +178,7 @@
         "Run code-reviewer agent to verify dedup logic and chunked upload"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": "This extends the component from US-008. Use frontend-expert agent. The bulk API (US-004) now supports skip_duplicates. Fetch existing keys via the GET samples API to compare client-side before sending to server."
     },
     {
