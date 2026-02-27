@@ -68,7 +68,8 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
   // View mode (table or grid), persisted in sessionStorage
   const [viewMode, setViewMode] = useState<"table" | "grid">(() => {
     if (typeof window !== "undefined") {
-      return (sessionStorage.getItem("admin-samples-view") as "table" | "grid") ?? "table";
+      const stored = sessionStorage.getItem("admin-samples-view");
+      return stored === "table" || stored === "grid" ? stored : "table";
     }
     return "table";
   });
@@ -188,6 +189,7 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
       if (p < 1 || p > totalPages) return;
       setSelectedIds(new Set());
       setConfirmBatchDelete(false);
+      setPreviewIndex(null);
       fetchSamples(p);
     },
     [fetchSamples, totalPages]

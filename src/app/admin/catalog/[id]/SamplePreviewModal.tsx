@@ -35,7 +35,8 @@ export default function SamplePreviewModal({
   );
 
   const handleEdit = useCallback(() => {
-    onEdit(samples[selectedIndex]);
+    const sample = samples[selectedIndex];
+    if (sample) onEdit(sample);
   }, [onEdit, samples, selectedIndex]);
 
   return (
