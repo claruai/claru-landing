@@ -41,6 +41,7 @@ export interface Dataset {
   annotation_types: string[];
   thumbnail_url: string;
   is_published: boolean;
+  show_enrichment: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -62,6 +63,7 @@ export interface DatasetSample {
   s3_object_key: string | null;
   s3_annotation_key: string | null;
   s3_specs_key: string | null;
+  enrichment_json: Record<string, unknown>;
   created_at: string;
 }
 

@@ -27,6 +27,7 @@ type MappableField =
   | "s3_annotation_key"
   | "s3_specs_key"
   | "metadata_json"
+  | "enrichment_json"
   | "__unmapped__";
 
 interface ColumnMapping {
@@ -55,6 +56,15 @@ const AUTO_MAP_RULES: Record<string, MappableField> = {
   metadata: "metadata_json",
   metadata_json: "metadata_json",
   meta: "metadata_json",
+  // Enrichment aliases (standardized 5-column template)
+  enrichment: "enrichment_json",
+  enrichment_json: "enrichment_json",
+  ai_metadata: "enrichment_json",
+  // Standardized template column aliases
+  s3_video_uri: "s3_object_key",
+  video_uri: "s3_object_key",
+  s3_annotation_uri: "s3_annotation_key",
+  annotation_uri: "s3_annotation_key",
 };
 
 const FIELD_LABELS: Record<MappableField, string> = {
@@ -62,6 +72,7 @@ const FIELD_LABELS: Record<MappableField, string> = {
   s3_annotation_key: "S3 Annotation Key",
   s3_specs_key: "S3 Specs Key",
   metadata_json: "Metadata JSON",
+  enrichment_json: "Enrichment JSON",
   __unmapped__: "→ Metadata (auto)",
 };
 
@@ -183,6 +194,7 @@ export default function BulkCsvUploader({
     const annotCol = mappings.find((m) => m.mappedTo === "s3_annotation_key")?.csvColumn;
     const specsCol = mappings.find((m) => m.mappedTo === "s3_specs_key")?.csvColumn;
     const metaCol = mappings.find((m) => m.mappedTo === "metadata_json")?.csvColumn;
+    const enrichCol = mappings.find((m) => m.mappedTo === "enrichment_json")?.csvColumn;
     const unmappedCols = mappings
       .filter((m) => m.mappedTo === "__unmapped__")
       .map((m) => m.csvColumn);
@@ -208,6 +220,17 @@ export default function BulkCsvUploader({
         }
       }
 
+      // Parse enrichment JSON column
+      let enrichment: Record<string, unknown> = {};
+      if (enrichCol && row[enrichCol]) {
+        try {
+          enrichment = JSON.parse(row[enrichCol]);
+        } catch {
+          // If JSON parse fails, store raw string instead of dropping it
+          enrichment = { _raw: row[enrichCol] };
+        }
+      }
+
       // Build media_url for the bulk API (required field)
       const mediaUrl = s3Key
         ? `https://s3-placeholder.local/${s3Key}`
@@ -219,6 +242,7 @@ export default function BulkCsvUploader({
         s3_annotation_key: annotCol ? row[annotCol] || null : null,
         s3_specs_key: specsCol ? row[specsCol] || null : null,
         metadata_json: metadata,
+        enrichment_json: enrichment,
       };
     });
   }, [parsedRows, mappings, stripS3Prefix]);
@@ -510,6 +534,7 @@ export default function BulkCsvUploader({
                   <option value="s3_annotation_key">{FIELD_LABELS.s3_annotation_key}</option>
                   <option value="s3_specs_key">{FIELD_LABELS.s3_specs_key}</option>
                   <option value="metadata_json">{FIELD_LABELS.metadata_json}</option>
+                  <option value="enrichment_json">{FIELD_LABELS.enrichment_json}</option>
                   <option value="__unmapped__">{FIELD_LABELS.__unmapped__}</option>
                 </select>
                 <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)] pointer-events-none" />
