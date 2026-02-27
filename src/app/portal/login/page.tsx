@@ -60,14 +60,19 @@ function PortalLoginForm() {
     [email]
   );
 
-  // If the user is already authenticated, redirect to the portal
+  // If the user is already authenticated, redirect to the portal.
+  // If stale cookies exist (e.g. expired refresh token), clear them
+  // silently so Supabase doesn't log AuthApiError to the console.
   const checkExistingSession = useCallback(async () => {
     const supabase = getSupabaseBrowserClient();
     const {
       data: { user },
+      error,
     } = await supabase.auth.getUser();
     if (user) {
       router.replace("/portal");
+    } else if (error) {
+      await supabase.auth.signOut();
     }
   }, [router]);
 
