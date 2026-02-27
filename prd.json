@@ -302,7 +302,7 @@
         "Run code-reviewer agent to verify test assertions"
       ],
       "priority": 14,
-      "passes": false,
+      "passes": true,
       "notes": "Dev server runs on localhost:3001 (port 3000 may be in use). Admin credentials: team@claru.ai / qweqwe123!. Use Playwright MCP to manually verify flows first, then codify as spec file."
     },
     {
