@@ -11,7 +11,7 @@ import { getS3SignedUrl } from "@/lib/s3/presigner";
  * Lists all samples for a dataset, ordered by creation date.
  */
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const cookieStore = await cookies();
@@ -23,11 +23,27 @@ export async function GET(
   const { id } = await params;
   const supabase = createSupabaseAdminClient();
 
-  const { data: samples, error } = await supabase
+  // Parse optional pagination params
+  const url = new URL(request.url);
+  const pageParam = url.searchParams.get("page");
+  const perPageParam = url.searchParams.get("per_page");
+  const paginated = pageParam != null || perPageParam != null;
+  const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+  const perPage = Math.max(1, Math.min(200, parseInt(perPageParam ?? "50", 10) || 50));
+
+  let query = supabase
     .from("dataset_samples")
-    .select("*")
+    .select("*", paginated ? { count: "exact" } : {})
     .eq("dataset_id", id)
     .order("created_at", { ascending: false });
+
+  if (paginated) {
+    const from = (page - 1) * perPage;
+    const to = from + perPage - 1;
+    query = query.range(from, to);
+  }
+
+  const { data: samples, error, count } = await query;
 
   if (error) {
     console.error("[GET /api/admin/catalog/[id]/samples]", error);
@@ -68,6 +84,20 @@ export async function GET(
     })
   );
 
+  // When paginated, return pagination metadata
+  if (paginated) {
+    const total = count ?? 0;
+    return NextResponse.json({
+      samples: samplesWithUrls,
+      total,
+      page,
+      per_page: perPage,
+      total_pages: Math.ceil(total / perPage),
+      formatIssueCounts,
+    });
+  }
+
+  // Backward compatible: return all samples without pagination metadata
   return NextResponse.json({
     samples: samplesWithUrls,
     formatIssueCounts,
