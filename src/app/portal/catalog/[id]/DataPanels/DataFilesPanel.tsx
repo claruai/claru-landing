@@ -185,7 +185,7 @@ function DataFilesList({ files, apiBase }: DataFilesListProps) {
                   focus-visible:ring-[var(--accent-primary)]/60
                   ${
                     state === "error"
-                      ? "border-red-500/40 text-red-400 bg-red-500/10"
+                      ? "border-[var(--error)]/40 text-[var(--error)] bg-[var(--error)]/10"
                       : state === "loading"
                       ? "border-[var(--border-subtle)] text-[var(--text-muted)] bg-[var(--bg-tertiary)] cursor-not-allowed"
                       : "border-[var(--border-subtle)] text-[var(--text-muted)] bg-[var(--bg-tertiary)] hover:text-[var(--accent-primary)] hover:border-[var(--accent-primary)]/40"

@@ -60,7 +60,7 @@ const TAG_BADGE_CONFIG: Record<string, { label: string; className: string }> = {
   },
   "game-specs": {
     label: "GAME SPECS",
-    className: "bg-blue-500/10 text-blue-400",
+    className: "bg-[var(--accent-tertiary)]/10 text-[var(--accent-tertiary)]",
   },
   "hand-tracking": {
     label: "HAND TRACKING",
