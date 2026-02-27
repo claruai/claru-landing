@@ -2,9 +2,10 @@
 
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, ChevronRight, Loader2, Save, Trash2, Upload } from "lucide-react";
+import { Loader2, Save, Trash2 } from "lucide-react";
 import AddSampleForm from "./AddSampleForm";
-import DatasetUploader from "@/app/components/ui/DatasetUploader";
+import BulkCsvUploader from "./BulkCsvUploader";
+import SamplesList from "./SamplesList";
 import type { Dataset, DatasetCategory, DatasetSample, DatasetType } from "@/types/data-catalog";
 
 // ---------------------------------------------------------------------------
@@ -37,15 +38,19 @@ export default function CatalogEditClient({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  // Incremented to signal DatasetUploader to re-fetch its sample list
-  const [uploaderRefreshKey, setUploaderRefreshKey] = useState(0);
+  // Samples tab state
+  const [activeTab, setActiveTab] = useState<"samples" | "add" | "bulk">("samples");
+  const [samplesRefreshKey, setSamplesRefreshKey] = useState(0);
 
-  // Whether the file upload collapsible section is open
-  const [showFileUploader, setShowFileUploader] = useState(false);
-
-  // When AddSampleForm adds a sample, tell DatasetUploader to refresh
+  // When a sample is added or import completes, switch to Samples tab and refresh
   const handleSampleAdded = useCallback((_sample: DatasetSample) => {
-    setUploaderRefreshKey((k) => k + 1);
+    setSamplesRefreshKey((k) => k + 1);
+    setActiveTab("samples");
+  }, []);
+
+  const handleImportComplete = useCallback(() => {
+    setSamplesRefreshKey((k) => k + 1);
+    setActiveTab("samples");
   }, []);
 
   const handleDelete = async () => {
@@ -332,60 +337,62 @@ export default function CatalogEditClient({
       </section>
 
       {/* ----------------------------------------------------------------- */}
-      {/* Samples Section                                                   */}
+      {/* Samples Section — Tabbed Interface                                */}
       {/* ----------------------------------------------------------------- */}
       <section>
-        <div className="border-t border-[var(--border-subtle)] pt-8 space-y-8">
-          <h2 className="text-base font-mono font-semibold text-[var(--text-primary)]">
-            Samples
-          </h2>
-
-          {/* ---- Add Sample via URL + JSON (primary) ---- */}
-          <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-5">
-            <h3 className="text-sm font-mono font-medium text-[var(--text-secondary)] mb-4">
-              Add Sample via URL
-            </h3>
-            <AddSampleForm
-              datasetId={dataset.id}
-              onSampleAdded={handleSampleAdded}
-            />
+        <div className="border-t border-[var(--border-subtle)] pt-8 space-y-0">
+          {/* Tab bar */}
+          <div className="flex border-b border-[var(--border-subtle)]">
+            {(
+              [
+                { key: "samples", label: "Samples" },
+                { key: "add", label: "Add Sample" },
+                { key: "bulk", label: "Bulk Import" },
+              ] as const
+            ).map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveTab(tab.key)}
+                className={`px-5 py-3 text-sm font-mono transition-colors relative ${
+                  activeTab === tab.key
+                    ? "text-[var(--text-primary)] font-semibold"
+                    : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+                }`}
+              >
+                {tab.label}
+                {activeTab === tab.key && (
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--accent-primary)]" />
+                )}
+              </button>
+            ))}
           </div>
 
-          {/* ---- Or upload a file (secondary, collapsible) ---- */}
-          <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)]">
-            <button
-              type="button"
-              onClick={() => setShowFileUploader((prev) => !prev)}
-              className="flex items-center gap-2 w-full px-5 py-4 text-sm font-mono text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
-            >
-              {showFileUploader ? (
-                <ChevronDown className="w-4 h-4" />
-              ) : (
-                <ChevronRight className="w-4 h-4" />
-              )}
-              <Upload className="w-4 h-4" />
-              <span>Or upload a file</span>
-            </button>
+          {/* Tab content */}
+          <div className="pt-6">
+            {activeTab === "samples" && (
+              <SamplesList
+                datasetId={dataset.id}
+                refreshKey={samplesRefreshKey}
+              />
+            )}
 
-            {showFileUploader && (
-              <div className="px-5 pb-5 border-t border-[var(--border-subtle)]">
-                <div className="pt-4">
-                  <DatasetUploader
-                    datasetId={dataset.id}
-                    refreshKey={uploaderRefreshKey}
-                  />
-                </div>
+            {activeTab === "add" && (
+              <div className="max-w-xl">
+                <AddSampleForm
+                  datasetId={dataset.id}
+                  onSampleAdded={handleSampleAdded}
+                />
               </div>
             )}
-          </div>
 
-          {/* ---- Samples list (always visible via DatasetUploader) ---- */}
-          {!showFileUploader && (
-            <DatasetUploader
-              datasetId={dataset.id}
-              refreshKey={uploaderRefreshKey}
-            />
-          )}
+            {activeTab === "bulk" && (
+              <BulkCsvUploader
+                datasetId={dataset.id}
+                onImportComplete={handleImportComplete}
+              />
+            )}
+          </div>
         </div>
       </section>
     </div>
