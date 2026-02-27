@@ -130,7 +130,7 @@
         "Run code-reviewer agent to verify form validation and API integration"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "Use frontend-expert agent to help build the form with proper terminal aesthetic. Read existing AddSampleForm.tsx first to understand current props and callbacks. The parent CatalogEditClient.tsx passes onSampleAdded and datasetId props."
     },
     {
