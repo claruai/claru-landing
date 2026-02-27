@@ -91,7 +91,7 @@
         "Run code-reviewer agent to verify pagination logic and backward compatibility"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "Read existing GET handler carefully — it does presigned URL generation and format_issues counting. Make sure pagination wraps around those operations. Use Supabase .range(from, to) where from = (page-1)*per_page and to = from + per_page - 1. Use count option in Supabase query for total."
     },
     {
