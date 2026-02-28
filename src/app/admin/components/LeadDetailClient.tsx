@@ -84,6 +84,26 @@ function ToastContainer({ toasts }: { toasts: Toast[] }) {
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
+interface EditForm {
+  name: string;
+  email: string;
+  company: string;
+  role: string;
+  data_needs: string;
+  use_case: string;
+}
+
+function makeEditForm(lead: Lead): EditForm {
+  return {
+    name: lead.name,
+    email: lead.email,
+    company: lead.company,
+    role: lead.role,
+    data_needs: lead.data_needs,
+    use_case: lead.use_case,
+  };
+}
+
 export default function LeadDetailClient({
   initialLead,
   initialGrants,
@@ -105,6 +125,11 @@ export default function LeadDetailClient({
   const [toasts, setToasts] = useState<Toast[]>([]);
   const toastIdRef = useRef(0);
 
+  /* ---- Edit mode ------------------------------------------------- */
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState<EditForm>(makeEditForm(initialLead));
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+
   // Sync selectedDatasetIds when grants change
   useEffect(() => {
     setSelectedDatasetIds(new Set(grants.map((g) => g.dataset_id)));
@@ -120,6 +145,70 @@ export default function LeadDetailClient({
     },
     []
   );
+
+  /* ---- Edit mode actions ----------------------------------------- */
+
+  const handleEditToggle = useCallback(() => {
+    setEditForm(makeEditForm(lead));
+    setIsEditing(true);
+  }, [lead]);
+
+  const handleEditCancel = useCallback(() => {
+    setEditForm(makeEditForm(lead));
+    setIsEditing(false);
+  }, [lead]);
+
+  const handleEditSave = useCallback(async () => {
+    // Diff detection: only include changed fields
+    const changed: Partial<EditForm> = {};
+    const keys: (keyof EditForm)[] = [
+      "name",
+      "email",
+      "company",
+      "role",
+      "data_needs",
+      "use_case",
+    ];
+    for (const key of keys) {
+      if (editForm[key] !== lead[key]) {
+        changed[key] = editForm[key];
+      }
+    }
+
+    if (Object.keys(changed).length === 0) {
+      setIsEditing(false);
+      return;
+    }
+
+    setIsSavingEdit(true);
+    try {
+      const res = await fetch(`/api/admin/leads/${lead.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(changed),
+      });
+      if (res.status === 409) {
+        addToast("Email already in use by another lead", "error");
+        return;
+      }
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({ error: "Unknown error" }));
+        throw new Error(body.error);
+      }
+      const data = await res.json();
+      setLead(data.lead);
+      setEditForm(makeEditForm(data.lead));
+      setIsEditing(false);
+      addToast("Lead updated");
+    } catch (err) {
+      addToast(
+        `Save failed: ${err instanceof Error ? err.message : "unknown"}`,
+        "error"
+      );
+    } finally {
+      setIsSavingEdit(false);
+    }
+  }, [lead, editForm, addToast]);
 
   /* ---- Actions --------------------------------------------------- */
 
@@ -334,21 +423,108 @@ export default function LeadDetailClient({
       <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-6 space-y-6">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-xl font-mono font-semibold text-[var(--text-primary)]">
-              {lead.name}
-            </h2>
-            <p className="text-sm font-mono text-[var(--text-muted)] mt-1">
-              {lead.email}
-            </p>
+            {isEditing ? (
+              <>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) =>
+                    setEditForm((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                  className="w-full bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] transition-colors"
+                  placeholder="Name"
+                />
+                <input
+                  type="email"
+                  value={editForm.email}
+                  onChange={(e) =>
+                    setEditForm((prev) => ({ ...prev, email: e.target.value }))
+                  }
+                  className="mt-2 w-full bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] transition-colors"
+                  placeholder="Email"
+                />
+              </>
+            ) : (
+              <>
+                <h2 className="text-xl font-mono font-semibold text-[var(--text-primary)]">
+                  {lead.name}
+                </h2>
+                <p className="text-sm font-mono text-[var(--text-muted)] mt-1">
+                  {lead.email}
+                </p>
+              </>
+            )}
           </div>
-          <LeadStatusBadge status={lead.status as LeadStatus} />
+          <div className="flex items-center gap-3">
+            {isEditing ? (
+              <>
+                <button
+                  onClick={handleEditSave}
+                  disabled={isSavingEdit}
+                  className="text-xs font-mono text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSavingEdit ? "[saving...]" : "[save]"}
+                </button>
+                <button
+                  onClick={handleEditCancel}
+                  disabled={isSavingEdit}
+                  className="text-xs font-mono text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  [cancel]
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={handleEditToggle}
+                className="text-xs font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors duration-200"
+              >
+                [edit]
+              </button>
+            )}
+            <LeadStatusBadge status={lead.status as LeadStatus} />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <InfoField label="Company" value={lead.company} />
-          <InfoField label="Role" value={lead.role} />
-          <InfoField label="Data Needs" value={lead.data_needs} />
-          <InfoField label="Use Case" value={lead.use_case} />
+          {isEditing ? (
+            <>
+              <EditField
+                label="Company"
+                value={editForm.company}
+                onChange={(v) =>
+                  setEditForm((prev) => ({ ...prev, company: v }))
+                }
+              />
+              <EditField
+                label="Role"
+                value={editForm.role}
+                onChange={(v) =>
+                  setEditForm((prev) => ({ ...prev, role: v }))
+                }
+              />
+              <EditTextarea
+                label="Data Needs"
+                value={editForm.data_needs}
+                onChange={(v) =>
+                  setEditForm((prev) => ({ ...prev, data_needs: v }))
+                }
+              />
+              <EditTextarea
+                label="Use Case"
+                value={editForm.use_case}
+                onChange={(v) =>
+                  setEditForm((prev) => ({ ...prev, use_case: v }))
+                }
+              />
+            </>
+          ) : (
+            <>
+              <InfoField label="Company" value={lead.company} />
+              <InfoField label="Role" value={lead.role} />
+              <InfoField label="Data Needs" value={lead.data_needs} />
+              <InfoField label="Use Case" value={lead.use_case} />
+            </>
+          )}
           <InfoField label="Submitted" value={formatDate(lead.created_at)} />
           <InfoField label="Updated" value={formatDate(lead.updated_at)} />
           {lead.supabase_user_id && (
@@ -663,6 +839,60 @@ function InfoField({ label, value }: { label: string; value: string }) {
       </dt>
       <dd className="mt-1 text-sm font-mono text-[var(--text-primary)] break-words">
         {value || "(not provided)"}
+      </dd>
+    </div>
+  );
+}
+
+function EditField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div>
+      <dt className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider">
+        {label}
+      </dt>
+      <dd className="mt-1">
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] transition-colors"
+          placeholder={label}
+        />
+      </dd>
+    </div>
+  );
+}
+
+function EditTextarea({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div>
+      <dt className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider">
+        {label}
+      </dt>
+      <dd className="mt-1">
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          rows={3}
+          className="w-full bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] transition-colors resize-y"
+          placeholder={label}
+        />
       </dd>
     </div>
   );
