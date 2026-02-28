@@ -7,6 +7,7 @@ import {
   Database,
   Layers,
   Clock,
+  ShieldX,
 } from "lucide-react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
@@ -40,7 +41,7 @@ async function getPortalData() {
     .single<Lead>();
 
   if (!lead) {
-    redirect("/portal/login");
+    return { noAccess: true as const, email: user.email ?? "" };
   }
 
   // Fetch granted dataset access (with dataset info) ordered by most recent
@@ -80,10 +81,11 @@ async function getPortalData() {
   const { data: bookingSetting } = await supabase
     .from("settings")
     .select("value")
-    .eq("key", "call_booking_url")
+    .eq("key", "booking_url")
     .single<{ value: string }>();
 
   return {
+    noAccess: false as const,
     lead,
     accessGrants: accessGrants ?? [],
     totalDatasets: (accessGrants ?? []).length,
@@ -97,8 +99,13 @@ async function getPortalData() {
 // ---------------------------------------------------------------------------
 
 export default async function PortalDashboardPage() {
-  const { lead, accessGrants, totalDatasets, totalSamples, bookingUrl } =
-    await getPortalData();
+  const data = await getPortalData();
+
+  if (data.noAccess) {
+    return <NoAccessView email={data.email} />;
+  }
+
+  const { lead, accessGrants, totalDatasets, totalSamples, bookingUrl } = data;
 
   // Recent activity: latest 6 grants
   const recentGrants = accessGrants.slice(0, 6);
@@ -257,6 +264,47 @@ export default async function PortalDashboardPage() {
           </div>
         )}
       </section>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// No Access View
+// ---------------------------------------------------------------------------
+
+function NoAccessView({ email }: { email: string }) {
+  return (
+    <div className="mx-auto max-w-md px-[var(--container-padding)] py-24 text-center">
+      <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--error)]/10">
+        <ShieldX
+          className="h-7 w-7 text-[var(--error)]"
+          strokeWidth={1.5}
+        />
+      </div>
+      <h1 className="text-xl font-semibold tracking-tight text-[var(--text-primary)] mb-2">
+        Access not authorized
+      </h1>
+      <p className="text-sm font-mono text-[var(--text-muted)] leading-relaxed mb-2">
+        <span className="text-[var(--text-secondary)]">{email}</span> is not
+        associated with an active portal account.
+      </p>
+      <p className="text-sm font-mono text-[var(--text-muted)] leading-relaxed mb-8">
+        If you believe this is an error, please contact your Claru representative
+        or reach out to{" "}
+        <a
+          href="mailto:team@claru.ai"
+          className="text-[var(--accent-primary)] hover:underline"
+        >
+          team@claru.ai
+        </a>
+        .
+      </p>
+      <a
+        href="/portal/login"
+        className="inline-block px-5 py-2.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] text-sm font-mono text-[var(--text-primary)] hover:border-[var(--border-accent)] hover:bg-[var(--bg-card-hover)] transition-colors duration-200"
+      >
+        sign in with a different email
+      </a>
     </div>
   );
 }

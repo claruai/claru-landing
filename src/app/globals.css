@@ -54,6 +54,70 @@
   --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+/* ============================================
+   PORTAL LIGHT THEME
+   Scoped to portal pages via .portal-theme-scope
+   ============================================ */
+
+[data-theme="light"] .portal-theme-scope {
+  /* Background Colors - Light Theme */
+  --bg-primary: #FAFAF8;
+  --bg-secondary: #F2F1EF;
+  --bg-tertiary: #E8E7E4;
+  --bg-elevated: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F7F6F4;
+
+  /* Text Colors - Light Theme */
+  --text-primary: #1A1A1A;
+  --text-secondary: rgba(26, 26, 26, 0.8);
+  --text-tertiary: rgba(26, 26, 26, 0.55);
+  --text-muted: rgba(26, 26, 26, 0.4);
+
+  /* Accent Colors - Deeper Sage for Light Background Contrast */
+  --accent-primary: #5E8A5A;
+  --accent-secondary: #4A7346;
+  --accent-tertiary: #92B090;
+  --accent-glow: rgba(94, 138, 90, 0.15);
+  --accent-glow-strong: rgba(94, 138, 90, 0.3);
+
+  /* Semantic Colors - Light Theme */
+  --success: #5E8A5A;
+  --error: #d32f2f;
+  --warning: #f57c00;
+
+  /* Border Colors - Light Theme */
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-medium: rgba(0, 0, 0, 0.12);
+  --border-strong: rgba(0, 0, 0, 0.2);
+  --border-accent: rgba(94, 138, 90, 0.3);
+}
+
+/* Portal theme transition */
+.portal-theme-scope {
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+/* Light theme selection */
+[data-theme="light"] .portal-theme-scope ::selection {
+  background: var(--accent-primary);
+  color: #FFFFFF;
+}
+
+/* Light theme scrollbar */
+[data-theme="light"] .portal-theme-scope ::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+[data-theme="light"] .portal-theme-scope ::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 4px;
+}
+
+[data-theme="light"] .portal-theme-scope ::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
 @theme inline {
   --color-background: var(--bg-primary);
   --color-foreground: var(--text-primary);

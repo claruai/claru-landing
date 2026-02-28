@@ -5,8 +5,10 @@ import {
   useContext,
   useState,
   useCallback,
+  useEffect,
   ReactNode,
 } from "react";
+import { DEFAULT_BOOKING_URL } from "../../lib/constants";
 
 export interface LeadData {
   name: string;
@@ -19,6 +21,8 @@ interface CalendlyContextValue {
   isOpen: boolean;
   step: 1 | 2;
   leadData: LeadData | null;
+  /** Base booking URL from the database (or fallback). */
+  bookingUrl: string;
   openCalendly: () => void;
   advanceToCalendly: (data: LeadData) => void;
   closeCalendly: () => void;
@@ -42,6 +46,19 @@ export default function CalendlyProvider({
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
   const [leadData, setLeadData] = useState<LeadData | null>(null);
+  const [bookingUrl, setBookingUrl] = useState(DEFAULT_BOOKING_URL);
+
+  // Fetch the configured booking URL from the database on mount
+  useEffect(() => {
+    fetch("/api/booking-url")
+      .then((res) => res.json())
+      .then((data: { url: string | null }) => {
+        if (data.url) setBookingUrl(data.url);
+      })
+      .catch(() => {
+        // Keep the fallback — no-op
+      });
+  }, []);
 
   const openCalendly = useCallback(() => {
     setStep(1);
@@ -65,7 +82,7 @@ export default function CalendlyProvider({
 
   return (
     <CalendlyContext.Provider
-      value={{ isOpen, step, leadData, openCalendly, advanceToCalendly, closeCalendly }}
+      value={{ isOpen, step, leadData, bookingUrl, openCalendly, advanceToCalendly, closeCalendly }}
     >
       {children}
     </CalendlyContext.Provider>

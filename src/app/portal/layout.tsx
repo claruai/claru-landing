@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PortalNav } from "./PortalNav";
+import { PortalThemeProvider } from "./PortalThemeProvider";
 
 export const metadata: Metadata = {
   title: "Portal | Claru",
@@ -20,9 +21,11 @@ export default function PortalLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
-      <PortalNav />
-      <main className="pt-16">{children}</main>
-    </div>
+    <PortalThemeProvider>
+      <div className="portal-theme-scope min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
+        <PortalNav />
+        <main className="pt-16">{children}</main>
+      </div>
+    </PortalThemeProvider>
   );
 }

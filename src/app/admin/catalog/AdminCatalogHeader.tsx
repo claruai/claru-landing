@@ -1,8 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
 
 /**
  * Admin header bar for the catalog page with breadcrumb navigation,
@@ -12,6 +14,9 @@ import Link from "next/link";
  */
 export default function AdminCatalogHeader() {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+  const { resolvedTheme, setTheme } = useTheme();
+  useEffect(() => setMounted(true), []);
 
   const handleLogout = useCallback(async () => {
     await fetch("/api/admin/logout", { method: "POST" });
@@ -34,6 +39,19 @@ export default function AdminCatalogHeader() {
       </h1>
 
       <div className="flex items-center gap-4">
+        <button
+          onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+          className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200"
+          aria-label={mounted && resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          {!mounted ? (
+            <div className="h-4 w-4" />
+          ) : resolvedTheme === "dark" ? (
+            <Moon className="h-4 w-4" strokeWidth={1.5} />
+          ) : (
+            <Sun className="h-4 w-4" strokeWidth={1.5} />
+          )}
+        </button>
         <Link
           href="/admin/catalog/import"
           className="px-3 py-1.5 text-xs font-mono rounded-md bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/20 transition-colors duration-150"

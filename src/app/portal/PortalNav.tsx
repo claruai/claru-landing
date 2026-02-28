@@ -1,9 +1,11 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
-import { LogOut, FolderOpen, MessageSquarePlus } from "lucide-react";
+import { LogOut, FolderOpen, MessageSquarePlus, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
 
 function getSupabaseBrowserClient() {
   return createBrowserClient(
@@ -20,8 +22,13 @@ const navItems = [
 export function PortalNav() {
   const router = useRouter();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+  const { resolvedTheme, setTheme } = useTheme();
 
-  const isLoginPage = pathname === "/portal/login";
+  useEffect(() => setMounted(true), []);
+
+  // Don't render the nav chrome on the login page
+  if (pathname === "/portal/login") return null;
 
   async function handleSignOut() {
     const supabase = getSupabaseBrowserClient();
@@ -42,7 +49,7 @@ export function PortalNav() {
 
         {/* Navigation */}
         <nav className="flex items-center gap-1">
-          {!isLoginPage && navItems.map((item) => {
+          {navItems.map((item) => {
             const isActive =
               pathname === item.href || pathname.startsWith(item.href + "/");
             return (
@@ -61,21 +68,35 @@ export function PortalNav() {
             );
           })}
 
-          {!isLoginPage && (
-            <>
-              {/* Divider */}
-              <div className="mx-2 h-5 w-px bg-[var(--border-subtle)]" />
+          {/* Divider */}
+          <div className="mx-2 h-5 w-px bg-[var(--border-subtle)]" />
 
-              {/* Sign Out */}
-              <button
-                onClick={handleSignOut}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-mono text-[var(--text-muted)] hover:text-[var(--error)] hover:bg-[var(--error)]/5 transition-colors duration-200"
-              >
-                <LogOut className="h-4 w-4" strokeWidth={1.5} />
-                <span className="hidden sm:inline">Sign Out</span>
-              </button>
-            </>
-          )}
+          {/* Theme Toggle */}
+          <button
+            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+            className="flex items-center justify-center p-2 rounded-md text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-colors duration-200"
+            aria-label={mounted && resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {!mounted ? (
+              <div className="h-4 w-4" />
+            ) : resolvedTheme === "dark" ? (
+              <Moon className="h-4 w-4" strokeWidth={1.5} />
+            ) : (
+              <Sun className="h-4 w-4" strokeWidth={1.5} />
+            )}
+          </button>
+
+          {/* Divider */}
+          <div className="mx-2 h-5 w-px bg-[var(--border-subtle)]" />
+
+          {/* Sign Out */}
+          <button
+            onClick={handleSignOut}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-mono text-[var(--text-muted)] hover:text-[var(--error)] hover:bg-[var(--error)]/5 transition-colors duration-200"
+          >
+            <LogOut className="h-4 w-4" strokeWidth={1.5} />
+            <span className="hidden sm:inline">Sign Out</span>
+          </button>
         </nav>
       </div>
     </header>

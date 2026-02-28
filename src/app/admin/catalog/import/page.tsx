@@ -1314,7 +1314,7 @@ export default function AdminCatalogImportPage() {
                             hasError
                               ? "bg-[var(--error)]/5"
                               : hasWarning
-                              ? "bg-yellow-500/5"
+                              ? "bg-[var(--warning)]/5"
                               : ""
                           }`}
                         >

@@ -62,7 +62,7 @@ function FormatFallback({ src }: { src: string }) {
 // ---------------------------------------------------------------------------
 
 /** Time (ms) to wait for the `canplay` event before showing the fallback. */
-const CANPLAY_TIMEOUT_MS = 5_000;
+const CANPLAY_TIMEOUT_MS = 12_000;
 
 export function VideoPlayer({
   src,
@@ -159,6 +159,7 @@ export function VideoPlayer({
       <video
         ref={videoRef}
         key={src}
+        src={src}
         controls
         autoPlay={autoPlay}
         muted={autoPlay}
@@ -168,9 +169,7 @@ export function VideoPlayer({
         style={{ colorScheme: "dark" }}
         onCanPlay={handleCanPlay}
         onError={handleError}
-      >
-        <source src={src} type={mimeType} />
-      </video>
+      />
     </div>
   );
 }

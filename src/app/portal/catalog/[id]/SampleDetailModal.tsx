@@ -112,24 +112,10 @@ export function SampleDetailModal({
   const panels = useMemo<PanelDescriptor[]>(() => {
     const result: PanelDescriptor[] = [];
 
-    // Always include annotation panel if metadata or annotation data exists
-    // Strip internal/noisy fields before merging annotation into the display object
-    const ANNOTATION_NOISE_KEYS = new Set([
-      "userId", "reviewerId", "payoutId", "paymentStatus", "paymentDate",
-      "cost", "project", "rejectionReason", "rejectionCount", "isTestTemplate",
-      "key", "browserMetadata", "projectId", "savedAt", "notes",
-      "comment", "templateData",
-    ]);
-
-    const cleanedAnnotation = annotationData
-      ? Object.fromEntries(
-          Object.entries(annotationData).filter(([k]) => !ANNOTATION_NOISE_KEYS.has(k))
-        )
-      : null;
-
+    // Always include annotation panel if metadata or annotation data exists.
+    // Show the full raw annotation JSON via JsonTree (no field filtering).
     const annotationPanelData: Record<string, unknown> = {
-      ...metadata,
-      ...(cleanedAnnotation ?? {}),
+      ...(annotationData ?? metadata),
     };
     if (Object.keys(annotationPanelData).length > 0) {
       result.push({ type: "annotation", data: annotationPanelData });
@@ -144,7 +130,7 @@ export function SampleDetailModal({
     }
 
     // Add Data Files panel when annotation has non-video attached files
-    const rawFiles = cleanedAnnotation?.files;
+    const rawFiles = annotationData?.files;
     if (Array.isArray(rawFiles)) {
       const dataFiles = (rawFiles as Array<Record<string, unknown>>).filter((f) => {
         const oid = String(f.objectId ?? "").toLowerCase();
@@ -155,8 +141,17 @@ export function SampleDetailModal({
       }
     }
 
+    // Include enrichment panel when enrichment_json is non-empty
+    const enrichment = sample.enrichment_json;
+    const hasEnrichment =
+      enrichment && typeof enrichment === "object" && Object.keys(enrichment).length > 0;
+
+    if (hasEnrichment) {
+      result.push({ type: "enrichment", data: enrichment });
+    }
+
     return result;
-  }, [metadata, annotationData, specsData, sample.s3_specs_key, specsLoading]);
+  }, [metadata, annotationData, specsData, sample.s3_specs_key, specsLoading, sample.enrichment_json]);
 
   // -------------------------------------------------------------------------
   // Merged JSON for copy button -- combines all panel data

@@ -1,5 +1,9 @@
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import {
+  isCloudFrontConfigured,
+  getCloudFrontSignedUrl,
+} from "@/lib/cloudfront/signer";
 
 const DEFAULT_EXPIRY_SECONDS = 3600; // 1 hour
 
@@ -14,19 +18,37 @@ function getS3Client(): S3Client {
 }
 
 /**
- * Generate a presigned URL for reading a private object from S3.
+ * Generate a signed URL for reading a private object from S3.
+ *
+ * When CloudFront is configured (CLOUDFRONT_DOMAIN, CLOUDFRONT_KEY_PAIR_ID,
+ * CLOUDFRONT_PRIVATE_KEY env vars), returns a CloudFront signed URL for
+ * edge-cached delivery. Otherwise falls back to an S3 presigned URL.
  *
  * The AWS SDK handles URL-encoding of keys that contain spaces or special
  * characters, so callers should pass the raw object key as stored in S3.
  *
  * @param objectKey - The full S3 object key (e.g. "datasets/abc/video.mp4")
  * @param expiresIn - Expiry time in seconds (default: 3600 = 1 hour)
- * @returns The presigned URL string, or null if generation fails
+ * @returns The signed URL string, or null if generation fails
  */
 export async function getS3SignedUrl(
   objectKey: string,
   expiresIn: number = DEFAULT_EXPIRY_SECONDS
 ): Promise<string | null> {
+  // Prefer CloudFront signed URLs when configured — synchronous crypto,
+  // no network call, and responses are edge-cached.
+  if (isCloudFrontConfigured()) {
+    try {
+      return getCloudFrontSignedUrl(objectKey, expiresIn);
+    } catch (error) {
+      console.error(
+        "[s3] CloudFront signing failed, falling back to S3:",
+        error instanceof Error ? error.message : error
+      );
+      // Fall through to S3 presigned URL
+    }
+  }
+
   const bucket = process.env.S3_BUCKET_NAME;
 
   if (!bucket) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 import { Suspense } from "react";
 
@@ -21,7 +21,6 @@ function getSupabaseBrowserClient() {
 // ---------------------------------------------------------------------------
 
 function PortalLoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const reason = searchParams.get("reason");
 
@@ -60,20 +59,27 @@ function PortalLoginForm() {
     [email]
   );
 
-  // If the user is already authenticated, redirect to the portal
-  const checkExistingSession = useCallback(async () => {
+  // If stale cookies exist (e.g. expired refresh token), clear them
+  // silently so Supabase doesn't log AuthApiError to the console.
+  // NOTE: We intentionally do NOT redirect to /portal when a valid
+  // session is detected client-side. The middleware already handles
+  // authenticated users hitting /portal/login. Redirecting here caused
+  // a loop when the browser client could refresh tokens but the
+  // server-side middleware disagreed about session validity.
+  const clearStaleCookies = useCallback(async () => {
     const supabase = getSupabaseBrowserClient();
     const {
       data: { user },
+      error,
     } = await supabase.auth.getUser();
-    if (user) {
-      router.replace("/portal");
+    if (!user && error) {
+      await supabase.auth.signOut();
     }
-  }, [router]);
+  }, []);
 
   // Check on mount
   useState(() => {
-    checkExistingSession();
+    clearStaleCookies();
   });
 
   return (

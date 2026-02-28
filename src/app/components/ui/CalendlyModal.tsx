@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useCalendly, type LeadData } from "../providers/CalendlyProvider";
-import { CALENDLY_URL_BASE } from "../../lib/constants";
+import { buildCalendlyEmbedUrl } from "../../lib/constants";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -180,10 +180,10 @@ function StepForm({ onSuccess }: { onSuccess: (data: LeadData) => void }) {
   );
 }
 
-function StepCalendly({ leadData }: { leadData: LeadData }) {
+function StepCalendly({ leadData, bookingUrl }: { leadData: LeadData; bookingUrl: string }) {
   const [iframeLoaded, setIframeLoaded] = useState(false);
 
-  const calendlyUrl = `${CALENDLY_URL_BASE}&name=${encodeURIComponent(leadData.name)}&email=${encodeURIComponent(leadData.email)}`;
+  const calendlyUrl = buildCalendlyEmbedUrl(bookingUrl, { name: leadData.name, email: leadData.email });
 
   return (
     <div className="flex-1 min-h-0 relative">
@@ -208,7 +208,7 @@ function StepCalendly({ leadData }: { leadData: LeadData }) {
 }
 
 export default function CalendlyModal() {
-  const { isOpen, step, leadData, closeCalendly, advanceToCalendly } =
+  const { isOpen, step, leadData, bookingUrl, closeCalendly, advanceToCalendly } =
     useCalendly();
   const [mounted, setMounted] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -310,7 +310,7 @@ export default function CalendlyModal() {
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <StepCalendly leadData={leadData!} />
+                  <StepCalendly leadData={leadData!} bookingUrl={bookingUrl} />
                 </motion.div>
               )}
             </AnimatePresence>

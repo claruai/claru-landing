@@ -301,8 +301,22 @@ export async function sendLeadRejectionEmail(
   lead: RejectionLeadInfo,
   feedback?: string
 ) {
+  // Read booking URL from the database, falling back to env/default.
+  let bookingUrl = process.env.NEXT_PUBLIC_BOOKING_URL ?? 'https://claru.ai/#contact';
+  try {
+    const supabase = createSupabaseAdminClient();
+    const { data } = await supabase
+      .from('settings')
+      .select('value')
+      .eq('key', 'booking_url')
+      .single<{ value: string }>();
+    if (data?.value) bookingUrl = data.value;
+  } catch {
+    // Use fallback
+  }
+
   const subject = 'Update on Your Claru Data Catalog Request';
-  const html = buildRejectionHtml(lead, feedback);
+  const html = buildRejectionHtml(lead, feedback, bookingUrl);
 
   const { error } = await resend.emails.send({
     from: `Claru AI <${FROM_EMAIL}>`,
@@ -318,10 +332,9 @@ export async function sendLeadRejectionEmail(
 
 function buildRejectionHtml(
   lead: RejectionLeadInfo,
-  feedback?: string
+  feedback: string | undefined,
+  bookingUrl: string,
 ): string {
-  const bookingUrl =
-    process.env.NEXT_PUBLIC_BOOKING_URL ?? 'https://claru.ai/#contact';
 
   const feedbackBlock = feedback
     ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
