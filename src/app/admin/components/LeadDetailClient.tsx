@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import LeadStatusBadge from "@/app/components/ui/LeadStatusBadge";
 import type { Lead, LeadStatus, Dataset, LeadDatasetAccess } from "@/types/data-catalog";
@@ -26,7 +27,7 @@ interface LeadDetailClientProps {
 interface Toast {
   id: number;
   message: string;
-  type: "success" | "error";
+  type: "success" | "error" | "warning";
 }
 
 /* ------------------------------------------------------------------ */
@@ -69,7 +70,9 @@ function ToastContainer({ toasts }: { toasts: Toast[] }) {
           className={`px-4 py-3 rounded-lg font-mono text-sm shadow-lg border animate-[toast-in_0.2s_ease-out] ${
             t.type === "success"
               ? "bg-[var(--bg-secondary)] text-[var(--accent-primary)] border-[var(--accent-primary)]/30"
-              : "bg-[var(--bg-secondary)] text-[var(--error)] border-[var(--error)]/30"
+              : t.type === "warning"
+                ? "bg-[var(--bg-secondary)] text-[var(--warning)] border-[var(--warning)]/30"
+                : "bg-[var(--bg-secondary)] text-[var(--error)] border-[var(--error)]/30"
           }`}
         >
           {t.type === "success" ? "> " : "! "}
@@ -83,6 +86,26 @@ function ToastContainer({ toasts }: { toasts: Toast[] }) {
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
+
+interface EditForm {
+  name: string;
+  email: string;
+  company: string;
+  role: string;
+  data_needs: string;
+  use_case: string;
+}
+
+function makeEditForm(lead: Lead): EditForm {
+  return {
+    name: lead.name,
+    email: lead.email,
+    company: lead.company,
+    role: lead.role,
+    data_needs: lead.data_needs,
+    use_case: lead.use_case,
+  };
+}
 
 export default function LeadDetailClient({
   initialLead,
@@ -105,6 +128,22 @@ export default function LeadDetailClient({
   const [toasts, setToasts] = useState<Toast[]>([]);
   const toastIdRef = useRef(0);
 
+  /* ---- Edit mode ------------------------------------------------- */
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState<EditForm>(makeEditForm(initialLead));
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+
+  /* ---- Approve menu & re-send invite ------------------------------ */
+  const [showApproveMenu, setShowApproveMenu] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const approveMenuRef = useRef<HTMLDivElement>(null);
+
+  /* ---- Delete ---------------------------------------------------- */
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteConfirmEmail, setDeleteConfirmEmail] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const router = useRouter();
+
   // Sync selectedDatasetIds when grants change
   useEffect(() => {
     setSelectedDatasetIds(new Set(grants.map((g) => g.dataset_id)));
@@ -121,16 +160,80 @@ export default function LeadDetailClient({
     []
   );
 
+  /* ---- Edit mode actions ----------------------------------------- */
+
+  const handleEditToggle = useCallback(() => {
+    setEditForm(makeEditForm(lead));
+    setIsEditing(true);
+  }, [lead]);
+
+  const handleEditCancel = useCallback(() => {
+    setEditForm(makeEditForm(lead));
+    setIsEditing(false);
+  }, [lead]);
+
+  const handleEditSave = useCallback(async () => {
+    // Diff detection: only include changed fields
+    const changed: Partial<EditForm> = {};
+    const keys: (keyof EditForm)[] = [
+      "name",
+      "email",
+      "company",
+      "role",
+      "data_needs",
+      "use_case",
+    ];
+    for (const key of keys) {
+      if (editForm[key] !== lead[key]) {
+        changed[key] = editForm[key];
+      }
+    }
+
+    if (Object.keys(changed).length === 0) {
+      setIsEditing(false);
+      return;
+    }
+
+    setIsSavingEdit(true);
+    try {
+      const res = await fetch(`/api/admin/leads/${lead.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(changed),
+      });
+      if (res.status === 409) {
+        addToast("Email already in use by another lead", "error");
+        return;
+      }
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({ error: "Unknown error" }));
+        throw new Error(body.error);
+      }
+      const data = await res.json();
+      setLead(data.lead);
+      setEditForm(makeEditForm(data.lead));
+      setIsEditing(false);
+      addToast("Lead updated");
+    } catch (err) {
+      addToast(
+        `Save failed: ${err instanceof Error ? err.message : "unknown"}`,
+        "error"
+      );
+    } finally {
+      setIsSavingEdit(false);
+    }
+  }, [lead, editForm, addToast]);
+
   /* ---- Actions --------------------------------------------------- */
 
-  const handleApprove = useCallback(async () => {
-    if (!window.confirm("Approve this lead? A Supabase Auth user will be created and a magic link generated.")) return;
+  const handleApprove = useCallback(async (sendInvite: boolean) => {
+    setShowApproveMenu(false);
     setIsApproving(true);
     try {
       const res = await fetch(`/api/admin/leads/${lead.id}/approve`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ admin_notes: adminNotes }),
+        body: JSON.stringify({ send_invite: sendInvite, admin_notes: adminNotes }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({ error: "Unknown error" }));
@@ -138,7 +241,14 @@ export default function LeadDetailClient({
       }
       const data = await res.json();
       setLead(data.lead);
-      addToast("Lead approved");
+
+      if (data.invite_sent) {
+        addToast(`Lead approved and invite sent to ${lead.email}`);
+      } else if (data.invite_error) {
+        addToast(`Lead approved but invite failed: ${data.invite_error}`, "warning");
+      } else {
+        addToast("Lead approved (no invite sent)");
+      }
     } catch (err) {
       addToast(
         `Approve failed: ${err instanceof Error ? err.message : "unknown"}`,
@@ -147,7 +257,7 @@ export default function LeadDetailClient({
     } finally {
       setIsApproving(false);
     }
-  }, [lead.id, adminNotes, addToast]);
+  }, [lead.id, lead.email, adminNotes, addToast]);
 
   const handleReject = useCallback(async () => {
     if (!window.confirm("Reject this lead?")) return;
@@ -200,6 +310,28 @@ export default function LeadDetailClient({
       setIsResettingToPending(false);
     }
   }, [lead, adminNotes, addToast]);
+
+  const handleResendInvite = useCallback(async () => {
+    setIsResending(true);
+    try {
+      const res = await fetch(`/api/admin/leads/${lead.id}/invite`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({ error: "Unknown error" }));
+        throw new Error(body.error ?? body.message ?? "Unknown error");
+      }
+      addToast(`Invite sent to ${lead.email}`);
+    } catch (err) {
+      addToast(
+        `Invite failed: ${err instanceof Error ? err.message : "unknown"}`,
+        "error"
+      );
+    } finally {
+      setIsResending(false);
+    }
+  }, [lead.id, lead.email, addToast]);
 
   const handleSaveNotes = useCallback(async () => {
     setIsSavingNotes(true);
@@ -270,6 +402,67 @@ export default function LeadDetailClient({
     [lead.id, addToast]
   );
 
+  /* ---- Delete action ---------------------------------------------- */
+
+  const handleDeleteLead = useCallback(async () => {
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/leads/${lead.id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({ error: "Unknown error" }));
+        throw new Error(body.error ?? "Delete failed");
+      }
+      addToast("Lead deleted");
+      router.push("/admin/leads");
+    } catch (err) {
+      addToast(
+        `Delete failed: ${err instanceof Error ? err.message : "unknown"}`,
+        "error"
+      );
+      setShowDeleteDialog(false);
+      setDeleteConfirmEmail("");
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [lead.id, addToast, router]);
+
+  // Dismiss delete dialog on Escape
+  useEffect(() => {
+    if (!showDeleteDialog) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowDeleteDialog(false);
+        setDeleteConfirmEmail("");
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [showDeleteDialog]);
+
+  // Dismiss approve menu on Escape or click outside
+  useEffect(() => {
+    if (!showApproveMenu) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowApproveMenu(false);
+    };
+    const onClick = (e: MouseEvent) => {
+      if (
+        approveMenuRef.current &&
+        !approveMenuRef.current.contains(e.target as Node)
+      ) {
+        setShowApproveMenu(false);
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("mousedown", onClick);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("mousedown", onClick);
+    };
+  }, [showApproveMenu]);
+
   /* ---- Dataset selector helpers ---------------------------------- */
 
   const toggleDataset = (id: string) => {
@@ -334,21 +527,108 @@ export default function LeadDetailClient({
       <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-6 space-y-6">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-xl font-mono font-semibold text-[var(--text-primary)]">
-              {lead.name}
-            </h2>
-            <p className="text-sm font-mono text-[var(--text-muted)] mt-1">
-              {lead.email}
-            </p>
+            {isEditing ? (
+              <>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) =>
+                    setEditForm((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                  className="w-full bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] transition-colors"
+                  placeholder="Name"
+                />
+                <input
+                  type="email"
+                  value={editForm.email}
+                  onChange={(e) =>
+                    setEditForm((prev) => ({ ...prev, email: e.target.value }))
+                  }
+                  className="mt-2 w-full bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] transition-colors"
+                  placeholder="Email"
+                />
+              </>
+            ) : (
+              <>
+                <h2 className="text-xl font-mono font-semibold text-[var(--text-primary)]">
+                  {lead.name}
+                </h2>
+                <p className="text-sm font-mono text-[var(--text-muted)] mt-1">
+                  {lead.email}
+                </p>
+              </>
+            )}
           </div>
-          <LeadStatusBadge status={lead.status as LeadStatus} />
+          <div className="flex items-center gap-3">
+            {isEditing ? (
+              <>
+                <button
+                  onClick={handleEditSave}
+                  disabled={isSavingEdit}
+                  className="text-xs font-mono text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSavingEdit ? "[saving...]" : "[save]"}
+                </button>
+                <button
+                  onClick={handleEditCancel}
+                  disabled={isSavingEdit}
+                  className="text-xs font-mono text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  [cancel]
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={handleEditToggle}
+                className="text-xs font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors duration-200"
+              >
+                [edit]
+              </button>
+            )}
+            <LeadStatusBadge status={lead.status as LeadStatus} />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <InfoField label="Company" value={lead.company} />
-          <InfoField label="Role" value={lead.role} />
-          <InfoField label="Data Needs" value={lead.data_needs} />
-          <InfoField label="Use Case" value={lead.use_case} />
+          {isEditing ? (
+            <>
+              <EditField
+                label="Company"
+                value={editForm.company}
+                onChange={(v) =>
+                  setEditForm((prev) => ({ ...prev, company: v }))
+                }
+              />
+              <EditField
+                label="Role"
+                value={editForm.role}
+                onChange={(v) =>
+                  setEditForm((prev) => ({ ...prev, role: v }))
+                }
+              />
+              <EditTextarea
+                label="Data Needs"
+                value={editForm.data_needs}
+                onChange={(v) =>
+                  setEditForm((prev) => ({ ...prev, data_needs: v }))
+                }
+              />
+              <EditTextarea
+                label="Use Case"
+                value={editForm.use_case}
+                onChange={(v) =>
+                  setEditForm((prev) => ({ ...prev, use_case: v }))
+                }
+              />
+            </>
+          ) : (
+            <>
+              <InfoField label="Company" value={lead.company} />
+              <InfoField label="Role" value={lead.role} />
+              <InfoField label="Data Needs" value={lead.data_needs} />
+              <InfoField label="Use Case" value={lead.use_case} />
+            </>
+          )}
           <InfoField label="Submitted" value={formatDate(lead.created_at)} />
           <InfoField label="Updated" value={formatDate(lead.updated_at)} />
           {lead.supabase_user_id && (
@@ -379,14 +659,41 @@ export default function LeadDetailClient({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         {canApprove && (
+          <div className="relative" ref={approveMenuRef}>
+            <button
+              onClick={() => setShowApproveMenu((prev) => !prev)}
+              disabled={isApproving}
+              className="px-6 py-2.5 font-mono text-sm font-medium rounded-lg bg-[var(--accent-primary)] text-[var(--bg-primary)] hover:bg-[var(--accent-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isApproving ? "approving..." : "approve \u25BE"}
+            </button>
+            {showApproveMenu && (
+              <div className="absolute left-0 top-full mt-1 z-10 min-w-[220px] rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-lg">
+                <button
+                  onClick={() => handleApprove(true)}
+                  className="w-full text-left px-4 py-2.5 text-xs font-mono text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--accent-primary)] transition-colors rounded-t-lg"
+                >
+                  [approve &amp; send invite]
+                </button>
+                <button
+                  onClick={() => handleApprove(false)}
+                  className="w-full text-left px-4 py-2.5 text-xs font-mono text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--accent-primary)] transition-colors rounded-b-lg"
+                >
+                  [approve only]
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+        {lead.status === "approved" && (
           <button
-            onClick={handleApprove}
-            disabled={isApproving}
-            className="px-6 py-2.5 font-mono text-sm font-medium rounded-lg bg-[var(--accent-primary)] text-[var(--bg-primary)] hover:bg-[var(--accent-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={handleResendInvite}
+            disabled={isResending}
+            className="text-xs font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isApproving ? "approving..." : "approve"}
+            {isResending ? "[sending...]" : "[re-send invite]"}
           </button>
         )}
         {canReject && (
@@ -646,6 +953,75 @@ export default function LeadDetailClient({
         </div>
       </div>
 
+      {/* Danger Zone */}
+      <div className="border-t border-[var(--border-subtle)] pt-6 mt-6">
+        <p className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider mb-3">
+          danger zone
+        </p>
+        <button
+          onClick={() => {
+            setDeleteConfirmEmail("");
+            setShowDeleteDialog(true);
+          }}
+          className="text-xs font-mono text-[var(--text-muted)] hover:text-[var(--error)] transition-colors duration-200"
+        >
+          [delete lead]
+        </button>
+      </div>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="w-full max-w-md mx-4 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-6 space-y-4 shadow-2xl">
+            <h3 className="text-sm font-mono font-semibold text-[var(--error)]">
+              Delete {lead.name}?
+            </h3>
+            <p className="text-sm font-mono text-[var(--text-secondary)] leading-relaxed">
+              This will permanently remove this lead, their portal access, and
+              all dataset grants. This cannot be undone.
+            </p>
+            {lead.status === "approved" && (
+              <p className="text-sm font-mono text-[var(--warning)]">
+                This will also revoke their portal login.
+              </p>
+            )}
+            <div className="space-y-2">
+              <label className="text-xs font-mono text-[var(--text-muted)]">
+                Type{" "}
+                <span className="text-[var(--text-primary)]">{lead.email}</span>{" "}
+                to confirm
+              </label>
+              <input
+                type="text"
+                value={deleteConfirmEmail}
+                onChange={(e) => setDeleteConfirmEmail(e.target.value)}
+                placeholder={lead.email}
+                className="w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded-lg font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--error)] focus:ring-1 focus:ring-[var(--error)] transition-colors"
+                autoFocus
+              />
+            </div>
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                onClick={() => {
+                  setShowDeleteDialog(false);
+                  setDeleteConfirmEmail("");
+                }}
+                className="px-4 py-2 text-xs font-mono text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200"
+              >
+                [cancel]
+              </button>
+              <button
+                onClick={handleDeleteLead}
+                disabled={deleteConfirmEmail !== lead.email || isDeleting}
+                className="px-4 py-2 text-xs font-mono bg-[var(--error)]/10 text-[var(--error)] border border-[var(--error)]/30 rounded-lg hover:bg-[var(--error)]/20 transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {isDeleting ? "[deleting...]" : "[confirm delete]"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <ToastContainer toasts={toasts} />
     </div>
   );
@@ -663,6 +1039,60 @@ function InfoField({ label, value }: { label: string; value: string }) {
       </dt>
       <dd className="mt-1 text-sm font-mono text-[var(--text-primary)] break-words">
         {value || "(not provided)"}
+      </dd>
+    </div>
+  );
+}
+
+function EditField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div>
+      <dt className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider">
+        {label}
+      </dt>
+      <dd className="mt-1">
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] transition-colors"
+          placeholder={label}
+        />
+      </dd>
+    </div>
+  );
+}
+
+function EditTextarea({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div>
+      <dt className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider">
+        {label}
+      </dt>
+      <dd className="mt-1">
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          rows={3}
+          className="w-full bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] transition-colors resize-y"
+          placeholder={label}
+        />
       </dd>
     </div>
   );
