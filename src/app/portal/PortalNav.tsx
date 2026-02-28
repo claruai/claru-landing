@@ -27,6 +27,9 @@ export function PortalNav() {
 
   useEffect(() => setMounted(true), []);
 
+  // Don't render the nav chrome on the login page
+  if (pathname === "/portal/login") return null;
+
   async function handleSignOut() {
     const supabase = getSupabaseBrowserClient();
     await supabase.auth.signOut();

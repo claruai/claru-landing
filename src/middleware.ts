@@ -81,7 +81,7 @@ function createSupabaseMiddlewareClient(
 async function handlePortalAuth(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
 
-  // Allow the login page and auth callback without authentication
+  // Auth callback and login page are always allowed through
   if (
     pathname === "/portal/login" ||
     pathname.startsWith("/portal/auth/callback")
