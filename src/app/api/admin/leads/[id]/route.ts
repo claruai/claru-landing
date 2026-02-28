@@ -43,7 +43,9 @@ export async function GET(
 /**
  * PATCH /api/admin/leads/[id]
  *
- * Updates admin_notes on a lead.
+ * Updates editable fields on a lead.
+ * Accepts: name, email, company, role, data_needs, use_case, admin_notes, status
+ * Only provided fields are updated (omitted fields are not nulled out).
  */
 export async function PATCH(
   request: NextRequest,
@@ -64,9 +66,51 @@ export async function PATCH(
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
+  // Validate name if provided
+  if (body.name !== undefined) {
+    if (typeof body.name !== "string" || !body.name.trim()) {
+      return NextResponse.json({ error: "Name must be a non-empty string" }, { status: 400 });
+    }
+  }
+
+  // Validate email format if provided
+  if (body.email !== undefined) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (typeof body.email !== "string" || !emailRegex.test(body.email.trim())) {
+      return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
+    }
+  }
+
+  // Validate status if provided
+  if (body.status !== undefined) {
+    if (typeof body.status !== "string" || !["pending", "approved", "rejected"].includes(body.status)) {
+      return NextResponse.json({ error: "Invalid status" }, { status: 400 });
+    }
+  }
+
   const supabase = createSupabaseAdminClient();
 
   const updateFields: Record<string, unknown> = {};
+
+  // String fields that are included if provided as strings
+  if (typeof body.name === "string") {
+    updateFields.name = body.name.trim();
+  }
+  if (typeof body.email === "string") {
+    updateFields.email = body.email.trim();
+  }
+  if (typeof body.company === "string") {
+    updateFields.company = body.company.trim();
+  }
+  if (typeof body.role === "string") {
+    updateFields.role = body.role.trim();
+  }
+  if (typeof body.data_needs === "string") {
+    updateFields.data_needs = body.data_needs.trim();
+  }
+  if (typeof body.use_case === "string") {
+    updateFields.use_case = body.use_case.trim();
+  }
   if (typeof body.admin_notes === "string") {
     updateFields.admin_notes = body.admin_notes;
   }
@@ -86,6 +130,13 @@ export async function PATCH(
     .single();
 
   if (error) {
+    // UNIQUE violation on email
+    if (error.code === "23505") {
+      return NextResponse.json(
+        { error: "Email already in use by another lead" },
+        { status: 409 }
+      );
+    }
     console.error("[PATCH /api/admin/leads/[id]]", error);
     return NextResponse.json({ error: "Update failed" }, { status: 500 });
   }

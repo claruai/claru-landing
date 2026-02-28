@@ -57,7 +57,7 @@
         "Run code-reviewer agent to verify update logic and validation"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "Read the current PATCH handler in src/app/api/admin/leads/[id]/route.ts — it currently only accepts admin_notes and status. Expand the updateFields building logic to include all fields. The allowed fields for status remain: pending, approved, rejected. Use general-purpose agent."
     },
     {
