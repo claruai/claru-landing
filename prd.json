@@ -141,7 +141,7 @@
         "Run code-reviewer agent to verify form patterns and design system compliance"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "Read src/app/admin/catalog/[id]/SampleEditPanel.tsx for the slide-over pattern — fixed position, right-0, dark bg, translate-x animation, z-50. Read AdminLeadsTable.tsx for the existing layout (search input area at line 232-253). The page.tsx is a server component that passes leads as props — the panel state lives in AdminLeadsTable (client component). Use frontend-expert agent."
     },
     {
@@ -164,7 +164,7 @@
         "Run code-reviewer agent to verify form state management and diff detection"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "notes": "Read src/app/admin/components/LeadDetailClient.tsx for the existing info card layout and admin notes section. The component already has useState for lead data. Add isEditing boolean state and editForm state object. The diff detection pattern: compare editForm values to lead prop values, only include changed keys in PATCH payload. Use frontend-expert agent."
     },
     {
