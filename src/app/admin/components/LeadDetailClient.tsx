@@ -27,7 +27,7 @@ interface LeadDetailClientProps {
 interface Toast {
   id: number;
   message: string;
-  type: "success" | "error";
+  type: "success" | "error" | "warning";
 }
 
 /* ------------------------------------------------------------------ */
@@ -70,7 +70,9 @@ function ToastContainer({ toasts }: { toasts: Toast[] }) {
           className={`px-4 py-3 rounded-lg font-mono text-sm shadow-lg border animate-[toast-in_0.2s_ease-out] ${
             t.type === "success"
               ? "bg-[var(--bg-secondary)] text-[var(--accent-primary)] border-[var(--accent-primary)]/30"
-              : "bg-[var(--bg-secondary)] text-[var(--error)] border-[var(--error)]/30"
+              : t.type === "warning"
+                ? "bg-[var(--bg-secondary)] text-[var(--warning)] border-[var(--warning)]/30"
+                : "bg-[var(--bg-secondary)] text-[var(--error)] border-[var(--error)]/30"
           }`}
         >
           {t.type === "success" ? "> " : "! "}
@@ -130,6 +132,11 @@ export default function LeadDetailClient({
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<EditForm>(makeEditForm(initialLead));
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+
+  /* ---- Approve menu & re-send invite ------------------------------ */
+  const [showApproveMenu, setShowApproveMenu] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const approveMenuRef = useRef<HTMLDivElement>(null);
 
   /* ---- Delete ---------------------------------------------------- */
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -219,14 +226,14 @@ export default function LeadDetailClient({
 
   /* ---- Actions --------------------------------------------------- */
 
-  const handleApprove = useCallback(async () => {
-    if (!window.confirm("Approve this lead? A Supabase Auth user will be created and a magic link generated.")) return;
+  const handleApprove = useCallback(async (sendInvite: boolean) => {
+    setShowApproveMenu(false);
     setIsApproving(true);
     try {
       const res = await fetch(`/api/admin/leads/${lead.id}/approve`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ admin_notes: adminNotes }),
+        body: JSON.stringify({ send_invite: sendInvite, admin_notes: adminNotes }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({ error: "Unknown error" }));
@@ -234,7 +241,14 @@ export default function LeadDetailClient({
       }
       const data = await res.json();
       setLead(data.lead);
-      addToast("Lead approved");
+
+      if (data.invite_sent) {
+        addToast(`Lead approved and invite sent to ${lead.email}`);
+      } else if (data.invite_error) {
+        addToast(`Lead approved but invite failed: ${data.invite_error}`, "warning");
+      } else {
+        addToast("Lead approved (no invite sent)");
+      }
     } catch (err) {
       addToast(
         `Approve failed: ${err instanceof Error ? err.message : "unknown"}`,
@@ -243,7 +257,7 @@ export default function LeadDetailClient({
     } finally {
       setIsApproving(false);
     }
-  }, [lead.id, adminNotes, addToast]);
+  }, [lead.id, lead.email, adminNotes, addToast]);
 
   const handleReject = useCallback(async () => {
     if (!window.confirm("Reject this lead?")) return;
@@ -296,6 +310,28 @@ export default function LeadDetailClient({
       setIsResettingToPending(false);
     }
   }, [lead, adminNotes, addToast]);
+
+  const handleResendInvite = useCallback(async () => {
+    setIsResending(true);
+    try {
+      const res = await fetch(`/api/admin/leads/${lead.id}/invite`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({ error: "Unknown error" }));
+        throw new Error(body.error ?? body.message ?? "Unknown error");
+      }
+      addToast(`Invite sent to ${lead.email}`);
+    } catch (err) {
+      addToast(
+        `Invite failed: ${err instanceof Error ? err.message : "unknown"}`,
+        "error"
+      );
+    } finally {
+      setIsResending(false);
+    }
+  }, [lead.id, lead.email, addToast]);
 
   const handleSaveNotes = useCallback(async () => {
     setIsSavingNotes(true);
@@ -404,6 +440,28 @@ export default function LeadDetailClient({
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [showDeleteDialog]);
+
+  // Dismiss approve menu on Escape or click outside
+  useEffect(() => {
+    if (!showApproveMenu) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowApproveMenu(false);
+    };
+    const onClick = (e: MouseEvent) => {
+      if (
+        approveMenuRef.current &&
+        !approveMenuRef.current.contains(e.target as Node)
+      ) {
+        setShowApproveMenu(false);
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("mousedown", onClick);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("mousedown", onClick);
+    };
+  }, [showApproveMenu]);
 
   /* ---- Dataset selector helpers ---------------------------------- */
 
@@ -601,14 +659,41 @@ export default function LeadDetailClient({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         {canApprove && (
+          <div className="relative" ref={approveMenuRef}>
+            <button
+              onClick={() => setShowApproveMenu((prev) => !prev)}
+              disabled={isApproving}
+              className="px-6 py-2.5 font-mono text-sm font-medium rounded-lg bg-[var(--accent-primary)] text-[var(--bg-primary)] hover:bg-[var(--accent-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isApproving ? "approving..." : "approve \u25BE"}
+            </button>
+            {showApproveMenu && (
+              <div className="absolute left-0 top-full mt-1 z-10 min-w-[220px] rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-lg">
+                <button
+                  onClick={() => handleApprove(true)}
+                  className="w-full text-left px-4 py-2.5 text-xs font-mono text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--accent-primary)] transition-colors rounded-t-lg"
+                >
+                  [approve &amp; send invite]
+                </button>
+                <button
+                  onClick={() => handleApprove(false)}
+                  className="w-full text-left px-4 py-2.5 text-xs font-mono text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--accent-primary)] transition-colors rounded-b-lg"
+                >
+                  [approve only]
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+        {lead.status === "approved" && (
           <button
-            onClick={handleApprove}
-            disabled={isApproving}
-            className="px-6 py-2.5 font-mono text-sm font-medium rounded-lg bg-[var(--accent-primary)] text-[var(--bg-primary)] hover:bg-[var(--accent-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={handleResendInvite}
+            disabled={isResending}
+            className="text-xs font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isApproving ? "approving..." : "approve"}
+            {isResending ? "[sending...]" : "[re-send invite]"}
           </button>
         )}
         {canReject && (

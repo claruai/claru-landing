@@ -213,7 +213,7 @@
         "Run code-reviewer agent to verify UX flow and conditional rendering"
       ],
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "notes": "Read src/app/admin/components/LeadDetailClient.tsx for the existing handleApprove function and action button rendering. The approve dropdown replaces the existing approve button — look for the approve button JSX and the handleApprove callback. The re-send button only shows when lead.status === 'approved'. The response from approve now includes invite_sent and invite_error fields (from US-005). Use frontend-expert agent."
     },
     {
