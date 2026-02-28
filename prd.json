@@ -117,7 +117,7 @@
         "Run code-reviewer agent to verify magic link generation and edge case handling"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "Read src/app/api/admin/leads/[id]/approve/route.ts for the magic link generation pattern (lines 89-102) and auth user creation pattern (lines 58-86). The re-send endpoint is simpler — no status change, just generate link and send email. NEXT_PUBLIC_SITE_URL env var for the redirect URL. Use general-purpose agent."
     },
     {
