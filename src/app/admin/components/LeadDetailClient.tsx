@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import LeadStatusBadge from "@/app/components/ui/LeadStatusBadge";
 import type { Lead, LeadStatus, Dataset, LeadDatasetAccess } from "@/types/data-catalog";
@@ -129,6 +130,12 @@ export default function LeadDetailClient({
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<EditForm>(makeEditForm(initialLead));
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+
+  /* ---- Delete ---------------------------------------------------- */
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteConfirmEmail, setDeleteConfirmEmail] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const router = useRouter();
 
   // Sync selectedDatasetIds when grants change
   useEffect(() => {
@@ -358,6 +365,45 @@ export default function LeadDetailClient({
     },
     [lead.id, addToast]
   );
+
+  /* ---- Delete action ---------------------------------------------- */
+
+  const handleDeleteLead = useCallback(async () => {
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/leads/${lead.id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({ error: "Unknown error" }));
+        throw new Error(body.error ?? "Delete failed");
+      }
+      addToast("Lead deleted");
+      router.push("/admin/leads");
+    } catch (err) {
+      addToast(
+        `Delete failed: ${err instanceof Error ? err.message : "unknown"}`,
+        "error"
+      );
+      setShowDeleteDialog(false);
+      setDeleteConfirmEmail("");
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [lead.id, addToast, router]);
+
+  // Dismiss delete dialog on Escape
+  useEffect(() => {
+    if (!showDeleteDialog) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowDeleteDialog(false);
+        setDeleteConfirmEmail("");
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [showDeleteDialog]);
 
   /* ---- Dataset selector helpers ---------------------------------- */
 
@@ -821,6 +867,75 @@ export default function LeadDetailClient({
           )}
         </div>
       </div>
+
+      {/* Danger Zone */}
+      <div className="border-t border-[var(--border-subtle)] pt-6 mt-6">
+        <p className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider mb-3">
+          danger zone
+        </p>
+        <button
+          onClick={() => {
+            setDeleteConfirmEmail("");
+            setShowDeleteDialog(true);
+          }}
+          className="text-xs font-mono text-[var(--text-muted)] hover:text-[var(--error)] transition-colors duration-200"
+        >
+          [delete lead]
+        </button>
+      </div>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="w-full max-w-md mx-4 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-6 space-y-4 shadow-2xl">
+            <h3 className="text-sm font-mono font-semibold text-[var(--error)]">
+              Delete {lead.name}?
+            </h3>
+            <p className="text-sm font-mono text-[var(--text-secondary)] leading-relaxed">
+              This will permanently remove this lead, their portal access, and
+              all dataset grants. This cannot be undone.
+            </p>
+            {lead.status === "approved" && (
+              <p className="text-sm font-mono text-[var(--warning)]">
+                This will also revoke their portal login.
+              </p>
+            )}
+            <div className="space-y-2">
+              <label className="text-xs font-mono text-[var(--text-muted)]">
+                Type{" "}
+                <span className="text-[var(--text-primary)]">{lead.email}</span>{" "}
+                to confirm
+              </label>
+              <input
+                type="text"
+                value={deleteConfirmEmail}
+                onChange={(e) => setDeleteConfirmEmail(e.target.value)}
+                placeholder={lead.email}
+                className="w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded-lg font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--error)] focus:ring-1 focus:ring-[var(--error)] transition-colors"
+                autoFocus
+              />
+            </div>
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                onClick={() => {
+                  setShowDeleteDialog(false);
+                  setDeleteConfirmEmail("");
+                }}
+                className="px-4 py-2 text-xs font-mono text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200"
+              >
+                [cancel]
+              </button>
+              <button
+                onClick={handleDeleteLead}
+                disabled={deleteConfirmEmail !== lead.email || isDeleting}
+                className="px-4 py-2 text-xs font-mono bg-[var(--error)]/10 text-[var(--error)] border border-[var(--error)]/30 rounded-lg hover:bg-[var(--error)]/20 transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {isDeleting ? "[deleting...]" : "[confirm delete]"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <ToastContainer toasts={toasts} />
     </div>

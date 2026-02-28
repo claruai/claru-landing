@@ -189,7 +189,7 @@
         "Run code-reviewer agent to verify UX safety patterns"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": "Read src/app/admin/components/LeadDetailClient.tsx for the existing action button area and toast system. The confirmation dialog is a new modal — position fixed, z-50, dark overlay, centered card. The email-to-confirm pattern prevents accidental deletes. Use frontend-expert agent."
     },
     {
