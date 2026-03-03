@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { motion, useInView } from "framer-motion";
 import { Copy, Check } from "lucide-react";
 import Image from "next/image";
+import gsap from "gsap";
 
 /* ==========================================================================
    SAMPLE DATA VIEWER
@@ -25,16 +26,23 @@ interface SampleDataViewerProps {
 
 /* ---------- Safety Label type ---------- */
 
-const SAFETY_PROMPT =
-  "fictional bird, full body shot, closeup shot, side view, golden ratio, best quality, outside, in the forest, in the afternoon, super slow camera";
+const SAFETY_CATEGORIES = [
+  { name: "Nudity / NSFW", icon: "\u26A0\uFE0F", flagRate: "0.8%", color: "var(--error)" },
+  { name: "Violence & Gore", icon: "\uD83D\uDEE1\uFE0F", flagRate: "0.5%", color: "#f59e0b" },
+  { name: "Hate Speech", icon: "\uD83D\uDEAB", flagRate: "0.4%", color: "#ef4444" },
+  { name: "Self-Harm", icon: "\u2764\uFE0F\u200D\uD83E\uDE79", flagRate: "0.2%", color: "#a78bfa" },
+  { name: "Illegal Activity", icon: "\uD83D\uDD12", flagRate: "0.3%", color: "#f472b6" },
+];
 
-const SAFETY_JSON = {
-  project_title: "Video Policy Review (Safety)",
-  classification_id: "aff737b7-5ab8-4b1e-986c-442b545668e7",
-  text_policy_violation: "no",
-  video_policy_violation: "no",
-  prompt: "fictional bird, full body shot...",
-  created_at: "December 6, 2025, 1:59 PM",
+const SAFETY_SAMPLE_ANNOTATION = {
+  annotation_id: "aff737b7-5ab8-4b1e-986c-442b545668e7",
+  modality: "video",
+  automated_filter_result: "PASSED",
+  human_label: "violation",
+  violation_category: "violence_gore",
+  confidence_tier: "high",
+  annotator_calibration: "94.2%",
+  batch_id: "batch-2025-12-06-047",
   status: "completed",
 };
 
@@ -85,65 +93,160 @@ function SectionHeader({ children }: { children: string }) {
 function SafetyLabelViewer() {
   return (
     <div className="space-y-6">
-      {/* Generated video */}
+      {/* Annotation volume */}
       <div>
-        <SectionHeader>{"// GENERATED OUTPUT"}</SectionHeader>
-        <div className="rounded-lg overflow-hidden border border-[var(--border-subtle)]">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-auto max-h-[320px] object-cover"
-          >
-            <source src="/videos/case-study-safety-bird.mp4" type="video/mp4" />
-          </video>
-        </div>
-      </div>
-
-      {/* Prompt card */}
-      <div>
-        <SectionHeader>{"// PROMPT"}</SectionHeader>
+        <SectionHeader>{"// ANNOTATION VOLUME"}</SectionHeader>
         <div className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--accent-primary)]/30 p-4 md:p-5">
-          <p className="font-mono text-sm text-[var(--text-secondary)] leading-relaxed break-words">
-            {SAFETY_PROMPT}
-          </p>
+          <div className="flex items-baseline gap-3 mb-3">
+            <span
+              className="font-mono text-3xl font-bold"
+              style={{ color: "var(--accent-primary)" }}
+            >
+              241,000+
+            </span>
+            <span className="font-mono text-sm text-[var(--text-muted)]">
+              safety annotations across text & video
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="rounded-md bg-[var(--bg-primary)] border border-[var(--border-subtle)] p-3 text-center">
+              <span className="block font-mono text-lg font-bold text-[var(--accent-primary)]">
+                {"<2%"}
+              </span>
+              <span className="block font-mono text-[10px] text-[var(--text-muted)] uppercase tracking-wider mt-1">
+                Violation Rate
+              </span>
+            </div>
+            <div className="rounded-md bg-[var(--bg-primary)] border border-[var(--border-subtle)] p-3 text-center">
+              <span className="block font-mono text-lg font-bold text-[var(--accent-secondary)]">
+                92%+
+              </span>
+              <span className="block font-mono text-[10px] text-[var(--text-muted)] uppercase tracking-wider mt-1">
+                Calibration
+              </span>
+            </div>
+            <div className="rounded-md bg-[var(--bg-primary)] border border-[var(--border-subtle)] p-3 text-center">
+              <span className="block font-mono text-lg font-bold text-[var(--text-primary)]">
+                5%
+              </span>
+              <span className="block font-mono text-[10px] text-[var(--text-muted)] uppercase tracking-wider mt-1">
+                Calibration Seed Rate
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Verdict badges */}
+      {/* Safety taxonomy */}
       <div>
-        <SectionHeader>{"// VERDICT"}</SectionHeader>
-        <div className="flex flex-wrap gap-3">
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-md font-mono text-sm bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/40 text-[var(--accent-primary)]">
-            <span className="w-2 h-2 rounded-full bg-[var(--accent-primary)]" />
-            TEXT: SAFE
-          </span>
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-md font-mono text-sm bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/40 text-[var(--accent-primary)]">
-            <span className="w-2 h-2 rounded-full bg-[var(--accent-primary)]" />
-            VIDEO: SAFE
-          </span>
+        <SectionHeader>{"// VIOLATION TAXONOMY (5 CATEGORIES)"}</SectionHeader>
+        <div className="space-y-2">
+          {SAFETY_CATEGORIES.map((cat, i) => (
+            <motion.div
+              key={cat.name}
+              initial={{ opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.08, duration: 0.3 }}
+              className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] p-3 flex items-center gap-3 hover:border-[var(--accent-primary)]/40 transition-colors"
+            >
+              <span className="text-base leading-none flex-shrink-0">{cat.icon}</span>
+              <span className="font-mono text-sm text-[var(--text-primary)] flex-1">
+                {cat.name}
+              </span>
+              <div className="flex items-center gap-2">
+                <div className="w-16 h-1.5 rounded-full bg-[var(--bg-primary)] overflow-hidden">
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ backgroundColor: cat.color }}
+                    initial={{ width: 0 }}
+                    whileInView={{ width: `${parseFloat(cat.flagRate) * 50}%` }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: i * 0.08 }}
+                  />
+                </div>
+                <span
+                  className="font-mono text-xs font-medium w-8 text-right"
+                  style={{ color: cat.color }}
+                >
+                  {cat.flagRate}
+                </span>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
 
-      {/* Metadata JSON */}
+      {/* Audit pipeline */}
+      <div>
+        <SectionHeader>{"// RESIDUAL RISK AUDIT PIPELINE"}</SectionHeader>
+        <div className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] p-4 md:p-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { step: "01", label: "Sample", desc: "Post-filter outputs" },
+              { step: "02", label: "Annotate", desc: "Binary + category tag" },
+              { step: "03", label: "Aggregate", desc: "Track vs 2% threshold" },
+              { step: "04", label: "Report", desc: "Live dashboards" },
+            ].map((s, i) => (
+              <motion.div
+                key={s.step}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.12, duration: 0.3 }}
+                className="text-center"
+              >
+                <span className="block font-mono text-lg font-bold text-[var(--accent-primary)] mb-1">
+                  {s.step}
+                </span>
+                <span className="block font-mono text-xs font-medium text-[var(--text-primary)] mb-0.5">
+                  {s.label}
+                </span>
+                <span className="block font-mono text-[10px] text-[var(--text-muted)]">
+                  {s.desc}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Sample annotation */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <SectionHeader>{"// METADATA"}</SectionHeader>
-          <CopyButton text={JSON.stringify(SAFETY_JSON, null, 2)} />
+          <SectionHeader>{"// SAMPLE ANNOTATION"}</SectionHeader>
+          <CopyButton text={JSON.stringify(SAFETY_SAMPLE_ANNOTATION, null, 2)} />
         </div>
+        <div className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] p-4 md:p-5 space-y-4">
+          {/* Status badges */}
+          <div className="flex flex-wrap gap-2">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded font-mono text-[10px] bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)]">
+              AUTOMATED: PASSED
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded font-mono text-[10px] bg-[var(--error)]/10 border border-[var(--error)]/30 text-[var(--error)]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--error)]" />
+              HUMAN: VIOLATION
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded font-mono text-[10px] bg-[#f59e0b]/10 border border-[#f59e0b]/30 text-[#f59e0b]">
+              CATEGORY: VIOLENCE_GORE
+            </span>
+          </div>
+          {/* Metadata grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <DataField label="Modality" value="Video" />
+            <DataField label="Confidence" value="High" />
+            <DataField label="Annotator Cal." value="94.2%" />
+            <DataField label="Batch" value="batch-047" />
+            <DataField label="Calibration Seed" value="No" />
+            <DataField label="Status" value="Completed" />
+          </div>
+        </div>
+      </div>
+
+      {/* JSON */}
+      <div>
+        <SectionHeader>{"// JSON_RESPONSE"}</SectionHeader>
         <div className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] p-4 md:p-5 overflow-x-auto">
-          <pre className="font-mono text-xs md:text-sm leading-relaxed">
-            <span className="text-[var(--text-muted)]">{"{"}</span>
-            {"\n"}
-            <JsonLine k="project_title" v={SAFETY_JSON.project_title} />
-            <JsonLine k="classification_id" v={SAFETY_JSON.classification_id} />
-            <JsonLine k="text_policy_violation" v={SAFETY_JSON.text_policy_violation} />
-            <JsonLine k="video_policy_violation" v={SAFETY_JSON.video_policy_violation} />
-            <JsonLine k="prompt" v={SAFETY_JSON.prompt} />
-            <JsonLine k="created_at" v={SAFETY_JSON.created_at} />
-            <JsonLine k="status" v={SAFETY_JSON.status} last />
-            <span className="text-[var(--text-muted)]">{"}"}</span>
+          <pre className="font-mono text-xs md:text-sm leading-relaxed text-[var(--text-secondary)]">
+            <code>{JSON.stringify(SAFETY_SAMPLE_ANNOTATION, null, 2)}</code>
           </pre>
         </div>
       </div>
@@ -171,12 +274,26 @@ function JsonLine({
   );
 }
 
-/* ---------- Video Analysis Viewer ---------- */
+/* ---------- Egocentric Capture Viewer ---------- */
 
-function VideoAnalysisViewer() {
+const CAPTURE_PIPELINES = [
+  { label: "GoPro & DJI Wearable", count: 219598, color: "var(--accent-primary)", device: "GoPro HERO, DJI Action" },
+  { label: "Smartphone Capture", count: 154973, color: "var(--accent-secondary)", device: "iPhone, Android" },
+  { label: "Activity-Specific", count: 11772, color: "var(--text-tertiary)", device: "Mixed — task-guided" },
+];
+
+const CAPTURE_TOTAL = CAPTURE_PIPELINES.reduce((sum, p) => sum + p.count, 0);
+
+const ACTIVITY_CATEGORIES = [
+  "Object Manipulation", "Cooking", "Walking", "Driving",
+  "Cleaning", "Crafts & Assembly", "Pouring & Cutting",
+  "Folding & Fastening", "Phone-based Activities",
+];
+
+function EgocentricCaptureViewer() {
   return (
     <div className="space-y-6">
-      {/* Egocentric video preview */}
+      {/* Video sample */}
       <div>
         <SectionHeader>{"// VIDEO SAMPLE"}</SectionHeader>
         <div className="rounded-lg overflow-hidden border border-[var(--border-subtle)]">
@@ -187,48 +304,78 @@ function VideoAnalysisViewer() {
             playsInline
             className="w-full h-auto max-h-[320px] object-cover"
           >
-            <source src="/videos/case-study-egocentric-smartphone.mp4" type="video/quicktime" />
             <source src="/videos/case-study-egocentric-smartphone.mp4" type="video/mp4" />
           </video>
         </div>
       </div>
 
-      {/* File info card */}
+      {/* Pipeline breakdown */}
       <div>
-        <SectionHeader>{"// FILE INFO"}</SectionHeader>
-        <div className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] p-4 md:p-5">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <DataField label="Filename" value="smartphone.mov" />
-            <DataField label="Size" value="35.65 MB" />
-            <DataField label="Type" value="video/quicktime" />
+        <SectionHeader>{"// CAPTURE PIPELINE BREAKDOWN"}</SectionHeader>
+        <div className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] p-4 md:p-5 space-y-4">
+          {CAPTURE_PIPELINES.map((pipeline) => {
+            const pct = (pipeline.count / CAPTURE_TOTAL) * 100;
+            return (
+              <div key={pipeline.label}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-2 h-2 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: pipeline.color }}
+                    />
+                    <span className="font-mono text-xs text-[var(--text-secondary)]">
+                      {pipeline.label}
+                    </span>
+                  </div>
+                  <span className="font-mono text-sm font-bold text-[var(--text-primary)]">
+                    {pipeline.count.toLocaleString()}
+                  </span>
+                </div>
+                <div className="h-2 rounded-full bg-[var(--bg-primary)] overflow-hidden">
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ backgroundColor: pipeline.color }}
+                    initial={{ width: 0 }}
+                    whileInView={{ width: `${pct}%` }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+                  />
+                </div>
+                <span className="block text-[10px] font-mono text-[var(--text-muted)] mt-1">
+                  {pipeline.device} — {pct.toFixed(1)}% of total
+                </span>
+              </div>
+            );
+          })}
+          <div className="pt-3 mt-3 border-t border-[var(--border-subtle)] flex items-center justify-between">
+            <span className="font-mono text-xs text-[var(--text-muted)] uppercase tracking-wider">
+              Total Clips
+            </span>
+            <span className="font-mono text-lg font-bold text-[var(--accent-primary)]">
+              {CAPTURE_TOTAL.toLocaleString()}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Brief description */}
+      {/* Activity coverage */}
       <div>
-        <SectionHeader>{"// DESCRIPTION"}</SectionHeader>
-        <div className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--accent-primary)]/30 p-4 md:p-5">
-          <p className="font-mono text-sm text-[var(--text-secondary)] leading-relaxed">
-            POV of person grabbing an object from a narrow surface.
-          </p>
-        </div>
-      </div>
-
-      {/* Classification tags */}
-      <div>
-        <SectionHeader>{"// CLASSIFICATION"}</SectionHeader>
+        <SectionHeader>{"// ACTIVITY CATEGORIES"}</SectionHeader>
         <div className="flex flex-wrap gap-2">
-          <Tag label="Data Type" value="Egocentric" />
-          <Tag label="Domain" value="Everyday Activities" />
-          <Tag label="Category" value="Simple Actions" />
-          <Tag label="Subcategory" value="Pick Up Objects" />
+          {ACTIVITY_CATEGORIES.map((cat) => (
+            <span
+              key={cat}
+              className="inline-flex items-center px-3 py-1.5 rounded-md font-mono text-xs bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--accent-primary)]"
+            >
+              {cat}
+            </span>
+          ))}
         </div>
       </div>
 
-      {/* Technical specs grid */}
+      {/* Technical specs */}
       <div>
-        <SectionHeader>{"// TECHNICAL SPECS"}</SectionHeader>
+        <SectionHeader>{"// SAMPLE SPECS"}</SectionHeader>
         <div className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] p-4 md:p-5">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <DataField label="Resolution" value="3840x2160" />
@@ -740,10 +887,31 @@ function GameCaptureViewer() {
 
 /* ---------- Workplace Video Analysis Viewer ---------- */
 
+const WORKPLACE_CATEGORIES = [
+  { name: "Barista", group: "Food Service", icon: "\u2615", tasks: "Espresso prep, milk steaming, order assembly" },
+  { name: "Cooking", group: "Food Service", icon: "\uD83C\uDF73", tasks: "Ingredient prep, stove work, plating" },
+  { name: "Carpentry", group: "Skilled Trades", icon: "\uD83D\uDD28", tasks: "Sawing, sanding, joint assembly" },
+  { name: "Tailoring", group: "Skilled Trades", icon: "\u2702\uFE0F", tasks: "Cutting, stitching, fitting" },
+  { name: "Screen Printing", group: "Skilled Trades", icon: "\uD83C\uDFA8", tasks: "Screen prep, ink application, drying" },
+  { name: "Phone Repair", group: "Repair Services", icon: "\uD83D\uDD27", tasks: "Disassembly, component swap, testing" },
+  { name: "Tool Repair", group: "Repair Services", icon: "\u2699\uFE0F", tasks: "Diagnosis, part replacement, calibration" },
+  { name: "Clothing Shop", group: "Textile Work", icon: "\uD83E\uDDF5", tasks: "Fabric handling, folding, display" },
+  { name: "Ironing", group: "Textile Work", icon: "\uD83D\uDC55", tasks: "Steam pressing, garment finishing" },
+  { name: "Furniture Assembly", group: "Assembly", icon: "\uD83E\uDE91", tasks: "Part alignment, fastening, hardware install" },
+];
+
+const WORKPLACE_GROUPS = [
+  { name: "Food Service", color: "var(--accent-primary)" },
+  { name: "Skilled Trades", color: "var(--accent-secondary)" },
+  { name: "Repair Services", color: "#f59e0b" },
+  { name: "Textile Work", color: "#a78bfa" },
+  { name: "Assembly", color: "#f472b6" },
+];
+
 function WorkplaceVideoAnalysisViewer() {
   return (
     <div className="space-y-6">
-      {/* Workplace egocentric video preview */}
+      {/* Video sample */}
       <div>
         <SectionHeader>{"// VIDEO SAMPLE"}</SectionHeader>
         <div className="rounded-lg overflow-hidden border border-[var(--border-subtle)]">
@@ -759,51 +927,244 @@ function WorkplaceVideoAnalysisViewer() {
         </div>
       </div>
 
-      {/* File info card */}
+      {/* Workplace category grid */}
       <div>
-        <SectionHeader>{"// FILE INFO"}</SectionHeader>
+        <SectionHeader>{"// WORKPLACE CATEGORIES (10)"}</SectionHeader>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {WORKPLACE_CATEGORIES.map((cat, i) => {
+            const group = WORKPLACE_GROUPS.find((g) => g.name === cat.group);
+            return (
+              <motion.div
+                key={cat.name}
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.06, duration: 0.3 }}
+                className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] p-3 flex items-start gap-3 hover:border-[var(--accent-primary)]/40 transition-colors"
+              >
+                <span className="text-lg leading-none mt-0.5">{cat.icon}</span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-mono text-sm font-medium text-[var(--text-primary)]">
+                      {cat.name}
+                    </span>
+                    <span
+                      className="font-mono text-[10px] px-1.5 py-0.5 rounded-sm"
+                      style={{
+                        color: group?.color,
+                        backgroundColor: `color-mix(in srgb, ${group?.color || "var(--accent-primary)"} 15%, transparent)`,
+                      }}
+                    >
+                      {cat.group}
+                    </span>
+                  </div>
+                  <p className="font-mono text-xs text-[var(--text-muted)] leading-relaxed">
+                    {cat.tasks}
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Industry group summary */}
+      <div>
+        <SectionHeader>{"// INDUSTRY GROUPS"}</SectionHeader>
         <div className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] p-4 md:p-5">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <DataField label="Filename" value="BaristaEgocentricVideoSample.mp4" />
-            <DataField label="Size" value="176.73 MB" />
-            <DataField label="Type" value="video/mp4" />
+          <div className="flex flex-wrap gap-3">
+            {WORKPLACE_GROUPS.map((group) => {
+              const count = WORKPLACE_CATEGORIES.filter(
+                (c) => c.group === group.name
+              ).length;
+              return (
+                <div key={group.name} className="flex items-center gap-2">
+                  <div
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: group.color }}
+                  />
+                  <span className="font-mono text-xs text-[var(--text-secondary)]">
+                    {group.name}
+                  </span>
+                  <span
+                    className="font-mono text-xs font-medium"
+                    style={{ color: group.color }}
+                  >
+                    ({count})
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
 
-      {/* Brief description */}
+      {/* Technical specs */}
       <div>
-        <SectionHeader>{"// DESCRIPTION"}</SectionHeader>
-        <div className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--accent-primary)]/30 p-4 md:p-5">
-          <p className="font-mono text-sm text-[var(--text-secondary)] leading-relaxed">
-            POV of barista preparing coffee orders in a retail coffeeshop environment.
-          </p>
-        </div>
-      </div>
-
-      {/* Classification tags */}
-      <div>
-        <SectionHeader>{"// CLASSIFICATION"}</SectionHeader>
-        <div className="flex flex-wrap gap-2">
-          <Tag label="Data Type" value="Egocentric" />
-          <Tag label="Domain" value="Workplaces" />
-          <Tag label="Category" value="Retail" />
-          <Tag label="Subcategory" value="Coffeeshop" />
-        </div>
-      </div>
-
-      {/* Technical specs grid */}
-      <div>
-        <SectionHeader>{"// TECHNICAL SPECS"}</SectionHeader>
+        <SectionHeader>{"// CAPTURE SPECS"}</SectionHeader>
         <div className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] p-4 md:p-5">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <DataField label="Resolution" value="3840x2160" />
-            <DataField label="Aspect Ratio" value="16:9" />
-            <DataField label="Duration" value="9.8s" />
             <DataField label="Frame Rate" value="60 fps" />
-            <DataField label="Total Frames" value="588" />
-            <DataField label="Bit Depth" value="8-bit" />
+            <DataField label="Hardware" value="Smartphone" />
+            <DataField label="Perspective" value="Egocentric (1st person)" />
+            <DataField label="Session Length" value="5-15 min" />
+            <DataField label="Onboarding" value="<48 hours" />
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Video Quality Assessment Viewer ---------- */
+
+const QUALITY_DIMENSIONS = [
+  {
+    label: "Motion Quality",
+    description: "Temporal coherence, physics plausibility, artifact severity",
+    icon: "\uD83C\uDFAC",
+    color: "var(--accent-primary)",
+    sampleScore: 4,
+  },
+  {
+    label: "Visual Fidelity",
+    description: "Resolution consistency, lighting accuracy, texture detail",
+    icon: "\uD83D\uDC41\uFE0F",
+    color: "var(--accent-secondary)",
+    sampleScore: 3,
+  },
+  {
+    label: "Viewer Interest",
+    description: "Would a viewer watch this through? Engagement signal",
+    icon: "\u2B50",
+    color: "#f59e0b",
+    sampleScore: 5,
+  },
+  {
+    label: "Text-to-Video Alignment",
+    description: "Prompt faithfulness across subject, action, setting, style",
+    icon: "\uD83C\uDFAF",
+    color: "#a78bfa",
+    sampleScore: 4,
+  },
+];
+
+const QUALITY_TOTAL = 976355;
+
+function VideoQualityAssessmentViewer() {
+  return (
+    <div className="space-y-6">
+      {/* Scale indicator */}
+      <div>
+        <SectionHeader>{"// ANNOTATION VOLUME"}</SectionHeader>
+        <div className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--accent-primary)]/30 p-4 md:p-5">
+          <div className="flex items-baseline gap-3 mb-3">
+            <span
+              className="font-mono text-3xl font-bold"
+              style={{ color: "var(--accent-primary)" }}
+            >
+              {QUALITY_TOTAL.toLocaleString()}
+            </span>
+            <span className="font-mono text-sm text-[var(--text-muted)]">
+              human quality assessments
+            </span>
+          </div>
+          <div className="w-full h-2 rounded-full bg-[var(--bg-primary)] overflow-hidden">
+            <motion.div
+              className="h-full rounded-full"
+              style={{
+                background:
+                  "linear-gradient(90deg, var(--accent-primary), var(--accent-secondary))",
+              }}
+              initial={{ width: 0 }}
+              animate={{ width: "100%" }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+            />
+          </div>
+          <div className="flex justify-between mt-2">
+            <span className="font-mono text-xs text-[var(--text-muted)]">
+              3 source categories
+            </span>
+            <span className="font-mono text-xs text-[var(--text-muted)]">
+              weekly RLHF-ready batches
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Four evaluation dimensions */}
+      <div>
+        <SectionHeader>{"// EVALUATION DIMENSIONS (4)"}</SectionHeader>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {QUALITY_DIMENSIONS.map((dim, i) => (
+            <motion.div
+              key={dim.label}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1, duration: 0.3 }}
+              className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] p-4 hover:border-[var(--accent-primary)]/40 transition-colors"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-base">{dim.icon}</span>
+                <span className="font-mono text-sm font-medium text-[var(--text-primary)]">
+                  {dim.label}
+                </span>
+              </div>
+              <p className="font-mono text-xs text-[var(--text-muted)] leading-relaxed mb-3">
+                {dim.description}
+              </p>
+              {/* Sample score visualization */}
+              <div className="flex items-center gap-1.5">
+                {[1, 2, 3, 4, 5].map((level) => (
+                  <motion.div
+                    key={level}
+                    className="h-1.5 flex-1 rounded-full"
+                    style={{
+                      backgroundColor:
+                        level <= dim.sampleScore
+                          ? dim.color
+                          : "var(--bg-primary)",
+                    }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: i * 0.1 + level * 0.05 }}
+                  />
+                ))}
+                <span
+                  className="font-mono text-xs ml-1 font-medium"
+                  style={{ color: dim.color }}
+                >
+                  {dim.sampleScore}/5
+                </span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Sample annotation card */}
+      <div>
+        <SectionHeader>{"// SAMPLE ANNOTATION"}</SectionHeader>
+        <div className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] p-4 md:p-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <DataField label="Clip ID" value="vqa-847291" />
+            <DataField label="Source" value="Cinematic (licensed)" />
+            <DataField label="Duration" value="4.2s" />
+            <DataField label="Annotator Pool" value="Calibrated (85%+)" />
+            <DataField label="Agreement" value="\u03B1 = 0.78" />
+            <DataField label="Confidence Tier" value="High" />
+          </div>
+        </div>
+      </div>
+
+      {/* Source categories */}
+      <div>
+        <SectionHeader>{"// SOURCE CATEGORIES"}</SectionHeader>
+        <div className="flex flex-wrap gap-2">
+          <Tag label="Source" value="Licensed Cinematic" />
+          <Tag label="Source" value="Street-Level Capture" />
+          <Tag label="Source" value="Curated Libraries" />
+          <Tag label="Output" value="RLHF-Ready" />
         </div>
       </div>
     </div>
@@ -1179,6 +1540,326 @@ function PromptEnhancementViewer() {
   );
 }
 
+/* ---------- Classification Pipeline Viewer ---------- */
+
+const DECISION_NODES = [
+  { question: "Real person in non-studio environment?", answer: true },
+  { question: "Audio ambient, not post-produced?", answer: true },
+  { question: "No visible branding or sponsorship?", answer: false },
+  { question: "Natural lighting, no professional setup?", answer: true },
+];
+
+const CONFIDENCE_TIERS = [
+  { tier: "Tier 1", label: "High Confidence", count: 68250, pct: 65, color: "var(--accent-primary)" },
+  { tier: "Tier 2", label: "Medium", count: 22050, pct: 21, color: "var(--accent-secondary)" },
+  { tier: "Tier 3", label: "Low", count: 11550, pct: 11, color: "#f59e0b" },
+  { tier: "Tier 4", label: "Needs Review", count: 3150, pct: 3, color: "var(--error)" },
+];
+
+function ClassificationPipelineViewer() {
+  const [activeStep, setActiveStep] = useState(-1);
+  const [showResult, setShowResult] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(containerRef, { once: true, margin: "-80px" });
+  const hasAnimated = useRef(false);
+
+  // GSAP timeline for the decision path flow
+  useEffect(() => {
+    if (!isInView || hasAnimated.current) return;
+    hasAnimated.current = true;
+
+    const tl = gsap.timeline({ delay: 0.4 });
+
+    // Step through each decision node
+    DECISION_NODES.forEach((_, i) => {
+      tl.call(() => setActiveStep(i), [], `+=${i === 0 ? 0 : 0.6}`);
+    });
+
+    // Show result after all decisions
+    tl.call(() => setShowResult(true), [], "+=0.8");
+
+    return () => { tl.kill(); };
+  }, [isInView]);
+
+  // Animated counter hook
+  const AnimatedCount = useCallback(({ target, duration = 1.2 }: { target: number; duration?: number }) => {
+    const countRef = useRef<HTMLSpanElement>(null);
+    const inView = useInView(countRef, { once: true });
+
+    useEffect(() => {
+      if (!inView || !countRef.current) return;
+      const el = countRef.current;
+      gsap.fromTo(el, { innerText: 0 }, {
+        innerText: target,
+        duration,
+        ease: "power2.out",
+        snap: { innerText: 1 },
+        onUpdate: function () {
+          el.textContent = Math.round(Number(gsap.getProperty(el, "innerText") || 0)).toLocaleString();
+        },
+      });
+    }, [inView, target, duration]);
+
+    return <span ref={countRef}>0</span>;
+  }, []);
+
+  return (
+    <div ref={containerRef} className="space-y-6">
+      {/* Throughput header */}
+      <div>
+        <SectionHeader>{"// CLASSIFICATION THROUGHPUT"}</SectionHeader>
+        <div className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--accent-primary)]/30 p-4 md:p-5">
+          <div className="flex items-baseline gap-3 mb-3">
+            <span className="font-mono text-3xl font-bold" style={{ color: "var(--accent-primary)" }}>
+              <AnimatedCount target={105000} duration={1.5} />
+            </span>
+            <span className="font-mono text-sm text-[var(--text-muted)]">
+              clips classified in 7 days
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="rounded-md bg-[var(--bg-primary)] border border-[var(--border-subtle)] p-3 text-center">
+              <span className="block font-mono text-lg font-bold text-[var(--accent-primary)]">15K</span>
+              <span className="block font-mono text-[10px] text-[var(--text-muted)] uppercase tracking-wider mt-1">Clips / Day</span>
+            </div>
+            <div className="rounded-md bg-[var(--bg-primary)] border border-[var(--border-subtle)] p-3 text-center">
+              <span className="block font-mono text-lg font-bold text-[var(--accent-secondary)]">{"<24h"}</span>
+              <span className="block font-mono text-[10px] text-[var(--text-muted)] uppercase tracking-wider mt-1">Redesign Time</span>
+            </div>
+            <div className="rounded-md bg-[var(--bg-primary)] border border-[var(--border-subtle)] p-3 text-center">
+              <span className="block font-mono text-lg font-bold text-[var(--text-primary)]">0</span>
+              <span className="block font-mono text-[10px] text-[var(--text-muted)] uppercase tracking-wider mt-1">Rework Required</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Before / After redesign */}
+      <div>
+        <SectionHeader>{"// FRAMEWORK REDESIGN"}</SectionHeader>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {/* Before */}
+          <div className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--error)]/30 p-4 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-0.5 bg-[var(--error)]/40" />
+            <div className="flex items-center gap-2 mb-3">
+              <span className="font-mono text-xs font-bold text-[var(--error)] uppercase tracking-wider">Before</span>
+              <span className="inline-flex items-center px-2 py-0.5 rounded font-mono text-[10px] bg-[var(--error)]/10 border border-[var(--error)]/30 text-[var(--error)]">
+                v1.0
+              </span>
+            </div>
+            <div className="rounded-md bg-[var(--bg-primary)] border border-[var(--border-subtle)] p-3 mb-3">
+              <p className="font-mono text-xs text-[var(--text-muted)] italic leading-relaxed">
+                &quot;Classify whether this video content feels organic and authentic to a general audience...&quot;
+              </p>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-[10px] text-[var(--text-muted)]">Inter-annotator agreement</span>
+              <span className="font-mono text-sm font-bold text-[var(--error)]">{"<85%"}</span>
+            </div>
+            <div className="mt-2 h-2 rounded-full bg-[var(--bg-primary)] overflow-hidden">
+              <motion.div
+                className="h-full rounded-full bg-[var(--error)]"
+                initial={{ width: 0 }}
+                whileInView={{ width: "85%" }}
+                viewport={{ once: true }}
+                transition={{ duration: 1, delay: 0.3 }}
+              />
+            </div>
+          </div>
+
+          {/* After */}
+          <div className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--accent-primary)]/30 p-4 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-0.5 bg-[var(--accent-primary)]/40" />
+            <div className="flex items-center gap-2 mb-3">
+              <span className="font-mono text-xs font-bold text-[var(--accent-primary)] uppercase tracking-wider">After</span>
+              <span className="inline-flex items-center px-2 py-0.5 rounded font-mono text-[10px] bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)]">
+                v2.0
+              </span>
+            </div>
+            <div className="rounded-md bg-[var(--bg-primary)] border border-[var(--border-subtle)] p-3 mb-3">
+              <p className="font-mono text-xs text-[var(--text-secondary)] leading-relaxed">
+                Criteria-driven Yes/No decision paths with embedded visual examples at each branch
+              </p>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-[10px] text-[var(--text-muted)]">Inter-annotator agreement</span>
+              <span className="font-mono text-sm font-bold text-[var(--accent-primary)]">97%+</span>
+            </div>
+            <div className="mt-2 h-2 rounded-full bg-[var(--bg-primary)] overflow-hidden">
+              <motion.div
+                className="h-full rounded-full bg-[var(--accent-primary)]"
+                initial={{ width: 0 }}
+                whileInView={{ width: "97%" }}
+                viewport={{ once: true }}
+                transition={{ duration: 1, delay: 0.5 }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Animated decision path */}
+      <div>
+        <SectionHeader>{"// DECISION PATH (LIVE CLASSIFICATION)"}</SectionHeader>
+        <div className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] p-4 md:p-5">
+          {/* Clip being processed */}
+          <div className="flex items-center gap-3 mb-4 pb-4 border-b border-[var(--border-subtle)]">
+            <div className="w-10 h-10 rounded-md bg-[var(--bg-primary)] border border-[var(--accent-primary)]/30 flex items-center justify-center">
+              <span className="font-mono text-xs text-[var(--accent-primary)]">
+                {"\u25B6"}
+              </span>
+            </div>
+            <div>
+              <span className="block font-mono text-sm font-medium text-[var(--text-primary)]">CLIP_47291.mp4</span>
+              <span className="block font-mono text-[10px] text-[var(--text-muted)]">Duration: 8.4s &middot; 1920x1080 &middot; Batch 094</span>
+            </div>
+            <span className={`ml-auto inline-flex items-center gap-1.5 px-2.5 py-1 rounded font-mono text-[10px] ${
+              showResult
+                ? "bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)]"
+                : "bg-[var(--accent-secondary)]/10 border border-[var(--accent-secondary)]/30 text-[var(--accent-secondary)]"
+            }`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${showResult ? "bg-[var(--accent-primary)]" : "bg-[var(--accent-secondary)] animate-pulse"}`} />
+              {showResult ? "CLASSIFIED" : "PROCESSING"}
+            </span>
+          </div>
+
+          {/* Decision nodes */}
+          <div className="space-y-2">
+            {DECISION_NODES.map((node, i) => {
+              const isActive = activeStep >= i;
+              const isCurrentlyProcessing = activeStep === i && !showResult;
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0.3 }}
+                  animate={{ opacity: isActive ? 1 : 0.3 }}
+                  transition={{ duration: 0.4 }}
+                  className={`rounded-md border p-3 flex items-center gap-3 transition-colors duration-300 ${
+                    isActive
+                      ? isCurrentlyProcessing
+                        ? "bg-[var(--accent-secondary)]/5 border-[var(--accent-secondary)]/40"
+                        : "bg-[var(--bg-primary)] border-[var(--border-subtle)]"
+                      : "bg-[var(--bg-primary)]/50 border-[var(--border-subtle)]/50"
+                  }`}
+                >
+                  {/* Step number */}
+                  <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center font-mono text-[10px] font-bold ${
+                    isActive
+                      ? "bg-[var(--accent-primary)]/15 text-[var(--accent-primary)]"
+                      : "bg-[var(--bg-tertiary)] text-[var(--text-muted)]"
+                  }`}>
+                    {i + 1}
+                  </span>
+
+                  {/* Question */}
+                  <span className={`font-mono text-xs flex-1 ${
+                    isActive ? "text-[var(--text-secondary)]" : "text-[var(--text-muted)]"
+                  }`}>
+                    {node.question}
+                  </span>
+
+                  {/* Answer badge */}
+                  {isActive && (
+                    <motion.span
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, delay: 0.2 }}
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded font-mono text-[10px] font-bold ${
+                        node.answer
+                          ? "bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)]"
+                          : "bg-[var(--error)]/10 border border-[var(--error)]/30 text-[var(--error)]"
+                      }`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${node.answer ? "bg-[var(--accent-primary)]" : "bg-[var(--error)]"}`} />
+                      {node.answer ? "YES" : "NO"}
+                    </motion.span>
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Classification result */}
+          {showResult && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              className="mt-4 pt-4 border-t border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+            >
+              <div className="flex flex-wrap gap-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md font-mono text-xs bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/40 text-[var(--accent-primary)]">
+                  <span className="w-2 h-2 rounded-full bg-[var(--accent-primary)]" />
+                  ORGANIC
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md font-mono text-xs bg-[var(--accent-secondary)]/10 border border-[var(--accent-secondary)]/40 text-[var(--accent-secondary)]">
+                  CONFIDENCE: TIER 2
+                </span>
+              </div>
+              <span className="font-mono text-[10px] text-[var(--text-muted)]">
+                3/4 criteria agreed &middot; decision-path consistency: 75%
+              </span>
+            </motion.div>
+          )}
+        </div>
+      </div>
+
+      {/* Confidence tier distribution */}
+      <div>
+        <SectionHeader>{"// CONFIDENCE TIER DISTRIBUTION (105K CLIPS)"}</SectionHeader>
+        <div className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] p-4 md:p-5 space-y-3">
+          {CONFIDENCE_TIERS.map((tier, i) => (
+            <div key={tier.tier}>
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: tier.color }} />
+                  <span className="font-mono text-xs text-[var(--text-secondary)]">{tier.tier}</span>
+                  <span className="font-mono text-[10px] text-[var(--text-muted)]">{tier.label}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="font-mono text-xs text-[var(--text-muted)]">{tier.pct}%</span>
+                  <span className="font-mono text-sm font-bold text-[var(--text-primary)] w-16 text-right">
+                    {tier.count.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+              <div className="h-2.5 rounded-full bg-[var(--bg-primary)] overflow-hidden">
+                <motion.div
+                  className="h-full rounded-full"
+                  style={{ backgroundColor: tier.color }}
+                  initial={{ width: 0 }}
+                  whileInView={{ width: `${tier.pct}%` }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 + i * 0.1 }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Quality checkpoints */}
+      <div>
+        <SectionHeader>{"// QUALITY CHECKPOINTS"}</SectionHeader>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { label: "Batch Size", value: "500 clips", icon: "\uD83D\uDCE6" },
+            { label: "Checkpoint", value: "Pre-production", icon: "\u2705" },
+            { label: "Early Revalidation", value: "2,000 clips", icon: "\uD83D\uDD04" },
+            { label: "Final Agreement", value: "97%+", icon: "\uD83D\uDCCA" },
+          ].map((item) => (
+            <div key={item.label} className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] p-3 text-center">
+              <span className="block text-base mb-1">{item.icon}</span>
+              <span className="block font-mono text-sm font-bold text-[var(--text-primary)]">{item.value}</span>
+              <span className="block font-mono text-[10px] text-[var(--text-muted)] uppercase tracking-wider mt-1">{item.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Platform Screenshots Viewer ---------- */
 
 function PlatformScreenshotsViewer({
@@ -1350,7 +2031,7 @@ export default function SampleDataViewer({ type, data }: SampleDataViewerProps) 
         </div>
         <span className="text-[var(--text-muted)] text-xs font-mono ml-2">
           {type === "safety-label"
-            ? "sample_safety_review.json"
+            ? "residual_risk_audit.json"
             : type === "fashion-annotation"
               ? "sample_annotation.json"
               : type === "red-teaming-dashboard"
@@ -1365,16 +2046,22 @@ export default function SampleDataViewer({ type, data }: SampleDataViewerProps) 
                         ? "object_identity_segments.json"
                         : type === "prompt-enhancement"
                           ? "llm_enhancer_sample.json"
-                          : type === "platform-screenshots"
-                            ? "platform_preview.png"
-                            : "sample_clip.json"}
+                          : type === "egocentric-capture"
+                            ? "capture_pipeline_overview.json"
+                            : type === "video-quality-assessment"
+                              ? "quality_assessment_batch.json"
+                              : type === "classification-pipeline"
+                                ? "classification_pipeline.json"
+                                : type === "platform-screenshots"
+                                  ? "platform_preview.png"
+                                  : "sample_clip.json"}
         </span>
       </div>
 
       {/* Content */}
       <div className="p-5 md:p-8">
         {type === "safety-label" && <SafetyLabelViewer />}
-        {type === "video-analysis" && <VideoAnalysisViewer />}
+        {type === "egocentric-capture" && <EgocentricCaptureViewer />}
         {type === "fashion-annotation" && <FashionAnnotationViewer />}
         {type === "red-teaming-dashboard" && <RedTeamingViewer />}
         {type === "game-capture" && <GameCaptureViewer />}
@@ -1382,6 +2069,8 @@ export default function SampleDataViewer({ type, data }: SampleDataViewerProps) 
         {type === "aesthetic-evaluation" && <AestheticEvaluationViewer />}
         {type === "object-identity" && <ObjectIdentityViewer />}
         {type === "prompt-enhancement" && <PromptEnhancementViewer />}
+        {type === "video-quality-assessment" && <VideoQualityAssessmentViewer />}
+        {type === "classification-pipeline" && <ClassificationPipelineViewer />}
         {type === "platform-screenshots" && data?.images && (
           <PlatformScreenshotsViewer images={data.images} />
         )}

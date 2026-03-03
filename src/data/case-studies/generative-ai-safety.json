@@ -2,14 +2,14 @@
   "slug": "generative-ai-safety",
   "title": "Scaling Generative AI Safety Through Human-Led Data Labeling",
   "category": "safety",
-  "teaser": "205,000 safety annotations across text and video — validating content moderation pipelines and delivering defensible evidence of safety performance for audits and governance.",
-  "headlineStat": "205K",
+  "teaser": "241,000+ safety annotations across text and video — validating content moderation pipelines and delivering defensible evidence of safety performance for audits and governance.",
+  "headlineStat": "241K+",
   "headlineStatLabel": "Safety annotations completed",
-  "summary": "Executed a multi-modal data labeling program for a leading generative AI company to validate, strengthen, and operationalize content safety at scale. Annotators reviewed text and video outputs that had already passed automated moderation, measuring residual risk against a 2% violation rate threshold. The program delivered 205,000 safety annotations and defensible evidence of safety performance for audits and governance frameworks.",
+  "summary": "Executed a multi-modal data labeling program for a leading generative AI company to validate, strengthen, and operationalize content safety at scale. Annotators reviewed text and video outputs that had already passed automated moderation, measuring residual risk against a 2% violation rate threshold. The program delivered 241,000+ safety annotations and defensible evidence of safety performance for audits and governance frameworks.",
   "challenge": "Automated content moderation pipelines produce binary safe/unsafe classifications but cannot quantify their own residual risk — the rate at which harmful content passes through undetected. The client needed ground-truth human labels on outputs that had already cleared automated filters to measure actual violation rates, identify systematic gaps in their moderation stack, and produce audit-ready documentation for enterprise customers and regulators. The challenge was operational: labeling safety-sensitive content at scale requires annotators trained on nuanced policy definitions, consistent application of multi-dimensional safety taxonomies across modalities (text and video), and continuous monitoring to prevent annotator fatigue and desensitization from degrading label quality.",
   "approach": "We built a high-throughput, quality-controlled annotation workflow focused exclusively on residual risk — only reviewing outputs that had already passed the client's automated moderation pipeline. This design choice was deliberate: the goal was not to replicate automated filtering but to measure its failure rate and characterize the types of violations it misses.\n\nAnnotators evaluated text and video outputs against a multi-dimensional safety taxonomy covering nudity/NSFW content, violence and gore, hate speech and harassment, self-harm, and illegal activity. Each output received a binary safety label (safe/violation) plus a category tag when violations were identified. Policy definitions were developed collaboratively with the client's trust and safety team and included visual exemplars, boundary cases, and explicit guidance on culturally variable norms.\n\nLive dashboards tracked violation rates by product, modality, and safety category in real time. Weekly reporting identified emerging patterns — for example, a spike in near-miss violent content from a specific model configuration — enabling the client to update their automated filters proactively rather than reactively. Annotator consistency was monitored via calibration sets (pre-labeled items seeded into the workflow at a 5% rate), with annotators falling below 92% agreement on calibration items pulled for retraining.",
   "results": [
-    { "value": "205,000", "label": "Safety annotations completed" },
+    { "value": "241K+", "label": "Safety annotations completed" },
     { "value": "<2%", "label": "Violation rate maintained below threshold" },
     { "value": "Multi-modal", "label": "Coverage across text and video outputs" },
     { "value": "92%+", "label": "Annotator calibration agreement maintained" }
@@ -48,7 +48,7 @@
   },
   "targetKeyword": "generative AI safety labeling service",
   "metaTitle": "Generative AI Safety Labeling at Scale | Claru",
-  "metaDescription": "205,000 safety annotations across text and video to validate automated moderation and deliver audit-ready evidence of safety performance. Methodology inside.",
+  "metaDescription": "241,000+ safety annotations across text and video to validate automated moderation and deliver audit-ready evidence of safety performance. Methodology inside.",
   "processSteps": [
     { "step": "01", "title": "Sample", "description": "Select outputs that passed automated moderation" },
     { "step": "02", "title": "Annotate", "description": "Binary safety labels per category" },

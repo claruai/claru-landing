@@ -1,0 +1,64 @@
+{
+  "slug": "video-quality-at-scale",
+  "title": "Video Quality Annotation at Scale for RLHF and Model Selection",
+  "category": "annotation",
+  "teaser": "976K+ human quality assessments across four evaluation dimensions — motion quality, visual fidelity, viewer interest, and text-to-video alignment — powering RLHF training and model selection for a frontier video generation lab.",
+  "headlineStat": "976K+",
+  "headlineStatLabel": "Human quality assessments delivered",
+  "summary": "Delivered 976,000+ human quality assessments for a frontier AI lab developing video generation models. Each annotation evaluated four dimensions — motion quality, visual fidelity, viewer interest, and text-to-video alignment — across licensed cinematic footage, street-level captures, and curated video libraries. The annotations powered both RLHF training loops (teaching the model which outputs humans prefer) and model selection decisions (identifying which configurations produce the highest-quality results). Calibrated annotator pools and continuous inter-rater agreement monitoring ensured the signal-to-noise ratio that RLHF requires to converge.",
+  "challenge": "RLHF for video generation requires massive volumes of human quality judgments — not just binary good/bad labels, but multi-dimensional assessments that capture the specific axes along which video quality varies. Motion quality, visual fidelity, viewer engagement, and prompt adherence are distinct failure modes that require distinct training signal. The lab's internal evaluation team could produce hundreds of annotations per week; their training pipeline consumed thousands per day. They needed a partner who could deliver six-figure annotation volumes while maintaining the calibration and consistency that RLHF demands — because noisy preference data doesn't just slow convergence, it teaches the model the wrong preferences.",
+  "approach": "We structured the annotation pipeline around four evaluation dimensions, each with calibrated rubrics and anchored scoring scales.\n\nMotion quality assessed temporal coherence, physics plausibility, and artifact severity — distinguishing between natural motion, subtle jitter, and catastrophic deformation. Visual fidelity evaluated resolution consistency, lighting accuracy, texture detail, and the absence of generation artifacts (blurring, tiling, color banding). Viewer interest captured whether the video would hold a viewer's attention — a subjective but critical signal for user-facing products. Text-to-video alignment measured how faithfully the generated output matched the input prompt across subject, action, setting, and style.\n\nAnnotators were calibrated through a qualification pipeline that tested agreement with expert gold-standard annotations across all four dimensions. Only annotators exceeding 85% agreement on calibration sets entered the production pool. Inter-rater agreement was monitored continuously using Krippendorff's alpha, with automatic flagging when agreement dropped below threshold on any dimension. Source material spanned three categories — licensed cinematic footage, street-level captures, and curated video libraries — ensuring the annotations covered the full distribution of content types the model would encounter in production.\n\nWeekly delivery batches were formatted for direct ingestion into the lab's RLHF training pipeline, with per-dimension scores, annotator confidence indicators, and source metadata attached to each assessment.",
+  "results": [
+    { "value": "976K+", "label": "Human quality assessments delivered" },
+    { "value": "4", "label": "Evaluation dimensions per annotation" },
+    { "value": "85%+", "label": "Annotator calibration threshold (gold-standard agreement)" },
+    { "value": "3", "label": "Source categories (cinematic, street-level, curated)" }
+  ],
+  "impact": "The 976K+ annotations became the primary preference signal for the lab's RLHF training pipeline, directly shaping how the model learned to distinguish high-quality video from low-quality output. The four-dimensional scoring enabled the lab to train separate reward models per quality axis — meaning the system could optimize for motion quality without degrading visual fidelity, or improve prompt adherence without sacrificing viewer interest. The calibrated annotator pool and continuous agreement monitoring meant the lab could trust the preference data at scale without manual review of individual annotations.",
+  "whyItMatters": "RLHF is only as good as the human preference data it trains on. Noisy labels don't just slow training — they teach the model the wrong preferences, producing outputs that are confidently bad in ways that are expensive to diagnose. At 976K+ annotations, even small improvements in annotation quality compound into measurable model improvements. The four-dimension evaluation framework ensures the model receives targeted signal on each quality axis rather than a blurred aggregate judgment, enabling precise optimization that single-score evaluations cannot support.",
+  "faqs": [
+    {
+      "question": "Why four separate evaluation dimensions instead of a single quality score?",
+      "answer": "Video quality fails along distinct axes — a video can have perfect visual fidelity but physically impossible motion, or match the prompt exactly but bore the viewer. A single aggregate score collapses these failure modes into noise, making it impossible to train a reward model that can distinguish between them. Four-dimension scoring gives the RLHF pipeline targeted signal on each axis, enabling the lab to train separate reward models and optimize each independently."
+    },
+    {
+      "question": "How were annotators calibrated?",
+      "answer": "Annotators completed a qualification pipeline that tested their agreement with expert gold-standard annotations across all four dimensions. Only annotators exceeding 85% agreement entered the production pool. Once in production, inter-rater agreement was monitored continuously using Krippendorff's alpha, with automatic flagging and retraining when agreement dropped below threshold on any dimension."
+    },
+    {
+      "question": "What source material was annotated?",
+      "answer": "Three categories: licensed cinematic footage (professional production quality, diverse genres), street-level captures (dashcam, surveillance, and urban video with natural lighting and motion), and curated video libraries (controlled content covering specific subjects, actions, and settings). This spread ensures the annotations cover the full distribution of content types the model encounters in production."
+    },
+    {
+      "question": "How were annotations formatted for RLHF ingestion?",
+      "answer": "Weekly delivery batches included per-dimension scores (1-5 scale), annotator confidence indicators, inter-rater agreement metrics per clip, and source metadata (content category, resolution, duration). The format was designed for direct ingestion into the lab's reward model training pipeline without preprocessing or reformatting."
+    },
+    {
+      "question": "How does annotation volume at this scale affect model quality?",
+      "answer": "RLHF reward models are data-hungry — preference signal from hundreds of examples produces unstable reward functions, while six-figure volumes enable the reward model to generalize across content types, quality levels, and failure modes. At 976K+ annotations, the lab could train reward models with enough coverage to avoid the distribution gaps that cause reward hacking in production."
+    }
+  ],
+  "relatedSlugs": [
+    "video-model-evaluation",
+    "video-content-classification"
+  ],
+  "pillarLink": {
+    "href": "/pillars/curate",
+    "label": "Data Curation & Annotation"
+  },
+  "targetKeyword": "video quality annotation RLHF",
+  "metaTitle": "Video Quality Annotation at Scale for RLHF | Claru",
+  "metaDescription": "976K+ human quality assessments across four dimensions — motion, fidelity, interest, alignment — powering RLHF training for a frontier video generation lab.",
+  "processSteps": [
+    { "step": "01", "title": "Calibrate", "description": "Qualify annotators against gold-standard benchmarks (85%+ agreement)" },
+    { "step": "02", "title": "Assess", "description": "Score each clip on 4 dimensions: motion, fidelity, interest, alignment" },
+    { "step": "03", "title": "Monitor", "description": "Continuous inter-rater agreement tracking via Krippendorff's alpha" },
+    { "step": "04", "title": "Deliver", "description": "Weekly RLHF-ready batches with per-dimension scores and metadata" }
+  ],
+  "images": [
+    "/images/case-studies/data-engine-world-models/hero.png",
+    "/images/case-studies/data-engine-world-models/process.png"
+  ],
+  "datePublished": "2026-01-15",
+  "sampleData": { "type": "video-quality-assessment" }
+}

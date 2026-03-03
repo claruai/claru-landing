@@ -298,7 +298,8 @@ export default function CaseStudyDetailClient({
                 <TextScramble
                   text={cs.title}
                   autoPlay
-                  delay={200}
+                  delay={1200}
+                  duration={2500}
                   scrambleOnHover
                   className="!font-sans"
                 />

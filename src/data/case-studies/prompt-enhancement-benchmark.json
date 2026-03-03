@@ -12,7 +12,7 @@
     { "value": "180", "label": "Prompts evaluated across 2 modalities" },
     { "value": "2", "label": "Clear statistical winners identified (p < 0.01)" },
     { "value": "3", "label": "Evaluation dimensions (intent, clarity, effectiveness)" },
-    { "value": "Reusable", "label": "Evaluation framework retained for future benchmarks" }
+    { "value": "p<0.01", "label": "Statistical significance separating top 2 from field" }
   ],
   "impact": "The benchmark replaced subjective internal debate with a quantitative production recommendation. The client deployed the top-ranked enhancement model for their video generation workflow, where the cost impact is highest. The evaluation framework was retained as organizational infrastructure — each new candidate enhancement solution can now be benchmarked against the existing leader using a subset of the original prompt set, reducing evaluation cost for future decisions by an estimated 60%.",
   "whyItMatters": "Prompt enhancement sits upstream of every model interaction. A suboptimal enhancement solution degrades every downstream output — and in video generation, where each render costs meaningful GPU time, that degradation compounds across millions of user requests. Yet most teams select enhancement approaches based on qualitative impressions or small-scale tests that lack statistical power. This benchmark demonstrates that prompt enhancement selection can and should be treated with the same evaluation rigor as model selection: validated metrics, multiple annotators, statistical significance testing, and quantified confidence in the recommendation.",

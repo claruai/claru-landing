@@ -25,11 +25,11 @@ const projects = [
   },
   {
     icon: Joystick,
-    title: "Manipulation Trajectory Data",
-    metric: "Fine-grained kinematic capture and task decomposition",
+    title: "Video Quality Annotation",
+    metric: "976K+ human assessments across 4 quality dimensions",
     description:
-      "Granular robotic manipulation recordings with full kinematic annotations and task decomposition.",
-    slug: "data-engine-world-models",
+      "Multi-dimensional quality evaluations powering RLHF training for frontier video generation models.",
+    slug: "video-quality-at-scale",
   },
   {
     icon: Gamepad2,
@@ -41,19 +41,19 @@ const projects = [
   },
   {
     icon: Layers,
-    title: "Multi-Modal Annotation",
-    metric: "Frame-level video, spatial, and preference annotation",
+    title: "Large-Scale Image Annotation",
+    metric: "3M+ images with structured taxonomy and multi-layer QA",
     description:
-      "Expert-labeled datasets combining video, spatial, and preference annotations with continuous quality assurance.",
+      "1,000+ trained annotators labeling fashion and lifestyle images with bounding boxes, captions, and hierarchical classification.",
     slug: "fashion-ai-annotation",
   },
   {
     icon: Box,
-    title: "Synthetic Data Pipelines",
-    metric: "Unreal and Omniverse, sim-to-real validated",
+    title: "Object Identity Tracking",
+    metric: "1.07M+ cross-segment identity verifications",
     description:
-      "Photorealistic synthetic data generation with domain-randomization and validated sim-to-real transfer.",
-    slug: "video-model-evaluation",
+      "Teaching video models identity persistence using bounding boxes, facial keypoints, and targeted human validation across temporal gaps.",
+    slug: "object-identity-persistence",
   },
   {
     icon: Shield,

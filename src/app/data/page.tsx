@@ -81,11 +81,11 @@ const caseStudies = [
     slug: "game-based-data-capture",
   },
   {
-    title: "Data Engine for World Models",
-    stat: "End-to-end",
+    title: "Video Quality Annotation at Scale",
+    stat: "976K+",
     description:
-      "Full pipeline from raw capture to training-ready dataset for generative video.",
-    slug: "data-engine-world-models",
+      "Human quality assessments across motion, fidelity, interest, and alignment for RLHF.",
+    slug: "video-quality-at-scale",
   },
   {
     title: "Workplace Egocentric Data",
