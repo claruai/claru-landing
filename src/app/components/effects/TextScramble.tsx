@@ -45,41 +45,55 @@ export default function TextScramble({
     if (isScrambling) return;
     setIsScrambling(true);
 
-    const oldText = displayText;
     const newText = text;
-    const length = Math.max(oldText.length, newText.length);
+    const length = newText.length;
     const queue: typeof queueRef.current = [];
 
+    // Wave effect: characters scramble in a left-to-right sweep
+    // rather than all at once. Each char gets a narrow scramble window.
+    const totalFrames = Math.round((duration / 1000) * 30); // 30fps for calmer feel
+    const waveWidth = Math.max(6, Math.round(totalFrames * 0.15)); // how many frames each char scrambles for
+
     for (let i = 0; i < length; i++) {
-      const from = oldText[i] || "";
       const to = newText[i] || "";
-      const start = Math.floor(Math.random() * 40);
-      const end = start + Math.floor(Math.random() * 40);
-      queue.push({ from, to, start, end });
+      // Stagger start across the text length so it sweeps left to right
+      const start = Math.round((i / length) * (totalFrames - waveWidth));
+      const end = start + waveWidth;
+      queue.push({ from: to, to, start, end });
     }
 
     queueRef.current = queue;
     let frame = 0;
+    // Throttle to ~30fps for a calmer pace
+    const msPerTick = Math.round(duration / totalFrames);
+    let lastTick = performance.now();
 
-    const update = () => {
+    const update = (now: number) => {
+      if (now - lastTick < msPerTick) {
+        frameRef.current = requestAnimationFrame(update);
+        return;
+      }
+      lastTick = now;
+
       let output = "";
       let complete = 0;
 
       for (let i = 0; i < queueRef.current.length; i++) {
-        const { from, to, start, end } = queueRef.current[i];
+        const { to, start, end } = queueRef.current[i];
         let char = queueRef.current[i].char;
 
         if (frame >= end) {
           complete++;
           output += to;
         } else if (frame >= start) {
-          if (!char || Math.random() < 0.28) {
+          // Lower probability = less flickering per frame
+          if (!char || Math.random() < 0.18) {
             char = randomChar();
             queueRef.current[i].char = char;
           }
           output += `<span class="text-[var(--accent-primary)]">${char}</span>`;
         } else {
-          output += from;
+          output += to; // Show real character before the wave reaches it
         }
       }
 
@@ -97,8 +111,8 @@ export default function TextScramble({
       }
     };
 
-    update();
-  }, [displayText, text, randomChar, isScrambling, prefersReducedMotion]);
+    frameRef.current = requestAnimationFrame(update);
+  }, [displayText, text, randomChar, isScrambling, prefersReducedMotion, duration]);
 
   useEffect(() => {
     if (autoPlay) {

@@ -2,24 +2,24 @@
   "slug": "egocentric-video-collection",
   "title": "Egocentric Video Data Collection for Robotics and World Modeling",
   "category": "data-collection",
-  "teaser": "1,000+ hours of geographically diverse, research-grade egocentric video delivered under aggressive timelines — platform launched in days, full delivery in weeks.",
-  "headlineStat": "1,000+",
-  "headlineStatLabel": "Hours of egocentric video collected",
-  "summary": "Partnered with a leading generative AI research lab focused on world modeling and general-purpose robotics. Delivered 1,000+ hours of geographically diverse, research-grade egocentric video under an aggressive timeline. Scaled to approximately 500 global contributors capturing first-person footage of everyday manipulation tasks, walking, driving, and cooking using smartphones, GoPros, and wearable cameras. Requirements evolved week by week, yet the platform launched in days with full delivery in weeks.",
+  "teaser": "386K+ first-person video clips captured across three parallel pipelines — GoPro, smartphone, and activity-specific — with same-day QA and weekly delivery batches feeding the lab's training runs in real time.",
+  "headlineStat": "386K+",
+  "headlineStatLabel": "First-person video clips captured",
+  "summary": "Partnered with a leading generative AI research lab focused on world modeling and general-purpose robotics. Delivered 386,000+ first-person video clips totaling thousands of hours of geographically diverse, research-grade egocentric footage. Operated three parallel capture pipelines — GoPro/DJI wearables (219K clips), smartphones (155K clips), and activity-specific task capture (12K clips) — across approximately 500 global contributors. Requirements evolved week by week, yet the platform launched in days with weekly delivery batches feeding the lab's training pipeline continuously.",
   "challenge": "Robotic manipulation and world-model research requires massive volumes of first-person video showing natural human behavior in diverse real-world environments, and no public dataset meets frontier labs' quality or diversity bar. The lab had attempted internal collection but stalled at modest scale due to hardware logistics, contributor recruitment across geographies, and the overhead of enforcing consistent capture quality — resolution, frame rate, scene coverage, and activity diversity — across hundreds of participants. They needed a partner who could launch a production-ready pipeline in days, not months, and adapt to evolving research specifications on a weekly cadence without sacrificing annotation-ready quality standards.",
-  "approach": "We launched a production-ready collection workflow within days of engagement. The first step was translating the lab's nuanced research-level movement specifications — specific hand-object interaction patterns, locomotion types, environmental diversity requirements — into contributor-friendly task instructions that non-technical participants could execute reliably. We supported capture across smartphones, GoPros, and wearable cameras, normalizing output formats to a consistent resolution and frame-rate spec.\n\nAn in-house QA team ran continuous validation on every submission, checking framing, motion quality, duration compliance, and scene-type metadata. Real-time dashboards enabled dynamic rebalancing across geographies and activity types as the lab's priorities shifted week to week. Coverage spanned household tasks, fine-grained manipulation actions (pouring, cutting, assembling), walking, driving, and cooking — each tagged with structured activity labels.\n\nThe operational model was designed for velocity: contributor onboarding took under 48 hours, QA turnaround was same-day, and weekly delivery batches kept the lab's training pipeline fed continuously rather than waiting for a monolithic handoff.",
+  "approach": "We built a purpose-built capture and ingestion platform — not adapted from an off-the-shelf tool — and launched three parallel pipelines within days of engagement, each optimized for different environments and interaction types.\n\nThe first pipeline deployed GoPro and DJI wearable cameras for high-fidelity, wide-angle egocentric capture of manipulation tasks, cooking, and locomotion — producing 219,000+ clips. The second pipeline used smartphone cameras for rapid, high-volume capture of everyday activities across diverse indoor and outdoor environments — producing 155,000+ clips. The third pipeline targeted specific activity categories (pouring, cutting, assembling, folding, fastening) with structured task instructions — producing 12,000+ precisely labeled clips.\n\nA structured activity taxonomy was co-developed with the lab's research team through three iterative revision cycles — testing draft categories against real captured footage to resolve gaps and ambiguities. The final taxonomy organized activities by environment (kitchen, workshop, outdoor), motor complexity (gross motor, fine manipulation, locomotion), and interaction type (tool use, object transfer, environmental navigation). Every clip was annotated with structured activity classifications and enriched metadata — environment type, lighting conditions, number of objects involved, and interaction complexity score — using a labeling interface that enforced taxonomy compliance at the UI level.\n\nAutomated checks at upload time validated resolution, duration, orientation, and file integrity before clips entered the annotation pipeline. An in-house QA team then ran continuous validation on every submission within 24 hours. Real-time dashboards enabled dynamic rebalancing across geographies and activity types as the lab's priorities shifted. The operational model was built for velocity: contributor onboarding took under 48 hours, QA turnaround was same-day, and weekly delivery batches kept the lab's training pipeline fed continuously.",
   "results": [
-    { "value": "1,000+", "label": "Hours of egocentric video delivered" },
-    { "value": "~500", "label": "Unique global contributors" },
-    { "value": "Days", "label": "Time from engagement to platform launch" },
-    { "value": "Weeks", "label": "Total time to full dataset delivery" }
+    { "value": "386K+", "label": "Total first-person video clips captured" },
+    { "value": "219K", "label": "GoPro & DJI wearable capture clips" },
+    { "value": "155K", "label": "Smartphone capture clips" },
+    { "value": "~500", "label": "Global contributors across 3 pipelines" }
   ],
-  "impact": "The dataset became primary training data for the lab's world-modeling and robotic manipulation research. Geographic and demographic diversity across approximately 500 contributors reduced the distribution shift between training data and real-world deployment environments — a known failure mode when models are trained on data from a single region or demographic. Weekly delivery cadence allowed the lab to begin training runs during collection rather than after, compressing their research iteration cycle by weeks.",
-  "whyItMatters": "For robotics and world models, progress depends on how quickly real-world data can be collected and put to use. Foundation models for embodied AI need millions of diverse egocentric frames showing natural human behavior across varied environments. Collecting this data requires coordinating hundreds of people across geographies, managing heterogeneous capture hardware, and enforcing research-grade quality at scale — problems that are operational, not algorithmic. This engagement demonstrated that large-scale first-person video collection can be both fast and cost-effective without sacrificing the quality that frontier labs require.",
+  "impact": "The dataset became primary training data for the lab's world-modeling and robotic manipulation research. The three-pipeline architecture meant each stream could be independently tuned — GoPro footage for high-fidelity manipulation, smartphone for environmental diversity, activity-specific for rare interaction types. Geographic and demographic diversity across approximately 500 contributors reduced the distribution shift between training data and real-world deployment. Weekly delivery cadence allowed the lab to begin training runs during collection rather than after, compressing their research iteration cycle by weeks.",
+  "whyItMatters": "For robotics and world models, progress depends on how quickly real-world data can be collected and put to use. Foundation models for embodied AI need millions of diverse egocentric frames showing natural human behavior across varied environments. Collecting this data requires coordinating hundreds of people across geographies, managing heterogeneous capture hardware, and enforcing research-grade quality at scale — problems that are operational, not algorithmic. This engagement produced 386K+ clips across three parallel pipelines, demonstrating that large-scale first-person video collection can be both fast and cost-effective without sacrificing the quality that frontier labs require.",
   "faqs": [
     {
       "question": "What camera hardware was used for egocentric capture?",
-      "answer": "Contributors used smartphones, GoPros, and wearable cameras depending on the task and environment. All output was normalized to a consistent resolution and frame-rate specification regardless of capture device. We validated each device's output against quality baselines before a contributor began recording."
+      "answer": "Three device categories across three parallel pipelines. GoPro and DJI wearable cameras for high-fidelity wide-angle capture (219K clips). Smartphones for rapid high-volume everyday activity capture (155K clips). All output was normalized to consistent resolution and frame-rate specifications regardless of capture device."
     },
     {
       "question": "How did you ensure consistent quality across hundreds of global contributors?",
@@ -27,20 +27,27 @@
     },
     {
       "question": "What types of activities were captured?",
-      "answer": "Coverage spanned household tasks, fine-grained manipulation actions (pouring, cutting, assembling), walking, driving, and cooking. Activities were selected collaboratively with the research team and evolved weekly as their priorities shifted. Each clip was tagged with structured activity labels and environment metadata."
+      "answer": "Coverage spanned household tasks, fine-grained manipulation actions (pouring, cutting, assembling, folding, fastening), walking, driving, and cooking. The activity-specific pipeline captured 12,000+ precisely labeled clips targeting rare interaction types. Activities were selected collaboratively with the research team and evolved weekly as their priorities shifted."
     },
     {
       "question": "How did you handle evolving research requirements?",
-      "answer": "The platform was designed for weekly specification changes from day one. Task instructions, activity taxonomies, and quality thresholds were parameterized so they could be updated without rebuilding the pipeline. When the lab shifted priorities — for example, requesting more driving footage or adding a new manipulation subcategory — updated instructions were pushed to contributors within 48 hours."
+      "answer": "The three-pipeline architecture was designed for weekly specification changes from day one. Task instructions, activity taxonomies, and quality thresholds were parameterized so they could be updated without rebuilding the pipeline. When the lab shifted priorities — for example, requesting more driving footage or adding a new manipulation subcategory — updated instructions were pushed to contributors within 48 hours."
+    },
+    {
+      "question": "How was the activity taxonomy developed?",
+      "answer": "Co-developed iteratively with the lab's research team through three revision cycles. Initial drafts were tested against real captured footage, revealing gaps (activities that didn't fit any category) and ambiguities (activities that fit multiple categories). The final taxonomy organized activities by environment, motor complexity, and interaction type, with clear decision criteria for edge cases. The labeling interface enforced taxonomy compliance at the UI level, preventing free-text drift."
+    },
+    {
+      "question": "Why build a custom platform instead of using an existing tool?",
+      "answer": "No existing platform supports the specific combination of first-person video capture across heterogeneous hardware, structured activity labeling with enforced taxonomies, enriched metadata annotation, and upload-time quality validation. Adapting a generic crowdsourcing platform would have required extensive customization — with the added technical debt of working around the platform's assumptions about data types and workflows. The purpose-built system is retained by the client for ongoing collection beyond the initial engagement."
     },
     {
       "question": "How quickly can this be replicated for a new engagement?",
-      "answer": "Platform launch takes days, not weeks. The core infrastructure — contributor onboarding, capture apps, QA pipelines, delivery formatting — is reusable. The primary variable is task-specific calibration: translating a new lab's research specifications into contributor instructions and QA criteria, which typically requires a 1-2 week pilot phase."
+      "answer": "Platform launch takes days, not weeks. The core infrastructure — contributor onboarding, capture apps, QA pipelines, delivery formatting — is reusable across all three pipeline types. The primary variable is task-specific calibration: translating a new lab's research specifications into contributor instructions and QA criteria, which typically requires a 1-2 week calibration phase."
     }
   ],
   "relatedSlugs": [
     "workplace-egocentric-data",
-    "data-engine-world-models",
     "game-based-data-capture"
   ],
   "pillarLink": {
@@ -49,12 +56,13 @@
   },
   "targetKeyword": "egocentric video data collection robotics",
   "metaTitle": "Egocentric Video Collection for Robotics | Claru",
-  "metaDescription": "How Claru collected 1,000+ hours of egocentric video across ~500 global contributors for world modeling and robotics research. Methodology, QA, and results.",
+  "metaDescription": "How Claru captured 386K+ first-person video clips across three parallel pipelines for world modeling and robotics research. Methodology, QA, and results.",
   "processSteps": [
-    { "step": "01", "title": "Define", "description": "Translate research specs into contributor tasks" },
-    { "step": "02", "title": "Activate", "description": "Scale to ~500 global contributors" },
-    { "step": "03", "title": "Capture", "description": "High-throughput upload + real-time dashboards" },
-    { "step": "04", "title": "Validate", "description": "In-house QA on framing, motion, duration" }
+    { "step": "01", "title": "Spec", "description": "Translate research requirements into 3 pipeline-specific task protocols" },
+    { "step": "02", "title": "Activate", "description": "Onboard ~500 contributors with GoPro, DJI, and smartphone kits" },
+    { "step": "03", "title": "Capture", "description": "Run 3 parallel streams — wearable, phone, activity-specific" },
+    { "step": "04", "title": "Validate", "description": "Same-day QA on framing, motion, duration, and metadata" },
+    { "step": "05", "title": "Deliver", "description": "Weekly batches feeding the lab's training pipeline continuously" }
   ],
   "images": [
     "/images/case-studies/egocentric-video-collection/hero.png",
@@ -64,5 +72,5 @@
     "/images/case-studies/egocentric-video-collection/why-it-matters.png"
   ],
   "datePublished": "2025-11-15",
-  "sampleData": { "type": "video-analysis" }
+  "sampleData": { "type": "egocentric-capture" }
 }
