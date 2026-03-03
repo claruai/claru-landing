@@ -61,13 +61,6 @@
   ],
   "datePublished": "2026-01-10",
   "sampleData": {
-    "type": "platform-screenshots",
-    "images": [
-      {
-        "src": "/images/case-studies/video-content-classification/process.png",
-        "label": "ANNOTATION INTERFACE",
-        "description": "The redesigned classification workflow with criteria-driven Yes/No decision paths, category selection, and theme checklist. Video player at top, structured decision flow below."
-      }
-    ]
+    "type": "classification-pipeline"
   }
 }
