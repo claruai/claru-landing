@@ -171,7 +171,7 @@
         "Typecheck passes"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": "Read autoVerifySlide in server-tool-handlers.ts. Currently it builds HTML and uses Playwright to render. Change to: save slides to DB, then navigate Playwright to the server route URL. The save step is critical — the server route reads from Supabase."
     },
     {
