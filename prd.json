@@ -187,7 +187,7 @@
         "Typecheck passes"
       ],
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "notes": "Dev server at http://localhost:3005. UI-only test, no API calls needed. Use webapp-testing skill."
     },
     {
@@ -203,7 +203,7 @@
         "Typecheck passes"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "notes": "Dev server at http://localhost:3005. Use webapp-testing skill."
     }
   ]
