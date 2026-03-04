@@ -120,7 +120,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "Read PresentationPreview.tsx — the srcdoc is set in a debounced useEffect. Run rewriteS3ToProxy on the html string before setSrcdoc(html). Also check html-renderer.ts renderSlidesToHTML — may need to run rewrite there too."
     },
     {
