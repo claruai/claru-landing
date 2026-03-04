@@ -43,7 +43,6 @@ import { VersionHistory } from "@/app/components/deck-builder/VersionHistory";
 import { ThemeEditor } from "@/app/components/deck-builder/ThemeEditor";
 import { ChatPanel } from "@/app/components/deck-builder/ChatPanel";
 import { SharePanel } from "@/app/components/deck-builder/SharePanel";
-import { getInlineEditScript } from "@/lib/deck-builder/inline-edit-script";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -637,31 +636,113 @@ export function DeckEditorClient({ initialTemplate }: DeckEditorClientProps) {
         });
         // Selection pre-loaded into chat panel
       }
-      if (e.data?.type === "inlineEdit") {
-        // Inline text edit committed — log for now, will be wired to slide update later
-        console.log("[InlineEdit]", {
-          tag: e.data.tag,
-          selector: e.data.selector,
-          innerHTML: e.data.innerHTML,
-          originalInnerHTML: e.data.originalInnerHTML,
-        });
-      }
     };
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
   }, []);
 
-  // Send selector mode and inline edit mode to preview iframes
+  /* ================================================================ */
+  /*  Inline edit listener                                             */
+  /* ================================================================ */
+
+  // Use refs to avoid stale closures in the message handler
+  const slidesRef = useRef(slides);
+  slidesRef.current = slides;
+  const selectedIndexRef = useRef(selectedIndex);
+  selectedIndexRef.current = selectedIndex;
+
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      if (e.data?.type !== "inlineEdit") return;
+
+      const { tag, innerHTML, originalInnerHTML, selector } = e.data as {
+        type: string;
+        tag: string;
+        innerHTML: string;
+        originalInnerHTML: string;
+        selector: string;
+      };
+
+      // Skip if content unchanged
+      if (innerHTML === originalInnerHTML) return;
+
+      const slide = slidesRef.current[selectedIndexRef.current];
+      if (!slide) return;
+
+      // Helper: strip HTML tags to get plain text
+      const stripHTML = (html: string) =>
+        html.replace(/<[^>]*>/g, "").trim();
+
+      if (slide.html) {
+        // --- Custom HTML slide: find & replace in the HTML string ---
+        const escapedOriginal = originalInnerHTML.replace(
+          /[.*+?^${}()|[\]\\]/g,
+          "\\$&"
+        );
+        // Match: <tag ...>originalInnerHTML</tag>
+        const tagPattern = new RegExp(
+          `(<${tag}[^>]*>)${escapedOriginal}(</${tag}>)`,
+          "g"
+        );
+        const matches = slide.html.match(tagPattern);
+
+        let updatedHtml: string | null = null;
+
+        if (matches && matches.length === 1) {
+          // Unique match — replace directly
+          updatedHtml = slide.html.replace(
+            tagPattern,
+            `$1${innerHTML}$2`
+          );
+        } else if (matches && matches.length > 1) {
+          // Multiple matches — use selector hint to disambiguate.
+          // Replace only the first occurrence as a fallback since
+          // the selector narrows context but we can't parse it perfectly
+          // in the raw HTML string. Replace the nth match if nth-of-type
+          // is present.
+          const nthMatch = selector.match(/:nth-of-type\((\d+)\)/);
+          const targetIndex = nthMatch ? parseInt(nthMatch[1], 10) - 1 : 0;
+          let matchCount = 0;
+          updatedHtml = slide.html.replace(tagPattern, (match, open, close) => {
+            if (matchCount++ === targetIndex) {
+              return `${open}${innerHTML}${close}`;
+            }
+            return match;
+          });
+        }
+
+        if (updatedHtml && updatedHtml !== slide.html) {
+          updateCurrentSlide({ html: updatedHtml });
+          showToast("Text updated", "success");
+        } else if (!matches || matches.length === 0) {
+          showToast("Could not apply edit — use chat instead", "warning");
+        }
+      } else {
+        // --- Layout slide: update title or body based on tag ---
+        const plainText = stripHTML(innerHTML);
+
+        if (/^h[1-3]$/i.test(tag)) {
+          updateCurrentSlide({ title: plainText });
+          showToast("Text updated", "success");
+        } else if (/^(p|li|span)$/i.test(tag)) {
+          updateCurrentSlide({ body: plainText });
+          showToast("Text updated", "success");
+        } else {
+          showToast("Could not apply edit — use chat instead", "warning");
+        }
+      }
+    };
+
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, [updateCurrentSlide, showToast]);
+
+  // Send selector mode to preview iframes
   useEffect(() => {
     const iframes = document.querySelectorAll("iframe");
     iframes.forEach((iframe) => {
       iframe.contentWindow?.postMessage(
         { type: selectorMode ? "enableSelector" : "disableSelector" },
-        "*"
-      );
-      // Enable inline editing when NOT in selector mode (so dblclick works normally)
-      iframe.contentWindow?.postMessage(
-        { type: selectorMode ? "disableInlineEdit" : "enableInlineEdit" },
         "*"
       );
     });
@@ -1086,8 +1167,78 @@ document.addEventListener('click',function(e){if(!sa)return;e.preventDefault();e
 window.addEventListener('message',function(e){if(e.data&&e.data.type==='enableSelector')en();if(e.data&&e.data.type==='disableSelector')di();});
 })();</script>`;
 
-/** Inline WYSIWYG text editing script — enables dblclick editing with floating toolbar */
-const INLINE_EDIT_SCRIPT = getInlineEditScript();
+/**
+ * Inline script injected into slide iframes to support double-click-to-edit.
+ * On dblclick of a text element: make it contenteditable, track original content,
+ * on blur/Enter send inlineEdit PostMessage to parent.
+ */
+const INLINE_EDIT_SCRIPT = `<script>(function(){
+var EDITABLE='h1,h2,h3,p,li,span,td,th,a,label,blockquote';
+var editing=null,origHTML='';
+function buildSelector(el){
+  var tag=el.tagName.toLowerCase();
+  var parts=[tag];
+  if(el.id)parts=[tag+'#'+el.id];
+  else if(el.className&&typeof el.className==='string'){
+    parts=[tag+'.'+el.className.trim().split(/\\s+/).join('.')];
+  }
+  var parent=el.parentElement;
+  if(parent&&parent!==document.body&&parent!==document.documentElement){
+    var siblings=parent.querySelectorAll(':scope > '+tag);
+    if(siblings.length>1){
+      for(var i=0;i<siblings.length;i++){
+        if(siblings[i]===el){parts.push(':nth-of-type('+(i+1)+')');break;}
+      }
+    }
+  }
+  return parts.join('');
+}
+function finish(){
+  if(!editing)return;
+  var el=editing;
+  editing=null;
+  el.removeAttribute('contenteditable');
+  el.style.outline='';
+  el.style.outlineOffset='';
+  el.style.minHeight='';
+  var newHTML=el.innerHTML;
+  window.parent.postMessage({
+    type:'inlineEdit',
+    tag:el.tagName.toLowerCase(),
+    innerHTML:newHTML,
+    originalInnerHTML:origHTML,
+    selector:buildSelector(el)
+  },'*');
+}
+document.addEventListener('dblclick',function(e){
+  var el=e.target;
+  while(el&&el!==document.body){
+    if(el.matches&&el.matches(EDITABLE))break;
+    el=el.parentElement;
+  }
+  if(!el||el===document.body)return;
+  if(editing===el)return;
+  if(editing)finish();
+  editing=el;
+  origHTML=el.innerHTML;
+  el.setAttribute('contenteditable','true');
+  el.style.outline='2px solid #92B090';
+  el.style.outlineOffset='2px';
+  el.style.minHeight='1em';
+  el.focus();
+  var sel=window.getSelection();
+  if(sel){sel.selectAllChildren(el);}
+});
+document.addEventListener('keydown',function(e){
+  if(!editing)return;
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();finish();}
+  if(e.key==='Escape'){editing.innerHTML=origHTML;finish();}
+});
+document.addEventListener('click',function(e){
+  if(!editing)return;
+  if(!editing.contains(e.target)){finish();}
+});
+})();<\/script>`;
 
 /** Mini slide thumbnail rendered via iframe at 1920×1080 scaled to ~200px width */
 function SlideThumbnail({
@@ -1166,13 +1317,9 @@ function CenterSlidePreview({
 
   // Build srcdoc — always use srcdoc for instant refresh
   const slideHtml = slide.html ? rewriteS3ToProxy(slide.html) : "";
-  const baseHtml = slide.html
-    ? `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}html,body{width:100%;height:100%;overflow:hidden;background:#0a0908;}</style></head><body>${slideHtml}${SELECTOR_SCRIPT}${INLINE_EDIT_SCRIPT}</body></html>`
-    : renderSlidesToHTML([{ ...slide, order: 0 }], themeId, { showProgress: false, customTheme });
-  // For layout slides, inject inline edit script before </body>
   const html = slide.html
-    ? baseHtml
-    : baseHtml.replace('</body>', `${INLINE_EDIT_SCRIPT}</body>`);
+    ? `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}html,body{width:100%;height:100%;overflow:hidden;background:#0a0908;}</style></head><body>${slideHtml}${SELECTOR_SCRIPT}${INLINE_EDIT_SCRIPT}</body></html>`
+    : renderSlidesToHTML([{ ...slide, order: 0 }], themeId, { showProgress: false, customTheme }).replace("</body>", `${INLINE_EDIT_SCRIPT}</body>`);
 
   return (
     <div ref={containerRef} className="relative w-full h-full flex flex-col">
@@ -1188,7 +1335,7 @@ function CenterSlidePreview({
           <iframe
             srcDoc={html}
             sandbox="allow-scripts allow-same-origin"
-            className="absolute top-0 left-0 border-0"
+            className={`absolute top-0 left-0 border-0 ${selectorMode ? "" : "pointer-events-none"}`}
             style={{
               width: "1920px",
               height: "1080px",

@@ -322,44 +322,6 @@
       "priority": 17,
       "passes": true,
       "notes": "Use webapp-testing skill with Playwright MCP."
-    },
-    {
-      "id": "US-018",
-      "title": "Handle inline edit PostMessage and update slide data",
-      "description": "As an admin, I want to double-click text in the slide preview to edit it inline so I can make quick text changes without using the chat.",
-      "acceptanceCriteria": [
-        "Add inlineEdit handler to the PostMessage listener in DeckEditorClient.tsx alongside the existing elementSelected handler",
-        "PostMessage payload: { type: 'inlineEdit', tag: string, innerHTML: string, originalInnerHTML: string, selector: string }",
-        "Compare innerHTML with originalInnerHTML — skip if identical",
-        "For custom HTML slides (slide.html exists): find the element in the HTML string by matching originalInnerHTML content, use regex to find opening tag matching the tag name and replace originalInnerHTML with new innerHTML",
-        "If multiple regex matches, use the selector hint (nth-of-type) to disambiguate",
-        "For layout slides (no slide.html): if tag is h1/h2/h3 → strip HTML tags, update slide.title; if tag is p/li/span → strip HTML tags, update slide.body",
-        "Call updateCurrentSlide() with the changed data",
-        "Show toast 'Text updated' via existing showToast",
-        "If element not found in HTML string, show toast 'Could not apply edit — use chat instead'",
-        "Add INLINE_EDIT_SCRIPT constant injected into iframe srcdoc for both custom HTML and layout slides",
-        "Script handles dblclick on text elements (h1-h3, p, li, span, td, th, a, label, blockquote), makes contenteditable, sends inlineEdit PostMessage on blur/Enter",
-        "Typecheck passes"
-      ],
-      "priority": 18,
-      "passes": true,
-      "notes": "The INLINE_EDIT_SCRIPT is injected alongside SELECTOR_SCRIPT for custom HTML slides, and appended before </body> for layout slides. Uses refs (slidesRef, selectedIndexRef) to avoid stale closures in the message handler."
-    },
-    {
-      "id": "US-019",
-      "title": "Enable pointer events on center preview iframe",
-      "description": "As an admin, I want to be able to double-click text in the slide preview to trigger inline editing.",
-      "acceptanceCriteria": [
-        "In CenterSlidePreview, the iframe had: className with conditional pointer-events-none based on selectorMode",
-        "Change to: always pointer-events auto (remove the conditional pointer-events-none entirely)",
-        "This allows double-click to reach the iframe content for inline editing",
-        "Single clicks inside the iframe don't bubble to the parent (iframe boundary), so this doesn't break slide selection",
-        "The iframe remains scrollable at zoom levels > Fit",
-        "Typecheck passes"
-      ],
-      "priority": 19,
-      "passes": false,
-      "notes": "Simple CSS change: remove the pointer-events-none conditional from the iframe className in CenterSlidePreview."
     }
   ]
 }
