@@ -286,7 +286,7 @@
         "Typecheck passes"
       ],
       "priority": 15,
-      "passes": false,
+      "passes": true,
       "notes": "Read src/lib/email/ for Resend integration. MEMORY.md says email template bg #0a0908, card #121210, border #2a2a28, accent #92B090. Use general-purpose agent."
     },
     {

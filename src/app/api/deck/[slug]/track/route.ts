@@ -13,6 +13,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { sendDeckViewNotification } from "@/lib/email/deck-view-notification";
 
 interface TrackPayload {
   token?: string;
@@ -58,14 +59,15 @@ export async function POST(
     return NextResponse.json({ error: "Deck not found" }, { status: 404 });
   }
 
-  // Resolve token to token_id and viewer email (if provided)
+  // Resolve token to token_id, viewer email, and lead_id (if provided)
   let tokenId: string | null = null;
   let viewerEmail: string | null = null;
+  let tokenLeadId: string | null = null;
 
   if (token) {
     const { data: tokenRow } = await supabase
       .from("deck_share_tokens")
-      .select("id, email")
+      .select("id, email, lead_id")
       .eq("token", token)
       .eq("template_id", template.id)
       .single();
@@ -73,6 +75,7 @@ export async function POST(
     if (tokenRow) {
       tokenId = tokenRow.id;
       viewerEmail = tokenRow.email;
+      tokenLeadId = tokenRow.lead_id ?? null;
     }
   }
 
@@ -104,6 +107,28 @@ export async function POST(
         { error: "Failed to record view" },
         { status: 500 },
       );
+    }
+
+    // -----------------------------------------------------------------------
+    // US-015: Engagement notification email
+    // Fire-and-forget — don't block the response. Only when the token is
+    // linked to a lead (tokenLeadId is set).
+    // -----------------------------------------------------------------------
+    if (tokenId && tokenLeadId) {
+      sendViewNotificationIfAllowed(supabase, {
+        tokenId,
+        leadId: tokenLeadId,
+        templateId: template.id,
+        templateName:
+          (template.share_settings as Record<string, unknown>)?.slug
+            ? String(
+                (template.share_settings as Record<string, unknown>).slug,
+              )
+            : slug,
+        viewerEmail: viewerEmail ?? "",
+      }).catch((err) => {
+        console.error("[track] Notification error (non-fatal):", err);
+      });
     }
 
     return NextResponse.json({ view_id: view.id });
@@ -226,4 +251,98 @@ export async function POST(
   }
 
   return NextResponse.json({ error: "Unhandled event" }, { status: 400 });
+}
+
+// =============================================================================
+// US-015: Engagement notification — debounced, fire-and-forget
+// =============================================================================
+
+interface NotificationContext {
+  tokenId: string;
+  leadId: string;
+  templateId: string;
+  templateName: string;
+  viewerEmail: string;
+}
+
+/**
+ * Sends a deck view notification email if no notification was sent for the
+ * same lead + deck combination in the last hour. This is the debounce
+ * mechanism — we check deck_views for recent views from the same token_id
+ * (which implies the same lead) on the same template within the last 60
+ * minutes. If a recent view exists, we skip the notification.
+ *
+ * Never throws.
+ */
+async function sendViewNotificationIfAllowed(
+  supabase: ReturnType<typeof createSupabaseAdminClient>,
+  ctx: NotificationContext,
+): Promise<void> {
+  try {
+    // Debounce: check if there's a deck_views row for the same token on the
+    // same template created in the last hour (excluding the one we just made,
+    // which was created moments ago — we look for rows > 1 to account for it).
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+
+    const { data: recentViews, error: recentErr } = await supabase
+      .from("deck_views")
+      .select("id")
+      .eq("token_id", ctx.tokenId)
+      .eq("template_id", ctx.templateId)
+      .gte("viewed_at", oneHourAgo)
+      .limit(2);
+
+    if (recentErr) {
+      console.error("[notification] Failed to check recent views:", recentErr);
+      return;
+    }
+
+    // If there are 2+ views in the last hour (the current one + at least one
+    // prior), the previous view already triggered a notification — skip.
+    if (recentViews && recentViews.length >= 2) {
+      return;
+    }
+
+    // Look up the lead to get name and company
+    const { data: lead } = await supabase
+      .from("leads")
+      .select("name, email, company")
+      .eq("id", ctx.leadId)
+      .single();
+
+    if (!lead) {
+      // Lead may have been deleted — nothing to notify about
+      return;
+    }
+
+    // Look up the template name (we only have slug in template_name context)
+    const { data: tmpl } = await supabase
+      .from("slide_templates")
+      .select("name")
+      .eq("id", ctx.templateId)
+      .single();
+
+    const deckName = tmpl?.name ?? ctx.templateName;
+
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL ?? "https://claru.ai";
+    const editorUrl = `${siteUrl}/admin/deck-builder/${ctx.templateId}`;
+
+    const result = await sendDeckViewNotification({
+      leadName: (lead.name as string) ?? "Unknown",
+      leadCompany: (lead.company as string) ?? "",
+      leadEmail: (lead.email as string) ?? ctx.viewerEmail,
+      deckName,
+      editorUrl,
+    });
+
+    if (!result.success) {
+      console.warn(
+        "[notification] Failed to send deck view notification:",
+        result.error,
+      );
+    }
+  } catch (err) {
+    console.error("[notification] Unexpected error:", err);
+  }
 }
