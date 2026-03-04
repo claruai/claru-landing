@@ -61,7 +61,7 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "Read DeckEditorClient.tsx for SELECTOR_SCRIPT injection pattern, CenterSlidePreview component, SlideThumbnail component, and the PostMessage useEffect. The inline edit script should be appended alongside SELECTOR_SCRIPT in the same srcdoc."
     }
   ]

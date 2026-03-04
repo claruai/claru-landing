@@ -43,6 +43,7 @@ import { VersionHistory } from "@/app/components/deck-builder/VersionHistory";
 import { ThemeEditor } from "@/app/components/deck-builder/ThemeEditor";
 import { ChatPanel } from "@/app/components/deck-builder/ChatPanel";
 import { SharePanel } from "@/app/components/deck-builder/SharePanel";
+import { getInlineEditScript } from "@/lib/deck-builder/inline-edit-script";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -636,17 +637,31 @@ export function DeckEditorClient({ initialTemplate }: DeckEditorClientProps) {
         });
         // Selection pre-loaded into chat panel
       }
+      if (e.data?.type === "inlineEdit") {
+        // Inline text edit committed — log for now, will be wired to slide update later
+        console.log("[InlineEdit]", {
+          tag: e.data.tag,
+          selector: e.data.selector,
+          innerHTML: e.data.innerHTML,
+          originalInnerHTML: e.data.originalInnerHTML,
+        });
+      }
     };
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
   }, []);
 
-  // Send selector mode to preview iframes
+  // Send selector mode and inline edit mode to preview iframes
   useEffect(() => {
     const iframes = document.querySelectorAll("iframe");
     iframes.forEach((iframe) => {
       iframe.contentWindow?.postMessage(
         { type: selectorMode ? "enableSelector" : "disableSelector" },
+        "*"
+      );
+      // Enable inline editing when NOT in selector mode (so dblclick works normally)
+      iframe.contentWindow?.postMessage(
+        { type: selectorMode ? "disableInlineEdit" : "enableInlineEdit" },
         "*"
       );
     });
@@ -1071,6 +1086,9 @@ document.addEventListener('click',function(e){if(!sa)return;e.preventDefault();e
 window.addEventListener('message',function(e){if(e.data&&e.data.type==='enableSelector')en();if(e.data&&e.data.type==='disableSelector')di();});
 })();</script>`;
 
+/** Inline WYSIWYG text editing script — enables dblclick editing with floating toolbar */
+const INLINE_EDIT_SCRIPT = getInlineEditScript();
+
 /** Mini slide thumbnail rendered via iframe at 1920×1080 scaled to ~200px width */
 function SlideThumbnail({
   slide,
@@ -1148,9 +1166,13 @@ function CenterSlidePreview({
 
   // Build srcdoc — always use srcdoc for instant refresh
   const slideHtml = slide.html ? rewriteS3ToProxy(slide.html) : "";
-  const html = slide.html
-    ? `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}html,body{width:100%;height:100%;overflow:hidden;background:#0a0908;}</style></head><body>${slideHtml}${SELECTOR_SCRIPT}</body></html>`
+  const baseHtml = slide.html
+    ? `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}html,body{width:100%;height:100%;overflow:hidden;background:#0a0908;}</style></head><body>${slideHtml}${SELECTOR_SCRIPT}${INLINE_EDIT_SCRIPT}</body></html>`
     : renderSlidesToHTML([{ ...slide, order: 0 }], themeId, { showProgress: false, customTheme });
+  // For layout slides, inject inline edit script before </body>
+  const html = slide.html
+    ? baseHtml
+    : baseHtml.replace('</body>', `${INLINE_EDIT_SCRIPT}</body>`);
 
   return (
     <div ref={containerRef} className="relative w-full h-full flex flex-col">
@@ -1166,7 +1188,7 @@ function CenterSlidePreview({
           <iframe
             srcDoc={html}
             sandbox="allow-scripts allow-same-origin"
-            className={`absolute top-0 left-0 border-0 ${selectorMode ? "" : "pointer-events-none"}`}
+            className="absolute top-0 left-0 border-0"
             style={{
               width: "1920px",
               height: "1080px",
