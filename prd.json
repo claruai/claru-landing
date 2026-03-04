@@ -74,7 +74,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "Read existing lead creation patterns in src/app/api/admin/leads/. The gate forms should match the terminal/dark aesthetic. Use frontend-expert agent for the gate UI components."
     },
     {
@@ -92,7 +92,7 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "Read src/lib/deck-builder/slide-capture.ts for captureSlideScreenshotFromUrl. Set viewport to 1200x630. For the placeholder, create a simple HTML page with Claru branding and screenshot that. Use general-purpose agent."
     },
     {
@@ -113,7 +113,7 @@
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "The tracking script is injected by the /d/[slug] server component after fetching the presentation HTML. Use navigator.sendBeacon with fetch keepalive fallback. Use general-purpose agent."
     },
     {
@@ -153,7 +153,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "notes": "Read src/app/components/deck-builder/VersionHistory.tsx for drawer pattern. Read DeckEditorClient.tsx for header button placement. Match the terminal aesthetic — font-mono, dark bg, sage green accent. Use frontend-expert agent. Use Shadcn UI Designer agent for the form components."
     },
     {
