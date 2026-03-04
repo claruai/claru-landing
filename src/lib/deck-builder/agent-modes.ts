@@ -169,11 +169,13 @@ const STRATEGIST_TOOL_NAMES = new Set([
 const PAGE_BUILDER_TOOL_NAMES = new Set([
   "get_slide_html",
   "set_slide_html",
-  "patch_slide_html", // tool handler is created in another track (US-004)
+  "patch_slide_html",
   "edit_slide", // all fields allowed
   "get_media_assets",
   "get_site_media",
-  "delegate_research",
+  "get_data_catalog",
+  "verify_slide", // screenshot capture — lets the agent SEE the rendered slide
+  "delegate_research", // for web search and lead lookups
   "think",
 ]);
 

@@ -35,6 +35,7 @@ import type {
 } from "@/types/deck-builder";
 import { MAX_SLIDES, createEmptySlide } from "@/types/deck-builder";
 import { renderSlidesToHTML } from "@/lib/deck-builder/html-renderer";
+import { rewriteS3ToProxy } from "@/lib/deck-builder/rewrite-s3-urls";
 import { SlideLayoutPicker } from "@/app/components/deck-builder/SlideLayoutPicker";
 import { ExportMenu } from "@/app/components/deck-builder/ExportMenu";
 import { VersionHistory } from "@/app/components/deck-builder/VersionHistory";
@@ -783,7 +784,7 @@ export function DeckEditorClient({ initialTemplate }: DeckEditorClientProps) {
                 >
                   {/* Live mini-preview via iframe */}
                   <div className="w-full aspect-video rounded-t-md overflow-hidden relative">
-                    <SlideThumbnail slide={slide} themeId={themeId} customTheme={customTheme} templateId={template.id} slideIndex={index} />
+                    <SlideThumbnail slide={slide} themeId={themeId} customTheme={customTheme} />
                   </div>
 
                   {/* Slide number overlay */}
@@ -823,11 +824,11 @@ export function DeckEditorClient({ initialTemplate }: DeckEditorClientProps) {
         </div>
 
         {/* ---------------------------------------------------------- */}
-        {/*  Center Panel — Slide Editor                                */}
+        {/*  Center Panel — Slide Preview (Google Slides style)         */}
         {/* ---------------------------------------------------------- */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="max-w-3xl mx-auto p-6 space-y-6">
-            {/* Live Slide Preview — rendered at 1920×1080 and scaled to fit */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Preview area — slide centered in available space */}
+          <div className="flex-1 flex items-center justify-center bg-[var(--bg-primary)] overflow-hidden p-4">
             {currentSlide && <CenterSlidePreview
               slide={currentSlide}
               themeId={themeId}
@@ -837,290 +838,14 @@ export function DeckEditorClient({ initialTemplate }: DeckEditorClientProps) {
               templateId={template.id}
               selectorMode={selectorMode}
             />}
-
-            {/* Title input */}
-            <div>
-              <label className="block font-mono text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
-                Title
-              </label>
-              <input
-                type="text"
-                value={currentSlide?.title ?? ""}
-                onChange={(e) => updateCurrentSlide({ title: e.target.value })}
-                className="w-full bg-transparent border-b-2 border-[var(--border-subtle)] focus:border-[var(--accent-primary)] text-xl font-semibold text-[var(--text-primary)] outline-none py-2 transition-colors placeholder:text-[var(--text-muted)]"
-                placeholder="Slide title..."
-              />
-            </div>
-
-            {/* Body textarea or Custom HTML editor */}
-            {currentSlide?.html ? (
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block font-mono text-[10px] text-[var(--accent-primary)] uppercase tracking-wider">
-                    Custom HTML
-                  </label>
-                  <button
-                    onClick={() => updateCurrentSlide({ html: undefined })}
-                    className="font-mono text-[10px] text-[var(--text-muted)] hover:text-[var(--error)] transition-colors"
-                  >
-                    [switch to markdown]
-                  </button>
-                </div>
-                <textarea
-                  value={currentSlide.html}
-                  onChange={(e) => updateCurrentSlide({ html: e.target.value })}
-                  rows={16}
-                  className="w-full bg-[var(--bg-secondary)] border border-[var(--accent-primary)]/30 focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] rounded-lg font-mono text-xs text-[var(--text-primary)] p-4 outline-none resize-y transition-colors placeholder:text-[var(--text-muted)]"
-                  placeholder="<div style='display:flex;...'>...</div>"
-                />
-                <p className="font-mono text-[10px] text-[var(--text-muted)] mt-1">
-                  Raw HTML — bypasses layout system. Use the AI chat to generate complex slides.
-                </p>
-              </div>
-            ) : (
-              <div>
-                <label className="block font-mono text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
-                  Body
-                </label>
-                <textarea
-                  value={currentSlide?.body ?? ""}
-                  onChange={(e) => updateCurrentSlide({ body: e.target.value })}
-                  rows={12}
-                  className="w-full bg-[var(--bg-secondary)] border border-[var(--border-subtle)] focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] rounded-lg font-mono text-sm text-[var(--text-primary)] p-4 outline-none resize-y transition-colors placeholder:text-[var(--text-muted)]"
-                  placeholder="Slide body content... (supports **bold**, *italic*, - lists, ```code```, [links](url))"
-                />
-              </div>
-            )}
-
-            {/* Image URL (for image layouts) */}
-            {(currentSlide?.layout === "image-left" ||
-              currentSlide?.layout === "image-right") && (
-              <div>
-                <label className="block font-mono text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
-                  Image URL
-                </label>
-                <input
-                  type="text"
-                  value={currentSlide?.image_url ?? ""}
-                  onChange={(e) =>
-                    updateCurrentSlide({ image_url: e.target.value })
-                  }
-                  className="w-full bg-[var(--bg-secondary)] border border-[var(--border-subtle)] focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] rounded-lg font-mono text-sm text-[var(--text-primary)] px-4 py-2 outline-none transition-colors placeholder:text-[var(--text-muted)]"
-                  placeholder="https://example.com/image.png"
-                />
-              </div>
-            )}
-
-            {/* ====================================================== */}
-            {/*  Layout Picker                                          */}
-            {/* ====================================================== */}
-            <CollapsibleSection
-              title="Layout"
-              isOpen={layoutOpen}
-              onToggle={() => setLayoutOpen(!layoutOpen)}
-            >
-              <SlideLayoutPicker
-                activeLayout={currentSlide?.layout ?? "title-body"}
-                onSelect={(layout: SlideLayout) =>
-                  updateCurrentSlide({ layout })
-                }
-              />
-            </CollapsibleSection>
-
-            {/* ====================================================== */}
-            {/*  Background Settings                                    */}
-            {/* ====================================================== */}
-            <CollapsibleSection
-              title="Background"
-              isOpen={bgOpen}
-              onToggle={() => setBgOpen(!bgOpen)}
-            >
-              {/* Type toggle */}
-              <div className="flex gap-1 mb-3">
-                {(["solid", "gradient", "image"] as BgType[]).map((type) => (
-                  <button
-                    key={type}
-                    onClick={() => handleBgTypeChange(type)}
-                    className={`px-3 py-1.5 font-mono text-xs rounded-md border transition-colors ${
-                      bgType === type
-                        ? "border-[var(--accent-primary)] text-[var(--accent-primary)] bg-[var(--accent-primary)]/5"
-                        : "border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                    }`}
-                  >
-                    {type}
-                  </button>
-                ))}
-              </div>
-
-              {/* Solid */}
-              {bgType === "solid" && (
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-8 h-8 rounded border border-[var(--border-subtle)] shrink-0"
-                    style={{
-                      backgroundColor: currentSlide?.background?.value ?? "#050505",
-                    }}
-                  />
-                  <input
-                    type="text"
-                    value={currentSlide?.background?.value ?? "#050505"}
-                    onChange={(e) => handleBgValueChange(e.target.value)}
-                    className="flex-1 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] focus:border-[var(--accent-primary)] rounded px-3 py-1.5 font-mono text-xs text-[var(--text-primary)] outline-none transition-colors"
-                    placeholder="#050505"
-                  />
-                  <input
-                    type="color"
-                    value={currentSlide?.background?.value ?? "#050505"}
-                    onChange={(e) => handleBgValueChange(e.target.value)}
-                    className="w-8 h-8 cursor-pointer bg-transparent border-0"
-                  />
-                </div>
-              )}
-
-              {/* Gradient */}
-              {bgType === "gradient" && (
-                <div className="space-y-2">
-                  <div
-                    className="w-full h-8 rounded border border-[var(--border-subtle)]"
-                    style={{
-                      background: currentSlide?.background?.value ?? "",
-                    }}
-                  />
-                  <input
-                    type="text"
-                    value={currentSlide?.background?.value ?? ""}
-                    onChange={(e) => handleBgValueChange(e.target.value)}
-                    className="w-full bg-[var(--bg-secondary)] border border-[var(--border-subtle)] focus:border-[var(--accent-primary)] rounded px-3 py-1.5 font-mono text-xs text-[var(--text-primary)] outline-none transition-colors"
-                    placeholder="linear-gradient(135deg, #050505 0%, #1a1a2e 100%)"
-                  />
-                  <p className="font-mono text-[10px] text-[var(--text-muted)]">
-                    Enter a CSS gradient value
-                  </p>
-                </div>
-              )}
-
-              {/* Image */}
-              {bgType === "image" && (
-                <div className="space-y-2">
-                  <input
-                    type="text"
-                    value={currentSlide?.background?.value ?? ""}
-                    onChange={(e) => handleBgValueChange(e.target.value)}
-                    className="w-full bg-[var(--bg-secondary)] border border-[var(--border-subtle)] focus:border-[var(--accent-primary)] rounded px-3 py-1.5 font-mono text-xs text-[var(--text-primary)] outline-none transition-colors"
-                    placeholder="https://example.com/bg.jpg"
-                  />
-                  {mediaAssets.length > 0 && (
-                    <div>
-                      <p className="font-mono text-[10px] text-[var(--text-muted)] mb-1">
-                        Or select from media assets:
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {mediaAssets.map((asset) => (
-                          <button
-                            key={asset.id}
-                            onClick={() => handleBgValueChange(asset.url)}
-                            className="w-10 h-10 rounded border border-[var(--border-subtle)] hover:border-[var(--accent-primary)] overflow-hidden transition-colors"
-                          >
-                            <img
-                              src={asset.url}
-                              alt={asset.filename}
-                              className="w-full h-full object-cover"
-                            />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </CollapsibleSection>
-
-            {/* ====================================================== */}
-            {/*  Media Assets                                           */}
-            {/* ====================================================== */}
-            <CollapsibleSection
-              title="Media Assets"
-              isOpen={mediaOpen}
-              onToggle={() => setMediaOpen(!mediaOpen)}
-            >
-              {/* Upload button */}
-              <div className="flex items-center gap-2 mb-3">
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploadingMedia}
-                  className="flex items-center gap-1.5 px-3 py-1.5 font-mono text-xs text-[var(--text-muted)] hover:text-[var(--accent-primary)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40 rounded-md transition-colors disabled:opacity-50"
-                >
-                  {uploadingMedia ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  ) : (
-                    <Upload className="w-3.5 h-3.5" />
-                  )}
-                  {uploadingMedia ? "uploading..." : "upload image"}
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleUploadMedia}
-                  className="hidden"
-                />
-                <span className="font-mono text-[10px] text-[var(--text-muted)]">
-                  {mediaAssets.length} asset{mediaAssets.length !== 1 ? "s" : ""}
-                </span>
-              </div>
-
-              {/* Asset grid */}
-              {mediaAssets.length > 0 ? (
-                <div className="grid grid-cols-5 gap-2">
-                  {mediaAssets.map((asset) => (
-                    <div key={asset.id} className="relative group">
-                      <button
-                        onClick={() => handleInsertAsset(asset.url)}
-                        className="w-full aspect-square rounded-md border border-[var(--border-subtle)] hover:border-[var(--accent-primary)] overflow-hidden transition-colors"
-                        title={`Insert ${asset.filename}`}
-                      >
-                        <img
-                          src={asset.url}
-                          alt={asset.filename}
-                          className="w-full h-full object-cover"
-                        />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteAsset(asset.id)}
-                        className="absolute -top-1 -right-1 w-4 h-4 bg-[var(--error)] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Delete asset"
-                      >
-                        <X className="w-2.5 h-2.5 text-white" />
-                      </button>
-                      <p className="font-mono text-[8px] text-[var(--text-muted)] truncate mt-0.5">
-                        {asset.filename}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="font-mono text-xs text-[var(--text-muted)] text-center py-4">
-                  No media assets uploaded yet.
-                </p>
-              )}
-            </CollapsibleSection>
-
-            {/* ====================================================== */}
-            {/*  Theme Editor                                           */}
-            {/* ====================================================== */}
-            <CollapsibleSection
-              title="Theme"
-              isOpen={themeOpen}
-              onToggle={() => setThemeOpen(!themeOpen)}
-            >
-              <ThemeEditor
-                currentTheme={themeId}
-                customTheme={customTheme}
-                onThemeChange={handleThemeChange}
-                onCustomThemeChange={handleCustomThemeChange}
-              />
-            </CollapsibleSection>
           </div>
+          {/* Bottom bar — source toggle */}
+          {currentSlide?.html && (
+            <SourceCodePanel
+              slide={currentSlide}
+              onUpdate={updateCurrentSlide}
+            />
+          )}
         </div>
 
         {/* ---------------------------------------------------------- */}
@@ -1258,49 +983,74 @@ export function DeckEditorClient({ initialTemplate }: DeckEditorClientProps) {
 /*  Sub-components                                                     */
 /* ================================================================== */
 
+/** Collapsible HTML source code viewer/editor for power users */
+function SourceCodePanel({
+  slide,
+  onUpdate,
+}: {
+  slide: SlideData | undefined;
+  onUpdate: (updates: Partial<SlideData>) => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  if (!slide?.html) return null;
+
+  return (
+    <div className="border border-[var(--border-subtle)] rounded-lg overflow-hidden">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between px-3 py-2 font-mono text-[10px] text-[var(--text-muted)] uppercase tracking-wider hover:text-[var(--text-secondary)] transition-colors"
+      >
+        <span>{"</>"} View Source</span>
+        <span>{isOpen ? "▾" : "▸"}</span>
+      </button>
+      {isOpen && (
+        <textarea
+          value={slide.html}
+          onChange={(e) => onUpdate({ html: e.target.value })}
+          rows={20}
+          className="w-full bg-[var(--bg-secondary)] border-t border-[var(--border-subtle)] font-mono text-xs text-[var(--text-primary)] p-4 outline-none resize-y"
+          spellCheck={false}
+        />
+      )}
+    </div>
+  );
+}
+
 /** Check if a slide needs server-rendered iframe (has scripts or is a full document) */
 function needsIframeIsolation(slide: SlideData): boolean {
   if (!slide.html) return false;
   return slide.html.includes('<script') || slide.html.includes('<!DOCTYPE') || slide.html.includes('<html');
 }
 
+/**
+ * Inline script injected into custom HTML slide iframes for element selector support.
+ * Handles: enableSelector/disableSelector PostMessage, hover highlight, click-to-select.
+ */
+const SELECTOR_SCRIPT = `<script>(function(){
+var sa=false,hl=null;
+function en(){sa=true;document.body.style.cursor='crosshair';hl=document.createElement('div');hl.id='sh';hl.style.cssText='position:fixed;pointer-events:none;z-index:99999;border:2px solid #92B090;background:rgba(146,176,144,0.12);border-radius:3px;transition:all .1s;display:none;';document.body.appendChild(hl);var lb=document.createElement('div');lb.id='sl';lb.style.cssText='position:fixed;pointer-events:none;z-index:99999;font-family:monospace;font-size:11px;background:#0a0908;color:#92B090;border:1px solid #92B090;padding:2px 6px;border-radius:3px;display:none;white-space:nowrap;';document.body.appendChild(lb);}
+function di(){sa=false;document.body.style.cursor='';var h=document.getElementById('sh'),l=document.getElementById('sl');if(h)h.remove();if(l)l.remove();}
+document.addEventListener('mousemove',function(e){if(!sa)return;var el=document.elementFromPoint(e.clientX,e.clientY);if(!el||el.id==='sh'||el.id==='sl')return;var r=el.getBoundingClientRect(),h=document.getElementById('sh'),l=document.getElementById('sl');if(h){h.style.display='block';h.style.left=r.left+'px';h.style.top=r.top+'px';h.style.width=r.width+'px';h.style.height=r.height+'px';}if(l){var t=el.tagName.toLowerCase(),c=el.className?'.'+String(el.className).split(' ').slice(0,2).join('.'):'',x=(el.textContent||'').trim().slice(0,30);l.textContent='<'+t+c+'>'+(x?' "'+x+(x.length>=30?'...':'')+'"':'');l.style.display='block';l.style.left=r.left+'px';l.style.top=Math.max(0,r.top-24)+'px';}});
+document.addEventListener('click',function(e){if(!sa)return;e.preventDefault();e.stopPropagation();var el=document.elementFromPoint(e.clientX,e.clientY);if(!el||el.id==='sh'||el.id==='sl')return;var o=el.outerHTML;if(o.length>500)o=o.slice(0,497)+'...';window.parent.postMessage({type:'elementSelected',tag:el.tagName.toLowerCase(),text:(el.textContent||'').trim().slice(0,100),html:o,styles:el.getAttribute('style')||'',rect:{x:Math.round(el.getBoundingClientRect().x),y:Math.round(el.getBoundingClientRect().y),w:Math.round(el.getBoundingClientRect().width),h:Math.round(el.getBoundingClientRect().height)}},'*');di();},true);
+window.addEventListener('message',function(e){if(e.data&&e.data.type==='enableSelector')en();if(e.data&&e.data.type==='disableSelector')di();});
+})();</script>`;
+
 /** Mini slide thumbnail rendered via iframe at 1920×1080 scaled to ~200px width */
 function SlideThumbnail({
   slide,
   themeId,
   customTheme,
-  templateId,
-  slideIndex,
 }: {
   slide: SlideData;
   themeId: string;
   customTheme: SlideThemeCustom | null;
-  templateId: string;
-  slideIndex: number;
 }) {
-  if (needsIframeIsolation(slide)) {
-    return (
-      <iframe
-        src={`/api/slide/${templateId}/${slideIndex}`}
-        sandbox="allow-scripts allow-same-origin"
-        className="absolute top-0 left-0 border-0 pointer-events-none"
-        style={{
-          width: "1920px",
-          height: "1080px",
-          transform: "scale(0.107)",
-          transformOrigin: "top left",
-        }}
-        title="Slide thumbnail"
-        loading="lazy"
-      />
-    );
-  }
-
-  const html = renderSlidesToHTML(
-    [{ ...slide, order: 0 }],
-    themeId,
-    { showProgress: false, customTheme }
-  );
+  // Always use srcdoc for thumbnails — ensures instant refresh when agent edits slides.
+  // For custom HTML slides, wrap in a minimal document with S3 URLs rewritten.
+  const html = slide.html
+    ? `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}html,body{width:100%;height:100%;overflow:hidden;background:#0a0908;}</style></head><body>${rewriteS3ToProxy(slide.html)}</body></html>`
+    : renderSlidesToHTML([{ ...slide, order: 0 }], themeId, { showProgress: false, customTheme });
 
   return (
     <iframe
@@ -1319,13 +1069,14 @@ function SlideThumbnail({
   );
 }
 
+type ZoomLevel = "fit" | 50 | 75 | 100;
+
 function CenterSlidePreview({
   slide,
   themeId,
   customTheme,
   slideIndex,
   totalSlides,
-  templateId,
   selectorMode = false,
 }: {
   slide: SlideData;
@@ -1337,113 +1088,95 @@ function CenterSlidePreview({
   selectorMode?: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const expandedContainerRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(0.4);
-  const [expanded, setExpanded] = useState(false);
+  const [fitScale, setFitScale] = useState(0.5);
+  const [zoom, setZoom] = useState<ZoomLevel>("fit");
 
+  // Measure container and compute fit scale
   useEffect(() => {
-    const el = expanded ? expandedContainerRef.current : containerRef.current;
+    const el = containerRef.current;
     if (!el) return;
-    const measure = () => setScale(el.offsetWidth / 1920);
+    const measure = () => {
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
+      // Fit with padding — leave some breathing room
+      const s = Math.min(w / 1920, h / 1080) * 0.95;
+      setFitScale(s);
+    };
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [expanded]);
+  }, []);
 
-  useEffect(() => {
-    if (!expanded) return;
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setExpanded(false); };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [expanded]);
+  const activeScale = zoom === "fit" ? fitScale : zoom / 100;
+  const displayPercent = Math.round(activeScale * 100);
 
-  const useServerRoute = needsIframeIsolation(slide);
+  // Build srcdoc — always use srcdoc for instant refresh
+  const slideHtml = slide.html ? rewriteS3ToProxy(slide.html) : "";
+  const html = slide.html
+    ? `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}html,body{width:100%;height:100%;overflow:hidden;background:#0a0908;}</style></head><body>${slideHtml}${SELECTOR_SCRIPT}</body></html>`
+    : renderSlidesToHTML([{ ...slide, order: 0 }], themeId, { showProgress: false, customTheme });
 
-  const html = useServerRoute ? "" : renderSlidesToHTML(
-    [{ ...slide, order: 0 }],
-    themeId,
-    { showProgress: false, customTheme }
-  );
-
-  const iframeEl = useServerRoute ? (
-    <iframe
-      src={`/api/slide/${templateId}/${slideIndex}`}
-      sandbox="allow-scripts allow-same-origin"
-      className={`absolute top-0 left-0 border-0 ${selectorMode ? "" : "pointer-events-none"}`}
-      style={{
-        width: "1920px",
-        height: "1080px",
-        transform: `scale(${scale})`,
-        transformOrigin: "top left",
-      }}
-      title="Slide preview"
-    />
-  ) : (
-    <iframe
-      srcDoc={html}
-      sandbox="allow-scripts allow-same-origin"
-      className={`absolute top-0 left-0 border-0 ${selectorMode ? "" : "pointer-events-none"}`}
-      style={{
-        width: "1920px",
-        height: "1080px",
-        transform: `scale(${scale})`,
-        transformOrigin: "top left",
-      }}
-      title="Slide preview"
-    />
-  );
-
-  const bottomBar = (
-    <div className="absolute bottom-2 left-2 right-2 z-10 flex items-center justify-between">
-      <span className="font-mono text-[10px] text-[var(--text-muted)] bg-black/50 rounded px-2 py-0.5">
-        Slide {slideIndex + 1} of {totalSlides} {slide.html ? "· custom" : `· ${slide.layout}`}
-      </span>
-      <div className="flex items-center gap-1">
-        {selectorMode && (
-          <span className="font-mono text-[10px] text-[var(--accent-primary)] bg-black/60 rounded px-2 py-0.5 animate-pulse">
-            Click an element
-          </span>
-        )}
-        <button
-          onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
-          className="font-mono text-[10px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] bg-black/50 hover:bg-black/70 rounded px-2 py-0.5 transition-colors"
+  return (
+    <div ref={containerRef} className="relative w-full h-full flex flex-col">
+      {/* Slide canvas — centered in available space */}
+      <div className={`flex-1 flex items-center justify-center overflow-auto ${zoom !== "fit" ? "overflow-scroll" : "overflow-hidden"}`}>
+        <div
+          className={`relative shrink-0 rounded-lg shadow-2xl ${selectorMode ? "ring-2 ring-[var(--accent-primary)]" : "border border-[var(--border-subtle)]/50"}`}
+          style={{
+            width: 1920 * activeScale,
+            height: 1080 * activeScale,
+          }}
         >
-          {expanded ? "shrink" : "expand"}
-        </button>
+          <iframe
+            srcDoc={html}
+            sandbox="allow-scripts allow-same-origin"
+            className={`absolute top-0 left-0 border-0 ${selectorMode ? "" : "pointer-events-none"}`}
+            style={{
+              width: "1920px",
+              height: "1080px",
+              transform: `scale(${activeScale})`,
+              transformOrigin: "top left",
+            }}
+            title="Slide preview"
+          />
+          {/* Selector mode indicator */}
+          {selectorMode && (
+            <div className="absolute top-2 right-2 z-10">
+              <span className="font-mono text-[10px] text-[var(--accent-primary)] bg-black/70 rounded px-2 py-0.5 animate-pulse">
+                Click an element
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Zoom toolbar — bottom center */}
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-[var(--bg-secondary)]/90 backdrop-blur-sm border border-[var(--border-subtle)] rounded-full px-1.5 py-0.5 shadow-lg">
+        <span className="font-mono text-[10px] text-[var(--text-muted)] px-1.5 min-w-[36px] text-center">
+          {displayPercent}%
+        </span>
+        <div className="w-px h-3 bg-[var(--border-subtle)]" />
+        {(["fit", 50, 75, 100] as ZoomLevel[]).map((level) => (
+          <button
+            key={level}
+            onClick={() => setZoom(level)}
+            className={`font-mono text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+              zoom === level
+                ? "text-[var(--accent-primary)] bg-[var(--accent-primary)]/10"
+                : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+            }`}
+          >
+            {level === "fit" ? "Fit" : `${level}%`}
+          </button>
+        ))}
+        <div className="w-px h-3 bg-[var(--border-subtle)]" />
+        <span className="font-mono text-[9px] text-[var(--text-muted)] px-1">
+          {slideIndex + 1}/{totalSlides}
+        </span>
       </div>
     </div>
   );
-
-  const previewBox = (ref: React.RefObject<HTMLDivElement | null>) => (
-    <div
-      ref={ref}
-      className={`relative overflow-hidden rounded-lg shadow-lg ${selectorMode ? "ring-2 ring-[var(--accent-primary)] ring-offset-2 ring-offset-[var(--bg-primary)]" : "border border-[var(--border-subtle)]"}`}
-      style={{ aspectRatio: "16 / 9" }}
-    >
-      {iframeEl}
-      {bottomBar}
-    </div>
-  );
-
-  if (expanded) {
-    return (
-      <>
-        {/* Placeholder in flow so editor doesn't jump */}
-        <div style={{ aspectRatio: "16 / 9" }} className="rounded-lg border border-dashed border-[var(--border-subtle)] flex items-center justify-center">
-          <span className="font-mono text-xs text-[var(--text-muted)]">Preview expanded — press Esc to close</span>
-        </div>
-        {/* Fullscreen overlay */}
-        <div className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-10" onClick={() => setExpanded(false)}>
-          <div className="w-full max-w-[1600px]" onClick={(e) => e.stopPropagation()}>
-            {previewBox(expandedContainerRef)}
-          </div>
-        </div>
-      </>
-    );
-  }
-
-  return previewBox(containerRef);
 }
 
 function CollapsibleSection({

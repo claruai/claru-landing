@@ -9,6 +9,10 @@ import {
   NEEDS_DELEGATION,
 } from "@/lib/deck-builder/agents/orchestrator-tools";
 import { getOrchestratorPrompt } from "@/lib/deck-builder/agents/orchestrator-prompt";
+import { getStrategistPrompt } from "@/lib/deck-builder/agents/strategist-prompt";
+import { getPageBuilderPrompt } from "@/lib/deck-builder/agents/page-builder-prompt";
+import { getTheme } from "@/lib/deck-builder/slide-themes";
+import { createAgentLogger } from "@/lib/deck-builder/agent-logger";
 import type { AgentMode } from "@/lib/deck-builder/agent-modes";
 import { AGENT_MODES, getModeTools } from "@/lib/deck-builder/agent-modes";
 import {
@@ -89,6 +93,7 @@ export async function POST(
   }
 
   const { id: templateId } = await params;
+  const log = createAgentLogger(templateId);
 
   // ---- Parse body ----
   let body: {
@@ -114,6 +119,10 @@ export async function POST(
   const activeMode: AgentMode = body.mode && AGENT_MODES[body.mode] ? body.mode : "art-director";
   const modeConfig = AGENT_MODES[activeMode];
   const modeTools = getModeTools(activeMode);
+
+  log.setMode(activeMode);
+  log.setMessage(message);
+  log.setSlideIndex(selected_slide_index ?? null);
 
   // Build context-enriched message for Claude
   let enrichedMessage = message;
@@ -181,7 +190,29 @@ export async function POST(
   const mediaAssets: SlideMediaAsset[] = (rawAssets ?? []) as SlideMediaAsset[];
 
   // ---- Build Anthropic messages from history (enriched with action metadata) ----
-  const historyMessages: MessageParam[] = (chatHistory ?? []).map(
+  // For Page Builder mode: only carry forward messages from the same mode (or last 3),
+  // to prevent strategic commentary from Design mode bleeding into the Page Builder context.
+  // Research: "Carry only the output artifact, not the instructions of the previous mode."
+  let filteredHistory = chatHistory ?? [];
+  if (activeMode === 'page-builder') {
+    // Find the last mode-switch point and only include messages after it
+    let cutoff = 0;
+    for (let i = filteredHistory.length - 1; i >= 0; i--) {
+      const meta = (filteredHistory[i] as { metadata_json?: Record<string, unknown> }).metadata_json;
+      const msgMode = meta?.mode as string | undefined;
+      if (msgMode && msgMode !== 'page-builder') {
+        cutoff = i + 1;
+        break;
+      }
+    }
+    filteredHistory = filteredHistory.slice(cutoff);
+    // Keep at least last 2 messages for continuity
+    if (filteredHistory.length < 2 && (chatHistory ?? []).length >= 2) {
+      filteredHistory = (chatHistory ?? []).slice(-2);
+    }
+  }
+
+  const historyMessages: MessageParam[] = filteredHistory.map(
     (msg: { role: string; content: string; metadata_json?: Record<string, unknown> }) => {
       let content = msg.content;
       if (msg.role === 'assistant' && msg.metadata_json) {
@@ -229,59 +260,26 @@ export async function POST(
   let systemPrompt: string;
 
   if (activeMode === "page-builder") {
-    // Page Builder: inject the current slide's full HTML into context
-    // so the LLM can make surgical edits. Use a focused prompt.
-    // TODO: Replace with getPageBuilderPrompt() once US-003 is implemented.
-    const slideCtx = typeof selected_slide_index === "number" && slides_json[selected_slide_index]
-      ? slides_json[selected_slide_index]
-      : null;
-    const slideHtmlBlock = slideCtx?.html
-      ? `\n\nCURRENT SLIDE HTML (slide ${selected_slide_index}):\n\`\`\`html\n${slideCtx.html}\n\`\`\``
-      : "";
-
-    systemPrompt = `You are a Page Builder for Claru presentation slides. You make precise, surgical HTML/CSS edits.
-
-DECK: "${template.name ?? ""}"${template.description ? ` — ${template.description}` : ""}
-Total slides: ${slides_json.length}
-${typeof selected_slide_index === "number" ? `Viewing slide: ${selected_slide_index} ("${slides_json[selected_slide_index]?.title || "(untitled)"}")` : ""}${slideHtmlBlock}
-
-YOUR TOOLS: get_slide_html, set_slide_html, patch_slide_html, edit_slide, get_media_assets, get_site_media, delegate_research, think
-
-RULES:
-1. ACT FIRST. Read the HTML (get_slide_html) if needed, then apply changes immediately.
-2. Use patch_slide_html for small targeted edits (font size, color, padding, text changes).
-3. Use set_slide_html only when rewriting major portions of the slide.
-4. NEVER delegate to the Design Agent — you ARE the builder. Edit the HTML directly.
-5. Report what you did in one sentence. No essays.
-6. When user says "this slide" → use slide_index ${selected_slide_index ?? 0}.
-
-CANVAS: 1920x1080px. Use width:100%;height:100%, never vw/vh. Proxy URLs: /api/media/s3?key=PATH.
-BRAND: bg #0a0908, accent #92B090, text #FFF.`;
+    const slideCtx = typeof selected_slide_index === "number" ? slides_json[selected_slide_index] : null;
+    const themeData = getTheme(template.theme as string ?? "terminal-green");
+    systemPrompt = getPageBuilderPrompt({
+      name: template.name ?? "",
+      slideIndex: selected_slide_index ?? 0,
+      slideHtml: slideCtx?.html ?? "",
+      theme: {
+        colors: themeData.colors,
+        fonts: themeData.fonts,
+      },
+      mediaRefs: (slideCtx?.media_refs as string[]) ?? [],
+    });
   } else if (activeMode === "strategist") {
-    // Strategist: focused on structure and narrative, no design delegation.
-    // TODO: Replace with getStrategistPrompt() once US-002 is implemented.
-    systemPrompt = `You are a Strategist for Claru presentation decks. You plan structure, narrative flow, and write compelling copy.
-
-DECK: "${template.name ?? ""}"${template.description ? ` — ${template.description}` : ""}
-Total slides: ${slides_json.length}
-${typeof selected_slide_index === "number" ? `Viewing slide: ${selected_slide_index} ("${slides_json[selected_slide_index]?.title || "(untitled)"}")` : ""}
-
-YOUR TOOLS: get_all_slides, add_slide, delete_slide, reorder_slides, restructure_deck, edit_slide (title/body), generate_section, delegate_research, get_deck_approach, load_skill, think
-
-CLARU: Purpose-built training data for frontier AI labs (video, robotics, multimodal, vision). Lead with data quality.
-
-RULES:
-1. ACT FIRST. Execute changes immediately, explain briefly after.
-2. Focus on STRUCTURE: slide order, narrative arc, what to add/remove.
-3. Focus on COPY: action titles (claims, not labels), concise body text.
-4. You do NOT control visual design. Use edit_slide for text changes only.
-5. Use delegate_research for facts, data, and URLs.
-6. Use get_deck_approach to load presentation style guides.
-7. When user says "this slide" → use slide_index ${selected_slide_index ?? 0}.
-8. Max 2 sentences per response. No filler.
-
-SALES DECK ARC: Hook → Problem → Old Way vs New Way → Solution → Proof → Process → CTA.
-ACTION TITLES: Every title is a claim. "What We Do" → WRONG. "Expert data that cuts training time by 23%" → RIGHT.`;
+    const slideOutline = slides_json.map((s: SlideData, i: number) => ({ index: i, title: s.title || "(untitled)" }));
+    systemPrompt = getStrategistPrompt({
+      name: template.name ?? "",
+      description: template.description ?? "",
+      slides: slideOutline,
+      slideCount: slides_json.length,
+    });
   } else {
     // Art Director: use the orchestrator prompt unchanged
     systemPrompt = orchestratorPrompt;
@@ -328,6 +326,9 @@ ACTION TITLES: Every title is a claim. "What We Do" → WRONG. "Expert data that
         const { model: routedModel, tier: modelTier } = routeModel(message);
         const selectedModel = activeMode === "art-director" ? routedModel : modeConfig.model;
         emit({ type: "model_info", model: selectedModel });
+        log.setModel(selectedModel);
+        log.setHistoryCount(historyMessages.length);
+        log.setPromptTokens(Math.round(systemPrompt.length / 4)); // rough estimate
 
         // Build conversation messages: history + current user message
         const conversationMessages: MessageParam[] = [
@@ -370,6 +371,7 @@ ACTION TITLES: Every title is a claim. "What We Do" → WRONG. "Expert data that
 
         if (classifiedIntent === 'confirm' && storedLastAction) {
           intercepted = true;
+          log.setIntercepted(true);
           emit({ type: "text", content: "On it." });
           fullAssistantText = "On it.";
 
@@ -471,6 +473,7 @@ ACTION TITLES: Every title is a claim. "What We Do" → WRONG. "Expert data that
                   currentToolUseId = event.content_block.id;
                   currentToolName = event.content_block.name;
                   currentToolInputJson = "";
+                  log.toolStart(event.content_block.name);
                   // Skip emitting tool_call for invisible "think" tool
                   if (event.content_block.name !== "think") {
                     emit({
@@ -516,6 +519,7 @@ ACTION TITLES: Every title is a claim. "What We Do" → WRONG. "Expert data that
                     text: currentTextContent,
                   });
                   fullAssistantText += currentTextContent;
+                  log.appendText(currentTextContent);
                 } else if (currentBlockType === "tool_use") {
                   let parsedInput: Record<string, unknown> = {};
                   try {
@@ -826,6 +830,7 @@ ACTION TITLES: Every title is a claim. "What We Do" → WRONG. "Expert data that
 
                   // Store result for building Anthropic tool_result messages
                   toolResultsMap.set(currentToolUseId, toolResult.result);
+                  log.toolEnd(toolResult.result);
                   // If we captured a screenshot, store it keyed by tool_use_id
                   if (verifyScreenshot) {
                     toolResultsMap.set(currentToolUseId + '__screenshot', verifyScreenshot);
@@ -951,8 +956,10 @@ ACTION TITLES: Every title is a claim. "What We Do" → WRONG. "Expert data that
         const errorMessage =
           err instanceof Error ? err.message : "Unknown error";
         console.error("[chat/route] Stream error:", errorMessage);
+        log.setError(errorMessage);
         emit({ type: "error", message: errorMessage });
       } finally {
+        log.flush(supabase).catch(() => {}); // fire-and-forget
         controller.close();
       }
     },

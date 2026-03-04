@@ -156,13 +156,45 @@ function summarizeResult(name: string, result: string): string | null {
 
 /** Convert TemplateChatMessage[] into the internal ChatMessage format. */
 function hydrateChatHistory(messages: TemplateChatMessage[]): ChatMessage[] {
-  return messages
-    .filter((m) => m.role === "user" || m.role === "assistant")
-    .map((m) => ({
+  const result: ChatMessage[] = [];
+  let lastMode: string | undefined;
+
+  for (const m of messages) {
+    if (m.role !== "user" && m.role !== "assistant") continue;
+
+    const meta = m.metadata_json as Record<string, unknown> | null;
+    const mode = meta?.mode as string | undefined;
+
+    // Insert mode-switch divider if mode changed
+    if (mode && lastMode && mode !== lastMode) {
+      const modeLabel = AGENT_MODES[mode as AgentMode]?.label ?? mode;
+      result.push({
+        role: "divider",
+        content: `switched to ${modeLabel} mode`,
+        toolCalls: [],
+      });
+    }
+    if (mode) lastMode = mode;
+
+    // Reconstruct tool calls from metadata
+    const toolCalls: ToolCall[] = [];
+    const lastAction = meta?.last_action as { type: string; result?: string } | undefined;
+    if (lastAction && m.role === "assistant") {
+      toolCalls.push({
+        name: lastAction.type,
+        result: typeof lastAction.result === "string" ? lastAction.result : undefined,
+        pending: false,
+      });
+    }
+
+    result.push({
       role: m.role as "user" | "assistant",
       content: m.content,
-      toolCalls: [],
-    }));
+      toolCalls,
+    });
+  }
+
+  return result;
 }
 
 /* ------------------------------------------------------------------ */
