@@ -165,7 +165,7 @@ export default async function DatasetDetailPage({
             <div className="flex items-center gap-2 mb-2">
               <Database className="w-4 h-4 text-[var(--accent-primary)]" />
               <span className="text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-wider">
-                Total Samples
+                Dataset Size
               </span>
             </div>
             <span className="block font-mono text-xl font-bold text-[var(--text-primary)]">
