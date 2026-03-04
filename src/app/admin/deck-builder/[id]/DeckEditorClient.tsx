@@ -1335,7 +1335,7 @@ function CenterSlidePreview({
           <iframe
             srcDoc={html}
             sandbox="allow-scripts allow-same-origin"
-            className={`absolute top-0 left-0 border-0 ${selectorMode ? "" : "pointer-events-none"}`}
+            className="absolute top-0 left-0 border-0"
             style={{
               width: "1920px",
               height: "1080px",
