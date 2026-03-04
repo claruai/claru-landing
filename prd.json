@@ -269,7 +269,7 @@
         "Verify in browser using Playwright at 375x812 viewport"
       ],
       "priority": 14,
-      "passes": false,
+      "passes": true,
       "notes": "Read src/app/api/slide/[templateId]/present/route.ts for the presentation CSS. The responsive CSS goes in the same <style> block. UA detection via request headers. Use general-purpose agent."
     },
     {

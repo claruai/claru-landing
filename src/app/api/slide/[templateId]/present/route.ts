@@ -7,11 +7,23 @@ import type { SlideData, SlideThemeCustom } from "@/types/deck-builder";
 import type { SlideTheme } from "@/lib/deck-builder/slide-themes";
 
 /**
+ * Detect mobile user-agent from request headers.
+ */
+function isMobileUA(request: NextRequest): boolean {
+  const ua = request.headers.get("user-agent") ?? "";
+  return /Mobi|Android|iPhone|iPod|webOS|BlackBerry|Opera Mini|IEMobile/i.test(ua);
+}
+
+/**
  * GET /api/slide/[templateId]/present
  *
  * Serves the full presentation with all slides, keyboard/touch navigation,
  * overview mode, progress bar, and PostMessage API. All CSS and JS are inline
  * — the page is completely self-contained.
+ *
+ * On mobile user agents, if a slide has an html_mobile field, that content is
+ * used instead of the standard html field. A responsive CSS layer adapts the
+ * presentation for narrow viewports regardless.
  *
  * S3 media references are rewritten to /api/media/s3?key=... proxy URLs.
  * The proxy handles signing at request time, so URLs never expire.
@@ -21,6 +33,7 @@ export async function GET(
   { params }: { params: Promise<{ templateId: string }> },
 ) {
   const { templateId } = await params;
+  const isMobile = isMobileUA(request);
 
   const supabase = createSupabaseAdminClient();
 
@@ -52,13 +65,18 @@ export async function GET(
   // Custom HTML slides (with <script> tags or full documents) are rendered as
   // iframes pointing to the single-slide route to avoid script context conflicts.
   // Layout-based slides are inlined directly for performance.
+  //
+  // On mobile UA: prefer html_mobile over html when available.
   const slidesHTML = sorted
     .map((slide, i) => {
-      if (slide.html && (slide.html.includes('<script') || slide.html.includes('<!DOCTYPE') || slide.html.includes('<html'))) {
+      // Choose the best HTML source for this slide
+      const rawHtml = (isMobile && slide.html_mobile) ? slide.html_mobile : slide.html;
+
+      if (rawHtml && (rawHtml.includes('<script') || rawHtml.includes('<!DOCTYPE') || rawHtml.includes('<html'))) {
         // Render as iframe to isolate scripts and full documents
         return `    <div class="slide" data-index="${i}"><iframe src="/api/slide/${templateId}/${i}" style="width:100%;height:100%;border:none;" sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe></div>`;
       }
-      let html = slide.html ?? layoutToHtml(slide, theme);
+      let html = rawHtml ?? layoutToHtml(slide, theme);
       html = rewriteS3ToProxy(html);
       return `    <div class="slide" data-index="${i}">${html}</div>`;
     })
@@ -66,7 +84,7 @@ export async function GET(
 
   const origin = request.nextUrl.origin;
   const title = (template.name as string) || "Presentation";
-  const html = buildPresentationPage(slidesHTML, theme, origin, title);
+  const html = buildPresentationPage(slidesHTML, theme, origin, title, sorted.length);
 
   return new Response(html, {
     headers: {
@@ -99,12 +117,18 @@ function buildPresentationPage(
   theme: SlideTheme,
   origin: string,
   title: string,
+  slideCount: number,
 ): string {
+  // Build dot navigation HTML for mobile
+  const dotsHTML = Array.from({ length: slideCount }, (_, i) =>
+    `<button class="dot${i === 0 ? " active" : ""}" data-index="${i}" aria-label="Go to slide ${i + 1}"></button>`
+  ).join("\n        ");
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <base href="${origin}/">
   <title>${escapeHtml(title)}</title>
   <style>
@@ -243,6 +267,65 @@ function buildPresentationPage(
       user-select: none;
     }
 
+    /* ===== Mobile Dots Navigation ===== */
+    .mobile-dots {
+      display: none;
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: ${theme.colors.background}cc;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .mobile-dots .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: none;
+      background: ${theme.colors.secondaryText}60;
+      padding: 0;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mobile-dots .dot.active {
+      background: ${theme.colors.accent};
+      transform: scale(1.3);
+    }
+
+    /* ===== Mobile Touch Nav Arrows ===== */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 50;
+      pointer-events: none;
+    }
+    .mobile-nav-prev,
+    .mobile-nav-next {
+      position: absolute;
+      top: 0;
+      bottom: 60px; /* Leave room for dots */
+      width: 25%;
+      pointer-events: auto;
+      -webkit-tap-highlight-color: transparent;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+    .mobile-nav-prev { left: 0; }
+    .mobile-nav-next { right: 0; }
+
     /* ===== Slide Overview ===== */
     body.overview-mode { overflow: auto; }
     body.overview-mode .slide-stage { position: static; }
@@ -297,7 +380,126 @@ function buildPresentationPage(
         display: flex;
       }
       .progress-bar, .slide-counter { display: none !important; }
+      .mobile-dots, .mobile-nav { display: none !important; }
       @page { size: landscape; margin: 0; }
+    }
+
+    /* ===== Mobile Responsive ===== */
+    @media (max-width: 768px) {
+      /* --- Stage: fluid layout instead of fixed scale --- */
+      .slide-scaler {
+        width: 100vw !important;
+        height: 100vh !important;
+        transform: none !important;
+        top: 0 !important;
+        left: 0 !important;
+      }
+
+      .slide {
+        width: 100vw !important;
+        height: 100vh !important;
+      }
+
+      /* --- Typography: scale down for mobile --- */
+      h1 { font-size: clamp(1.25rem, 5vw, 2.5rem) !important; }
+      h2 { font-size: clamp(1.1rem, 4vw, 2rem) !important; }
+      h3 { font-size: clamp(1rem, 3.5vw, 1.5rem) !important; }
+      p, li, span { font-size: clamp(0.8rem, 2.5vw, 1.1rem); }
+      code { font-size: clamp(0.7rem, 2vw, 0.9rem); }
+
+      /* --- Content: reduce padding for mobile --- */
+      .slide > div[style*="padding:60px 80px"],
+      .slide > div[style*="padding: 60px 80px"] {
+        padding: 24px 20px !important;
+      }
+
+      /* --- Two-column layouts: restack vertically --- */
+      .slide [style*="grid-template-columns"],
+      .slide [style*="display:grid"][style*="1fr 1fr"],
+      .slide [style*="display: grid"][style*="1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+      }
+      .slide [style*="display:flex"][style*="flex-direction:row"],
+      .slide [style*="display: flex"][style*="flex-direction: row"] {
+        flex-direction: column !important;
+        gap: 16px !important;
+      }
+
+      /* --- Images: constrain to viewport --- */
+      .slide img {
+        max-width: 100% !important;
+        height: auto !important;
+        object-fit: contain;
+      }
+
+      /* --- Videos: fluid sizing --- */
+      .slide video {
+        max-width: 100% !important;
+        height: auto !important;
+      }
+
+      /* --- iframes within slides: fluid sizing --- */
+      .slide iframe {
+        max-width: 100% !important;
+      }
+
+      /* --- Progress: hide desktop bar, show dots --- */
+      .progress-bar { display: none !important; }
+      .slide-counter { display: none !important; }
+      .mobile-dots { display: flex; }
+      .mobile-nav { display: block; }
+
+      /* --- Overview: smaller thumbnails on mobile --- */
+      body.overview-mode .slide {
+        width: calc(50vw - 24px) !important;
+        height: auto !important;
+        aspect-ratio: 16/9;
+        font-size: 4px;
+        margin: 6px;
+        padding: 8px;
+      }
+      body.overview-mode .mobile-dots,
+      body.overview-mode .mobile-nav { display: none !important; }
+
+      /* --- Hide hover-only elements --- */
+      .hover-only,
+      [data-hover-only] {
+        display: none !important;
+      }
+
+      /* --- Bigger touch targets for links and buttons --- */
+      a, button {
+        min-height: 44px;
+        min-width: 44px;
+      }
+
+      /* --- Prevent text overflow --- */
+      .slide * {
+        max-width: 100%;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+      }
+
+      /* --- Pre/code blocks: horizontal scroll with smaller text --- */
+      pre {
+        padding: 12px !important;
+        font-size: 0.75rem !important;
+        max-width: 100%;
+      }
+
+      /* --- Bullet list: tighter on mobile --- */
+      .slide-body ul li {
+        padding-left: 18px;
+        margin-bottom: 8px;
+        line-height: 1.5;
+      }
+      .slide-body ul li::before {
+        width: 5px;
+        height: 5px;
+        top: 8px;
+        left: 2px;
+      }
     }
   </style>
 </head>
@@ -311,6 +513,13 @@ ${slidesHTML}
   </div>
   <div class="progress-bar"></div>
   <div class="slide-counter"></div>
+  <div class="mobile-dots" id="mobile-dots">
+    ${dotsHTML}
+  </div>
+  <div class="mobile-nav" id="mobile-nav">
+    <button class="mobile-nav-prev" aria-label="Previous slide"></button>
+    <button class="mobile-nav-next" aria-label="Next slide"></button>
+  </div>
 
   <script>
     (function() {
@@ -320,12 +529,17 @@ ${slidesHTML}
       var total = slides.length;
       var overviewActive = false;
 
+      // --------------- Dot elements ---------------
+      var dots = document.querySelectorAll('.mobile-dots .dot');
+
       // --------------- Navigation ---------------
       function goToSlide(n) {
         if (n < 0 || n >= total) return;
         slides[current].classList.remove('active');
+        if (dots[current]) dots[current].classList.remove('active');
         current = n;
         slides[current].classList.add('active');
+        if (dots[current]) dots[current].classList.add('active');
         updateProgress();
       }
 
@@ -338,6 +552,22 @@ ${slidesHTML}
 
       function nextSlide() { goToSlide(current + 1); }
       function prevSlide() { goToSlide(current - 1); }
+
+      // --------------- Dot navigation click handlers ---------------
+      for (var d = 0; d < dots.length; d++) {
+        (function(idx) {
+          dots[idx].addEventListener('click', function(e) {
+            e.stopPropagation();
+            goToSlide(idx);
+          });
+        })(d);
+      }
+
+      // --------------- Mobile tap-zone navigation ---------------
+      var prevBtn = document.querySelector('.mobile-nav-prev');
+      var nextBtn = document.querySelector('.mobile-nav-next');
+      if (prevBtn) prevBtn.addEventListener('click', function() { prevSlide(); });
+      if (nextBtn) nextBtn.addEventListener('click', function() { nextSlide(); });
 
       // --------------- Overview Mode ---------------
       function toggleOverview() {
@@ -512,11 +742,22 @@ ${slidesHTML}
           scaler.style.left = '0';
           return;
         }
+        // On narrow viewports (mobile), use fluid layout — no transform scaling
+        if (window.innerWidth <= 768) {
+          scaler.style.transform = 'none';
+          scaler.style.width = '100vw';
+          scaler.style.height = '100vh';
+          scaler.style.top = '0';
+          scaler.style.left = '0';
+          return;
+        }
         var vw = window.innerWidth;
         var vh = window.innerHeight;
         var s = Math.min(vw / 1920, vh / 1080);
         var scaledW = 1920 * s;
         var scaledH = 1080 * s;
+        scaler.style.width = '1920px';
+        scaler.style.height = '1080px';
         scaler.style.transform = 'scale(' + s + ')';
         scaler.style.left = Math.max(0, (vw - scaledW) / 2) + 'px';
         scaler.style.top = Math.max(0, (vh - scaledH) / 2) + 'px';
