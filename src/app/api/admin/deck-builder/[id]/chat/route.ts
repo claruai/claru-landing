@@ -172,13 +172,15 @@ export async function POST(
     });
   }
 
-  // ---- Load chat history (last N messages) ----
-  const { data: chatHistory } = await supabase
+  // ---- Load chat history (last N messages, most recent) ----
+  const { data: chatHistoryDesc } = await supabase
     .from("template_chat_messages")
     .select("role, content, metadata_json")
     .eq("template_id", templateId)
-    .order("created_at", { ascending: true })
+    .order("created_at", { ascending: false })
     .limit(MAX_HISTORY_MESSAGES);
+  // Reverse to chronological order (oldest first) for the conversation
+  const chatHistory = chatHistoryDesc?.reverse() ?? null;
 
   // ---- Load media assets ----
   const { data: rawAssets } = await supabase

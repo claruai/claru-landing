@@ -191,10 +191,18 @@ export function DeckEditorClient({ initialTemplate }: DeckEditorClientProps) {
   /*  Save logic                                                       */
   /* ================================================================ */
 
+  // Track pending save data so we can retry after an in-flight save completes
+  const pendingSaveRef = useRef<{ slides: SlideData[]; name: string } | null>(null);
+
   const saveToServer = useCallback(
     async (slidesData: SlideData[], name: string) => {
-      if (isSavingRef.current) return;
+      // If a save is in flight, queue this one for after it completes
+      if (isSavingRef.current) {
+        pendingSaveRef.current = { slides: slidesData, name };
+        return;
+      }
       isSavingRef.current = true;
+      pendingSaveRef.current = null;
       setSaveStatus("saving");
 
       try {
@@ -220,6 +228,12 @@ export function DeckEditorClient({ initialTemplate }: DeckEditorClientProps) {
         showToast("Failed to save changes", "error");
       } finally {
         isSavingRef.current = false;
+        // If edits arrived while we were saving, save again with the latest data
+        if (pendingSaveRef.current) {
+          const { slides: ps, name: pn } = pendingSaveRef.current;
+          pendingSaveRef.current = null;
+          saveToServer(ps, pn);
+        }
       }
     },
     [template.id, showToast, themeId, customTheme]
