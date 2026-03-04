@@ -231,7 +231,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "notes": "Use frontend-expert agent. Autocomplete can be a simple input with debounced fetch. Show shared leads list from GET /api/admin/deck-builder/[id]/share (which should also return existing tokens)."
     },
     {
