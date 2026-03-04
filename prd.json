@@ -34,7 +34,7 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "notes": "Another track — do not implement."
     },
     {
@@ -47,7 +47,7 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "Another track — do not implement."
     },
     {
@@ -60,7 +60,7 @@
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "Another track — do not implement."
     },
     {
@@ -168,6 +168,43 @@
       "priority": 10,
       "passes": true,
       "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Playwright E2E test — mode switching flow",
+      "description": "As QA, I need an end-to-end test verifying mode switching works correctly.",
+      "acceptanceCriteria": [
+        "Create tests/e2e/deck-agent-modes.spec.ts",
+        "Log in as admin (team@claru.ai / qweqwe123!)",
+        "Navigate to deck builder with template 54f7930f-cf81-4c0d-8f66-28ddaf93476a",
+        "Verify default mode is Design (tab highlighted with accent color)",
+        "Click Strategy tab, verify it becomes active",
+        "Verify suggestion chips change to strategy-related options",
+        "Click Build tab, verify it becomes active",
+        "Verify suggestion chips change to build-related options",
+        "Verify chat input placeholder changes",
+        "Click Design tab, verify mode switches back",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": "Dev server at http://localhost:3005. UI-only test, no API calls needed. Use webapp-testing skill."
+    },
+    {
+      "id": "US-012",
+      "title": "Playwright E2E test — Page Builder speed",
+      "description": "As QA, I need a test verifying Page Builder mode responds faster than Art Director.",
+      "acceptanceCriteria": [
+        "Create tests/e2e/deck-page-builder-speed.spec.ts",
+        "Test requires ANTHROPIC_API_KEY (skip if not set)",
+        "Log in as admin, navigate to deck builder",
+        "Switch to Build mode, send a simple edit message",
+        "Assert response time < 10 seconds",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": "Dev server at http://localhost:3005. Use webapp-testing skill."
     }
   ]
 }
