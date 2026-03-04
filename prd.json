@@ -320,7 +320,7 @@
         "Typecheck passes"
       ],
       "priority": 17,
-      "passes": false,
+      "passes": true,
       "notes": "Use webapp-testing skill with Playwright MCP."
     }
   ]
