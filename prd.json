@@ -38,7 +38,7 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "notes": "This replaces the fragile sign-slide-urls.ts. Key difference: this does NOT sign URLs — it rewrites them to the proxy pattern. The proxy handles signing at request time. Must handle all the broken URL formats we've seen in existing slides."
     },
     {
@@ -138,7 +138,7 @@
         "Typecheck passes"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "Read design-prompt.ts, gtm-prompts.ts, ai-tools.ts for current wording. Some of these were already partially updated in the orchestration improvements session — check current state before editing. Remove import of signSlideHtml from chat/route.ts."
     },
     {
