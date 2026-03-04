@@ -1,7 +1,7 @@
 {
   "project": "Three-Mode Agent Architecture",
   "branchName": "ralph/agent-modes",
-  "description": "Split the deck builder AI into three distinct modes \u2014 Strategist (deck structure and narrative), Art Director (full creative control, default), and Page Builder (direct HTML editing). Each mode has its own tool set, system prompt, and model routing.",
+  "description": "Split the deck builder AI into three distinct modes — Strategist (deck structure and narrative), Art Director (full creative control, default), and Page Builder (direct HTML editing). Each mode has its own tool set, system prompt, and model routing.",
   "userStories": [
     {
       "id": "US-001",
@@ -12,7 +12,7 @@
         "Export AgentMode type: 'strategist' | 'art-director' | 'page-builder'",
         "Export AgentModeConfig interface with: mode, label, description, model, icon, placeholder",
         "Export AGENT_MODES record with configs for all three modes",
-        "Export detectModeIntent(message, currentMode) \u2014 regex-based, returns AgentMode | null",
+        "Export detectModeIntent(message, currentMode) — regex-based, returns AgentMode | null",
         "Strategist signals: restructure, reorder, add a slide, remove slide, deck flow, storyline, outline, build me a deck",
         "Page Builder signals: change the font, make it Npx, edit the heading, fix the padding, move this div, change background to",
         "Art Director signals: redesign, make it more, improve this, show me options",
@@ -35,7 +35,7 @@
       ],
       "priority": 2,
       "passes": false,
-      "notes": "Another track \u2014 do not implement."
+      "notes": "Another track — do not implement."
     },
     {
       "id": "US-003",
@@ -48,7 +48,7 @@
       ],
       "priority": 3,
       "passes": false,
-      "notes": "Another track \u2014 do not implement."
+      "notes": "Another track — do not implement."
     },
     {
       "id": "US-004",
@@ -61,7 +61,7 @@
       ],
       "priority": 4,
       "passes": false,
-      "notes": "Another track \u2014 do not implement."
+      "notes": "Another track — do not implement."
     },
     {
       "id": "US-005",
@@ -161,7 +161,7 @@
         "In trySend wrapper, before sending, call detectModeIntent(message, mode)",
         "If non-null, show suggestion chip between input and messages",
         "Two buttons: Switch (changes mode + sends) and Keep (sends in current mode)",
-        "Chip is unobtrusive \u2014 small bar",
+        "Chip is unobtrusive — small bar",
         "Disappears after any action",
         "Typecheck passes"
       ],
