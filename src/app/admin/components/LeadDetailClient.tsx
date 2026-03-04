@@ -30,6 +30,20 @@ interface Toast {
   type: "success" | "error" | "warning";
 }
 
+interface DeckView {
+  id: string;
+  template_id: string;
+  template_name: string;
+  token_id: string | null;
+  viewer_email: string | null;
+  device_type: string | null;
+  slides_viewed: { slide_index: number; duration?: number }[] | null;
+  total_duration_seconds: number | null;
+  completion_rate: number | null;
+  viewed_at: string;
+  slides_count: number;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
@@ -144,10 +158,36 @@ export default function LeadDetailClient({
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
+  /* ---- Deck engagement --------------------------------------------- */
+  const [deckViews, setDeckViews] = useState<DeckView[]>([]);
+  const [deckViewsLoading, setDeckViewsLoading] = useState(true);
+  const [expandedViewId, setExpandedViewId] = useState<string | null>(null);
+
   // Sync selectedDatasetIds when grants change
   useEffect(() => {
     setSelectedDatasetIds(new Set(grants.map((g) => g.dataset_id)));
   }, [grants]);
+
+  // Fetch deck engagement data
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchDeckViews() {
+      setDeckViewsLoading(true);
+      try {
+        const res = await fetch(`/api/admin/leads/${initialLead.id}/deck-views`);
+        if (res.ok && !cancelled) {
+          const data = await res.json();
+          setDeckViews(data.views ?? []);
+        }
+      } catch {
+        // Silently fail -- deck views are supplementary data
+      } finally {
+        if (!cancelled) setDeckViewsLoading(false);
+      }
+    }
+    fetchDeckViews();
+    return () => { cancelled = true; };
+  }, [initialLead.id]);
 
   const addToast = useCallback(
     (message: string, type: Toast["type"] = "success") => {
@@ -951,6 +991,124 @@ export default function LeadDetailClient({
             />
           )}
         </div>
+      </div>
+
+      {/* Deck Engagement */}
+      <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-6 space-y-4">
+        <h3 className="text-sm font-mono font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
+          Deck Engagement
+        </h3>
+
+        {deckViewsLoading ? (
+          <div className="flex items-center justify-center py-6">
+            <span className="text-xs font-mono text-[var(--text-muted)] animate-pulse">
+              loading...
+            </span>
+          </div>
+        ) : deckViews.length === 0 ? (
+          <p className="text-sm font-mono text-[var(--text-muted)] py-4">
+            No deck engagement yet
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {deckViews.map((view) => (
+              <div key={view.id}>
+                <button
+                  onClick={() =>
+                    setExpandedViewId(
+                      expandedViewId === view.id ? null : view.id,
+                    )
+                  }
+                  className="w-full text-left px-3 py-3 bg-[var(--bg-primary)] rounded-lg border border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/30 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-mono text-xs text-[var(--text-primary)] truncate">
+                        {view.template_name}
+                      </p>
+                      <p className="font-mono text-[10px] text-[var(--text-muted)] mt-1">
+                        {new Date(view.viewed_at).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      {view.completion_rate != null && (
+                        <span
+                          className={`font-mono text-[10px] ${
+                            view.completion_rate >= 0.8
+                              ? "text-[var(--accent-primary)]"
+                              : view.completion_rate >= 0.4
+                                ? "text-[var(--warning)]"
+                                : "text-[var(--text-muted)]"
+                          }`}
+                        >
+                          {Math.round(view.completion_rate * 100)}%
+                        </span>
+                      )}
+                      {view.total_duration_seconds != null && (
+                        <span className="font-mono text-[10px] text-[var(--text-muted)]">
+                          {view.total_duration_seconds >= 60
+                            ? `${Math.floor(view.total_duration_seconds / 60)}m ${view.total_duration_seconds % 60}s`
+                            : `${view.total_duration_seconds}s`}
+                        </span>
+                      )}
+                      <span className="font-mono text-[10px] text-[var(--text-muted)]">
+                        {view.slides_count} slides
+                      </span>
+                      <span className="font-mono text-[10px] text-[var(--text-muted)]">
+                        {expandedViewId === view.id ? "[-]" : "[+]"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Device info */}
+                  {view.device_type && (
+                    <p className="font-mono text-[10px] text-[var(--text-muted)] mt-1">
+                      {view.device_type}
+                    </p>
+                  )}
+                </button>
+
+                {/* Expanded slide-by-slide breakdown */}
+                {expandedViewId === view.id &&
+                  view.slides_viewed &&
+                  Array.isArray(view.slides_viewed) &&
+                  (view.slides_viewed as { slide_index: number; duration?: number }[])
+                    .length > 0 && (
+                    <div className="ml-3 mt-1 space-y-1 border-l-2 border-[var(--border-subtle)] pl-3">
+                      {(
+                        view.slides_viewed as {
+                          slide_index: number;
+                          duration?: number;
+                        }[]
+                      ).map((slide, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between py-1"
+                        >
+                          <span className="font-mono text-[10px] text-[var(--text-muted)]">
+                            Slide {slide.slide_index + 1}
+                          </span>
+                          {slide.duration != null && (
+                            <span className="font-mono text-[10px] text-[var(--text-muted)]">
+                              {slide.duration >= 60
+                                ? `${Math.floor(slide.duration / 60)}m ${slide.duration % 60}s`
+                                : `${slide.duration}s`}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Danger Zone */}
