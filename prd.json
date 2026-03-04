@@ -154,7 +154,7 @@
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "notes": "Read executor.ts get_dataset_samples handler (around line 306). Currently calls getS3SignedUrl for each sample. Replace with simple string concatenation to proxy URL format."
     },
     {
