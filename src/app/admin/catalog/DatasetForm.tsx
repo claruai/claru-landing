@@ -320,7 +320,7 @@ export default function DatasetForm({ dataset, categories }: DatasetFormProps) {
       {/* Samples + Duration row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className={labelClass}>Total Samples</label>
+          <label className={labelClass}>Dataset Size</label>
           <input
             type="number"
             min={0}

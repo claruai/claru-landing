@@ -225,7 +225,7 @@ export default function CatalogEditClient({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
-                Total Samples
+                Dataset Size
               </label>
               <input
                 type="number"

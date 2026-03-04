@@ -70,7 +70,7 @@ async function getPortalData() {
     .eq("lead_id", lead.id)
     .order("granted_at", { ascending: false });
 
-  // Count total samples across all granted datasets
+  // Count total dataset size across all granted datasets
   const totalSamples =
     (accessGrants ?? []).reduce((sum, grant) => {
       const ds = grant.datasets as unknown as Dataset | null;
@@ -160,7 +160,7 @@ export default async function PortalDashboardPage() {
                 {totalSamples.toLocaleString()}
               </p>
               <p className="text-xs font-mono text-[var(--text-muted)]">
-                total samples
+                total dataset size
               </p>
             </div>
           </div>
