@@ -6,6 +6,7 @@
 
 import type Anthropic from "@anthropic-ai/sdk";
 import { ORCHESTRATOR_TOOLS } from "./agents/orchestrator-tools";
+import { SLIDE_TOOLS } from "./ai-tools";
 
 // ---------------------------------------------------------------------------
 // Mode Type
@@ -231,25 +232,28 @@ export function getModeTools(mode: AgentMode): Anthropic.Tool[] {
 
   if (mode === "page-builder") {
     const tools: Anthropic.Tool[] = [];
+    const foundNames = new Set<string>();
 
-    // Pull matching tools from ORCHESTRATOR_TOOLS
+    // Pull matching tools from ORCHESTRATOR_TOOLS first (preferred source)
     for (const tool of ORCHESTRATOR_TOOLS) {
       if (PAGE_BUILDER_TOOL_NAMES.has(tool.name)) {
         tools.push(tool);
+        foundNames.add(tool.name);
       }
     }
 
-    // Also pull tools that exist in SLIDE_TOOLS (ai-tools.ts) but not in
-    // ORCHESTRATOR_TOOLS — like get_site_media. We import ORCHESTRATOR_TOOLS
-    // as the single source, so any tool defined there with a matching name
-    // will be picked up above. Tools like get_site_media may not be in
-    // ORCHESTRATOR_TOOLS yet — if missing, they'll simply be absent from
-    // the filtered set. The chat route's processToolCall from ai-tools.ts
-    // can still handle them if they arrive.
-    //
+    // Fall back to SLIDE_TOOLS for tools not in ORCHESTRATOR_TOOLS
+    // (e.g. set_slide_html, get_site_media are defined in ai-tools.ts)
+    for (const tool of SLIDE_TOOLS) {
+      if (PAGE_BUILDER_TOOL_NAMES.has(tool.name) && !foundNames.has(tool.name)) {
+        tools.push(tool);
+        foundNames.add(tool.name);
+      }
+    }
+
     // NOTE: patch_slide_html is listed in PAGE_BUILDER_TOOL_NAMES but its
-    // tool definition is created in another track (US-004). It will be
-    // included automatically once that definition is added to ORCHESTRATOR_TOOLS.
+    // tool handler is created in another track (US-004). The definition
+    // already exists in ORCHESTRATOR_TOOLS and will be picked up above.
 
     return tools;
   }
