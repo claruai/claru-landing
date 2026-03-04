@@ -360,6 +360,26 @@
       "priority": 19,
       "passes": true,
       "notes": "Simple CSS change: remove the pointer-events-none conditional from the iframe className in CenterSlidePreview."
+    },
+    {
+      "id": "US-020",
+      "title": "Playwright E2E — inline text editing flow",
+      "description": "As QA, I need an end-to-end test verifying the inline text editing workflow: double-click a heading in the slide preview iframe, edit it, commit, and verify the toast.",
+      "acceptanceCriteria": [
+        "Create tests/e2e/deck-inline-edit.spec.ts",
+        "Login as admin (team@claru.ai / qweqwe123!)",
+        "Navigate to deck builder editor for template 54f7930f-cf81-4c0d-8f66-28ddaf93476a",
+        "Click slide 12 (index 11) — a layout slide with heading 'Next Steps'",
+        "In the center preview iframe, double-click on the heading text",
+        "Verify the element has contentEditable='true' via evaluate inside iframe",
+        "Type ' — Updated' to append text",
+        "Click elsewhere in the iframe to commit the edit",
+        "Verify toast 'Text updated' appears in the parent page",
+        "Typecheck passes"
+      ],
+      "priority": 20,
+      "passes": true,
+      "notes": "Uses Playwright frameLocator to access the iframe with title 'Slide preview'. Login pattern from tests/e2e/deck-builder-crud.spec.ts. Dev server port 3005."
     }
   ]
 }
