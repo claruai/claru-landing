@@ -4,6 +4,7 @@ import {
   Users,
   Database,
   Settings,
+  Presentation,
   ArrowRight,
 } from "lucide-react";
 import { getAllJobs } from "@/lib/jobs";
@@ -19,6 +20,7 @@ export default async function AdminDashboardPage() {
   let leadTotal = 0;
   let leadPending = 0;
   let datasetCount = 0;
+  let templateCount = 0;
 
   try {
     const supabase = createSupabaseAdminClient();
@@ -38,6 +40,11 @@ export default async function AdminDashboardPage() {
       .from("datasets")
       .select("*", { count: "exact", head: true });
     datasetCount = dCount ?? 0;
+
+    const { count: tCount } = await supabase
+      .from("slide_templates")
+      .select("*", { count: "exact", head: true });
+    templateCount = tCount ?? 0;
   } catch {
     // Supabase may not be set up yet — graceful fallback
   }
@@ -78,6 +85,15 @@ export default async function AdminDashboardPage() {
       stat: "",
       color: "text-[var(--text-tertiary)]",
     },
+    {
+      href: "/admin/deck-builder",
+      icon: Presentation,
+      title: "Deck Builder",
+      description:
+        "Create and manage sales presentation templates with AI assistance",
+      stat: `${templateCount} templates`,
+      color: "text-[var(--accent-primary)]",
+    },
   ];
 
   return (
@@ -94,7 +110,7 @@ export default async function AdminDashboardPage() {
           </p>
           <h1 className="text-2xl font-bold mb-2">Welcome back.</h1>
           <p className="text-[var(--text-secondary)] text-sm">
-            Manage your job board, data catalog, leads, and settings.
+            Manage your job board, data catalog, leads, deck builder, and settings.
           </p>
         </div>
 

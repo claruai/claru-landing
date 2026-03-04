@@ -36,6 +36,9 @@ export interface SlideData {
   /** When set, the renderer uses this raw HTML directly instead of the layout system.
    *  The agent can write fully custom HTML/CSS for any slide — video grids, animations, etc. */
   html?: string;
+  /** Optional mobile-optimized HTML for this slide. When set, the shared deck viewer uses
+   *  this HTML on narrow viewports instead of the desktop `html` field. */
+  html_mobile?: string;
   /** S3 media keys referenced by this slide's HTML (via /api/media/s3?key=KEY proxy URLs).
    *  Used for dependency tracking and cache pre-warming. Populated automatically when HTML is set. */
   media_refs?: string[];

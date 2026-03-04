@@ -33,13 +33,13 @@ The public viewer page (`/d/[slug]`) should leverage the server presentation rou
 **Description:** As a developer, I need database tables for share settings, viewer tokens, and view analytics.
 
 **Acceptance Criteria:**
-- [ ] Add `share_settings` JSONB column to `slide_templates` table with default `null`. Schema: `{ enabled: boolean, slug: string, expiry: string|null, gate_type: 'none'|'email'|'password', gate_value: string|null, cta_enabled: boolean, cta_text: string|null, cta_url: string|null, show_branding: boolean }`
-- [ ] Create `deck_share_tokens` table: id (UUID PK), template_id (FK → slide_templates CASCADE), lead_id (FK → leads, nullable), email (TEXT NOT NULL), token (TEXT UNIQUE NOT NULL), parent_lead_id (UUID nullable — for associating teammates), created_at, expires_at (nullable)
-- [ ] Create `deck_views` table: id (UUID PK), template_id (FK → slide_templates CASCADE), token_id (FK → deck_share_tokens, nullable), viewer_email (nullable), device_type (TEXT — 'desktop'|'mobile'|'tablet'), slides_viewed (JSONB — array of {index, duration_seconds}), total_duration_seconds (INT), completion_rate (DECIMAL), viewed_at (TIMESTAMPTZ DEFAULT now()), ip_address (TEXT nullable)
-- [ ] Add indexes: `deck_share_tokens(token)`, `deck_share_tokens(template_id)`, `deck_views(template_id, viewed_at)`, `deck_views(token_id)`
+- [x] Add `share_settings` JSONB column to `slide_templates` table with default `null`. Schema: `{ enabled: boolean, slug: string, expiry: string|null, gate_type: 'none'|'email'|'password', gate_value: string|null, cta_enabled: boolean, cta_text: string|null, cta_url: string|null, show_branding: boolean }`
+- [x] Create `deck_share_tokens` table: id (UUID PK), template_id (FK → slide_templates CASCADE), lead_id (FK → leads, nullable), email (TEXT NOT NULL), token (TEXT UNIQUE NOT NULL), parent_lead_id (UUID nullable — for associating teammates), created_at, expires_at (nullable)
+- [x] Create `deck_views` table: id (UUID PK), template_id (FK → slide_templates CASCADE), token_id (FK → deck_share_tokens, nullable), viewer_email (nullable), device_type (TEXT — 'desktop'|'mobile'|'tablet'), slides_viewed (JSONB — array of {index, duration_seconds}), total_duration_seconds (INT), completion_rate (DECIMAL), viewed_at (TIMESTAMPTZ DEFAULT now()), ip_address (TEXT nullable)
+- [x] Add indexes: `deck_share_tokens(token)`, `deck_share_tokens(template_id)`, `deck_views(template_id, viewed_at)`, `deck_views(token_id)`
 - [ ] Add unique constraint on `slide_templates` share_settings->slug (via a generated column or application-level check)
-- [ ] Add `html_mobile` optional field to SlideData type in `src/types/deck-builder.ts` (alongside existing `media_refs`)
-- [ ] Typecheck passes
+- [x] Add `html_mobile` optional field to SlideData type in `src/types/deck-builder.ts` (alongside existing `media_refs`)
+- [x] Typecheck passes
 - [ ] **Unit Tests:** Verify migration SQL is valid
 - [ ] **Code Review:** Run code-reviewer agent
 
