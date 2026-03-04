@@ -1,254 +1,103 @@
 {
   "project": "Three-Mode Agent Architecture",
   "branchName": "ralph/agent-modes",
-  "description": "Replace single-agent deck builder with three modes: Strategist (deck structure), Art Director (creative design with QA), Page Builder (fast HTML editing like Claude Code). Tab bar UI, mode-specific tools/prompts/models, Fine-tune button transitions.",
+  "description": "Split the deck builder AI into three distinct modes — Strategist (deck structure and narrative), Art Director (full creative control, default), and Page Builder (direct HTML editing). Each mode has its own tool set, system prompt, and model routing.",
   "userStories": [
     {
       "id": "US-001",
       "title": "Mode type definitions and configuration registry",
-      "description": "As a developer, I need a typed mode system that defines the configuration for each mode.",
+      "description": "As a developer, I need AgentMode types, config registry, and intent detection so the frontend and backend can route to the correct mode.",
       "acceptanceCriteria": [
         "Create src/lib/deck-builder/agent-modes.ts",
         "Export AgentMode type: 'strategist' | 'art-director' | 'page-builder'",
-        "Export AgentModeConfig interface with: mode, label, description, model, icon, placeholder (chat input text)",
-        "Export AGENT_MODES: Record<AgentMode, AgentModeConfig> with configs for all three modes",
-        "Strategist: model claude-sonnet-4-20250514, label 'Strategy', icon '📋', placeholder 'Describe your deck structure...'",
-        "Art Director: model claude-sonnet-4-20250514 (default, complex uses opus), label 'Design', icon '🎨', placeholder 'Describe the design you want...'",
-        "Page Builder: model claude-sonnet-4-20250514, label 'Build', icon '⚡', placeholder 'What should I change on this slide?'",
-        "Export detectModeIntent(message: string, currentMode: AgentMode): AgentMode | null — regex-based detection",
+        "Export AgentModeConfig interface with: mode, label, description, model, icon, placeholder",
+        "Export AGENT_MODES record with configs for all three modes",
+        "Export detectModeIntent(message, currentMode) — regex-based, returns AgentMode | null",
         "Strategist signals: restructure, reorder, add a slide, remove slide, deck flow, storyline, outline, build me a deck",
         "Page Builder signals: change the font, make it Npx, edit the heading, fix the padding, move this div, change background to",
-        "Art Director signals: redesign, make it more, improve this, show me options, make this impactful",
+        "Art Director signals: redesign, make it more, improve this, show me options",
         "Returns null if message fits current mode",
         "Typecheck passes"
       ],
       "priority": 1,
-      "passes": false,
-      "notes": "Foundation for everything else. Read src/lib/deck-builder/agents/orchestrator-tools.ts for existing tool definitions. Read src/lib/deck-builder/model-router.ts for current model routing patterns. Use general-purpose agent."
+      "passes": true,
+      "notes": ""
     },
     {
       "id": "US-002",
       "title": "Strategist system prompt",
-      "description": "As a developer, I need a system prompt for the Strategist mode focused on deck structure and narrative flow.",
+      "description": "As a developer, I need a strategist-specific prompt that focuses on deck structure, narrative flow, and content strategy.",
       "acceptanceCriteria": [
-        "Create src/lib/deck-builder/agents/strategist-prompt.ts",
-        "Export getStrategistPrompt(context) — context includes deck name, description, slide outline (array of {index, title}), slide count",
-        "Prompt persona: Senior presentation strategist. McKinsey-trained. You structure the story.",
-        "Prompt includes full deck outline with all slide titles and indices",
-        "Prompt explicitly says: You CANNOT modify slide HTML, CSS, or visual design. You work with titles, key messages, and slide order.",
-        "Prompt says: When deck is empty or user asks for new deck, create complete outline with titles and key messages",
-        "Execution rules: act first, explain briefly, no filler, max 2 sentences per action",
-        "Includes CURRENT STATE block with deck outline (titles only, no HTML)",
+        "Create getStrategistPrompt function",
+        "Focus on structure, narrative, and copy",
+        "No design/HTML guidance",
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": true,
-      "notes": "Read src/lib/deck-builder/agents/orchestrator-prompt.ts for the existing prompt pattern (structured state block, execution rules). Model after that but strip all design/HTML references. Use general-purpose agent."
+      "passes": false,
+      "notes": "Another track — do not implement."
     },
     {
       "id": "US-003",
       "title": "Page Builder system prompt",
-      "description": "As a developer, I need a system prompt for Page Builder mode focused on precise HTML/CSS execution.",
+      "description": "As a developer, I need a page-builder-specific prompt that focuses on direct HTML/CSS manipulation.",
       "acceptanceCriteria": [
-        "Create src/lib/deck-builder/agents/page-builder-prompt.ts",
-        "Export getPageBuilderPrompt(context) — context includes slide index, slide HTML (full source), theme colors/fonts, media refs",
-        "Prompt persona: Expert frontend developer. You execute exactly what the user asks. You are their hands on the keyboard.",
-        "Prompt includes current slide's FULL HTML source in the context",
-        "Prompt says: Execute the user's instruction precisely. Do NOT redesign or reinterpret.",
-        "Prompt says: For small changes use patch_slide_html. For large rewrites use set_slide_html.",
-        "Prompt says: No QA needed. The user is looking at the slide and will tell you if something is wrong.",
-        "Prompt includes media proxy URL pattern: /api/media/s3?key=PATH",
-        "Prompt includes CDN scripts and Google Fonts loading instructions",
-        "Prompt says: You can search for dataset samples to find media to embed.",
-        "Includes CURRENT STATE block with slide HTML (first 2000 chars), media_refs, theme",
+        "Create getPageBuilderPrompt function",
+        "Focus on HTML editing, CSS properties, surgical changes",
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": true,
-      "notes": "This prompt should feel like Claude Code's system prompt — precise, code-focused, no design opinions. Read src/lib/deck-builder/agents/design-prompt.ts for the media URL and CDN patterns to include. Use general-purpose agent."
+      "passes": false,
+      "notes": "Another track — do not implement."
     },
     {
       "id": "US-004",
-      "title": "patch_slide_html tool for surgical HTML edits",
-      "description": "As a developer, I need a surgical HTML patch tool for Page Builder that makes targeted changes without full rewrites.",
+      "title": "patch_slide_html tool handler",
+      "description": "As a developer, I need a tool that applies surgical CSS/HTML patches to slides without rewriting the whole thing.",
       "acceptanceCriteria": [
-        "Add patch_slide_html tool definition in a new section of ai-tools.ts (or orchestrator-tools.ts)",
-        "Tool params: { slide_index: number, patches: Array<{ selector: string, action: 'replace' | 'setAttribute' | 'setStyle' | 'setText' | 'remove', value?: string }> }",
-        "Handler: for each patch, use regex to find elements matching the selector and apply the action",
-        "setStyle: parse existing style attribute, merge new style properties, write back",
-        "setText: replace innerHTML/text content of matched element",
-        "replace: replace entire matched element with new HTML from value",
-        "setAttribute: set or update an attribute on matched element",
-        "remove: remove matched element entirely",
-        "Returns updated slides array with patched HTML",
-        "If selector doesn't match, include error in result string but don't fail — continue with other patches",
+        "Implement patch_slide_html in processToolCall",
+        "Supports: replace, setAttribute, setStyle, setText, remove actions",
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": true,
-      "notes": "Keep it simple — regex-based, not a full DOM parser. No jsdom dependency. Common selectors to support: tag names (h1, div, p), class selectors (.heading, .stats), id selectors (#title). Don't need to support complex CSS selectors. Read src/lib/deck-builder/ai-tools.ts processToolCall for handler pattern. Use python-backend-expert or general-purpose agent."
+      "passes": false,
+      "notes": "Another track — do not implement."
     },
     {
       "id": "US-005",
       "title": "Mode-specific tool sets",
-      "description": "As a developer, I need getModeTools() to return the correct filtered tool array for each mode.",
+      "description": "As a developer, I need getModeTools(mode) to return the correct tool subset for each agent mode.",
       "acceptanceCriteria": [
         "Add getModeTools(mode: AgentMode): Anthropic.Tool[] to agent-modes.ts",
-        "Strategist tools: get_all_slides, add_slide, delete_slide, reorder_slides, restructure_deck, edit_slide (title/body only), generate_section, delegate_research, get_deck_approach, load_skill, think",
-        "Strategist EXCLUDES: delegate_design, delegate_qa, set_slide_html, patch_slide_html, get_slide_html, set_template_theme, customize_theme, generate_variations, generate_image, generate_video, apply_to_all_slides",
-        "Art Director tools: ALL current ORCHESTRATOR_TOOLS (unchanged from current system)",
-        "Page Builder tools: get_slide_html, set_slide_html, patch_slide_html, edit_slide (all fields), get_media_assets, get_site_media, delegate_research, think",
-        "Page Builder EXCLUDES: delegate_design, delegate_qa, generate_variations, add_slide, delete_slide, reorder_slides, restructure_deck, generate_section, get_deck_approach, load_skill",
-        "Import tool definitions from orchestrator-tools.ts and filter by name",
-        "For strategist edit_slide: create a modified version with field enum restricted to ['title', 'body']",
+        "Import ORCHESTRATOR_TOOLS from orchestrator-tools.ts and filter by tool.name",
+        "Strategist: get_all_slides, add_slide, delete_slide, reorder_slides, restructure_deck, edit_slide (title/body only), generate_section, delegate_research, get_deck_approach, load_skill, think",
+        "Art Director: ALL ORCHESTRATOR_TOOLS (unchanged)",
+        "Page Builder: get_slide_html, set_slide_html, patch_slide_html, edit_slide (all fields), get_media_assets, get_site_media, delegate_research, think",
+        "For strategist edit_slide: clone the tool definition but restrict field enum to ['title', 'body']",
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
-      "notes": "Read src/lib/deck-builder/agents/orchestrator-tools.ts for ORCHESTRATOR_TOOLS array. Filter by tool.name. The strategist edit_slide needs a cloned tool definition with modified input_schema. Use general-purpose agent."
+      "passes": true,
+      "notes": ""
     },
     {
       "id": "US-006",
-      "title": "Mode-aware chat route — accept mode param and route config",
-      "description": "As a developer, I need the chat route to accept a mode parameter and select the right prompt, tools, and model.",
+      "title": "Mode-aware chat route",
+      "description": "As a developer, I need the chat route to accept a mode parameter and adjust behavior per mode.",
       "acceptanceCriteria": [
-        "Modify POST /api/admin/deck-builder/[id]/chat request body to accept mode: AgentMode (optional, default 'art-director')",
+        "Modify POST /api/admin/deck-builder/[id]/chat to accept mode: AgentMode in request body (default 'art-director')",
         "Import AgentMode, AGENT_MODES, getModeTools from agent-modes.ts",
-        "Import getStrategistPrompt and getPageBuilderPrompt",
-        "Based on mode, select system prompt: strategist -> getStrategistPrompt, art-director -> getOrchestratorPrompt, page-builder -> getPageBuilderPrompt",
-        "Based on mode, select tools: getModeTools(mode)",
-        "Based on mode, select model: use AGENT_MODES[mode].model (override existing routeModel for non-art-director modes)",
-        "Page Builder mode: inject full slide HTML into the prompt context (selected slide's html field)",
-        "Page Builder mode: skip QA pipeline entirely — no callQAAgent, no autoVerifySlide, no forceStopAfterResult",
-        "Strategist mode: skip design delegation — if delegate_design is somehow called, return error",
-        "Emit { type: 'mode_info', mode: string } stream event at start of response",
-        "Save mode in chat message metadata_json: { mode: 'page-builder', ... }",
+        "Based on mode: select system prompt, tools, model",
+        "Page Builder: inject full slide HTML into prompt context, skip QA pipeline entirely",
+        "Strategist: block design delegation (return error if delegate_design called)",
+        "Emit { type: 'mode_info', mode } stream event at start",
+        "Save mode in message metadata_json",
+        "Art Director mode: completely unchanged from current behavior",
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": false,
-      "notes": "This is the core wiring. The chat route is at src/app/api/admin/deck-builder/[id]/chat/route.ts (~850 lines). The key changes are at the top of the handler: select prompt/tools/model based on mode. Then in the delegation section: page-builder skips QA, strategist blocks design delegation. Art Director mode is unchanged (current behavior). Use general-purpose agent."
-    },
-    {
-      "id": "US-007",
-      "title": "Mode tab bar UI component",
-      "description": "As a user, I want to see and switch between Strategy/Design/Build modes via a tab bar above the chat panel.",
-      "acceptanceCriteria": [
-        "Add mode state to ChatPanel: const [mode, setMode] = useState<AgentMode>('art-director')",
-        "Create ModeTabBar sub-component (or inline in ChatPanel) with three tabs",
-        "Three tabs: Strategy (📋) | Design (🎨) | Build (⚡)",
-        "Active tab: sage green (#92B090) border-bottom-2 + accent text color",
-        "Inactive tabs: muted text (var(--text-muted)), hover shows lighter text",
-        "Tabs use font-mono, text-[11px], compact height (~28px total)",
-        "Tab bar sits between the chat header ('AI Chat' + '[new chat]') and the messages area",
-        "Clicking tab calls setMode() and does NOT clear chat history",
-        "When mode changes, insert a subtle divider in messages: '— switched to Build mode —' in muted text",
-        "Pass mode to sendMessage so it's included in the API POST body",
-        "Chat input placeholder changes per mode from AGENT_MODES config",
-        "Import AgentMode and AGENT_MODES from agent-modes.ts",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 7,
-      "passes": false,
-      "notes": "Read src/app/components/deck-builder/ChatPanel.tsx for the existing chat UI structure. The tab bar goes after the header div (the one with 'AI Chat' and '[new chat]') and before the messages scroll area. Match the terminal/monospace aesthetic. Use frontend-expert agent for clean component design. Use Shadcn UI Designer agent if helpful for tab component patterns."
-    },
-    {
-      "id": "US-008",
-      "title": "Mode-specific suggestion chips",
-      "description": "As a user, I want suggestion chips to change based on current mode so I know what the mode can do.",
-      "acceptanceCriteria": [
-        "Create SUGGESTION_CHIPS_BY_MODE config object in ChatPanel.tsx (or agent-modes.ts)",
-        "Strategist chips: 'Build a sales deck', 'Restructure the flow', 'Add a closing slide', 'Improve the narrative'",
-        "Art Director chips: 'Redesign this slide', 'Make it more impactful', 'Add data visualization', 'Show me 3 options'",
-        "Page Builder chips: 'Make heading bigger', 'Add video grid', 'Change background color', 'Fix the spacing'",
-        "Chips update immediately when mode tab is clicked (no re-render delay)",
-        "Replace existing hardcoded SUGGESTION_CHIPS with mode-aware version",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 8,
-      "passes": false,
-      "notes": "Read ChatPanel.tsx for the existing SUGGESTION_CHIPS constant (around line 59). Replace with a Record<AgentMode, string[]> and index by current mode. Use frontend-expert agent."
-    },
-    {
-      "id": "US-009",
-      "title": "Fine-tune button on QA results",
-      "description": "As a user, after seeing a design result with QA, I want a Fine-tune button that switches to Page Builder mode.",
-      "acceptanceCriteria": [
-        "Add 'Fine-tune' button to the QA action buttons in ChatPanel.tsx (alongside Accept/Improve/Redo)",
-        "Button uses ⚡ icon and 'Fine-tune' label",
-        "Button style: matches existing action button pattern but uses a distinct color (e.g., blue-ish or the Build mode accent)",
-        "Clicking Fine-tune: sets mode to 'page-builder' via setMode callback",
-        "Inserts a mode-switch divider in the chat: '— switched to Build mode —'",
-        "Chat input gets focus so user can immediately type",
-        "The mode tab bar reflects the change (Build tab active)",
-        "Fine-tune button appears for BOTH pass and needs_work QA results",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 9,
-      "passes": false,
-      "notes": "Read ChatPanel.tsx around line 693 for the existing QA action buttons (qaActions rendering). The Fine-tune button goes alongside Accept/Improve/Redo. It needs access to setMode which should be passed down or available in scope. Use frontend-expert agent."
-    },
-    {
-      "id": "US-010",
-      "title": "Natural language mode detection suggestion chip",
-      "description": "As a user, when I type something that belongs to a different mode, I want a suggestion to switch.",
-      "acceptanceCriteria": [
-        "In ChatPanel sendMessage, before sending to API, call detectModeIntent(message, currentMode)",
-        "If result is non-null (different mode detected), show a suggestion chip above the chat input",
-        "Chip text: 'This sounds like a [Build] task. Switch?' with the mode label and icon",
-        "Chip has two buttons: 'Switch' (changes mode and sends) and 'Keep' (sends in current mode)",
-        "Chip disappears after any action (switch, keep, or new message typed)",
-        "Detection is lightweight — regex only, no LLM call",
-        "If user clicks Switch, mode changes AND message sends in the new mode",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 10,
-      "passes": false,
-      "notes": "detectModeIntent is defined in US-001 agent-modes.ts. This story is the UI rendering. The suggestion chip should feel unobtrusive — a small bar between the input and messages, not a modal or dialog. Use frontend-expert agent."
-    },
-    {
-      "id": "US-011",
-      "title": "Playwright E2E test — mode switching flow",
-      "description": "As QA, I need an end-to-end test verifying mode switching works correctly.",
-      "acceptanceCriteria": [
-        "Create tests/e2e/deck-agent-modes.spec.ts",
-        "Log in as admin (team@claru.ai / qweqwe123!)",
-        "Navigate to deck builder with template 54f7930f-cf81-4c0d-8f66-28ddaf93476a",
-        "Verify default mode is Design (tab highlighted with accent color)",
-        "Click Strategy tab, verify it becomes active",
-        "Verify suggestion chips change to strategy-related options",
-        "Click Build tab, verify it becomes active",
-        "Verify suggestion chips change to build-related options",
-        "Verify chat input placeholder changes to 'What should I change on this slide?'",
-        "Click Design tab, verify mode switches back",
-        "Typecheck passes"
-      ],
-      "priority": 11,
-      "passes": false,
-      "notes": "Dev server at http://localhost:3005. Use login pattern from tests/e2e/deck-builder-crud.spec.ts. This test does NOT send messages to the API (avoids ANTHROPIC_API_KEY requirement). Just tests UI state changes. Use webapp-testing skill with Playwright MCP."
-    },
-    {
-      "id": "US-012",
-      "title": "Playwright E2E test — Page Builder speed",
-      "description": "As QA, I need a test verifying Page Builder mode responds faster than Art Director mode.",
-      "acceptanceCriteria": [
-        "Create tests/e2e/deck-page-builder-speed.spec.ts",
-        "Test requires ANTHROPIC_API_KEY (skip if not set)",
-        "Log in as admin, navigate to deck builder",
-        "Switch to Build mode",
-        "Send 'change the title to Test Title'",
-        "Measure time from send to done event",
-        "Assert response time < 10 seconds",
-        "Timeout: 30 seconds for the full test",
-        "Typecheck passes"
-      ],
-      "priority": 12,
-      "passes": false,
-      "notes": "This test validates that Page Builder mode doesn't trigger the heavy design→QA pipeline. The 10s threshold is generous — target is 2-5s. Use webapp-testing skill with Playwright MCP."
+      "passes": true,
+      "notes": ""
     }
   ]
 }
