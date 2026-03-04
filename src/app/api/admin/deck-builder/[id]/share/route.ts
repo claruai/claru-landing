@@ -101,7 +101,14 @@ export async function GET(
     ? { ...DEFAULT_SHARE_SETTINGS, ...(template.share_settings as Partial<ShareSettings>) }
     : { ...DEFAULT_SHARE_SETTINGS };
 
-  return NextResponse.json({ share_settings: settings });
+  // Also fetch existing share tokens for this template
+  const { data: tokens } = await supabase
+    .from("deck_share_tokens")
+    .select("id, email, token, lead_id, parent_lead_id, created_at, expires_at")
+    .eq("template_id", id)
+    .order("created_at", { ascending: false });
+
+  return NextResponse.json({ share_settings: settings, tokens: tokens ?? [] });
 }
 
 // ---------------------------------------------------------------------------
@@ -177,11 +184,7 @@ export async function PATCH(
     let slug = toSlug(template.name as string);
     if (!slug) slug = "deck";
 
-<<<<<<< HEAD
-    // Check uniqueness — if conflict, append random suffix
-=======
     // Check uniqueness -- if conflict, append random suffix
->>>>>>> 5db8ed5 ([US-008] Share panel — basic settings UI with slide-out drawer)
     const { data: existing } = await supabase
       .from("slide_templates")
       .select("id")
