@@ -15,17 +15,27 @@ interface PresentationPreviewProps {
   theme: string;
   customTheme?: SlideThemeCustom | null;
   selectedIndex: number;
+  templateId: string;
 }
 
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Check if a slide's HTML needs iframe isolation (contains scripts or is a full document).
+ */
+function needsIframeIsolation(slide: SlideData): boolean {
+  if (!slide.html) return false;
+  return slide.html.includes('<script') || slide.html.includes('<!DOCTYPE') || slide.html.includes('<html');
+}
+
 export function PresentationPreview({
   slides,
   theme,
   customTheme,
   selectedIndex,
+  templateId,
 }: PresentationPreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -37,6 +47,10 @@ export function PresentationPreview({
   // calling setState synchronously in useEffect (satisfies
   // react-hooks/set-state-in-effect).
   const [generationEpoch, setGenerationEpoch] = useState(0);
+
+  // Check if current slide needs server-rendered iframe
+  const selectedSlide = slides[selectedIndex];
+  const useServerRoute = selectedSlide && needsIframeIsolation(selectedSlide);
 
   /* ---- Bump epoch whenever inputs change -------------------------- */
   const prevDepsRef = useRef({ slides, theme, customTheme });
@@ -153,7 +167,28 @@ export function PresentationPreview({
           </div>
         )}
 
-        {srcdoc && (
+        {useServerRoute ? (
+          /* Server-rendered iframe for slides with scripts or full HTML documents */
+          <div
+            className="origin-top-left"
+            style={{
+              width: 1920,
+              height: 1080,
+              transform: `scale(${scale})`,
+              transformOrigin: "top left",
+            }}
+          >
+            <iframe
+              key={`server-${selectedIndex}`}
+              src={`/api/slide/${templateId}/${selectedIndex}`}
+              sandbox="allow-scripts allow-same-origin"
+              title="Slide Preview"
+              className="w-full h-full border-0"
+              style={{ width: 1920, height: 1080 }}
+            />
+          </div>
+        ) : srcdoc ? (
+          /* srcdoc for simple layout slides (instant feedback) */
           <div
             className="origin-top-left"
             style={{
@@ -172,7 +207,7 @@ export function PresentationPreview({
               style={{ width: 1920, height: 1080 }}
             />
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Slide indicator */}

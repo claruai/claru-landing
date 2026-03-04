@@ -48,9 +48,16 @@ export async function GET(
   // Sort slides by order
   const sorted = [...slides].sort((a, b) => a.order - b.order);
 
-  // Build HTML for each slide, rewriting S3 URLs to proxy format
+  // Build HTML for each slide.
+  // Custom HTML slides (with <script> tags or full documents) are rendered as
+  // iframes pointing to the single-slide route to avoid script context conflicts.
+  // Layout-based slides are inlined directly for performance.
   const slidesHTML = sorted
     .map((slide, i) => {
+      if (slide.html && (slide.html.includes('<script') || slide.html.includes('<!DOCTYPE') || slide.html.includes('<html'))) {
+        // Render as iframe to isolate scripts and full documents
+        return `    <div class="slide" data-index="${i}"><iframe src="/api/slide/${templateId}/${i}" style="width:100%;height:100%;border:none;" sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe></div>`;
+      }
       let html = slide.html ?? layoutToHtml(slide, theme);
       html = rewriteS3ToProxy(html);
       return `    <div class="slide" data-index="${i}">${html}</div>`;

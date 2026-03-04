@@ -783,7 +783,7 @@ export function DeckEditorClient({ initialTemplate }: DeckEditorClientProps) {
                 >
                   {/* Live mini-preview via iframe */}
                   <div className="w-full aspect-video rounded-t-md overflow-hidden relative">
-                    <SlideThumbnail slide={slide} themeId={themeId} customTheme={customTheme} />
+                    <SlideThumbnail slide={slide} themeId={themeId} customTheme={customTheme} templateId={template.id} slideIndex={index} />
                   </div>
 
                   {/* Slide number overlay */}
@@ -834,6 +834,7 @@ export function DeckEditorClient({ initialTemplate }: DeckEditorClientProps) {
               customTheme={customTheme}
               slideIndex={selectedIndex}
               totalSlides={slides.length}
+              templateId={template.id}
               selectorMode={selectorMode}
             />}
 
@@ -1257,17 +1258,44 @@ export function DeckEditorClient({ initialTemplate }: DeckEditorClientProps) {
 /*  Sub-components                                                     */
 /* ================================================================== */
 
-/** Renders a single slide at 1920×1080 inside an iframe, scaled to fit the container */
+/** Check if a slide needs server-rendered iframe (has scripts or is a full document) */
+function needsIframeIsolation(slide: SlideData): boolean {
+  if (!slide.html) return false;
+  return slide.html.includes('<script') || slide.html.includes('<!DOCTYPE') || slide.html.includes('<html');
+}
+
 /** Mini slide thumbnail rendered via iframe at 1920×1080 scaled to ~200px width */
 function SlideThumbnail({
   slide,
   themeId,
   customTheme,
+  templateId,
+  slideIndex,
 }: {
   slide: SlideData;
   themeId: string;
   customTheme: SlideThemeCustom | null;
+  templateId: string;
+  slideIndex: number;
 }) {
+  if (needsIframeIsolation(slide)) {
+    return (
+      <iframe
+        src={`/api/slide/${templateId}/${slideIndex}`}
+        sandbox="allow-scripts allow-same-origin"
+        className="absolute top-0 left-0 border-0 pointer-events-none"
+        style={{
+          width: "1920px",
+          height: "1080px",
+          transform: "scale(0.107)",
+          transformOrigin: "top left",
+        }}
+        title="Slide thumbnail"
+        loading="lazy"
+      />
+    );
+  }
+
   const html = renderSlidesToHTML(
     [{ ...slide, order: 0 }],
     themeId,
@@ -1297,6 +1325,7 @@ function CenterSlidePreview({
   customTheme,
   slideIndex,
   totalSlides,
+  templateId,
   selectorMode = false,
 }: {
   slide: SlideData;
@@ -1304,6 +1333,7 @@ function CenterSlidePreview({
   customTheme: SlideThemeCustom | null;
   slideIndex: number;
   totalSlides: number;
+  templateId: string;
   selectorMode?: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -1328,13 +1358,28 @@ function CenterSlidePreview({
     return () => window.removeEventListener("keydown", handler);
   }, [expanded]);
 
-  const html = renderSlidesToHTML(
+  const useServerRoute = needsIframeIsolation(slide);
+
+  const html = useServerRoute ? "" : renderSlidesToHTML(
     [{ ...slide, order: 0 }],
     themeId,
     { showProgress: false, customTheme }
   );
 
-  const iframeEl = (
+  const iframeEl = useServerRoute ? (
+    <iframe
+      src={`/api/slide/${templateId}/${slideIndex}`}
+      sandbox="allow-scripts allow-same-origin"
+      className={`absolute top-0 left-0 border-0 ${selectorMode ? "" : "pointer-events-none"}`}
+      style={{
+        width: "1920px",
+        height: "1080px",
+        transform: `scale(${scale})`,
+        transformOrigin: "top left",
+      }}
+      title="Slide preview"
+    />
+  ) : (
     <iframe
       srcDoc={html}
       sandbox="allow-scripts allow-same-origin"

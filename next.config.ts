@@ -12,8 +12,27 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      // Slide routes can be embedded in iframes (presentation mode uses iframes for slides with scripts)
       {
-        source: "/(.*)",
+        source: "/api/slide/:path*",
+        headers: [
+          {
+            key: "X-Frame-Options",
+            value: "SAMEORIGIN",
+          },
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+        ],
+      },
+      // All other routes: deny framing
+      {
+        source: "/((?!api/slide/).*)",
         headers: [
           {
             key: "X-Frame-Options",

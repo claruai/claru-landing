@@ -64,7 +64,7 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "This prompt should feel like Claude Code's system prompt — precise, code-focused, no design opinions. Read src/lib/deck-builder/agents/design-prompt.ts for the media URL and CDN patterns to include. Use general-purpose agent."
     },
     {
