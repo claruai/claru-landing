@@ -4,6 +4,42 @@ import { verifyAdminToken } from "@/lib/admin-auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 /**
+ * GET /api/admin/leads
+ *
+ * Returns all leads, optionally filtered by ?q= search query (matches name or email).
+ * Requires admin authentication.
+ */
+export async function GET(request: NextRequest) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("admin-token");
+  if (!token?.value || !(await verifyAdminToken(token.value))) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const supabase = createSupabaseAdminClient();
+  const q = request.nextUrl.searchParams.get("q")?.trim() ?? "";
+
+  let query = supabase
+    .from("leads")
+    .select("id, name, email, company, status")
+    .order("created_at", { ascending: false });
+
+  if (q) {
+    // Search by name or email (case-insensitive)
+    query = query.or(`name.ilike.%${q}%,email.ilike.%${q}%`);
+  }
+
+  const { data: leads, error } = await query.limit(50);
+
+  if (error) {
+    console.error("[GET /api/admin/leads]", error);
+    return NextResponse.json({ error: "Failed to fetch leads" }, { status: 500 });
+  }
+
+  return NextResponse.json({ leads: leads ?? [] });
+}
+
+/**
  * POST /api/admin/leads
  *
  * Creates a new lead. Requires admin authentication.

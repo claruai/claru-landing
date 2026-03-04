@@ -13,6 +13,11 @@ import {
   Type,
   ExternalLink,
   Globe,
+  Users,
+  Mail,
+  Search,
+  Send,
+  RefreshCw,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -37,6 +42,24 @@ interface SharePanelProps {
   isOpen: boolean;
   onClose: () => void;
   showToast: (message: string, type?: "success" | "error" | "warning") => void;
+}
+
+interface LeadResult {
+  id: string;
+  name: string;
+  email: string;
+  company: string;
+  status: string;
+}
+
+interface ShareToken {
+  id: string;
+  email: string;
+  token: string;
+  lead_id: string | null;
+  parent_lead_id: string | null;
+  created_at: string;
+  expires_at: string | null;
 }
 
 type ExpiryOption = "never" | "7d" | "30d" | "custom";
@@ -83,6 +106,20 @@ function toDateInputValue(iso: string | null): string {
   return d.toISOString().split("T")[0];
 }
 
+function formatRelativeDate(iso: string): string {
+  const d = new Date(iso);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 1) return "just now";
+  if (diffMins < 60) return `${diffMins}m ago`;
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 30) return `${diffDays}d ago`;
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
@@ -104,8 +141,23 @@ export function SharePanel({
   const [customExpiryDate, setCustomExpiryDate] = useState("");
   const [passwordDraft, setPasswordDraft] = useState("");
 
+  // Lead sharing state
+  const [leadSearch, setLeadSearch] = useState("");
+  const [leadResults, setLeadResults] = useState<LeadResult[]>([]);
+  const [leadSearching, setLeadSearching] = useState(false);
+  const [selectedLeads, setSelectedLeads] = useState<LeadResult[]>([]);
+  const [existingTokens, setExistingTokens] = useState<ShareToken[]>([]);
+  const [sendingLeadIds, setSendingLeadIds] = useState<Set<string>>(new Set());
+  const [sendingAll, setSendingAll] = useState(false);
+  const [resendingEmails, setResendingEmails] = useState<Set<string>>(new Set());
+
+  // Invite by email state
+  const [emailInput, setEmailInput] = useState("");
+  const [sendingEmails, setSendingEmails] = useState(false);
+
   const slugInputRef = useRef<HTMLInputElement>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const leadSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /* ---- Fetch settings ----------------------------------------------- */
 
@@ -122,6 +174,9 @@ export function SharePanel({
         setExpiryOption(getExpiryOption(s.expiry));
         if (s.expiry) setCustomExpiryDate(toDateInputValue(s.expiry));
         if (s.gate_value) setPasswordDraft(s.gate_value);
+        if (data.tokens) {
+          setExistingTokens(data.tokens as ShareToken[]);
+        }
       }
     } catch {
       showToast("Failed to load share settings", "error");
@@ -135,6 +190,10 @@ export function SharePanel({
       fetchSettings();
       setCopied(false);
       setSlugEditing(false);
+      setLeadSearch("");
+      setLeadResults([]);
+      setSelectedLeads([]);
+      setEmailInput("");
     }
   }, [isOpen, fetchSettings]);
 
@@ -181,6 +240,190 @@ export function SharePanel({
     [saveSettings],
   );
 
+  /* ---- Lead search -------------------------------------------------- */
+
+  const searchLeads = useCallback(
+    async (query: string) => {
+      if (!query.trim()) {
+        setLeadResults([]);
+        return;
+      }
+      setLeadSearching(true);
+      try {
+        const res = await fetch(
+          `/api/admin/leads?q=${encodeURIComponent(query.trim())}`,
+        );
+        if (res.ok) {
+          const data = await res.json();
+          setLeadResults(data.leads as LeadResult[]);
+        }
+      } catch {
+        // Silently fail search
+      } finally {
+        setLeadSearching(false);
+      }
+    },
+    [],
+  );
+
+  const debouncedLeadSearch = useCallback(
+    (query: string) => {
+      if (leadSearchTimerRef.current) clearTimeout(leadSearchTimerRef.current);
+      leadSearchTimerRef.current = setTimeout(() => searchLeads(query), 300);
+    },
+    [searchLeads],
+  );
+
+  useEffect(() => {
+    debouncedLeadSearch(leadSearch);
+  }, [leadSearch, debouncedLeadSearch]);
+
+  /* ---- Send to individual lead -------------------------------------- */
+
+  const handleSendToLead = useCallback(
+    async (leadId: string) => {
+      setSendingLeadIds((prev) => new Set(prev).add(leadId));
+      try {
+        const res = await fetch(
+          `/api/admin/deck-builder/${templateId}/share/send`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ lead_ids: [leadId] }),
+          },
+        );
+        if (res.ok) {
+          const data = await res.json();
+          showToast(`Sent to ${data.sent} recipient`, "success");
+          // Refresh tokens
+          fetchSettings();
+          // Remove from selected
+          setSelectedLeads((prev) => prev.filter((l) => l.id !== leadId));
+        } else {
+          const data = await res.json().catch(() => ({}));
+          showToast(data.error || "Failed to send", "error");
+        }
+      } catch {
+        showToast("Network error", "error");
+      } finally {
+        setSendingLeadIds((prev) => {
+          const next = new Set(prev);
+          next.delete(leadId);
+          return next;
+        });
+      }
+    },
+    [templateId, showToast, fetchSettings],
+  );
+
+  /* ---- Send to all selected leads ----------------------------------- */
+
+  const handleSendAll = useCallback(async () => {
+    if (selectedLeads.length === 0) return;
+    setSendingAll(true);
+    try {
+      const res = await fetch(
+        `/api/admin/deck-builder/${templateId}/share/send`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            lead_ids: selectedLeads.map((l) => l.id),
+          }),
+        },
+      );
+      if (res.ok) {
+        const data = await res.json();
+        showToast(`Sent to ${data.sent} recipients`, "success");
+        fetchSettings();
+        setSelectedLeads([]);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error || "Failed to send", "error");
+      }
+    } catch {
+      showToast("Network error", "error");
+    } finally {
+      setSendingAll(false);
+    }
+  }, [templateId, selectedLeads, showToast, fetchSettings]);
+
+  /* ---- Resend to existing token email ------------------------------- */
+
+  const handleResend = useCallback(
+    async (email: string, leadId: string | null) => {
+      setResendingEmails((prev) => new Set(prev).add(email));
+      try {
+        const payload: Record<string, unknown> = leadId
+          ? { lead_ids: [leadId] }
+          : { emails: [email] };
+        const res = await fetch(
+          `/api/admin/deck-builder/${templateId}/share/send`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          },
+        );
+        if (res.ok) {
+          showToast(`Resent to ${email}`, "success");
+          fetchSettings();
+        } else {
+          const data = await res.json().catch(() => ({}));
+          showToast(data.error || "Failed to resend", "error");
+        }
+      } catch {
+        showToast("Network error", "error");
+      } finally {
+        setResendingEmails((prev) => {
+          const next = new Set(prev);
+          next.delete(email);
+          return next;
+        });
+      }
+    },
+    [templateId, showToast, fetchSettings],
+  );
+
+  /* ---- Send by email ------------------------------------------------ */
+
+  const handleSendByEmail = useCallback(async () => {
+    const emails = emailInput
+      .split(",")
+      .map((e) => e.trim())
+      .filter((e) => e.length > 0 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
+
+    if (emails.length === 0) {
+      showToast("Enter valid email addresses", "error");
+      return;
+    }
+
+    setSendingEmails(true);
+    try {
+      const res = await fetch(
+        `/api/admin/deck-builder/${templateId}/share/send`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ emails }),
+        },
+      );
+      if (res.ok) {
+        const data = await res.json();
+        showToast(`Sent to ${data.sent} recipients`, "success");
+        fetchSettings();
+        setEmailInput("");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error || "Failed to send", "error");
+      }
+    } catch {
+      showToast("Network error", "error");
+    } finally {
+      setSendingEmails(false);
+    }
+  }, [templateId, emailInput, showToast, fetchSettings]);
+
   /* ---- Keyboard escape ---------------------------------------------- */
 
   useEffect(() => {
@@ -209,6 +452,30 @@ export function SharePanel({
       showToast("Failed to copy link", "error");
     }
   }, [shareUrl, showToast]);
+
+  /* ---- Lead selection helpers --------------------------------------- */
+
+  const addLead = useCallback((lead: LeadResult) => {
+    setSelectedLeads((prev) => {
+      if (prev.some((l) => l.id === lead.id)) return prev;
+      return [...prev, lead];
+    });
+    setLeadSearch("");
+    setLeadResults([]);
+  }, []);
+
+  const removeLead = useCallback((leadId: string) => {
+    setSelectedLeads((prev) => prev.filter((l) => l.id !== leadId));
+  }, []);
+
+  // Emails that already have tokens (for dedup)
+  const sharedEmails = new Set(existingTokens.map((t) => t.email));
+
+  // Filter search results to exclude already-selected and already-shared leads
+  const filteredResults = leadResults.filter(
+    (l) =>
+      !selectedLeads.some((s) => s.id === l.id),
+  );
 
   /* ---- Render ------------------------------------------------------- */
 
@@ -556,6 +823,179 @@ export function SharePanel({
                           saveSettings({ show_branding })
                         }
                       />
+                    </div>
+                  </SettingSection>
+
+                  {/* ---- Share to Leads ------------------------------- */}
+                  <div className="border-t border-[var(--border-subtle)] pt-6">
+                    <SettingSection
+                      icon={<Users className="w-3.5 h-3.5" />}
+                      label="Share to Leads"
+                    >
+                      <div className="space-y-3">
+                        {/* Lead search */}
+                        <div className="relative">
+                          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--text-muted)] pointer-events-none" />
+                          <input
+                            type="text"
+                            value={leadSearch}
+                            onChange={(e) => setLeadSearch(e.target.value)}
+                            placeholder="Search leads by name or email..."
+                            className="w-full pl-8 pr-3 py-2 font-mono text-xs text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md focus:outline-none focus:border-[var(--accent-primary)]/50 placeholder:text-[var(--text-muted)]/50"
+                          />
+                          {leadSearching && (
+                            <Loader2 className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--text-muted)] animate-spin" />
+                          )}
+                        </div>
+
+                        {/* Search results dropdown */}
+                        {filteredResults.length > 0 && (
+                          <div className="border border-[var(--border-subtle)] rounded-md bg-[var(--bg-secondary)] max-h-40 overflow-y-auto">
+                            {filteredResults.map((lead) => (
+                              <button
+                                key={lead.id}
+                                onClick={() => addLead(lead)}
+                                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-[var(--bg-tertiary)] transition-colors text-left"
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-mono text-xs text-[var(--text-primary)] truncate">
+                                    {lead.name}
+                                  </p>
+                                  <p className="font-mono text-[10px] text-[var(--text-muted)] truncate">
+                                    {lead.email}
+                                    {lead.company ? ` -- ${lead.company}` : ""}
+                                  </p>
+                                </div>
+                                {sharedEmails.has(lead.email) && (
+                                  <span className="font-mono text-[10px] text-[var(--accent-primary)] shrink-0">
+                                    shared
+                                  </span>
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Selected leads */}
+                        {selectedLeads.length > 0 && (
+                          <div className="space-y-1">
+                            {selectedLeads.map((lead) => (
+                              <div
+                                key={lead.id}
+                                className="flex items-center gap-2 px-3 py-2 bg-[var(--bg-secondary)] rounded-md border border-[var(--border-subtle)]"
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-mono text-xs text-[var(--text-primary)] truncate">
+                                    {lead.name}
+                                  </p>
+                                  <p className="font-mono text-[10px] text-[var(--text-muted)] truncate">
+                                    {lead.email}
+                                  </p>
+                                </div>
+                                <button
+                                  onClick={() => handleSendToLead(lead.id)}
+                                  disabled={sendingLeadIds.has(lead.id)}
+                                  className="flex items-center gap-1 px-2 py-1 font-mono text-[10px] text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 rounded hover:bg-[var(--accent-primary)]/5 transition-colors disabled:opacity-50 shrink-0"
+                                >
+                                  {sendingLeadIds.has(lead.id) ? (
+                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                  ) : (
+                                    <Send className="w-3 h-3" />
+                                  )}
+                                  send
+                                </button>
+                                <button
+                                  onClick={() => removeLead(lead.id)}
+                                  className="text-[var(--text-muted)] hover:text-[var(--error)] transition-colors shrink-0"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            ))}
+
+                            {selectedLeads.length > 1 && (
+                              <button
+                                onClick={handleSendAll}
+                                disabled={sendingAll}
+                                className="w-full flex items-center justify-center gap-1.5 py-2 font-mono text-xs text-[var(--bg-primary)] bg-[var(--accent-primary)] rounded-md hover:bg-[var(--accent-secondary)] transition-colors disabled:opacity-50"
+                              >
+                                {sendingAll ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                  <Send className="w-3.5 h-3.5" />
+                                )}
+                                Send All ({selectedLeads.length})
+                              </button>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Previously shared */}
+                        {existingTokens.length > 0 && (
+                          <div className="space-y-1 mt-2">
+                            <p className="font-mono text-[10px] text-[var(--text-muted)] uppercase tracking-wider">
+                              Previously shared
+                            </p>
+                            {existingTokens.map((token) => (
+                              <div
+                                key={token.id}
+                                className="flex items-center gap-2 px-3 py-2 bg-[var(--bg-secondary)]/50 rounded-md"
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-mono text-xs text-[var(--text-primary)] truncate">
+                                    {token.email}
+                                  </p>
+                                  <p className="font-mono text-[10px] text-[var(--text-muted)]">
+                                    {formatRelativeDate(token.created_at)}
+                                  </p>
+                                </div>
+                                <button
+                                  onClick={() =>
+                                    handleResend(token.email, token.lead_id)
+                                  }
+                                  disabled={resendingEmails.has(token.email)}
+                                  className="flex items-center gap-1 px-2 py-1 font-mono text-[10px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40 rounded transition-colors disabled:opacity-50 shrink-0"
+                                >
+                                  {resendingEmails.has(token.email) ? (
+                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                  ) : (
+                                    <RefreshCw className="w-3 h-3" />
+                                  )}
+                                  resend
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </SettingSection>
+                  </div>
+
+                  {/* ---- Invite by Email ------------------------------ */}
+                  <SettingSection
+                    icon={<Mail className="w-3.5 h-3.5" />}
+                    label="Invite by Email"
+                  >
+                    <div className="space-y-2">
+                      <textarea
+                        value={emailInput}
+                        onChange={(e) => setEmailInput(e.target.value)}
+                        placeholder="Enter emails, comma-separated..."
+                        rows={2}
+                        className="w-full px-3 py-2 font-mono text-xs text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md focus:outline-none focus:border-[var(--accent-primary)]/50 placeholder:text-[var(--text-muted)]/50 resize-y"
+                      />
+                      <button
+                        onClick={handleSendByEmail}
+                        disabled={sendingEmails || !emailInput.trim()}
+                        className="w-full flex items-center justify-center gap-1.5 py-2 font-mono text-xs text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-md hover:border-[var(--accent-primary)]/40 hover:text-[var(--accent-primary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {sendingEmails ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Send className="w-3.5 h-3.5" />
+                        )}
+                        {sendingEmails ? "sending..." : "send invites"}
+                      </button>
                     </div>
                   </SettingSection>
                 </>
