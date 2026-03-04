@@ -191,7 +191,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "notes": "Use frontend-expert agent. Simple stat cards + mini chart. No charting library needed — can use SVG sparkline or CSS bars."
     },
     {
