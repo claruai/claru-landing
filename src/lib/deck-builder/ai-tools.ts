@@ -539,6 +539,8 @@ export function processToolCall(
       return handleGetMediaAssets(slides, mediaAssets);
     case 'set_slide_html':
       return handleSetSlideHtml(toolInput, slides);
+    case 'patch_slide_html':
+      return handlePatchSlideHtml(toolInput, slides);
     case 'get_site_media':
       return handleGetSiteMedia(toolInput, slides);
     case 'get_landing_page_content':
@@ -1004,6 +1006,305 @@ function handleSetSlideHtml(
   return {
     updatedSlides: updated,
     result: `Set custom HTML on slide ${idx + 1} (${html.length} chars).`,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// patch_slide_html — Surgical HTML edits via regex-based selectors
+// ---------------------------------------------------------------------------
+
+/** Self-closing HTML tags that don't have a closing tag */
+const VOID_ELEMENTS = new Set([
+  'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
+  'link', 'meta', 'param', 'source', 'track', 'wbr',
+]);
+
+/**
+ * Build a regex that matches the opening tag of an element for the given selector.
+ * Supports: tag names (h1, div), class selectors (.heading), id selectors (#title).
+ */
+function buildSelectorRegex(selector: string): RegExp | null {
+  const trimmed = selector.trim();
+  if (!trimmed) return null;
+
+  if (trimmed.startsWith('#')) {
+    // ID selector: #title  →  match any tag with id="title"
+    const id = trimmed.slice(1);
+    return new RegExp(`<([a-zA-Z][a-zA-Z0-9]*)\\b[^>]*\\bid="${escapeRegex(id)}"[^>]*>`, 'i');
+  }
+  if (trimmed.startsWith('.')) {
+    // Class selector: .heading  →  match any tag with class containing "heading"
+    const cls = trimmed.slice(1);
+    return new RegExp(`<([a-zA-Z][a-zA-Z0-9]*)\\b[^>]*\\bclass="[^"]*\\b${escapeRegex(cls)}\\b[^"]*"[^>]*>`, 'i');
+  }
+  // Tag name selector: h1, div, p, etc.
+  return new RegExp(`<(${escapeRegex(trimmed)})\\b[^>]*>`, 'i');
+}
+
+/** Escape special regex characters in a string */
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Given an HTML string and the index where an opening tag starts,
+ * find the full element (opening tag through closing tag).
+ * Returns [startIndex, endIndex] (endIndex is exclusive, past the closing tag).
+ */
+function findFullElement(html: string, openTagStart: number): [number, number] {
+  // Find the end of the opening tag
+  const openTagEnd = html.indexOf('>', openTagStart);
+  if (openTagEnd === -1) return [openTagStart, html.length];
+
+  // Extract the tag name
+  const tagMatch = html.slice(openTagStart).match(/^<([a-zA-Z][a-zA-Z0-9]*)/);
+  if (!tagMatch) return [openTagStart, openTagEnd + 1];
+
+  const tagName = tagMatch[1].toLowerCase();
+
+  // Self-closing tags or tags that end with />
+  if (VOID_ELEMENTS.has(tagName) || html.slice(openTagStart, openTagEnd + 1).trimEnd().endsWith('/>')) {
+    return [openTagStart, openTagEnd + 1];
+  }
+
+  // Find the matching closing tag, handling nesting
+  const openPattern = new RegExp(`<${escapeRegex(tagName)}\\b[^>]*>`, 'gi');
+  const closePattern = new RegExp(`</${escapeRegex(tagName)}\\s*>`, 'gi');
+
+  let depth = 1;
+  let searchStart = openTagEnd + 1;
+
+  while (depth > 0 && searchStart < html.length) {
+    openPattern.lastIndex = searchStart;
+    closePattern.lastIndex = searchStart;
+
+    const nextOpen = openPattern.exec(html);
+    const nextClose = closePattern.exec(html);
+
+    if (!nextClose) {
+      // No closing tag found — return to end of string
+      return [openTagStart, html.length];
+    }
+
+    if (nextOpen && nextOpen.index < nextClose.index) {
+      // Found a nested opening tag before the closing tag — skip self-closing
+      const openSlice = nextOpen[0];
+      if (!openSlice.trimEnd().endsWith('/>')) {
+        depth++;
+      }
+      searchStart = nextOpen.index + nextOpen[0].length;
+    } else {
+      // Found a closing tag
+      depth--;
+      if (depth === 0) {
+        return [openTagStart, nextClose.index + nextClose[0].length];
+      }
+      searchStart = nextClose.index + nextClose[0].length;
+    }
+  }
+
+  return [openTagStart, html.length];
+}
+
+/**
+ * Parse a style="..." attribute value into a Map of property→value pairs.
+ */
+function parseStyleAttr(styleStr: string): Map<string, string> {
+  const map = new Map<string, string>();
+  const parts = styleStr.split(';');
+  for (const part of parts) {
+    const colonIdx = part.indexOf(':');
+    if (colonIdx === -1) continue;
+    const prop = part.slice(0, colonIdx).trim();
+    const val = part.slice(colonIdx + 1).trim();
+    if (prop) map.set(prop, val);
+  }
+  return map;
+}
+
+/** Serialize a style map back to a style attribute value string */
+function serializeStyle(map: Map<string, string>): string {
+  return Array.from(map.entries())
+    .map(([k, v]) => `${k}:${v}`)
+    .join(';');
+}
+
+interface PatchSpec {
+  selector: string;
+  action: 'replace' | 'setAttribute' | 'setStyle' | 'setText' | 'remove';
+  value?: string;
+}
+
+function handlePatchSlideHtml(
+  input: Record<string, unknown>,
+  slides: SlideData[],
+): ToolCallResult {
+  const idx = input.slide_index as number;
+  const patches = input.patches as PatchSpec[];
+
+  const err = validateIndex(idx, slides);
+  if (err) return { updatedSlides: slides, result: err };
+
+  let html = slides[idx].html ?? '';
+  if (!html) {
+    return {
+      updatedSlides: slides,
+      result: `Slide ${idx + 1} has no custom HTML. Use set_slide_html first.`,
+    };
+  }
+
+  if (!Array.isArray(patches) || patches.length === 0) {
+    return { updatedSlides: slides, result: 'No patches provided.' };
+  }
+
+  const results: string[] = [];
+
+  for (const patch of patches) {
+    const { selector, action, value } = patch;
+
+    const selectorRegex = buildSelectorRegex(selector);
+    if (!selectorRegex) {
+      results.push(`Invalid selector '${selector}'.`);
+      continue;
+    }
+
+    const match = selectorRegex.exec(html);
+    if (!match) {
+      results.push(`Selector '${selector}' not found.`);
+      continue;
+    }
+
+    const openTagStart = match.index;
+    const openTagStr = match[0];
+    const tagName = match[1];
+    const [elemStart, elemEnd] = findFullElement(html, openTagStart);
+
+    switch (action) {
+      case 'remove': {
+        html = html.slice(0, elemStart) + html.slice(elemEnd);
+        results.push(`Removed <${tagName}> matching '${selector}'.`);
+        break;
+      }
+
+      case 'replace': {
+        if (value === undefined) {
+          results.push(`replace action requires a value for '${selector}'.`);
+          break;
+        }
+        html = html.slice(0, elemStart) + value + html.slice(elemEnd);
+        results.push(`Replaced <${tagName}> matching '${selector}'.`);
+        break;
+      }
+
+      case 'setText': {
+        if (value === undefined) {
+          results.push(`setText action requires a value for '${selector}'.`);
+          break;
+        }
+        if (VOID_ELEMENTS.has(tagName.toLowerCase())) {
+          results.push(`Cannot setText on void element <${tagName}>.`);
+          break;
+        }
+        const openTagEnd = openTagStart + openTagStr.length;
+        const closeTagStart = html.lastIndexOf(`</${tagName}`, elemEnd);
+        if (closeTagStart === -1 || closeTagStart <= openTagEnd) {
+          // Fallback: use the closing tag regex
+          const closeRe = new RegExp(`</${escapeRegex(tagName)}\\s*>`, 'i');
+          const closeMatch = closeRe.exec(html.slice(openTagEnd));
+          if (closeMatch) {
+            const absCloseStart = openTagEnd + closeMatch.index;
+            html = html.slice(0, openTagEnd) + value + html.slice(absCloseStart);
+          } else {
+            results.push(`Could not find closing tag for <${tagName}> matching '${selector}'.`);
+            break;
+          }
+        } else {
+          html = html.slice(0, openTagEnd) + value + html.slice(closeTagStart);
+        }
+        results.push(`Set text on <${tagName}> matching '${selector}'.`);
+        break;
+      }
+
+      case 'setAttribute': {
+        if (!value) {
+          results.push(`setAttribute action requires a value for '${selector}'.`);
+          break;
+        }
+        const eqIdx = value.indexOf('=');
+        if (eqIdx === -1) {
+          results.push(`setAttribute value must be 'attr=val' format for '${selector}'.`);
+          break;
+        }
+        const attrName = value.slice(0, eqIdx).trim();
+        const attrVal = value.slice(eqIdx + 1).trim();
+
+        // Check if attribute already exists on the opening tag
+        const attrRegex = new RegExp(`\\b${escapeRegex(attrName)}="[^"]*"`, 'i');
+        const attrMatch = attrRegex.exec(openTagStr);
+        let newOpenTag: string;
+        if (attrMatch) {
+          // Replace existing attribute
+          newOpenTag = openTagStr.slice(0, attrMatch.index) +
+            `${attrName}="${attrVal}"` +
+            openTagStr.slice(attrMatch.index + attrMatch[0].length);
+        } else {
+          // Insert new attribute before the closing >
+          const insertPos = openTagStr.endsWith('/>') ? openTagStr.length - 2 : openTagStr.length - 1;
+          newOpenTag = openTagStr.slice(0, insertPos) + ` ${attrName}="${attrVal}"` + openTagStr.slice(insertPos);
+        }
+        html = html.slice(0, openTagStart) + newOpenTag + html.slice(openTagStart + openTagStr.length);
+        results.push(`Set ${attrName}="${attrVal}" on <${tagName}> matching '${selector}'.`);
+        break;
+      }
+
+      case 'setStyle': {
+        if (!value) {
+          results.push(`setStyle action requires a value for '${selector}'.`);
+          break;
+        }
+        // Parse new styles from value
+        const newStyles = parseStyleAttr(value);
+
+        // Extract existing style attribute
+        const styleAttrRegex = /\bstyle="([^"]*)"/i;
+        const styleMatch = styleAttrRegex.exec(openTagStr);
+        const existingStyles = styleMatch ? parseStyleAttr(styleMatch[1]) : new Map<string, string>();
+
+        // Merge: new styles override existing
+        for (const [k, v] of newStyles) {
+          existingStyles.set(k, v);
+        }
+
+        const mergedStyleStr = serializeStyle(existingStyles);
+        let newOpenTag: string;
+        if (styleMatch) {
+          // Replace existing style attribute
+          newOpenTag = openTagStr.slice(0, styleMatch.index) +
+            `style="${mergedStyleStr}"` +
+            openTagStr.slice(styleMatch.index + styleMatch[0].length);
+        } else {
+          // Insert new style attribute before closing >
+          const insertPos = openTagStr.endsWith('/>') ? openTagStr.length - 2 : openTagStr.length - 1;
+          newOpenTag = openTagStr.slice(0, insertPos) + ` style="${mergedStyleStr}"` + openTagStr.slice(insertPos);
+        }
+        html = html.slice(0, openTagStart) + newOpenTag + html.slice(openTagStart + openTagStr.length);
+        results.push(`Merged styles on <${tagName}> matching '${selector}': ${value}.`);
+        break;
+      }
+
+      default:
+        results.push(`Unknown action '${action}' for '${selector}'.`);
+    }
+  }
+
+  // Update the slide with patched HTML
+  const media_refs = extractMediaRefs(html);
+  const updated = [...slides];
+  updated[idx] = { ...updated[idx], html, media_refs };
+
+  return {
+    updatedSlides: updated,
+    result: `Patched slide ${idx + 1}: ${results.join(' ')}`,
   };
 }
 
