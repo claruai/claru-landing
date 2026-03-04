@@ -9,6 +9,8 @@ import {
   NEEDS_DELEGATION,
 } from "@/lib/deck-builder/agents/orchestrator-tools";
 import { getOrchestratorPrompt } from "@/lib/deck-builder/agents/orchestrator-prompt";
+import type { AgentMode } from "@/lib/deck-builder/agent-modes";
+import { AGENT_MODES, getModeTools } from "@/lib/deck-builder/agent-modes";
 import {
   callDesignAgent,
   callResearchAgent,
@@ -59,6 +61,7 @@ type StreamEvent =
     }
   | { type: "status"; message: string }
   | { type: "model_info"; model: string }
+  | { type: "mode_info"; mode: string }
   | {
       type: "variations";
       slide_index: number;
@@ -94,6 +97,7 @@ export async function POST(
     selected_slide_index?: number;
     attached_images?: { name: string; url: string }[];
     selected_element?: { tag: string; text: string; html: string };
+    mode?: AgentMode;
   };
   try {
     body = await request.json();
@@ -105,6 +109,11 @@ export async function POST(
   }
 
   const { message, slides_json, selected_slide_index, attached_images, selected_element } = body;
+
+  // ---- Resolve agent mode (default: art-director) ----
+  const activeMode: AgentMode = body.mode && AGENT_MODES[body.mode] ? body.mode : "art-director";
+  const modeConfig = AGENT_MODES[activeMode];
+  const modeTools = getModeTools(activeMode);
 
   // Build context-enriched message for Claude
   let enrichedMessage = message;
@@ -207,8 +216,8 @@ export async function POST(
     }
   }
 
-  // ---- Build system prompt with structured state ----
-  const systemPrompt = getOrchestratorPrompt({
+  // ---- Build system prompt (mode-aware) ----
+  const orchestratorPrompt = getOrchestratorPrompt({
     name: template.name ?? "",
     description: template.description ?? "",
     slideCount: slides_json.length,
@@ -217,12 +226,73 @@ export async function POST(
     recentActions,
   });
 
-  // ---- Save user message ----
+  let systemPrompt: string;
+
+  if (activeMode === "page-builder") {
+    // Page Builder: inject the current slide's full HTML into context
+    // so the LLM can make surgical edits. Use a focused prompt.
+    // TODO: Replace with getPageBuilderPrompt() once US-003 is implemented.
+    const slideCtx = typeof selected_slide_index === "number" && slides_json[selected_slide_index]
+      ? slides_json[selected_slide_index]
+      : null;
+    const slideHtmlBlock = slideCtx?.html
+      ? `\n\nCURRENT SLIDE HTML (slide ${selected_slide_index}):\n\`\`\`html\n${slideCtx.html}\n\`\`\``
+      : "";
+
+    systemPrompt = `You are a Page Builder for Claru presentation slides. You make precise, surgical HTML/CSS edits.
+
+DECK: "${template.name ?? ""}"${template.description ? ` — ${template.description}` : ""}
+Total slides: ${slides_json.length}
+${typeof selected_slide_index === "number" ? `Viewing slide: ${selected_slide_index} ("${slides_json[selected_slide_index]?.title || "(untitled)"}")` : ""}${slideHtmlBlock}
+
+YOUR TOOLS: get_slide_html, set_slide_html, patch_slide_html, edit_slide, get_media_assets, get_site_media, delegate_research, think
+
+RULES:
+1. ACT FIRST. Read the HTML (get_slide_html) if needed, then apply changes immediately.
+2. Use patch_slide_html for small targeted edits (font size, color, padding, text changes).
+3. Use set_slide_html only when rewriting major portions of the slide.
+4. NEVER delegate to the Design Agent — you ARE the builder. Edit the HTML directly.
+5. Report what you did in one sentence. No essays.
+6. When user says "this slide" → use slide_index ${selected_slide_index ?? 0}.
+
+CANVAS: 1920x1080px. Use width:100%;height:100%, never vw/vh. Proxy URLs: /api/media/s3?key=PATH.
+BRAND: bg #0a0908, accent #92B090, text #FFF.`;
+  } else if (activeMode === "strategist") {
+    // Strategist: focused on structure and narrative, no design delegation.
+    // TODO: Replace with getStrategistPrompt() once US-002 is implemented.
+    systemPrompt = `You are a Strategist for Claru presentation decks. You plan structure, narrative flow, and write compelling copy.
+
+DECK: "${template.name ?? ""}"${template.description ? ` — ${template.description}` : ""}
+Total slides: ${slides_json.length}
+${typeof selected_slide_index === "number" ? `Viewing slide: ${selected_slide_index} ("${slides_json[selected_slide_index]?.title || "(untitled)"}")` : ""}
+
+YOUR TOOLS: get_all_slides, add_slide, delete_slide, reorder_slides, restructure_deck, edit_slide (title/body), generate_section, delegate_research, get_deck_approach, load_skill, think
+
+CLARU: Purpose-built training data for frontier AI labs (video, robotics, multimodal, vision). Lead with data quality.
+
+RULES:
+1. ACT FIRST. Execute changes immediately, explain briefly after.
+2. Focus on STRUCTURE: slide order, narrative arc, what to add/remove.
+3. Focus on COPY: action titles (claims, not labels), concise body text.
+4. You do NOT control visual design. Use edit_slide for text changes only.
+5. Use delegate_research for facts, data, and URLs.
+6. Use get_deck_approach to load presentation style guides.
+7. When user says "this slide" → use slide_index ${selected_slide_index ?? 0}.
+8. Max 2 sentences per response. No filler.
+
+SALES DECK ARC: Hook → Problem → Old Way vs New Way → Solution → Proof → Process → CTA.
+ACTION TITLES: Every title is a claim. "What We Do" → WRONG. "Expert data that cuts training time by 23%" → RIGHT.`;
+  } else {
+    // Art Director: use the orchestrator prompt unchanged
+    systemPrompt = orchestratorPrompt;
+  }
+
+  // ---- Save user message (include mode in metadata) ----
   await supabase.from("template_chat_messages").insert({
     template_id: templateId,
     role: "user",
     content: message,
-    metadata_json: {},
+    metadata_json: { mode: activeMode },
   });
 
   // ---- Create streaming response ----
@@ -249,8 +319,14 @@ export async function POST(
         let currentSlides = [...slides_json];
         const undoManager = createUndoManager();
 
-        // ---- Route model based on message content ----
-        const { model: selectedModel, tier: modelTier } = routeModel(message);
+        // ---- Emit mode info ----
+        emit({ type: "mode_info", mode: activeMode });
+
+        // ---- Route model based on mode + message content ----
+        // Mode config specifies a default model; routeModel provides message-based routing.
+        // For non-art-director modes, use the mode's model. For art-director, use message-based routing.
+        const { model: routedModel, tier: modelTier } = routeModel(message);
+        const selectedModel = activeMode === "art-director" ? routedModel : modeConfig.model;
         emit({ type: "model_info", model: selectedModel });
 
         // Build conversation messages: history + current user message
@@ -341,6 +417,7 @@ export async function POST(
               role: "assistant",
               content: fullAssistantText.trim(),
               metadata_json: {
+                mode: activeMode,
                 last_action: lastAction,
                 slide_context: typeof selected_slide_index === 'number' ? { index: selected_slide_index } : null,
               },
@@ -359,14 +436,14 @@ export async function POST(
         while (continueConversation && !cancelled && !intercepted) {
           continueConversation = false;
 
-          // ---- Call Anthropic with streaming ----
+          // ---- Call Anthropic with streaming (mode-aware tool set) ----
           const anthropic = getAnthropicClient();
           const anthropicStream = await anthropic.messages.create({
             model: selectedModel,
             max_tokens: MAX_TOKENS,
             system: systemPrompt,
             messages: conversationMessages,
-            tools: ORCHESTRATOR_TOOLS,
+            tools: modeTools,
             stream: true,
           });
 
@@ -495,7 +572,13 @@ export async function POST(
                   // Handle delegation to specialist agents
                   // ----------------------------------------------------------
                   if (toolResult.result === NEEDS_DELEGATION) {
-                    if (currentToolName === 'delegate_design') {
+                    // Strategist mode: block design delegation
+                    if (activeMode === 'strategist' && currentToolName === 'delegate_design') {
+                      toolResult = {
+                        updatedSlides: currentSlides,
+                        result: 'ERROR: Design delegation is not available in Strategist mode. Use edit_slide for text changes, or suggest the user switch to Art Director mode for visual redesigns.',
+                      };
+                    } else if (currentToolName === 'delegate_design') {
                       if (cancelled) { toolResult = { updatedSlides: currentSlides, result: 'Cancelled by user.' }; }
                       else {
                       // 1. Emit status
@@ -844,13 +927,14 @@ export async function POST(
         // (Hallucination detection removed — the "think" tool + action-first prompt rules
         //  prevent the agent from describing actions instead of executing them.)
 
-        // ---- Save assistant response ----
+        // ---- Save assistant response (include mode in metadata) ----
         if (fullAssistantText.trim() && !intercepted) {
           await supabase.from("template_chat_messages").insert({
             template_id: templateId,
             role: "assistant",
             content: fullAssistantText.trim(),
             metadata_json: {
+              mode: activeMode,
               last_action: lastAction,
               slide_context: typeof selected_slide_index === 'number' ? { index: selected_slide_index } : null,
             },
