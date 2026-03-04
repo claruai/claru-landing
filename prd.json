@@ -1,7 +1,7 @@
 {
   "project": "Three-Mode Agent Architecture",
   "branchName": "ralph/agent-modes",
-  "description": "Split the deck builder AI into three distinct modes — Strategist (deck structure and narrative), Art Director (full creative control, default), and Page Builder (direct HTML editing). Each mode has its own tool set, system prompt, and model routing.",
+  "description": "Split the deck builder AI into three distinct modes \u2014 Strategist (deck structure and narrative), Art Director (full creative control, default), and Page Builder (direct HTML editing). Each mode has its own tool set, system prompt, and model routing.",
   "userStories": [
     {
       "id": "US-001",
@@ -12,7 +12,7 @@
         "Export AgentMode type: 'strategist' | 'art-director' | 'page-builder'",
         "Export AgentModeConfig interface with: mode, label, description, model, icon, placeholder",
         "Export AGENT_MODES record with configs for all three modes",
-        "Export detectModeIntent(message, currentMode) — regex-based, returns AgentMode | null",
+        "Export detectModeIntent(message, currentMode) \u2014 regex-based, returns AgentMode | null",
         "Strategist signals: restructure, reorder, add a slide, remove slide, deck flow, storyline, outline, build me a deck",
         "Page Builder signals: change the font, make it Npx, edit the heading, fix the padding, move this div, change background to",
         "Art Director signals: redesign, make it more, improve this, show me options",
@@ -35,7 +35,7 @@
       ],
       "priority": 2,
       "passes": false,
-      "notes": "Another track — do not implement."
+      "notes": "Another track \u2014 do not implement."
     },
     {
       "id": "US-003",
@@ -48,7 +48,7 @@
       ],
       "priority": 3,
       "passes": false,
-      "notes": "Another track — do not implement."
+      "notes": "Another track \u2014 do not implement."
     },
     {
       "id": "US-004",
@@ -61,7 +61,7 @@
       ],
       "priority": 4,
       "passes": false,
-      "notes": "Another track — do not implement."
+      "notes": "Another track \u2014 do not implement."
     },
     {
       "id": "US-005",
@@ -96,6 +96,76 @@
         "Typecheck passes"
       ],
       "priority": 6,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Mode tab bar UI component",
+      "description": "As a user, I need a tab bar in the chat panel to switch between Strategist, Art Director, and Page Builder modes.",
+      "acceptanceCriteria": [
+        "Add mode state to ChatPanel.tsx: useState<AgentMode>(\"art-director\")",
+        "Create ModeTabBar with three tabs: Strategy, Design, Build",
+        "Active tab: sage green border-bottom-2 + accent text. Inactive: muted text",
+        "Tabs: font-mono, text-[11px], compact height",
+        "Tab bar sits between the chat header and messages area",
+        "Clicking tab sets mode, does NOT clear chat history",
+        "On mode change, insert divider in messages",
+        "Pass mode to sendMessage so it is in the API POST body",
+        "Chat input placeholder changes per mode (from AGENT_MODES)",
+        "Import AgentMode, AGENT_MODES from agent-modes-client.ts",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "Created agent-modes-client.ts as a client-safe subset to avoid importing server-only modules (fs) in client components."
+    },
+    {
+      "id": "US-008",
+      "title": "Mode-specific suggestion chips",
+      "description": "As a user, I want suggestion chips that update based on the active mode so they are contextually relevant.",
+      "acceptanceCriteria": [
+        "Create SUGGESTION_CHIPS_BY_MODE config (Record<AgentMode, string[]>)",
+        "Strategist: Build a sales deck, Restructure the flow, Add a closing slide, Improve the narrative",
+        "Art Director: Redesign this slide, Make it more impactful, Add data visualization, Show me 3 options",
+        "Page Builder: Make heading bigger, Add video grid, Change background color, Fix the spacing",
+        "Replace existing hardcoded SUGGESTION_CHIPS with mode-aware version",
+        "Chips update immediately when tab clicked",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Fine-tune button on QA results",
+      "description": "As a user, I want a Fine-tune button on QA action buttons so I can quickly switch to Page Builder mode after a QA result.",
+      "acceptanceCriteria": [
+        "Add Fine-tune button to QA action buttons (alongside Accept/Improve/Redo)",
+        "Button: lightning icon + Fine-tune label",
+        "Clicking: sets mode to page-builder, inserts mode-switch divider, focuses chat input",
+        "Appears for both pass and needs_work QA results",
+        "The mode tab bar reflects the change",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Natural language mode detection suggestion",
+      "description": "As a user, I want the system to detect when my message better fits a different mode and suggest switching before sending.",
+      "acceptanceCriteria": [
+        "In trySend wrapper, before sending, call detectModeIntent(message, mode)",
+        "If non-null, show suggestion chip between input and messages",
+        "Two buttons: Switch (changes mode + sends) and Keep (sends in current mode)",
+        "Chip is unobtrusive \u2014 small bar",
+        "Disappears after any action",
+        "Typecheck passes"
+      ],
+      "priority": 10,
       "passes": true,
       "notes": ""
     }
