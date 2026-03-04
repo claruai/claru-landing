@@ -225,7 +225,7 @@
         "npm run build succeeds"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "notes": "Run grep for sign-slide-urls, signSlideHtml, refreshS3Urls, sign-urls across the codebase to find all references. Remove them all. This is cleanup — no new functionality."
     },
     {
