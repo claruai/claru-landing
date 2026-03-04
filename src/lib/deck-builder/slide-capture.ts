@@ -17,13 +17,19 @@ async function getBrowser(): Promise<Browser> {
 }
 
 /**
- * Renders slide HTML at 1920×1080 and captures a PNG screenshot.
+ * Renders slide HTML and captures a PNG screenshot.
  * Returns the screenshot as a base64-encoded string.
+ *
+ * @param viewport  Optional { width, height } override (default 1920x1080).
  */
-export async function captureSlideScreenshot(html: string): Promise<string> {
+export async function captureSlideScreenshot(
+  html: string,
+  viewport?: { width: number; height: number },
+): Promise<string> {
+  const vp = viewport ?? { width: 1920, height: 1080 };
   const browser = await getBrowser();
   const context = await browser.newContext({
-    viewport: { width: 1920, height: 1080 },
+    viewport: vp,
     deviceScaleFactor: 1,
   });
 
@@ -39,7 +45,7 @@ export async function captureSlideScreenshot(html: string): Promise<string> {
     // Capture screenshot
     const buffer = await page.screenshot({
       type: 'png',
-      clip: { x: 0, y: 0, width: 1920, height: 1080 },
+      clip: { x: 0, y: 0, width: vp.width, height: vp.height },
     });
 
     return buffer.toString('base64');
@@ -49,14 +55,20 @@ export async function captureSlideScreenshot(html: string): Promise<string> {
 }
 
 /**
- * Navigates to a URL at 1920x1080 and captures a PNG screenshot.
+ * Navigates to a URL and captures a PNG screenshot.
  * Used for server-rendered slide routes (e.g. /api/slide/[id]/[index]).
  * Returns the screenshot as a base64-encoded string.
+ *
+ * @param viewport  Optional { width, height } override (default 1920x1080).
  */
-export async function captureSlideScreenshotFromUrl(url: string): Promise<string> {
+export async function captureSlideScreenshotFromUrl(
+  url: string,
+  viewport?: { width: number; height: number },
+): Promise<string> {
+  const vp = viewport ?? { width: 1920, height: 1080 };
   const browser = await getBrowser();
   const context = await browser.newContext({
-    viewport: { width: 1920, height: 1080 },
+    viewport: vp,
     deviceScaleFactor: 1,
   });
 
@@ -72,7 +84,7 @@ export async function captureSlideScreenshotFromUrl(url: string): Promise<string
     // Capture screenshot
     const buffer = await page.screenshot({
       type: 'png',
-      clip: { x: 0, y: 0, width: 1920, height: 1080 },
+      clip: { x: 0, y: 0, width: vp.width, height: vp.height },
     });
 
     return buffer.toString('base64');
