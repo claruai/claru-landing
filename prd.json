@@ -303,7 +303,7 @@
         "Typecheck passes"
       ],
       "priority": 16,
-      "passes": false,
+      "passes": true,
       "notes": "Use webapp-testing skill with Playwright MCP. Use login pattern from tests/e2e/deck-builder-crud.spec.ts."
     },
     {
