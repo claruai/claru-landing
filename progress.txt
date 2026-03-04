@@ -6,3 +6,8 @@ Goal: Public share URLs, tokenized lead tracking, mobile viewing, per-slide anal
 
 ---
 
+## US-002: Share settings API routes (GET + PATCH)
+**What I did:** Created src/app/api/admin/deck-builder/[id]/share/route.ts with GET and PATCH handlers. GET returns current share_settings from the template row or default { enabled: false } if none set. PATCH updates share_settings JSONB — validates slug (URL-safe lowercase+hyphens), expiry (valid ISO 8601 date or null), and gate_type ('none'|'email'|'password'). Auto-generates kebab-case slug from template name on first enable; if slug conflicts with another template, appends a -XXXX random hex suffix via crypto.randomBytes(2). Slug uniqueness is checked against share_settings->>slug on other templates. Both routes use the cookie-based admin JWT auth pattern (verifyAdminToken).
+**Files changed:** src/app/api/admin/deck-builder/[id]/share/route.ts (new), prd.json (US-002 passes: true), progress.txt
+**Learnings:** Supabase supports JSONB field filtering with the ->> operator for text extraction, used as `.filter("share_settings->>slug", "eq", slug)`. The requireAdmin() helper pattern (returning null or error response) keeps each handler clean. crypto.randomBytes(2).toString("hex") gives 4 hex chars which is enough entropy for slug dedup.
+

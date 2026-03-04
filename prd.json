@@ -35,7 +35,7 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "notes": "Read src/app/api/admin/deck-builder/[id]/route.ts for existing auth pattern (verifyAdminToken). Use crypto.randomBytes for suffix. Use general-purpose agent."
     },
     {
