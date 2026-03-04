@@ -55,7 +55,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "This is the BASIC version — no gates, no token handling, no tracking. Those come in later stories. Use the existing /api/slide/[templateId]/present route. Read src/middleware.ts or proxy.ts for middleware exclusion patterns. Use nextjs-expert agent for the server component."
     },
     {
@@ -129,7 +129,7 @@
         "Typecheck passes"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "This wires US-003 (viewer page) + US-006 (tracking) together with token validation. Read deck_share_tokens table schema from US-001. Use general-purpose agent."
     },
     {
