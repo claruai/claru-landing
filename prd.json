@@ -59,7 +59,7 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "Read src/lib/deck-builder/html-renderer.ts layoutToHtml function for how slides are wrapped with background + grid + glow. Read slide-themes.ts getTheme. Read slide-layouts.ts renderSlideLayout. No auth required on this route."
     },
     {
