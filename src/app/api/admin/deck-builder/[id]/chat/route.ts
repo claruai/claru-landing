@@ -21,6 +21,7 @@ import {
   analyzeSlideLayout,
 } from "@/lib/deck-builder/server-tool-handlers";
 import { createUndoManager, snapshotChangedSlides } from "@/lib/deck-builder/slide-undo";
+import { extractMediaRefs } from "@/lib/deck-builder/rewrite-s3-urls";
 import { routeModel, shouldEscalate } from "@/lib/deck-builder/model-router";
 import type {
   SlideData,
@@ -321,7 +322,7 @@ export async function POST(
             const designResult = await callDesignAgent(replayBrief, currentSlides);
             if (designResult.html) {
               snapshotChangedSlides(currentSlides, currentSlides, undoManager);
-              currentSlides[replayIdx] = { ...currentSlides[replayIdx], html: designResult.html };
+              currentSlides[replayIdx] = { ...currentSlides[replayIdx], html: designResult.html, media_refs: extractMediaRefs(designResult.html) };
               emit({ type: "tool_result", name: "delegate_design", result: `Slide ${replayIdx + 1} updated.`, updated_slides: currentSlides });
               lastAction = { type: 'delegate_design', params: p, result: `Slide ${replayIdx + 1} updated (confirmed).` };
             }
@@ -521,13 +522,13 @@ export async function POST(
                       if (designResult.html) {
                         // 4. Apply HTML (proxy URLs used — no signing needed)
                         const updated = [...currentSlides];
-                        updated[slideIdx] = { ...updated[slideIdx], html: designResult.html };
+                        updated[slideIdx] = { ...updated[slideIdx], html: designResult.html, media_refs: extractMediaRefs(designResult.html) };
 
                         // 5. QA check (skip if cancelled)
                         if (cancelled) { snapshotChangedSlides(currentSlides, updated, undoManager); currentSlides = updated; toolResult = { updatedSlides: updated, result: 'Slide updated. QA skipped (cancelled).' }; lastAction = { type: 'delegate_design', params: { slide_index: slideIdx, instruction: brief.instruction }, result: 'Slide updated (QA skipped)' }; } else {
                         emit({ type: 'status', message: 'Running quality check...' });
                         const layoutAnalysis = analyzeSlideLayout(designResult.html);
-                        const verifyResult = await autoVerifySlide(slideIdx, updated, template?.theme ?? 'terminal-green');
+                        const verifyResult = await autoVerifySlide(slideIdx, updated, template?.theme ?? 'terminal-green', templateId, supabase);
                         const qaContext = {
                           userRequest: brief.instruction,
                           slidePosition: `Slide ${slideIdx + 1} of ${currentSlides.length}`,
@@ -550,9 +551,9 @@ export async function POST(
                           const retryResult = await callDesignAgent(retryBrief, updated);
                           if (retryResult.html) {
                             finalHtml = retryResult.html;
-                            updated[slideIdx] = { ...updated[slideIdx], html: finalHtml };
+                            updated[slideIdx] = { ...updated[slideIdx], html: finalHtml, media_refs: extractMediaRefs(finalHtml) };
                             const retryAnalysis = analyzeSlideLayout(finalHtml);
-                            const retryVerify = await autoVerifySlide(slideIdx, updated, template?.theme ?? 'terminal-green');
+                            const retryVerify = await autoVerifySlide(slideIdx, updated, template?.theme ?? 'terminal-green', templateId, supabase);
                             finalVerdict = await callQAAgent(finalHtml, retryVerify.screenshot, retryAnalysis, qaContext);
                           }
                         }
@@ -575,7 +576,7 @@ export async function POST(
                         lastAction = { type: 'delegate_design', params: { slide_index: slideIdx, instruction: brief.instruction, qa_issues: finalVerdict.issues, qa_fixes: finalVerdict.fixes }, result: verdictSummary };
 
                         // Capture screenshot for frontend
-                        const finalVerify = await autoVerifySlide(slideIdx, updated, template?.theme ?? 'terminal-green');
+                        const finalVerify = await autoVerifySlide(slideIdx, updated, template?.theme ?? 'terminal-green', templateId, supabase);
                         if (finalVerify.screenshot) verifyScreenshot = finalVerify.screenshot;
                       } // end QA else block
                       } else {
@@ -609,7 +610,7 @@ export async function POST(
                         const designResult = await callDesignAgent(designBrief, currentSlides);
                         if (designResult.html) {
                           const updated = [...currentSlides];
-                          updated[targetSlide] = { ...updated[targetSlide], html: designResult.html };
+                          updated[targetSlide] = { ...updated[targetSlide], html: designResult.html, media_refs: extractMediaRefs(designResult.html) };
                           snapshotChangedSlides(currentSlides, updated, undoManager);
                           currentSlides = updated;
 
@@ -617,7 +618,7 @@ export async function POST(
                           if (!cancelled) {
                             emit({ type: 'status', message: 'Running quality check...' });
                             const layoutAnalysis = analyzeSlideLayout(designResult.html);
-                            const verifyResult = await autoVerifySlide(targetSlide, updated, template?.theme ?? 'terminal-green');
+                            const verifyResult = await autoVerifySlide(targetSlide, updated, template?.theme ?? 'terminal-green', templateId, supabase);
                             const qaVerdict = await callQAAgent(designResult.html, verifyResult.screenshot, layoutAnalysis, { userRequest: message });
                             const verdictText = qaVerdict.pass ? `QA: PASS (${qaVerdict.score}/10)` : `QA: ${qaVerdict.score}/10`;
                             toolResult = { updatedSlides: updated, result: `Slide ${targetSlide + 1} updated with real data. ${verdictText}` };
@@ -640,7 +641,7 @@ export async function POST(
                       const slide = currentSlides[slideIdx];
                       const html = slide?.html ?? '';
                       const layoutAnalysis = html ? analyzeSlideLayout(html) : 'No custom HTML on this slide.';
-                      const verifyResult = await autoVerifySlide(slideIdx, currentSlides, template?.theme ?? 'terminal-green');
+                      const verifyResult = await autoVerifySlide(slideIdx, currentSlides, template?.theme ?? 'terminal-green', templateId, supabase);
                       const verdict = await callQAAgent(html, verifyResult.screenshot, layoutAnalysis, {
                         slidePosition: `Slide ${slideIdx + 1} of ${currentSlides.length}`,
                         deckType: template?.description ?? '',

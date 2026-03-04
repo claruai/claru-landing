@@ -14,6 +14,7 @@ import { SLIDE_THEMES } from './slide-themes';
 import { GSAP_REFERENCE, GSAP_CDN } from './gsap-reference';
 import { SLIDE_DESIGN_REFERENCE } from './slide-design-reference';
 import { searchVideos, getVideosByCategory, getVideoIndex } from './video-index';
+import { extractMediaRefs } from './rewrite-s3-urls';
 
 // ---------------------------------------------------------------------------
 // Tool Definitions (Anthropic tool format)
@@ -996,8 +997,9 @@ function handleSetSlideHtml(
     return { updatedSlides: slides, result: 'html content is required.' };
   }
 
+  const media_refs = extractMediaRefs(html);
   const updated = [...slides];
-  updated[idx] = { ...updated[idx], html };
+  updated[idx] = { ...updated[idx], html, media_refs };
 
   return {
     updatedSlides: updated,

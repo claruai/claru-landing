@@ -207,7 +207,7 @@
         "Typecheck passes"
       ],
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "notes": "Read src/types/deck-builder.ts for SlideData interface. The extraction function should use a simple regex on /api/media/s3?key= pattern. Dedup with Set."
     },
     {
