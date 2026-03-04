@@ -101,7 +101,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "Read DeckEditorClient.tsx handlePresent (around line 261). The save function is handleSave — call it before opening. Template ID is available as template.id. Port 3005 for dev testing."
     },
     {
@@ -190,7 +190,7 @@
         "Typecheck passes"
       ],
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "notes": "Import rewriteS3ToProxy from rewrite-s3-urls.ts. Use createSupabaseAdminClient. Load dotenv from .env.local. Run with npx tsx scripts/migrate-slide-urls.ts."
     },
     {
