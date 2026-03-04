@@ -1,0 +1,514 @@
+{
+  "project": "Slide Deck Builder",
+  "branchName": "ralph/deck-builder",
+  "description": "Phase 1: Base template slide builder with AI editing agent for admin portal. Create, edit, and manage sales presentation templates with Claude Agent SDK + MCP chat interface, web research, GTM content generation, media asset uploads, custom themes, and a pre-built demo deck seeded from the landing page.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "TypeScript types and slide data schema",
+      "description": "As a developer, I need TypeScript interfaces for templates, slides, chat messages, and media assets so all components share a single source of truth.",
+      "acceptanceCriteria": [
+        "Create src/types/deck-builder.ts with interfaces: SlideData, SlideBackground, SlideTemplate, SlideTemplateVersion, TemplateChatMessage, SlideMediaAsset, SlideThemeCustom",
+        "SlideData includes: id (string), order (number), layout (SlideLayout union type), title (string), body (string), background (SlideBackground), image_url (string, optional — for image-left/image-right layouts), metadata (Record<string, unknown>). NO speaker_notes field.",
+        "SlideLayout = 'title' | 'title-body' | 'two-column' | 'image-left' | 'image-right' | 'quote' | 'blank'",
+        "SlideBackground = { type: 'solid' | 'gradient' | 'image'; value: string }",
+        "SlideTemplate includes: id, name, description, tags (string[]), slides (SlideData[]), theme (string), custom_theme (SlideThemeCustom | null), is_active (boolean), created_by (string), created_at (string), updated_at (string)",
+        "SlideThemeCustom includes: colors (partial overrides — background?, text?, accent?, secondaryBg?, border?), fonts (partial overrides — heading?, body?, mono?). Allows admins to tweak any preset theme.",
+        "SlideTemplateVersion includes: id, template_id, version_number, slides_json (SlideData[]), name, description, theme, created_at",
+        "TemplateChatMessage includes: id, template_id, role ('user' | 'assistant' | 'system'), content (string), metadata_json (Record<string, unknown>), created_at",
+        "SlideMediaAsset includes: id (string), template_id (string), filename (string), url (string), mime_type (string), file_size_bytes (number), created_at (string)",
+        "Export MAX_SLIDES = 30 constant",
+        "Export createEmptySlide() factory that returns SlideData with crypto.randomUUID() id, order 0, layout 'title-body', empty title/body, solid black background, empty metadata",
+        "Export createEmptyTemplate() factory that returns SlideTemplate with UUID id, name 'Untitled', empty tags, one title slide via createEmptySlide(), theme 'terminal-green', custom_theme null",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "Read src/types/data-catalog.ts for the existing type definition pattern. NO speaker_notes — user explicitly removed this feature. Tags are string[] for template categorization. Use general-purpose agent."
+    },
+    {
+      "id": "US-002",
+      "title": "Supabase database migration for deck builder tables",
+      "description": "As a developer, I need the database tables created in Supabase so the backend can persist template data and media assets.",
+      "acceptanceCriteria": [
+        "Create SQL migration file at supabase/migrations/20260301_create_deck_builder_tables.sql",
+        "slide_templates table: id UUID PK default gen_random_uuid(), name TEXT NOT NULL, description TEXT DEFAULT '', tags TEXT[] NOT NULL DEFAULT '{}', slides_json JSONB NOT NULL DEFAULT '[]', theme TEXT NOT NULL DEFAULT 'terminal-green', custom_theme JSONB DEFAULT NULL, is_active BOOLEAN NOT NULL DEFAULT false, created_by TEXT DEFAULT 'admin', created_at TIMESTAMPTZ NOT NULL DEFAULT now(), updated_at TIMESTAMPTZ NOT NULL DEFAULT now()",
+        "slide_template_versions table: id UUID PK default gen_random_uuid(), template_id UUID NOT NULL REFERENCES slide_templates(id) ON DELETE CASCADE, version_number INTEGER NOT NULL, slides_json JSONB NOT NULL, name TEXT NOT NULL, description TEXT DEFAULT '', theme TEXT NOT NULL DEFAULT 'terminal-green', created_at TIMESTAMPTZ NOT NULL DEFAULT now()",
+        "template_chat_messages table: id UUID PK default gen_random_uuid(), template_id UUID NOT NULL REFERENCES slide_templates(id) ON DELETE CASCADE, role TEXT NOT NULL CHECK (role IN ('user', 'assistant', 'system')), content TEXT NOT NULL, metadata_json JSONB DEFAULT '{}', created_at TIMESTAMPTZ NOT NULL DEFAULT now()",
+        "slide_media_assets table: id UUID PK default gen_random_uuid(), template_id UUID NOT NULL REFERENCES slide_templates(id) ON DELETE CASCADE, filename TEXT NOT NULL, storage_path TEXT NOT NULL, url TEXT NOT NULL, mime_type TEXT NOT NULL DEFAULT 'image/png', file_size_bytes INTEGER DEFAULT 0, created_at TIMESTAMPTZ NOT NULL DEFAULT now()",
+        "Add indexes: slide_templates(is_active), slide_template_versions(template_id, version_number), template_chat_messages(template_id, created_at), slide_media_assets(template_id)",
+        "Add updated_at trigger function and trigger on slide_templates",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Read supabase/migrations/ directory for existing migration file patterns. Use supabase-expert skill. The trigger function should set NEW.updated_at = now() on UPDATE. The slide_media_assets table stores metadata — actual files go to S3 (existing pattern from src/lib/s3/)."
+    },
+    {
+      "id": "US-003",
+      "title": "Template CRUD API routes — list and create",
+      "description": "As an admin, I need GET and POST endpoints for listing and creating templates.",
+      "acceptanceCriteria": [
+        "Create src/app/api/admin/deck-builder/route.ts with GET and POST handlers",
+        "GET returns { templates: SlideTemplate[] } ordered by updated_at DESC",
+        "POST accepts { name: string, description?: string, theme?: string } in body",
+        "POST validates name is non-empty string, returns 400 if missing",
+        "POST creates template with one empty title slide in slides_json (use createEmptySlide from types)",
+        "POST returns { template } with status 201",
+        "Both handlers verify admin JWT via verifyAdminToken (same pattern as src/app/api/admin/leads/route.ts)",
+        "Both use createSupabaseAdminClient() for database access",
+        "Error responses follow { error: string } pattern with appropriate HTTP status codes",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "Read src/app/api/admin/leads/route.ts for the exact auth and Supabase client patterns to replicate. The slides_json column stores JSON — pass the array through JSON.stringify if needed or let Supabase handle JSONB. Use nextjs-expert agent."
+    },
+    {
+      "id": "US-004",
+      "title": "Template CRUD API routes — get, update, delete",
+      "description": "As an admin, I need GET, PATCH, DELETE endpoints for individual template operations.",
+      "acceptanceCriteria": [
+        "Create src/app/api/admin/deck-builder/[id]/route.ts with GET, PATCH, DELETE handlers",
+        "GET returns { template } by ID or 404 { error: 'Template not found' }",
+        "PATCH accepts any subset of { name, description, tags, slides_json, theme, custom_theme, is_active }",
+        "PATCH: when is_active set to true, first UPDATE all templates SET is_active = false, then update the target template (ensures only one active at a time)",
+        "PATCH returns updated template",
+        "DELETE removes template by ID, returns 204 (cascade deletes versions, chat messages, and media assets via FK)",
+        "All handlers verify admin JWT",
+        "All use createSupabaseAdminClient()",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": "Read src/app/api/admin/leads/[id]/route.ts for the GET/PATCH/DELETE pattern in a single route file. The is_active toggle requires two queries: first unset all, then set the target. Use nextjs-expert agent."
+    },
+    {
+      "id": "US-005",
+      "title": "Template duplicate and version history API routes",
+      "description": "As an admin, I need endpoints to duplicate templates and manage version history.",
+      "acceptanceCriteria": [
+        "Create src/app/api/admin/deck-builder/[id]/duplicate/route.ts with POST handler",
+        "Duplicate fetches original template, creates copy with name '{original} (Copy)', is_active false, new UUID. Returns { template } with 201",
+        "Create src/app/api/admin/deck-builder/[id]/versions/route.ts with GET and POST handlers",
+        "GET returns { versions: SlideTemplateVersion[] } ordered by version_number DESC",
+        "POST snapshots current template state: fetches template, creates new version row with auto-incremented version_number (SELECT COALESCE(MAX(version_number), 0) + 1), captures slides_json, name, description, theme. Returns { version } with 201",
+        "All handlers verify admin JWT",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "The duplicate route creates a new row in slide_templates (not versions). The version route creates rows in slide_template_versions. Use nextjs-expert agent."
+    },
+    {
+      "id": "US-006",
+      "title": "Media asset upload API and S3 integration",
+      "description": "As an admin, I need to upload images for use in slides so the AI agent and editor can reference them.",
+      "acceptanceCriteria": [
+        "Create src/app/api/admin/deck-builder/[id]/media/route.ts with GET and POST handlers",
+        "GET returns { assets: SlideMediaAsset[] } for the template, ordered by created_at DESC",
+        "POST accepts multipart/form-data with a 'file' field (image upload)",
+        "Validate file is an image (mime_type starts with 'image/'), max 5MB",
+        "Upload to S3 using existing pattern from src/lib/s3/presigner.ts — storage path: deck-builder/{template_id}/{uuid}-{filename}",
+        "Generate a publicly accessible URL (either S3 presigned URL or CloudFront signed URL using existing pattern)",
+        "Save metadata to slide_media_assets table (template_id, filename, storage_path, url, mime_type, file_size_bytes)",
+        "Return { asset: SlideMediaAsset } with 201",
+        "Create DELETE handler at src/app/api/admin/deck-builder/[id]/media/[assetId]/route.ts that removes from S3 and database",
+        "Admin JWT verification on all routes",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "Read src/lib/s3/presigner.ts and src/app/api/admin/s3-signed-url/route.ts for the existing S3 upload pattern. For the upload, you may need to use @aws-sdk/client-s3 PutObjectCommand directly since the existing pattern is for presigned URLs. Use nextjs-expert agent."
+    },
+    {
+      "id": "US-007",
+      "title": "Slide themes definitions",
+      "description": "As a developer, I need theme definitions that control the visual styling of generated HTML presentations.",
+      "acceptanceCriteria": [
+        "Create src/lib/deck-builder/slide-themes.ts",
+        "Export SlideTheme interface: { id: string, name: string, colors: { background, text, accent, secondaryBg, secondaryText, border }, fonts: { heading, body, mono } }",
+        "Export SLIDE_THEMES record with 3 themes: terminal-green (default — #050505 bg, #e8e8e8 text, #00ff88 accent, JetBrains Mono + Geist Sans), midnight-executive (#0a0a1a bg, #e0e0f0 text, #6366f1 accent, Inter + system), clean-white (#ffffff bg, #1a1a2e text, #2563eb accent, Inter + system)",
+        "Export getTheme(themeId: string): SlideTheme that returns the theme or falls back to terminal-green",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": "These theme objects will be consumed by the HTML renderer in US-009. Keep the interface simple — just colors and fonts. Use general-purpose agent."
+    },
+    {
+      "id": "US-008",
+      "title": "Slide layout HTML templates",
+      "description": "As a developer, I need HTML/CSS templates for each slide layout type so the renderer can compose slides.",
+      "acceptanceCriteria": [
+        "Create src/lib/deck-builder/slide-layouts.ts",
+        "Export renderSlideLayout(slide: SlideData, theme: SlideTheme): string function that returns inner HTML for one slide",
+        "Support all 7 layouts: title (centered large heading), title-body (heading + body text), two-column (body split into two columns at '---' delimiter), image-left (image from slide.image_url + text), image-right (text + image from slide.image_url), quote (large quote styling), blank (just body content)",
+        "image-left and image-right layouts render an <img> tag with slide.image_url if provided, or show a placeholder box with 'No image' text if missing",
+        "Markdown in body field converted to HTML: **bold**, *italic*, - lists, ```code blocks```, [links](url) — use a simple regex-based converter (no heavy library)",
+        "Background applied as inline style based on slide.background type (solid color, gradient, image url)",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": "Each layout returns HTML string with inline styles based on theme colors. The markdown converter should handle basic syntax — don't need full commonmark. The two-column layout splits the body at '---' into left and right columns. The image_url on SlideData is set by the admin or AI agent when using image layouts. Use frontend-expert agent with frontend-slides skill."
+    },
+    {
+      "id": "US-009",
+      "title": "HTML slide renderer — full presentation generator",
+      "description": "As a developer, I need a function that converts SlideData[] + theme into a complete self-contained HTML presentation.",
+      "acceptanceCriteria": [
+        "Create src/lib/deck-builder/html-renderer.ts with function renderSlidesToHTML(slides: SlideData[], theme: string, options?: { showProgress?: boolean }): string",
+        "Output is complete HTML document (<!DOCTYPE html> through </html>) with ALL CSS and JS inline — zero external dependencies",
+        "Uses renderSlideLayout from slide-layouts.ts for each slide's content",
+        "Uses getTheme from slide-themes.ts for styling",
+        "Includes keyboard navigation: ArrowRight/ArrowDown/Space = next slide, ArrowLeft/ArrowUp = previous, Escape = toggle slide overview",
+        "Includes touch/swipe support for mobile (touchstart/touchend with 50px threshold)",
+        "Includes progress bar at bottom of viewport showing current position",
+        "Includes slide counter display (e.g. '3 / 12') in bottom-right corner",
+        "Includes fade transition between slides (CSS transition on opacity/transform)",
+        "Slides are fullscreen viewport sections (100vw x 100vh)",
+        "Images referenced via absolute URLs in slide.image_url render correctly in the standalone HTML",
+        "Includes @media print CSS: page-break-after per slide, hide progress/counter, @page { size: landscape }",
+        "Includes window.addEventListener('message') handler for { type: 'goToSlide', index: number } messages (for iframe preview navigation)",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": "This is the core engine. The output HTML must be COMPLETELY self-contained — someone should be able to save the HTML file and open it offline (except for external image URLs). Use frontend-slides skill for the animation and navigation patterns. Use frontend-expert agent."
+    },
+    {
+      "id": "US-010",
+      "title": "Template list page at /admin/deck-builder",
+      "description": "As an admin, I want to see all my saved templates in a list so I can manage them.",
+      "acceptanceCriteria": [
+        "Create src/app/admin/deck-builder/page.tsx as server component that fetches templates from Supabase via createSupabaseAdminClient()",
+        "Create src/app/admin/deck-builder/DeckBuilderClient.tsx as client component for interactive functionality",
+        "Page header with breadcrumb: 'claru / admin / deck-builder' matching AdminDashboardHeader.tsx pattern",
+        "Create New Template button opens a name input modal (simple prompt or inline input), POSTs to /api/admin/deck-builder, then navigates to /admin/deck-builder/[id]",
+        "Generate with AI button opens the GenerateWizard (placeholder for now — just the button, wizard built in US-019)",
+        "Template cards in 2-column grid showing: name, description (truncated to 2 lines), tags as small colored chips, slide count from slides_json length, last modified relative time, green dot badge if is_active",
+        "Each card has action buttons: [edit] (navigates to editor), [duplicate], [set active] / [active] (toggle), [delete] (confirmation dialog with template name)",
+        "Empty state when no templates: 'No templates yet' message with 'Create your first template' button",
+        "Matches admin aesthetic: var(--bg-primary), var(--accent-primary), var(--border-subtle), font-mono accents",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": "Read src/app/admin/dashboard/page.tsx for the server component data fetching pattern. Read src/app/admin/leads/AdminLeadsTable.tsx for the client component interactive list pattern. Cards should look similar to the dashboard module cards. Use frontend-expert agent."
+    },
+    {
+      "id": "US-011",
+      "title": "Add Deck Builder to admin dashboard navigation",
+      "description": "As an admin, I want to see Deck Builder in the admin dashboard so I can navigate to it.",
+      "acceptanceCriteria": [
+        "Add 'Deck Builder' card to the modules array in src/app/admin/dashboard/page.tsx",
+        "Use Presentation icon from lucide-react (import { Presentation } from 'lucide-react')",
+        "href: '/admin/deck-builder'",
+        "description: 'Create and manage sales presentation templates with AI assistance'",
+        "stat: shows template count fetched from Supabase (e.g. '3 templates' or '0 templates')",
+        "color: 'text-[var(--accent-primary)]'",
+        "Fetch template count alongside existing lead/dataset counts using SELECT count",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": "Read src/app/admin/dashboard/page.tsx — add to the modules array after the existing 4 entries. Fetch count with: const { count: templateCount } = await supabase.from('slide_templates').select('*', { count: 'exact', head: true }). Use frontend-expert agent."
+    },
+    {
+      "id": "US-012",
+      "title": "Template editor page — three-panel layout",
+      "description": "As an admin, I want a split-pane editor layout where I can see slides on the left, edit in the center, and preview/chat on the right.",
+      "acceptanceCriteria": [
+        "Create src/app/admin/deck-builder/[id]/page.tsx as server component that fetches template by ID from Supabase",
+        "Create src/app/admin/deck-builder/[id]/DeckEditorClient.tsx as main client component",
+        "Three-panel layout: slide sorter (left, 200px fixed), main editor (center, flex-1), right panel (350px fixed)",
+        "Left panel: vertical filmstrip showing numbered slide thumbnails (small rectangles with slide title text, 16:9 aspect ratio, dark bg with border)",
+        "Clicking a thumbnail selects that slide — highlighted with accent border",
+        "Center panel shows selected slide's editable fields: title (text input, large font), body (textarea, monospace, ~10 rows). NO speaker notes.",
+        "Right panel has two tabs: 'Preview' and 'AI Chat' (AI Chat content built in later stories — show placeholder 'Coming soon' for now)",
+        "Template name editable inline in a top header bar",
+        "Header bar includes: back arrow to /admin/deck-builder, template name input, save status indicator, [save] button, [present] button",
+        "Save button PATCHes slides_json to API. Autosave after 5 seconds of inactivity (debounced)",
+        "Save status shows: 'Saved' (green), 'Saving...' (yellow), 'Unsaved changes' (orange)",
+        "Present button opens renderSlidesToHTML output in new tab via window.open with blob URL",
+        "404 page if template ID not found",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": "Read src/app/admin/components/LeadDetailClient.tsx for the client component pattern with data fetching prop. The autosave uses a useEffect with a timeout that resets on every slides change. For the present button, generate HTML with renderSlidesToHTML, create a Blob, get URL via URL.createObjectURL, open with window.open. Use frontend-expert agent."
+    },
+    {
+      "id": "US-013",
+      "title": "Slide sorter — add, reorder, duplicate, delete slides",
+      "description": "As an admin, I want to add new slides, reorder them, duplicate, and delete slides in the sorter panel.",
+      "acceptanceCriteria": [
+        "Add Slide button at bottom of slide sorter inserts a new title-body slide after the currently selected slide. Disable button and show toast 'Maximum 30 slides reached' if slide count equals MAX_SLIDES (30)",
+        "Drag-and-drop reordering of slide thumbnails using native HTML5 DnD API (draggable attribute, onDragStart, onDragOver, onDrop)",
+        "Right-click context menu on thumbnails with options: Duplicate, Delete, Move Up, Move Down (use a custom context menu div, not browser default)",
+        "Duplicate inserts an exact copy (with new UUID) after the original",
+        "Delete shows confirm dialog if more than 1 slide; prevent deleting the last slide (show toast 'Cannot delete the only slide')",
+        "Reordering updates order field on all slides (recalculate 0, 1, 2, ...)",
+        "All mutations update local state immediately and trigger the autosave debounce",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": "The slide sorter lives inside DeckEditorClient.tsx or as a SlideSorter.tsx child component. Native HTML5 DnD: set draggable='true', track draggedIndex in state, swap on drop. Context menu: track {x, y, slideIndex} in state, render absolutely positioned div at mouse coords, dismiss on click outside. Use frontend-expert agent."
+    },
+    {
+      "id": "US-014",
+      "title": "Slide layout picker, background settings, and media asset panel",
+      "description": "As an admin, I want to choose layouts, customize backgrounds, and attach images to slides.",
+      "acceptanceCriteria": [
+        "Create src/app/components/deck-builder/SlideLayoutPicker.tsx showing visual thumbnails of all 7 layouts in a 4x2 grid",
+        "Each layout thumbnail is a small rectangle (~80x45px) with simple wireframe illustration of the layout (CSS shapes — no images needed)",
+        "Clicking a layout updates the selected slide's layout field; current layout highlighted with var(--accent-primary) border",
+        "Background settings section: type selector (Solid / Gradient / Image buttons), Solid = hex input + color swatch, Gradient = two hex inputs + direction dropdown, Image = URL input or select from uploaded assets",
+        "Media Assets section below background settings: shows grid of uploaded images for this template (thumbnails from slide_media_assets), Upload button that calls POST /api/admin/deck-builder/[id]/media, clicking an asset copies its URL to clipboard or inserts into the current slide's image_url field",
+        "Delete button (X) on each asset thumbnail to remove it (with confirmation)",
+        "Background and image_url changes reflect in the slide thumbnail in the sorter",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": "The media assets section loads from GET /api/admin/deck-builder/[id]/media. Upload uses FormData with fetch. The 'insert into slide' action sets slide.image_url which is used by image-left/image-right layouts and can also be used as a background image. Use frontend-expert agent."
+    },
+    {
+      "id": "US-015",
+      "title": "Live preview panel with iframe",
+      "description": "As an admin, I want a live preview of my presentation rendered as HTML in an iframe.",
+      "acceptanceCriteria": [
+        "Create src/app/components/deck-builder/PresentationPreview.tsx component for the Preview tab in the right panel",
+        "Renders an iframe with srcdoc set to output of renderSlidesToHTML(slides, theme)",
+        "Preview regenerates when slides change, debounced at 500ms after last edit",
+        "Preview navigates to the currently selected slide index via postMessage to iframe (the generated HTML has a message listener for { type: 'goToSlide', index })",
+        "Refresh Preview button forces full HTML regeneration",
+        "iframe sandbox attribute: 'allow-scripts' for security",
+        "Shows 'Generating preview...' text while debounce is pending",
+        "The iframe scales the presentation to fit the panel width (use CSS transform: scale(panelWidth/1920) with transform-origin: top left)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": "The HTML renderer (US-009) already includes the postMessage listener. The iframe scaling: measure panel width with a ref, calculate scale ratio, apply via inline style on the iframe. Use frontend-expert agent."
+    },
+    {
+      "id": "US-016",
+      "title": "AI agent backend — Claude SDK tools and system prompt",
+      "description": "As a developer, I need the Claude Agent SDK setup with tools for slide manipulation (including media) and a GTM-informed system prompt.",
+      "acceptanceCriteria": [
+        "Create src/lib/deck-builder/ai-tools.ts defining tool schemas for Claude tool_use: edit_slide (params: slide_index, field, value), add_slide (params: after_index, title, body, layout, image_url?), delete_slide (params: slide_index), reorder_slides (params: from_index, to_index), set_slide_layout (params: slide_index, layout), set_slide_background (params: slide_index, type, value), set_slide_image (params: slide_index, image_url), get_all_slides (no params — reads current state), get_media_assets (no params — returns list of available uploaded images), set_template_theme (params: theme_id), customize_theme (params: colors?, fonts? — partial overrides to current theme), web_search (params: query — searches the web for information about a company, industry, or topic to inform slide content)",
+        "Each tool has a clear description string. Media: 'Use get_media_assets to see uploaded images, then set_slide_image to add one to a slide'. Web search: 'Search the web for information about the target company, their industry, competitive landscape, or specific topics to make slides more relevant and data-driven'",
+        "Create src/lib/deck-builder/gtm-prompts.ts with getSystemPrompt(templateContext: { name, description, slideCount, mediaAssets: { filename, url }[] }) that includes: Claru positioning, GTM strategy guidance, sales deck best practices, available tools (including web_search for research), and a note about available media assets",
+        "Create src/lib/deck-builder/ai-agent.ts with Anthropic client initialization using ANTHROPIC_API_KEY env var (already in .env.local)",
+        "Export processToolCall(toolName: string, toolInput: Record<string, unknown>, slides: SlideData[], mediaAssets?: SlideMediaAsset[]): { updatedSlides: SlideData[], result: string } that executes tool logic and returns modified slides + result description",
+        "web_search tool implementation: use a simple fetch to a search API or scrape approach. For MVP, use the Anthropic client with a search-focused prompt, or implement via a lightweight web fetch (fetch URL, extract text). Return search results as a string the agent can use for slide content",
+        "customize_theme tool: merges partial color/font overrides into the template's custom_theme field",
+        "get_media_assets tool returns a formatted list of available images with filenames and URLs",
+        "add_slide tool enforces MAX_SLIDES (30) limit — returns error if at max",
+        "Typecheck passes"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": "Read the @anthropic-ai/sdk package for tool_use patterns. The tools are defined as JSON schema objects matching Claude's tool format. processToolCall is a pure function — takes slides + assets, applies mutation, returns new slides. The system prompt should tell Claude about uploaded media assets so it can suggest using them. Use claude-developer-platform skill."
+    },
+    {
+      "id": "US-017",
+      "title": "AI chat streaming API endpoint",
+      "description": "As an admin, I need a streaming chat endpoint that sends messages to Claude and returns responses with tool calls.",
+      "acceptanceCriteria": [
+        "Create src/app/api/admin/deck-builder/[id]/chat/route.ts with POST handler",
+        "Accepts { message: string, slides_json: SlideData[] } in request body",
+        "Loads last 20 chat messages from template_chat_messages table for context",
+        "Loads media assets from slide_media_assets for the template (passed to system prompt)",
+        "Calls Anthropic messages API with: model 'claude-sonnet-4-20250514', system prompt from gtm-prompts.ts (including media asset list), conversation history, tools from ai-tools.ts, max_tokens 4096",
+        "Streams response back using ReadableStream with NDJSON format (one JSON object per line)",
+        "Stream events: { type: 'text', content: string }, { type: 'tool_call', name: string, input: object }, { type: 'tool_result', name: string, result: string, updated_slides: SlideData[] }, { type: 'done' }",
+        "When Claude makes a tool call: execute via processToolCall (passing media assets for get_media_assets tool), send tool_result event with updated slides, then continue conversation with tool result",
+        "Saves user message and final assistant response to template_chat_messages",
+        "Admin JWT verification required",
+        "Typecheck passes"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": "The streaming pattern: create ReadableStream, call Anthropic with stream: true, iterate events, encode as JSON + newline. For tool_use: execute and send back messages.create with tool_result. Use claude-developer-platform skill + nextjs-expert agent."
+    },
+    {
+      "id": "US-018",
+      "title": "AI chat panel frontend UI",
+      "description": "As an admin, I want the chat UI in the right panel so I can send messages and see AI responses with tool calls in real-time.",
+      "acceptanceCriteria": [
+        "Create src/app/components/deck-builder/ChatPanel.tsx for the AI Chat tab in the right panel",
+        "Message input at bottom: textarea with placeholder 'Ask the AI to edit your slides...', Send button (arrow icon), Enter to send, Shift+Enter for newline",
+        "Chat messages displayed as list: user messages right-aligned with subtle bg, assistant messages left-aligned",
+        "Streaming responses render incrementally as text arrives (append to last assistant message)",
+        "Tool call events render as styled cards: green left border, monospace font, icon + tool name + brief description (e.g. 'Added image to slide 3')",
+        "When tool_result event arrives with updated_slides: call the parent's setSlides callback to update editor state and trigger preview refresh",
+        "Loading indicator (animated dots) while waiting for first response chunk",
+        "Chat history loaded on mount (modify GET /api/admin/deck-builder/[id] to also return last 50 messages)",
+        "Quick-action chips above input: 'Improve headlines', 'Add closing slide', 'Make it compelling', 'Restructure flow', 'Use uploaded images'",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": "The streaming fetch: use fetch with chat endpoint, read response.body as ReadableStream, split on newlines, JSON.parse each line. The parent DeckEditorClient passes slides, setSlides, and templateId as props. The 'Use uploaded images' chip sends a message like 'Review my uploaded media assets and suggest how to incorporate them into the slides'. Use frontend-expert agent."
+    },
+    {
+      "id": "US-019",
+      "title": "AI content generation wizard",
+      "description": "As an admin, I want a Generate with AI wizard that creates a complete first-draft presentation from an audience profile using GTM strategies.",
+      "acceptanceCriteria": [
+        "Create src/app/components/deck-builder/GenerateWizard.tsx as a modal dialog",
+        "Triggered by 'Generate with AI' button on template list page and in empty template editor",
+        "Step 1 form: target company type (dropdown: AI lab, robotics, video platform, autonomous vehicles, other), company stage (early/growth/enterprise radio), primary pain point (textarea, required), data modalities needed (checkboxes: video, robotics, multimodal, vision, text)",
+        "Step 2 loading state: animated progress with sequential status messages rotating every 3s: 'Finding the best angle...', 'Structuring the narrative...', 'Writing compelling copy...', 'Building your presentation...'",
+        "Step 3 preview: shows generated slide count and scrollable list of slide titles with first line of body. Accept saves and opens editor. Regenerate goes back to step 2",
+        "Create POST /api/admin/deck-builder/[id]/generate route that accepts { company_type, stage, pain_point, modalities: string[] }",
+        "Route calls Claude with detailed prompt incorporating positioning-angles, message-architecture, and direct-response-copy frameworks",
+        "Generates 8-12 slides: title/hook, problem, old way vs new way, solution, capability slides (1 per modality), social proof, process, CTA",
+        "Returns { slides: SlideData[] }",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": "The Claude prompt should be 1000-1500 words incorporating Claru positioning, the three GTM frameworks, and instructions to output structured JSON matching SlideData[]. Use claude-developer-platform skill + positioning-angles skill + message-architecture skill + direct-response-copy skill."
+    },
+    {
+      "id": "US-020",
+      "title": "Export — HTML download and PDF",
+      "description": "As an admin, I want to export my presentation as HTML or PDF and open it in a new browser tab.",
+      "acceptanceCriteria": [
+        "Create src/app/components/deck-builder/ExportMenu.tsx dropdown in editor header with 3 options: Download HTML, Export PDF, Open in Browser",
+        "Download HTML: generates HTML via renderSlidesToHTML, creates Blob, triggers download as '{template-name}.html'",
+        "Open in Browser: same HTML, opens in new tab via window.open with blob URL",
+        "Export PDF: opens HTML in hidden iframe, calls iframe.contentWindow.print() for browser print dialog (HTML already has @media print CSS from US-009)",
+        "ExportMenu is a dropdown that opens on click and dismisses on click-outside or Escape",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": "The @media print CSS was already added in the HTML renderer (US-009). The print-to-PDF approach is the simplest MVP — no server-side Puppeteer needed. Use frontend-expert agent."
+    },
+    {
+      "id": "US-021",
+      "title": "Version history panel",
+      "description": "As an admin, I want to view and restore previous versions of my template.",
+      "acceptanceCriteria": [
+        "Create src/app/components/deck-builder/VersionHistory.tsx as a slide-out drawer from the right (same pattern as SampleEditPanel)",
+        "Triggered by 'History' button in editor header bar",
+        "Drawer shows list of versions: version number (v1, v2...), relative timestamp ('2 hours ago'), slide count",
+        "Save Version button at top that POSTs to /api/admin/deck-builder/[id]/versions",
+        "Click a version to see its slide titles in a read-only mini-list",
+        "Restore button: confirmation dialog, on confirm replaces current slides_json with version data and triggers autosave",
+        "Auto-saves a version before AI generation (called from GenerateWizard before generate API call)",
+        "Dismiss with X button or Escape key",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": "Read src/app/admin/catalog/[id]/SampleEditPanel.tsx for the slide-out drawer pattern. Relative time: use a simple (Date.now() - date) calculation. Use frontend-expert agent."
+    },
+    {
+      "id": "US-022",
+      "title": "Custom theme editor panel",
+      "description": "As an admin, I want to customize theme colors and fonts so I can tailor the presentation styling beyond the presets.",
+      "acceptanceCriteria": [
+        "Create src/app/components/deck-builder/ThemeEditor.tsx panel accessible via a 'Theme' button in the editor header or as a section below the layout picker",
+        "Shows current theme preset selector (dropdown with 3 presets: Terminal Green, Midnight Executive, Clean White) with color swatches preview",
+        "Below the preset selector, show 'Customize' section with editable overrides: background color (hex input), text color, accent color, secondary background, border color",
+        "Font overrides: heading font (dropdown: Geist Sans, JetBrains Mono, Inter, system-ui), body font (same options), mono font (JetBrains Mono, Courier New, monospace)",
+        "Each color input has a small preview swatch next to it",
+        "Changes save to template.custom_theme as a partial override object (only includes changed values, not the full theme)",
+        "Reset button that clears custom_theme back to null (pure preset)",
+        "Preview updates in real-time as theme is customized",
+        "The HTML renderer merges custom_theme overrides on top of the base preset theme",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": "The custom_theme field in SlideTemplate stores partial overrides. The getTheme function in slide-themes.ts should accept an optional custom_theme parameter and deep-merge overrides. Update renderSlidesToHTML to pass custom_theme through. Use frontend-expert agent."
+    },
+    {
+      "id": "US-023",
+      "title": "Seed demo deck from landing page crawl",
+      "description": "As an admin, I want a pre-built demo sales deck automatically generated by crawling the Claru landing page content so I have a working example template from day one.",
+      "acceptanceCriteria": [
+        "Create src/lib/deck-builder/seed-demo-deck.ts with function generateDemoDeck(): SlideData[]",
+        "Function crawls/reads the landing page content from src/app/page.tsx and section components (Hero, Wedge, ParadigmShift, Capabilities, Testimonials, FinalCTA) to extract: headline, value propositions, offering descriptions, capability descriptions, testimonial quotes, CTA text",
+        "Generates a complete 10-12 slide sales presentation from the extracted content: 1) Title slide with Claru brand headline, 2) Problem slide (why AI labs need better training data), 3) The Claru Difference (from ParadigmShift — Black Box vs Glass Box), 4) Three offering slides (from Wedge — one per offering card), 5) Capabilities overview (from Capabilities section), 6) Social proof slide (from Testimonials), 7) How it Works / Process, 8) Call to Action slide",
+        "Uses the terminal-green theme",
+        "Create API endpoint POST /api/admin/deck-builder/seed that: checks if any templates exist, if none creates the demo deck template named 'Claru Sales Deck — Demo' with is_active true and tags ['demo', 'sales', 'first-call'], returns { template }",
+        "Add a 'Load Demo Deck' button to the empty state on the template list page that calls the seed endpoint",
+        "Demo deck content should be compelling and ready-to-present (not placeholder text) — use actual copy from the landing page sections",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 23,
+      "passes": false,
+      "notes": "Read the landing page section components to extract real content: src/app/components/sections/Hero.tsx (headline, subtitle), src/app/components/sections/Wedge.tsx (3 offering cards), src/app/components/sections/ParadigmShift.tsx (comparison), src/app/components/sections/Capabilities.tsx (services), src/app/components/sections/Testimonials.tsx (quotes), src/app/components/sections/FinalCTA.tsx (CTA). The seed function should produce a deck that an admin could present to a prospect immediately. Use general-purpose agent."
+    },
+    {
+      "id": "US-024",
+      "title": "Playwright E2E — template CRUD and seed demo flow",
+      "description": "As QA, I need an end-to-end test verifying template creation, editing, duplication, and deletion.",
+      "acceptanceCriteria": [
+        "Create tests/e2e/deck-builder-crud.spec.ts",
+        "Test authenticates as admin (POST to /api/admin/login with credentials, set cookie)",
+        "Test flow: navigate to /admin/deck-builder, verify empty state, click Load Demo Deck, verify demo deck appears with 'Claru Sales Deck — Demo' name and demo tag, create template 'Test Sales Deck', verify redirect to editor, verify template name in header, verify 1 default slide exists, edit slide title to 'Welcome to Claru', add a new slide (verify count = 2), go back to list, verify 'Test Sales Deck' in list, duplicate it, verify 'Test Sales Deck (Copy)' appears, delete the copy, verify removed",
+        "Test handles async saves and navigation waits",
+        "Uses Playwright MCP browser tools for all interactions",
+        "Typecheck passes"
+      ],
+      "priority": 24,
+      "passes": false,
+      "notes": "Admin credentials are in env vars ADMIN_EMAIL and ADMIN_PASSWORD. Dev server at http://localhost:3005. Use webapp-testing skill with Playwright MCP."
+    },
+    {
+      "id": "US-025",
+      "title": "Playwright E2E — AI chat and generation flow",
+      "description": "As QA, I need an end-to-end test verifying AI chat editing and content generation wizard.",
+      "acceptanceCriteria": [
+        "Create tests/e2e/deck-builder-ai.spec.ts",
+        "Test requires ANTHROPIC_API_KEY env var (skip test if not set)",
+        "Chat test: navigate to template editor, switch to AI Chat tab, send 'Add a slide about our video data capabilities', wait for response (60s timeout), verify slide count increased, verify new slide references 'video'",
+        "Generate test: navigate to /admin/deck-builder, click Generate with AI, fill form (AI lab, growth, 'high-quality video training data', check video + multimodal), generate, wait 60s, verify 6+ slides, accept, verify editor opens",
+        "Uses Playwright MCP browser tools",
+        "Typecheck passes"
+      ],
+      "priority": 25,
+      "passes": false,
+      "notes": "AI tests are slower — use generous timeouts (60s). Skip with test.skip() if ANTHROPIC_API_KEY not set. Use webapp-testing skill with Playwright MCP."
+    },
+    {
+      "id": "US-026",
+      "title": "Playwright E2E — export and media upload flow",
+      "description": "As QA, I need an end-to-end test verifying HTML export, presentation mode, and media asset upload.",
+      "acceptanceCriteria": [
+        "Create tests/e2e/deck-builder-export.spec.ts",
+        "Setup: create a template with 3 slides via API calls",
+        "Test Open in Browser: click export menu, Open in Browser, verify new tab with first slide title, press ArrowRight, verify second slide, close popup",
+        "Test Download HTML: click Download HTML, verify download fires, verify content starts with '<!DOCTYPE html>'",
+        "Test media upload: open slide editor, navigate to layout picker section, upload a test image via the media panel, verify image appears in assets grid, click image to insert into current slide, verify slide image_url is set",
+        "Cleanup: delete test template",
+        "Uses Playwright MCP browser tools",
+        "Typecheck passes"
+      ],
+      "priority": 26,
+      "passes": false,
+      "notes": "Playwright handles popups via page.waitForEvent('popup') and downloads via page.waitForEvent('download'). For media upload, use page.setInputFiles() on the file input. Use webapp-testing skill with Playwright MCP."
+    }
+  ]
+}

@@ -1,0 +1,270 @@
+{
+  "project": "Slide-as-Website Architecture",
+  "branchName": "ralph/slide-as-website",
+  "description": "Refactor deck builder rendering from static HTML strings to server-rendered pages with media proxy. Each slide is a mini website with full web capabilities. S3 videos use /api/media/s3?key=... proxy for permanent URLs.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "S3 media proxy endpoint",
+      "description": "As a developer, I need a proxy endpoint that serves S3 media with fresh signed URLs so that slides can reference media with permanent, non-expiring URLs.",
+      "acceptanceCriteria": [
+        "Create src/app/api/media/s3/route.ts (already exists as skeleton — verify and complete)",
+        "GET /api/media/s3?key=video_capture/completed/.../file.MP4 returns 302 redirect to freshly signed S3 URL",
+        "Uses getS3SignedUrl from src/lib/s3/presigner.ts with 1-hour expiry",
+        "Response includes Cache-Control: private, max-age=3000",
+        "Returns 400 if key param missing",
+        "Rejects keys containing '..' or starting with '/' (path traversal protection)",
+        "Works for video (mp4, webm, mov) and image (jpg, png, webp) files",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Read src/lib/s3/presigner.ts for getS3SignedUrl. Read src/app/api/media/s3/route.ts if it exists. This is the foundation — all other stories depend on the proxy URL pattern /api/media/s3?key=KEY."
+    },
+    {
+      "id": "US-002",
+      "title": "S3 URL rewriting utility",
+      "description": "As a developer, I need a utility function that rewrites S3 references in HTML to use the media proxy, so that both server routes and editor preview can normalize URLs.",
+      "acceptanceCriteria": [
+        "Create src/lib/deck-builder/rewrite-s3-urls.ts",
+        "Export rewriteS3ToProxy(html: string): string",
+        "Rewrites s3-placeholder.local/* URLs to /api/media/s3?key=...",
+        "Rewrites moonvalley-annotation-platform.s3.*.amazonaws.com/KEY?... URLs to /api/media/s3?key=KEY (extracts key before first ?)",
+        "Rewrites double-signed S3 URLs (two ?X-Amz blocks) correctly by extracting the key",
+        "Rewrites {{s3:key}} template tokens to /api/media/s3?key=...",
+        "Already-proxied URLs (/api/media/s3?key=...) are left unchanged",
+        "Non-S3 URLs (https://cdn.jsdelivr.net, data:, blob:) are left unchanged",
+        "Function is synchronous (no async, no signing — just URL rewriting)",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "This replaces the fragile sign-slide-urls.ts. Key difference: this does NOT sign URLs — it rewrites them to the proxy pattern. The proxy handles signing at request time. Must handle all the broken URL formats we've seen in existing slides."
+    },
+    {
+      "id": "US-003",
+      "title": "Server-rendered single slide route",
+      "description": "As a developer, I need a route that serves a single slide as a full HTML page so that present mode and QA screenshots get server-rendered slides.",
+      "acceptanceCriteria": [
+        "Create src/app/api/slide/[templateId]/[slideIndex]/route.ts",
+        "GET /api/slide/[templateId]/[slideIndex] returns complete HTML page for that slide",
+        "Fetches template from Supabase using createSupabaseAdminClient, extracts slide by sorted order index",
+        "If slide has html field, uses that as content. Otherwise generates from layout system (renderSlideLayout + getBackgroundCSS)",
+        "Applies theme colors and fonts from template.theme and template.custom_theme",
+        "Runs rewriteS3ToProxy on the slide HTML before serving",
+        "Sets <base href> to request origin so /api/media/s3?key=... resolves correctly",
+        "HTML page has: CSS reset, theme styles, slide-root container at 100% width/height",
+        "Returns Content-Type: text/html with Cache-Control: private, no-cache",
+        "Returns 404 if template or slide not found, 400 if invalid index",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "Read src/lib/deck-builder/html-renderer.ts layoutToHtml function for how slides are wrapped with background + grid + glow. Read slide-themes.ts getTheme. Read slide-layouts.ts renderSlideLayout. No auth required on this route."
+    },
+    {
+      "id": "US-004",
+      "title": "Presentation controller route",
+      "description": "As a developer, I need a route that serves the full presentation with all slides and navigation so that present mode uses a server-rendered page.",
+      "acceptanceCriteria": [
+        "Create src/app/api/slide/[templateId]/present/route.ts",
+        "GET /api/slide/[templateId]/present returns full navigable presentation HTML",
+        "Fetches all slides from template, sorts by order",
+        "Each slide HTML has S3 references resolved via rewriteS3ToProxy",
+        "Uses 1920x1080 fixed stage with slide-scaler div (same as current html-renderer.ts)",
+        "JS: fitStage scales to fit viewport, keyboard nav (arrows, space, home, end), touch/swipe nav, overview mode (Escape), progress bar, slide counter",
+        "PostMessage API works: goToSlide, enableSelector, disableSelector",
+        "All CSS and JS inline — self-contained HTML page",
+        "Sets <base href> for proxy URL resolution",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "Port the presentation logic from renderSlidesToHTML in html-renderer.ts. The JS navigation code (~200 lines) can be copied almost verbatim. Key difference: S3 URLs are rewritten to proxy format, not baked-in signed URLs. Do NOT delete renderSlidesToHTML — it's still used for export."
+    },
+    {
+      "id": "US-005",
+      "title": "Update present mode to use server route",
+      "description": "As a user, I want the present button to open a server-rendered presentation so that videos play and media loads reliably.",
+      "acceptanceCriteria": [
+        "Modify handlePresent in DeckEditorClient.tsx",
+        "Instead of building blob URL, open window to /api/slide/{templateId}/present",
+        "Remove renderSlidesToHTML call, blob creation, URL.createObjectURL, and revokeObjectURL from handlePresent",
+        "Remove the sign-urls fetch that was added previously",
+        "Must save slides to Supabase BEFORE opening present (so server route has latest data)",
+        "Add auto-save: if unsaved changes exist, save first then open present",
+        "Navigation works: arrow keys, space, swipe",
+        "Progress bar updates correctly",
+        "Videos autoplay on slides with video content",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "Read DeckEditorClient.tsx handlePresent (around line 261). The save function is handleSave — call it before opening. Template ID is available as template.id. Port 3005 for dev testing."
+    },
+    {
+      "id": "US-006",
+      "title": "Update editor preview to use media proxy URLs",
+      "description": "As a user, I want videos and images to preview correctly in the editor so that I can see media while editing slides.",
+      "acceptanceCriteria": [
+        "Modify PresentationPreview.tsx",
+        "Before passing HTML to setSrcdoc, run rewriteS3ToProxy on the generated HTML",
+        "Import rewriteS3ToProxy from src/lib/deck-builder/rewrite-s3-urls.ts",
+        "Also run rewriteS3ToProxy on individual slide HTML in the renderSlidesToHTML call",
+        "Videos play in the editor preview iframe",
+        "Images from S3 display in the editor preview iframe",
+        "Editor preview still uses srcdoc (no change to debounce or instant-feedback behavior)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "Read PresentationPreview.tsx — the srcdoc is set in a debounced useEffect. Run rewriteS3ToProxy on the html string before setSrcdoc(html). Also check html-renderer.ts renderSlidesToHTML — may need to run rewrite there too."
+    },
+    {
+      "id": "US-007",
+      "title": "Update agent prompts for proxy URLs",
+      "description": "As a developer, I need the design agent and orchestrator prompts to reference proxy URLs so generated slides work immediately.",
+      "acceptanceCriteria": [
+        "Update design-prompt.ts: CANVAS description says slides are 1920x1080px served as web pages",
+        "Add to design-prompt.ts: 'For S3 media use /api/media/s3?key=PATH. Example: <video src=\"/api/media/s3?key=video_capture/completed/.../file.MP4\" autoplay muted loop playsinline>'",
+        "Add to design-prompt.ts: 'You can load external scripts from CDN: <script src=\"https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js\"></script>'",
+        "Add to design-prompt.ts: 'Google Fonts: <link href=\"https://fonts.googleapis.com/css2?family=...\" rel=\"stylesheet\">'",
+        "Update gtm-prompts.ts: set_slide_html description mentions proxy URLs and 1920x1080 fixed canvas",
+        "Update ai-tools.ts: set_slide_html tool description mentions proxy URLs",
+        "Remove signSlideHtml import and calls from chat/route.ts (no longer needed — proxy handles it)",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "Read design-prompt.ts, gtm-prompts.ts, ai-tools.ts for current wording. Some of these were already partially updated in the orchestration improvements session — check current state before editing. Remove import of signSlideHtml from chat/route.ts."
+    },
+    {
+      "id": "US-008",
+      "title": "Update research agent to return proxy URLs",
+      "description": "As a developer, I need the research agent's get_dataset_samples tool to return proxy URLs instead of signed URLs so they don't expire.",
+      "acceptanceCriteria": [
+        "Modify get_dataset_samples handler in executor.ts",
+        "Instead of calling getS3SignedUrl, return /api/media/s3?key={s3_object_key} as the URL",
+        "Remove import of getS3SignedUrl from executor.ts (if no other usage remains)",
+        "Embed hint updated: <video src=\"/api/media/s3?key=...\" autoplay muted loop playsinline>",
+        "Returned URLs never expire (they're proxy URLs, not signed)",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": "Read executor.ts get_dataset_samples handler (around line 306). Currently calls getS3SignedUrl for each sample. Replace with simple string concatenation to proxy URL format."
+    },
+    {
+      "id": "US-009",
+      "title": "Update QA screenshot capture to use server route",
+      "description": "As a developer, I need the auto-verify system to screenshot server-rendered slides so QA sees what users will see.",
+      "acceptanceCriteria": [
+        "Modify autoVerifySlide in server-tool-handlers.ts",
+        "Navigate Playwright to /api/slide/[templateId]/[slideIndex] instead of building HTML and loading via srcdoc/page.setContent",
+        "Must save updated slides_json to Supabase BEFORE taking screenshot (server route reads from DB)",
+        "Add templateId parameter to autoVerifySlide function signature",
+        "Update all callers of autoVerifySlide in chat/route.ts to pass templateId",
+        "Screenshot matches what present mode shows",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": true,
+      "notes": "Read autoVerifySlide in server-tool-handlers.ts. Currently it builds HTML and uses Playwright to render. Change to: save slides to DB, then navigate Playwright to the server route URL. The save step is critical — the server route reads from Supabase."
+    },
+    {
+      "id": "US-010",
+      "title": "Migrate existing slide HTML to proxy URLs",
+      "description": "As a developer, I need a migration script that rewrites S3 URLs in existing slide HTML to use proxy URLs.",
+      "acceptanceCriteria": [
+        "Create scripts/migrate-slide-urls.ts",
+        "Script reads all slide_templates with slides_json from Supabase",
+        "For each slide with an html field, runs rewriteS3ToProxy to rewrite S3 references",
+        "Handles: s3-placeholder.local URLs, signed S3 bucket URLs, double-signed URLs, {{s3:key}} tokens",
+        "Script is idempotent — running twice produces same result (already-proxied URLs unchanged)",
+        "Script logs: templates processed, slides updated, URLs rewritten count",
+        "Saves updated slides_json back to Supabase",
+        "Run on demo deck template 54f7930f-cf81-4c0d-8f66-28ddaf93476a",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": true,
+      "notes": "Import rewriteS3ToProxy from rewrite-s3-urls.ts. Use createSupabaseAdminClient. Load dotenv from .env.local. Run with npx tsx scripts/migrate-slide-urls.ts."
+    },
+    {
+      "id": "US-011",
+      "title": "Add media_refs field to SlideData",
+      "description": "As a developer, I need each slide to track which S3 media keys it references for dependency tracking and cache pre-warming.",
+      "acceptanceCriteria": [
+        "Add optional media_refs field to SlideData type in src/types/deck-builder.ts: media_refs?: string[]",
+        "Create extractMediaRefs(html: string): string[] utility in src/lib/deck-builder/rewrite-s3-urls.ts",
+        "Extraction: parse /api/media/s3?key=KEY patterns from HTML, collect unique keys",
+        "After delegate_design applies HTML in chat/route.ts, extract media_refs and set on slide data",
+        "After set_slide_html in ai-tools.ts, extract media_refs and set on slide data",
+        "media_refs saved as part of slides_json (no Supabase schema change)",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": true,
+      "notes": "Read src/types/deck-builder.ts for SlideData interface. The extraction function should use a simple regex on /api/media/s3?key= pattern. Dedup with Set."
+    },
+    {
+      "id": "US-012",
+      "title": "Clean up legacy signing code",
+      "description": "As a developer, I need to remove the fragile URL signing code that's no longer needed.",
+      "acceptanceCriteria": [
+        "Delete src/lib/deck-builder/sign-slide-urls.ts",
+        "Delete src/app/api/admin/deck-builder/[id]/sign-urls/route.ts and its directory",
+        "Remove signSlideHtml and refreshS3Urls imports from any file that still references them",
+        "Remove sign-urls fetch from DeckEditorClient.tsx handlePresent (if not already done in US-005)",
+        "Keep src/lib/s3/presigner.ts (still used by media proxy and data catalog)",
+        "Keep src/app/api/media/s3/route.ts (this is the new approach)",
+        "Typecheck passes",
+        "npm run build succeeds"
+      ],
+      "priority": 12,
+      "passes": true,
+      "notes": "Run grep for sign-slide-urls, signSlideHtml, refreshS3Urls, sign-urls across the codebase to find all references. Remove them all. This is cleanup — no new functionality."
+    },
+    {
+      "id": "US-013",
+      "title": "Playwright E2E test — video playback in present mode",
+      "description": "As QA, I need an end-to-end test verifying that videos play in presentation mode.",
+      "acceptanceCriteria": [
+        "Create tests/e2e/deck-video-playback.spec.ts",
+        "Log in as admin (team@claru.ai / qweqwe123!)",
+        "Navigate to deck builder with template 54f7930f-cf81-4c0d-8f66-28ddaf93476a",
+        "Click present button",
+        "Switch to new tab (presentation)",
+        "Navigate to slide 6 (5 arrow-right presses)",
+        "Wait for video elements to reach readyState >= 2 (data loaded) with 30s timeout",
+        "Assert no video elements have networkState === 3 (error)",
+        "Assert at least one video is not paused (autoplay working)",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": true,
+      "notes": "Dev server at http://localhost:3005. Use Playwright test patterns from tests/e2e/deck-builder-crud.spec.ts for login helper."
+    },
+    {
+      "id": "US-014",
+      "title": "Playwright E2E test — editor preview media",
+      "description": "As QA, I need an end-to-end test verifying that media displays in the editor preview.",
+      "acceptanceCriteria": [
+        "Create tests/e2e/deck-editor-media.spec.ts",
+        "Log in as admin",
+        "Navigate to deck builder with the demo template",
+        "Click on slide 6 thumbnail",
+        "In the main preview iframe, find video elements",
+        "Assert video src or source elements contain /api/media/s3?key= URLs",
+        "Assert video networkState !== 3 (no error loading)",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": true,
+      "notes": "The editor preview uses srcdoc iframe. Need to access iframe content via Playwright frame locator. Use same login pattern as other E2E tests."
+    }
+  ]
+}

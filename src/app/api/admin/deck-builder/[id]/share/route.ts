@@ -177,7 +177,11 @@ export async function PATCH(
     let slug = toSlug(template.name as string);
     if (!slug) slug = "deck";
 
+<<<<<<< HEAD
     // Check uniqueness — if conflict, append random suffix
+=======
+    // Check uniqueness -- if conflict, append random suffix
+>>>>>>> 5db8ed5 ([US-008] Share panel — basic settings UI with slide-out drawer)
     const { data: existing } = await supabase
       .from("slide_templates")
       .select("id")

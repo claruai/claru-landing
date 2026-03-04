@@ -26,6 +26,7 @@ import {
   ChevronRight,
   MessageSquare,
   Loader2,
+  Share2,
 } from "lucide-react";
 import type {
   SlideData,
@@ -41,6 +42,7 @@ import { ExportMenu } from "@/app/components/deck-builder/ExportMenu";
 import { VersionHistory } from "@/app/components/deck-builder/VersionHistory";
 import { ThemeEditor } from "@/app/components/deck-builder/ThemeEditor";
 import { ChatPanel } from "@/app/components/deck-builder/ChatPanel";
+import { SharePanel } from "@/app/components/deck-builder/SharePanel";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -152,8 +154,9 @@ export function DeckEditorClient({ initialTemplate }: DeckEditorClientProps) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
-  /* ---- Version history & theme state ------------------------------ */
+  /* ---- Version history, share & theme state ----------------------- */
   const [versionHistoryOpen, setVersionHistoryOpen] = useState(false);
+  const [sharePanelOpen, setSharePanelOpen] = useState(false);
   const [themeId, setThemeId] = useState(template.theme ?? "terminal-green");
   const [customTheme, setCustomTheme] = useState<SlideThemeCustom | null>(
     template.custom_theme ?? null
@@ -733,6 +736,15 @@ export function DeckEditorClient({ initialTemplate }: DeckEditorClientProps) {
           />
 
           <button
+            onClick={() => setSharePanelOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 font-mono text-xs text-[var(--text-muted)] hover:text-[var(--accent-primary)] border border-[var(--border-subtle)] rounded-md hover:border-[var(--accent-primary)]/40 transition-colors"
+            title="Share settings"
+          >
+            <Share2 className="w-3.5 h-3.5" />
+            share
+          </button>
+
+          <button
             onClick={() => setVersionHistoryOpen(true)}
             className="flex items-center gap-1.5 px-2.5 py-1.5 font-mono text-xs text-[var(--text-muted)] hover:text-[var(--accent-primary)] border border-[var(--border-subtle)] rounded-md hover:border-[var(--accent-primary)]/40 transition-colors"
             title="Version history"
@@ -985,6 +997,15 @@ export function DeckEditorClient({ initialTemplate }: DeckEditorClientProps) {
         isOpen={versionHistoryOpen}
         onClose={() => setVersionHistoryOpen(false)}
         onRestore={handleVersionRestore}
+      />
+
+      {/* Share Panel Drawer */}
+      <SharePanel
+        templateId={template.id}
+        templateName={templateName}
+        isOpen={sharePanelOpen}
+        onClose={() => setSharePanelOpen(false)}
+        showToast={showToast}
       />
 
       {/* Toasts */}

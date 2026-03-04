@@ -1,0 +1,210 @@
+{
+  "project": "Three-Mode Agent Architecture",
+  "branchName": "ralph/agent-modes",
+  "description": "Split the deck builder AI into three distinct modes — Strategist (deck structure and narrative), Art Director (full creative control, default), and Page Builder (direct HTML editing). Each mode has its own tool set, system prompt, and model routing.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Mode type definitions and configuration registry",
+      "description": "As a developer, I need AgentMode types, config registry, and intent detection so the frontend and backend can route to the correct mode.",
+      "acceptanceCriteria": [
+        "Create src/lib/deck-builder/agent-modes.ts",
+        "Export AgentMode type: 'strategist' | 'art-director' | 'page-builder'",
+        "Export AgentModeConfig interface with: mode, label, description, model, icon, placeholder",
+        "Export AGENT_MODES record with configs for all three modes",
+        "Export detectModeIntent(message, currentMode) — regex-based, returns AgentMode | null",
+        "Strategist signals: restructure, reorder, add a slide, remove slide, deck flow, storyline, outline, build me a deck",
+        "Page Builder signals: change the font, make it Npx, edit the heading, fix the padding, move this div, change background to",
+        "Art Director signals: redesign, make it more, improve this, show me options",
+        "Returns null if message fits current mode",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Strategist system prompt",
+      "description": "As a developer, I need a strategist-specific prompt that focuses on deck structure, narrative flow, and content strategy.",
+      "acceptanceCriteria": [
+        "Create getStrategistPrompt function",
+        "Focus on structure, narrative, and copy",
+        "No design/HTML guidance",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Another track — do not implement."
+    },
+    {
+      "id": "US-003",
+      "title": "Page Builder system prompt",
+      "description": "As a developer, I need a page-builder-specific prompt that focuses on direct HTML/CSS manipulation.",
+      "acceptanceCriteria": [
+        "Create getPageBuilderPrompt function",
+        "Focus on HTML editing, CSS properties, surgical changes",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "Another track — do not implement."
+    },
+    {
+      "id": "US-004",
+      "title": "patch_slide_html tool handler",
+      "description": "As a developer, I need a tool that applies surgical CSS/HTML patches to slides without rewriting the whole thing.",
+      "acceptanceCriteria": [
+        "Implement patch_slide_html in processToolCall",
+        "Supports: replace, setAttribute, setStyle, setText, remove actions",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "Another track — do not implement."
+    },
+    {
+      "id": "US-005",
+      "title": "Mode-specific tool sets",
+      "description": "As a developer, I need getModeTools(mode) to return the correct tool subset for each agent mode.",
+      "acceptanceCriteria": [
+        "Add getModeTools(mode: AgentMode): Anthropic.Tool[] to agent-modes.ts",
+        "Import ORCHESTRATOR_TOOLS from orchestrator-tools.ts and filter by tool.name",
+        "Strategist: get_all_slides, add_slide, delete_slide, reorder_slides, restructure_deck, edit_slide (title/body only), generate_section, delegate_research, get_deck_approach, load_skill, think",
+        "Art Director: ALL ORCHESTRATOR_TOOLS (unchanged)",
+        "Page Builder: get_slide_html, set_slide_html, patch_slide_html, edit_slide (all fields), get_media_assets, get_site_media, delegate_research, think",
+        "For strategist edit_slide: clone the tool definition but restrict field enum to ['title', 'body']",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Mode-aware chat route",
+      "description": "As a developer, I need the chat route to accept a mode parameter and adjust behavior per mode.",
+      "acceptanceCriteria": [
+        "Modify POST /api/admin/deck-builder/[id]/chat to accept mode: AgentMode in request body (default 'art-director')",
+        "Import AgentMode, AGENT_MODES, getModeTools from agent-modes.ts",
+        "Based on mode: select system prompt, tools, model",
+        "Page Builder: inject full slide HTML into prompt context, skip QA pipeline entirely",
+        "Strategist: block design delegation (return error if delegate_design called)",
+        "Emit { type: 'mode_info', mode } stream event at start",
+        "Save mode in message metadata_json",
+        "Art Director mode: completely unchanged from current behavior",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Mode tab bar UI component",
+      "description": "As a user, I need a tab bar in the chat panel to switch between Strategist, Art Director, and Page Builder modes.",
+      "acceptanceCriteria": [
+        "Add mode state to ChatPanel.tsx: useState<AgentMode>(\"art-director\")",
+        "Create ModeTabBar with three tabs: Strategy, Design, Build",
+        "Active tab: sage green border-bottom-2 + accent text. Inactive: muted text",
+        "Tabs: font-mono, text-[11px], compact height",
+        "Tab bar sits between the chat header and messages area",
+        "Clicking tab sets mode, does NOT clear chat history",
+        "On mode change, insert divider in messages",
+        "Pass mode to sendMessage so it is in the API POST body",
+        "Chat input placeholder changes per mode (from AGENT_MODES)",
+        "Import AgentMode, AGENT_MODES from agent-modes-client.ts",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "Created agent-modes-client.ts as a client-safe subset to avoid importing server-only modules (fs) in client components."
+    },
+    {
+      "id": "US-008",
+      "title": "Mode-specific suggestion chips",
+      "description": "As a user, I want suggestion chips that update based on the active mode so they are contextually relevant.",
+      "acceptanceCriteria": [
+        "Create SUGGESTION_CHIPS_BY_MODE config (Record<AgentMode, string[]>)",
+        "Strategist: Build a sales deck, Restructure the flow, Add a closing slide, Improve the narrative",
+        "Art Director: Redesign this slide, Make it more impactful, Add data visualization, Show me 3 options",
+        "Page Builder: Make heading bigger, Add video grid, Change background color, Fix the spacing",
+        "Replace existing hardcoded SUGGESTION_CHIPS with mode-aware version",
+        "Chips update immediately when tab clicked",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Fine-tune button on QA results",
+      "description": "As a user, I want a Fine-tune button on QA action buttons so I can quickly switch to Page Builder mode after a QA result.",
+      "acceptanceCriteria": [
+        "Add Fine-tune button to QA action buttons (alongside Accept/Improve/Redo)",
+        "Button: lightning icon + Fine-tune label",
+        "Clicking: sets mode to page-builder, inserts mode-switch divider, focuses chat input",
+        "Appears for both pass and needs_work QA results",
+        "The mode tab bar reflects the change",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Natural language mode detection suggestion",
+      "description": "As a user, I want the system to detect when my message better fits a different mode and suggest switching before sending.",
+      "acceptanceCriteria": [
+        "In trySend wrapper, before sending, call detectModeIntent(message, mode)",
+        "If non-null, show suggestion chip between input and messages",
+        "Two buttons: Switch (changes mode + sends) and Keep (sends in current mode)",
+        "Chip is unobtrusive — small bar",
+        "Disappears after any action",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Playwright E2E test — mode switching flow",
+      "description": "As QA, I need an end-to-end test verifying mode switching works correctly.",
+      "acceptanceCriteria": [
+        "Create tests/e2e/deck-agent-modes.spec.ts",
+        "Log in as admin (team@claru.ai / qweqwe123!)",
+        "Navigate to deck builder with template 54f7930f-cf81-4c0d-8f66-28ddaf93476a",
+        "Verify default mode is Design (tab highlighted with accent color)",
+        "Click Strategy tab, verify it becomes active",
+        "Verify suggestion chips change to strategy-related options",
+        "Click Build tab, verify it becomes active",
+        "Verify suggestion chips change to build-related options",
+        "Verify chat input placeholder changes",
+        "Click Design tab, verify mode switches back",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": true,
+      "notes": "Dev server at http://localhost:3005. UI-only test, no API calls needed. Use webapp-testing skill."
+    },
+    {
+      "id": "US-012",
+      "title": "Playwright E2E test — Page Builder speed",
+      "description": "As QA, I need a test verifying Page Builder mode responds faster than Art Director.",
+      "acceptanceCriteria": [
+        "Create tests/e2e/deck-page-builder-speed.spec.ts",
+        "Test requires ANTHROPIC_API_KEY (skip if not set)",
+        "Log in as admin, navigate to deck builder",
+        "Switch to Build mode, send a simple edit message",
+        "Assert response time < 10 seconds",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": true,
+      "notes": "Dev server at http://localhost:3005. Use webapp-testing skill."
+    }
+  ]
+}

@@ -1,0 +1,210 @@
+{
+  "project": "Multi-Agent Architecture",
+  "branchName": "ralph/multi-agent",
+  "description": "Rearchitect the slide deck builder AI from a single monolithic agent into a coordinated team: Orchestrator (Sonnet, streams to user), Design Agent (Opus/Sonnet, writes HTML), Research Agent (Haiku, web search), QA Agent (Sonnet, evaluates with fresh eyes). Max 2 QA retries. Parallel execution. Frontend unchanged.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Agent types and interfaces",
+      "description": "As a developer, I need type definitions for the multi-agent system.",
+      "acceptanceCriteria": [
+        "Create src/lib/deck-builder/agents/types.ts",
+        "Export AgentRole = 'orchestrator' | 'design' | 'research' | 'qa'",
+        "Export DesignBrief interface: slideIndex (number), currentSlideData (SlideData), instruction (string), complexity ('simple' | 'complex'), useAnimations (boolean), mediaContext (string)",
+        "Export ResearchBrief interface: question (string), maxWords (number, default 200)",
+        "Export QAVerdict interface: pass (boolean), score (number 1-10), issues (string[]), fixes (string[])",
+        "Export AgentResult interface: role (AgentRole), result (string), slidesUpdated (SlideData[] | null), verdict (QAVerdict | null), html (string | null)",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "Read src/types/deck-builder.ts for SlideData type. Foundation for all other stories. Use general-purpose agent."
+    },
+    {
+      "id": "US-002",
+      "title": "Orchestrator system prompt",
+      "description": "As a developer, I need a lean system prompt for the Lead Agent focused on delegation.",
+      "acceptanceCriteria": [
+        "Create src/lib/deck-builder/agents/orchestrator-prompt.ts",
+        "Export getOrchestratorPrompt(context: { name, description, slideCount }) returning string",
+        "Prompt includes: Claru positioning (3 sentences max), delegation rules, response guidelines",
+        "Delegation rules: handle directly (title/body edits, reorder, delete) vs delegate_design (custom HTML, visual work) vs delegate_research (web search, data lookup)",
+        "Prompt under 800 words total",
+        "Does NOT include: design reference, GSAP, spatial guide, media inventory",
+        "Includes: 'Report results in max 10 words after delegation completes'",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Read src/lib/deck-builder/gtm-prompts.ts for current prompt. Extract only orchestration parts. Use general-purpose agent."
+    },
+    {
+      "id": "US-003",
+      "title": "Design Agent system prompt",
+      "description": "As a developer, I need a focused prompt for the Design Agent with all design knowledge.",
+      "acceptanceCriteria": [
+        "Create src/lib/deck-builder/agents/design-prompt.ts",
+        "Export getDesignAgentPrompt(brief: DesignBrief) returning string",
+        "Includes full slide design reference from slide-design-reference.ts",
+        "Includes Claru visual identity (bg #0a0908, accent #92B090, fonts Geist Sans + JetBrains Mono)",
+        "Conditionally includes GSAP reference when brief.useAnimations is true",
+        "Includes the brief: slide index, current slide data, instruction, media context",
+        "Instructs: return ONLY HTML string, no explanations, no markdown wrapping",
+        "Instructs: 'HTML is a 100vw x 100vh canvas. Include background, grid overlay, typography.'",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "Read slide-design-reference.ts and gsap-reference.ts. This prompt is the richest — all design knowledge lives here. Use general-purpose agent."
+    },
+    {
+      "id": "US-004",
+      "title": "Research Agent and QA Agent system prompts",
+      "description": "As a developer, I need prompts for the Research and QA Agents.",
+      "acceptanceCriteria": [
+        "Create src/lib/deck-builder/agents/research-prompt.ts with getResearchAgentPrompt(question, maxWords)",
+        "Research prompt: search + synthesize + return brief under maxWords, structured markdown, no design knowledge",
+        "Create src/lib/deck-builder/agents/qa-prompt.ts with getQAAgentPrompt()",
+        "QA prompt: includes full design reference + 3-dimension quality framework (Layout, Content, Interactions) + spatial guide",
+        "QA output format: JSON { pass: boolean, score: number, issues: string[], fixes: string[] }",
+        "QA scoring: 7+ passes. Agent instructed to be critical — 'senior McKinsey designer reviewing work'",
+        "QA does NOT include: GTM strategy, media inventory, conversation history",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": "Read slide-design-reference.ts for QA content. Read analyzeSlideLayout in server-tool-handlers.ts for the 3-dimension framework. Use general-purpose agent."
+    },
+    {
+      "id": "US-005",
+      "title": "Agent executor — Design Agent caller",
+      "description": "As a developer, I need a function that calls the Design Agent and returns HTML.",
+      "acceptanceCriteria": [
+        "Create src/lib/deck-builder/agents/executor.ts",
+        "Export callDesignAgent(brief: DesignBrief, slides: SlideData[]): Promise<{ html: string, selfNote: string }>",
+        "Uses claude-opus-4-6 when brief.complexity === 'complex', claude-sonnet-4-20250514 otherwise",
+        "System prompt from getDesignAgentPrompt(brief), user message is brief.instruction + current slide JSON",
+        "Max tokens: 8192",
+        "Parses HTML from response — strips markdown code fences if Claude wraps it",
+        "Returns { html, selfNote } — selfNote is first line of non-HTML text or empty",
+        "Error: returns { html: '', selfNote: 'Design agent failed: ...' }",
+        "Fresh call every time — no conversation history",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "Read src/lib/deck-builder/ai-agent.ts for getAnthropicClient. Design Agent does NOT use tool_use — just returns HTML as text. Use general-purpose agent."
+    },
+    {
+      "id": "US-006",
+      "title": "Agent executor — Research Agent caller",
+      "description": "As a developer, I need a function that calls the Research Agent with tools.",
+      "acceptanceCriteria": [
+        "Add callResearchAgent to src/lib/deck-builder/agents/executor.ts",
+        "Export callResearchAgent(question: string, maxWords?: number, supabase?: SupabaseClient): Promise<string>",
+        "Uses claude-haiku-4-5-20251001",
+        "HAS tool_use tools: web_search (calls webSearch from web-search.ts) and get_data_catalog (queries Supabase if client provided)",
+        "Implements multi-turn tool loop: call Claude → if tool_use, execute tool, send result back → repeat until end_turn",
+        "Max tokens: 2048",
+        "Returns final text response after all tool calls",
+        "Error: returns 'Research failed: ...'",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "Read the tool loop pattern in chat/route.ts (the while(continueConversation) loop). Replicate it here non-streaming. Import webSearch from web-search.ts. Use general-purpose agent."
+    },
+    {
+      "id": "US-007",
+      "title": "Agent executor — QA Agent caller",
+      "description": "As a developer, I need a function that calls the QA Agent and returns a verdict.",
+      "acceptanceCriteria": [
+        "Add callQAAgent to src/lib/deck-builder/agents/executor.ts",
+        "Export callQAAgent(html: string, screenshot: string | null, layoutAnalysis: string): Promise<QAVerdict>",
+        "Uses claude-sonnet-4-20250514",
+        "User message: text (HTML + layout analysis) + image (screenshot as base64 if available)",
+        "Uses Anthropic multimodal content: [{type:'text',...}, {type:'image',source:{type:'base64',media_type:'image/png',data:...}}]",
+        "Max tokens: 2048",
+        "Parses JSON verdict from response — strips markdown fences if wrapped",
+        "Parse failure: returns { pass: false, score: 0, issues: ['Failed to parse QA response'], fixes: [] }",
+        "Error: returns { pass: false, score: 0, issues: ['QA agent failed'], fixes: [] }",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": "QA Agent has NO tools — just receives data and returns JSON. Use multimodal content format for screenshots. Use general-purpose agent."
+    },
+    {
+      "id": "US-008",
+      "title": "Orchestrator tool definitions",
+      "description": "As a developer, I need the tool set for the orchestrator with delegation tools.",
+      "acceptanceCriteria": [
+        "Create src/lib/deck-builder/agents/orchestrator-tools.ts",
+        "Export ORCHESTRATOR_TOOLS as Anthropic.Tool[] containing: edit_slide, add_slide, delete_slide, reorder_slides, restructure_deck, undo_slide, get_all_slides, get_slide_html, set_template_theme, customize_theme, apply_to_all_slides, generate_section, get_media_assets (copy definitions from ai-tools.ts)",
+        "Add delegate_design: params { slide_index, instruction, complexity ('simple'|'complex'), use_animations (boolean) }",
+        "Add delegate_research: params { question, max_words? }",
+        "Add delegate_qa: params { slide_index }",
+        "Add generate_variations: params { slide_index, direction? }",
+        "Export processOrchestratorTool(toolName, input, slides, mediaAssets?) that handles direct tools (reuse handlers from ai-tools.ts)",
+        "Delegation tools (delegate_*, generate_variations) return { updatedSlides: slides, result: '__NEEDS_DELEGATION__' }",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": "Read src/lib/deck-builder/ai-tools.ts for existing tool definitions and handlers. Copy the ones the orchestrator keeps. Import and reuse the handler functions. Use general-purpose agent."
+    },
+    {
+      "id": "US-009",
+      "title": "Refactor chat route — multi-agent orchestration",
+      "description": "As a developer, I need to refactor the chat route to use the orchestrator + specialist team.",
+      "acceptanceCriteria": [
+        "Modify src/app/api/admin/deck-builder/[id]/chat/route.ts",
+        "Replace SLIDE_TOOLS with ORCHESTRATOR_TOOLS from orchestrator-tools.ts",
+        "Replace getSystemPrompt with getOrchestratorPrompt from orchestrator-prompt.ts",
+        "Replace processToolCall with processOrchestratorTool for direct tools",
+        "When result is '__NEEDS_DELEGATION__', handle delegation: delegate_design triggers Design Agent → QA loop, delegate_research triggers Research Agent, delegate_qa triggers QA Agent, generate_variations triggers 3x Design Agent calls",
+        "delegate_design flow: emit status 'Designing slide N...', build DesignBrief, callDesignAgent, apply HTML, capture screenshot + analyzeSlideLayout, callQAAgent, if fail and retries<2 retry with QA feedback, emit tool_result with verdict summary",
+        "delegate_research flow: emit status 'Researching...', callResearchAgent, return brief to orchestrator",
+        "Orchestrator tool results are summaries not raw HTML — e.g. 'Slide 5 redesigned. QA: PASS (8/10)'",
+        "Undo manager still works, chat history still persisted, streaming still works",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": "This is the biggest story. Read the current chat route thoroughly. Core loop structure stays the same — the change is delegation tools trigger specialist calls instead of processToolCall. Specialist calls are non-streaming. Use general-purpose agent."
+    },
+    {
+      "id": "US-010",
+      "title": "Status events and QA verdict in ChatPanel",
+      "description": "As a user, I want to see agent team activity and QA verdicts in the chat.",
+      "acceptanceCriteria": [
+        "Add { type: 'status', message: string } to stream event type in ChatPanel",
+        "Handle 'status' in stream switch: render as inline indicator (font-mono text-xs text-[var(--accent-primary)] animate-pulse)",
+        "Status appears at bottom of message list, auto-dismisses on next event",
+        "Add QA verdict rendering: when tool_result for delegate_design includes verdict data, show compact card with score badge (green pass / orange fail) and issues",
+        "Parse verdict from tool result text (look for 'QA: PASS' or 'QA: FAIL' pattern, or structured JSON)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": "Read ChatPanel.tsx stream event handling. Add new event types. Status should feel like a progress indicator not a chat message. Use frontend-expert agent."
+    },
+    {
+      "id": "US-011",
+      "title": "Playwright E2E test — multi-agent flow",
+      "description": "As QA, I need an end-to-end test verifying the multi-agent design and QA flow.",
+      "acceptanceCriteria": [
+        "Create tests/e2e/deck-builder-multi-agent.spec.ts",
+        "Test requires ANTHROPIC_API_KEY (skip if not set)",
+        "Test: navigate to template editor, send 'redesign slide 1', verify status messages appear, verify QA verdict appears, verify slide changed, verify preview updates",
+        "Timeout: 90 seconds",
+        "Uses Playwright MCP",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": "Dev server at http://localhost:3005. Admin credentials in env vars. Use webapp-testing skill with Playwright MCP."
+    }
+  ]
+}
