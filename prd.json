@@ -249,7 +249,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 13,
-      "passes": false,
+      "passes": true,
       "notes": "Read src/app/admin/leads/[id]/LeadDetailClient.tsx for the existing lead detail page structure. Use frontend-expert agent for the engagement section UI."
     },
     {
