@@ -254,7 +254,7 @@ export default function AdminCatalogTable({
               {th("Category", "category")}
               {th("Type", "type")}
               {th("Subcategory", "subcategory")}
-              {th("Samples", "total_samples")}
+              {th("Size", "total_samples")}
               {th("Published", "is_published")}
               <th className="px-4 py-3 text-left text-xs font-mono uppercase tracking-wider text-[var(--text-tertiary)]">
                 Actions
@@ -305,7 +305,7 @@ export default function AdminCatalogTable({
                     {dataset.subcategory || "\u2014"}
                   </td>
 
-                  {/* Total Samples */}
+                  {/* Dataset Size */}
                   <td className="px-4 py-3 text-[var(--text-secondary)] tabular-nums">
                     {dataset.total_samples.toLocaleString()}
                   </td>
