@@ -80,7 +80,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "Port the presentation logic from renderSlidesToHTML in html-renderer.ts. The JS navigation code (~200 lines) can be copied almost verbatim. Key difference: S3 URLs are rewritten to proxy format, not baked-in signed URLs. Do NOT delete renderSlidesToHTML — it's still used for export."
     },
     {
