@@ -1,327 +1,68 @@
 {
-  "project": "Deck Sharing & Analytics",
-  "branchName": "ralph/deck-sharing",
-  "description": "Turn the deck builder into a sales intelligence platform. Public share URLs (/d/[slug]), tokenized lead tracking, mobile-responsive viewing, per-slide analytics, engagement notifications. Built on the slide-as-website architecture with server presentation routes and media proxy.",
+  "project": "Inline WYSIWYG Text Editing",
+  "branchName": "ralph/inline-text-editing",
+  "description": "Add inline WYSIWYG text editing to the deck builder slide preview. Double-click text elements to edit in-place with contentEditable, floating bold/italic/underline toolbar, and PostMessage communication with the parent editor.",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Database migration — share settings, tokens, views",
-      "description": "As a developer, I need database tables for share settings, viewer tokens, and view analytics.",
+      "title": "contentEditable inline editing script",
+      "description": "As an admin using the deck builder, I want to double-click text elements in the slide preview to edit them in-place.",
       "acceptanceCriteria": [
-        "Create supabase/migrations/YYYYMMDD_create_deck_sharing_tables.sql",
-        "Add share_settings JSONB column to slide_templates with default null",
-        "Schema: { enabled: boolean, slug: string, expiry: string|null, gate_type: 'none'|'email'|'password', gate_value: string|null, cta_enabled: boolean, cta_text: string|null, cta_url: string|null, show_branding: boolean }",
-        "Create deck_share_tokens table: id UUID PK, template_id FK, lead_id FK nullable, email TEXT NOT NULL, token TEXT UNIQUE, parent_lead_id UUID nullable, created_at, expires_at nullable",
-        "Create deck_views table: id UUID PK, template_id FK, token_id FK nullable, viewer_email nullable, device_type TEXT, slides_viewed JSONB, total_duration_seconds INT, completion_rate DECIMAL, viewed_at TIMESTAMPTZ, ip_address TEXT nullable",
-        "Add indexes on deck_share_tokens(token), deck_share_tokens(template_id), deck_views(template_id, viewed_at), deck_views(token_id)",
-        "Add html_mobile optional field to SlideData type in src/types/deck-builder.ts",
+        "Create src/lib/deck-builder/inline-edit-script.ts exporting getInlineEditScript(): string",
+        "Returns a <script> block (IIFE pattern) injected into slide preview iframes",
+        "On dblclick of text elements (h1,h2,h3,h4,p,span,li,td,th,blockquote,label): set contentEditable='true', focus",
+        "Text detection: element has direct text node children OR is a heading/paragraph/list-item tag",
+        "Ignore: div with only child elements, img, video, svg, canvas",
+        "Highlight: outline 2px solid #92B090, outline-offset 2px, border-radius 2px",
+        "One element editable at a time",
+        "On blur or Escape: remove contentEditable, remove highlight, PostMessage to parent",
+        "PostMessage: { type: 'inlineEdit', tag, innerHTML, originalInnerHTML, selector }",
+        "selector: best-effort CSS path (tag + class + id or nth-child)",
+        "Responds to enableInlineEdit/disableInlineEdit PostMessage from parent",
+        "Coexists with SELECTOR_SCRIPT (both listen on window message with different type keys)",
         "Typecheck passes"
       ],
       "priority": 1,
       "passes": true,
-      "notes": "Read supabase/migrations/ for existing migration patterns. Read src/types/deck-builder.ts for SlideData type (add html_mobile alongside media_refs). Use supabase-expert skill for migration guidance. Use general-purpose agent."
+      "notes": "Read DeckEditorClient.tsx SELECTOR_SCRIPT pattern for how iframe scripts work. The inline edit script uses separate message types (enableInlineEdit/disableInlineEdit) to coexist with the selector script (enableSelector/disableSelector)."
     },
     {
       "id": "US-002",
-      "title": "Share settings API routes (GET + PATCH)",
-      "description": "As an admin, I need API endpoints to get and update share settings for a template.",
+      "title": "Floating formatting toolbar",
+      "description": "As an admin editing text inline, I want a floating toolbar with bold/italic/underline buttons.",
       "acceptanceCriteria": [
-        "Create src/app/api/admin/deck-builder/[id]/share/route.ts",
-        "GET returns current share_settings from template or default { enabled: false }",
-        "PATCH updates share_settings JSONB on the template row",
-        "Auto-generate slug from template name on first enable (kebab-case, unique). If conflict, append -XXXX random suffix",
-        "Validate: slug is URL-safe (lowercase, hyphens only), expiry is valid ISO date or null, gate_type is 'none'|'email'|'password'",
-        "Admin JWT auth required on both routes",
+        "Toolbar created inside the same inline edit script when contentEditable activates",
+        "3 buttons: B (bold), I (italic), U (underline)",
+        "Uses document.execCommand('bold'/'italic'/'underline') on click",
+        "Style: bg #121210, border 1px solid rgba(255,255,255,0.08), border-radius 4px, shadow",
+        "Buttons: monospace 13px, padding 4px 8px, color #fff",
+        "Active state: bg #92B090, color #0a0908 — checked via queryCommandState on selectionchange",
+        "mousedown.preventDefault on buttons to prevent blur of editable element",
+        "Positioned above editable element (or below if near top of viewport)",
+        "Removed on commit (blur/Escape)",
         "Typecheck passes"
       ],
       "priority": 2,
       "passes": true,
-      "notes": "Read src/app/api/admin/deck-builder/[id]/route.ts for existing auth pattern (verifyAdminToken). Use crypto.randomBytes for suffix. Use general-purpose agent."
+      "notes": "Implemented together with US-001 in the same getInlineEditScript() function. The toolbar is created as a fixed-position div appended to document.body inside the iframe."
     },
     {
       "id": "US-003",
-      "title": "Public viewer page — /d/[slug] (basic rendering)",
-      "description": "As a viewer, I want to open a shared deck URL and see the presentation without logging in.",
+      "title": "Inject inline edit script into slide preview iframes",
+      "description": "As a developer, I need the inline edit script injected into the CenterSlidePreview iframes and wired up with PostMessage communication.",
       "acceptanceCriteria": [
-        "Create src/app/d/[slug]/page.tsx as a server component",
-        "Add /d to middleware exclusions in proxy.ts or middleware.ts so auth doesn't block",
-        "Fetch template by slug: slide_templates where share_settings->>'slug' = slug AND share_settings->>'enabled' = 'true'",
-        "Check expiry — if expired, render 'This link has expired' page",
-        "If gate_type is 'none', render deck directly",
-        "Render by fetching presentation HTML server-side from /api/slide/[templateId]/present using internal fetch",
-        "Include og:title (deck name), og:description",
-        "No admin navigation, no app chrome — full-screen presentation",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Import getInlineEditScript in DeckEditorClient.tsx",
+        "Create INLINE_EDIT_SCRIPT constant from getInlineEditScript()",
+        "Append INLINE_EDIT_SCRIPT to srcdoc for CenterSlidePreview (both custom HTML and layout slides)",
+        "Do NOT append to SlideThumbnail iframes",
+        "Send enableInlineEdit/disableInlineEdit alongside existing selector mode messages",
+        "Change CenterSlidePreview iframe from pointer-events:none to pointer-events:auto always (so double-click works)",
+        "Add PostMessage listener for 'inlineEdit' type in DeckEditorClient useEffect",
+        "Typecheck passes"
       ],
       "priority": 3,
-      "passes": true,
-      "notes": "This is the BASIC version — no gates, no token handling, no tracking. Those come in later stories. Use the existing /api/slide/[templateId]/present route. Read src/middleware.ts or proxy.ts for middleware exclusion patterns. Use nextjs-expert agent for the server component."
-    },
-    {
-      "id": "US-004",
-      "title": "Gate pages — email capture and password protection",
-      "description": "As a viewer, when a shared deck requires email or password, I should see the appropriate gate before the deck.",
-      "acceptanceCriteria": [
-        "In /d/[slug]/page.tsx, if gate_type is 'password', render a password form page (terminal-style, dark theme)",
-        "Password form submits to a client action that validates against share_settings.gate_value",
-        "On correct password, render the deck (could use URL param or session cookie)",
-        "If gate_type is 'email', render email capture form",
-        "On email submit, auto-create a lead with status 'pending' in leads table",
-        "Create a deck_share_tokens row for that email",
-        "Then render the deck with the token embedded for tracking",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 4,
-      "passes": true,
-      "notes": "Read existing lead creation patterns in src/app/api/admin/leads/. The gate forms should match the terminal/dark aesthetic. Use frontend-expert agent for the gate UI components."
-    },
-    {
-      "id": "US-005",
-      "title": "OG image generation endpoint",
-      "description": "As a developer, I need an endpoint that returns a screenshot of slide 1 for social preview cards.",
-      "acceptanceCriteria": [
-        "Create src/app/api/deck/[slug]/og-image/route.ts — no auth required",
-        "Fetch template by slug, navigate Playwright to /api/slide/[templateId]/0, capture screenshot",
-        "Return PNG with Content-Type: image/png and Cache-Control: public, max-age=3600",
-        "If template not found or sharing disabled, return default 1200x630 Claru-branded placeholder",
-        "Viewport: 1200x630 for standard og:image size",
-        "Reuse captureSlideScreenshotFromUrl from src/lib/deck-builder/slide-capture.ts",
-        "Add og:image meta tag to /d/[slug] page pointing to this endpoint",
-        "Typecheck passes"
-      ],
-      "priority": 5,
-      "passes": true,
-      "notes": "Read src/lib/deck-builder/slide-capture.ts for captureSlideScreenshotFromUrl. Set viewport to 1200x630. For the placeholder, create a simple HTML page with Claru branding and screenshot that. Use general-purpose agent."
-    },
-    {
-      "id": "US-006",
-      "title": "Analytics tracking script and API endpoint",
-      "description": "As a developer, I need lightweight JS tracking and an API to record viewer engagement.",
-      "acceptanceCriteria": [
-        "Create src/app/api/deck/[slug]/track/route.ts — no auth, POST only",
-        "Accepts: { token?: string, event: 'view'|'slide_change'|'complete', slide_index?: number, duration?: number, device?: string, view_id?: string }",
-        "On 'view': create deck_views row, return { view_id }",
-        "On 'slide_change': update slides_viewed JSONB array (append slide entry)",
-        "On 'complete': update total_duration_seconds and completion_rate",
-        "Create src/lib/deck-builder/tracking-script.ts exporting a string of vanilla JS (<50 lines)",
-        "Script sends beacon on load (view), slide transition (slide_change), page unload (complete)",
-        "Script detects device type from UA, reads ?t= token from URL",
-        "No cookies, no localStorage — stateless beacon API",
-        "Inject the tracking script into /d/[slug] page HTML",
-        "Typecheck passes"
-      ],
-      "priority": 6,
-      "passes": true,
-      "notes": "The tracking script is injected by the /d/[slug] server component after fetching the presentation HTML. Use navigator.sendBeacon with fetch keepalive fallback. Use general-purpose agent."
-    },
-    {
-      "id": "US-007",
-      "title": "Token validation and attribution in viewer page",
-      "description": "As a developer, I need the viewer page to validate ?t= tokens and attribute views to leads.",
-      "acceptanceCriteria": [
-        "In /d/[slug]/page.tsx, check for ?t=[token] query param",
-        "If present, validate against deck_share_tokens table (check token exists, not expired, matches template)",
-        "If valid, pass token to the tracking script context",
-        "If invalid or expired, still render deck but don't attribute (anonymous view)",
-        "Tracking script includes token in all beacon payloads",
-        "Typecheck passes"
-      ],
-      "priority": 7,
-      "passes": true,
-      "notes": "This wires US-003 (viewer page) + US-006 (tracking) together with token validation. Read deck_share_tokens table schema from US-001. Use general-purpose agent."
-    },
-    {
-      "id": "US-008",
-      "title": "Share panel — basic settings UI",
-      "description": "As an admin, I want a Share drawer in the editor to configure sharing settings.",
-      "acceptanceCriteria": [
-        "Create src/app/components/deck-builder/SharePanel.tsx — slide-out drawer from right",
-        "Triggered by a Share button in the editor header bar",
-        "Toggle: sharing enabled/disabled",
-        "Slug field: editable text input, shows full URL {SITE_URL}/d/{slug}",
-        "Copy link button — copies URL to clipboard with toast",
-        "Expiry dropdown: Never, 7 days, 30 days, Custom date",
-        "Gate selector: None, Email Capture, Password (with password input)",
-        "CTA toggle: enabled/disabled with text + URL inputs",
-        "Branding toggle: show/hide Powered by Claru",
-        "Uses GET/PATCH share settings API from US-002",
-        "Matches terminal/monospace aesthetic",
-        "Dismiss with X or Escape",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 8,
-      "passes": true,
-      "notes": "Read src/app/components/deck-builder/VersionHistory.tsx for drawer pattern. Read DeckEditorClient.tsx for header button placement. Match the terminal aesthetic — font-mono, dark bg, sage green accent. Use frontend-expert agent. Use Shadcn UI Designer agent for the form components."
-    },
-    {
-      "id": "US-009",
-      "title": "Analytics summary API",
-      "description": "As an admin, I need an endpoint that returns aggregate analytics for a deck.",
-      "acceptanceCriteria": [
-        "Create GET /api/admin/deck-builder/[id]/analytics — admin JWT auth",
-        "Returns: { total_views, unique_viewers, avg_completion_rate, views_by_day: [{date, count}], top_slides: [{index, avg_duration}], device_breakdown: {desktop, mobile, tablet} }",
-        "total_views: COUNT of deck_views",
-        "unique_viewers: COUNT DISTINCT of (token_id, viewer_email, ip_address)",
-        "avg_completion_rate: AVG of completion_rate",
-        "views_by_day: GROUP BY date, last 30 days",
-        "top_slides: sorted by avg duration",
-        "device_breakdown: GROUP BY device_type",
-        "Typecheck passes"
-      ],
-      "priority": 9,
-      "passes": true,
-      "notes": "Heavy Supabase SQL queries. Use supabase-expert skill for query optimization. Use general-purpose agent."
-    },
-    {
-      "id": "US-010",
-      "title": "Analytics display in Share panel",
-      "description": "As an admin, I want to see basic analytics inline on the share panel.",
-      "acceptanceCriteria": [
-        "Add analytics section to SharePanel.tsx (below settings, above lead sharing)",
-        "Fetch from GET /api/admin/deck-builder/[id]/analytics",
-        "Show: Total views, Unique viewers, Avg completion rate as stat cards",
-        "Show views_by_day as a simple sparkline or bar chart (last 30 days)",
-        "Show device breakdown as percentages",
-        "Loading state while fetching",
-        "Empty state: 'No views yet' when total_views is 0",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 10,
-      "passes": true,
-      "notes": "Use frontend-expert agent. Simple stat cards + mini chart. No charting library needed — can use SVG sparkline or CSS bars."
-    },
-    {
-      "id": "US-011",
-      "title": "Lead list share — send API and token creation",
-      "description": "As a developer, I need an API to create tokens and send share emails to leads.",
-      "acceptanceCriteria": [
-        "Create POST /api/admin/deck-builder/[id]/share/send",
-        "Accepts: { lead_ids?: string[], emails?: string[], parent_lead_id?: string }",
-        "For each lead_id: look up lead email, create deck_share_tokens row with crypto.randomBytes(16).toString('hex'), send email via Resend",
-        "For each email: create token row with lead_id null, parent_lead_id if provided, send email",
-        "Email template: branded dark theme, includes lead name, deck title, tokenized link",
-        "Subject: 'A presentation from Claru AI'",
-        "Returns: { sent: number, tokens: [{email, token, url}] }",
-        "Admin JWT auth required",
-        "Typecheck passes"
-      ],
-      "priority": 11,
-      "passes": true,
-      "notes": "Read src/lib/email.ts or src/lib/email/ for existing Resend integration and branded email templates. Read src/lib/deck-builder/agents/executor.ts line ~274 for lead lookup patterns. Use general-purpose agent."
-    },
-    {
-      "id": "US-012",
-      "title": "Lead share UI in Share panel",
-      "description": "As an admin, I want to select leads and send them tracked share links from the Share panel.",
-      "acceptanceCriteria": [
-        "Add 'Share to Leads' section in SharePanel below analytics",
-        "Search/select leads autocomplete (fetch from leads table by name or email)",
-        "For each selected lead, show name + email + 'Send' button",
-        "Bulk 'Send All' button for multiple leads",
-        "Calls POST /api/admin/deck-builder/[id]/share/send with lead_ids",
-        "Shows success toast with count sent",
-        "Previously shared leads shown with 'Resend' option",
-        "Add 'Invite by Email' section: free-form email input (comma-separated)",
-        "Optional parent lead dropdown",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 12,
-      "passes": true,
-      "notes": "Use frontend-expert agent. Autocomplete can be a simple input with debounced fetch. Show shared leads list from GET /api/admin/deck-builder/[id]/share (which should also return existing tokens)."
-    },
-    {
-      "id": "US-013",
-      "title": "Per-viewer analytics on lead detail page",
-      "description": "As an admin, I want to see deck engagement on a lead's detail page.",
-      "acceptanceCriteria": [
-        "Create GET /api/admin/leads/[id]/deck-views — returns views attributed to this lead",
-        "On LeadDetailClient page, add 'Deck Engagement' section",
-        "Shows: list of decks viewed, viewed date, completion rate, time spent, slides count",
-        "Click to expand: slide-by-slide breakdown with duration per slide",
-        "Sort by most recent first",
-        "Empty state: 'No deck engagement yet'",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 13,
-      "passes": true,
-      "notes": "Read src/app/admin/leads/[id]/LeadDetailClient.tsx for the existing lead detail page structure. Use frontend-expert agent for the engagement section UI."
-    },
-    {
-      "id": "US-014",
-      "title": "Mobile-responsive CSS layer for shared decks",
-      "description": "As a developer, I need shared decks to be usable on mobile phones.",
-      "acceptanceCriteria": [
-        "Add @media (max-width: 768px) block to /api/slide/[templateId]/present route CSS",
-        "Mobile: fluid layout instead of fixed 1920x1080, scale text proportionally, increase touch padding",
-        "Restack two-column layouts to vertical on mobile",
-        "Progress: dots instead of bar on mobile",
-        "Hide hover-only elements",
-        "Bigger touch targets for navigation",
-        "In presentation route: if slide.html_mobile exists AND mobile UA, use it instead of slide.html",
-        "Fallback: responsive CSS layer on desktop HTML when no html_mobile",
-        "Typecheck passes",
-        "Verify in browser using Playwright at 375x812 viewport"
-      ],
-      "priority": 14,
-      "passes": true,
-      "notes": "Read src/app/api/slide/[templateId]/present/route.ts for the presentation CSS. The responsive CSS goes in the same <style> block. UA detection via request headers. Use general-purpose agent."
-    },
-    {
-      "id": "US-015",
-      "title": "Engagement notification emails",
-      "description": "As an admin, I want to be notified when a lead views my shared deck.",
-      "acceptanceCriteria": [
-        "In POST /api/deck/[slug]/track, when 'view' event has a valid token linked to a lead:",
-        "Send notification email via Resend to ADMIN_EMAIL",
-        "Email: '{Lead Name} ({Company}) viewed your deck {Deck Name}'",
-        "Include link to the deck editor share panel",
-        "Debounce: max 1 notification per lead per deck per hour (check deck_views for recent views)",
-        "Email template matches Claru branding (dark theme, sage green)",
-        "Typecheck passes"
-      ],
-      "priority": 15,
-      "passes": true,
-      "notes": "Read src/lib/email/ for Resend integration. MEMORY.md says email template bg #0a0908, card #121210, border #2a2a28, accent #92B090. Use general-purpose agent."
-    },
-    {
-      "id": "US-016",
-      "title": "Playwright E2E — public share flow",
-      "description": "As QA, I need an end-to-end test for deck sharing and viewing.",
-      "acceptanceCriteria": [
-        "Create tests/e2e/deck-sharing.spec.ts",
-        "Admin enables sharing via PATCH API (slug: test-share)",
-        "Navigate to /d/test-share (no auth) — verify presentation renders",
-        "Verify og:image meta tag present",
-        "Navigate slides with keyboard",
-        "Verify deck_views has a new row via API",
-        "Typecheck passes"
-      ],
-      "priority": 16,
-      "passes": true,
-      "notes": "Use webapp-testing skill with Playwright MCP. Use login pattern from tests/e2e/deck-builder-crud.spec.ts."
-    },
-    {
-      "id": "US-017",
-      "title": "Playwright E2E — lead share with analytics",
-      "description": "As QA, I need a test for tokenized lead sharing and per-viewer analytics.",
-      "acceptanceCriteria": [
-        "Create tests/e2e/deck-lead-sharing.spec.ts",
-        "Create template + lead via API, enable sharing, create token",
-        "Open /d/[slug]?t=[token] — verify renders",
-        "Navigate 3 slides, close page",
-        "Fetch /api/admin/leads/[id]/deck-views — verify view attributed",
-        "Verify slides_viewed has 3 entries, completion_rate calculated",
-        "Typecheck passes"
-      ],
-      "priority": 17,
-      "passes": true,
-      "notes": "Use webapp-testing skill with Playwright MCP."
+      "passes": false,
+      "notes": "Read DeckEditorClient.tsx for SELECTOR_SCRIPT injection pattern, CenterSlidePreview component, SlideThumbnail component, and the PostMessage useEffect. The inline edit script should be appended alongside SELECTOR_SCRIPT in the same srcdoc."
     }
   ]
 }
