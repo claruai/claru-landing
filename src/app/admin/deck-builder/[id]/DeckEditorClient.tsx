@@ -878,9 +878,7 @@ export function DeckEditorClient({ initialTemplate }: DeckEditorClientProps) {
           </button>
 
           <ExportMenu
-            slides={slides}
-            themeId={themeId}
-            customTheme={customTheme}
+            templateId={template.id}
             templateName={templateName}
           />
 

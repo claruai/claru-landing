@@ -2,17 +2,13 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Download, FileText, Globe, Printer } from "lucide-react";
-import type { SlideData, SlideThemeCustom } from "@/types/deck-builder";
-import { renderSlidesToHTML } from "@/lib/deck-builder/html-renderer";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
 interface ExportMenuProps {
-  slides: SlideData[];
-  themeId: string;
-  customTheme?: SlideThemeCustom | null;
+  templateId: string;
   templateName: string;
 }
 
@@ -34,62 +30,50 @@ function slugify(text: string): string {
 /* ------------------------------------------------------------------ */
 
 export function ExportMenu({
-  slides,
-  themeId,
-  customTheme,
+  templateId,
   templateName,
 }: ExportMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  /* ---- Generate HTML ------------------------------------------------ */
-
-  const generateHTML = useCallback(() => {
-    return renderSlidesToHTML(slides, themeId, {
-      showProgress: true,
-      customTheme: customTheme ?? undefined,
-      baseUrl: typeof window !== "undefined" ? window.location.origin : "",
-    });
-  }, [slides, themeId, customTheme]);
+  // Server-rendered presentation URL — same route used by present mode and share page.
+  // Uses iframes for all custom HTML slides, so unbalanced tags won't break rendering.
+  const presentUrl = `/api/slide/${templateId}/present`;
 
   /* ---- Download HTML ------------------------------------------------ */
 
-  const handleDownloadHTML = useCallback(() => {
-    const html = generateHTML();
-    const blob = new Blob([html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${slugify(templateName)}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  const handleDownloadHTML = useCallback(async () => {
     setIsOpen(false);
-  }, [generateHTML, templateName]);
+    try {
+      const res = await fetch(presentUrl);
+      const html = await res.text();
+      const blob = new Blob([html], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${slugify(templateName)}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 10_000);
+    } catch {
+      // Fallback: open the present URL directly
+      window.open(presentUrl, "_blank");
+    }
+  }, [presentUrl, templateName]);
 
   /* ---- Open in Browser ---------------------------------------------- */
 
   const handleOpenInBrowser = useCallback(() => {
-    const html = generateHTML();
-    const blob = new Blob([html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank");
-
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    window.open(presentUrl, "_blank");
     setIsOpen(false);
-  }, [generateHTML]);
+  }, [presentUrl]);
 
   /* ---- Export PDF (via print) --------------------------------------- */
 
   const handleExportPDF = useCallback(() => {
-    const html = generateHTML();
-    const blob = new Blob([html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-
-    // Create a hidden iframe
+    // Create a hidden iframe pointing to the server-rendered presentation
     const iframe = document.createElement("iframe");
     iframe.style.position = "fixed";
     iframe.style.top = "-10000px";
@@ -99,24 +83,20 @@ export function ExportMenu({
     iframe.style.opacity = "0";
     document.body.appendChild(iframe);
 
-    iframe.src = url;
+    iframe.src = presentUrl;
     iframe.onload = () => {
       try {
         iframe.contentWindow?.print();
       } catch {
-        // Fallback: open in new tab for manual print
-        window.open(url, "_blank");
+        window.open(presentUrl, "_blank");
       }
-
-      // Clean up after a delay to allow print dialog
       setTimeout(() => {
         document.body.removeChild(iframe);
-        URL.revokeObjectURL(url);
       }, 60_000);
     };
 
     setIsOpen(false);
-  }, [generateHTML]);
+  }, [presentUrl]);
 
   /* ---- Click-outside & Escape dismissal ----------------------------- */
 
