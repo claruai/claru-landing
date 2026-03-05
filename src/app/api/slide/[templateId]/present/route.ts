@@ -72,9 +72,11 @@ export async function GET(
       // Choose the best HTML source for this slide
       const rawHtml = (isMobile && slide.html_mobile) ? slide.html_mobile : slide.html;
 
-      if (rawHtml && (rawHtml.includes('<script') || rawHtml.includes('<!DOCTYPE') || rawHtml.includes('<html'))) {
-        // Render as iframe to isolate scripts and full documents
-        return `    <div class="slide" data-index="${i}"><iframe src="/api/slide/${templateId}/${i}" style="width:100%;height:100%;border:none;" sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe></div>`;
+      if (rawHtml) {
+        // ALL custom HTML slides render in iframes for isolation.
+        // Custom HTML from the design agent can have unbalanced tags, scripts,
+        // or full documents that break the surrounding presentation HTML when inlined.
+        return `    <div class="slide" data-index="${i}"><iframe src="/api/slide/${templateId}/${i}" style="width:100%;height:100%;border:none;position:absolute;top:0;left:0;" sandbox="allow-scripts allow-same-origin"></iframe></div>`;
       }
       let html = rawHtml ?? layoutToHtml(slide, theme);
       html = rewriteS3ToProxy(html);
