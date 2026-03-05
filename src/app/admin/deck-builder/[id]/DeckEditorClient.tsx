@@ -37,6 +37,7 @@ import type {
 import { MAX_SLIDES, createEmptySlide } from "@/types/deck-builder";
 import { renderSlidesToHTML } from "@/lib/deck-builder/html-renderer";
 import { rewriteS3ToProxy } from "@/lib/deck-builder/rewrite-s3-urls";
+import { createUndoManager } from "@/lib/deck-builder/slide-undo";
 import { SlideLayoutPicker } from "@/app/components/deck-builder/SlideLayoutPicker";
 import { ExportMenu } from "@/app/components/deck-builder/ExportMenu";
 import { VersionHistory } from "@/app/components/deck-builder/VersionHistory";
@@ -167,6 +168,10 @@ export function DeckEditorClient({ initialTemplate }: DeckEditorClientProps) {
   const [bgOpen, setBgOpen] = useState(false);
   const [mediaOpen, setMediaOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
+
+  /* ---- Undo state ------------------------------------------------- */
+  const undoRef = useRef(createUndoManager());
+  const [canUndo, setCanUndo] = useState(false);
 
   /* ---- Refs ------------------------------------------------------- */
   const autosaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -322,14 +327,62 @@ export function DeckEditorClient({ initialTemplate }: DeckEditorClientProps) {
 
   const updateCurrentSlide = useCallback(
     (updates: Partial<SlideData>) => {
-      setSlides((prev) =>
-        recalculateOrder(
+      setSlides((prev) => {
+        // Snapshot current state for undo before applying changes
+        const current = prev[selectedIndex];
+        if (current) {
+          undoRef.current.push(current.id, current);
+          setCanUndo(true);
+        }
+        return recalculateOrder(
           prev.map((s, i) => (i === selectedIndex ? { ...s, ...updates } : s))
-        )
-      );
+        );
+      });
     },
     [selectedIndex]
   );
+
+  /* ---- Undo current slide ----------------------------------------- */
+  const undoCurrentSlide = useCallback(() => {
+    const current = slides[selectedIndex];
+    if (!current) return;
+
+    const prev = undoRef.current.pop(current.id);
+    if (!prev) {
+      showToast("Nothing to undo", "warning");
+      return;
+    }
+
+    setSlides((s) =>
+      recalculateOrder(s.map((sl, i) => (i === selectedIndex ? prev : sl)))
+    );
+    setSaveStatus("unsaved");
+    setCanUndo(undoRef.current.canUndo(current.id));
+    showToast("Undone", "success");
+  }, [slides, selectedIndex, showToast]);
+
+  /* ---- Update canUndo when slide changes --------------------------- */
+  useEffect(() => {
+    const current = slides[selectedIndex];
+    if (current) {
+      setCanUndo(undoRef.current.canUndo(current.id));
+    }
+  }, [selectedIndex, slides]);
+
+  /* ---- Ctrl+Z / Cmd+Z keyboard shortcut --------------------------- */
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "z" && !e.shiftKey) {
+        // Don't intercept if user is typing in an input/textarea
+        const tag = (e.target as HTMLElement)?.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA") return;
+        e.preventDefault();
+        undoCurrentSlide();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [undoCurrentSlide]);
 
   const addSlide = useCallback(() => {
     if (slides.length >= MAX_SLIDES) {
@@ -950,7 +1003,7 @@ export function DeckEditorClient({ initialTemplate }: DeckEditorClientProps) {
         {/* ---------------------------------------------------------- */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Preview area — slide centered in available space */}
-          <div className="flex-1 flex items-center justify-center bg-[var(--bg-primary)] overflow-hidden p-4">
+          <div className="flex-1 flex items-center justify-center bg-[var(--bg-primary)] overflow-hidden p-4 relative">
             {currentSlide && <CenterSlidePreview
               slide={currentSlide}
               themeId={themeId}
@@ -960,6 +1013,16 @@ export function DeckEditorClient({ initialTemplate }: DeckEditorClientProps) {
               templateId={template.id}
               selectorMode={selectorMode}
             />}
+            {/* Undo button — floating top-right */}
+            {canUndo && (
+              <button
+                onClick={undoCurrentSlide}
+                className="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--bg-secondary)]/90 backdrop-blur-sm border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--accent-primary)] hover:border-[var(--accent-primary)]/40 transition-colors shadow-lg font-mono text-[10px]"
+                title="Undo last change (Ctrl+Z)"
+              >
+                <span className="text-xs">↩</span> undo
+              </button>
+            )}
           </div>
           {/* Bottom bar — source toggle */}
           {currentSlide?.html && (
@@ -1024,6 +1087,15 @@ export function DeckEditorClient({ initialTemplate }: DeckEditorClientProps) {
                 selectorMode={selectorMode}
                 onToggleSelector={() => setSelectorMode(!selectorMode)}
                 onSlidesUpdate={(newSlides) => {
+                  // Snapshot changed slides for undo
+                  const oldSlides = slides;
+                  for (const ns of newSlides) {
+                    const old = oldSlides.find(s => s.id === ns.id);
+                    if (old && JSON.stringify(old) !== JSON.stringify(ns)) {
+                      undoRef.current.push(ns.id, old);
+                    }
+                  }
+                  setCanUndo(true);
                   setSlides(newSlides);
                   setSaveStatus("unsaved");
                 }}
