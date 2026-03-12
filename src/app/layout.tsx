@@ -6,6 +6,7 @@ import "lenis/dist/lenis.css";
 import MotionProvider from "./components/providers/MotionProvider";
 import CalendlyProvider from "./components/providers/CalendlyProvider";
 import CalendlyModal from "./components/ui/CalendlyModal";
+import PostHogProvider from "./components/providers/PostHogProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -181,12 +182,14 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(globalJsonLd) }}
         />
-        <MotionProvider>
-          <CalendlyProvider>
-            {children}
-            <CalendlyModal />
-          </CalendlyProvider>
-        </MotionProvider>
+        <PostHogProvider>
+          <MotionProvider>
+            <CalendlyProvider>
+              {children}
+              <CalendlyModal />
+            </CalendlyProvider>
+          </MotionProvider>
+        </PostHogProvider>
       </body>
     </html>
   );
