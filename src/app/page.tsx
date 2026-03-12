@@ -34,6 +34,11 @@ const ProofOfWork = dynamic(
   { ssr: false, loading: () => <SectionSkeleton /> },
 );
 
+const CatalogPreview = dynamic(
+  () => import("./components/sections/CatalogPreview"),
+  { ssr: false, loading: () => <SectionSkeleton /> },
+);
+
 const Testimonials = dynamic(
   () => import("./components/sections/Testimonials"),
   { ssr: false, loading: () => <SectionSkeleton minHeight="min-h-[40vh]" /> },
@@ -105,6 +110,7 @@ export default function Home() {
         <TwoPaths />
         {/* <GlobalReach /> */}
         <ProofOfWork />
+        <CatalogPreview />
         <Testimonials />
         <FinalCTA />
         <AnimatedLogo />
