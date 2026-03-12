@@ -220,7 +220,7 @@
         "Code Review: run code-reviewer agent to verify entity profile matches schema"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "notes": "Read tasks/docs/seo-aeo-geo-requirements.md (Requirement 10). Partially non-code task. Use general-purpose agent."
     },
     {

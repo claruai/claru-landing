@@ -108,3 +108,14 @@ Branch: ralph/seo-aeo-geo
 - Follows exact same pattern as `src/app/for-annotators/layout.tsx` (const + dangerouslySetInnerHTML)
 - Layout wraps children in `<>` fragment with `<script type="application/ld+json">`
 - TypeScript compilation verified — no type errors
+
+### US-012: Create entity consistency checklist and profile
+- Created `src/lib/entity-profile.ts` exporting typed `entityProfile` constant with: name, legalName, description, tagline, url, email, github, linkedin
+- Object is `as const` for literal type inference; exported `EntityProfile` type alias
+- Created `tasks/docs/entity-consistency-checklist.md` with:
+  - Canonical company description (full + short variant for character-limited fields)
+  - Platform table: LinkedIn (exists), GitHub (exists), Crunchbase (needs creation), G2 (needs creation), Capterra (needs creation)
+  - Each row includes expected URL, current status, which description variant to use, and sameAs inclusion
+  - Current sameAs array documented with instructions to extend as new profiles are created
+  - Sync instructions: single source of truth workflow, quarterly review process, new-platform checklist
+- TypeScript compilation verified — no type errors
