@@ -148,7 +148,7 @@
         "Code Review: run code-reviewer agent to verify schema and content quality"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "notes": "Read tasks/docs/seo-aeo-geo-requirements.md (Requirement 5). DEPENDS ON US-007 \u2014 homepage must be server component first. Use general-purpose agent."
     },
     {

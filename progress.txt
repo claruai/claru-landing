@@ -148,3 +148,11 @@ Branch: ralph/seo-aeo-geo
 - Output: 1200x630 PNG with Cache-Control headers (1 day client, 7 day CDN)
 - Verified: GET /api/og?title=Test returns 200 image/png, GET /api/og returns 400
 - TypeScript compilation verified — no type errors
+
+### US-008: Add FAQPage schema to homepage
+- Added FAQPage JSON-LD to `src/app/page.tsx` with 7 Q&A pairs targeting high-value search queries
+- Questions cover: AI training data types, RLHF annotation quality, differentiation from general vendors, supported modalities, data privacy/security, human-in-the-loop definition, working with frontier AI labs
+- Each answer is 40-80 words, self-contained, and factually grounded in Claru's actual services and capabilities
+- Follows exact same pattern as `src/app/for-annotators/layout.tsx` and `src/app/data-catalog/layout.tsx` (const + dangerouslySetInnerHTML)
+- JSON-LD `<script>` placed inside `<ClientProviders>` wrapper at top of JSX return
+- TypeScript compilation verified — no type errors
