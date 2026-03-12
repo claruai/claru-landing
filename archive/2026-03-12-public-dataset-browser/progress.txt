@@ -1,0 +1,46 @@
+# Progress Log
+
+Started: Wed Mar 12 2026
+Project: Public Dataset Browser
+Goal: Add public-facing dataset browser grid to /data-catalog page
+
+---
+
+## US-001: Public datasets API route
+**What I did:** Created GET /api/public/datasets endpoint using createSupabaseServerClient(). Queries datasets joined with dataset_categories where is_published = true. Returns sanitized fields only (no thumbnails, tags, S3 keys). CDN cached with s-maxage=3600, stale-while-revalidate=600. Existing RLS policy already allows anon reads.
+**Files changed:** src/app/api/public/datasets/route.ts (new)
+
+## US-002: PublicDataset TypeScript type
+**What I did:** Added PublicDataset interface to data-catalog.ts with correct nullability (description, subcategory, geographic_coverage as string | null). Separate from internal Dataset type.
+**Files changed:** src/types/data-catalog.ts
+
+## US-003: PublicDatasetCard component
+**What I did:** Created card component with category label, name, description (line-clamp-2), adaptive stat line (formatCount helper for K/M), and Request Access button using CalendlyContext. Flex-col layout with mt-auto CTA. 44px touch target.
+**Files changed:** src/app/components/catalog/PublicDatasetCard.tsx (new)
+
+## US-004: Category filter pills
+**What I did:** Created CategoryFilterPills component with horizontal scrollable pills. ResizeObserver for overflow detection, CSS mask fade on right edge. Sorted by display_order. Scrollbar hidden on all browsers.
+**Files changed:** src/app/components/catalog/CategoryFilterPills.tsx (new)
+
+## US-005: PublicDatasetBrowser component
+**What I did:** Created browser component with fetch on mount, loading skeleton (6 cards), error state with retry, empty state, and responsive grid. Framer Motion stagger animation. Integrates CategoryFilterPills and PublicDatasetCard.
+**Files changed:** src/app/components/catalog/PublicDatasetBrowser.tsx (new)
+
+## US-006: Lazy loading with IntersectionObserver
+**What I did:** Added BATCH_SIZE=12 constant, visibleCount state, sentinel div with IntersectionObserver (200px rootMargin), "Showing X of Y" counter. Category filter resets count. Proper cleanup on unmount.
+**Files changed:** src/app/components/catalog/PublicDatasetBrowser.tsx
+
+## US-007: Integrate into /data-catalog page
+**What I did:** Added PublicDatasetBrowser section between Video Mosaic and Capabilities sections. Follows existing pattern: section > container > FadeIn > max-w-5xl. Header: "// BROWSE THE CATALOG" + "Explore our datasets."
+**Files changed:** src/app/data-catalog/page.tsx
+
+## US-008: Playwright MCP visual verification
+**What I did:** Verified all functionality via browser automation:
+- API returns 4 published datasets across 4 categories
+- Desktop (1440px): 3-col grid, all pills visible, cards render correctly with adaptive stats
+- Category filter: clicking "Licensed Cinematic" filters to 1 card, "All" restores all 4
+- Request Access: opens Calendly consultation modal correctly
+- Tablet (768px): 2-col grid, all pills visible
+- Mobile (375px): 1-col grid, pills horizontally scrollable with truncation
+- Zero console errors, no hydration mismatches
+**Learnings:** FadeIn component uses IntersectionObserver — content starts at opacity 0 until scrolled into view. Only 4 of 15 datasets have is_published=true currently.

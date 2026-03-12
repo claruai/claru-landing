@@ -1,0 +1,171 @@
+{
+  "project": "Public Dataset Browser",
+  "branchName": "ralph/public-dataset-browser",
+  "description": "Public-facing dataset browser grid on /data-catalog page. Pulls published datasets from Supabase, displays in filterable grid with category pills, adaptive stats, lazy loading, and per-card Calendly CTA. No click-through — credibility signal only.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Public datasets API route",
+      "description": "As the data-catalog page, I need a public API endpoint that returns published datasets with their categories.",
+      "acceptanceCriteria": [
+        "Create src/app/api/public/datasets/route.ts with GET handler",
+        "Use createSupabaseServerClient() from src/lib/supabase/server.ts (existing helper)",
+        "Query datasets table joined with dataset_categories where is_published = true",
+        "Return fields: id (opaque UUID for React keys), name, slug, description, type, subcategory, total_samples, total_duration_hours, geographic_coverage, annotation_types, category (object with name, slug, display_order)",
+        "Do NOT return: thumbnail_url, show_enrichment, tags, category_id, or any S3/sample fields",
+        "Sort by category display_order ASC, then name ASC",
+        "Set response header: Cache-Control: public, s-maxage=3600, stale-while-revalidate=600",
+        "Return empty array (not error) if no published datasets exist",
+        "If RLS blocks anon SELECT on datasets, create an RLS policy allowing it for is_published = true rows — do NOT fall back to service role key",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Read src/app/api/booking-url/route.ts for the Cache-Control header pattern. Read src/lib/supabase/server.ts for the server client helper. Read src/types/data-catalog.ts for existing Dataset type — but define a new PublicDataset type with only the public fields (existing Dataset type has nullable mismatches). The Supabase query syntax for joining: supabase.from('datasets').select('*, dataset_categories(name, slug, display_order)').eq('is_published', true). Check supabase/migrations/ for existing RLS policies."
+    },
+    {
+      "id": "US-002",
+      "title": "PublicDataset TypeScript type",
+      "description": "As a developer, I need a dedicated PublicDataset type that matches the public API response shape.",
+      "acceptanceCriteria": [
+        "Add PublicDataset interface to src/types/data-catalog.ts",
+        "Fields: id (string), name (string), slug (string), description (string | null), type (string), subcategory (string | null), total_samples (number), total_duration_hours (number), geographic_coverage (string | null), annotation_types (string[]), category ({ name: string, slug: string, display_order: number })",
+        "This is separate from the internal Dataset type — nullable fields correctly typed as T | null",
+        "Export the type",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Read src/types/data-catalog.ts for the existing types. The internal Dataset type marks description, subcategory, geographic_coverage, thumbnail_url as required strings but they are nullable in the DB. The PublicDataset type should be honest about nullability."
+    },
+    {
+      "id": "US-003",
+      "title": "PublicDatasetCard component",
+      "description": "As a visitor, I want each dataset card to show name, category, description, and key stats so I can evaluate relevance at a glance.",
+      "acceptanceCriteria": [
+        "Create src/app/components/catalog/PublicDatasetCard.tsx as a client component",
+        "Card uses existing design system: bg-[var(--bg-card)], border border-[var(--border-subtle)], rounded-xl, p-6 (p-4 on mobile)",
+        "Card layout top to bottom: (1) Category label — font-mono text-xs text-[var(--accent-primary)] uppercase tracking-wider, (2) Dataset name — text-lg font-semibold text-white, (3) Description — text-sm text-[var(--text-secondary)] line-clamp-2, (4) Stat line — font-mono text-xs text-[var(--text-tertiary)] with adaptive content, (5) Request Access button at bottom",
+        "Stat line adaptive logic: always show formatted sample count (e.g. '386K samples'). Show '· X hrs' only if total_duration_hours > 0. Show '· {geographic_coverage}' raw text only if present (do NOT parse the string).",
+        "Number formatting: use K suffix for thousands (386,343 → '386K'), M suffix for millions (1,071,463 → '1.1M')",
+        "Request Access is a <button> element (not <a>) that calls CalendlyContext.openCalendly() — import CalendlyContext from src/app/components/providers/CalendlyProvider and use useContext(CalendlyContext)",
+        "Request Access styled: font-mono text-xs text-[var(--accent-primary)] hover:text-[var(--accent-primary)]/80 with arrow suffix, mt-auto to push to bottom",
+        "Card hover: hover:border-[var(--accent-primary)]/30, hover:translate-y-[-2px] transition-all duration-300",
+        "Card is NOT clickable as a whole — only the Request Access button is interactive",
+        "Touch-friendly: Request Access button has min-height 44px tap target",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "Read src/app/components/ui/Button.tsx for the CalendlyContext import pattern (line 6: import { CalendlyContext } from '../providers/CalendlyProvider' then useContext(CalendlyContext)). Read the Two Paths cards in src/app/data-catalog/page.tsx lines 206-245 for the existing card aesthetic to match. The card should use flex flex-col so mt-auto on the CTA pushes it to the bottom regardless of description length."
+    },
+    {
+      "id": "US-004",
+      "title": "Category filter pills",
+      "description": "As a visitor, I want to filter datasets by category so I can quickly find datasets relevant to my use case.",
+      "acceptanceCriteria": [
+        "Create filter pills as part of PublicDatasetBrowser component (not a separate file)",
+        "Horizontal row of pills above the grid",
+        "Pills: 'All' (default selected) + one pill per category present in the fetched data, sorted by display_order",
+        "Only show categories that have at least 1 published dataset in the response",
+        "Selected pill: bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]/40 text-[var(--accent-primary)]",
+        "Unselected pills: border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/20 hover:text-[var(--text-primary)]",
+        "All pills: font-mono text-xs px-3 py-1.5 rounded-full cursor-pointer transition-all duration-200",
+        "Clicking a pill filters the grid client-side instantly (no API call, no loading state)",
+        "Mobile: pills row is overflow-x-auto with flex-nowrap, each pill has flex-shrink-0, scrollbar hidden",
+        "Mobile: CSS mask/gradient fade on right edge to indicate scrollability",
+        "Touch targets: pills have min-height 36px",
+        "Typecheck passes",
+        "Verify in browser at 375px, 768px, and 1440px viewports"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "Read the capability tag pills in src/app/data-catalog/page.tsx lines 297-309 for the existing pill aesthetic (they use similar styling: font-mono text-sm px-4 py-2 rounded-full border). The filter pills should be slightly smaller. The categories come from the API response — extract unique categories from the datasets array, don't make a separate API call. For the mobile fade edge, use CSS mask-image: linear-gradient(to right, black 90%, transparent 100%) on the scroll container."
+    },
+    {
+      "id": "US-005",
+      "title": "PublicDatasetBrowser component with grid and loading states",
+      "description": "As a visitor, I want to see a grid of dataset cards with loading, empty, and error states.",
+      "acceptanceCriteria": [
+        "Create src/app/components/catalog/PublicDatasetBrowser.tsx as a client component",
+        "Fetches from /api/public/datasets on mount using fetch()",
+        "Three states: loading (skeleton), error (with retry button), and loaded (grid)",
+        "Loading state: grid of 6 skeleton placeholder cards matching card dimensions (rounded-xl, bg-[var(--bg-card)], animate-pulse, same height as real cards ~200px)",
+        "Error state: centered message 'Failed to load datasets' with a [retry] button (font-mono text-xs) that re-fetches",
+        "Empty state: centered message 'No datasets available yet' in font-mono text-[var(--text-tertiary)]",
+        "Loaded state: responsive grid — grid-cols-1 on mobile, grid-cols-2 on md, grid-cols-3 on lg, gap-4 md:gap-6",
+        "Cards rendered via PublicDatasetCard component (US-003)",
+        "Framer Motion stagger animation on cards: parent uses staggerChildren 0.04, children use fadeUp (opacity 0 to 1, y 20 to 0)",
+        "Category filter pills (US-004) rendered above the grid",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "Read the existing page sections in src/app/data-catalog/page.tsx for the animation patterns — they use motion.div with initial/whileInView/viewport/transition props. The stagger pattern: parent AnimatePresence or motion.div with variants. For the skeleton, match the real card's approximate height (~200px) to prevent layout shift when data loads."
+    },
+    {
+      "id": "US-006",
+      "title": "Lazy loading with IntersectionObserver",
+      "description": "As a visitor browsing a growing catalog, I want more datasets to appear as I scroll.",
+      "acceptanceCriteria": [
+        "Show first 12 datasets initially (after category filtering)",
+        "Place a sentinel div after the last visible card",
+        "IntersectionObserver on sentinel — when visible, reveal next batch of 12",
+        "This is client-side pagination only — all data already fetched, just controlling how many are rendered",
+        "Newly revealed cards fade in with Framer Motion (opacity 0 to 1, y 10 to 0)",
+        "Show 'Showing X of Y datasets' counter below the grid — font-mono text-xs text-[var(--text-tertiary)] text-center mt-4",
+        "If filtered/total datasets <= 12: no sentinel, no counter",
+        "Category filter resets visible count back to 12",
+        "Clean up IntersectionObserver on unmount (observer.disconnect() in useEffect cleanup)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "The IntersectionObserver pattern: create ref for sentinel div, in useEffect create observer with threshold 0.1, observe sentinel, on intersect increment visibleCount by BATCH_SIZE (12). The cleanup: return () => observer.disconnect(). Since we currently only have ~15 datasets this won't trigger often, but the infrastructure needs to work for when catalog grows to 50+. AnimatePresence from framer-motion can handle enter animations for newly visible cards."
+    },
+    {
+      "id": "US-007",
+      "title": "Integrate browser section into /data-catalog page",
+      "description": "As a visitor, I want to see the dataset browser as a section within the existing data-catalog page.",
+      "acceptanceCriteria": [
+        "Import PublicDatasetBrowser into src/app/data-catalog/page.tsx",
+        "Place new section between section 3 (Video Mosaic) and section 4 (Capabilities)",
+        "Section wrapper: py-16 md:py-24, matching adjacent sections",
+        "Section header: font-mono text-sm text-[var(--accent-primary)] label '// BROWSE THE CATALOG' centered, followed by h2 'Explore our datasets.' centered, max-w-5xl mx-auto",
+        "Wrap in FadeIn component for scroll-triggered entrance (import from ../components/effects/FadeIn)",
+        "Page still hydrates correctly — no SSR mismatch",
+        "No layout shift when grid loads (skeleton cards match final card dimensions)",
+        "Typecheck passes",
+        "Verify in browser at 375px, 768px, and 1440px viewports"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "Read src/app/data-catalog/page.tsx for the section pattern — each section follows: <section className='py-16 md:py-24'><div className='container'><FadeIn>...</FadeIn></div></section>. The mono label + heading pattern is used in every section (e.g. lines 259-263 for Video Mosaic). The page is already 'use client' with a mounted guard, so no hydration concerns."
+    },
+    {
+      "id": "US-008",
+      "title": "Playwright MCP visual verification",
+      "description": "As QA, I need to verify the complete feature works across viewports via browser automation.",
+      "acceptanceCriteria": [
+        "Verify at least 3 datasets have is_published = true in Supabase across at least 2 categories (check via API or Supabase MCP, seed if needed)",
+        "Navigate to localhost:3005/data-catalog (dev server)",
+        "Scroll to dataset browser section and take screenshot",
+        "Verify cards render with correct data (name, description, stats visible)",
+        "Click a category filter pill — verify grid filters correctly, take screenshot",
+        "Click 'All' pill — verify all datasets return",
+        "Verify 'Request Access' button is visible on each card",
+        "Click 'Request Access' — verify Calendly modal opens",
+        "Resize to tablet (768px) — verify 2-column grid, take screenshot",
+        "Resize to mobile (375px) — verify 1-column grid, filter pills scroll horizontally, take screenshot",
+        "Check browser console for errors — no hydration mismatches, no runtime errors",
+        "Document any issues found and fix critical blockers"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": "Dev server running on port 3005. Use Playwright MCP browser tools (mcp__playwright__browser_navigate, browser_snapshot, browser_click, browser_resize, browser_take_screenshot, browser_console_messages). The Calendly modal is injected globally — clicking any element that calls openCalendly() should trigger it. For checking published datasets, can hit localhost:3005/api/public/datasets directly."
+    }
+  ]
+}

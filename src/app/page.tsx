@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import Header from "./components/layout/Header";
 import Hero from "./components/sections/Hero";
 import ProblemAgitation from "./components/sections/ProblemAgitation";
@@ -10,6 +11,12 @@ import Footer from "./components/sections/Footer";
 import SectionBridge from "./components/sections/SectionBridge";
 import ClientProviders from "./components/providers/ClientProviders";
 import AnimatedLogoWrapper from "./components/sections/AnimatedLogoWrapper";
+
+// CatalogPreview is a client component (fetches data on mount) — dynamic import
+const CatalogPreview = dynamic(
+  () => import("./components/sections/CatalogPreview"),
+  { ssr: false },
+);
 
 const faqJsonLd = {
   "@context": "https://schema.org",
@@ -93,6 +100,7 @@ export default function Home() {
         <Origin />
         <TwoPaths />
         <ProofOfWork />
+        <CatalogPreview />
         <Testimonials />
         <FinalCTA />
         <AnimatedLogoWrapper />

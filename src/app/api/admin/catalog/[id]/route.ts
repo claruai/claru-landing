@@ -71,6 +71,8 @@ export async function PATCH(
     "annotation_types",
     "is_published",
     "show_enrichment",
+    "source_type",
+    "modality",
   ];
 
   const updateFields: Record<string, unknown> = {};
