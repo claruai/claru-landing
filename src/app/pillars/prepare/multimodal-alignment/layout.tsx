@@ -1,3 +1,4 @@
+import { BUILD_DATE } from "@/lib/constants";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -42,6 +43,7 @@ const jsonLd = {
       description:
         "Frame-level video-text alignment, cross-modal synchronization, and temporal caption matching for video-language and vision-language AI models.",
       areaServed: "Worldwide",
+      dateModified: BUILD_DATE,
       audience: {
         "@type": "Audience",
         audienceType: "AI Research Labs, Video AI Companies",

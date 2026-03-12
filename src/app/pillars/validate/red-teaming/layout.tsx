@@ -1,3 +1,4 @@
+import { BUILD_DATE } from "@/lib/constants";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -42,6 +43,7 @@ const jsonLd = {
       description:
         "Expert adversarial testing and red teaming services for AI systems. Jailbreak testing, prompt injection detection, and comprehensive vulnerability assessment.",
       areaServed: "Worldwide",
+      dateModified: BUILD_DATE,
       audience: {
         "@type": "Audience",
         audienceType: "AI Research Labs, ML Engineering Teams, Enterprise AI",

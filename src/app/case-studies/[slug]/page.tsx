@@ -83,6 +83,7 @@ export default async function CaseStudyDetailPage({
     headline: cs.title,
     description: cs.metaDescription,
     datePublished: cs.datePublished,
+    dateModified: cs.dateModified ?? cs.datePublished,
     author: {
       "@type": "Organization",
       name: "Claru AI",
