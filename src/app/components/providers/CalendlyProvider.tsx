@@ -9,6 +9,7 @@ import {
   ReactNode,
 } from "react";
 import { DEFAULT_BOOKING_URL } from "../../lib/constants";
+import posthog from "posthog-js";
 
 export interface LeadData {
   name: string;
@@ -64,11 +65,15 @@ export default function CalendlyProvider({
     setStep(1);
     setLeadData(null);
     setIsOpen(true);
+    posthog?.capture("calendly_modal_opened");
   }, []);
 
   const advanceToCalendly = useCallback((data: LeadData) => {
     setLeadData(data);
     setStep(2);
+    posthog?.capture("calendly_booking_started", {
+      company: data.company,
+    });
   }, []);
 
   const closeCalendly = useCallback(() => {

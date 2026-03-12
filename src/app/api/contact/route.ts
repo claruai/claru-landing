@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { getPostHogServer } from "@/lib/posthog-server";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -30,6 +31,13 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const ph = getPostHogServer();
+    ph?.capture({
+      distinctId: email,
+      event: "contact_form_server",
+      properties: { company, has_project_description: !!project_description },
+    });
+
     await resend.emails.send({
       from: `Claru AI <${process.env.RESEND_FROM_EMAIL || "team@claru.ai"}>`,
       to: "contact@claru.ai",
