@@ -164,7 +164,7 @@
         "Code Review: run code-reviewer agent to verify schema"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": "Read tasks/docs/seo-aeo-geo-requirements.md (Requirement 5). Independent of US-007. Use general-purpose agent."
     },
     {

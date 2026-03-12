@@ -100,3 +100,11 @@ Branch: ralph/seo-aeo-geo
 - Preserved all FAQ, Case Studies, CTA, and technical specs headings unchanged
 - No H1 headings modified; no styling changes
 - TypeScript compilation verified — no type errors
+
+### US-009: Add FAQPage schema to data-catalog page
+- Added FAQPage JSON-LD to `src/app/data-catalog/layout.tsx` with 5 Q&A pairs
+- Questions cover: dataset offerings, custom dataset requests, quality assurance, differentiation from public datasets, sample previews
+- Each answer is 40-80 words, self-contained, and factually grounded in actual page content
+- Follows exact same pattern as `src/app/for-annotators/layout.tsx` (const + dangerouslySetInnerHTML)
+- Layout wraps children in `<>` fragment with `<script type="application/ld+json">`
+- TypeScript compilation verified — no type errors
