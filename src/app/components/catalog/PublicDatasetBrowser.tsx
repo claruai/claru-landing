@@ -1,13 +1,14 @@
 "use client";
 
-import { useContext, useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useContext, useEffect, useState, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { CalendlyContext } from "../providers/CalendlyProvider";
 import type { PublicDataset } from "@/types/data-catalog";
 import PublicDatasetCard from "./PublicDatasetCard";
 import CategoryFilterPills from "./CategoryFilterPills";
 
-const BATCH_SIZE = 12;
+const INITIAL_COUNT = 9;
+const LOAD_MORE_COUNT = 9;
 
 // ---------------------------------------------------------------------------
 // Animation variants
@@ -47,8 +48,7 @@ export default function PublicDatasetBrowser() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
-  const sentinelRef = useRef<HTMLDivElement>(null);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
 
   const fetchDatasets = useCallback(async () => {
     setLoading(true);
@@ -103,28 +103,10 @@ export default function PublicDatasetBrowser() {
   const handleCategorySelect = useCallback(
     (slug: string | null) => {
       setSelectedCategory(slug);
-      setVisibleCount(BATCH_SIZE);
+      setVisibleCount(INITIAL_COUNT);
     },
     [],
   );
-
-  // IntersectionObserver to load more cards on scroll
-  useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          setVisibleCount((prev) => prev + BATCH_SIZE);
-        }
-      },
-      { rootMargin: "200px" },
-    );
-
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [filtered.length, visibleCount]);
 
   // ---------------------------------------------------------------------------
   // Loading state
@@ -132,7 +114,6 @@ export default function PublicDatasetBrowser() {
   if (loading) {
     return (
       <div className="space-y-6">
-        {/* Placeholder for filter pills */}
         <div className="h-9" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -207,14 +188,17 @@ export default function PublicDatasetBrowser() {
         ))}
       </motion.div>
 
-      {/* Sentinel for IntersectionObserver */}
-      {hasMore && <div ref={sentinelRef} className="h-1" />}
-
-      {/* Counter */}
-      {filtered.length > BATCH_SIZE && (
-        <p className="font-mono text-xs text-[var(--text-tertiary)] text-center mt-4">
-          Showing {visible.length} of {filtered.length} datasets
-        </p>
+      {/* Load More button */}
+      {hasMore && (
+        <div className="flex justify-center pt-4">
+          <button
+            type="button"
+            onClick={() => setVisibleCount((prev) => prev + LOAD_MORE_COUNT)}
+            className="font-mono text-xs px-5 py-2.5 rounded-full border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/40 hover:text-[var(--accent-primary)] transition-all duration-200 cursor-pointer"
+          >
+            Load More Datasets
+          </button>
+        </div>
       )}
 
       {/* Bottom CTA */}
