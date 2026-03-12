@@ -15,6 +15,9 @@ export const metadata: Metadata = {
     "RLHF case study",
     "data labeling at scale",
   ],
+  alternates: {
+    canonical: "/case-studies",
+  },
   openGraph: {
     title: "Case Studies | AI Training Data Projects at Scale | Claru",
     description:

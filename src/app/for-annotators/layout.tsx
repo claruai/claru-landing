@@ -4,6 +4,9 @@ export const metadata: Metadata = {
   title: "For Annotators | AI Annotation Jobs & Expert Data Labeling",
   description:
     "Join Claru's team of domain experts embedded with frontier AI labs. Remote AI annotation jobs, expert data labeling, RLHF, and more — apply today.",
+  alternates: {
+    canonical: "/for-annotators",
+  },
   openGraph: {
     title: "For Annotators | Claru AI Annotation Jobs",
     description:

@@ -4,6 +4,9 @@ export const metadata: Metadata = {
   title: "Training Data | Claru — Sourced & Curated for Frontier AI",
   description:
     "Purpose-built training data for frontier video, vision, and robotics models. Egocentric video capture, manipulation trajectories, synthetic environments, and licensed datasets — from raw capture to production-ready.",
+  alternates: {
+    canonical: "/data",
+  },
   openGraph: {
     title: "Training Data | Claru",
     description:

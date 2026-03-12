@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   title: "Privacy Policy - Claru",
   description:
     "Privacy Policy for Claru (Reka AI Inc., d/b/a Claru AI) - Learn how we collect, use, and protect your personal information.",
+  alternates: {
+    canonical: "/privacy",
+  },
   openGraph: {
     title: "Privacy Policy - Claru",
     description:

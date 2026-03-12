@@ -5,12 +5,12 @@
   "userStories": [
     {
       "id": "US-001",
-      "title": "Create robots.ts — unblock AI crawlers, add Sitemap directive",
+      "title": "Create robots.ts \u2014 unblock AI crawlers, add Sitemap directive",
       "description": "As a site owner, I want robots.txt to allow AI search/citation crawlers while blocking training crawlers, so Claru pages appear in ChatGPT, Perplexity, Claude, and Google AI Overviews.",
       "acceptanceCriteria": [
         "Create src/app/robots.ts using Next.js MetadataRoute.Robots convention",
         "Include Sitemap: https://claru.ai/sitemap.xml directive",
-        "Allow all standard crawlers (Googlebot, Bingbot) — default Allow: /",
+        "Allow all standard crawlers (Googlebot, Bingbot) \u2014 default Allow: /",
         "Explicitly allow AI search/citation crawlers: GPTBot, ClaudeBot, Claude-SearchBot, Claude-User, PerplexityBot, Applebot-Extended",
         "Block AI training crawlers: Google-Extended, CCBot, Bytespider, meta-externalagent",
         "Disallow /admin/, /portal/, /experiment/, /api/ for all user agents",
@@ -38,7 +38,7 @@
         "Code Review: run code-reviewer agent to verify schema correctness"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "notes": "Read tasks/docs/seo-aeo-geo-requirements.md (Requirement 2) and tasks/docs/seo-aeo-geo-design.md (Organization + WebSite Schema Architecture). Use the entity profile from US-012 as single source of truth if implemented first. Use general-purpose agent."
     },
     {
@@ -54,7 +54,7 @@
         "Code Review: run code-reviewer agent to verify format and completeness"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "Read tasks/docs/seo-aeo-geo-requirements.md (Requirement 3) and tasks/docs/seo-aeo-geo-design.md (llms.txt Structure). See https://llmstxt.org for spec. Use general-purpose agent."
     },
     {
@@ -63,22 +63,22 @@
       "description": "As a site owner, I need canonical URLs on all public pages to prevent duplicate content signals.",
       "acceptanceCriteria": [
         "Add alternates: { canonical: '/path' } to metadata in: data-catalog/layout.tsx, case-studies/layout.tsx, for-annotators/layout.tsx, data/layout.tsx, labeling/layout.tsx, privacy/page.tsx, terms/page.tsx, prohibited-use/page.tsx, job-applicant-privacy/page.tsx",
-        "Use relative paths — metadataBase in root layout resolves to full URLs",
+        "Use relative paths \u2014 metadataBase in root layout resolves to full URLs",
         "Do NOT add canonical to portal/admin/experiment pages",
         "Build succeeds; verify <link rel='canonical'> renders in page source",
         "Typecheck passes",
         "Code Review: run code-reviewer agent to verify all canonicals are correct"
       ],
       "priority": 4,
-      "passes": false,
-      "notes": "Read tasks/docs/seo-aeo-geo-plan.md (Phase 1, Task 4). Follow existing pattern from pillar layouts e.g. src/app/pillars/acquire/layout.tsx. Some pages use layout.tsx for metadata, others use page.tsx — check each. Use general-purpose agent."
+      "passes": true,
+      "notes": "Read tasks/docs/seo-aeo-geo-plan.md (Phase 1, Task 4). Follow existing pattern from pillar layouts e.g. src/app/pillars/acquire/layout.tsx. Some pages use layout.tsx for metadata, others use page.tsx \u2014 check each. Use general-purpose agent."
     },
     {
       "id": "US-005",
       "title": "Add dateModified to all structured data schemas",
       "description": "As a site owner, I need freshness signals in structured data so AI engines and Google prioritize our content.",
       "acceptanceCriteria": [
-        "Add dateModified to Article JSON-LD in src/app/case-studies/[slug]/page.tsx — use cs.dateModified ?? cs.datePublished",
+        "Add dateModified to Article JSON-LD in src/app/case-studies/[slug]/page.tsx \u2014 use cs.dateModified ?? cs.datePublished",
         "Add dateModified field to CaseStudy type if not already present",
         "Add dateModified to Service JSON-LD in all 16 pillar/sub-pillar layout files",
         "Create shared BUILD_DATE constant in src/lib/constants.ts for Service schema fallback",
@@ -101,7 +101,7 @@
         "First 150 words after each question H2 must be independently extractable as a standalone answer",
         "Do NOT change headings where question form would be awkward",
         "Existing content preserved; this is heading/lead-in rewrites only",
-        "No visual regression — styling unchanged",
+        "No visual regression \u2014 styling unchanged",
         "Typecheck passes",
         "Code Review: run code-reviewer agent to verify content quality and heading hierarchy"
       ],
@@ -111,16 +111,16 @@
     },
     {
       "id": "US-007",
-      "title": "Homepage SSR refactor — server component with client children",
+      "title": "Homepage SSR refactor \u2014 server component with client children",
       "description": "As a site owner, I need the homepage to render meaningful HTML server-side so crawlers see real content instead of a blank page.",
       "acceptanceCriteria": [
-        "Remove 'use client' from src/app/page.tsx — make it a server component",
+        "Remove 'use client' from src/app/page.tsx \u2014 make it a server component",
         "Remove mounted state guard (if (!mounted) return null)",
         "Split each content section into: server component (renders HTML content) + client component (adds animations)",
         "Server-rendered HTML must include: <h1> with main headline, all section <h2> headings, CTA links, internal navigation links, key paragraph text",
         "Animation-only effects (ASCIIBackground, ParticleField, MagneticCursor, AnimatedLogo) remain dynamic(() => ..., { ssr: false })",
         "LenisProvider and ScrollAnimations wrapped in client boundary",
-        "All Framer Motion animations still work after hydration — no visual regression",
+        "All Framer Motion animations still work after hydration \u2014 no visual regression",
         "GSAP ScrollTrigger animations still fire on scroll",
         "Build succeeds with no hydration mismatch errors",
         "Test: curl localhost:3000 | grep -i '<h1>' returns the homepage headline",
@@ -131,7 +131,7 @@
       ],
       "priority": 7,
       "passes": false,
-      "notes": "Read tasks/docs/seo-aeo-geo-design.md (Homepage SSR Refactor Architecture — Islands pattern, Server Component Content Contract) and tasks/docs/seo-aeo-geo-plan.md (Phase 2, Task 7). This is the largest and riskiest item. Refactor one section at a time. Read src/app/page.tsx for current structure. Use frontend-expert agent."
+      "notes": "Read tasks/docs/seo-aeo-geo-design.md (Homepage SSR Refactor Architecture \u2014 Islands pattern, Server Component Content Contract) and tasks/docs/seo-aeo-geo-plan.md (Phase 2, Task 7). This is the largest and riskiest item. Refactor one section at a time. Read src/app/page.tsx for current structure. Use frontend-expert agent."
     },
     {
       "id": "US-008",
@@ -149,7 +149,7 @@
       ],
       "priority": 8,
       "passes": false,
-      "notes": "Read tasks/docs/seo-aeo-geo-requirements.md (Requirement 5). DEPENDS ON US-007 — homepage must be server component first. Use general-purpose agent."
+      "notes": "Read tasks/docs/seo-aeo-geo-requirements.md (Requirement 5). DEPENDS ON US-007 \u2014 homepage must be server component first. Use general-purpose agent."
     },
     {
       "id": "US-009",
@@ -185,7 +185,7 @@
       ],
       "priority": 10,
       "passes": false,
-      "notes": "Read tasks/docs/seo-aeo-geo-design.md (Dynamic OG Image Generator) and tasks/docs/seo-aeo-geo-plan.md (Phase 4, Task 10). Test font loading early — JetBrains Mono ArrayBuffer bundling can be tricky. Use frontend-expert agent."
+      "notes": "Read tasks/docs/seo-aeo-geo-design.md (Dynamic OG Image Generator) and tasks/docs/seo-aeo-geo-plan.md (Phase 4, Task 10). Test font loading early \u2014 JetBrains Mono ArrayBuffer bundling can be tricky. Use frontend-expert agent."
     },
     {
       "id": "US-011",
@@ -225,7 +225,7 @@
     },
     {
       "id": "US-013",
-      "title": "Playwright E2E — SEO Validation Suite",
+      "title": "Playwright E2E \u2014 SEO Validation Suite",
       "description": "As QA, I need automated tests verifying all SEO elements render correctly.",
       "acceptanceCriteria": [
         "Create Playwright test file tests/e2e/seo-validation.spec.ts",
@@ -253,14 +253,14 @@
       "description": "As QA, I need to perform user acceptance testing via Playwright MCP browser automation to verify all SEO changes render correctly and don't break the visual experience.",
       "acceptanceCriteria": [
         "Start local dev server (npm run dev) if not already running",
-        "Use Playwright MCP to navigate to homepage — verify H1 renders, animations play after load, no blank page flash",
+        "Use Playwright MCP to navigate to homepage \u2014 verify H1 renders, animations play after load, no blank page flash",
         "Take screenshots at desktop (1440px) and mobile (375px) viewports",
-        "Navigate to /robots.txt — screenshot and verify content",
-        "Navigate to /sitemap.xml — screenshot and verify XML renders",
-        "Navigate to /llms.txt — verify content displays",
-        "Navigate to /pillars/acquire — verify question-form headings visible",
-        "Navigate to /case-studies — verify canonical tag in source",
-        "Navigate to /api/og?title=Claru%20Test — verify OG image renders",
+        "Navigate to /robots.txt \u2014 screenshot and verify content",
+        "Navigate to /sitemap.xml \u2014 screenshot and verify XML renders",
+        "Navigate to /llms.txt \u2014 verify content displays",
+        "Navigate to /pillars/acquire \u2014 verify question-form headings visible",
+        "Navigate to /case-studies \u2014 verify canonical tag in source",
+        "Navigate to /api/og?title=Claru%20Test \u2014 verify OG image renders",
         "Test social share preview by inspecting og:image on 3 page types",
         "Verify no visual regression on homepage animations (scroll full page)",
         "Document any issues found and fix critical blockers"

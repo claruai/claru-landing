@@ -34,6 +34,21 @@ Branch: ralph/seo-aeo-geo
 - Added `Sitemap: https://claru.ai/sitemap.xml` directive
 - Build verified: `/robots.txt` renders as static route
 
+### US-004: Add canonical URLs to pages missing them
+- Added `alternates: { canonical: "/path" }` to metadata in 9 files:
+  - `src/app/data-catalog/layout.tsx` → `/data-catalog`
+  - `src/app/case-studies/layout.tsx` → `/case-studies`
+  - `src/app/for-annotators/layout.tsx` → `/for-annotators`
+  - `src/app/data/layout.tsx` → `/data`
+  - `src/app/labeling/layout.tsx` → `/labeling`
+  - `src/app/privacy/page.tsx` → `/privacy`
+  - `src/app/terms/page.tsx` → `/terms`
+  - `src/app/prohibited-use/page.tsx` → `/prohibited-use`
+  - `src/app/job-applicant-privacy/page.tsx` → `/job-applicant-privacy`
+- All use relative paths; `metadataBase` in root layout resolves to `https://claru.ai`
+- Portal/admin/experiment pages intentionally excluded
+- Build verified: no type errors, all pages compile
+
 ## Architecture Notes
 - Homepage SSR: Islands pattern — server component (content) + client component (animations)
 - OG images: single route handler /api/og using Next.js ImageResponse API

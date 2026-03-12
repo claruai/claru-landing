@@ -4,6 +4,9 @@ export const metadata: Metadata = {
   title: "Expert Labeling | Claru — Annotation for Frontier AI",
   description:
     "Domain-specialist annotation for frontier video, vision, and robotics models. RLHF, frame-level video annotation, red teaming, and benchmark curation — built to your model's exact specifications.",
+  alternates: {
+    canonical: "/labeling",
+  },
   openGraph: {
     title: "Expert Labeling | Claru",
     description:
