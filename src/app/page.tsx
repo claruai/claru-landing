@@ -4,6 +4,7 @@ import ProblemAgitation from "./components/sections/ProblemAgitation";
 import Origin from "./components/sections/Origin";
 import TwoPaths from "./components/sections/TwoPaths";
 import ProofOfWork from "./components/sections/ProofOfWork";
+import CatalogPreview from "./components/sections/CatalogPreview";
 import Testimonials from "./components/sections/Testimonials";
 import FinalCTA from "./components/sections/FinalCTA";
 import Footer from "./components/sections/Footer";
@@ -93,6 +94,7 @@ export default function Home() {
         <Origin />
         <TwoPaths />
         <ProofOfWork />
+        <CatalogPreview />
         <Testimonials />
         <FinalCTA />
         <AnimatedLogoWrapper />

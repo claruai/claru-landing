@@ -64,6 +64,8 @@ export async function POST(request: NextRequest) {
     geographic_coverage,
     annotation_types,
     is_published,
+    source_type,
+    modality,
   } = body;
 
   if (!name || !slug || !category_id || !type) {
@@ -89,6 +91,8 @@ export async function POST(request: NextRequest) {
       geographic_coverage: geographic_coverage ?? "",
       annotation_types: annotation_types ?? [],
       is_published: is_published ?? false,
+      source_type: source_type ?? "collected",
+      modality: modality || null,
     })
     .select()
     .single();

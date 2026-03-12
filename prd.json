@@ -1,254 +1,167 @@
 {
-  "project": "Admin Lead Management",
-  "branchName": "ralph/admin-lead-management",
-  "description": "Full CRUD for admin leads portal — create, edit, delete leads with invite email controls via Resend. Slide-over creation panel, edit mode toggle on detail page, delete with full cleanup, and approve-with-invite / re-send invite workflows.",
+  "project": "Reka Data Catalog Expansion",
+  "branchName": "ralph/reka-data-catalog-expansion",
+  "description": "Expand dataset catalog with source_type/modality columns, 6 new categories, 8 synthetic datasets, 5 curated datasets, source badges on public cards, and admin form updates.",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Create lead API endpoint",
-      "description": "As an admin, I need a POST /api/admin/leads endpoint to create new leads so the portal can add leads without direct database access.",
+      "title": "Add source_type and modality columns to datasets table",
+      "description": "As a developer, I need source_type and modality columns on the datasets table to classify datasets by provenance and data modality.",
       "acceptanceCriteria": [
-        "Create POST handler in src/app/api/admin/leads/route.ts",
-        "Accept body: { name, email, company, role, data_needs, use_case, admin_notes } — name and email required, rest optional",
-        "Validate email format server-side (basic regex or URL-style check)",
-        "Insert into Supabase leads table with status 'pending'",
-        "Return 409 with message 'A lead with this email already exists' if email UNIQUE constraint violated (Supabase error code 23505)",
-        "Return 201 with the created lead object on success",
-        "Admin token verification required (same cookies + verifyAdminToken pattern as GET/PATCH in the same file)",
-        "Typecheck passes",
-        "Run code-reviewer agent to verify API contract and error handling"
+        "Create Supabase migration via MCP (mcp__supabase-db__apply_migration) adding: source_type TEXT NOT NULL DEFAULT 'collected', modality TEXT (nullable)",
+        "Add CHECK constraint on source_type: source_type IN ('collected', 'synthetic', 'curated')",
+        "No CHECK constraint on modality (keep flexible)",
+        "Existing rows automatically get source_type = 'collected' from DEFAULT",
+        "Verify migration applied: SELECT column_name FROM information_schema.columns WHERE table_name = 'datasets' AND column_name IN ('source_type', 'modality') — returns 2 rows",
+        "Typecheck passes"
       ],
       "priority": 1,
       "passes": true,
-      "notes": "Read src/app/api/admin/leads/[id]/route.ts for the existing auth pattern (cookies + verifyAdminToken). Read src/app/api/contact/route.ts for the Resend import pattern. The leads table schema is in supabase/migrations/001_data_catalog_schema.sql. Use general-purpose agent."
+      "notes": "Use mcp__supabase-db__apply_migration to run the migration. The migration SQL is: ALTER TABLE datasets ADD COLUMN source_type TEXT NOT NULL DEFAULT 'collected' CHECK (source_type IN ('collected', 'synthetic', 'curated')); ALTER TABLE datasets ADD COLUMN modality TEXT; Then verify with mcp__supabase-db__execute_sql."
     },
     {
       "id": "US-002",
-      "title": "Delete lead API endpoint with full cleanup",
-      "description": "As an admin, I need a DELETE /api/admin/leads/[id] endpoint that removes the lead, their dataset grants, and their Supabase Auth user.",
+      "title": "Backfill existing datasets with modality and create new categories",
+      "description": "As a developer, I need to set modality on all existing datasets and create 6 new categories for expanded data domains.",
       "acceptanceCriteria": [
-        "Add DELETE handler to src/app/api/admin/leads/[id]/route.ts (alongside existing GET and PATCH)",
-        "Fetch lead first — return 404 if not found",
-        "Delete all rows from lead_dataset_access where lead_id matches",
-        "If lead has supabase_user_id, call supabase.auth.admin.deleteUser(supabaseUserId) — if this fails (user already gone), log warning but continue",
-        "Delete the lead row from leads table",
-        "Return 200 with { message: 'Lead deleted' }",
-        "Admin token verification required",
-        "Typecheck passes",
-        "Run code-reviewer agent to verify cascade logic and error recovery"
+        "Run SQL to set modality on all 15 existing datasets: video_text for all video/evaluation datasets, image_text for Object & Face Identity Matching + AI Image Generation Evaluation + Product Image Annotation, mixed for Content Safety & Policy Review",
+        "Insert 6 new categories into dataset_categories: Multimodal Instruction Tuning (slug: multimodal-instruction-tuning, display_order: 9), Speech & Audio (slug: speech-audio, display_order: 10), Code & Math Reasoning (slug: code-math-reasoning, display_order: 11), Document Understanding (slug: document-understanding, display_order: 12), Video Understanding (slug: video-understanding, display_order: 13), Large-Scale Pretraining (slug: large-scale-pretraining, display_order: 14)",
+        "Verify: SELECT name, source_type, modality FROM datasets WHERE modality IS NULL — returns 0 rows",
+        "Verify: SELECT count(*) FROM dataset_categories — returns 15 (9 old + 6 new)",
+        "Typecheck passes"
       ],
       "priority": 2,
       "passes": true,
-      "notes": "Read src/app/api/admin/leads/[id]/route.ts for the existing GET/PATCH handlers — add DELETE in the same file. Read src/app/api/admin/leads/[id]/approve/route.ts for the supabase.auth.admin pattern (createSupabaseAdminClient). Deletion order matters: grants first, then auth user, then lead row. Use general-purpose agent."
+      "notes": "Use mcp__supabase-db__execute_sql for all SQL. Modality mapping: Egocentric Activity Capture → video_text, Traffic & Transportation → video_text, Workplace Activities → video_text, Cinematic Action Footage → video_text, Henri Halle → video_text, Game Environment Capture → video_text, all Video Evaluation datasets → video_text, Object & Face Identity → image_text, AI Image Generation Eval → image_text, Product Image Annotation → image_text, Content Safety → mixed."
     },
     {
       "id": "US-003",
-      "title": "Expand PATCH endpoint to accept all lead fields",
-      "description": "As an admin, I need the existing PATCH /api/admin/leads/[id] to accept all editable lead fields so the edit form can save changes.",
+      "title": "Seed Tier 1 synthetic datasets (batch 1 of 2)",
+      "description": "As a developer, I need to create the first 4 proprietary synthetic dataset entries.",
       "acceptanceCriteria": [
-        "Update PATCH handler in src/app/api/admin/leads/[id]/route.ts to accept: name, email, company, role, data_needs, use_case, admin_notes, status",
-        "Validate name is non-empty string if provided",
-        "Validate email format if provided",
-        "Handle email uniqueness conflict — return 409 with 'Email already in use by another lead' if Supabase returns error code 23505",
-        "Only include provided fields in the Supabase update object (don't null out omitted fields)",
-        "Return updated lead object in { lead } wrapper",
-        "Existing admin_notes and status update behavior unchanged",
-        "Typecheck passes",
-        "Run code-reviewer agent to verify update logic and validation"
+        "Insert 4 datasets with source_type='synthetic', is_published=true. For each, look up the category_id by querying dataset_categories by slug first.",
+        "1) Multimodal Image Chat: category=multimodal-instruction-tuning, modality=image_text, total_samples=997000, type=instruction, slug=multimodal-image-chat, description='Multi-turn conversational data pairing images with instruction-following dialogues. Covers chart interpretation, financial documents, and general visual reasoning across multiple generation rounds.', annotation_types=['multi_turn_chat','instruction_following','visual_reasoning']",
+        "2) Multimodal Video Chat: category=multimodal-instruction-tuning, modality=video_text, total_samples=440000, type=instruction, slug=multimodal-video-chat, description='Multi-turn video conversation data for training models to reason about temporal sequences, actions, and events in video content.', annotation_types=['multi_turn_chat','video_reasoning','temporal_understanding']",
+        "3) Financial & Chart Reasoning: category=document-understanding, modality=image_text, total_samples=325000, type=instruction, slug=financial-chart-reasoning, description='Structured conversations around financial documents, data tables, and chart visualizations. Designed for training models to extract, interpret, and reason about quantitative visual data.', annotation_types=['chart_reasoning','table_extraction','financial_analysis']",
+        "4) Code Instruction Tuning: category=code-math-reasoning, modality=text_only, total_samples=3600000, type=instruction, slug=code-instruction-tuning, description='High-quality instruction-following data for code generation, comprehension, SQL queries, and programming tasks across multiple languages and difficulty levels.', annotation_types=['code_generation','code_comprehension','sql','instruction_following']",
+        "All 4 have total_duration_hours=0, is_published=true, source_type='synthetic'",
+        "Verify: SELECT name, source_type FROM datasets WHERE source_type='synthetic' — returns 4 rows",
+        "Typecheck passes"
       ],
       "priority": 3,
       "passes": true,
-      "notes": "Read the current PATCH handler in src/app/api/admin/leads/[id]/route.ts — it currently only accepts admin_notes and status. Expand the updateFields building logic to include all fields. The allowed fields for status remain: pending, approved, rejected. Use general-purpose agent."
+      "notes": "Use mcp__supabase-db__execute_sql. First query category IDs: SELECT id, slug FROM dataset_categories WHERE slug IN ('multimodal-instruction-tuning','document-understanding','code-math-reasoning'). Then INSERT with those IDs."
     },
     {
       "id": "US-004",
-      "title": "Branded invite email template and send function",
-      "description": "As an admin, I need a reusable sendInviteEmail function that sends a branded magic link via Resend so leads receive professional portal access emails.",
+      "title": "Seed Tier 1 synthetic datasets (batch 2 of 2)",
+      "description": "As a developer, I need to create the remaining 4 proprietary synthetic dataset entries.",
       "acceptanceCriteria": [
-        "Create src/lib/email/invite.ts with exported function sendInviteEmail({ to, name, magicLink })",
-        "Use Resend SDK (import { Resend } from 'resend') with RESEND_API_KEY env var",
-        "From address: use RESEND_FROM_EMAIL env var with fallback to 'team@claru.ai', formatted as 'Claru AI <address>'",
-        "Subject line: 'Your Claru Data Portal Access'",
-        "HTML template: dark background (#050505), accent green (#00ff88), font-mono styling — match the terminal aesthetic from src/app/api/contact/route.ts email template",
-        "Body includes: personalized greeting with lead's name, welcome message explaining portal access was granted, prominent 'Access Portal' button linking to magicLink, note that link expires in 24 hours, support contact (team@claru.ai)",
-        "Include plain text fallback version",
-        "Function returns { success: boolean, error?: string } — NEVER throws",
-        "If RESEND_API_KEY is not set, return { success: false, error: 'Email not configured' } without throwing",
-        "Typecheck passes",
-        "Run code-reviewer agent to verify Resend integration and error handling"
+        "Insert 4 more datasets with source_type='synthetic', is_published=true.",
+        "5) Math Visual Reasoning: category=code-math-reasoning, modality=image_text, total_samples=1700000, type=instruction, slug=math-visual-reasoning, description='Visual mathematics problems paired with step-by-step reasoning. Includes OCR-focused variants for extracting and solving equations from images of handwritten and printed mathematical content.', annotation_types=['math_reasoning','ocr','equation_solving']",
+        "6) Speech-to-Speech Training: category=speech-audio, modality=audio_audio, total_samples=3300000, type=generation, slug=speech-to-speech-training, description='Paired audio-to-audio training data for speech generation and voice synthesis models. Derived from long-form spoken content with diverse speaker characteristics.', annotation_types=['speech_synthesis','voice_conversion']",
+        "7) Text-to-Speech Training: category=speech-audio, modality=audio_text, total_samples=6500000, type=generation, slug=text-to-speech-training, description='Large-scale text-audio paired data for training text-to-speech and speech understanding models. Covers diverse reading styles, pacing, and content domains.', annotation_types=['text_to_speech','speech_understanding']",
+        "8) Synthetic OCR & Rendered Text: category=document-understanding, modality=image_text, total_samples=20000000, type=annotation, slug=synthetic-ocr-rendered-text, description='Millions of synthetically rendered text images with character-level and line-level annotations. Includes diverse fonts, rotations, lighting conditions, and background textures for robust OCR training.', annotation_types=['ocr','text_detection','character_recognition']",
+        "All 4 have total_duration_hours=0, is_published=true, source_type='synthetic'",
+        "Verify: SELECT name, source_type FROM datasets WHERE source_type='synthetic' — returns 8 rows total",
+        "Typecheck passes"
       ],
       "priority": 4,
       "passes": true,
-      "notes": "Read src/app/api/contact/route.ts for the existing Resend pattern — same SDK, same env var, same terminal-styled HTML email. The invite template should match the dark theme aesthetic. The magicLink is a full URL generated by supabase.auth.admin.generateLink() — just embed it as an href. Use general-purpose agent."
+      "notes": "Use mcp__supabase-db__execute_sql. Query category IDs first: SELECT id, slug FROM dataset_categories WHERE slug IN ('code-math-reasoning','speech-audio','document-understanding')."
     },
     {
       "id": "US-005",
-      "title": "Approve endpoint with send_invite option",
-      "description": "As an admin, I want the approve endpoint to optionally send the invite email via Resend when send_invite is true.",
+      "title": "Seed Tier 2 curated datasets",
+      "description": "As a developer, I need to create the 5 curated open-source dataset entries.",
       "acceptanceCriteria": [
-        "Update POST /api/admin/leads/[id]/approve to accept optional { send_invite: boolean, admin_notes?: string } in request body",
-        "Default send_invite to false for backward compatibility",
-        "When send_invite is true AND magic link was generated successfully: call sendInviteEmail() with lead's email, name, and the magic link URL",
-        "Include invite status in response: { lead, message, invite_sent: boolean, invite_error?: string }",
-        "If email sending fails, approval still succeeds — lead status is 'approved', invite_sent is false, invite_error has the reason",
-        "When send_invite is false or omitted: existing behavior unchanged, invite_sent is false in response",
-        "The magic link URL (linkData.properties.action_link) must be passed to sendInviteEmail — currently it's generated but never used",
-        "Typecheck passes",
-        "Run code-reviewer agent to verify backward compatibility and error isolation"
+        "Insert 5 datasets with source_type='curated', is_published=true.",
+        "1) Video Captioning & QA Collection: category=video-understanding, modality=video_text, total_samples=70000000, type=captioning, slug=video-captioning-qa-collection, description='Comprehensive video-text collection spanning captioning, question answering, and temporal reasoning tasks across diverse video domains including instructional content, movies, and real-world activities.', annotation_types=['video_captioning','video_qa','temporal_reasoning'], tags=['source:PANDA-70M','source:ActivityNet','source:MSRVTT','source:MSVD','source:FunQA','source:CinePile','source:FineVideo']",
+        "2) Document & PDF Intelligence: category=document-understanding, modality=multiple_images_text, total_samples=25000000, type=annotation, slug=document-pdf-intelligence, description='Training-ready document understanding data covering PDF parsing, table extraction, infographic interpretation, and multi-page document reasoning. Processed into distributed-training-ready shards.', annotation_types=['document_parsing','table_extraction','pdf_ocr','infographic_qa'], tags=['source:CCPDF','source:PlotQA','source:ChartLlama','source:infographics-VQA','source:TAT-DQA']",
+        "3) Audio Understanding Collection: category=speech-audio, modality=audio_text, total_samples=2600000, type=captioning, slug=audio-understanding-collection, description='Curated audio-text pairs spanning environmental sound classification, music understanding, and speech captioning. Quality-filtered and formatted for multimodal model training.', annotation_types=['audio_captioning','sound_classification','music_understanding'], tags=['source:VGGSound','source:AudioCaps','source:Freesound','source:RAVDESS','source:MusicQA']",
+        "4) Interleaved Multimodal Documents: category=large-scale-pretraining, modality=multiple_images_text, total_samples=140000000, type=pretraining, slug=interleaved-multimodal-documents, description='Web-scale interleaved image-text documents preserving natural reading order. Designed for pretraining models that understand documents with mixed visual and textual content.', annotation_types=['interleaved_pretraining','document_understanding'], tags=['source:OBELICS','source:MINT-1T','source:MMC4']",
+        "5) Image-Text Pretraining Shards: category=large-scale-pretraining, modality=image_text, total_samples=500000000, type=pretraining, slug=image-text-pretraining-shards, description='Billions of image-text pairs processed into training-ready webdataset shards. Quality-filtered, deduplicated, and validated for large-scale multimodal pretraining pipelines.', annotation_types=['image_text_pretraining','contrastive_learning'], tags=['source:DataComp','source:COYO-700M','source:CC3M','source:CC12M','source:CapsFusion']",
+        "All 5 have total_duration_hours=0, is_published=true, source_type='curated'",
+        "Verify: SELECT name, source_type FROM datasets WHERE source_type='curated' — returns 5 rows",
+        "Typecheck passes"
       ],
       "priority": 5,
       "passes": true,
-      "notes": "Read src/app/api/admin/leads/[id]/approve/route.ts — the magic link is already generated at line 92 (supabase.auth.admin.generateLink) and stored in magicLink variable, but never returned or used. Import sendInviteEmail from @/lib/email/invite (created in US-004). Use general-purpose agent."
+      "notes": "Use mcp__supabase-db__execute_sql. Query category IDs first: SELECT id, slug FROM dataset_categories WHERE slug IN ('video-understanding','document-understanding','speech-audio','large-scale-pretraining'). The tags array stores source dataset names for internal reference — these won't show on the public page."
     },
     {
       "id": "US-006",
-      "title": "Re-send invite API endpoint",
-      "description": "As an admin, I need a POST /api/admin/leads/[id]/invite endpoint to re-send the magic link invite to already-approved leads.",
+      "title": "Update PublicDataset type and public API",
+      "description": "As a developer, I need the public API to return source_type and modality so the frontend can display badges.",
       "acceptanceCriteria": [
-        "Create POST handler at src/app/api/admin/leads/[id]/invite/route.ts",
-        "Fetch lead — return 404 if not found",
-        "Return 400 with message 'Lead must be approved to send invite' if status is not 'approved'",
-        "If lead has no supabase_user_id (edge case), create auth user first using same logic as approve endpoint",
-        "Generate fresh magic link via supabase.auth.admin.generateLink({ type: 'magiclink', email, options: { redirectTo: siteUrl/portal/auth/callback } })",
-        "Call sendInviteEmail() with lead's email, name, and fresh magic link",
-        "Return { success: boolean, error?: string }",
-        "Admin token verification required",
-        "Typecheck passes",
-        "Run code-reviewer agent to verify magic link generation and edge case handling"
+        "Add source_type (string) and modality (string | null) to PublicDataset interface in src/types/data-catalog.ts",
+        "Update src/app/api/public/datasets/route.ts to include source_type and modality in the SELECT query string",
+        "Update the response mapping to include source_type and modality in the returned object",
+        "Verify: hit /api/public/datasets — every object has source_type and modality fields",
+        "Typecheck passes"
       ],
       "priority": 6,
       "passes": true,
-      "notes": "Read src/app/api/admin/leads/[id]/approve/route.ts for the magic link generation pattern (lines 89-102) and auth user creation pattern (lines 58-86). The re-send endpoint is simpler — no status change, just generate link and send email. NEXT_PUBLIC_SITE_URL env var for the redirect URL. Use general-purpose agent."
+      "notes": "Read src/app/api/public/datasets/route.ts for the current SELECT and mapping. The select string needs source_type and modality added. The mapping object needs both new fields added. Read src/types/data-catalog.ts for the PublicDataset interface."
     },
     {
       "id": "US-007",
-      "title": "Create lead slide-over panel on leads list page",
-      "description": "As an admin, I want a slide-over panel on the leads list page to quickly create a new lead without leaving the list.",
+      "title": "Add source_type badge to PublicDatasetCard",
+      "description": "As a visitor, I want to see whether a dataset is synthetic or curated so I understand its provenance.",
       "acceptanceCriteria": [
-        "Add [+ new lead] button in AdminLeadsTable.tsx, positioned in the filter/search bar area (next to search input)",
-        "Button styled: text-xs font-mono, bracket notation [+ new lead], text-[var(--text-muted)] hover:text-[var(--accent-primary)]",
-        "Clicking opens a slide-over panel from the right edge (follow SampleEditPanel pattern from src/app/admin/catalog/[id]/SampleEditPanel.tsx)",
-        "Panel has dark background, border-left with accent color, close button (X), dismissible with Escape key",
-        "Form fields: Name (required, text input), Email (required, email input), Company (text), Role (text), Data Needs (textarea), Use Case (textarea), Admin Notes (textarea)",
-        "Required fields show validation errors on submit if empty; email validates format",
-        "Submit button: [create lead], disabled while submitting with loading text",
-        "POST /api/admin/leads on submit — on 201: close panel, success toast, router.refresh()",
-        "On 409: error toast 'A lead with this email already exists'",
-        "On other error: error toast with message",
-        "AdminLeadsTable needs to accept an onCreateClick callback or manage panel state internally",
+        "Update src/app/components/catalog/PublicDatasetCard.tsx to show a source_type badge",
+        "Badge placement: between the category label and the dataset name",
+        "Badge logic: source_type==='collected' → no badge, source_type==='synthetic' → pill 'SYNTHETIC', source_type==='curated' → pill 'CURATED · TRAINING-READY'",
+        "Badge styling: font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border border-[var(--accent-primary)]/20 text-[var(--accent-primary)]/70 bg-[var(--accent-primary)]/5 w-fit mb-1",
+        "Badge should not significantly increase card height — keep it compact (single line)",
+        "Cards with source_type='collected' look identical to before (no visual change)",
         "Typecheck passes",
-        "Verify in browser using dev-browser skill",
-        "Run code-reviewer agent to verify form patterns and design system compliance"
+        "Verify in browser using dev-browser skill — check that synthetic datasets show SYNTHETIC pill, curated show CURATED pill, collected show no pill"
       ],
       "priority": 7,
       "passes": true,
-      "notes": "Read src/app/admin/catalog/[id]/SampleEditPanel.tsx for the slide-over pattern — fixed position, right-0, dark bg, translate-x animation, z-50. Read AdminLeadsTable.tsx for the existing layout (search input area at line 232-253). The page.tsx is a server component that passes leads as props — the panel state lives in AdminLeadsTable (client component). Use frontend-expert agent."
+      "notes": "Read src/app/components/catalog/PublicDatasetCard.tsx for current card layout. The badge goes after the category <span> and before the <h3> name. Only render the badge div when source_type !== 'collected'. The PublicDataset type now has source_type from US-006."
     },
     {
       "id": "US-008",
-      "title": "Edit mode toggle on lead detail page",
-      "description": "As an admin, I want an [edit] button on the lead detail page that toggles all info fields into editable inputs with save/cancel.",
+      "title": "Update admin DatasetForm with source_type and modality",
+      "description": "As an admin, I need to set source_type and modality when creating or editing datasets.",
       "acceptanceCriteria": [
-        "Add [edit] button to lead info card header in LeadDetailClient.tsx, styled same as other action buttons: text-xs font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)]",
-        "Clicking [edit] switches info card from read-only display to form inputs for: name, email, company, role, data_needs (textarea), use_case (textarea)",
-        "Non-editable fields stay as display: id, created_at, updated_at, supabase_user_id, status",
-        "Inputs use design system: bg-[var(--bg-secondary)] border-[var(--border-subtle)] font-mono text-sm rounded-lg",
-        "Two buttons in edit mode: [save] (text-[var(--accent-primary)]) and [cancel] (text-[var(--text-muted)])",
-        "Cancel reverts all fields to original values and exits edit mode (no API call)",
-        "Save calls PATCH /api/admin/leads/[id] with only changed fields (diff detection: compare current vs original)",
-        "On success: exit edit mode, update displayed data from response, success toast",
-        "On 409: error toast 'Email already in use by another lead', stay in edit mode",
-        "Admin notes section remains independently editable (existing save button)",
+        "Read src/app/admin/catalog/DatasetForm.tsx to understand existing form structure",
+        "Add source_type dropdown: options 'collected' (default), 'synthetic', 'curated'. Label: 'Source Type'. Styled like existing form selects.",
+        "Add modality dropdown: options (empty/null), 'image_text', 'video_text', 'audio_text', 'text_only', 'audio_audio', 'multiple_images_text', 'audio_video_text', 'mixed'. Label: 'Modality'. Optional field.",
+        "Place both fields after the existing type field in the form layout",
+        "Both fields populate from existing dataset data when editing",
+        "Both fields save correctly on create (POST /api/admin/catalog) and update (PATCH /api/admin/catalog/[id])",
+        "Update the admin API routes to accept and persist source_type and modality if not already handled — read src/app/api/admin/catalog/route.ts (POST) and src/app/api/admin/catalog/[id]/route.ts (PATCH) to check",
         "Typecheck passes",
-        "Verify in browser using dev-browser skill",
-        "Run code-reviewer agent to verify form state management and diff detection"
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 8,
       "passes": true,
-      "notes": "Read src/app/admin/components/LeadDetailClient.tsx for the existing info card layout and admin notes section. The component already has useState for lead data. Add isEditing boolean state and editForm state object. The diff detection pattern: compare editForm values to lead prop values, only include changed keys in PATCH payload. Use frontend-expert agent."
+      "notes": "Read src/app/admin/catalog/DatasetForm.tsx for form structure. Read src/app/api/admin/catalog/route.ts POST handler and src/app/api/admin/catalog/[id]/route.ts PATCH handler to see which fields they accept. The PATCH handler likely builds an updateFields object — add source_type and modality to it. The POST handler may need similar updates."
     },
     {
       "id": "US-009",
-      "title": "Delete lead button with confirmation dialog",
-      "description": "As an admin, I want a [delete lead] button on the detail page that shows a confirmation dialog requiring email input before deleting.",
+      "title": "Playwright MCP visual verification",
+      "description": "As QA, I need to verify the expanded catalog renders correctly with new datasets and badges.",
       "acceptanceCriteria": [
-        "Add [delete lead] button to LeadDetailClient.tsx, positioned at bottom of page in a 'Danger Zone' section with border-top separator",
-        "Button styled: text-xs font-mono text-[var(--text-muted)] hover:text-[var(--error)] with bracket notation [delete lead]",
-        "Clicking shows a confirmation modal/dialog overlay",
-        "Dialog text: 'Delete {lead.name}? This will permanently remove this lead, their portal access, and all dataset grants. This cannot be undone.'",
-        "If lead is approved: dialog also says 'This will revoke their portal login.'",
-        "Dialog has text input: 'Type {lead.email} to confirm'",
-        "Confirm button only enabled when typed email matches lead.email exactly",
-        "Confirm button styled: bg-red/error color, [confirm delete]",
-        "On confirm: call DELETE /api/admin/leads/[id]",
-        "On success: success toast 'Lead deleted', redirect to /admin/leads via router.push",
-        "On error: error toast with message, close dialog",
-        "Dialog dismissible with Cancel button and Escape key",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill",
-        "Run code-reviewer agent to verify UX safety patterns"
+        "Navigate to localhost:3005/data-catalog",
+        "Scroll to BROWSE THE CATALOG section, take screenshot",
+        "Verify new category pills appear: Multimodal Instruction Tuning, Speech & Audio, Code & Math Reasoning, Document Understanding, Video Understanding, Large-Scale Pretraining",
+        "Click 'Multimodal Instruction Tuning' pill — verify 2 cards (Image Chat + Video Chat) with SYNTHETIC badge",
+        "Click 'Speech & Audio' pill — verify 3 cards",
+        "Click 'Large-Scale Pretraining' pill — verify 2 cards with CURATED · TRAINING-READY badge",
+        "Click 'All' pill — scroll through all datasets, verify lazy loading works",
+        "Verify collected datasets (e.g. Egocentric Activity Capture) show NO badge",
+        "Click Request Access on a synthetic dataset — verify Calendly modal opens",
+        "Resize to mobile (375px) — verify badges don't break layout, take screenshot",
+        "Check browser console for errors",
+        "Document any issues found and fix critical blockers"
       ],
       "priority": 9,
       "passes": true,
-      "notes": "Read src/app/admin/components/LeadDetailClient.tsx for the existing action button area and toast system. The confirmation dialog is a new modal — position fixed, z-50, dark overlay, centered card. The email-to-confirm pattern prevents accidental deletes. Use frontend-expert agent."
-    },
-    {
-      "id": "US-010",
-      "title": "Invite controls on lead detail page — split approve and re-send",
-      "description": "As an admin, I want approve-with-invite and re-send-invite controls on the lead detail page.",
-      "acceptanceCriteria": [
-        "Replace the single Approve button with two options: [approve & send invite] and [approve only]",
-        "Implementation: either a dropdown menu with chevron or two side-by-side buttons — use dropdown with chevron indicator",
-        "[approve & send invite] calls POST /api/admin/leads/[id]/approve with { send_invite: true }",
-        "[approve only] calls POST /api/admin/leads/[id]/approve with { send_invite: false }",
-        "After approval: toast message varies — 'Lead approved and invite sent to {email}' / 'Lead approved (no invite sent)' / 'Lead approved but invite failed: {error}'",
-        "For already-approved leads: show [re-send invite] button instead of approve options",
-        "[re-send invite] calls POST /api/admin/leads/[id]/invite",
-        "[re-send invite] shows loading spinner/text while sending",
-        "On invite success: toast 'Invite sent to {email}'",
-        "On invite failure: toast with error message",
-        "Existing reject and reset-to-pending buttons unchanged",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill",
-        "Run code-reviewer agent to verify UX flow and conditional rendering"
-      ],
-      "priority": 10,
-      "passes": true,
-      "notes": "Read src/app/admin/components/LeadDetailClient.tsx for the existing handleApprove function and action button rendering. The approve dropdown replaces the existing approve button — look for the approve button JSX and the handleApprove callback. The re-send button only shows when lead.status === 'approved'. The response from approve now includes invite_sent and invite_error fields (from US-005). Use frontend-expert agent."
-    },
-    {
-      "id": "US-011",
-      "title": "Playwright E2E — Create, Edit, Delete Lead Flow",
-      "description": "As QA, I need an end-to-end test verifying the complete lead CRUD lifecycle via the admin portal.",
-      "acceptanceCriteria": [
-        "Navigate to admin portal at localhost:3001/admin/leads (authenticate with team@claru.ai / qweqwe123! or pause for manual auth)",
-        "Test create: click [+ new lead], verify slide-over opens, try empty submit (verify validation), fill name 'Test E2E User' + email 'test-e2e@example.com' + company 'Test Corp', submit, verify success toast, verify lead appears in table",
-        "Test edit: click [view] on new lead, click [edit], verify fields become inputs, change company to 'Updated Corp', click [save], verify toast and updated value",
-        "Test delete: click [delete lead], verify confirmation dialog, type email, confirm, verify redirect to /admin/leads, verify lead gone from table",
-        "Clean up any test data if deletion step failed",
-        "Typecheck passes",
-        "Run code-reviewer agent to verify test coverage"
-      ],
-      "priority": 11,
-      "passes": false,
-      "notes": "Dev server on localhost:3001. Admin credentials: team@claru.ai / qweqwe123!. Use Playwright MCP browser tools. If admin auth is needed, PAUSE and ask user to authenticate. Use general-purpose agent with Playwright MCP."
-    },
-    {
-      "id": "US-012",
-      "title": "Playwright E2E — Approve with Invite and Re-send Flow",
-      "description": "As QA, I need an end-to-end test verifying the invite sending workflow (approve with invite, re-send invite).",
-      "acceptanceCriteria": [
-        "Create a test lead via [+ new lead] or API call",
-        "Navigate to lead detail page",
-        "Test approve with invite: open approve dropdown, click [approve & send invite], verify status changes to Approved, verify toast mentions invite (sent or failed depending on Resend config)",
-        "Test re-send: verify [re-send invite] button appears for approved lead, click it, verify loading state, verify toast with result",
-        "Clean up: delete the test lead via [delete lead] button",
-        "Typecheck passes",
-        "Run code-reviewer agent to verify test assertions"
-      ],
-      "priority": 12,
-      "passes": false,
-      "notes": "Dev server on localhost:3001. Admin credentials: team@claru.ai / qweqwe123!. Resend may not be configured in test env — the invite_sent field and toast should gracefully handle this. Use general-purpose agent with Playwright MCP."
+      "notes": "Dev server on port 3005. Use Playwright MCP tools. The public API uses anon key (createClient without cookies) so all published datasets should be visible. There should be 25 total published datasets: 12 existing collected + 8 synthetic + 5 curated."
     }
   ]
 }

@@ -33,6 +33,8 @@ export interface Dataset {
   slug: string;
   description: string;
   type: DatasetType;
+  source_type: string;
+  modality: string | null;
   subcategory: string;
   tags: string[];
   total_samples: number;
@@ -105,4 +107,29 @@ export interface AdminSetting {
   key: string;
   value: string;
   updated_at: string;
+}
+
+// ---------------------------------------------------------------------------
+// Public API Response Types
+// ---------------------------------------------------------------------------
+
+/** Shape returned by the public dataset API — nullable fields are honest. */
+export interface PublicDataset {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  type: string;
+  subcategory: string | null;
+  source_type: string;
+  modality: string | null;
+  total_samples: number;
+  total_duration_hours: number;
+  geographic_coverage: string | null;
+  annotation_types: string[];
+  category: {
+    name: string;
+    slug: string;
+    display_order: number;
+  };
 }

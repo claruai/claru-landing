@@ -1,0 +1,102 @@
+# Ralph Progress Log - Adaptive Data Catalog
+
+## Session Start
+Branch: ralph/adaptive-data-catalog
+Stories: US-001 through US-010
+
+---
+
+## 2026-02-27 — US-001 + US-002: Schema & CSV Mapping
+
+**What I did:**
+- Created migration 006_enrichment_json.sql (enrichment_json JSONB + show_enrichment BOOLEAN)
+- Updated DatasetSample and Dataset TypeScript interfaces
+- Added enrichment_json to MappableField, FIELD_LABELS, AUTO_MAP_RULES
+- Added standardized template aliases: s3_video_uri, s3_annotation_uri, enrichment, ai_metadata
+- Updated buildSampleRows() with enrichment JSON parsing and { _raw } fallback
+
+**Learnings:**
+- AUTO_MAP_RULES normalize column names (lowercase, replace spaces with _) before matching
+- enrichment column parse failure stores raw as { _raw: value } instead of silently dropping
+
+---
+
+## 2026-02-27 — US-003 + US-004 + US-005: Backend APIs
+
+**What I did:**
+- Bulk POST: accepts enrichment_json, extracts tech metadata from technical_specs
+- Bulk POST: fetches S3 annotation JSONs for samples missing tech fields (max 10 concurrent)
+- MediaInfo extraction: files[0].attributes.media.track[] for Video/General tracks
+- Added enrichment_json to PATCH allowedFields (single sample, bulk, dataset)
+- Added enrichment_json validation to bulk PATCH
+
+**Code Review Fixes:**
+- S3 client: module-level singleton instead of per-request creation
+- PATCH route: added enrichment_json JSON.parse validation
+
+**Learnings:**
+- S3 annotation bucket: env var S3_ANNOTATION_BUCKET with fallback to S3_BUCKET_NAME
+- MediaInfo path: track[].@type === "Video" for Width/Height/Duration/FrameRate
+- extractTechMetadata priority: enrichment > S3 annotation > null
+
+---
+
+## 2026-02-27 — US-006: JsonTree Component
+
+**What I did:**
+- Created adaptive JSON tree renderer at src/app/components/catalog/JsonTree.tsx
+- Collapsible nodes, type-specific rendering, search with auto-expand
+- Top-level expanded by default, nested collapsed
+- Empty state, no-results state, highlight matches
+
+---
+
+## 2026-02-27 — US-007 + US-008 + US-009: Frontend Integration
+
+**What I did:**
+- Registered enrichment + additional_metadata panel types in DataPanelRegistry
+- Admin label: "Enrichment", portal label: "Additional Metadata" (different panel types)
+- SampleDetailModal: showEnrichment + isAdmin props for conditional visibility
+- CatalogEditClient: show_enrichment checkbox with helper text
+- SampleEditPanel: enrichment_json textarea with Format button, validation, diff detection
+
+**Learnings:**
+- Panel registry supports multiple types pointing to same component
+- Admin context determined by isAdmin prop (set by SamplePreviewModal wrapper)
+- Portal context uses showEnrichment from dataset config
+
+---
+
+## 2026-02-27 — US-010: E2E Verification (Playwright MCP)
+
+**What I did:**
+- Authenticated to admin portal, navigated to Household Activities dataset
+- Verified show_enrichment checkbox visible and unchecked (US-008)
+- Toggled to Grid view, confirmed 15 sample cards render with labels
+- Opened sample preview modal, verified metadata + technical specs panels
+- Clicked Edit button, verified enrichment_json textarea present in SampleEditPanel (US-009)
+- Uploaded test CSV (3 rows) with standardized 5-column format including enrichment JSON
+- Verified auto-mapping: s3_video_uri→S3 Object Key, s3_annotation_uri→S3 Annotation Key, enrichment→Enrichment JSON
+- Import succeeded: 3 new samples with tech metadata auto-extracted (durations 3:00, 5:00, 7:00)
+- Clicked imported sample, Enrichment tab appeared in preview modal
+- JsonTree rendered full enrichment JSON with collapsible tree structure
+- Search filter worked: typed "kitchen", tree filtered to matching nodes only
+- Portal page.tsx correctly passes show_enrichment from dataset to SampleGallery
+- SampleDetailModal logic verified: admin sees "Enrichment" tab, portal sees "Additional Metadata" only when show_enrichment=true
+- Cleaned up test samples from database after verification
+
+**Blocker encountered:**
+- Migration 006_enrichment_json.sql had to be manually run in Supabase SQL Editor
+- Supabase PostgREST schema cache needed refresh after ALTER TABLE
+
+**Learnings:**
+- Supabase schema cache error: "Could not find column in schema cache" means migration not applied
+- Portal auth uses magic link — can't automate portal login in E2E without separate setup
+- Test CSV with enrichment JSON needs double-quoted JSON values inside CSV cells
+
+---
+
+## ALL STORIES COMPLETE
+
+US-001 through US-010: All passes = true
+

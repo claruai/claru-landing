@@ -1,0 +1,254 @@
+{
+  "project": "Admin Lead Management",
+  "branchName": "ralph/admin-lead-management",
+  "description": "Full CRUD for admin leads portal — create, edit, delete leads with invite email controls via Resend. Slide-over creation panel, edit mode toggle on detail page, delete with full cleanup, and approve-with-invite / re-send invite workflows.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create lead API endpoint",
+      "description": "As an admin, I need a POST /api/admin/leads endpoint to create new leads so the portal can add leads without direct database access.",
+      "acceptanceCriteria": [
+        "Create POST handler in src/app/api/admin/leads/route.ts",
+        "Accept body: { name, email, company, role, data_needs, use_case, admin_notes } — name and email required, rest optional",
+        "Validate email format server-side (basic regex or URL-style check)",
+        "Insert into Supabase leads table with status 'pending'",
+        "Return 409 with message 'A lead with this email already exists' if email UNIQUE constraint violated (Supabase error code 23505)",
+        "Return 201 with the created lead object on success",
+        "Admin token verification required (same cookies + verifyAdminToken pattern as GET/PATCH in the same file)",
+        "Typecheck passes",
+        "Run code-reviewer agent to verify API contract and error handling"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Read src/app/api/admin/leads/[id]/route.ts for the existing auth pattern (cookies + verifyAdminToken). Read src/app/api/contact/route.ts for the Resend import pattern. The leads table schema is in supabase/migrations/001_data_catalog_schema.sql. Use general-purpose agent."
+    },
+    {
+      "id": "US-002",
+      "title": "Delete lead API endpoint with full cleanup",
+      "description": "As an admin, I need a DELETE /api/admin/leads/[id] endpoint that removes the lead, their dataset grants, and their Supabase Auth user.",
+      "acceptanceCriteria": [
+        "Add DELETE handler to src/app/api/admin/leads/[id]/route.ts (alongside existing GET and PATCH)",
+        "Fetch lead first — return 404 if not found",
+        "Delete all rows from lead_dataset_access where lead_id matches",
+        "If lead has supabase_user_id, call supabase.auth.admin.deleteUser(supabaseUserId) — if this fails (user already gone), log warning but continue",
+        "Delete the lead row from leads table",
+        "Return 200 with { message: 'Lead deleted' }",
+        "Admin token verification required",
+        "Typecheck passes",
+        "Run code-reviewer agent to verify cascade logic and error recovery"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Read src/app/api/admin/leads/[id]/route.ts for the existing GET/PATCH handlers — add DELETE in the same file. Read src/app/api/admin/leads/[id]/approve/route.ts for the supabase.auth.admin pattern (createSupabaseAdminClient). Deletion order matters: grants first, then auth user, then lead row. Use general-purpose agent."
+    },
+    {
+      "id": "US-003",
+      "title": "Expand PATCH endpoint to accept all lead fields",
+      "description": "As an admin, I need the existing PATCH /api/admin/leads/[id] to accept all editable lead fields so the edit form can save changes.",
+      "acceptanceCriteria": [
+        "Update PATCH handler in src/app/api/admin/leads/[id]/route.ts to accept: name, email, company, role, data_needs, use_case, admin_notes, status",
+        "Validate name is non-empty string if provided",
+        "Validate email format if provided",
+        "Handle email uniqueness conflict — return 409 with 'Email already in use by another lead' if Supabase returns error code 23505",
+        "Only include provided fields in the Supabase update object (don't null out omitted fields)",
+        "Return updated lead object in { lead } wrapper",
+        "Existing admin_notes and status update behavior unchanged",
+        "Typecheck passes",
+        "Run code-reviewer agent to verify update logic and validation"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "Read the current PATCH handler in src/app/api/admin/leads/[id]/route.ts — it currently only accepts admin_notes and status. Expand the updateFields building logic to include all fields. The allowed fields for status remain: pending, approved, rejected. Use general-purpose agent."
+    },
+    {
+      "id": "US-004",
+      "title": "Branded invite email template and send function",
+      "description": "As an admin, I need a reusable sendInviteEmail function that sends a branded magic link via Resend so leads receive professional portal access emails.",
+      "acceptanceCriteria": [
+        "Create src/lib/email/invite.ts with exported function sendInviteEmail({ to, name, magicLink })",
+        "Use Resend SDK (import { Resend } from 'resend') with RESEND_API_KEY env var",
+        "From address: use RESEND_FROM_EMAIL env var with fallback to 'team@claru.ai', formatted as 'Claru AI <address>'",
+        "Subject line: 'Your Claru Data Portal Access'",
+        "HTML template: dark background (#050505), accent green (#00ff88), font-mono styling — match the terminal aesthetic from src/app/api/contact/route.ts email template",
+        "Body includes: personalized greeting with lead's name, welcome message explaining portal access was granted, prominent 'Access Portal' button linking to magicLink, note that link expires in 24 hours, support contact (team@claru.ai)",
+        "Include plain text fallback version",
+        "Function returns { success: boolean, error?: string } — NEVER throws",
+        "If RESEND_API_KEY is not set, return { success: false, error: 'Email not configured' } without throwing",
+        "Typecheck passes",
+        "Run code-reviewer agent to verify Resend integration and error handling"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "Read src/app/api/contact/route.ts for the existing Resend pattern — same SDK, same env var, same terminal-styled HTML email. The invite template should match the dark theme aesthetic. The magicLink is a full URL generated by supabase.auth.admin.generateLink() — just embed it as an href. Use general-purpose agent."
+    },
+    {
+      "id": "US-005",
+      "title": "Approve endpoint with send_invite option",
+      "description": "As an admin, I want the approve endpoint to optionally send the invite email via Resend when send_invite is true.",
+      "acceptanceCriteria": [
+        "Update POST /api/admin/leads/[id]/approve to accept optional { send_invite: boolean, admin_notes?: string } in request body",
+        "Default send_invite to false for backward compatibility",
+        "When send_invite is true AND magic link was generated successfully: call sendInviteEmail() with lead's email, name, and the magic link URL",
+        "Include invite status in response: { lead, message, invite_sent: boolean, invite_error?: string }",
+        "If email sending fails, approval still succeeds — lead status is 'approved', invite_sent is false, invite_error has the reason",
+        "When send_invite is false or omitted: existing behavior unchanged, invite_sent is false in response",
+        "The magic link URL (linkData.properties.action_link) must be passed to sendInviteEmail — currently it's generated but never used",
+        "Typecheck passes",
+        "Run code-reviewer agent to verify backward compatibility and error isolation"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "Read src/app/api/admin/leads/[id]/approve/route.ts — the magic link is already generated at line 92 (supabase.auth.admin.generateLink) and stored in magicLink variable, but never returned or used. Import sendInviteEmail from @/lib/email/invite (created in US-004). Use general-purpose agent."
+    },
+    {
+      "id": "US-006",
+      "title": "Re-send invite API endpoint",
+      "description": "As an admin, I need a POST /api/admin/leads/[id]/invite endpoint to re-send the magic link invite to already-approved leads.",
+      "acceptanceCriteria": [
+        "Create POST handler at src/app/api/admin/leads/[id]/invite/route.ts",
+        "Fetch lead — return 404 if not found",
+        "Return 400 with message 'Lead must be approved to send invite' if status is not 'approved'",
+        "If lead has no supabase_user_id (edge case), create auth user first using same logic as approve endpoint",
+        "Generate fresh magic link via supabase.auth.admin.generateLink({ type: 'magiclink', email, options: { redirectTo: siteUrl/portal/auth/callback } })",
+        "Call sendInviteEmail() with lead's email, name, and fresh magic link",
+        "Return { success: boolean, error?: string }",
+        "Admin token verification required",
+        "Typecheck passes",
+        "Run code-reviewer agent to verify magic link generation and edge case handling"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "Read src/app/api/admin/leads/[id]/approve/route.ts for the magic link generation pattern (lines 89-102) and auth user creation pattern (lines 58-86). The re-send endpoint is simpler — no status change, just generate link and send email. NEXT_PUBLIC_SITE_URL env var for the redirect URL. Use general-purpose agent."
+    },
+    {
+      "id": "US-007",
+      "title": "Create lead slide-over panel on leads list page",
+      "description": "As an admin, I want a slide-over panel on the leads list page to quickly create a new lead without leaving the list.",
+      "acceptanceCriteria": [
+        "Add [+ new lead] button in AdminLeadsTable.tsx, positioned in the filter/search bar area (next to search input)",
+        "Button styled: text-xs font-mono, bracket notation [+ new lead], text-[var(--text-muted)] hover:text-[var(--accent-primary)]",
+        "Clicking opens a slide-over panel from the right edge (follow SampleEditPanel pattern from src/app/admin/catalog/[id]/SampleEditPanel.tsx)",
+        "Panel has dark background, border-left with accent color, close button (X), dismissible with Escape key",
+        "Form fields: Name (required, text input), Email (required, email input), Company (text), Role (text), Data Needs (textarea), Use Case (textarea), Admin Notes (textarea)",
+        "Required fields show validation errors on submit if empty; email validates format",
+        "Submit button: [create lead], disabled while submitting with loading text",
+        "POST /api/admin/leads on submit — on 201: close panel, success toast, router.refresh()",
+        "On 409: error toast 'A lead with this email already exists'",
+        "On other error: error toast with message",
+        "AdminLeadsTable needs to accept an onCreateClick callback or manage panel state internally",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill",
+        "Run code-reviewer agent to verify form patterns and design system compliance"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "Read src/app/admin/catalog/[id]/SampleEditPanel.tsx for the slide-over pattern — fixed position, right-0, dark bg, translate-x animation, z-50. Read AdminLeadsTable.tsx for the existing layout (search input area at line 232-253). The page.tsx is a server component that passes leads as props — the panel state lives in AdminLeadsTable (client component). Use frontend-expert agent."
+    },
+    {
+      "id": "US-008",
+      "title": "Edit mode toggle on lead detail page",
+      "description": "As an admin, I want an [edit] button on the lead detail page that toggles all info fields into editable inputs with save/cancel.",
+      "acceptanceCriteria": [
+        "Add [edit] button to lead info card header in LeadDetailClient.tsx, styled same as other action buttons: text-xs font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)]",
+        "Clicking [edit] switches info card from read-only display to form inputs for: name, email, company, role, data_needs (textarea), use_case (textarea)",
+        "Non-editable fields stay as display: id, created_at, updated_at, supabase_user_id, status",
+        "Inputs use design system: bg-[var(--bg-secondary)] border-[var(--border-subtle)] font-mono text-sm rounded-lg",
+        "Two buttons in edit mode: [save] (text-[var(--accent-primary)]) and [cancel] (text-[var(--text-muted)])",
+        "Cancel reverts all fields to original values and exits edit mode (no API call)",
+        "Save calls PATCH /api/admin/leads/[id] with only changed fields (diff detection: compare current vs original)",
+        "On success: exit edit mode, update displayed data from response, success toast",
+        "On 409: error toast 'Email already in use by another lead', stay in edit mode",
+        "Admin notes section remains independently editable (existing save button)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill",
+        "Run code-reviewer agent to verify form state management and diff detection"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": "Read src/app/admin/components/LeadDetailClient.tsx for the existing info card layout and admin notes section. The component already has useState for lead data. Add isEditing boolean state and editForm state object. The diff detection pattern: compare editForm values to lead prop values, only include changed keys in PATCH payload. Use frontend-expert agent."
+    },
+    {
+      "id": "US-009",
+      "title": "Delete lead button with confirmation dialog",
+      "description": "As an admin, I want a [delete lead] button on the detail page that shows a confirmation dialog requiring email input before deleting.",
+      "acceptanceCriteria": [
+        "Add [delete lead] button to LeadDetailClient.tsx, positioned at bottom of page in a 'Danger Zone' section with border-top separator",
+        "Button styled: text-xs font-mono text-[var(--text-muted)] hover:text-[var(--error)] with bracket notation [delete lead]",
+        "Clicking shows a confirmation modal/dialog overlay",
+        "Dialog text: 'Delete {lead.name}? This will permanently remove this lead, their portal access, and all dataset grants. This cannot be undone.'",
+        "If lead is approved: dialog also says 'This will revoke their portal login.'",
+        "Dialog has text input: 'Type {lead.email} to confirm'",
+        "Confirm button only enabled when typed email matches lead.email exactly",
+        "Confirm button styled: bg-red/error color, [confirm delete]",
+        "On confirm: call DELETE /api/admin/leads/[id]",
+        "On success: success toast 'Lead deleted', redirect to /admin/leads via router.push",
+        "On error: error toast with message, close dialog",
+        "Dialog dismissible with Cancel button and Escape key",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill",
+        "Run code-reviewer agent to verify UX safety patterns"
+      ],
+      "priority": 9,
+      "passes": true,
+      "notes": "Read src/app/admin/components/LeadDetailClient.tsx for the existing action button area and toast system. The confirmation dialog is a new modal — position fixed, z-50, dark overlay, centered card. The email-to-confirm pattern prevents accidental deletes. Use frontend-expert agent."
+    },
+    {
+      "id": "US-010",
+      "title": "Invite controls on lead detail page — split approve and re-send",
+      "description": "As an admin, I want approve-with-invite and re-send-invite controls on the lead detail page.",
+      "acceptanceCriteria": [
+        "Replace the single Approve button with two options: [approve & send invite] and [approve only]",
+        "Implementation: either a dropdown menu with chevron or two side-by-side buttons — use dropdown with chevron indicator",
+        "[approve & send invite] calls POST /api/admin/leads/[id]/approve with { send_invite: true }",
+        "[approve only] calls POST /api/admin/leads/[id]/approve with { send_invite: false }",
+        "After approval: toast message varies — 'Lead approved and invite sent to {email}' / 'Lead approved (no invite sent)' / 'Lead approved but invite failed: {error}'",
+        "For already-approved leads: show [re-send invite] button instead of approve options",
+        "[re-send invite] calls POST /api/admin/leads/[id]/invite",
+        "[re-send invite] shows loading spinner/text while sending",
+        "On invite success: toast 'Invite sent to {email}'",
+        "On invite failure: toast with error message",
+        "Existing reject and reset-to-pending buttons unchanged",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill",
+        "Run code-reviewer agent to verify UX flow and conditional rendering"
+      ],
+      "priority": 10,
+      "passes": true,
+      "notes": "Read src/app/admin/components/LeadDetailClient.tsx for the existing handleApprove function and action button rendering. The approve dropdown replaces the existing approve button — look for the approve button JSX and the handleApprove callback. The re-send button only shows when lead.status === 'approved'. The response from approve now includes invite_sent and invite_error fields (from US-005). Use frontend-expert agent."
+    },
+    {
+      "id": "US-011",
+      "title": "Playwright E2E — Create, Edit, Delete Lead Flow",
+      "description": "As QA, I need an end-to-end test verifying the complete lead CRUD lifecycle via the admin portal.",
+      "acceptanceCriteria": [
+        "Navigate to admin portal at localhost:3001/admin/leads (authenticate with team@claru.ai / qweqwe123! or pause for manual auth)",
+        "Test create: click [+ new lead], verify slide-over opens, try empty submit (verify validation), fill name 'Test E2E User' + email 'test-e2e@example.com' + company 'Test Corp', submit, verify success toast, verify lead appears in table",
+        "Test edit: click [view] on new lead, click [edit], verify fields become inputs, change company to 'Updated Corp', click [save], verify toast and updated value",
+        "Test delete: click [delete lead], verify confirmation dialog, type email, confirm, verify redirect to /admin/leads, verify lead gone from table",
+        "Clean up any test data if deletion step failed",
+        "Typecheck passes",
+        "Run code-reviewer agent to verify test coverage"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": "Dev server on localhost:3001. Admin credentials: team@claru.ai / qweqwe123!. Use Playwright MCP browser tools. If admin auth is needed, PAUSE and ask user to authenticate. Use general-purpose agent with Playwright MCP."
+    },
+    {
+      "id": "US-012",
+      "title": "Playwright E2E — Approve with Invite and Re-send Flow",
+      "description": "As QA, I need an end-to-end test verifying the invite sending workflow (approve with invite, re-send invite).",
+      "acceptanceCriteria": [
+        "Create a test lead via [+ new lead] or API call",
+        "Navigate to lead detail page",
+        "Test approve with invite: open approve dropdown, click [approve & send invite], verify status changes to Approved, verify toast mentions invite (sent or failed depending on Resend config)",
+        "Test re-send: verify [re-send invite] button appears for approved lead, click it, verify loading state, verify toast with result",
+        "Clean up: delete the test lead via [delete lead] button",
+        "Typecheck passes",
+        "Run code-reviewer agent to verify test assertions"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": "Dev server on localhost:3001. Admin credentials: team@claru.ai / qweqwe123!. Resend may not be configured in test env — the invite_sent field and toast should gracefully handle this. Use general-purpose agent with Playwright MCP."
+    }
+  ]
+}

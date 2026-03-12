@@ -11,6 +11,7 @@ import Button from "../components/ui/Button";
 import FadeIn from "../components/effects/FadeIn";
 import TextScramble from "../components/effects/TextScramble";
 import VideoMosaic from "../components/ui/VideoMosaic";
+import PublicDatasetBrowser from "../components/catalog/PublicDatasetBrowser";
 
 const GlobeMap = dynamic(() => import("../components/ui/GlobeMap"), {
   ssr: false,
@@ -275,6 +276,25 @@ export default function DataCatalogPage() {
                   Spanning 14+ countries, 20+ activity domains, and thousands of
                   hours of curated footage.
                 </motion.p>
+              </div>
+            </FadeIn>
+          </div>
+        </section>
+
+        {/* ----------------------------------------
+            3.5. BROWSE THE CATALOG
+        ---------------------------------------- */}
+        <section className="py-16 md:py-24">
+          <div className="container">
+            <FadeIn>
+              <div className="max-w-5xl mx-auto">
+                <span className="font-mono text-sm text-[var(--accent-primary)] block mb-4 text-center">
+                  {"// BROWSE THE CATALOG"}
+                </span>
+                <h2 className="text-2xl md:text-3xl font-bold mb-10 text-center">
+                  Explore our datasets.
+                </h2>
+                <PublicDatasetBrowser />
               </div>
             </FadeIn>
           </div>

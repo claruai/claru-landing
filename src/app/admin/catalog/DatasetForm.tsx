@@ -21,6 +21,8 @@ interface FormState {
   slug: string;
   category_id: string;
   type: DatasetType;
+  source_type: string;
+  modality: string;
   subcategory: string;
   description: string;
   total_samples: number;
@@ -39,6 +41,24 @@ const DATASET_TYPES: { value: DatasetType; label: string }[] = [
   { value: "long_form", label: "Long Form" },
   { value: "cinematic", label: "Cinematic" },
   { value: "game_capture", label: "Game Capture" },
+];
+
+const SOURCE_TYPES: { value: string; label: string }[] = [
+  { value: "collected", label: "Collected" },
+  { value: "synthetic", label: "Synthetic" },
+  { value: "curated", label: "Curated" },
+];
+
+const MODALITIES: { value: string; label: string }[] = [
+  { value: "", label: "— None —" },
+  { value: "image_text", label: "Image + Text" },
+  { value: "video_text", label: "Video + Text" },
+  { value: "audio_text", label: "Audio + Text" },
+  { value: "text_only", label: "Text Only" },
+  { value: "audio_audio", label: "Audio + Audio" },
+  { value: "multiple_images_text", label: "Multiple Images + Text" },
+  { value: "audio_video_text", label: "Audio + Video + Text" },
+  { value: "mixed", label: "Mixed" },
 ];
 
 function slugify(text: string): string {
@@ -74,6 +94,8 @@ export default function DatasetForm({ dataset, categories }: DatasetFormProps) {
         slug: dataset.slug,
         category_id: dataset.category_id,
         type: dataset.type,
+        source_type: dataset.source_type ?? "collected",
+        modality: dataset.modality ?? "",
         subcategory: dataset.subcategory,
         description: dataset.description,
         total_samples: dataset.total_samples,
@@ -88,6 +110,8 @@ export default function DatasetForm({ dataset, categories }: DatasetFormProps) {
       slug: "",
       category_id: categories[0]?.id ?? "",
       type: "short_form",
+      source_type: "collected",
+      modality: "",
       subcategory: "",
       description: "",
       total_samples: 0,
@@ -160,10 +184,15 @@ export default function DatasetForm({ dataset, categories }: DatasetFormProps) {
         : "/api/admin/catalog";
       const method = isEditMode ? "PATCH" : "POST";
 
+      const payload = {
+        ...form,
+        modality: form.modality || null,
+      };
+
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
@@ -287,6 +316,39 @@ export default function DatasetForm({ dataset, categories }: DatasetFormProps) {
             {DATASET_TYPES.map((dt) => (
               <option key={dt.value} value={dt.value}>
                 {dt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Source Type + Modality row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className={labelClass}>Source Type</label>
+          <select
+            value={form.source_type}
+            onChange={(e) => updateField("source_type", e.target.value)}
+            className={inputClass}
+          >
+            {SOURCE_TYPES.map((st) => (
+              <option key={st.value} value={st.value}>
+                {st.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className={labelClass}>Modality</label>
+          <select
+            value={form.modality}
+            onChange={(e) => updateField("modality", e.target.value)}
+            className={inputClass}
+          >
+            {MODALITIES.map((m) => (
+              <option key={m.value} value={m.value}>
+                {m.label}
               </option>
             ))}
           </select>

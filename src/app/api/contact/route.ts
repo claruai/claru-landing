@@ -38,9 +38,11 @@ export async function POST(request: NextRequest) {
       properties: { company, has_project_description: !!project_description },
     });
 
+    // 1. Send notification email to team
     await resend.emails.send({
       from: `Claru AI <${process.env.RESEND_FROM_EMAIL || "team@claru.ai"}>`,
       to: "contact@claru.ai",
+      bcc: "claru@attio.email",
       subject: `New consultation request from ${company}`,
       html: `
         <div style="font-family: 'JetBrains Mono', monospace; background: #0a0908; color: #e8e8e8; padding: 32px; border-radius: 8px;">
@@ -59,6 +61,42 @@ export async function POST(request: NextRequest) {
         </div>
       `,
     });
+
+    // 2. Add submitter as a Resend contact (for audience/remarketing)
+    try {
+      await resend.contacts.create({
+        audienceId: process.env.RESEND_AUDIENCE_ID || "e33492fa-da3f-495e-a699-c054e0e5f27a",
+        email,
+        firstName: name.split(" ")[0],
+        lastName: name.split(" ").slice(1).join(" ") || undefined,
+        unsubscribed: false,
+      });
+    } catch {
+      // Non-fatal — contact may already exist (duplicate email)
+      console.warn("[POST /api/contact] Failed to create Resend contact", email);
+    }
+
+    // 3. Insert as a lead in Supabase (if not already exists)
+    try {
+      const { createClient } = await import("@supabase/supabase-js");
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      );
+      await supabase.from("leads").upsert(
+        {
+          name,
+          email,
+          company,
+          use_case: project_description || null,
+          status: "pending",
+        },
+        { onConflict: "email" },
+      );
+    } catch {
+      // Non-fatal — don't block form submission on DB errors
+      console.warn("[POST /api/contact] Failed to upsert lead", email);
+    }
 
     return NextResponse.json({ success: true });
   } catch (err) {
