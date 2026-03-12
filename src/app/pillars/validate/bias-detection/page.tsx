@@ -292,7 +292,7 @@ export default function BiasDetectionPage() {
             className="max-w-4xl mx-auto"
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              The Bias You Don&apos;t See
+              What Is the Hidden Bias Problem in AI Systems?
             </h2>
 
             <div className="prose prose-lg prose-invert max-w-none">
@@ -375,7 +375,7 @@ export default function BiasDetectionPage() {
               {"// METHODOLOGY"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              How We Detect Bias
+              How Does Claru Detect Bias in AI Systems?
             </h2>
 
             <div className="space-y-8 mb-12">
@@ -666,11 +666,11 @@ export default function BiasDetectionPage() {
               {"// USE CASES"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              When Bias Audits Are Critical
+              When Are Bias Audits Critical for AI Systems?
             </h2>
             <p className="text-[var(--text-secondary)] text-lg mb-12 max-w-3xl">
-              Some AI applications carry higher stakes and face greater
-              scrutiny. Here&apos;s where rigorous bias testing matters most.
+              Bias audits are critical for any AI system that makes consequential decisions about people, including hiring, lending, healthcare, and content moderation. Some AI applications carry higher stakes and face greater
+              scrutiny, and rigorous bias testing is increasingly a legal requirement under frameworks like the EU AI Act.
             </p>
 
             <div className="space-y-6">

@@ -1,3 +1,5 @@
+import { BUILD_DATE } from "@/lib/constants";
+import { ogImageUrl } from "@/lib/og";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -23,6 +25,7 @@ export const metadata: Metadata = {
       "Expert red teaming and validation services for frontier AI. Adversarial testing, benchmark curation, and bias detection.",
     url: "/pillars/validate",
     type: "website",
+    images: [{ url: ogImageUrl("AI Red Teaming & Data Validation", { category: "pillar" }), width: 1200, height: 630 }],
   },
 };
 
@@ -42,6 +45,7 @@ const jsonLd = {
       description:
         "Expert red teaming, benchmark curation, bias detection, and post-training evaluation services for frontier AI labs.",
       areaServed: "Worldwide",
+      dateModified: BUILD_DATE,
       audience: {
         "@type": "Audience",
         audienceType: "AI Research Labs, ML Engineering Teams",

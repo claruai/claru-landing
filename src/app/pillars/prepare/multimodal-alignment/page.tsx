@@ -312,7 +312,7 @@ export default function MultimodalAlignmentPage() {
             className="max-w-4xl mx-auto"
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              Why Alignment Quality Matters
+              Why Does Alignment Quality Matter for Multimodal AI?
             </h2>
 
             <div className="prose prose-lg prose-invert max-w-none">
@@ -386,7 +386,7 @@ export default function MultimodalAlignmentPage() {
               {"// HOW IT WORKS"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              Multimodal Alignment Pipeline
+              How Does Claru&apos;s Multimodal Alignment Pipeline Work?
             </h2>
 
             <p className="text-[var(--text-secondary)] text-lg mb-12">
@@ -587,11 +587,11 @@ export default function MultimodalAlignmentPage() {
               {"// USE CASES"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Where Alignment Matters Most
+              Where Does Multimodal Alignment Matter Most?
             </h2>
             <p className="text-[var(--text-secondary)] text-lg mb-12 max-w-3xl">
-              Different model architectures have different alignment
-              requirements. Here is how alignment quality impacts each use case.
+              Multimodal alignment is critical for text-to-video generation, vision-language pre-training, and video understanding models. Different model architectures have different alignment
+              requirements, and precision directly impacts what the model can learn from paired data.
             </p>
 
             <div className="space-y-6">

@@ -260,7 +260,7 @@ export default function RedTeamingPage() {
             className="max-w-4xl mx-auto"
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              The Arms Race You&apos;re Losing
+              What Is the AI Safety Arms Race?
             </h2>
 
             <div className="prose prose-lg prose-invert max-w-none">
@@ -336,7 +336,7 @@ export default function RedTeamingPage() {
               {"// METHODOLOGY"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              How Our Red Teaming Works
+              How Does Claru&apos;s AI Red Teaming Work?
             </h2>
 
             <div className="space-y-8 mb-12">
@@ -627,12 +627,11 @@ export default function RedTeamingPage() {
               {"// USE CASES"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              When Red Teaming Matters Most
+              When Does AI Red Teaming Matter Most?
             </h2>
             <p className="text-[var(--text-secondary)] text-lg mb-12 max-w-3xl">
-              Different deployment contexts face different threat profiles.
-              Here&apos;s where rigorous adversarial testing delivers the most
-              value.
+              AI red teaming is essential before major model releases, for regulatory compliance with the EU AI Act, and as ongoing security monitoring for production systems. Different deployment contexts face different threat profiles,
+              and rigorous adversarial testing is the only way to discover vulnerabilities before attackers do.
             </p>
 
             <div className="space-y-6">

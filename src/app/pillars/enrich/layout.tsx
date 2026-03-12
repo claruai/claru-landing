@@ -1,3 +1,5 @@
+import { BUILD_DATE } from "@/lib/constants";
+import { ogImageUrl } from "@/lib/og";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -24,6 +26,7 @@ export const metadata: Metadata = {
       "PhD-level annotators, RLHF preference data, frame-level video labeling, and adversarial red teaming for AI labs.",
     url: "/pillars/enrich",
     type: "website",
+    images: [{ url: ogImageUrl("Expert Data Annotation for Frontier AI", { category: "pillar" }), width: 1200, height: 630 }],
   },
 };
 
@@ -43,6 +46,7 @@ const jsonLd = {
       description:
         "Expert data annotation services for frontier AI labs. RLHF preference data, PhD-level domain specialists, frame-level video annotation, and adversarial red teaming.",
       areaServed: "Worldwide",
+      dateModified: BUILD_DATE,
       audience: {
         "@type": "Audience",
         audienceType: "AI Research Labs, ML Engineering Teams",

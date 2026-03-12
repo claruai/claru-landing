@@ -1,3 +1,5 @@
+import { BUILD_DATE } from "@/lib/constants";
+import { ogImageUrl } from "@/lib/og";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -23,6 +25,7 @@ export const metadata: Metadata = {
       "Remove duplicates at trillion-token scale. MinHashLSH, semantic similarity, and multi-level matching for cleaner training data.",
     url: "/pillars/prepare/deduplication",
     type: "website",
+    images: [{ url: ogImageUrl("AI Training Data Deduplication", { category: "pillar" }), width: 1200, height: 630 }],
   },
 };
 
@@ -42,6 +45,7 @@ const jsonLd = {
       description:
         "Trillion-token scale deduplication services using MinHashLSH, semantic similarity, and multi-level matching. Remove duplicates that cause memorization and benchmark contamination.",
       areaServed: "Worldwide",
+      dateModified: BUILD_DATE,
       audience: {
         "@type": "Audience",
         audienceType: "AI Research Labs, ML Engineering Teams",

@@ -14,16 +14,8 @@ Goal: Expand dataset catalog with source_type/modality, 13 new datasets, badges,
 **What I did:** Set modality on all 15 existing datasets (11 video_text, 3 image_text, 1 mixed). Created 6 new categories: Multimodal Instruction Tuning, Speech & Audio, Code & Math Reasoning, Document Understanding, Video Understanding, Large-Scale Pretraining.
 **Files changed:** Supabase data only
 
-## US-003: Seed synthetic datasets batch 1
-**What I did:** Inserted 4 synthetic datasets: Multimodal Image Chat (997K), Multimodal Video Chat (440K), Financial & Chart Reasoning (325K), Code Instruction Tuning (3.6M). Also added 'instruction' to datasets_type_check constraint.
-**Files changed:** Supabase data only
-
-## US-004: Seed synthetic datasets batch 2
-**What I did:** Inserted 4 more synthetic datasets: Math Visual Reasoning (1.7M), Speech-to-Speech Training (3.3M), Text-to-Speech Training (6.5M), Synthetic OCR & Rendered Text (20M). Also added 'generation' to datasets_type_check constraint.
-**Files changed:** Supabase data only
-
-## US-005: Seed curated datasets
-**What I did:** Inserted 5 curated datasets: Video Captioning & QA (70M), Document & PDF Intelligence (25M), Audio Understanding (2.6M), Interleaved Multimodal Documents (140M), Image-Text Pretraining Shards (500M). Source dataset names stored in tags array.
+## US-003–005: Seed synthetic + curated datasets
+**What I did:** Inserted 8 synthetic datasets and 5 curated datasets, all is_published=true. Also added 'instruction' and 'generation' to datasets_type_check constraint.
 **Files changed:** Supabase data only
 
 ## US-006: Update PublicDataset type + API
@@ -35,16 +27,9 @@ Goal: Expand dataset catalog with source_type/modality, 13 new datasets, badges,
 **Files changed:** src/app/components/catalog/PublicDatasetCard.tsx
 
 ## US-008: Admin form source_type + modality
-**What I did:** Added source_type and modality dropdowns to DatasetForm, updated admin POST and PATCH API routes to accept both fields. Also added both fields to internal Dataset type.
+**What I did:** Added source_type and modality dropdowns to DatasetForm, updated admin POST and PATCH API routes.
 **Files changed:** src/app/admin/catalog/DatasetForm.tsx, src/types/data-catalog.ts, src/app/api/admin/catalog/route.ts, src/app/api/admin/catalog/[id]/route.ts
 
-## US-009: Visual verification
-**What I did:** Verified via Playwright MCP:
-- 25 published datasets rendering across 14 category filter pills
-- Collected datasets (E-commerce, Egocentric Crowd, etc.) show NO badge
-- Synthetic datasets show SYNTHETIC pill badge
-- Curated datasets show CURATED · TRAINING-READY pill badge
-- New categories visible and filterable: Code & Math Reasoning, Document Understanding, Video Understanding, Large-Scale Pretraining, Speech & Audio, Multimodal Instruction Tuning
-- Lazy loading works (12 shown initially, rest on scroll)
-- Zero console errors
-**Learnings:** The datasets_type_check constraint needed 'instruction' and 'generation' added for new dataset types. The public API uses createClient with anon key (not server client) to avoid auth cookie issues.
+## Homepage CatalogPreview section
+**What I did:** Added Data Library section with animated counters (3.7M+, 25+, 8), domain pill cloud, two-row auto-scrolling marquee of featured datasets with accordion expansion, and dual CTAs.
+**Files changed:** src/app/components/sections/CatalogPreview.tsx, src/app/page.tsx

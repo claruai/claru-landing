@@ -1,0 +1,199 @@
+{
+  "project": "Adaptive Data Catalog",
+  "branchName": "ralph/adaptive-data-catalog",
+  "description": "Standardized 5-column CSV import template, first-class enrichment_json storage, auto-extraction of technical metadata from enrichment and S3 annotations, adaptive JSON tree renderer with search, and per-dataset enrichment visibility toggle for clients.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Database migration — enrichment_json column and dataset visibility toggle",
+      "description": "As a developer, I need a dedicated enrichment_json column on dataset_samples and a show_enrichment toggle on datasets so that enrichment data has proper storage and admin controls client visibility.",
+      "acceptanceCriteria": [
+        "Create migration supabase/migrations/006_enrichment_json.sql",
+        "Add enrichment_json JSONB DEFAULT '{}' column to dataset_samples table",
+        "Add show_enrichment BOOLEAN DEFAULT false column to datasets table",
+        "Update DatasetSample interface in src/types/data-catalog.ts — add enrichment_json: Record<string, unknown>",
+        "Update Dataset interface in src/types/data-catalog.ts — add show_enrichment: boolean",
+        "Typecheck passes",
+        "Run code-reviewer agent to verify migration safety and type correctness"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Read existing migrations in supabase/migrations/ to follow naming and style conventions. Read src/types/data-catalog.ts for current DatasetSample and Dataset interfaces. Use general-purpose agent."
+    },
+    {
+      "id": "US-002",
+      "title": "CSV auto-mapping rules for standardized 5-column template",
+      "description": "As an admin, I want the CSV importer to automatically recognize our standardized column names so I don't have to manually reassign every column.",
+      "acceptanceCriteria": [
+        "Add enrichment_json to MappableField union type in BulkCsvUploader.tsx",
+        "Add enrichment_json to FIELD_LABELS map with label 'Enrichment JSON'",
+        "Add auto-map aliases to AUTO_MAP_RULES: s3_video_uri → s3_object_key, video_uri → s3_object_key, s3_annotation_uri → s3_annotation_key, annotation_uri → s3_annotation_key, enrichment → enrichment_json, enrichment_json → enrichment_json, ai_metadata → enrichment_json",
+        "Update buildSampleRows() to extract the enrichment_json mapped column, parse it as JSON, and include it in the sample row payload",
+        "If enrichment column fails JSON parse, store raw string as { _raw: value } instead of silently dropping it",
+        "Existing auto-map rules still work — old CSV formats not broken",
+        "Typecheck passes",
+        "Run code-reviewer agent to verify mapping logic correctness"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Read BulkCsvUploader.tsx lines 25-58 for MappableField type, AUTO_MAP_RULES, and FIELD_LABELS. Read buildSampleRows() at lines 181-224 for the row transformation logic. The enrichment column should be handled like metadata_json (parse as JSON) but stored in a separate field. Use general-purpose agent."
+    },
+    {
+      "id": "US-003",
+      "title": "Bulk import API — accept enrichment_json and extract tech metadata from enrichment",
+      "description": "As an admin, I want the bulk import to store enrichment data in the dedicated column and auto-populate duration/resolution/FPS from the enrichment JSON's technical_specs.",
+      "acceptanceCriteria": [
+        "Update POST /api/admin/catalog/[id]/samples/bulk to accept enrichment_json field in each sample object",
+        "Pass enrichment_json through to Supabase insert alongside existing fields",
+        "After building each sample row, if enrichment_json.technical_specs exists extract: duration_s → duration_seconds, resolution_px.width → resolution_width, resolution_px.height → resolution_height, fps_estimate → fps",
+        "Only populate tech fields that are currently null/0 — don't overwrite explicit values",
+        "Handle missing or malformed technical_specs gracefully — no errors, just skip extraction",
+        "Typecheck passes",
+        "Run code-reviewer agent to verify API contract and extraction logic"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "Read src/app/api/admin/catalog/[id]/samples/bulk/route.ts for the existing POST handler. The chunking logic inserts 100 samples at a time — add enrichment_json to the insert columns. Tech extraction runs before insert on each row. Use general-purpose agent."
+    },
+    {
+      "id": "US-004",
+      "title": "S3 annotation fetch at import for tech metadata extraction",
+      "description": "As an admin, I want the import to also fetch annotation JSONs from S3 and extract MediaInfo data, so duration/resolution/FPS are populated even when enrichment lacks technical_specs.",
+      "acceptanceCriteria": [
+        "In the bulk import API, after enrichment extraction (US-003), check if duration_seconds/resolution_width/resolution_height/fps are still null for each sample",
+        "For samples with s3_annotation_key and missing tech fields, fetch annotation JSON from S3 using existing AWS SDK client (GetObjectCommand)",
+        "Parse annotation JSON: look for files[].attributes.media.track[] where @type === 'Video' — extract Width (parse to int), Height (parse to int), Duration (number), FrameRate (number)",
+        "Fallback: look for @type === 'General' track for Duration if Video track missing",
+        "Fetch S3 annotations in parallel within each chunk — max 10 concurrent using Promise.allSettled",
+        "If S3 fetch fails for any sample, log warning but don't fail the import — leave tech fields null",
+        "Add progress note in BulkCsvUploader UI: show 'Extracting metadata from S3...' during this phase",
+        "Fields already populated by enrichment extraction (US-003) are NOT overwritten by S3 data",
+        "Typecheck passes",
+        "Run code-reviewer agent to verify S3 access patterns, error handling, and concurrency"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "The S3 bucket is moonvalley-annotation-platform. Three path prefixes observed: video_capture/completed/, video-capture-activities/completed/, and 'Video Capture: First Person Videos (Phone)/completed/'. Annotation JSONs are 1.7-5.8KB. Look at existing S3 presigning code for AWS client setup. The MediaInfo path is files[0].attributes.media.track[] — track is an array of objects with @type field. Use general-purpose agent."
+    },
+    {
+      "id": "US-005",
+      "title": "Sample APIs — return and accept enrichment_json and show_enrichment",
+      "description": "As a developer, I need all sample-related APIs to include enrichment_json in responses and accept it in updates.",
+      "acceptanceCriteria": [
+        "Admin GET /api/admin/catalog/[id]/samples — verify enrichment_json is included in response (SELECT * should include it, but confirm TypeScript types)",
+        "Admin PATCH /api/admin/catalog/[id]/samples/[sampleId] — accept enrichment_json in request body and include in Supabase update",
+        "Admin PATCH /api/admin/catalog/[id]/samples/bulk (batch edit) — accept enrichment_json in updates object",
+        "Portal server component src/app/portal/catalog/[id]/page.tsx — verify enrichment_json is passed through in sample data to client components",
+        "Admin dataset PATCH /api/admin/catalog/[id] — accept show_enrichment boolean and include in update",
+        "Admin dataset GET — return show_enrichment field",
+        "Typecheck passes",
+        "Run code-reviewer agent to verify API contracts and type safety"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "Most of these changes are small — Supabase SELECT * already returns new columns. The main work is updating PATCH handlers to accept enrichment_json and show_enrichment. Read each API route file to understand the existing update patterns. The portal page.tsx may need to pass show_enrichment from the dataset to the SampleDetailModal. Use general-purpose agent."
+    },
+    {
+      "id": "US-006",
+      "title": "Adaptive JSON tree renderer with search",
+      "description": "As a user viewing sample metadata, I want a browsable, searchable JSON renderer that handles any schema.",
+      "acceptanceCriteria": [
+        "Create src/app/components/catalog/JsonTree.tsx",
+        "Component accepts data: Record<string, unknown> and optional title?: string props",
+        "Renders JSON as collapsible tree: Objects show collapsible sections with key count (e.g. 'technical_specs (5)'), Arrays show collapsible list with item count (e.g. 'chunking (10 items)'), Strings displayed with muted quotes, Numbers with tabular-nums, Booleans as colored green/red badge, Null as muted text",
+        "Top-level keys expanded by default, nested objects/arrays collapsed by default",
+        "Search input at top: filters visible nodes to those matching query (key or value), highlights matches in accent color, auto-expands parent sections of matches, clear button to reset",
+        "Empty state: muted 'No data' when data is empty object or null",
+        "Design system: font-mono, var(--text-primary), var(--border-subtle), var(--accent-primary) for highlights, border-left indicators for nesting depth",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill",
+        "Run code-reviewer agent to verify accessibility and design system compliance"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "This is a self-contained UI component with no API dependencies. Use frontend-expert agent. Reference the existing design system in globals.css for CSS variables. The component will be used by the enrichment panel (US-007). Keep it generic — it should render ANY JSON, not just Reka Vision output."
+    },
+    {
+      "id": "US-007",
+      "title": "Enrichment panel in SampleDetailModal with dataset visibility toggle",
+      "description": "As a user viewing a sample, I want to see enrichment data as a separate tab. Admin always sees it; portal clients see it only when admin enables per-dataset. Portal label is 'Additional Metadata', never 'enrichment'.",
+      "acceptanceCriteria": [
+        "Register new panel type in DataPanelTabs/DataPanelRegistry: admin label 'Enrichment', portal label 'Additional Metadata', icon Sparkles from lucide-react",
+        "Panel component renders JsonTree with sample's enrichment_json",
+        "Panel tab only appears when enrichment_json is non-empty (not {} or null)",
+        "In portal context: panel only appears when dataset's show_enrichment is true",
+        "In admin context: panel always appears regardless of show_enrichment toggle",
+        "SampleDetailModal receives enrichment_json from sample data and showEnrichment boolean from dataset config",
+        "Update SamplePreviewModal (admin wrapper) to pass enrichment data through to SampleDetailModal",
+        "Update portal page.tsx to pass show_enrichment from dataset to SampleDetailModal",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill — check both admin and portal contexts",
+        "Run code-reviewer agent to verify panel registration and conditional visibility logic"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "Read src/app/portal/catalog/[id]/SampleDetailModal.tsx for the DataPanelTabs system. Read DataPanelRegistry if it exists, or look at how existing panels (Annotation, Game Specs, Data Files) are registered. The SampleDetailModal already accepts annotationEndpoint and apiBase props for context — add enrichment_json and showEnrichment props. Use frontend-expert agent."
+    },
+    {
+      "id": "US-008",
+      "title": "Admin dataset settings — show_enrichment toggle in edit form",
+      "description": "As an admin editing a dataset, I want a toggle to control whether clients can see the additional metadata panel.",
+      "acceptanceCriteria": [
+        "Add 'Show additional metadata to clients' checkbox to dataset edit form in CatalogEditClient.tsx",
+        "Position near the is_published toggle in the dataset settings section",
+        "Toggle saves via existing dataset PATCH API with show_enrichment in the update payload",
+        "Default is false (unchecked) for new datasets",
+        "Add helper text below toggle: 'When enabled, clients can browse AI-generated metadata for each sample'",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill",
+        "Run code-reviewer agent to verify form integration"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": "Read CatalogEditClient.tsx for the existing form state management and save logic. The is_published toggle is a good pattern to follow. The PATCH API should already accept show_enrichment from US-005. Use frontend-expert agent."
+    },
+    {
+      "id": "US-009",
+      "title": "Admin SampleEditPanel — enrichment JSON editing",
+      "description": "As an admin, I want to view and edit a sample's enrichment JSON from the slide-over edit panel.",
+      "acceptanceCriteria": [
+        "Add 'Enrichment JSON' textarea to SampleEditPanel.tsx, positioned after the existing 'Metadata JSON' textarea",
+        "Include Format button using same pattern as metadata_json formatter",
+        "JSON validation on save — show error if invalid JSON",
+        "Only include enrichment_json in PATCH payload if value changed (same diff-detection pattern as other fields)",
+        "Textarea uses same styling as metadata_json textarea (font-mono, dark bg, border-subtle)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill",
+        "Run code-reviewer agent to verify edit panel integration"
+      ],
+      "priority": 9,
+      "passes": true,
+      "notes": "Read SampleEditPanel.tsx for the existing metadata_json textarea pattern — the enrichment textarea is identical in behavior. The diff detection compares initial vs current values to only send changed fields. The PATCH endpoint already accepts enrichment_json from US-005. Use frontend-expert agent."
+    },
+    {
+      "id": "US-010",
+      "title": "Playwright E2E — CSV import with enrichment and sample display verification",
+      "description": "As QA, I need an end-to-end test verifying the complete flow: upload CSV with enrichment, verify import, browse grid, verify enrichment panel, and test show_enrichment toggle.",
+      "acceptanceCriteria": [
+        "Create test CSV fixture with 3-5 rows using standardized 5-column format including valid enrichment JSON with technical_specs",
+        "Navigate to admin portal (pause for manual auth if needed)",
+        "Navigate to test dataset edit page, click Bulk Import tab",
+        "Upload test CSV, verify auto-mapping shows s3_video_uri → S3 Object Key, s3_annotation_uri → S3 Annotation Key, enrichment → Enrichment JSON",
+        "Click Import, wait for completion, verify success message with correct count",
+        "Switch to Samples tab, verify samples appear in table",
+        "Toggle to grid view, verify thumbnail cards render",
+        "Click a sample card, verify preview modal opens with Enrichment tab visible",
+        "Click Enrichment tab, verify JsonTree renders with searchable data",
+        "Type a search query in JsonTree search input, verify filtering works",
+        "Close modal, open SampleEditPanel, verify enrichment_json textarea is populated",
+        "Navigate to portal view — verify Additional Metadata tab hidden when show_enrichment is false",
+        "Toggle show_enrichment to true in admin, return to portal — verify Additional Metadata tab appears",
+        "Typecheck passes",
+        "Run code-reviewer agent to verify test coverage"
+      ],
+      "priority": 10,
+      "passes": true,
+      "notes": "Dev server on localhost:3001. Admin credentials: team@claru.ai / qweqwe123!. Use Playwright MCP browser tools. If admin auth is needed, PAUSE and ask user to authenticate. Use Ergo1.csv as reference for realistic enrichment JSON content. Use general-purpose agent with Playwright MCP."
+    }
+  ]
+}

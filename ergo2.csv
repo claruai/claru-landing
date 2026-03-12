@@ -1,0 +1,12 @@
+﻿category,subcategory,s3_video_uri,s3_annotation_uri,enrichment
+Coffeeshop,Barista - Preparing Drinks,s3://moonvalley-annotation-platform/Samples Egocentric Videos/Workplaces /Barista.mov,,
+Skilled Trade,Carpenter - Cutting & Handling Wood,s3://moonvalley-annotation-platform/Samples Egocentric Videos/Workplaces /Carpentry.mp4,,
+Clothing Fabric,Screen Printing,s3://moonvalley-annotation-platform/Samples Egocentric Videos/Workplaces /Screen Printing.mov,,
+Clothing Warehouse,"Folding, Measuring and Labeling Clothes",s3://moonvalley-annotation-platform/Samples Egocentric Videos/Workplaces /Copy of workplaces - clothing business (cutting).mov,,
+Tailor,Sewing Fabric,s3://moonvalley-annotation-platform/Samples Egocentric Videos/Workplaces /Tailor.mp4,,
+Textile Fabric,Ironing Clothes,s3://moonvalley-annotation-platform/Samples Egocentric Videos/Workplaces /ironing clothes.MP4,,
+Tech Repair Shop,Phone Repair,s3://moonvalley-annotation-platform/Samples Egocentric Videos/Workplaces /phone repair (1).MP4,,
+Furniture Warehouse,Home Decor Assembly ,s3://moonvalley-annotation-platform/Samples Egocentric Videos/Workplaces /Furniture Assembly.mp4,,
+Textile Fabric,Cutting Clothes,s3://moonvalley-annotation-platform/Samples Egocentric Videos/Workplaces /Copy of workplaces - clothing business (folding).mp4,,
+Specialty Card Manufacturing,"Cutting, Stacking and Assembling Cards",s3://moonvalley-annotation-platform/Samples Egocentric Videos/Workplaces /Paper Cutting,,
+Textile Fabric,Steaming Clothes,s3://moonvalley-annotation-platform/Samples Egocentric Videos/Workplaces /Clothing Shop - Steaming.MOV,,

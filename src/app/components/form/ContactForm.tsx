@@ -8,6 +8,7 @@ import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { useCalendly } from "../providers/CalendlyProvider";
 import { buildCalendlyEmbedUrl } from "../../lib/constants";
+import { usePostHog } from "posthog-js/react";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -71,6 +72,7 @@ export default function ContactForm() {
   const { bookingUrl } = useCalendly();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [leadData, setLeadData] = useState<FormData | null>(null);
+  const posthog = usePostHog();
 
   const {
     register,
@@ -83,6 +85,17 @@ export default function ContactForm() {
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
+
+    posthog?.capture("contact_form_submitted", {
+      company: data.company,
+      has_project_description: !!data.projectDescription,
+    });
+
+    posthog?.identify(data.email, {
+      name: data.name,
+      email: data.email,
+      company: data.company,
+    });
 
     try {
       await fetch("/api/contact", {

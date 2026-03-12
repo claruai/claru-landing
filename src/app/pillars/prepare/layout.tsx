@@ -1,3 +1,5 @@
+import { BUILD_DATE } from "@/lib/constants";
+import { ogImageUrl } from "@/lib/og";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -23,6 +25,7 @@ export const metadata: Metadata = {
       "Transform raw data into training-ready datasets. Deduplication, quality filtering, and multimodal alignment at trillion-token scale.",
     url: "/pillars/prepare",
     type: "website",
+    images: [{ url: ogImageUrl("Data Preparation Services for Frontier AI", { category: "pillar" }), width: 1200, height: 630 }],
   },
 };
 
@@ -42,6 +45,7 @@ const jsonLd = {
       description:
         "Expert data preparation services for frontier AI labs. Deduplication, quality filtering, format normalization, and multimodal alignment at scale.",
       areaServed: "Worldwide",
+      dateModified: BUILD_DATE,
       audience: {
         "@type": "Audience",
         audienceType: "AI Research Labs, ML Engineering Teams",

@@ -452,7 +452,7 @@ export default function ExpertAnnotationPage() {
             className="max-w-4xl mx-auto"
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              Why Generic Annotators Fail on Specialized Tasks
+              Why Do Generic Annotators Fail on Specialized Tasks?
             </h2>
 
             <div className="prose prose-lg prose-invert max-w-none">
@@ -541,7 +541,7 @@ export default function ExpertAnnotationPage() {
               {"// HOW IT WORKS"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              Expert Annotation Process
+              How Does Claru&apos;s Expert Annotation Process Work?
             </h2>
 
             <div className="space-y-12">
@@ -919,7 +919,7 @@ export default function ExpertAnnotationPage() {
               {"// USE CASES"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              Where Expert Annotation Is Essential
+              Where Is Expert Annotation Essential for AI Training?
             </h2>
 
             <div className="space-y-8">

@@ -42,12 +42,12 @@
       "Bash(git fetch:*)"
     ]
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "playwright",
     "glif",
-    "supabase",
+    "supabase-db",
     "google-workspace",
     "domain-finder"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }

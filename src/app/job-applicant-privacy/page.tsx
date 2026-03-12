@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   title: "Job Applicant Privacy Policy - Claru",
   description:
     "Job Applicant Privacy Policy for Claru - How we collect, use, and protect personal data of job applicants under UK, Canada, and US data protection laws.",
+  alternates: {
+    canonical: "/job-applicant-privacy",
+  },
   openGraph: {
     title: "Job Applicant Privacy Policy - Claru",
     description:

@@ -1,3 +1,5 @@
+import { BUILD_DATE } from "@/lib/constants";
+import { ogImageUrl } from "@/lib/og";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -23,6 +25,7 @@ export const metadata: Metadata = {
       "Expert video annotation with temporal consistency. Frame-level labeling for AI training at scale.",
     url: "/pillars/enrich/video-annotation",
     type: "website",
+    images: [{ url: ogImageUrl("Frame-Level Video Annotation Services", { category: "pillar" }), width: 1200, height: 630 }],
   },
 };
 
@@ -42,6 +45,7 @@ const jsonLd = {
       description:
         "Frame-level video annotation services for AI training. Temporal segmentation, action recognition, object tracking, and scene boundary detection with expert annotators.",
       areaServed: "Worldwide",
+      dateModified: BUILD_DATE,
       audience: {
         "@type": "Audience",
         audienceType:

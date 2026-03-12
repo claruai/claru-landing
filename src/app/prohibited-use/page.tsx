@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   title: "Prohibited Use Policy - Claru",
   description:
     "Prohibited Use Policy for Claru - Expert Human Intelligence for AI Labs",
+  alternates: {
+    canonical: "/prohibited-use",
+  },
 };
 
 export default function ProhibitedUsePolicy() {
