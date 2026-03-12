@@ -182,3 +182,26 @@ Branch: ralph/seo-aeo-geo
 - Added missing `alternates.canonical` to root layout metadata (`src/app/layout.tsx`)
 - Used raw HTML parsing for JSON-LD extraction to handle client-component-rendered script tags reliably
 - All 11 tests pass (5.6s runtime)
+
+## US-014: Playwright MCP User Acceptance Testing
+
+### Test Results (all PASS)
+
+| Page | Status | Notes |
+|------|--------|-------|
+| Homepage (desktop 1440px) | PASS | H1 "Purpose-built data for frontier video labs." visible, animations playing (rotating modality word), full content rendered |
+| Homepage (mobile 375px) | PASS | Responsive layout correct, H1 readable, hamburger menu present |
+| Homepage JSON-LD | PASS | 2 JSON-LD scripts found: Organization/@graph + FAQPage |
+| robots.txt | PASS | All crawler rules present, Sitemap directive at bottom, AI search bots allowed, training bots blocked |
+| sitemap.xml | PASS | Valid XML with all URLs, priorities, lastmod timestamps, changefreq values |
+| llms.txt | PASS | Comprehensive markdown with all sections: Core Services, Sub-Services, Case Studies, Additional Pages, Legal, Contact |
+| /pillars/acquire | PASS | H1 with question-form heading visible, breadcrumbs, FAQ section, capability cards, use-case sections |
+| /api/og (OG image) | PASS | 1200x630 PNG renders with CLARU branding, title text, claru.ai domain, sage green accent |
+| /case-studies | PASS | 11 case studies listed with category filters, breadcrumbs, H1, proper card layout |
+
+### Issues Found
+- None critical. Two minor console warnings (non-blocking):
+  1. Canvas2D readback performance warning (ASCIIBackground effect) — pre-existing, not SEO-related
+  2. Lenis container naming warning — pre-existing, not SEO-related
+- All SEO elements (H1, JSON-LD, meta tags, structured data) render correctly in SSR
+- No visual regressions observed
