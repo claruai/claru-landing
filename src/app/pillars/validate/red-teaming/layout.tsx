@@ -1,4 +1,5 @@
 import { BUILD_DATE } from "@/lib/constants";
+import { ogImageUrl } from "@/lib/og";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export const metadata: Metadata = {
       "Expert red teaming for frontier AI systems. Find vulnerabilities before attackers do with human-led adversarial testing.",
     url: "/pillars/validate/red-teaming",
     type: "website",
+    images: [{ url: ogImageUrl("AI Red Teaming & Adversarial Testing", { category: "pillar" }), width: 1200, height: 630 }],
   },
 };
 

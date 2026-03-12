@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ogImageUrl } from "@/lib/og";
 
 export const metadata: Metadata = {
   title: "For Annotators | AI Annotation Jobs & Expert Data Labeling",
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
     title: "For Annotators | Claru AI Annotation Jobs",
     description:
       "Join Claru's team of domain experts embedded with frontier AI labs. Remote AI annotation jobs, expert data labeling, and more.",
+    images: [{ url: ogImageUrl("For Annotators", { subtitle: "AI Annotation Jobs & Expert Data Labeling" }), width: 1200, height: 630 }],
   },
   twitter: {
     title: "For Annotators | Claru AI Annotation Jobs",

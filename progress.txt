@@ -156,3 +156,29 @@ Branch: ralph/seo-aeo-geo
 - Follows exact same pattern as `src/app/for-annotators/layout.tsx` and `src/app/data-catalog/layout.tsx` (const + dangerouslySetInnerHTML)
 - JSON-LD `<script>` placed inside `<ClientProviders>` wrapper at top of JSX return
 - TypeScript compilation verified — no type errors
+
+### US-011: Wire OG images into all page metadata
+- Created `src/lib/og.ts` with `ogImageUrl()` helper that generates `/api/og?title=...&category=...` URLs
+- Updated root layout (`src/app/layout.tsx`) — replaced static `/og-image.png` with dynamic OG image URL in both openGraph.images and twitter.images
+- Updated all 16 pillar/sub-pillar layouts with `images` array using `category: "pillar"`:
+  - 4 pillar layouts: acquire, enrich, prepare, validate
+  - 12 sub-pillar layouts: data-licensing, egocentric-video, synthetic-data, expert-annotation, rlhf, video-annotation, deduplication, multimodal-alignment, quality-scoring, benchmark-curation, bias-detection, red-teaming
+- Updated `src/app/case-studies/[slug]/page.tsx` generateMetadata — OG image with case study title, `category: "case-study"`
+- Updated `src/app/jobs/[slug]/page.tsx` generateMetadata — OG image with job title, `category: "job"`
+- Updated 6 remaining page layouts with OG images:
+  - `src/app/data-catalog/layout.tsx` — category: "data-catalog"
+  - `src/app/for-annotators/layout.tsx` — with subtitle
+  - `src/app/labeling/layout.tsx` — with subtitle
+  - `src/app/data/layout.tsx` — with subtitle
+  - `src/app/case-studies/layout.tsx` — category: "case-study" (listing page)
+  - `src/app/jobs/layout.tsx` — category: "job" (listing page)
+- Updated `jobs/[slug]/page.tsx` twitter card from `"summary"` to `"summary_large_image"` (only page that had plain "summary")
+- TypeScript compilation verified — no type errors
+
+## US-013: Playwright E2E — SEO Validation Suite
+
+- Created `tests/e2e/seo-validation.spec.ts` with 11 tests using Page Object Model pattern
+- Tests validate: homepage H1, Organization JSON-LD, canonical URL, FAQPage JSON-LD, robots.txt, sitemap.xml (50+ URLs), llms.txt, case-studies canonical, pillar FAQ schema, OG image endpoint, OG meta tag
+- Added missing `alternates.canonical` to root layout metadata (`src/app/layout.tsx`)
+- Used raw HTML parsing for JSON-LD extraction to handle client-component-rendered script tags reliably
+- All 11 tests pass (5.6s runtime)

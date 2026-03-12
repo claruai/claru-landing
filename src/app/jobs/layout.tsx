@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { ogImageUrl } from "@/lib/og";
 
 export const metadata: Metadata = {
   title: "Remote AI Annotation Jobs | Claru",
@@ -23,6 +24,7 @@ export const metadata: Metadata = {
       "Browse remote data annotation jobs at Claru. Join frontier AI labs as a contractor with expert-tier pay.",
     type: "website",
     url: "https://claru.ai/jobs",
+    images: [{ url: ogImageUrl("Remote AI Annotation Jobs", { category: "job" }), width: 1200, height: 630 }],
   },
   alternates: {
     types: {

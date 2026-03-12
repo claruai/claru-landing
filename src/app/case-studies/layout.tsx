@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { ogImageUrl } from "@/lib/og";
 
 export const metadata: Metadata = {
   title: "Case Studies | AI Training Data Projects at Scale | Claru",
@@ -24,6 +25,7 @@ export const metadata: Metadata = {
       "Real projects with frontier AI labs — egocentric video, model evaluation, safety annotation, and more.",
     type: "website",
     url: "https://claru.ai/case-studies",
+    images: [{ url: ogImageUrl("Case Studies", { subtitle: "AI Training Data Projects at Scale", category: "case-study" }), width: 1200, height: 630 }],
   },
 };
 

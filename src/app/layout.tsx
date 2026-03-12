@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
+import { ogImageUrl } from "@/lib/og";
 import "./globals.css";
 import "lenis/dist/lenis.css";
 import MotionProvider from "./components/providers/MotionProvider";
@@ -81,7 +82,7 @@ export const metadata: Metadata = {
       "Training data built to your model's exact specifications. Sourced, labeled, and validated for frontier video, vision, and robotics AI.",
     images: [
       {
-        url: "/og-image.png",
+        url: ogImageUrl("Purpose-Built Training Data for Frontier AI Labs"),
         width: 1200,
         height: 630,
         alt: "Claru - Purpose-Built Training Data for Frontier AI Labs",
@@ -93,7 +94,10 @@ export const metadata: Metadata = {
     title: "Claru | Purpose-Built Training Data for Frontier AI Labs",
     description:
       "Training data built to your model's exact specifications. From raw capture to production-ready dataset for video, vision, and robotics AI.",
-    images: ["/og-image.png"],
+    images: [ogImageUrl("Purpose-Built Training Data for Frontier AI Labs")],
+  },
+  alternates: {
+    canonical: "/",
   },
   robots: {
     index: true,

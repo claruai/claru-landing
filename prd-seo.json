@@ -204,7 +204,7 @@
         "Code Review: run code-reviewer agent to verify all pages have OG images"
       ],
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "notes": "DEPENDS ON US-010. Read tasks/docs/seo-aeo-geo-design.md (buildPageMetadata helper). Use general-purpose agent."
     },
     {
@@ -244,7 +244,7 @@
         "Typecheck passes"
       ],
       "priority": 13,
-      "passes": false,
+      "passes": true,
       "notes": "Use general-purpose agent with Playwright MCP."
     },
     {

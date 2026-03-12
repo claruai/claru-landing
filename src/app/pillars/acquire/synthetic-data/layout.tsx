@@ -1,4 +1,5 @@
 import { BUILD_DATE } from "@/lib/constants";
+import { ogImageUrl } from "@/lib/og";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export const metadata: Metadata = {
       "Generate training data that does not exist in the real world. Unlimited variations, perfect labels, no privacy concerns.",
     url: "/pillars/acquire/synthetic-data",
     type: "website",
+    images: [{ url: ogImageUrl("Synthetic Data Generation for AI", { category: "pillar" }), width: 1200, height: 630 }],
   },
 };
 

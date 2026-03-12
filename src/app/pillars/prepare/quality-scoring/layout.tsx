@@ -1,4 +1,5 @@
 import { BUILD_DATE } from "@/lib/constants";
+import { ogImageUrl } from "@/lib/og";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export const metadata: Metadata = {
       "Separate signal from noise in your training data. Multi-signal scoring with configurable thresholds that preserve diversity.",
     url: "/pillars/prepare/quality-scoring",
     type: "website",
+    images: [{ url: ogImageUrl("ML Data Quality Scoring & Filtering", { category: "pillar" }), width: 1200, height: 630 }],
   },
 };
 

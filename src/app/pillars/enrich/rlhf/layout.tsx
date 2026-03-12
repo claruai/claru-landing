@@ -1,4 +1,5 @@
 import { BUILD_DATE } from "@/lib/constants";
+import { ogImageUrl } from "@/lib/og";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export const metadata: Metadata = {
       "Expert preference data collection for reward model training. Human feedback at scale from domain specialists.",
     url: "/pillars/enrich/rlhf",
     type: "website",
+    images: [{ url: ogImageUrl("RLHF Data Services for LLM Alignment", { category: "pillar" }), width: 1200, height: 630 }],
   },
 };
 

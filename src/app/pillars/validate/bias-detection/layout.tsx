@@ -1,4 +1,5 @@
 import { BUILD_DATE } from "@/lib/constants";
+import { ogImageUrl } from "@/lib/og";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export const metadata: Metadata = {
       "Systematic bias audits for AI systems. Find demographic disparities, representation issues, and systematic errors before they cause harm.",
     url: "/pillars/validate/bias-detection",
     type: "website",
+    images: [{ url: ogImageUrl("AI Bias Detection & Fairness Evaluation", { category: "pillar" }), width: 1200, height: 630 }],
   },
 };
 

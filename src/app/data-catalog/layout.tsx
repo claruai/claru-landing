@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ogImageUrl } from "@/lib/og";
 
 export const metadata: Metadata = {
   title: "Data Catalog | Training Data for Frontier AI Labs | Claru",
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
     title: "Data Catalog | Training Data for Frontier AI Labs | Claru",
     description:
       "Purpose-built AI training datasets for frontier video, robotics, and vision models. Egocentric video, manipulation trajectories, game capture, and licensed cinematic footage.",
+    images: [{ url: ogImageUrl("Data Catalog", { category: "data-catalog" }), width: 1200, height: 630 }],
   },
   twitter: {
     title: "Data Catalog | Training Data for Frontier AI Labs | Claru",
