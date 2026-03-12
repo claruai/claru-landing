@@ -1,0 +1,72 @@
+<!-- Last updated: 2026-03-12 -->
+# Claru
+
+> Purpose-built training data for frontier AI labs. From raw capture to production-ready dataset -- sourced, labeled, and validated for video, vision, and robotics AI.
+
+Claru (operated by Reka AI Inc.) provides end-to-end data services for frontier AI research companies building video generation, vision-language, robotics, and embodied AI models. Claru specializes in text, vision, video, and robotics modalities.
+
+## Core Services
+
+- [Data Acquisition](https://claru.ai/pillars/acquire): Egocentric video capture, web-scale harvesting, synthetic data generation, and data licensing for AI training.
+- [Data Enrichment](https://claru.ai/pillars/enrich): Expert annotation, RLHF preference labeling, and video annotation by domain specialists.
+- [Data Preparation](https://claru.ai/pillars/prepare): Deduplication, multimodal alignment, and quality scoring pipelines.
+- [Data Validation](https://claru.ai/pillars/validate): Benchmark curation, bias detection, and red teaming for AI safety.
+
+## Sub-Services
+
+### Acquire
+- [Egocentric Video Collection](https://claru.ai/pillars/acquire/egocentric-video): First-person video capture for robotics and embodied AI.
+- [Data Licensing](https://claru.ai/pillars/acquire/data-licensing): Copyright-safe, properly licensed training data.
+- [Synthetic Data Generation](https://claru.ai/pillars/acquire/synthetic-data): AI-augmented data creation with human validation.
+
+### Enrich
+- [Expert Annotation](https://claru.ai/pillars/enrich/expert-annotation): Domain-expert labeling for complex AI tasks.
+- [RLHF & Preference Data](https://claru.ai/pillars/enrich/rlhf): Human preference annotation for reinforcement learning.
+- [Video Annotation](https://claru.ai/pillars/enrich/video-annotation): Frame-level and temporal annotation for video AI.
+
+### Prepare
+- [Deduplication](https://claru.ai/pillars/prepare/deduplication): Remove redundant samples to improve training efficiency.
+- [Multimodal Alignment](https://claru.ai/pillars/prepare/multimodal-alignment): Align text, image, video, and audio modalities.
+- [Quality Scoring](https://claru.ai/pillars/prepare/quality-scoring): Automated and human quality assessment pipelines.
+
+### Validate
+- [Benchmark Curation](https://claru.ai/pillars/validate/benchmark-curation): Build evaluation benchmarks for model assessment.
+- [Bias Detection](https://claru.ai/pillars/validate/bias-detection): Identify and mitigate bias in training data.
+- [Red Teaming](https://claru.ai/pillars/validate/red-teaming): Adversarial testing for AI safety and robustness.
+
+## Case Studies
+
+- [Case Studies Index](https://claru.ai/case-studies): Real-world examples of data projects for frontier AI teams.
+- [Egocentric Video Data Collection for Robotics and World Modeling](https://claru.ai/case-studies/egocentric-video-collection): Large-scale first-person video capture across 500 contributors for robotics training.
+- [Large-Scale Image Annotation for Fashion AI](https://claru.ai/case-studies/fashion-ai-annotation): 395K product images annotated with multi-label classification and rich text descriptions.
+- [Game-Based Data Capture for Real-World Simulation](https://claru.ai/case-studies/game-based-data-capture): Custom capture application logging simultaneous video and raw input for simulation training.
+- [Scaling Generative AI Safety Through Human-Led Data Labeling](https://claru.ai/case-studies/generative-ai-safety): 241K safety annotations with binary labeling and continuous violation-rate monitoring.
+- [Preserving Object Identity Across Video Time](https://claru.ai/case-studies/object-identity-persistence): 1.07M+ identity-persistence training examples via human-validated temporal pairing.
+- [Benchmarking Prompt Enhancement Quality Across Leading LLMs](https://claru.ai/case-studies/prompt-enhancement-benchmark): Side-by-side human evaluation of prompt enhancement across multiple LLMs.
+- [Building and Red-Teaming an AI Content Moderation System](https://claru.ai/case-studies/red-teaming-moderation): Adversarial testing via pentesting and jailbreaking for content moderation pipelines.
+- [High-Confidence Video Content Classification at Scale](https://claru.ai/case-studies/video-content-classification): 105K video clips classified with automated confidence tiers and pre-production quality checks.
+- [Human Evaluation of Video Generation Model Configurations](https://claru.ai/case-studies/video-model-evaluation): ELO-based pairwise human evaluation of video generation model quality.
+- [Video Quality Annotation at Scale for RLHF and Model Selection](https://claru.ai/case-studies/video-quality-at-scale): 976K video quality annotations scored across motion, fidelity, interest, and alignment dimensions.
+- [Workplace Egocentric Video Data for General-Purpose Robotics](https://claru.ai/case-studies/workplace-egocentric-data): Egocentric video from 10 workplace categories for general-purpose robotics training.
+
+## Additional Pages
+
+- [Homepage](https://claru.ai): Purpose-built data for frontier AI labs -- overview of Claru's end-to-end data services.
+- [Data Catalog](https://claru.ai/data-catalog): Browse available datasets across video, robotics, and annotation categories.
+- [Expert Labeling](https://claru.ai/labeling): Dedicated expert labeling service page.
+- [Data](https://claru.ai/data): Overview of Claru's data offerings and capabilities.
+- [Jobs](https://claru.ai/jobs): Open positions for annotators and data specialists. Approximately 50 active job listings.
+- [For Annotators](https://claru.ai/for-annotators): Information for prospective annotators joining the Claru workforce.
+
+## Legal
+
+- [Privacy Policy](https://claru.ai/privacy): How Claru collects, uses, and protects personal data.
+- [Terms of Service](https://claru.ai/terms): Terms governing use of the Claru platform.
+- [Prohibited Use Policy](https://claru.ai/prohibited-use): Restrictions on how Claru services and data may be used.
+- [Job Applicant Privacy](https://claru.ai/job-applicant-privacy): Privacy notice for job applicants.
+
+## Contact
+
+- Website: https://claru.ai
+- Contact form: https://claru.ai/#contact
+- Email: team@claru.ai

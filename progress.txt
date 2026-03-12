@@ -49,9 +49,31 @@ Branch: ralph/seo-aeo-geo
 - Portal/admin/experiment pages intentionally excluded
 - Build verified: no type errors, all pages compile
 
+### US-003: Create llms.txt for AI engine discoverability
+- Created `public/llms.txt` as a static Markdown file following the llms.txt spec
+- Starts with site name (`# Claru`), canonical description, and company context (Reka AI Inc.)
+- Maps all major sections with full URLs and descriptions:
+  - Homepage, Data Catalog, Expert Labeling, Data, Jobs, For Annotators
+  - 4 pillar landing pages (Acquire, Enrich, Prepare, Validate)
+  - 12 sub-pillar pages across all 4 pillars
+  - All 11 individual case studies with titles and descriptions
+  - 4 legal pages (privacy, terms, prohibited-use, job-applicant-privacy)
+- Includes Contact section with website, contact form, and email
+- File will be served at `/llms.txt` from the `public/` directory
+
 ## Architecture Notes
 - Homepage SSR: Islands pattern — server component (content) + client component (animations)
 - OG images: single route handler /api/og using Next.js ImageResponse API
 - robots.ts: Next.js MetadataRoute.Robots convention
 - JSON-LD: @graph array in root layout combining Organization + WebSite
 - Read tasks/docs/seo-aeo-geo-design.md for full architecture details
+
+### US-002: Add Organization + WebSite JSON-LD to root layout
+- Added `<script type="application/ld+json">` to `src/app/layout.tsx` body with `@graph` array
+- Organization schema: name "Claru", legalName "Reka AI Inc.", url "https://claru.ai", logo (absolute URL to android-chrome-512x512.png), description, contactPoint with email team@claru.ai
+- Organization includes sameAs: GitHub org, LinkedIn company page
+- Organization includes knowsAbout with 10 AI/ML topics
+- WebSite schema: name "Claru", url "https://claru.ai", publisher references Organization
+- No SearchAction (site has no search functionality per requirements)
+- TypeScript compilation verified — no type errors
+- Follows same pattern as pillar layout JSON-LD (`dangerouslySetInnerHTML`)
