@@ -109,6 +109,23 @@ Branch: ralph/seo-aeo-geo
 - Layout wraps children in `<>` fragment with `<script type="application/ld+json">`
 - TypeScript compilation verified — no type errors
 
+### US-007: Homepage SSR refactor — server component with client children
+- Removed `'use client'` from `src/app/page.tsx` — now a server component
+- Removed `useState`/`useEffect` mounted guard that caused `if (!mounted) return null` (crawlers saw empty page)
+- Removed all `dynamic(() => ..., { ssr: false })` imports for content-bearing sections
+- All section components (Hero, ProblemAgitation, Origin, TwoPaths, ProofOfWork, Testimonials, FinalCTA) now imported directly — they SSR their full content (headings, text, links)
+- Created `src/app/components/providers/ClientProviders.tsx` — wraps children with LenisProvider and HeroBackground without gating content rendering. Children always render; mounted guard only controls effects layer.
+- Created `src/app/components/sections/SectionBridge.tsx` — extracted inline motion bridge component
+- Created `src/app/components/sections/AnimatedLogoWrapper.tsx` — client wrapper for `dynamic(() => ..., { ssr: false })` since that API cannot be used in server components
+- SSR verification: `curl localhost:3099` returns full HTML with:
+  - `<h1>` "Purpose-built data for frontier video labs."
+  - 5 `<h2>` section headings
+  - All internal links (/data, /labeling, /case-studies, /data-catalog, individual case study links)
+  - CTA anchor link to #contact
+  - Full paragraph text for all sections
+- Build succeeds with no errors
+- No visual regression — all Framer Motion and GSAP animations preserved (client components hydrate on top of SSR'd HTML)
+
 ### US-012: Create entity consistency checklist and profile
 - Created `src/lib/entity-profile.ts` exporting typed `entityProfile` constant with: name, legalName, description, tagline, url, email, github, linkedin
 - Object is `as const` for literal type inference; exported `EntityProfile` type alias
@@ -118,4 +135,16 @@ Branch: ralph/seo-aeo-geo
   - Each row includes expected URL, current status, which description variant to use, and sameAs inclusion
   - Current sameAs array documented with instructions to extend as new profiles are created
   - Sync instructions: single source of truth workflow, quarterly review process, new-platform checklist
+- TypeScript compilation verified — no type errors
+
+### US-010: Build dynamic OG image generator
+- Created `src/app/api/og/route.tsx` using Next.js `ImageResponse` API with `runtime = "edge"`
+- Accepts query params: `title` (required), `subtitle`/`description` (optional), `category` (optional)
+- Six category variants: default, pillar, case-study, job, data-catalog, legal
+- Category-specific styling: pillar gets `>` prompt prefix + "CAPABILITY" badge, case-study gets "CASE STUDY" badge, job gets "NOW HIRING" badge, legal gets muted #666 border
+- Template design matches spec: #0a0908 background, #92B090 sage green accents, CLARU branding top-left, title in large white text, subtitle in muted gray, claru.ai URL with decorative lines bottom-left, category badge bottom-right, scanline overlay, left accent border
+- Fonts loaded from Google Fonts CDN (JetBrains Mono + Geist Bold) with graceful fallback to system monospace/sans-serif
+- Edge cases: missing title returns 400 JSON error, long titles truncated at 80 chars, long subtitles at 120 chars
+- Output: 1200x630 PNG with Cache-Control headers (1 day client, 7 day CDN)
+- Verified: GET /api/og?title=Test returns 200 image/png, GET /api/og returns 400
 - TypeScript compilation verified — no type errors

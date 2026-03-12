@@ -130,7 +130,7 @@
         "Code Review: run code-reviewer agent to verify SSR architecture and hydration safety"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "Read tasks/docs/seo-aeo-geo-design.md (Homepage SSR Refactor Architecture \u2014 Islands pattern, Server Component Content Contract) and tasks/docs/seo-aeo-geo-plan.md (Phase 2, Task 7). This is the largest and riskiest item. Refactor one section at a time. Read src/app/page.tsx for current structure. Use frontend-expert agent."
     },
     {
@@ -184,7 +184,7 @@
         "Code Review: run code-reviewer agent to verify edge runtime compatibility"
       ],
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "notes": "Read tasks/docs/seo-aeo-geo-design.md (Dynamic OG Image Generator) and tasks/docs/seo-aeo-geo-plan.md (Phase 4, Task 10). Test font loading early \u2014 JetBrains Mono ArrayBuffer bundling can be tricky. Use frontend-expert agent."
     },
     {
