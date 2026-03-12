@@ -1,0 +1,290 @@
+{
+  "project": "SEO / AEO / GEO Optimization",
+  "branchName": "ralph/seo-aeo-geo",
+  "description": "Comprehensive search engine, answer engine, and generative engine optimization for claru.ai. Fixes critical indexing gaps (SSR soft 404, blocked AI crawlers), adds Organization schema, llms.txt, canonical URLs, dynamic OG images, FAQ structured data, and question-form H2s. Goal: get all 82 pages indexed and make Claru citable by ChatGPT, Perplexity, Claude, and Google AI Overviews.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create robots.ts — unblock AI crawlers, add Sitemap directive",
+      "description": "As a site owner, I want robots.txt to allow AI search/citation crawlers while blocking training crawlers, so Claru pages appear in ChatGPT, Perplexity, Claude, and Google AI Overviews.",
+      "acceptanceCriteria": [
+        "Create src/app/robots.ts using Next.js MetadataRoute.Robots convention",
+        "Include Sitemap: https://claru.ai/sitemap.xml directive",
+        "Allow all standard crawlers (Googlebot, Bingbot) — default Allow: /",
+        "Explicitly allow AI search/citation crawlers: GPTBot, ClaudeBot, Claude-SearchBot, Claude-User, PerplexityBot, Applebot-Extended",
+        "Block AI training crawlers: Google-Extended, CCBot, Bytespider, meta-externalagent",
+        "Disallow /admin/, /portal/, /experiment/, /api/ for all user agents",
+        "Build succeeds; verify /robots.txt output matches expectations",
+        "Unit Tests: verify robots.ts export returns correct structure with all user-agent rules",
+        "Code Review: run code-reviewer agent to verify crawler policy correctness"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "Read tasks/docs/seo-aeo-geo-requirements.md (Requirement 1) and tasks/docs/seo-aeo-geo-design.md (robots.txt section). No robots.txt or robots.ts currently exists; only metadata.robots in layout.tsx. Use general-purpose agent."
+    },
+    {
+      "id": "US-002",
+      "title": "Add Organization + WebSite JSON-LD to root layout",
+      "description": "As a site owner, I need root-level entity schemas so Google Knowledge Graph and LLMs recognize Claru as a named entity.",
+      "acceptanceCriteria": [
+        "Add <script type='application/ld+json'> to src/app/layout.tsx body with @graph array",
+        "Organization schema includes: name 'Claru', legalName 'Reka AI Inc.', url 'https://claru.ai', logo (absolute URL), description, contactPoint with email team@claru.ai",
+        "Organization includes sameAs array: LinkedIn company page, GitHub org (https://github.com/claruai)",
+        "Organization includes knowsAbout array with relevant AI/ML topics",
+        "WebSite schema includes: name 'Claru', url 'https://claru.ai'",
+        "Schema validates at schema.org validator",
+        "Typecheck passes",
+        "Unit Tests: verify JSON-LD structure renders valid JSON with all required fields",
+        "Code Review: run code-reviewer agent to verify schema correctness"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Read tasks/docs/seo-aeo-geo-requirements.md (Requirement 2) and tasks/docs/seo-aeo-geo-design.md (Organization + WebSite Schema Architecture). Use the entity profile from US-012 as single source of truth if implemented first. Use general-purpose agent."
+    },
+    {
+      "id": "US-003",
+      "title": "Create llms.txt for AI engine discoverability",
+      "description": "As a site owner, I need an llms.txt file so AI systems can efficiently map and cite Claru's content.",
+      "acceptanceCriteria": [
+        "Create public/llms.txt as a static Markdown file",
+        "Include site name, canonical company description, and primary URL",
+        "Map all major sections with URLs and 1-2 sentence descriptions: homepage, case studies, jobs, data catalog, pillar pages, sub-pillar pages, for-annotators, legal pages",
+        "Follow llms.txt spec format (title, description, ## Sections with URLs)",
+        "File accessible at /llms.txt after build",
+        "Code Review: run code-reviewer agent to verify format and completeness"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "Read tasks/docs/seo-aeo-geo-requirements.md (Requirement 3) and tasks/docs/seo-aeo-geo-design.md (llms.txt Structure). See https://llmstxt.org for spec. Use general-purpose agent."
+    },
+    {
+      "id": "US-004",
+      "title": "Add canonical URLs to pages missing them",
+      "description": "As a site owner, I need canonical URLs on all public pages to prevent duplicate content signals.",
+      "acceptanceCriteria": [
+        "Add alternates: { canonical: '/path' } to metadata in: data-catalog/layout.tsx, case-studies/layout.tsx, for-annotators/layout.tsx, data/layout.tsx, labeling/layout.tsx, privacy/page.tsx, terms/page.tsx, prohibited-use/page.tsx, job-applicant-privacy/page.tsx",
+        "Use relative paths — metadataBase in root layout resolves to full URLs",
+        "Do NOT add canonical to portal/admin/experiment pages",
+        "Build succeeds; verify <link rel='canonical'> renders in page source",
+        "Typecheck passes",
+        "Code Review: run code-reviewer agent to verify all canonicals are correct"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": "Read tasks/docs/seo-aeo-geo-plan.md (Phase 1, Task 4). Follow existing pattern from pillar layouts e.g. src/app/pillars/acquire/layout.tsx. Some pages use layout.tsx for metadata, others use page.tsx — check each. Use general-purpose agent."
+    },
+    {
+      "id": "US-005",
+      "title": "Add dateModified to all structured data schemas",
+      "description": "As a site owner, I need freshness signals in structured data so AI engines and Google prioritize our content.",
+      "acceptanceCriteria": [
+        "Add dateModified to Article JSON-LD in src/app/case-studies/[slug]/page.tsx — use cs.dateModified ?? cs.datePublished",
+        "Add dateModified field to CaseStudy type if not already present",
+        "Add dateModified to Service JSON-LD in all 16 pillar/sub-pillar layout files",
+        "Create shared BUILD_DATE constant in src/lib/constants.ts for Service schema fallback",
+        "Schemas still validate after changes",
+        "Typecheck passes",
+        "Unit Tests: verify dateModified renders correctly in JSON-LD output",
+        "Code Review: run code-reviewer agent to verify schema validity"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "Read tasks/docs/seo-aeo-geo-requirements.md (Requirement 8). Case study Article schemas have datePublished but not dateModified. Pillar Service schemas have no dates at all. Use general-purpose agent."
+    },
+    {
+      "id": "US-006",
+      "title": "Update pillar page headings to question-form for AEO",
+      "description": "As a content strategist, I need pillar pages to use question-form H2s so they appear in People Also Ask and AI Overviews.",
+      "acceptanceCriteria": [
+        "Update 2-3 section H2s per sub-pillar page (12 pages total) to question form",
+        "Add a 1-2 sentence answer-first paragraph immediately after each question H2",
+        "First 150 words after each question H2 must be independently extractable as a standalone answer",
+        "Do NOT change headings where question form would be awkward",
+        "Existing content preserved; this is heading/lead-in rewrites only",
+        "No visual regression — styling unchanged",
+        "Typecheck passes",
+        "Code Review: run code-reviewer agent to verify content quality and heading hierarchy"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "Read tasks/docs/seo-aeo-geo-requirements.md (Requirement 9) and tasks/docs/seo-aeo-geo-design.md (Question-Form H2 Content Strategy). Target the 12 sub-pillar pages in src/app/pillars/. Use general-purpose agent."
+    },
+    {
+      "id": "US-007",
+      "title": "Homepage SSR refactor — server component with client children",
+      "description": "As a site owner, I need the homepage to render meaningful HTML server-side so crawlers see real content instead of a blank page.",
+      "acceptanceCriteria": [
+        "Remove 'use client' from src/app/page.tsx — make it a server component",
+        "Remove mounted state guard (if (!mounted) return null)",
+        "Split each content section into: server component (renders HTML content) + client component (adds animations)",
+        "Server-rendered HTML must include: <h1> with main headline, all section <h2> headings, CTA links, internal navigation links, key paragraph text",
+        "Animation-only effects (ASCIIBackground, ParticleField, MagneticCursor, AnimatedLogo) remain dynamic(() => ..., { ssr: false })",
+        "LenisProvider and ScrollAnimations wrapped in client boundary",
+        "All Framer Motion animations still work after hydration — no visual regression",
+        "GSAP ScrollTrigger animations still fire on scroll",
+        "Build succeeds with no hydration mismatch errors",
+        "Test: curl localhost:3000 | grep -i '<h1>' returns the homepage headline",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill",
+        "Unit Tests: verify server component renders expected HTML structure without client JS",
+        "Code Review: run code-reviewer agent to verify SSR architecture and hydration safety"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": "Read tasks/docs/seo-aeo-geo-design.md (Homepage SSR Refactor Architecture — Islands pattern, Server Component Content Contract) and tasks/docs/seo-aeo-geo-plan.md (Phase 2, Task 7). This is the largest and riskiest item. Refactor one section at a time. Read src/app/page.tsx for current structure. Use frontend-expert agent."
+    },
+    {
+      "id": "US-008",
+      "title": "Add FAQPage schema to homepage",
+      "description": "As a site owner, I need FAQ structured data on the homepage to appear in Google's People Also Ask and AI Overviews.",
+      "acceptanceCriteria": [
+        "Define 5-8 Q&A pairs about Claru services targeting high-value queries",
+        "Add <script type='application/ld+json'> with FAQPage schema in server-rendered homepage",
+        "Follow existing pattern from src/app/for-annotators/layout.tsx (lines 19-88)",
+        "Each answer is 40-80 words, self-contained, factually accurate",
+        "Schema validates with Google Rich Results Test",
+        "Typecheck passes",
+        "Unit Tests: verify FAQ JSON-LD structure with all Q&A pairs",
+        "Code Review: run code-reviewer agent to verify schema and content quality"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": "Read tasks/docs/seo-aeo-geo-requirements.md (Requirement 5). DEPENDS ON US-007 — homepage must be server component first. Use general-purpose agent."
+    },
+    {
+      "id": "US-009",
+      "title": "Add FAQPage schema to data-catalog page",
+      "description": "As a site owner, I need FAQ structured data on the data catalog page to improve search visibility.",
+      "acceptanceCriteria": [
+        "Define 3-5 Q&A pairs about the data catalog",
+        "Add FAQPage JSON-LD to src/app/data-catalog/layout.tsx (or page)",
+        "Follow existing pattern from src/app/for-annotators/layout.tsx",
+        "Schema validates with Rich Results Test",
+        "Typecheck passes",
+        "Code Review: run code-reviewer agent to verify schema"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": "Read tasks/docs/seo-aeo-geo-requirements.md (Requirement 5). Independent of US-007. Use general-purpose agent."
+    },
+    {
+      "id": "US-010",
+      "title": "Build dynamic OG image generator",
+      "description": "As a site owner, I need dynamic Open Graph images for all pages so social shares show rich branded previews.",
+      "acceptanceCriteria": [
+        "Create OG image route handler using Next.js ImageResponse API at src/app/api/og/route.tsx",
+        "Template design: dark background #0a0908, sage green #92B090 accent, JetBrains Mono font, Claru branding",
+        "Accept title and optional subtitle/category as query params",
+        "Output: 1200x630 PNG image",
+        "Bundle JetBrains Mono font as ArrayBuffer for edge runtime compatibility",
+        "Visit /api/og?title=Test renders a valid image",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill",
+        "Unit Tests: verify route handler returns 200 with correct content-type",
+        "Code Review: run code-reviewer agent to verify edge runtime compatibility"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": "Read tasks/docs/seo-aeo-geo-design.md (Dynamic OG Image Generator) and tasks/docs/seo-aeo-geo-plan.md (Phase 4, Task 10). Test font loading early — JetBrains Mono ArrayBuffer bundling can be tricky. Use frontend-expert agent."
+    },
+    {
+      "id": "US-011",
+      "title": "Wire OG images into all page metadata",
+      "description": "As a site owner, I need every public page's metadata to reference the dynamic OG image generator.",
+      "acceptanceCriteria": [
+        "Create shared helper src/lib/og.ts that generates the OG image URL for a given page title/category",
+        "Wire into root layout metadata.openGraph.images as default fallback",
+        "Wire into all 16 pillar/sub-pillar layout files with pillar-specific titles",
+        "Wire into case-studies/[slug]/page.tsx generateMetadata with case study title",
+        "Wire into jobs/[slug]/page.tsx generateMetadata with job title",
+        "Wire into remaining pages: data-catalog, for-annotators, labeling, data, case-studies listing, jobs listing",
+        "Update Twitter card type to summary_large_image on pages currently using summary",
+        "Build succeeds; <meta property='og:image'> renders correct URL on all pages",
+        "Typecheck passes",
+        "Code Review: run code-reviewer agent to verify all pages have OG images"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": "DEPENDS ON US-010. Read tasks/docs/seo-aeo-geo-design.md (buildPageMetadata helper). Use general-purpose agent."
+    },
+    {
+      "id": "US-012",
+      "title": "Create entity consistency checklist",
+      "description": "As a marketing lead, I need a documented checklist and canonical entity profile for cross-platform consistency.",
+      "acceptanceCriteria": [
+        "Create canonical entity profile in src/lib/entity-profile.ts exporting: { name, legalName, description, tagline, url, email }",
+        "Use this object as single source of truth in Organization JSON-LD (US-002)",
+        "Create tasks/docs/entity-consistency-checklist.md listing platforms: LinkedIn, GitHub, Crunchbase, G2, Capterra",
+        "Include exact description text to copy-paste for each platform",
+        "Include sameAs URLs that should match Organization schema",
+        "Code Review: run code-reviewer agent to verify entity profile matches schema"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": "Read tasks/docs/seo-aeo-geo-requirements.md (Requirement 10). Partially non-code task. Use general-purpose agent."
+    },
+    {
+      "id": "US-013",
+      "title": "Playwright E2E — SEO Validation Suite",
+      "description": "As QA, I need automated tests verifying all SEO elements render correctly.",
+      "acceptanceCriteria": [
+        "Create Playwright test file tests/e2e/seo-validation.spec.ts",
+        "Test: homepage has <h1> in server-rendered HTML",
+        "Test: homepage has Organization JSON-LD with name 'Claru'",
+        "Test: homepage has <link rel='canonical'>",
+        "Test: /robots.txt contains Sitemap: directive and does not block GPTBot",
+        "Test: /sitemap.xml returns XML with <urlset> containing 50+ <url> entries",
+        "Test: /llms.txt returns content with 'Claru' in body",
+        "Test: /case-studies has canonical link",
+        "Test: /pillars/acquire has FAQPage JSON-LD",
+        "Test: /api/og?title=Test returns image (content-type image/png)",
+        "Test: /for-annotators has og:image meta tag",
+        "Test uses Page Object Model pattern",
+        "Test runs against local dev server",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": "Use general-purpose agent with Playwright MCP."
+    },
+    {
+      "id": "US-014",
+      "title": "Playwright MCP User Acceptance Testing",
+      "description": "As QA, I need to perform user acceptance testing via Playwright MCP browser automation to verify all SEO changes render correctly and don't break the visual experience.",
+      "acceptanceCriteria": [
+        "Start local dev server (npm run dev) if not already running",
+        "Use Playwright MCP to navigate to homepage — verify H1 renders, animations play after load, no blank page flash",
+        "Take screenshots at desktop (1440px) and mobile (375px) viewports",
+        "Navigate to /robots.txt — screenshot and verify content",
+        "Navigate to /sitemap.xml — screenshot and verify XML renders",
+        "Navigate to /llms.txt — verify content displays",
+        "Navigate to /pillars/acquire — verify question-form headings visible",
+        "Navigate to /case-studies — verify canonical tag in source",
+        "Navigate to /api/og?title=Claru%20Test — verify OG image renders",
+        "Test social share preview by inspecting og:image on 3 page types",
+        "Verify no visual regression on homepage animations (scroll full page)",
+        "Document any issues found and fix critical blockers"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": "This is the FINAL story. Dev server on localhost:3000. Use general-purpose agent with Playwright MCP."
+    },
+    {
+      "id": "US-015",
+      "title": "Post-deploy GSC verification and indexing requests",
+      "description": "As a site owner, after deploying all SEO changes I need to verify indexing via Google Search Console and request crawling of all pages.",
+      "acceptanceCriteria": [
+        "After deploy: verify https://claru.ai/sitemap.xml returns valid XML",
+        "Use GSC MCP to verify sitemap status changed from 'pending' to 'success'",
+        "Use GSC MCP batch_url_inspection on all key pages to confirm crawlability",
+        "Use GSC MCP inspect_url_enhanced on homepage to verify no soft 404",
+        "Re-submit sitemap if needed",
+        "Check GSC performance overview after 3-7 days for initial indexing data",
+        "Document which pages are indexed vs pending"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": "Post-deploy task. Use GSC MCP tools: list_sitemaps_enhanced, batch_url_inspection, inspect_url_enhanced, get_performance_overview. Sitemap already submitted but shows errors until deploy. Use general-purpose agent."
+    }
+  ]
+}
