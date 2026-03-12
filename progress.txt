@@ -1,57 +1,207 @@
 # Progress Log
 
-Started: Fri Feb 27 18:52:31 EST 2026
-Project: Admin Lead Management
-Goal: Unknown
+Started: Thu Mar 12 16:00:00 EST 2026
+Project: SEO / AEO / GEO Optimization
+Branch: ralph/seo-aeo-geo
 
 ---
 
-## US-001: Create lead API endpoint
-**What I did:** Created POST /api/admin/leads endpoint that accepts { name, email, company, role, data_needs, use_case, admin_notes }, validates required fields (name, email) and email format via regex, inserts into Supabase leads table with status 'pending', returns 409 on duplicate email (error code 23505), and returns 201 with the created lead object. Uses the same cookie-based admin auth pattern (verifyAdminToken) as other admin routes.
-**Files changed:** src/app/api/admin/leads/route.ts (new), prd.json (US-001 passes: true), progress.txt
-**Learnings:** The leads table has a UNIQUE constraint on email, and Supabase surfaces PostgreSQL error code 23505 for unique violations. The existing admin routes all follow the same auth pattern: read admin-token cookie, verify via verifyAdminToken, return 401 if invalid. The insert data is built incrementally with optional fields only included if they are non-empty strings.
+## Pre-Loop Completed
+- [x] src/app/sitemap.ts created — dynamic sitemap with 82 URLs
+- [x] Sitemap submitted to Google Search Console (pending — will error until deployed)
+- [x] .env.local copied from main worktree
+- [x] GSC MCP installed and configured
+- [x] Full SEO/AEO/GEO audit completed
+- [x] Supporting docs generated: requirements, design, plan in tasks/docs/
 
-## US-004: Branded invite email template
-**What I did:** Created src/lib/email/invite.ts with an exported sendInviteEmail({ to, name, magicLink }) function. Uses the Resend SDK with RESEND_API_KEY env var (returns { success: false, error: "Email not configured" } if missing). From address uses RESEND_FROM_EMAIL with fallback to team@claru.ai, formatted as "Claru AI <address>". Subject: "Your Claru Data Portal Access". HTML template uses the terminal aesthetic with dark background (#050505), accent green (#00ff88), JetBrains Mono font. Body includes personalized greeting, welcome message about portal access, prominent "Access Portal" button with the magic link, 24-hour expiry note, and support contact (team@claru.ai). Includes plain text fallback. Function never throws -- all errors are caught and returned as { success: false, error: string }.
-**Files changed:** src/lib/email/invite.ts (new), prd.json (US-004 passes: true), progress.txt
-**Learnings:** The existing email templates in src/lib/email.ts use slightly different colors (#0a0908 bg, #92B090 accent) than the landing page design system (#050505, #00ff88). The PRD explicitly requested the landing page colors for this template, creating a more terminal-aesthetic feel. The Resend SDK accepts a `text` property alongside `html` for plain text fallback. The function instantiates Resend inside the function body (after checking the API key) rather than at module scope to avoid errors when the env var is missing.
+## Key Context
+- Only 1 of 82 pages indexed (homepage only). All others "unknown to Google".
+- Homepage SSR broken: `if (!mounted) return null` causes crawlers to see empty page
+- robots.txt blocks GPTBot, ClaudeBot, PerplexityBot — kills GEO
+- No Organization/WebSite JSON-LD at root level
+- No llms.txt, no canonical URLs on ~10 pages, ~25 pages missing OG images
+- Design system: bg #0a0908, accent #92B090, text #FFFFFF, fonts Geist Sans + JetBrains Mono
+- Legal entity: Reka AI Inc. (d/b/a Claru AI)
+- Pillar layouts have good JSON-LD patterns to follow (FAQPage, BreadcrumbList, Service)
 
-## US-002: Delete lead API endpoint with full cleanup
-**What I did:** Added DELETE handler to src/app/api/admin/leads/[id]/route.ts alongside the existing GET and PATCH handlers. The handler follows the established auth pattern (cookie-based admin token verification), fetches the lead (404 if not found), then performs cleanup in the correct order: (1) deletes all rows from lead_dataset_access where lead_id matches, (2) if the lead has a supabase_user_id, calls supabase.auth.admin.deleteUser() with a console.warn on failure (user may already be gone), (3) deletes the lead row from the leads table. Returns 200 with { message: "Lead deleted" } on success, with proper error responses at each step.
-**Files changed:** src/app/api/admin/leads/[id]/route.ts, prd.json (US-002 passes: true), progress.txt
-**Learnings:** Deletion order is critical for referential integrity: child records (lead_dataset_access) must be deleted before the parent (leads). The auth user deletion is treated as best-effort since the user may have already been manually removed from Supabase Auth -- console.warn is used instead of console.error to signal this is a non-fatal condition. The supabase.auth.admin.deleteUser() pattern was confirmed from the approve route which uses supabase.auth.admin.createUser() and generateLink().
+## Completed Stories
 
-## US-005: Approve endpoint with send_invite option
-**What I did:** Updated POST /api/admin/leads/[id]/approve to accept optional { send_invite: boolean, admin_notes?: string } in the request body. send_invite defaults to false for backward compatibility. After the lead is approved and the magic link is generated, if send_invite is true AND a magic link was successfully generated, the handler calls sendInviteEmail() from @/lib/email/invite with the lead's email, name, and magic link. The response now includes invite_sent (boolean) and optionally invite_error (string). If email sending fails, the approval still succeeds -- the lead status is "approved" but invite_sent is false with the error reason. If send_invite is true but the magic link generation failed, a specific error message is returned. When send_invite is false or omitted, existing behavior is completely unchanged with invite_sent: false in the response.
-**Files changed:** src/app/api/admin/leads/[id]/approve/route.ts, prd.json (US-005 passes: true), progress.txt
-**Learnings:** The magicLink variable was already being generated but never used -- this was the key integration point. The sendInviteEmail function from US-004 was designed to never throw, returning { success, error? } instead, which makes the error isolation straightforward: just check result.success and propagate result.error. The invite_error field is only included in the response when there is an actual error (using spread with conditional), keeping the response clean for the success case.
+### US-001: Create robots.ts — unblock AI crawlers, add Sitemap directive
+- Created `src/app/robots.ts` using Next.js MetadataRoute.Robots convention
+- Default `Allow: /` for all user agents with `/admin/`, `/portal/`, `/experiment/`, `/api/` disallowed
+- Explicitly allowed AI search/citation crawlers: GPTBot, ClaudeBot, Claude-SearchBot, Claude-User, PerplexityBot, Applebot-Extended
+- Blocked AI training crawlers: Google-Extended, CCBot, Bytespider, meta-externalagent
+- Added `Sitemap: https://claru.ai/sitemap.xml` directive
+- Build verified: `/robots.txt` renders as static route
 
-## US-003: Expand PATCH endpoint to accept all lead fields
-**What I did:** Expanded the PATCH handler in src/app/api/admin/leads/[id]/route.ts to accept all editable lead fields: name, email, company, role, data_needs, use_case, admin_notes, and status. Added upfront validation: name must be a non-empty string if provided, email is validated with the same regex from the POST route (/^[^\s@]+@[^\s@]+\.[^\s@]+$/), and status is validated against the allowed values (pending, approved, rejected). Each field is only included in the Supabase update if provided as a string (omitted fields are not touched). String fields are trimmed before storage. Added email uniqueness conflict handling: if Supabase returns error code 23505, the endpoint returns 409 with "Email already in use by another lead". Existing admin_notes and status behavior is unchanged.
-**Files changed:** src/app/api/admin/leads/[id]/route.ts, prd.json (US-003 passes: true), progress.txt
-**Learnings:** The validation is structured in two phases: (1) upfront validation with early 400 returns for invalid values, and (2) building the updateFields object from valid string values. This separation keeps the validation logic clear and avoids partially building an update object before discovering an invalid field. The admin_notes field intentionally does not get trimmed (preserving the original behavior where notes are stored as-is), while all other string fields are trimmed to match the POST route's pattern. The email uniqueness conflict (23505) handling mirrors the POST route but with a different error message since it's an update context ("already in use by another lead" vs "already exists").
+### US-004: Add canonical URLs to pages missing them
+- Added `alternates: { canonical: "/path" }` to metadata in 9 files:
+  - `src/app/data-catalog/layout.tsx` → `/data-catalog`
+  - `src/app/case-studies/layout.tsx` → `/case-studies`
+  - `src/app/for-annotators/layout.tsx` → `/for-annotators`
+  - `src/app/data/layout.tsx` → `/data`
+  - `src/app/labeling/layout.tsx` → `/labeling`
+  - `src/app/privacy/page.tsx` → `/privacy`
+  - `src/app/terms/page.tsx` → `/terms`
+  - `src/app/prohibited-use/page.tsx` → `/prohibited-use`
+  - `src/app/job-applicant-privacy/page.tsx` → `/job-applicant-privacy`
+- All use relative paths; `metadataBase` in root layout resolves to `https://claru.ai`
+- Portal/admin/experiment pages intentionally excluded
+- Build verified: no type errors, all pages compile
 
-## US-006: Re-send invite API endpoint
-**What I did:** Created POST /api/admin/leads/[id]/invite endpoint that re-sends magic link invites to already-approved leads. The handler verifies admin auth (cookie-based token), fetches the lead (404 if not found), returns 400 if the lead status is not "approved", handles the edge case where an approved lead has no supabase_user_id by creating the auth user first (same createUser + listUsers fallback pattern as the approve endpoint), generates a fresh magic link via supabase.auth.admin.generateLink with redirectTo pointing to /portal/auth/callback, and sends the invite email via sendInviteEmail. If the auth user was created as part of the edge case handling, the supabase_user_id is persisted back to the lead record. Returns { success: true } on success or { success: false, error: string } on failure.
-**Files changed:** src/app/api/admin/leads/[id]/invite/route.ts (new), prd.json (US-006 passes: true), progress.txt
-**Learnings:** Unlike the approve endpoint where invite failure is non-fatal (the approval still succeeds), the invite endpoint's sole purpose is sending the email, so failures at any stage (magic link generation, email sending) result in error responses. The edge case of a missing supabase_user_id on an approved lead requires both creating the auth user AND persisting the ID back to the lead record so future re-sends don't repeat the user creation. The _request parameter is prefixed with underscore since the body is not consumed (no configurable options for re-send).
+### US-003: Create llms.txt for AI engine discoverability
+- Created `public/llms.txt` as a static Markdown file following the llms.txt spec
+- Starts with site name (`# Claru`), canonical description, and company context (Reka AI Inc.)
+- Maps all major sections with full URLs and descriptions:
+  - Homepage, Data Catalog, Expert Labeling, Data, Jobs, For Annotators
+  - 4 pillar landing pages (Acquire, Enrich, Prepare, Validate)
+  - 12 sub-pillar pages across all 4 pillars
+  - All 11 individual case studies with titles and descriptions
+  - 4 legal pages (privacy, terms, prohibited-use, job-applicant-privacy)
+- Includes Contact section with website, contact form, and email
+- File will be served at `/llms.txt` from the `public/` directory
 
-## US-007: Create lead slide-over panel on leads list page
-**What I did:** Added a `[+ new lead]` button in the filter/search bar area of AdminLeadsTable, positioned next to the search input. Clicking it opens a slide-over panel from the right edge with a create lead form. The panel follows the SampleEditPanel pattern: fixed position right-0, full height, 400px max width, dark background with accent border-left, backdrop overlay, close via X button or Escape key, slide-in animation (translateX(100%) to translateX(0)). The form includes Name (required), Email (required with format validation), Company, Role, Data Needs, Use Case, and Admin Notes fields. Client-side validation shows inline errors for required fields and email format. Submit POSTs to /api/admin/leads. On 201 success: closes panel, shows success alert, calls router.refresh(). On 409: shows "A lead with this email already exists" error. On other errors: shows the error message inline. The CreateLeadPanel is implemented as a sibling component within the same file, keeping the state management simple -- showCreatePanel boolean lives in AdminLeadsTable.
-**Files changed:** src/app/admin/leads/AdminLeadsTable.tsx, prd.json (US-007 passes: true), progress.txt
-**Learnings:** The SampleEditPanel pattern uses a `style jsx global` block for the slideIn keyframe animation -- this is the Next.js styled-jsx approach. Kept the same pattern but renamed the keyframe to slideInRight to avoid collisions. The panel state is managed entirely within AdminLeadsTable since it's already a client component -- no need to modify page.tsx or pass callbacks from the server component. The form resets naturally because the CreateLeadPanel component unmounts when showCreatePanel becomes false, destroying all local state.
+## Architecture Notes
+- Homepage SSR: Islands pattern — server component (content) + client component (animations)
+- OG images: single route handler /api/og using Next.js ImageResponse API
+- robots.ts: Next.js MetadataRoute.Robots convention
+- JSON-LD: @graph array in root layout combining Organization + WebSite
+- Read tasks/docs/seo-aeo-geo-design.md for full architecture details
 
-## US-008: Edit mode toggle on lead detail page
-**What I did:** Added isEditing boolean state, editForm state object (EditForm interface with name, email, company, role, data_needs, use_case), and isSavingEdit loading state to LeadDetailClient. Added [edit] button to the lead info card header that toggles into edit mode. In edit mode, name and email become text/email inputs in the header area, company and role become text inputs via EditField sub-component, and data_needs and use_case become textareas via EditTextarea sub-component. Non-editable fields (created_at, updated_at, supabase_user_id, status) remain as read-only display. Two action buttons in edit mode: [save] (accent green) and [cancel] (muted). Cancel reverts editForm to current lead values without API call. Save performs diff detection -- compares each editForm field against the current lead state and only includes changed fields in the PATCH request body. On 409, shows "Email already in use by another lead" error toast and stays in edit mode. On success, updates lead state from response, syncs editForm, exits edit mode, and shows success toast. Created two reusable sub-components: EditField (text input) and EditTextarea (textarea) with consistent design system styling. Admin notes section remains independently editable with its own save mechanism.
-**Files changed:** src/app/admin/components/LeadDetailClient.tsx, prd.json (US-008 passes: true), progress.txt
-**Learnings:** The diff detection pattern (comparing editForm values to lead values field-by-field and only sending changed fields) avoids unnecessary server-side validation for unchanged fields and prevents overwriting concurrent changes to other fields. The makeEditForm helper function is used in three places (initial state, edit toggle, cancel) to ensure consistent form initialization. Keeping the EditField and EditTextarea as separate sub-components outside the main component avoids re-mounting on every parent render and keeps the JSX in the main component clean.
+### US-002: Add Organization + WebSite JSON-LD to root layout
+- Added `<script type="application/ld+json">` to `src/app/layout.tsx` body with `@graph` array
+- Organization schema: name "Claru", legalName "Reka AI Inc.", url "https://claru.ai", logo (absolute URL to android-chrome-512x512.png), description, contactPoint with email team@claru.ai
+- Organization includes sameAs: GitHub org, LinkedIn company page
+- Organization includes knowsAbout with 10 AI/ML topics
+- WebSite schema: name "Claru", url "https://claru.ai", publisher references Organization
+- No SearchAction (site has no search functionality per requirements)
+- TypeScript compilation verified — no type errors
+- Follows same pattern as pillar layout JSON-LD (`dangerouslySetInnerHTML`)
 
-## US-009: Delete lead button with confirmation dialog
-**What I did:** Added a "Danger Zone" section at the bottom of LeadDetailClient with a [delete lead] button. Clicking it opens a fixed-position confirmation modal with a dark overlay (bg-black/60). The dialog warns about permanent removal of the lead, their portal access, and dataset grants. For approved leads, an additional warning about revoking portal login is shown. The dialog requires the user to type the lead's email exactly to enable the [confirm delete] button. On confirm, it calls DELETE /api/admin/leads/${lead.id}. On success, shows a success toast and redirects to /admin/leads via router.push. On error, shows an error toast and closes the dialog. The dialog is dismissible via [cancel] button or Escape key. Added three state variables: showDeleteDialog (boolean), deleteConfirmEmail (string), isDeleting (boolean). Imported useRouter from next/navigation for the redirect.
-**Files changed:** src/app/admin/components/LeadDetailClient.tsx, prd.json (US-009 passes: true), progress.txt
-**Learnings:** The email confirmation pattern is a well-established UX safety pattern (GitHub uses repository name, AWS uses resource name). Placing the Escape key listener in a useEffect with showDeleteDialog as a dependency ensures the listener is only active when the dialog is open and properly cleaned up when dismissed. The autoFocus attribute on the confirmation input improves usability by focusing the input immediately when the dialog appears. The delete handler resets the dialog state in the catch block (not finally) because on success the component will unmount due to the router.push redirect.
+### US-005: Add dateModified to all structured data schemas
+- Created `src/lib/constants.ts` with `BUILD_DATE` constant (evaluated once at build time as "YYYY-MM-DD")
+- Added optional `dateModified` field to `CaseStudy` interface in `src/types/case-study.ts`
+- Updated Article JSON-LD in `src/app/case-studies/[slug]/page.tsx` — uses `cs.dateModified ?? cs.datePublished`
+- Added `dateModified: BUILD_DATE` to Service JSON-LD in all 16 pillar/sub-pillar layout files:
+  - 4 pillar layouts: acquire, enrich, prepare, validate
+  - 12 sub-pillar layouts: egocentric-video, synthetic-data, data-licensing, expert-annotation, rlhf, video-annotation, deduplication, multimodal-alignment, quality-scoring, benchmark-curation, bias-detection, red-teaming
+- Each pillar layout imports `BUILD_DATE` from `@/lib/constants`
+- TypeScript compilation verified — no type errors
 
-## US-010: Invite controls on lead detail page
-**What I did:** Replaced the single Approve button with a dropdown menu showing two options: [approve & send invite] (sends POST with send_invite: true) and [approve only] (sends POST with send_invite: false). The dropdown uses a relative-positioned container with an absolute-positioned menu below the trigger button, styled with dark bg, border, z-10, and font-mono text-xs. Added click-outside and Escape key handlers to dismiss the dropdown. Updated handleApprove to accept a sendInvite boolean parameter and send { send_invite: sendInvite } in the request body. Toast messages now vary based on the response: "Lead approved and invite sent to {email}" when invite_sent is true, "Lead approved (no invite sent)" when neither invite_sent nor invite_error, and "Lead approved but invite failed: {error}" as a warning toast when invite_error is present. Added a "warning" type to the Toast interface with yellow/amber styling using var(--warning). For already-approved leads, added a [re-send invite] button that POSTs to /api/admin/leads/${lead.id}/invite, with loading state showing [sending...] and appropriate success/error toasts. Existing reject and reset-to-pending buttons are unchanged.
-**Files changed:** src/app/admin/components/LeadDetailClient.tsx, prd.json (US-010 passes: true), progress.txt
-**Learnings:** The dropdown pattern requires both a click-outside listener (mousedown on document) and an Escape key listener, both managed in a useEffect gated on the showApproveMenu boolean. Using a ref (approveMenuRef) on the container div allows the click-outside handler to correctly detect clicks inside the dropdown. The handleApprove function closes the menu before starting the async operation (setShowApproveMenu(false) first) to avoid the dropdown staying open during the loading state. The warning toast type extends the existing success/error pattern to provide a distinct visual for "succeeded with caveats" scenarios like approve-succeeded-but-invite-failed.
+### US-006: Update pillar page headings to question-form for AEO
+- Converted 3 H2 headings per sub-pillar page (36 total across 12 pages) to question form
+- All 12 sub-pillar pages updated:
+  - acquire/data-licensing, acquire/egocentric-video, acquire/synthetic-data
+  - enrich/expert-annotation, enrich/rlhf, enrich/video-annotation
+  - prepare/deduplication, prepare/multimodal-alignment, prepare/quality-scoring
+  - validate/benchmark-curation, validate/bias-detection, validate/red-teaming
+- Pattern applied: problem H2 -> "What Is...?", process H2 -> "How Does Claru's...?", use-case H2 -> "Where/When/What...?"
+- Enhanced answer-first lead paragraphs for use-case H2s (7 pages) to provide self-contained answers
+- Preserved all FAQ, Case Studies, CTA, and technical specs headings unchanged
+- No H1 headings modified; no styling changes
+- TypeScript compilation verified — no type errors
+
+### US-009: Add FAQPage schema to data-catalog page
+- Added FAQPage JSON-LD to `src/app/data-catalog/layout.tsx` with 5 Q&A pairs
+- Questions cover: dataset offerings, custom dataset requests, quality assurance, differentiation from public datasets, sample previews
+- Each answer is 40-80 words, self-contained, and factually grounded in actual page content
+- Follows exact same pattern as `src/app/for-annotators/layout.tsx` (const + dangerouslySetInnerHTML)
+- Layout wraps children in `<>` fragment with `<script type="application/ld+json">`
+- TypeScript compilation verified — no type errors
+
+### US-007: Homepage SSR refactor — server component with client children
+- Removed `'use client'` from `src/app/page.tsx` — now a server component
+- Removed `useState`/`useEffect` mounted guard that caused `if (!mounted) return null` (crawlers saw empty page)
+- Removed all `dynamic(() => ..., { ssr: false })` imports for content-bearing sections
+- All section components (Hero, ProblemAgitation, Origin, TwoPaths, ProofOfWork, Testimonials, FinalCTA) now imported directly — they SSR their full content (headings, text, links)
+- Created `src/app/components/providers/ClientProviders.tsx` — wraps children with LenisProvider and HeroBackground without gating content rendering. Children always render; mounted guard only controls effects layer.
+- Created `src/app/components/sections/SectionBridge.tsx` — extracted inline motion bridge component
+- Created `src/app/components/sections/AnimatedLogoWrapper.tsx` — client wrapper for `dynamic(() => ..., { ssr: false })` since that API cannot be used in server components
+- SSR verification: `curl localhost:3099` returns full HTML with:
+  - `<h1>` "Purpose-built data for frontier video labs."
+  - 5 `<h2>` section headings
+  - All internal links (/data, /labeling, /case-studies, /data-catalog, individual case study links)
+  - CTA anchor link to #contact
+  - Full paragraph text for all sections
+- Build succeeds with no errors
+- No visual regression — all Framer Motion and GSAP animations preserved (client components hydrate on top of SSR'd HTML)
+
+### US-012: Create entity consistency checklist and profile
+- Created `src/lib/entity-profile.ts` exporting typed `entityProfile` constant with: name, legalName, description, tagline, url, email, github, linkedin
+- Object is `as const` for literal type inference; exported `EntityProfile` type alias
+- Created `tasks/docs/entity-consistency-checklist.md` with:
+  - Canonical company description (full + short variant for character-limited fields)
+  - Platform table: LinkedIn (exists), GitHub (exists), Crunchbase (needs creation), G2 (needs creation), Capterra (needs creation)
+  - Each row includes expected URL, current status, which description variant to use, and sameAs inclusion
+  - Current sameAs array documented with instructions to extend as new profiles are created
+  - Sync instructions: single source of truth workflow, quarterly review process, new-platform checklist
+- TypeScript compilation verified — no type errors
+
+### US-010: Build dynamic OG image generator
+- Created `src/app/api/og/route.tsx` using Next.js `ImageResponse` API with `runtime = "edge"`
+- Accepts query params: `title` (required), `subtitle`/`description` (optional), `category` (optional)
+- Six category variants: default, pillar, case-study, job, data-catalog, legal
+- Category-specific styling: pillar gets `>` prompt prefix + "CAPABILITY" badge, case-study gets "CASE STUDY" badge, job gets "NOW HIRING" badge, legal gets muted #666 border
+- Template design matches spec: #0a0908 background, #92B090 sage green accents, CLARU branding top-left, title in large white text, subtitle in muted gray, claru.ai URL with decorative lines bottom-left, category badge bottom-right, scanline overlay, left accent border
+- Fonts loaded from Google Fonts CDN (JetBrains Mono + Geist Bold) with graceful fallback to system monospace/sans-serif
+- Edge cases: missing title returns 400 JSON error, long titles truncated at 80 chars, long subtitles at 120 chars
+- Output: 1200x630 PNG with Cache-Control headers (1 day client, 7 day CDN)
+- Verified: GET /api/og?title=Test returns 200 image/png, GET /api/og returns 400
+- TypeScript compilation verified — no type errors
+
+### US-008: Add FAQPage schema to homepage
+- Added FAQPage JSON-LD to `src/app/page.tsx` with 7 Q&A pairs targeting high-value search queries
+- Questions cover: AI training data types, RLHF annotation quality, differentiation from general vendors, supported modalities, data privacy/security, human-in-the-loop definition, working with frontier AI labs
+- Each answer is 40-80 words, self-contained, and factually grounded in Claru's actual services and capabilities
+- Follows exact same pattern as `src/app/for-annotators/layout.tsx` and `src/app/data-catalog/layout.tsx` (const + dangerouslySetInnerHTML)
+- JSON-LD `<script>` placed inside `<ClientProviders>` wrapper at top of JSX return
+- TypeScript compilation verified — no type errors
+
+### US-011: Wire OG images into all page metadata
+- Created `src/lib/og.ts` with `ogImageUrl()` helper that generates `/api/og?title=...&category=...` URLs
+- Updated root layout (`src/app/layout.tsx`) — replaced static `/og-image.png` with dynamic OG image URL in both openGraph.images and twitter.images
+- Updated all 16 pillar/sub-pillar layouts with `images` array using `category: "pillar"`:
+  - 4 pillar layouts: acquire, enrich, prepare, validate
+  - 12 sub-pillar layouts: data-licensing, egocentric-video, synthetic-data, expert-annotation, rlhf, video-annotation, deduplication, multimodal-alignment, quality-scoring, benchmark-curation, bias-detection, red-teaming
+- Updated `src/app/case-studies/[slug]/page.tsx` generateMetadata — OG image with case study title, `category: "case-study"`
+- Updated `src/app/jobs/[slug]/page.tsx` generateMetadata — OG image with job title, `category: "job"`
+- Updated 6 remaining page layouts with OG images:
+  - `src/app/data-catalog/layout.tsx` — category: "data-catalog"
+  - `src/app/for-annotators/layout.tsx` — with subtitle
+  - `src/app/labeling/layout.tsx` — with subtitle
+  - `src/app/data/layout.tsx` — with subtitle
+  - `src/app/case-studies/layout.tsx` — category: "case-study" (listing page)
+  - `src/app/jobs/layout.tsx` — category: "job" (listing page)
+- Updated `jobs/[slug]/page.tsx` twitter card from `"summary"` to `"summary_large_image"` (only page that had plain "summary")
+- TypeScript compilation verified — no type errors
+
+## US-013: Playwright E2E — SEO Validation Suite
+
+- Created `tests/e2e/seo-validation.spec.ts` with 11 tests using Page Object Model pattern
+- Tests validate: homepage H1, Organization JSON-LD, canonical URL, FAQPage JSON-LD, robots.txt, sitemap.xml (50+ URLs), llms.txt, case-studies canonical, pillar FAQ schema, OG image endpoint, OG meta tag
+- Added missing `alternates.canonical` to root layout metadata (`src/app/layout.tsx`)
+- Used raw HTML parsing for JSON-LD extraction to handle client-component-rendered script tags reliably
+- All 11 tests pass (5.6s runtime)
+
+## US-014: Playwright MCP User Acceptance Testing
+
+### Test Results (all PASS)
+
+| Page | Status | Notes |
+|------|--------|-------|
+| Homepage (desktop 1440px) | PASS | H1 "Purpose-built data for frontier video labs." visible, animations playing (rotating modality word), full content rendered |
+| Homepage (mobile 375px) | PASS | Responsive layout correct, H1 readable, hamburger menu present |
+| Homepage JSON-LD | PASS | 2 JSON-LD scripts found: Organization/@graph + FAQPage |
+| robots.txt | PASS | All crawler rules present, Sitemap directive at bottom, AI search bots allowed, training bots blocked |
+| sitemap.xml | PASS | Valid XML with all URLs, priorities, lastmod timestamps, changefreq values |
+| llms.txt | PASS | Comprehensive markdown with all sections: Core Services, Sub-Services, Case Studies, Additional Pages, Legal, Contact |
+| /pillars/acquire | PASS | H1 with question-form heading visible, breadcrumbs, FAQ section, capability cards, use-case sections |
+| /api/og (OG image) | PASS | 1200x630 PNG renders with CLARU branding, title text, claru.ai domain, sage green accent |
+| /case-studies | PASS | 11 case studies listed with category filters, breadcrumbs, H1, proper card layout |
+
+### Issues Found
+- None critical. Two minor console warnings (non-blocking):
+  1. Canvas2D readback performance warning (ASCIIBackground effect) — pre-existing, not SEO-related
+  2. Lenis container naming warning — pre-existing, not SEO-related
+- All SEO elements (H1, JSON-LD, meta tags, structured data) render correctly in SSR
+- No visual regressions observed

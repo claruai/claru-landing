@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { ogImageUrl } from "@/lib/og";
 import { getAllJobs, getJobBySlug, getJobsByCategory } from "@/lib/jobs";
 import { JOB_CATEGORIES } from "@/types/job";
 import JobDetailClient from "./JobDetailClient";
@@ -43,9 +44,10 @@ export async function generateMetadata({
       description,
       type: "website",
       url: `https://claru.ai/jobs/${job.slug}`,
+      images: [{ url: ogImageUrl(job.title, { category: "job" }), width: 1200, height: 630 }],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title,
       description,
     },

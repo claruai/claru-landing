@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
+import { ogImageUrl } from "@/lib/og";
 import "./globals.css";
 import "lenis/dist/lenis.css";
 import MotionProvider from "./components/providers/MotionProvider";
@@ -81,7 +82,7 @@ export const metadata: Metadata = {
       "Training data built to your model's exact specifications. Sourced, labeled, and validated for frontier video, vision, and robotics AI.",
     images: [
       {
-        url: "/og-image.png",
+        url: ogImageUrl("Purpose-Built Training Data for Frontier AI Labs"),
         width: 1200,
         height: 630,
         alt: "Claru - Purpose-Built Training Data for Frontier AI Labs",
@@ -93,12 +94,72 @@ export const metadata: Metadata = {
     title: "Claru | Purpose-Built Training Data for Frontier AI Labs",
     description:
       "Training data built to your model's exact specifications. From raw capture to production-ready dataset for video, vision, and robotics AI.",
-    images: ["/og-image.png"],
+    images: [ogImageUrl("Purpose-Built Training Data for Frontier AI Labs")],
+  },
+  alternates: {
+    canonical: "/",
   },
   robots: {
     index: true,
     follow: true,
   },
+};
+
+// Organization + WebSite JSON-LD (US-002)
+const globalJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://claru.ai/#organization",
+      name: "Claru",
+      legalName: "Reka AI Inc.",
+      url: "https://claru.ai",
+      logo: {
+        "@type": "ImageObject",
+        "@id": "https://claru.ai/#logo",
+        url: "https://claru.ai/android-chrome-512x512.png",
+        width: 512,
+        height: 512,
+        caption: "Claru",
+      },
+      image: { "@id": "https://claru.ai/#logo" },
+      description:
+        "Purpose-built human annotation data for frontier AI labs, specializing in text, vision, video, and robotics modalities.",
+      foundingDate: "2024",
+      contactPoint: {
+        "@type": "ContactPoint",
+        contactType: "sales",
+        email: "team@claru.ai",
+        url: "https://claru.ai/#contact",
+      },
+      sameAs: [
+        "https://github.com/claruai",
+        "https://www.linkedin.com/company/claruai",
+      ],
+      knowsAbout: [
+        "AI training data",
+        "Data annotation",
+        "RLHF",
+        "Egocentric video data",
+        "Robotics training data",
+        "Video generation training data",
+        "Expert annotation",
+        "Synthetic data generation",
+        "Multimodal AI data",
+        "Vision model annotation",
+      ],
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://claru.ai/#website",
+      url: "https://claru.ai",
+      name: "Claru",
+      description:
+        "Purpose-built training data for frontier AI labs.",
+      publisher: { "@id": "https://claru.ai/#organization" },
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -116,6 +177,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${jetbrainsMono.variable} antialiased`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(globalJsonLd) }}
+        />
         <MotionProvider>
           <CalendlyProvider>
             {children}

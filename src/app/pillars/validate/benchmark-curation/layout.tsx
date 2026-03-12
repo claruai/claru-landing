@@ -1,3 +1,5 @@
+import { BUILD_DATE } from "@/lib/constants";
+import { ogImageUrl } from "@/lib/og";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -23,6 +25,7 @@ export const metadata: Metadata = {
       "Contamination-free benchmarks and golden evaluation sets for trustworthy AI assessment. Expert-curated test data that measures real capability.",
     url: "/pillars/validate/benchmark-curation",
     type: "website",
+    images: [{ url: ogImageUrl("AI Benchmark & Golden Dataset Curation", { category: "pillar" }), width: 1200, height: 630 }],
   },
 };
 
@@ -42,6 +45,7 @@ const jsonLd = {
       description:
         "Expert benchmark curation and golden dataset creation for AI evaluation. Contamination-free test sets with verified non-leakage and difficulty stratification.",
       areaServed: "Worldwide",
+      dateModified: BUILD_DATE,
       audience: {
         "@type": "Audience",
         audienceType:

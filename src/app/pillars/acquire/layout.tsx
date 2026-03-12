@@ -1,3 +1,5 @@
+import { BUILD_DATE } from "@/lib/constants";
+import { ogImageUrl } from "@/lib/og";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -23,6 +25,7 @@ export const metadata: Metadata = {
       "Source diverse, high-quality training data at any scale. From egocentric video capture to licensed web-scale datasets.",
     url: "/pillars/acquire",
     type: "website",
+    images: [{ url: ogImageUrl("Data Acquisition Services for Frontier AI", { category: "pillar" }), width: 1200, height: 630 }],
   },
 };
 
@@ -42,6 +45,7 @@ const jsonLd = {
       description:
         "Expert data acquisition services for frontier AI labs. Human data collection, web-scale harvesting, synthetic generation, and data licensing.",
       areaServed: "Worldwide",
+      dateModified: BUILD_DATE,
       audience: {
         "@type": "Audience",
         audienceType: "AI Research Labs, ML Engineering Teams",

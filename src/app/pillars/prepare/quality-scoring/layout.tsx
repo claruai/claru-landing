@@ -1,3 +1,5 @@
+import { BUILD_DATE } from "@/lib/constants";
+import { ogImageUrl } from "@/lib/og";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -23,6 +25,7 @@ export const metadata: Metadata = {
       "Separate signal from noise in your training data. Multi-signal scoring with configurable thresholds that preserve diversity.",
     url: "/pillars/prepare/quality-scoring",
     type: "website",
+    images: [{ url: ogImageUrl("ML Data Quality Scoring & Filtering", { category: "pillar" }), width: 1200, height: 630 }],
   },
 };
 
@@ -42,6 +45,7 @@ const jsonLd = {
       description:
         "Multi-signal quality scoring using perplexity, classifiers, and semantic analysis for ML training data. Configurable thresholds that balance quality and diversity.",
       areaServed: "Worldwide",
+      dateModified: BUILD_DATE,
       audience: {
         "@type": "Audience",
         audienceType: "AI Research Labs, ML Engineering Teams",

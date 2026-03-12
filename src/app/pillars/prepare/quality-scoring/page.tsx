@@ -331,7 +331,7 @@ export default function QualityScoringPage() {
             className="max-w-4xl mx-auto"
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              The Quality-Diversity Tradeoff
+              What Is the Quality-Diversity Tradeoff in AI Training Data?
             </h2>
 
             <div className="prose prose-lg prose-invert max-w-none">
@@ -406,7 +406,7 @@ export default function QualityScoringPage() {
               {"// HOW IT WORKS"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              Multi-Signal Quality Pipeline
+              How Does Claru&apos;s Multi-Signal Quality Pipeline Work?
             </h2>
 
             <p className="text-[var(--text-secondary)] text-lg mb-12">
@@ -608,11 +608,11 @@ export default function QualityScoringPage() {
               {"// USE CASES"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Where Quality Scoring Matters
+              Where Does Quality Scoring Matter Most?
             </h2>
             <p className="text-[var(--text-secondary)] text-lg mb-12 max-w-3xl">
-              Different training objectives require different quality
-              optimization strategies. Here is how we approach each.
+              Quality scoring is critical for web corpus filtering, instruction tuning data curation, and domain-specific corpora preparation. Different training objectives require different quality
+              optimization strategies, and the right approach depends on your data distribution and model goals.
             </p>
 
             <div className="space-y-6">

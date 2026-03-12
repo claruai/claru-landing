@@ -272,7 +272,7 @@ export default function RLHFPage() {
             className="max-w-4xl mx-auto"
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              Why RLHF Quality Matters More Than RLHF Quantity
+              Why Does RLHF Quality Matter More Than Quantity?
             </h2>
 
             <div className="prose prose-lg prose-invert max-w-none">
@@ -362,7 +362,7 @@ export default function RLHFPage() {
               {"// HOW IT WORKS"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              Expert RLHF Pipeline
+              How Does Claru&apos;s Expert RLHF Pipeline Work?
             </h2>
 
             <div className="space-y-12">
@@ -728,7 +728,7 @@ export default function RLHFPage() {
               {"// USE CASES"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              Where Expert RLHF Makes the Difference
+              Where Does Expert RLHF Make the Biggest Difference?
             </h2>
 
             <div className="space-y-8">

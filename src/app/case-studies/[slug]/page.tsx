@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { ogImageUrl } from "@/lib/og";
 import {
   getAllCaseStudies,
   getCaseStudyBySlug,
@@ -44,6 +45,7 @@ export async function generateMetadata({
       type: "article",
       url: `https://claru.ai/case-studies/${cs.slug}`,
       publishedTime: cs.datePublished,
+      images: [{ url: ogImageUrl(cs.title, { category: "case-study" }), width: 1200, height: 630 }],
     },
     twitter: {
       card: "summary_large_image",
@@ -83,6 +85,7 @@ export default async function CaseStudyDetailPage({
     headline: cs.title,
     description: cs.metaDescription,
     datePublished: cs.datePublished,
+    dateModified: cs.dateModified ?? cs.datePublished,
     author: {
       "@type": "Organization",
       name: "Claru AI",

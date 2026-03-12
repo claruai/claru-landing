@@ -320,7 +320,7 @@ export default function DeduplicationPage() {
             className="max-w-4xl mx-auto"
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              Why Deduplication Is the Biggest Bottleneck
+              Why Is Deduplication the Biggest Bottleneck in LLM Training?
             </h2>
 
             <div className="prose prose-lg prose-invert max-w-none">
@@ -399,7 +399,7 @@ export default function DeduplicationPage() {
               {"// HOW IT WORKS"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              Multi-Level Deduplication Pipeline
+              How Does Claru&apos;s Multi-Level Deduplication Pipeline Work?
             </h2>
 
             <p className="text-[var(--text-secondary)] text-lg mb-12">
@@ -605,11 +605,11 @@ export default function DeduplicationPage() {
               {"// USE CASES"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              When You Need Deduplication
+              When Do You Need Data Deduplication?
             </h2>
             <p className="text-[var(--text-secondary)] text-lg mb-12 max-w-3xl">
-              Every major dataset preparation effort requires rigorous
-              deduplication. Here is where it matters most.
+              Data deduplication is essential whenever you are working with web-scale corpora, aggregating multiple data sources, or curating benchmarks. Every major dataset preparation effort requires rigorous
+              deduplication to prevent memorization, preserve compute efficiency, and maintain evaluation integrity.
             </p>
 
             <div className="space-y-6">
