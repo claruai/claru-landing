@@ -77,3 +77,13 @@ Branch: ralph/seo-aeo-geo
 - No SearchAction (site has no search functionality per requirements)
 - TypeScript compilation verified — no type errors
 - Follows same pattern as pillar layout JSON-LD (`dangerouslySetInnerHTML`)
+
+### US-005: Add dateModified to all structured data schemas
+- Created `src/lib/constants.ts` with `BUILD_DATE` constant (evaluated once at build time as "YYYY-MM-DD")
+- Added optional `dateModified` field to `CaseStudy` interface in `src/types/case-study.ts`
+- Updated Article JSON-LD in `src/app/case-studies/[slug]/page.tsx` — uses `cs.dateModified ?? cs.datePublished`
+- Added `dateModified: BUILD_DATE` to Service JSON-LD in all 16 pillar/sub-pillar layout files:
+  - 4 pillar layouts: acquire, enrich, prepare, validate
+  - 12 sub-pillar layouts: egocentric-video, synthetic-data, data-licensing, expert-annotation, rlhf, video-annotation, deduplication, multimodal-alignment, quality-scoring, benchmark-curation, bias-detection, red-teaming
+- Each pillar layout imports `BUILD_DATE` from `@/lib/constants`
+- TypeScript compilation verified — no type errors
