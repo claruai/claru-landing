@@ -334,7 +334,7 @@ export default function VideoAnnotationPage() {
             className="max-w-4xl mx-auto"
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              The Video Annotation Bottleneck
+              What Is the Video Annotation Bottleneck?
             </h2>
 
             <div className="prose prose-lg prose-invert max-w-none">
@@ -425,7 +425,7 @@ export default function VideoAnnotationPage() {
               {"// HOW IT WORKS"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              Video Annotation Pipeline
+              How Does Claru&apos;s Video Annotation Pipeline Work?
             </h2>
 
             <div className="space-y-12">
@@ -789,7 +789,7 @@ export default function VideoAnnotationPage() {
               {"// USE CASES"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              Applications of Video Annotation
+              What Are the Key Applications of Video Annotation?
             </h2>
 
             <div className="space-y-8">

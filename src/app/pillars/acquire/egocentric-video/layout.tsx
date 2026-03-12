@@ -1,3 +1,5 @@
+import { BUILD_DATE } from "@/lib/constants";
+import { ogImageUrl } from "@/lib/og";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -23,6 +25,7 @@ export const metadata: Metadata = {
       "Capture first-person video at scale for embodied AI. Expert collectors, wearable cameras, real-world environments.",
     url: "/pillars/acquire/egocentric-video",
     type: "website",
+    images: [{ url: ogImageUrl("Egocentric Video Data Collection", { category: "pillar" }), width: 1200, height: 630 }],
   },
 };
 
@@ -42,6 +45,7 @@ const jsonLd = {
       description:
         "Professional first-person video capture services using wearable cameras and expert collectors for training embodied AI, robotics, and AR/VR systems.",
       areaServed: "Worldwide",
+      dateModified: BUILD_DATE,
       audience: {
         "@type": "Audience",
         audienceType: "AI Research Labs, Robotics Companies, AR/VR Developers",

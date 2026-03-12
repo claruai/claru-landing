@@ -280,7 +280,7 @@ export default function BenchmarkCurationPage() {
             className="max-w-4xl mx-auto"
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              The Contamination Crisis
+              What Is the Benchmark Contamination Crisis?
             </h2>
 
             <div className="prose prose-lg prose-invert max-w-none">
@@ -354,7 +354,7 @@ export default function BenchmarkCurationPage() {
               {"// METHODOLOGY"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              How We Build Clean Benchmarks
+              How Does Claru Build Clean, Uncontaminated Benchmarks?
             </h2>
 
             <div className="space-y-8 mb-12">
@@ -645,11 +645,11 @@ export default function BenchmarkCurationPage() {
               {"// USE CASES"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              When Clean Benchmarks Matter Most
+              When Do Clean Benchmarks Matter Most?
             </h2>
             <p className="text-[var(--text-secondary)] text-lg mb-12 max-w-3xl">
-              Different evaluation contexts have different contamination risks
-              and integrity requirements.
+              Clean benchmarks are essential for pre-deployment capability assessment, progress tracking over time, regulatory compliance, and competitive model comparison. Different evaluation contexts have different contamination risks
+              and integrity requirements, but the need for uncontaminated evaluation data is universal.
             </p>
 
             <div className="space-y-6">

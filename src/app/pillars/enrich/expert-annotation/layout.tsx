@@ -1,3 +1,5 @@
+import { BUILD_DATE } from "@/lib/constants";
+import { ogImageUrl } from "@/lib/og";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -23,6 +25,7 @@ export const metadata: Metadata = {
       "PhD-level specialists for high-stakes AI annotation. Medical, legal, STEM, and technical domains.",
     url: "/pillars/enrich/expert-annotation",
     type: "website",
+    images: [{ url: ogImageUrl("Expert Domain Annotation for AI Training", { category: "pillar" }), width: 1200, height: 630 }],
   },
 };
 
@@ -42,6 +45,7 @@ const jsonLd = {
       description:
         "PhD-level domain specialist annotation services for AI training. Verified experts in STEM, medicine, law, and technical fields provide accurate labels for high-stakes applications.",
       areaServed: "Worldwide",
+      dateModified: BUILD_DATE,
       audience: {
         "@type": "Audience",
         audienceType:

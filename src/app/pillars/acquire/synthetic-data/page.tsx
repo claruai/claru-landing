@@ -321,7 +321,7 @@ export default function SyntheticDataPage() {
               {"// THE PROBLEM"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              Why Real Data Is Not Enough
+              Why Is Real Data Not Enough for AI Training?
             </h2>
 
             <div className="prose prose-lg prose-invert max-w-none">
@@ -415,7 +415,7 @@ export default function SyntheticDataPage() {
               {"// HOW IT WORKS"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              Our Synthetic Data Pipeline
+              How Does Claru&apos;s Synthetic Data Pipeline Work?
             </h2>
 
             <div className="space-y-8">
@@ -599,11 +599,11 @@ export default function SyntheticDataPage() {
               {"// USE CASES"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Applications for Synthetic Data
+              What Are the Key Applications for Synthetic Data?
             </h2>
             <p className="text-[var(--text-secondary)] text-lg mb-12 max-w-3xl">
-              Synthetic data is transforming industries where real data is
-              scarce, dangerous, or expensive to collect.
+              Synthetic data is transforming autonomous vehicles, robotics, and manufacturing -- industries where real data is
+              scarce, dangerous, or expensive to collect. It enables training on rare edge cases that would be impossible to capture in the real world.
             </p>
 
             <div className="space-y-8">

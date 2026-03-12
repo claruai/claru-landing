@@ -1,3 +1,5 @@
+import { BUILD_DATE } from "@/lib/constants";
+import { ogImageUrl } from "@/lib/og";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -23,6 +25,7 @@ export const metadata: Metadata = {
       "Synchronize video, text, and audio data for AI training. Frame-level precision for video-language models.",
     url: "/pillars/prepare/multimodal-alignment",
     type: "website",
+    images: [{ url: ogImageUrl("Multimodal Data Alignment", { category: "pillar" }), width: 1200, height: 630 }],
   },
 };
 
@@ -42,6 +45,7 @@ const jsonLd = {
       description:
         "Frame-level video-text alignment, cross-modal synchronization, and temporal caption matching for video-language and vision-language AI models.",
       areaServed: "Worldwide",
+      dateModified: BUILD_DATE,
       audience: {
         "@type": "Audience",
         audienceType: "AI Research Labs, Video AI Companies",

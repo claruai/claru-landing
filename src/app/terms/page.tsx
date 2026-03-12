@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   title: "Terms of Service - Claru",
   description:
     "Terms of Service for Claru by Reka AI Inc. (d/b/a Claru AI) - Expert Human Intelligence for AI Labs. Read our terms governing the use of our websites, mobile applications, and services.",
+  alternates: {
+    canonical: "/terms",
+  },
   openGraph: {
     title: "Terms of Service - Claru",
     description:

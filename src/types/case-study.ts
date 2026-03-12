@@ -86,6 +86,9 @@ export interface CaseStudy {
   /** ISO 8601 date string for when the case study was published. */
   datePublished: string;
 
+  /** ISO 8601 date string for when the case study was last modified. Falls back to datePublished if omitted. */
+  dateModified?: string;
+
   /** Optional sample data configuration for the interactive viewer. */
   sampleData?: {
     type: string;

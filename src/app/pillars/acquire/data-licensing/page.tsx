@@ -319,7 +319,7 @@ export default function DataLicensingPage() {
               {"// THE PROBLEM"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              The Legal Reckoning for AI Training Data
+              What Is the Legal Reckoning for AI Training Data?
             </h2>
 
             <div className="prose prose-lg prose-invert max-w-none">
@@ -419,7 +419,7 @@ export default function DataLicensingPage() {
               {"// HOW IT WORKS"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              Our Licensing Process
+              How Does Claru&apos;s Data Licensing Process Work?
             </h2>
 
             <div className="space-y-8">
@@ -603,11 +603,10 @@ export default function DataLicensingPage() {
               {"// USE CASES"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Who Needs Licensed Training Data
+              Who Needs Licensed Training Data?
             </h2>
             <p className="text-[var(--text-secondary)] text-lg mb-12 max-w-3xl">
-              Proper data licensing is essential for organizations where legal
-              risk tolerance is low.
+              Any organization building AI where legal risk tolerance is low needs properly licensed training data. This includes media companies, enterprise AI teams, and regulated industries where data provenance is a compliance requirement.
             </p>
 
             <div className="space-y-8">

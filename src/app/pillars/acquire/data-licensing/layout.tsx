@@ -1,3 +1,5 @@
+import { BUILD_DATE } from "@/lib/constants";
+import { ogImageUrl } from "@/lib/og";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -23,6 +25,7 @@ export const metadata: Metadata = {
       "Build AI on solid legal ground. Licensed content, clear rights, full provenance for enterprise compliance.",
     url: "/pillars/acquire/data-licensing",
     type: "website",
+    images: [{ url: ogImageUrl("AI Training Data Licensing", { category: "pillar" }), width: 1200, height: 630 }],
   },
 };
 
@@ -42,6 +45,7 @@ const jsonLd = {
       description:
         "Professional data licensing services for AI training. We negotiate content rights, ensure copyright compliance, and provide full provenance documentation for enterprise AI development.",
       areaServed: "Worldwide",
+      dateModified: BUILD_DATE,
       audience: {
         "@type": "Audience",
         audienceType:
