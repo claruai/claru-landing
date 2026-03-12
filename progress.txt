@@ -24,6 +24,16 @@ Branch: ralph/seo-aeo-geo
 - Legal entity: Reka AI Inc. (d/b/a Claru AI)
 - Pillar layouts have good JSON-LD patterns to follow (FAQPage, BreadcrumbList, Service)
 
+## Completed Stories
+
+### US-001: Create robots.ts — unblock AI crawlers, add Sitemap directive
+- Created `src/app/robots.ts` using Next.js MetadataRoute.Robots convention
+- Default `Allow: /` for all user agents with `/admin/`, `/portal/`, `/experiment/`, `/api/` disallowed
+- Explicitly allowed AI search/citation crawlers: GPTBot, ClaudeBot, Claude-SearchBot, Claude-User, PerplexityBot, Applebot-Extended
+- Blocked AI training crawlers: Google-Extended, CCBot, Bytespider, meta-externalagent
+- Added `Sitemap: https://claru.ai/sitemap.xml` directive
+- Build verified: `/robots.txt` renders as static route
+
 ## Architecture Notes
 - Homepage SSR: Islands pattern — server component (content) + client component (animations)
 - OG images: single route handler /api/og using Next.js ImageResponse API

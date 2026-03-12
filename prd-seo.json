@@ -19,7 +19,7 @@
         "Code Review: run code-reviewer agent to verify crawler policy correctness"
       ],
       "priority": 1,
-      "passes": false,
+      "passes": true,
       "notes": "Read tasks/docs/seo-aeo-geo-requirements.md (Requirement 1) and tasks/docs/seo-aeo-geo-design.md (robots.txt section). No robots.txt or robots.ts currently exists; only metadata.robots in layout.tsx. Use general-purpose agent."
     },
     {
