@@ -327,7 +327,7 @@ export default function EgocentricVideoPage() {
               {"// THE PROBLEM"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              Why Egocentric Video Is the Missing Link
+              Why Is Egocentric Video the Missing Link for Embodied AI?
             </h2>
 
             <div className="prose prose-lg prose-invert max-w-none">
@@ -398,7 +398,7 @@ export default function EgocentricVideoPage() {
               {"// HOW IT WORKS"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              Our Collection Pipeline
+              How Does Claru&apos;s Egocentric Video Collection Pipeline Work?
             </h2>
 
             <div className="space-y-8">
@@ -582,11 +582,11 @@ export default function EgocentricVideoPage() {
               {"// USE CASES"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Applications for Egocentric Video Data
+              What Are the Key Applications for Egocentric Video Data?
             </h2>
             <p className="text-[var(--text-secondary)] text-lg mb-12 max-w-3xl">
-              First-person video unlocks capabilities that third-person data
-              cannot provide.
+              Egocentric video data is essential for robotics, autonomous navigation, and AR/VR systems. First-person video unlocks capabilities that third-person data
+              cannot provide, teaching AI to see and interact with the world from a human perspective.
             </p>
 
             <div className="space-y-8">

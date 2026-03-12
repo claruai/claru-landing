@@ -106,7 +106,7 @@
         "Code Review: run code-reviewer agent to verify content quality and heading hierarchy"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "Read tasks/docs/seo-aeo-geo-requirements.md (Requirement 9) and tasks/docs/seo-aeo-geo-design.md (Question-Form H2 Content Strategy). Target the 12 sub-pillar pages in src/app/pillars/. Use general-purpose agent."
     },
     {

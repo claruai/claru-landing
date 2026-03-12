@@ -87,3 +87,16 @@ Branch: ralph/seo-aeo-geo
   - 12 sub-pillar layouts: egocentric-video, synthetic-data, data-licensing, expert-annotation, rlhf, video-annotation, deduplication, multimodal-alignment, quality-scoring, benchmark-curation, bias-detection, red-teaming
 - Each pillar layout imports `BUILD_DATE` from `@/lib/constants`
 - TypeScript compilation verified — no type errors
+
+### US-006: Update pillar page headings to question-form for AEO
+- Converted 3 H2 headings per sub-pillar page (36 total across 12 pages) to question form
+- All 12 sub-pillar pages updated:
+  - acquire/data-licensing, acquire/egocentric-video, acquire/synthetic-data
+  - enrich/expert-annotation, enrich/rlhf, enrich/video-annotation
+  - prepare/deduplication, prepare/multimodal-alignment, prepare/quality-scoring
+  - validate/benchmark-curation, validate/bias-detection, validate/red-teaming
+- Pattern applied: problem H2 -> "What Is...?", process H2 -> "How Does Claru's...?", use-case H2 -> "Where/When/What...?"
+- Enhanced answer-first lead paragraphs for use-case H2s (7 pages) to provide self-contained answers
+- Preserved all FAQ, Case Studies, CTA, and technical specs headings unchanged
+- No H1 headings modified; no styling changes
+- TypeScript compilation verified — no type errors
