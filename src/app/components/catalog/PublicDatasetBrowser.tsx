@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useContext, useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
+import { CalendlyContext } from "../providers/CalendlyProvider";
 import type { PublicDataset } from "@/types/data-catalog";
 import PublicDatasetCard from "./PublicDatasetCard";
 import CategoryFilterPills from "./CategoryFilterPills";
@@ -41,6 +42,7 @@ function SkeletonCard() {
 // ---------------------------------------------------------------------------
 
 export default function PublicDatasetBrowser() {
+  const calendly = useContext(CalendlyContext);
   const [datasets, setDatasets] = useState<PublicDataset[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -213,6 +215,29 @@ export default function PublicDatasetBrowser() {
         <p className="font-mono text-xs text-[var(--text-tertiary)] text-center mt-4">
           Showing {visible.length} of {filtered.length} datasets
         </p>
+      )}
+
+      {/* Bottom CTA */}
+      {!loading && datasets.length > 0 && (
+        <div className="mt-12 md:mt-16 text-center border-t border-[var(--border-subtle)]/50 pt-10 md:pt-12">
+          <p className="font-mono text-xs text-[var(--accent-primary)] mb-2">
+            {"// DON'T SEE WHAT YOU NEED?"}
+          </p>
+          <h3 className="text-xl md:text-2xl font-semibold text-white mb-3">
+            We have much more beyond this.
+          </h3>
+          <p className="text-sm text-[var(--text-secondary)] mb-6 max-w-md mx-auto">
+            Custom datasets, bespoke collection, and data we can&apos;t show
+            publicly. Tell us what you&apos;re training.
+          </p>
+          <button
+            type="button"
+            onClick={() => calendly?.openCalendly()}
+            className="inline-flex items-center gap-2 font-mono text-sm px-6 py-3 rounded-full border border-[var(--accent-primary)]/40 text-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/10 transition-all duration-200 cursor-pointer"
+          >
+            Book a Call &rarr;
+          </button>
+        </div>
       )}
     </div>
   );
