@@ -88,7 +88,7 @@
         "Code Review: run code-reviewer agent to verify schema validity"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "Read tasks/docs/seo-aeo-geo-requirements.md (Requirement 8). Case study Article schemas have datePublished but not dateModified. Pillar Service schemas have no dates at all. Use general-purpose agent."
     },
     {

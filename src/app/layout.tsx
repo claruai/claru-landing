@@ -101,6 +101,63 @@ export const metadata: Metadata = {
   },
 };
 
+// Organization + WebSite JSON-LD (US-002)
+const globalJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://claru.ai/#organization",
+      name: "Claru",
+      legalName: "Reka AI Inc.",
+      url: "https://claru.ai",
+      logo: {
+        "@type": "ImageObject",
+        "@id": "https://claru.ai/#logo",
+        url: "https://claru.ai/android-chrome-512x512.png",
+        width: 512,
+        height: 512,
+        caption: "Claru",
+      },
+      image: { "@id": "https://claru.ai/#logo" },
+      description:
+        "Purpose-built human annotation data for frontier AI labs, specializing in text, vision, video, and robotics modalities.",
+      foundingDate: "2024",
+      contactPoint: {
+        "@type": "ContactPoint",
+        contactType: "sales",
+        email: "team@claru.ai",
+        url: "https://claru.ai/#contact",
+      },
+      sameAs: [
+        "https://github.com/claruai",
+        "https://www.linkedin.com/company/claruai",
+      ],
+      knowsAbout: [
+        "AI training data",
+        "Data annotation",
+        "RLHF",
+        "Egocentric video data",
+        "Robotics training data",
+        "Video generation training data",
+        "Expert annotation",
+        "Synthetic data generation",
+        "Multimodal AI data",
+        "Vision model annotation",
+      ],
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://claru.ai/#website",
+      url: "https://claru.ai",
+      name: "Claru",
+      description:
+        "Purpose-built training data for frontier AI labs.",
+      publisher: { "@id": "https://claru.ai/#organization" },
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -116,6 +173,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${jetbrainsMono.variable} antialiased`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(globalJsonLd) }}
+        />
         <MotionProvider>
           <CalendlyProvider>
             {children}
