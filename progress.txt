@@ -1,35 +1,7 @@
 # Progress Log
 
-Started: Wed Mar 12 2026
-Project: Reka Data Catalog Expansion
-Goal: Expand dataset catalog with source_type/modality, 13 new datasets, badges, admin form updates
+Started: Thu Mar 13 2026
+Project: Personalized Prospect Pages
+Goal: Build custom deal room pages at /for/[company] with shared components, PostHog tracking, 30-day expiry. First page: /for/rime.
 
 ---
-
-## US-001: Add source_type and modality columns
-**What I did:** Applied Supabase migration adding source_type TEXT NOT NULL DEFAULT 'collected' with CHECK constraint and modality TEXT (nullable). Existing rows got source_type='collected' automatically.
-**Files changed:** Supabase migration only (no code files)
-
-## US-002: Backfill modality + create new categories
-**What I did:** Set modality on all 15 existing datasets (11 video_text, 3 image_text, 1 mixed). Created 6 new categories: Multimodal Instruction Tuning, Speech & Audio, Code & Math Reasoning, Document Understanding, Video Understanding, Large-Scale Pretraining.
-**Files changed:** Supabase data only
-
-## US-003–005: Seed synthetic + curated datasets
-**What I did:** Inserted 8 synthetic datasets and 5 curated datasets, all is_published=true. Also added 'instruction' and 'generation' to datasets_type_check constraint.
-**Files changed:** Supabase data only
-
-## US-006: Update PublicDataset type + API
-**What I did:** Added source_type and modality to PublicDataset interface and the public API SELECT/mapping.
-**Files changed:** src/types/data-catalog.ts, src/app/api/public/datasets/route.ts
-
-## US-007: Source type badge on card
-**What I did:** Added conditional badge rendering between category and name. No badge for 'collected', 'SYNTHETIC' pill for synthetic, 'CURATED · TRAINING-READY' pill for curated.
-**Files changed:** src/app/components/catalog/PublicDatasetCard.tsx
-
-## US-008: Admin form source_type + modality
-**What I did:** Added source_type and modality dropdowns to DatasetForm, updated admin POST and PATCH API routes.
-**Files changed:** src/app/admin/catalog/DatasetForm.tsx, src/types/data-catalog.ts, src/app/api/admin/catalog/route.ts, src/app/api/admin/catalog/[id]/route.ts
-
-## Homepage CatalogPreview section
-**What I did:** Added Data Library section with animated counters (3.7M+, 25+, 8), domain pill cloud, two-row auto-scrolling marquee of featured datasets with accordion expansion, and dual CTAs.
-**Files changed:** src/app/components/sections/CatalogPreview.tsx, src/app/page.tsx

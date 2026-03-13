@@ -1,23 +1,16 @@
 /**
- * Case study utilities.
+ * Client-safe subset of case study utilities.
  *
- * This module provides two layers:
+ * This module re-exports the lightweight metadata mapping and lookup helpers
+ * from case-studies.ts WITHOUT the Node-dependent filesystem functions.
+ * Safe to import from 'use client' components.
  *
- * 1. **CASE_STUDIES** — A lightweight const mapping of slug → metadata
- *    (title, description, tags, url). Safe to import from both client and
- *    server components since it has no Node dependencies.
- *
- * 2. **Filesystem helpers** (`getAllCaseStudies`, `getCaseStudyBySlug`, etc.)
- *    — Server-only functions that read full case study JSON files from
- *    `src/data/case-studies/`. These depend on Node `fs` and `path` modules.
+ * The canonical data lives in src/lib/case-studies.ts — if you add or update a
+ * case study, update it there and re-export here.
  */
 
-import fs from 'fs';
-import path from 'path';
-import type { CaseStudy, CaseStudyCategory } from '@/types/case-study';
-
 // ---------------------------------------------------------------------------
-// Lightweight case study metadata mapping (client + server safe)
+// Types
 // ---------------------------------------------------------------------------
 
 /** Metadata for a case study used in prospect pages and card components. */
@@ -42,12 +35,10 @@ export type CaseStudySlug =
   | 'game-based-data-capture'
   | 'egocentric-video-collection';
 
-/**
- * Static mapping of every published case study slug to its metadata.
- *
- * This object is intentionally kept as a plain const so it can be imported
- * from client components without pulling in Node modules.
- */
+// ---------------------------------------------------------------------------
+// Static mapping (mirrors src/lib/case-studies.ts — keep in sync)
+// ---------------------------------------------------------------------------
+
 export const CASE_STUDIES: Record<CaseStudySlug, CaseStudyMeta> = {
   'red-teaming-moderation': {
     title: 'Building and Red-Teaming an AI Content Moderation System',
@@ -128,6 +119,10 @@ export const CASE_STUDIES: Record<CaseStudySlug, CaseStudyMeta> = {
   },
 } as const;
 
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
 /**
  * Look up case study metadata by slug.
  *
@@ -136,129 +131,4 @@ export const CASE_STUDIES: Record<CaseStudySlug, CaseStudyMeta> = {
  */
 export function getCaseStudy(slug: string): CaseStudyMeta | undefined {
   return CASE_STUDIES[slug as CaseStudySlug];
-}
-
-/**
- * Return all case studies whose tags include the given tag.
- *
- * @param tag - A keyword to match against each case study's `tags` array.
- * @returns An array of `[slug, meta]` tuples for every matching case study.
- */
-export function getCaseStudiesByTag(
-  tag: string,
-): [CaseStudySlug, CaseStudyMeta][] {
-  return (
-    Object.entries(CASE_STUDIES) as [CaseStudySlug, CaseStudyMeta][]
-  ).filter(([, meta]) => meta.tags.includes(tag));
-}
-
-/** Absolute path to the directory containing case study JSON files. */
-const CASE_STUDIES_DIR = path.join(process.cwd(), 'src/data/case-studies');
-
-/**
- * Read and parse a single case study JSON file.
- *
- * Returns `null` when the file does not exist or cannot be parsed.
- */
-function readCaseStudyFile(filePath: string): CaseStudy | null {
-  try {
-    const raw = fs.readFileSync(filePath, 'utf-8');
-    return JSON.parse(raw) as CaseStudy;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Return every case study on disk.
- *
- * @returns An array of {@link CaseStudy} objects sorted by `datePublished`
- *   descending (newest first).
- */
-export function getAllCaseStudies(): CaseStudy[] {
-  if (!fs.existsSync(CASE_STUDIES_DIR)) {
-    return [];
-  }
-
-  const files = fs.readdirSync(CASE_STUDIES_DIR).filter((f) => f.endsWith('.json'));
-
-  const caseStudies: CaseStudy[] = [];
-
-  for (const file of files) {
-    const caseStudy = readCaseStudyFile(path.join(CASE_STUDIES_DIR, file));
-    if (!caseStudy) continue;
-    caseStudies.push(caseStudy);
-  }
-
-  // Sort newest first by datePublished.
-  caseStudies.sort(
-    (a, b) =>
-      new Date(b.datePublished).getTime() - new Date(a.datePublished).getTime(),
-  );
-
-  return caseStudies;
-}
-
-/**
- * Look up a single case study by its slug.
- *
- * The slug corresponds to the JSON filename (without the `.json` extension).
- *
- * @returns The matching {@link CaseStudy} or `null` if no file exists for the
- *   given slug.
- */
-export function getCaseStudyBySlug(slug: string): CaseStudy | null {
-  const filePath = path.join(CASE_STUDIES_DIR, `${slug}.json`);
-  return readCaseStudyFile(filePath);
-}
-
-/**
- * Return all case studies that belong to a specific category.
- *
- * @param category - One of the valid {@link CaseStudyCategory} values.
- * @returns An array of matching {@link CaseStudy} objects sorted by
- *   `datePublished` descending (newest first).
- */
-export function getCaseStudiesByCategory(
-  category: CaseStudyCategory | string,
-): CaseStudy[] {
-  return getAllCaseStudies().filter((cs) => cs.category === category);
-}
-
-/**
- * Return case studies related to the given slug.
- *
- * Uses the `relatedSlugs` field from the source case study to look up related
- * entries. Falls back to same-category case studies if a related slug cannot
- * be resolved.
- *
- * @param slug - The slug of the source case study.
- * @param limit - Maximum number of related case studies to return. Defaults to 3.
- * @returns An array of {@link CaseStudy} objects (up to `limit`).
- */
-export function getRelatedCaseStudies(slug: string, limit = 3): CaseStudy[] {
-  const source = getCaseStudyBySlug(slug);
-  if (!source) return [];
-
-  const related: CaseStudy[] = [];
-
-  // First, resolve explicitly listed related slugs.
-  for (const relatedSlug of source.relatedSlugs) {
-    if (related.length >= limit) break;
-    const cs = getCaseStudyBySlug(relatedSlug);
-    if (cs) related.push(cs);
-  }
-
-  // If we still need more, fill from the same category.
-  if (related.length < limit) {
-    const sameCategory = getCaseStudiesByCategory(source.category).filter(
-      (cs) => cs.slug !== slug && !related.some((r) => r.slug === cs.slug),
-    );
-    for (const cs of sameCategory) {
-      if (related.length >= limit) break;
-      related.push(cs);
-    }
-  }
-
-  return related;
 }

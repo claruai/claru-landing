@@ -80,6 +80,7 @@ export interface Lead {
   status: LeadStatus;
   admin_notes: string;
   supabase_user_id: string | null;
+  custom_page_slug: string | null;
   created_at: string;
   updated_at: string;
 }

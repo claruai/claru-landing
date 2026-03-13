@@ -1,167 +1,247 @@
 {
-  "project": "Reka Data Catalog Expansion",
-  "branchName": "ralph/reka-data-catalog-expansion",
-  "description": "Expand dataset catalog with source_type/modality columns, 6 new categories, 8 synthetic datasets, 5 curated datasets, source badges on public cards, and admin form updates.",
+  "project": "Personalized Prospect Pages",
+  "branchName": "ralph/prospect-pages",
+  "description": "Custom deal room pages at /for/[company] combining hand-crafted prospect narratives with shared dynamic components. Dark terminal aesthetic, PostHog tracking, 30-day expiry, noindex privacy. First page: /for/rime.",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Add source_type and modality columns to datasets table",
-      "description": "As a developer, I need source_type and modality columns on the datasets table to classify datasets by provenance and data modality.",
+      "title": "Shared Case Study Mapping",
+      "description": "As a developer, I need a case study metadata mapping so prospect pages can reference case studies by slug.",
       "acceptanceCriteria": [
-        "Create Supabase migration via MCP (mcp__supabase-db__apply_migration) adding: source_type TEXT NOT NULL DEFAULT 'collected', modality TEXT (nullable)",
-        "Add CHECK constraint on source_type: source_type IN ('collected', 'synthetic', 'curated')",
-        "No CHECK constraint on modality (keep flexible)",
-        "Existing rows automatically get source_type = 'collected' from DEFAULT",
-        "Verify migration applied: SELECT column_name FROM information_schema.columns WHERE table_name = 'datasets' AND column_name IN ('source_type', 'modality') — returns 2 rows",
+        "Create src/lib/case-studies.ts with a CASE_STUDIES const object mapping slug to { title, description, tags, url }",
+        "Include all 11 published case studies: red-teaming-moderation, video-quality-at-scale, video-content-classification, prompt-enhancement-benchmark, object-identity-persistence, workplace-egocentric-data, video-model-evaluation, generative-ai-safety, fashion-ai-annotation, game-based-data-capture, egocentric-video-collection",
+        "Tags include relevant keywords (video, annotation, robotics, safety, gaming, speech, content-moderation, manufacturing, fashion, egocentric)",
+        "Export getCaseStudy(slug) helper and getCaseStudiesByTag(tag) helper",
         "Typecheck passes"
       ],
       "priority": 1,
       "passes": true,
-      "notes": "Use mcp__supabase-db__apply_migration to run the migration. The migration SQL is: ALTER TABLE datasets ADD COLUMN source_type TEXT NOT NULL DEFAULT 'collected' CHECK (source_type IN ('collected', 'synthetic', 'curated')); ALTER TABLE datasets ADD COLUMN modality TEXT; Then verify with mcp__supabase-db__execute_sql."
+      "notes": "Case studies are static Next.js pages at /case-studies/[slug]. No Supabase table. This mapping provides metadata for the CaseStudyCard component. Check the live site at claru.ai/case-studies for titles and descriptions. | COMPLETED by background agent"
     },
     {
       "id": "US-002",
-      "title": "Backfill existing datasets with modality and create new categories",
-      "description": "As a developer, I need to set modality on all existing datasets and create 6 new categories for expanded data domains.",
+      "title": "CaseStudyCard Component",
+      "description": "As a prospect viewing the page, I want to see relevant case studies as rich cards.",
       "acceptanceCriteria": [
-        "Run SQL to set modality on all 15 existing datasets: video_text for all video/evaluation datasets, image_text for Object & Face Identity Matching + AI Image Generation Evaluation + Product Image Annotation, mixed for Content Safety & Policy Review",
-        "Insert 6 new categories into dataset_categories: Multimodal Instruction Tuning (slug: multimodal-instruction-tuning, display_order: 9), Speech & Audio (slug: speech-audio, display_order: 10), Code & Math Reasoning (slug: code-math-reasoning, display_order: 11), Document Understanding (slug: document-understanding, display_order: 12), Video Understanding (slug: video-understanding, display_order: 13), Large-Scale Pretraining (slug: large-scale-pretraining, display_order: 14)",
-        "Verify: SELECT name, source_type, modality FROM datasets WHERE modality IS NULL — returns 0 rows",
-        "Verify: SELECT count(*) FROM dataset_categories — returns 15 (9 old + 6 new)",
+        "Create src/app/components/prospect/CaseStudyCard.tsx as a client component ('use client')",
+        "Props: slug: string (looks up from CASE_STUDIES mapping in src/lib/case-studies.ts)",
+        "Displays: title, description (line-clamp-2), tags as pills, 'Read Case Study \u2192' link",
+        "Dark card style: bg #121210, border #2a2a28, accent #92B090, text #FFFFFF",
+        "Framer Motion fade-in animation on scroll using whileInView",
+        "Case study links open in new tab with rel='noopener noreferrer'",
+        "Gracefully render 'Unavailable' state when slug not found \u2014 do NOT throw",
+        "Responsive: full-width on mobile, side-by-side grid on desktop",
         "Typecheck passes"
       ],
       "priority": 2,
       "passes": true,
-      "notes": "Use mcp__supabase-db__execute_sql for all SQL. Modality mapping: Egocentric Activity Capture → video_text, Traffic & Transportation → video_text, Workplace Activities → video_text, Cinematic Action Footage → video_text, Henri Halle → video_text, Game Environment Capture → video_text, all Video Evaluation datasets → video_text, Object & Face Identity → image_text, AI Image Generation Eval → image_text, Product Image Annotation → image_text, Content Safety → mixed."
+      "notes": "Depends on US-001 for the CASE_STUDIES mapping. Design should match the landing page card style from src/app/components/sections/. Use JetBrains Mono for tag pills. | COMPLETED by background agent"
     },
     {
       "id": "US-003",
-      "title": "Seed Tier 1 synthetic datasets (batch 1 of 2)",
-      "description": "As a developer, I need to create the first 4 proprietary synthetic dataset entries.",
+      "title": "DatasetShowcase Component",
+      "description": "As a prospect, I want to see relevant datasets from Claru's catalog.",
       "acceptanceCriteria": [
-        "Insert 4 datasets with source_type='synthetic', is_published=true. For each, look up the category_id by querying dataset_categories by slug first.",
-        "1) Multimodal Image Chat: category=multimodal-instruction-tuning, modality=image_text, total_samples=997000, type=instruction, slug=multimodal-image-chat, description='Multi-turn conversational data pairing images with instruction-following dialogues. Covers chart interpretation, financial documents, and general visual reasoning across multiple generation rounds.', annotation_types=['multi_turn_chat','instruction_following','visual_reasoning']",
-        "2) Multimodal Video Chat: category=multimodal-instruction-tuning, modality=video_text, total_samples=440000, type=instruction, slug=multimodal-video-chat, description='Multi-turn video conversation data for training models to reason about temporal sequences, actions, and events in video content.', annotation_types=['multi_turn_chat','video_reasoning','temporal_understanding']",
-        "3) Financial & Chart Reasoning: category=document-understanding, modality=image_text, total_samples=325000, type=instruction, slug=financial-chart-reasoning, description='Structured conversations around financial documents, data tables, and chart visualizations. Designed for training models to extract, interpret, and reason about quantitative visual data.', annotation_types=['chart_reasoning','table_extraction','financial_analysis']",
-        "4) Code Instruction Tuning: category=code-math-reasoning, modality=text_only, total_samples=3600000, type=instruction, slug=code-instruction-tuning, description='High-quality instruction-following data for code generation, comprehension, SQL queries, and programming tasks across multiple languages and difficulty levels.', annotation_types=['code_generation','code_comprehension','sql','instruction_following']",
-        "All 4 have total_duration_hours=0, is_published=true, source_type='synthetic'",
-        "Verify: SELECT name, source_type FROM datasets WHERE source_type='synthetic' — returns 4 rows",
+        "Create src/app/components/prospect/DatasetShowcase.tsx as an async server component",
+        "Props: datasetIds: string[] (UUIDs from Supabase datasets table)",
+        "Fetch dataset metadata using createClient with anon key (NOT createSupabaseServerClient \u2014 same pattern as src/app/api/public/datasets/route.ts)",
+        "Query MUST filter is_published = true",
+        "Each card shows: name, category badge, source_type badge (COLLECTED/SYNTHETIC/CURATED), sample count, duration if applicable",
+        "Handle empty datasetIds array \u2014 hide section entirely",
+        "If any dataset ID returns null or is filtered by RLS, show 'Dataset unavailable' pill rather than crashing",
+        "Dark card style matching landing page: bg #121210, border #2a2a28, accent #92B090",
+        "Responsive: horizontal scroll on mobile, grid on desktop",
         "Typecheck passes"
       ],
       "priority": 3,
       "passes": true,
-      "notes": "Use mcp__supabase-db__execute_sql. First query category IDs: SELECT id, slug FROM dataset_categories WHERE slug IN ('multimodal-instruction-tuning','document-understanding','code-math-reasoning'). Then INSERT with those IDs."
+      "notes": "IMPORTANT: Use createClient from @supabase/supabase-js with NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY directly. Do NOT use createSupabaseServerClient which passes auth cookies and causes RLS issues (this was a bug we fixed in the public datasets API). Wrap in cache() to avoid new connections per request. Dataset type is defined in src/types/data-catalog.ts. | COMPLETED by background agent"
     },
     {
       "id": "US-004",
-      "title": "Seed Tier 1 synthetic datasets (batch 2 of 2)",
-      "description": "As a developer, I need to create the remaining 4 proprietary synthetic dataset entries.",
+      "title": "WorkforceStats Component",
+      "description": "As a prospect, I want to see Claru's operational scale.",
       "acceptanceCriteria": [
-        "Insert 4 more datasets with source_type='synthetic', is_published=true.",
-        "5) Math Visual Reasoning: category=code-math-reasoning, modality=image_text, total_samples=1700000, type=instruction, slug=math-visual-reasoning, description='Visual mathematics problems paired with step-by-step reasoning. Includes OCR-focused variants for extracting and solving equations from images of handwritten and printed mathematical content.', annotation_types=['math_reasoning','ocr','equation_solving']",
-        "6) Speech-to-Speech Training: category=speech-audio, modality=audio_audio, total_samples=3300000, type=generation, slug=speech-to-speech-training, description='Paired audio-to-audio training data for speech generation and voice synthesis models. Derived from long-form spoken content with diverse speaker characteristics.', annotation_types=['speech_synthesis','voice_conversion']",
-        "7) Text-to-Speech Training: category=speech-audio, modality=audio_text, total_samples=6500000, type=generation, slug=text-to-speech-training, description='Large-scale text-audio paired data for training text-to-speech and speech understanding models. Covers diverse reading styles, pacing, and content domains.', annotation_types=['text_to_speech','speech_understanding']",
-        "8) Synthetic OCR & Rendered Text: category=document-understanding, modality=image_text, total_samples=20000000, type=annotation, slug=synthetic-ocr-rendered-text, description='Millions of synthetically rendered text images with character-level and line-level annotations. Includes diverse fonts, rotations, lighting conditions, and background textures for robust OCR training.', annotation_types=['ocr','text_detection','character_recognition']",
-        "All 4 have total_duration_hours=0, is_published=true, source_type='synthetic'",
-        "Verify: SELECT name, source_type FROM datasets WHERE source_type='synthetic' — returns 8 rows total",
+        "Create src/app/components/prospect/WorkforceStats.tsx as a client component ('use client')",
+        "Display 4 stats in terminal-styled grid: Annotators (2,000+), Countries (14), Annotations Delivered (3M+), QA Turnaround (Same-day)",
+        "Stats are hardcoded constants in a WORKFORCE_STATS array \u2014 easy to update in one place",
+        "Animated counter effect on scroll using Framer Motion useInView + animate",
+        "JetBrains Mono font for numbers, Geist Sans for labels",
+        "Dark terminal aesthetic: bg #0a0908, accent #92B090 for numbers, #FFFFFF for labels",
+        "Responsive: 2x2 grid on mobile, 4-column on desktop",
         "Typecheck passes"
       ],
       "priority": 4,
       "passes": true,
-      "notes": "Use mcp__supabase-db__execute_sql. Query category IDs first: SELECT id, slug FROM dataset_categories WHERE slug IN ('code-math-reasoning','speech-audio','document-understanding')."
+      "notes": "Check src/app/components/sections/CatalogPreview.tsx for the existing animated counter pattern \u2014 reuse that approach. Stats should feel like a terminal readout. | COMPLETED by background agent"
     },
     {
       "id": "US-005",
-      "title": "Seed Tier 2 curated datasets",
-      "description": "As a developer, I need to create the 5 curated open-source dataset entries.",
+      "title": "CalendlyEmbed Component",
+      "description": "As a prospect, I want to book a call directly from the page.",
       "acceptanceCriteria": [
-        "Insert 5 datasets with source_type='curated', is_published=true.",
-        "1) Video Captioning & QA Collection: category=video-understanding, modality=video_text, total_samples=70000000, type=captioning, slug=video-captioning-qa-collection, description='Comprehensive video-text collection spanning captioning, question answering, and temporal reasoning tasks across diverse video domains including instructional content, movies, and real-world activities.', annotation_types=['video_captioning','video_qa','temporal_reasoning'], tags=['source:PANDA-70M','source:ActivityNet','source:MSRVTT','source:MSVD','source:FunQA','source:CinePile','source:FineVideo']",
-        "2) Document & PDF Intelligence: category=document-understanding, modality=multiple_images_text, total_samples=25000000, type=annotation, slug=document-pdf-intelligence, description='Training-ready document understanding data covering PDF parsing, table extraction, infographic interpretation, and multi-page document reasoning. Processed into distributed-training-ready shards.', annotation_types=['document_parsing','table_extraction','pdf_ocr','infographic_qa'], tags=['source:CCPDF','source:PlotQA','source:ChartLlama','source:infographics-VQA','source:TAT-DQA']",
-        "3) Audio Understanding Collection: category=speech-audio, modality=audio_text, total_samples=2600000, type=captioning, slug=audio-understanding-collection, description='Curated audio-text pairs spanning environmental sound classification, music understanding, and speech captioning. Quality-filtered and formatted for multimodal model training.', annotation_types=['audio_captioning','sound_classification','music_understanding'], tags=['source:VGGSound','source:AudioCaps','source:Freesound','source:RAVDESS','source:MusicQA']",
-        "4) Interleaved Multimodal Documents: category=large-scale-pretraining, modality=multiple_images_text, total_samples=140000000, type=pretraining, slug=interleaved-multimodal-documents, description='Web-scale interleaved image-text documents preserving natural reading order. Designed for pretraining models that understand documents with mixed visual and textual content.', annotation_types=['interleaved_pretraining','document_understanding'], tags=['source:OBELICS','source:MINT-1T','source:MMC4']",
-        "5) Image-Text Pretraining Shards: category=large-scale-pretraining, modality=image_text, total_samples=500000000, type=pretraining, slug=image-text-pretraining-shards, description='Billions of image-text pairs processed into training-ready webdataset shards. Quality-filtered, deduplicated, and validated for large-scale multimodal pretraining pipelines.', annotation_types=['image_text_pretraining','contrastive_learning'], tags=['source:DataComp','source:COYO-700M','source:CC3M','source:CC12M','source:CapsFusion']",
-        "All 5 have total_duration_hours=0, is_published=true, source_type='curated'",
-        "Verify: SELECT name, source_type FROM datasets WHERE source_type='curated' — returns 5 rows",
+        "Create src/app/components/prospect/CalendlyEmbed.tsx as a client component ('use client')",
+        "Load Calendly inline embed script dynamically \u2014 only once per page",
+        "Use a hardcoded booking URL (check Supabase settings table for current booking_url value and hardcode it)",
+        "If booking_url is misconfigured, render fallback CTA button with mailto:team@claru.ai",
+        "Inline widget (not popup) with dark theme (background_color=0a0908, text_color=ffffff, primary_color=92B090)",
+        "Section header: 'Book a Call' in JetBrains Mono",
+        "Responsive: full-width embed, min-height 650px",
         "Typecheck passes"
       ],
       "priority": 5,
       "passes": true,
-      "notes": "Use mcp__supabase-db__execute_sql. Query category IDs first: SELECT id, slug FROM dataset_categories WHERE slug IN ('video-understanding','document-understanding','speech-audio','large-scale-pretraining'). The tags array stores source dataset names for internal reference — these won't show on the public page."
+      "notes": "Calendly inline embed uses their embed.js script. Load it once in useEffect. The existing CalendlyContext in the landing page uses a popup model \u2014 this component should be self-contained with inline embed instead. Check settings table: SELECT value FROM settings WHERE key = 'booking_url'. | COMPLETED by background agent"
     },
     {
       "id": "US-006",
-      "title": "Update PublicDataset type and public API",
-      "description": "As a developer, I need the public API to return source_type and modality so the frontend can display badges.",
+      "title": "ChallengesSolutions Component",
+      "description": "As a prospect, I want to see my specific challenges mapped to Claru's solutions.",
       "acceptanceCriteria": [
-        "Add source_type (string) and modality (string | null) to PublicDataset interface in src/types/data-catalog.ts",
-        "Update src/app/api/public/datasets/route.ts to include source_type and modality in the SELECT query string",
-        "Update the response mapping to include source_type and modality in the returned object",
-        "Verify: hit /api/public/datasets — every object has source_type and modality fields",
+        "Create src/app/components/prospect/ChallengesSolutions.tsx as a client component ('use client')",
+        "Props: items: Array<{ challenge: string; solution: string }>",
+        "Two-column layout: left = 'Your Challenge' (monospace, #e8e8e8), right = 'How We Help' (accent #92B090)",
+        "Subtle connecting arrow or line between challenge and solution columns",
+        "Framer Motion stagger animation on scroll \u2014 each row animates in sequence",
+        "Section header: 'Your Challenges \u2192 Our Solutions' in JetBrains Mono",
+        "Responsive: stacks vertically on mobile (challenge above solution per item)",
         "Typecheck passes"
       ],
       "priority": 6,
       "passes": true,
-      "notes": "Read src/app/api/public/datasets/route.ts for the current SELECT and mapping. The select string needs source_type and modality added. The mapping object needs both new fields added. Read src/types/data-catalog.ts for the PublicDataset interface."
+      "notes": "This is the most custom section per prospect page \u2014 the items array is different for every company. Keep the component generic so it just renders whatever items are passed in. | COMPLETED by background agent"
     },
     {
       "id": "US-007",
-      "title": "Add source_type badge to PublicDatasetCard",
-      "description": "As a visitor, I want to see whether a dataset is synthetic or curated so I understand its provenance.",
+      "title": "ExpiryGate Component (30-day expiry)",
+      "description": "As the business owner, I want prospect pages to auto-expire after 30 days.",
       "acceptanceCriteria": [
-        "Update src/app/components/catalog/PublicDatasetCard.tsx to show a source_type badge",
-        "Badge placement: between the category label and the dataset name",
-        "Badge logic: source_type==='collected' → no badge, source_type==='synthetic' → pill 'SYNTHETIC', source_type==='curated' → pill 'CURATED · TRAINING-READY'",
-        "Badge styling: font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border border-[var(--accent-primary)]/20 text-[var(--accent-primary)]/70 bg-[var(--accent-primary)]/5 w-fit mb-1",
-        "Badge should not significantly increase card height — keep it compact (single line)",
-        "Cards with source_type='collected' look identical to before (no visual change)",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill — check that synthetic datasets show SYNTHETIC pill, curated show CURATED pill, collected show no pill"
+        "Create src/app/components/prospect/ExpiryGate.tsx as a client component ('use client')",
+        "Props: createdAt: string (ISO date), children: React.ReactNode",
+        "Compare current date to createdAt + 30 days",
+        "If expired: render graceful expired state with Claru branding \u2014 'This page is no longer available. Please contact us at team@claru.ai for updated information.'",
+        "If not expired: render children normally",
+        "Show subtle 'This page expires in X days' note when < 7 days remain",
+        "Expired state uses same dark theme, centered layout, Claru logo",
+        "Typecheck passes"
       ],
       "priority": 7,
       "passes": true,
-      "notes": "Read src/app/components/catalog/PublicDatasetCard.tsx for current card layout. The badge goes after the category <span> and before the <h3> name. Only render the badge div when source_type !== 'collected'. The PublicDataset type now has source_type from US-006."
+      "notes": "Client-side date check is the primary mechanism. Server-side ISR revalidation (revalidate: 86400) in the layout provides a backup so expired pages re-render server-side daily. | COMPLETED by background agent"
     },
     {
       "id": "US-008",
-      "title": "Update admin DatasetForm with source_type and modality",
-      "description": "As an admin, I need to set source_type and modality when creating or editing datasets.",
+      "title": "ProspectPageLayout \u2014 layout.tsx for /for/*",
+      "description": "As a developer, I need a shared layout for all prospect pages.",
       "acceptanceCriteria": [
-        "Read src/app/admin/catalog/DatasetForm.tsx to understand existing form structure",
-        "Add source_type dropdown: options 'collected' (default), 'synthetic', 'curated'. Label: 'Source Type'. Styled like existing form selects.",
-        "Add modality dropdown: options (empty/null), 'image_text', 'video_text', 'audio_text', 'text_only', 'audio_audio', 'multiple_images_text', 'audio_video_text', 'mixed'. Label: 'Modality'. Optional field.",
-        "Place both fields after the existing type field in the form layout",
-        "Both fields populate from existing dataset data when editing",
-        "Both fields save correctly on create (POST /api/admin/catalog) and update (PATCH /api/admin/catalog/[id])",
-        "Update the admin API routes to accept and persist source_type and modality if not already handled — read src/app/api/admin/catalog/route.ts (POST) and src/app/api/admin/catalog/[id]/route.ts (PATCH) to check",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Create src/app/for/layout.tsx as the layout for all /for/* routes",
+        "Export metadata with robots: { index: false, follow: false }",
+        "Set X-Robots-Tag: noindex, nofollow response header as backup",
+        "Apply dark theme matching main landing page (NOT portal theme)",
+        "Minimal header: Claru logo (links to claru.ai), no navigation links",
+        "Minimal footer: 'Prepared for [Company]' text + legal links (Privacy, Terms)",
+        "Footer includes subtle 'Shared with [Name] \u00b7 [Company]' watermark",
+        "Layout accepts children and passes through companyName and recipientName props via React context or slot pattern",
+        "Set revalidate: 86400 for ISR (server-side expiry backup)",
+        "Typecheck passes"
       ],
       "priority": 8,
       "passes": true,
-      "notes": "Read src/app/admin/catalog/DatasetForm.tsx for form structure. Read src/app/api/admin/catalog/route.ts POST handler and src/app/api/admin/catalog/[id]/route.ts PATCH handler to see which fields they accept. The PATCH handler likely builds an updateFields object — add source_type and modality to it. The POST handler may need similar updates."
+      "notes": "IMPORTANT: Check src/middleware.ts and ensure /for/* routes are NOT caught by portal auth middleware. If middleware checks portal paths, add an exclusion for /for/. The layout should NOT import posthog-js directly \u2014 tracking goes in a client wrapper component. Use the existing design system from src/app/globals.css. | COMPLETED by background agent"
     },
     {
       "id": "US-009",
-      "title": "Playwright MCP visual verification",
-      "description": "As QA, I need to verify the expanded catalog renders correctly with new datasets and badges.",
+      "title": "Privacy & SEO \u2014 robots.txt update",
+      "description": "As the business owner, I want prospect pages excluded from search engines.",
       "acceptanceCriteria": [
-        "Navigate to localhost:3005/data-catalog",
-        "Scroll to BROWSE THE CATALOG section, take screenshot",
-        "Verify new category pills appear: Multimodal Instruction Tuning, Speech & Audio, Code & Math Reasoning, Document Understanding, Video Understanding, Large-Scale Pretraining",
-        "Click 'Multimodal Instruction Tuning' pill — verify 2 cards (Image Chat + Video Chat) with SYNTHETIC badge",
-        "Click 'Speech & Audio' pill — verify 3 cards",
-        "Click 'Large-Scale Pretraining' pill — verify 2 cards with CURATED · TRAINING-READY badge",
-        "Click 'All' pill — scroll through all datasets, verify lazy loading works",
-        "Verify collected datasets (e.g. Egocentric Activity Capture) show NO badge",
-        "Click Request Access on a synthetic dataset — verify Calendly modal opens",
-        "Resize to mobile (375px) — verify badges don't break layout, take screenshot",
-        "Check browser console for errors",
-        "Document any issues found and fix critical blockers"
+        "Add Disallow: /for/ to robots.txt (check if public/robots.txt exists, create if not)",
+        "Verify /for/ paths are NOT in any sitemap (check for sitemap generation in next-sitemap or similar)",
+        "Confirm no internal links from public pages point to /for/* routes (grep codebase)",
+        "Typecheck passes"
       ],
       "priority": 9,
       "passes": true,
-      "notes": "Dev server on port 3005. Use Playwright MCP tools. The public API uses anon key (createClient without cookies) so all published datasets should be visible. There should be 25 total published datasets: 12 existing collected + 8 synthetic + 5 curated."
+      "notes": "The noindex meta tag is handled in US-008 layout. This story handles robots.txt and sitemap exclusion as defense-in-depth. | COMPLETED by background agent"
+    },
+    {
+      "id": "US-010",
+      "title": "PostHog Tracking Hook for Prospect Pages",
+      "description": "As the sales team, I want to track prospect engagement on their pages.",
+      "acceptanceCriteria": [
+        "Create src/app/components/prospect/ProspectTracking.tsx as a client component ('use client')",
+        "Props: companySlug: string, companyName: string",
+        "Fire prospect_page_viewed event on mount with { company_slug, company_name, utm_source: 'prospect_page' }",
+        "Track prospect_page_scroll_depth at 25%, 50%, 75%, 100% thresholds \u2014 throttled to once per 3s",
+        "Track prospect_section_viewed via IntersectionObserver when each section enters viewport with { company_slug, section_name }",
+        "Track prospect_page_time_spent on page visibility change / unload with { company_slug, seconds_spent }",
+        "Track cta_clicked for Calendly or mailto clicks with { company_slug, cta_type }",
+        "Track case_study_clicked with { company_slug, case_study_slug }",
+        "All PostHog events include utm_source: 'prospect_page' property",
+        "PostHog logic must NOT be imported in server components",
+        "Use existing posthog-js setup (check for PostHogProvider in root layout or posthog init)",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": true,
+      "notes": "Check if posthog-js is already installed and initialized. If not, install it and add a basic init. The section tracking needs data-section attributes on each section wrapper in the prospect page. Export a useProspectTracking hook and a SectionTracker wrapper component. | COMPLETED by background agent"
+    },
+    {
+      "id": "US-011",
+      "title": "Supabase Schema \u2014 custom_page_slug on leads",
+      "description": "As a developer, I need to track which leads have custom prospect pages.",
+      "acceptanceCriteria": [
+        "Add custom_page_slug column (text, nullable, unique) to leads table via Supabase migration using mcp__supabase-db__apply_migration",
+        "Update Lead interface in src/types/data-catalog.ts to include custom_page_slug: string | null",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": true,
+      "notes": "Use the Supabase MCP tool: mcp__supabase-db__apply_migration. Migration SQL: ALTER TABLE leads ADD COLUMN custom_page_slug text UNIQUE; No RLS changes needed. | COMPLETED by background agent"
+    },
+    {
+      "id": "US-012",
+      "title": "/for/rime \u2014 Rime prospect page content and copy",
+      "description": "As Lily at Rime, I want to see a personalized page showing Claru understands my annotation challenges.",
+      "acceptanceCriteria": [
+        "Create src/app/for/rime/page.tsx as a static page",
+        "Set PAGE_CREATED constant to today's date for expiry tracking",
+        "Wrap content in ExpiryGate with createdAt={PAGE_CREATED}",
+        "Include ProspectTracking component with companySlug='rime' companyName='Rime'",
+        "Hero section: 'Prepared for Rime' with brief context about TTS/speech AI and multilingual annotation needs",
+        "ChallengesSolutions with 3 items: (1) Hiring annotation experts across 10+ languages \u2192 Managed annotator workforce with native speakers, (2) Building annotation guidelines per language from scratch \u2192 Proven annotation protocols with linguistic QA, (3) Quality control across diverse annotators \u2192 Same-day QA pipeline with multi-reviewer consensus",
+        "2-3 CaseStudyCards using slugs: video-quality-at-scale, video-content-classification (closest proxies for annotation-at-scale)",
+        "DatasetShowcase \u2014 select 2-3 relevant published dataset IDs (query Supabase to find annotation-heavy datasets)",
+        "WorkforceStats section",
+        "CalendlyEmbed at bottom",
+        "Pass companyName='Rime' and recipientName='Lily' to layout context for footer personalization",
+        "Page matches dark terminal aesthetic with Framer Motion animations",
+        "Responsive across desktop, tablet, mobile",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": true,
+      "notes": "This is the template page \u2014 future prospect pages will be created by copying this file and changing the custom content. Section order: Hero \u2192 Challenges/Solutions \u2192 Case Studies \u2192 Datasets \u2192 Workforce Stats \u2192 Book a Call. Design system: bg #0a0908, accent #92B090, text #FFFFFF, fonts Geist Sans + JetBrains Mono. Check src/app/globals.css for existing CSS variables and classes. | COMPLETED by background agent"
+    },
+    {
+      "id": "US-013",
+      "title": "Visual QA \u2014 verify /for/rime in browser",
+      "description": "As QA, I need to verify the Rime prospect page renders correctly across viewports.",
+      "acceptanceCriteria": [
+        "Run dev server on port 3000 or 3005",
+        "Navigate to /for/rime in browser",
+        "Take screenshots at: hero, challenges/solutions, case studies, datasets, workforce stats, calendly",
+        "Verify all 6 sections render with content (no blank sections)",
+        "Verify noindex meta tag is present in page source",
+        "Verify dark theme is applied (not portal theme or light theme)",
+        "Verify responsive at desktop (1440px) and mobile (375px)",
+        "Verify case study links open in new tab",
+        "Verify no console errors",
+        "Fix any critical visual issues found",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": true,
+      "notes": "Use Playwright MCP or agent-browser skill to automate screenshots. If dev server isn't running, start it with npm run dev -- --port 3005. Check that middleware doesn't redirect /for/rime to login. | COMPLETED - all sections render, noindex present, responsive works, zero console errors"
     }
   ]
 }
