@@ -1,0 +1,223 @@
+{
+  "project": "Database Verification & Re-qualification",
+  "branchName": "ralph/database-verification",
+  "description": "Systematically verify every claim in the 100-company Target Customers Notion database. Deep research each company, re-scan job boards, re-qualify against ICP, fix errors, flag unverified data, and add new companies discovered during research.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Verify Tier 1 remaining batch (5 companies)",
+      "description": "As the verification system, I need to deep-research and verify 5 unverified Tier 1 companies.",
+      "acceptanceCriteria": [
+        "Query Notion database (data_source_id: 2e2cef67-3196-8066-8f74-000b5a3d9de9) for Tier 1 companies where Claru Fit Analysis does NOT start with '✅ VERIFIED BATCH'",
+        "Select first 5 by company name alphabetically",
+        "For each company: deploy web-research-specialist agent to verify ALL fields with source URLs",
+        "For each company: visit actual careers/jobs page, find CURRENT job posting URLs, copy verbatim JD text for data/annotation roles",
+        "For each company: verify founder names, titles, current status with LinkedIn URLs",
+        "For each company: verify funding from press releases (not assumed)",
+        "For each company: verify contact email from a public source (mark VERIFIED/PATTERN/UNVERIFIED)",
+        "Compare research to current Notion values, document discrepancies",
+        "Re-qualify each company: score 0-2 on each dimension (model training evidence, data intensity, stage fit, buyer access, hiring signal). Tier 1 >= 8, Tier 2 = 6-7, Tier 3 = 4-5, Monitor = 2-3, Disqualified = hard-fail or <=1",
+        "Update Notion: overwrite Stage, Founder/POC, Contact Email, Notes with verified data. Rewrite Claru Fit Analysis starting with '✅ VERIFIED BATCH [date]' followed by sourced hiring signals and qualification score",
+        "If any company should change tier based on verified evidence, update Outreach Tier",
+        "Log batch results to progress.txt"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "STATELESS EXECUTION: This is iteration 1. Query Notion for Tier 1 companies where 'Claru Fit Analysis' does NOT start with '✅ VERIFIED BATCH'. Pick first 5 alphabetically. Skip these 10 already-verified companies: Parametric, Lightscreen AI, Tuesday Lab, CraftStory, Cerrion, Genesis AI, DYNA Robotics, Coram AI, Sereact, Protex AI.\n\nNOTION CONFIG: data_source_id = 2e2cef67-3196-8066-8f74-000b5a3d9de9\n\nSCORING RUBRIC (0-2 each, max 10):\n- Model training evidence: 0=API wrapper/unknown, 1=likely trains models, 2=confirmed proprietary model training\n- Data intensity: 0=no data need, 1=implicit need, 2=explicit data/annotation need (job posting or stated)\n- Stage/team fit: 0=too big/too small, 1=borderline, 2=sweet spot (Seed-Series B, 5-100 people)\n- Buyer access: 0=no contact/no intro, 1=generic email only, 2=verified founder email or warm intro\n- Hiring signal: 0=no roles, 1=adjacent roles, 2=active data/annotation/labeling roles with URLs\n\nTIER THRESHOLDS: >=8 Tier 1, 6-7 Tier 2, 4-5 Tier 3, 2-3 Monitor, <=1 or hard-fail Disqualified\n\nHARD DISQUALIFIERS: competitor (sells data/annotation), acquired/shut down, Chinese-only investors with no intro path, university lab with no procurement budget\n\nMINIMUM BAR FOR PRE-SEED: Keep if we know the backer AND what they build AND it maps to our ICP. Pre-seed robotics/foundation model companies ARE valid prospects.\n\nERROR HANDLING: If a company has no public website or insufficient info after 3 search attempts, set status to 'INSUFFICIENT_PUBLIC_INFO', downgrade to Monitor with reason. Preserve any partial verified facts.\n\nIf you discover a NEW company during research that fits our ICP, add it to Notion via mcp__notion__notion-create-pages with full enrichment."
+    },
+    {
+      "id": "US-002",
+      "title": "Verify Tier 1 remaining batch 2 (5 companies)",
+      "description": "As the verification system, I need to deep-research and verify the next 5 unverified Tier 1 companies.",
+      "acceptanceCriteria": [
+        "Query Notion for Tier 1 companies where Claru Fit Analysis does NOT start with '✅ VERIFIED BATCH'",
+        "Select first 5 alphabetically (these will be different from US-001 since those are now marked)",
+        "Same verification checklist as US-001: website, YC, funding, founders, job postings with URLs, team size, contact email",
+        "Same scoring rubric and tier thresholds",
+        "Update Notion with verified data, mark '✅ VERIFIED BATCH' in Claru Fit Analysis",
+        "Log batch results to progress.txt"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Same full instructions as US-001. Query Notion for Tier 1 companies where 'Claru Fit Analysis' does NOT start with '✅ VERIFIED BATCH'. Skip the 10 already-verified Outbound companies. Pick first 5 alphabetically.\n\nNOTION CONFIG: data_source_id = 2e2cef67-3196-8066-8f74-000b5a3d9de9\n\nSCORING RUBRIC (0-2 each, max 10):\n- Model training evidence: 0=API wrapper/unknown, 1=likely trains models, 2=confirmed proprietary model training\n- Data intensity: 0=no data need, 1=implicit need, 2=explicit data/annotation need (job posting or stated)\n- Stage/team fit: 0=too big/too small, 1=borderline, 2=sweet spot (Seed-Series B, 5-100 people)\n- Buyer access: 0=no contact/no intro, 1=generic email only, 2=verified founder email or warm intro\n- Hiring signal: 0=no roles, 1=adjacent roles, 2=active data/annotation/labeling roles with URLs\n\nTIER THRESHOLDS: >=8 Tier 1, 6-7 Tier 2, 4-5 Tier 3, 2-3 Monitor, <=1 or hard-fail Disqualified\n\nHARD DISQUALIFIERS: competitor, acquired/shut down, Chinese-only investors, university lab\n\nIf all Tier 1 are verified, move to Tier 2 companies instead."
+    },
+    {
+      "id": "US-003",
+      "title": "Verify Tier 2 batch 1 (5 companies)",
+      "description": "As the verification system, I need to deep-research and verify 5 unverified Tier 2 companies.",
+      "acceptanceCriteria": [
+        "Query Notion for Tier 2 companies where Claru Fit Analysis does NOT start with '✅ VERIFIED BATCH'",
+        "Select first 5 alphabetically",
+        "Same verification checklist: website, YC, funding, founders, job postings with URLs, team size, contact email",
+        "Same scoring rubric and tier thresholds",
+        "Update Notion with verified data",
+        "Log batch results to progress.txt"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "Same full instructions as US-001. Query for Tier 2 companies where 'Claru Fit Analysis' does NOT start with '✅ VERIFIED BATCH'. Pick first 5 alphabetically.\n\nNOTION CONFIG: data_source_id = 2e2cef67-3196-8066-8f74-000b5a3d9de9\n\nFull scoring rubric and tier thresholds same as US-001 notes."
+    },
+    {
+      "id": "US-004",
+      "title": "Verify Tier 2 batch 2 (5 companies)",
+      "description": "As the verification system, I need to verify the next 5 unverified Tier 2 companies.",
+      "acceptanceCriteria": ["Same as US-003"],
+      "priority": 4,
+      "passes": false,
+      "notes": "Same as US-003. Query Tier 2, pick next 5 unverified alphabetically."
+    },
+    {
+      "id": "US-005",
+      "title": "Verify Tier 2 batch 3 (5 companies)",
+      "description": "As the verification system, I need to verify the next 5 unverified Tier 2 companies.",
+      "acceptanceCriteria": ["Same as US-003"],
+      "priority": 5,
+      "passes": false,
+      "notes": "Same as US-003. Query Tier 2, pick next 5 unverified alphabetically."
+    },
+    {
+      "id": "US-006",
+      "title": "Verify Tier 2 batch 4 (5 companies)",
+      "description": "As the verification system, I need to verify the next 5 unverified Tier 2 companies.",
+      "acceptanceCriteria": ["Same as US-003"],
+      "priority": 6,
+      "passes": false,
+      "notes": "Same as US-003. Query Tier 2, pick next 5 unverified alphabetically."
+    },
+    {
+      "id": "US-007",
+      "title": "Verify Tier 2 batch 5 (5 companies)",
+      "description": "As the verification system, I need to verify the next 5 unverified Tier 2 companies.",
+      "acceptanceCriteria": ["Same as US-003"],
+      "priority": 7,
+      "passes": false,
+      "notes": "Same as US-003. Query Tier 2, pick next 5 unverified alphabetically."
+    },
+    {
+      "id": "US-008",
+      "title": "Verify Tier 2 batch 6 (5 companies)",
+      "description": "As the verification system, I need to verify the next 5 unverified Tier 2 companies.",
+      "acceptanceCriteria": ["Same as US-003"],
+      "priority": 8,
+      "passes": false,
+      "notes": "Same as US-003. Query Tier 2, pick next 5 unverified alphabetically."
+    },
+    {
+      "id": "US-009",
+      "title": "Verify Tier 2 batch 7 (5 companies)",
+      "description": "As the verification system, I need to verify the next 5 unverified Tier 2 companies.",
+      "acceptanceCriteria": ["Same as US-003"],
+      "priority": 9,
+      "passes": false,
+      "notes": "Same as US-003. Query Tier 2, pick next 5 unverified alphabetically. If fewer than 5 Tier 2 remain, verify whatever is left."
+    },
+    {
+      "id": "US-010",
+      "title": "Verify Tier 3 + Monitor batch 1 (5 companies)",
+      "description": "As the verification system, I need to verify 5 unverified Tier 3 or Monitor companies.",
+      "acceptanceCriteria": [
+        "Query Notion for Tier 3 companies where Claru Fit Analysis does NOT start with '✅ VERIFIED BATCH'. If fewer than 5, also pull Monitor companies to fill the batch.",
+        "Same verification checklist and scoring rubric",
+        "Re-evaluate: should any Tier 3 be upgraded based on verified hiring signals?",
+        "Re-evaluate: should any Monitor be upgraded based on verified data?",
+        "Update Notion, log to progress.txt"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": "Same full instructions as US-001. Query Tier 3 first, then Monitor to fill batch of 5. Same scoring rubric.\n\nNOTION CONFIG: data_source_id = 2e2cef67-3196-8066-8f74-000b5a3d9de9"
+    },
+    {
+      "id": "US-011",
+      "title": "Verify Monitor batch 2 (5 companies)",
+      "description": "As the verification system, I need to verify 5 unverified Monitor companies.",
+      "acceptanceCriteria": ["Same as US-010 but for Monitor companies only"],
+      "priority": 11,
+      "passes": false,
+      "notes": "Query Monitor companies where 'Claru Fit Analysis' does NOT start with '✅ VERIFIED BATCH'. Pick 5 alphabetically. Same rubric."
+    },
+    {
+      "id": "US-012",
+      "title": "Verify Monitor batch 3 (5 companies)",
+      "description": "As the verification system, I need to verify the next 5 unverified Monitor companies.",
+      "acceptanceCriteria": ["Same as US-011"],
+      "priority": 12,
+      "passes": false,
+      "notes": "Same as US-011. Pick next 5 unverified Monitor companies."
+    },
+    {
+      "id": "US-013",
+      "title": "Verify Disqualified batch 1 (5 companies)",
+      "description": "As the verification system, I need to verify 5 Disqualified companies to check if any should be upgraded.",
+      "acceptanceCriteria": [
+        "Query Notion for Disqualified companies where Claru Fit Analysis does NOT start with '✅ VERIFIED BATCH'",
+        "Same verification checklist — especially re-scan job boards for data/annotation roles",
+        "Re-evaluate: should any be upgraded? (like Nuro and Waabi were upgraded earlier based on hiring signals)",
+        "Confirm disqualification reason still holds with verified data",
+        "Update Notion, log to progress.txt"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": "Query Disqualified companies where 'Claru Fit Analysis' does NOT start with '✅ VERIFIED BATCH'. Pick 5 alphabetically. Same scoring rubric. PAY SPECIAL ATTENTION to job boards — a Disqualified company hiring for data/annotation roles should be upgraded.\n\nNOTION CONFIG: data_source_id = 2e2cef67-3196-8066-8f74-000b5a3d9de9"
+    },
+    {
+      "id": "US-014",
+      "title": "Verify Disqualified batch 2 (5 companies)",
+      "description": "As the verification system, I need to verify the next 5 Disqualified companies.",
+      "acceptanceCriteria": ["Same as US-013"],
+      "priority": 14,
+      "passes": false,
+      "notes": "Same as US-013. Pick next 5 unverified Disqualified companies."
+    },
+    {
+      "id": "US-015",
+      "title": "Verify Disqualified batch 3 (5 companies)",
+      "description": "As the verification system, I need to verify the next 5 Disqualified companies.",
+      "acceptanceCriteria": ["Same as US-013"],
+      "priority": 15,
+      "passes": false,
+      "notes": "Same as US-013. Pick next 5 unverified Disqualified companies."
+    },
+    {
+      "id": "US-016",
+      "title": "Verify Disqualified batch 4 (5 companies)",
+      "description": "As the verification system, I need to verify the next 5 Disqualified companies.",
+      "acceptanceCriteria": ["Same as US-013"],
+      "priority": 16,
+      "passes": false,
+      "notes": "Same as US-013. Pick next 5 unverified Disqualified companies."
+    },
+    {
+      "id": "US-017",
+      "title": "Verify remaining unverified companies",
+      "description": "As the verification system, I need to verify any remaining unverified companies across all tiers.",
+      "acceptanceCriteria": [
+        "Query Notion for ANY company where Claru Fit Analysis does NOT start with '✅ VERIFIED BATCH'",
+        "Verify all remaining (may be fewer than 5)",
+        "Same checklist and scoring rubric",
+        "Update Notion, log to progress.txt"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": "Catch-all for any companies missed by earlier batches. Query ALL tiers for unverified entries. Same rubric.\n\nNOTION CONFIG: data_source_id = 2e2cef67-3196-8066-8f74-000b5a3d9de9"
+    },
+    {
+      "id": "US-018",
+      "title": "Final QA sweep + Outbound page update",
+      "description": "As QA, I need to run a final consistency check and update the 1st Wave Outbound page if needed.",
+      "acceptanceCriteria": [
+        "Query ALL companies from Notion",
+        "Check: every Tier 1/2/3 company has '✅ VERIFIED BATCH' in Claru Fit Analysis",
+        "Check: no 'via website' or generic emails in Tier 1 companies",
+        "Check: Outreach Tier consistent with qualification scores",
+        "Check: Priority consistent with Outreach Tier (no Tier 1 + Low, no Disqualified + High)",
+        "Check: no Disqualified companies with verified hiring signals for data/annotation (should have been upgraded)",
+        "If any newly discovered or upgraded companies are stronger outreach targets than the current 10 in the Outbound page, update the 1st Wave Outbound Notion page (page_id: 321cef67319680e3b396f578aa92f62c)",
+        "Generate summary: total verified, tier changes, new companies added, discrepancies fixed",
+        "Log final summary to progress.txt"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": "FINAL STORY. Query all companies. Run consistency checks. If verification produced stronger outreach candidates than the current Outbound page top 10, update that page.\n\nNOTION CONFIG:\n- Database: data_source_id = 2e2cef67-3196-8066-8f74-000b5a3d9de9\n- Outbound page: page_id = 321cef67319680e3b396f578aa92f62c\n\nOutbound page currently has these 10 companies: Parametric, Lightscreen AI, Tuesday Lab, CraftStory, Cerrion, Genesis AI, DYNA Robotics, Coram AI, Sereact, Protex AI. If any verified company scores higher on the rubric + has stronger hiring signals, it should replace a weaker entry."
+    }
+  ]
+}
