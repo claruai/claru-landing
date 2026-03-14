@@ -18,7 +18,7 @@ import ProspectFooter from "../ProspectFooter";
 
 const PAGE_CREATED = "2026-03-13";
 const COMPANY_SLUG = "spaitial";
-const COMPANY_NAME = "SpAItial";
+const COMPANY_NAME = "Spaitial";
 const RECIPIENT_NAME = "Matthias";
 
 // ---------------------------------------------------------------------------
@@ -64,7 +64,7 @@ function Hero() {
           style={{ fontFamily: mono, color: "#FFFFFF" }}
         >
           Real-World Environment Data{" "}
-          <span style={{ color: accent }}>for Spatial AI</span>
+          <span style={{ color: accent }}>for Spaitial</span>
         </motion.h1>
 
         <motion.div
@@ -99,10 +99,17 @@ function Hero() {
             building with AI.
           </p>
           <p>
-            Building spatial foundation models that understand 3D environments
-            requires diverse real-world data to complement synthetic generation.
-            We&apos;ve captured video across dozens of environment types in 14
-            countries &mdash; and we think we could be useful.
+            We run a global annotator workforce of 2,000+ across 14 countries
+            and have delivered over 3 million structured annotations across
+            video, robotics, multimodal, and more. Our teams handle everything
+            from data collection and labeling to quality assurance &mdash; so
+            you can focus on building your product instead of annotation ops.
+          </p>
+          <p>
+            Building spatial foundation models requires diverse real-world
+            environment data to complement synthetic generation. We&apos;ve
+            captured video across dozens of environment types in 14 countries
+            &mdash; and we think we could be useful.
           </p>
         </motion.div>
 
