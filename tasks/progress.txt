@@ -4,3 +4,12 @@
   - Registered both in src/data/content-pages/index.ts
   - npx tsc --noEmit passes
   - prd-content-pages.json US-008 status=done, passes=true
+
+2026-03-16 | US-013 | Playwright E2E tests — all 11 solution pages verified
+  - Created tests/e2e/content-pages.spec.ts (122 tests across 11 slugs + OG image API)
+  - Data-driven pattern: parameterized across all 11 /solutions/[slug] pages
+  - Per-page tests: HTTP 200, exactly 1 h1, BreadcrumbList JSON-LD, FAQPage JSON-LD (3-5 items), Service JSON-LD, canonical URL, og:image meta, sections, external citation links (3+), FAQ accordion expand/collapse
+  - OG image API test: /api/og?title=Test&category=solution returns image
+  - All 122 tests pass on chromium (27s)
+  - npx tsc --noEmit passes
+  - prd-content-pages.json US-013 status=done, passes=true
