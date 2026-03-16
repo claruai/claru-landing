@@ -34,3 +34,20 @@ Branch: ralph/content-pages
 - bg: #0a0908, accent: #92B090, text: #FFFFFF
 - fonts: Geist Sans + JetBrains Mono
 - card bg: #121210, border: #2a2a28
+
+---
+
+## US-001: ContentPageData Type System and Data Loading Utilities [DONE]
+
+**Files created:**
+- `src/data/content-pages/types.ts` — ContentPageData, ResearchCitation, ContentSection, DatasetComparisonRow, FAQ interfaces + buildCitationMap() utility
+- `src/data/content-pages/index.ts` — Page registry with getContentPage(), getAllContentPageSlugs(), getAllContentPages(); build-time validation (missing case study JSON = throw, FAQ count outside 3-5 = warn, slug mismatch = throw)
+- `src/lib/case-studies-server.ts` — getCaseStudyData(slug), caseStudyExists(slug); reads from src/data/case-studies/{slug}.json via fs.readFileSync
+
+**Key decisions:**
+- `relatedSlugs` is REQUIRED (not optional) on ContentPageData — enforces lateral linking
+- `problem.sections` and `solution.sections` use ContentSection[] (heading + content + citationIds) instead of flat paragraphs — enables structured citation references
+- `caseStudySlugs` is a top-level field (not nested inside solution) for cleaner template prop slicing
+- Build-time validation runs on module load (when index.ts is first imported)
+- Registry uses simple Record<string, ContentPageData> — adding a page = one import + one map entry
+- `npx tsc --noEmit` passes with zero errors
