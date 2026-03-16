@@ -205,7 +205,7 @@
         "npm run build succeeds with zero errors"
       ],
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "notes": "Dependencies: ['US-005', 'US-006', 'US-007', 'US-008', 'US-009']. Agents: ['code-reviewer']. Read tasks/docs/content-pages-design.md and tasks/prd-content-pages.md for full context."
     },
     {

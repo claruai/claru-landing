@@ -684,3 +684,54 @@ All 11 data files passed AEO/GEO validation without requiring edits. The pages w
 - `src/data/content-pages/teleoperation-data.ts` — Open-TeleVision URL, keyClaim, and body text corrections
 - `tasks/prd-content-pages.json` — US-010 status: done, passes: true
 
+
+## US-011: Code Review — All Components, Data Types, SSR Rendering, JSON-LD Validity [DONE]
+
+**Date:** 2026-03-16
+**Reviewer:** Code Review Agent (code-reviewer)
+
+---
+
+### Review Scope
+
+Reviewed all new files for the /solutions content pages feature:
+- Types: types.ts, index.ts
+- Utilities: case-studies-server.ts, content-page-jsonld.ts
+- Components: ContentPageTemplate, ContentHero, ProblemSection, DatasetComparison, InlineCaseStudy, ResearchCitations, ContentFAQ, CitationLink, RelatedSolutions
+- Route: solutions/layout.tsx, solutions/[slug]/page.tsx
+- Data files: spot-checked egocentric-video-data.ts, red-teaming-data.ts, expert-rlhf-annotation.ts
+- Modified files: api/og/route.tsx, sitemap.ts, public/llms.txt
+
+### Acceptance Criteria Results
+
+| Criterion | Status |
+|-----------|--------|
+| Server components do NOT import client-only libraries | PASS |
+| Client components have 'use client' directive | PASS (only ContentFAQ) |
+| JSON-LD parses as valid JSON, validates against schema.org | PASS |
+| generateStaticParams enumerates all slugs | PASS |
+| generateMetadata produces correct canonical, OG, descriptions | PASS |
+| revalidate = 3600 set on dynamic route | PASS |
+| notFound() called for unknown slugs | PASS |
+| No any types or unsafe type assertions | PASS |
+| InlineCaseStudy gracefully handles missing case study JSONs | PASS (returns null + console.warn) |
+| npm run build succeeds with zero errors | PASS (all 11 pages statically generated) |
+
+### Non-Blocking Observations
+
+1. Breadcrumb links to /solutions but no index page exists — would 404 if clicked. Future story.
+2. ContentFAQ onKeyDown handler for Enter/Space is redundant on native <button> — harmless.
+3. RelatedSolutions has redundant null check after .filter(Boolean) — could use type predicate for cleaner types but works fine.
+
+### Verification Steps Performed
+
+- TypeScript: `npx tsc --noEmit` — zero errors
+- Grep for client-only imports in server components — none found
+- Build: `npm run build` — all 11 /solutions/ pages statically generated as SSG
+- Case study JSON existence verified for all referenced slugs
+- relatedSlugs cross-references validated against PAGE_MAP registry
+
+### Files Modified
+
+- `prd.json` — US-011 passes set to true
+
