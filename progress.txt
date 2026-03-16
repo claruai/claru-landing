@@ -735,3 +735,75 @@ Reviewed all new files for the /solutions content pages feature:
 
 - `prd.json` — US-011 passes set to true
 
+---
+
+## US-014: Playwright MCP UAT — Visual Verification [DONE]
+
+**Date:** 2026-03-16
+
+### Test Summary
+
+Visually verified 3 representative solution pages at desktop (1440px) and mobile (375px) viewports using Playwright MCP browser automation.
+
+### Pages Tested
+
+1. **Tier 1: /solutions/egocentric-video-data** (Desktop + Mobile)
+   - H1 visible: "Custom Egocentric Video Data Collection for Embodied AI"
+   - Breadcrumb nav present and clickable: Home > Solutions > Egocentric Video Data
+   - Comparison table renders with 5 datasets (Ego4D, EgoScale, EgoDex, DROID, Claru Custom)
+   - Case study metrics: 386K+ clips, 219K GoPro clips, 155K smartphone clips, ~500 contributors
+   - FAQ accordion works (tested expand/collapse on first question)
+   - CTA section visible with contact form
+   - Mobile: table converts to cards with h3 headings per dataset
+   - Console errors: 0 (desktop), 1 hydration attribute mismatch (mobile, non-critical)
+
+2. **Tier 2: /solutions/expert-rlhf-annotation** (Desktop + Mobile)
+   - Cost comparison data visible ($0.02-0.09 vs $100/annotation)
+   - Case study inline sections render: Prompt Enhancement Benchmark (180 prompts, p<0.01) and Video Quality at Scale (976K+ assessments, 85%+ calibration)
+   - Mobile: stacked layout, table converts to cards
+   - Console errors: 0 (desktop), 1 hydration attribute mismatch (mobile, non-critical)
+
+3. **Tier 3: /solutions/open-datasets-vs-custom** (Desktop + Mobile)
+   - Comparison table is primary content: Open X-Embodiment, DROID, AgiBot World, Claru Custom
+   - Case study proof section present with egocentric video collection metrics
+   - Mobile: stacked layout, table converts to cards
+   - Console errors: 1 hydration attribute mismatch (non-critical)
+
+### OG Image Verification
+
+- URL: /api/og?title=Custom%20Egocentric%20Video%20Data&category=solution
+- Renders correctly: "CLARU" branding top-left, title centered, "claru.ai" bottom-left, "SOLUTION" badge bottom-right
+- Dark background, correct typography
+
+### JSON-LD Verification
+
+- Page: /solutions/egocentric-video-data
+- Found 2 JSON-LD script tags:
+  1. Organization + WebSite schema (shared)
+  2. BreadcrumbList + Service + FAQPage schema (page-specific)
+- All schemas well-formed with proper @context, @graph, and @id references
+
+### Console Errors Summary
+
+- No JavaScript runtime errors on any page
+- Hydration attribute mismatches on mobile viewport (Next.js dev mode only, not production-blocking)
+
+### Screenshots Taken
+
+- us014-page1-desktop-1440.png
+- us014-page1-mobile-375.png
+- us014-page2-desktop-1440.png
+- us014-page2-mobile-375.png
+- us014-page3-desktop-1440.png
+- us014-page3-mobile-375.png
+- us014-og-image.png
+
+### Issues Found
+
+- **Non-critical:** Hydration attribute mismatch warnings on mobile viewport (Next.js dev mode artifact, does not occur in production builds)
+- **No critical visual issues found** — all pages render correctly at both viewports
+
+### Files Modified
+
+- `prd.json` — US-014 passes set to true
+

@@ -255,7 +255,7 @@
         "Document any visual issues and fix critical blockers"
       ],
       "priority": 14,
-      "passes": false,
+      "passes": true,
       "notes": "Dependencies: ['US-013', 'US-018']. Agents: ['general-purpose']. Read tasks/docs/content-pages-design.md and tasks/prd-content-pages.md for full context."
     },
     {
