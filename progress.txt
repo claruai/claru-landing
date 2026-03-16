@@ -201,3 +201,49 @@ Branch: ralph/content-pages
 - No banned phrases used
 - 3+ numbers per 300 words in both pages
 - Max 2 citations per first-author per page (Anthropic x1, OpenAI x1, EU x1, NIST x1, WH x1; He et al. x2 [VideoReward + Flow-DPO share paper], Tan x1, Lin x1, Wang x1)
+
+---
+
+## US-007: Tier 2 Data Files — Manipulation Trajectory Data + Expert RLHF Annotation [DONE]
+
+**Files created:**
+- `src/data/content-pages/manipulation-trajectory-data.ts` — ContentPageData for /solutions/manipulation-trajectory-data
+- `src/data/content-pages/expert-rlhf-annotation.ts` — ContentPageData for /solutions/expert-rlhf-annotation
+
+**Files modified:**
+- `src/data/content-pages/index.ts` — Imported and registered both pages in PAGE_MAP
+- `prd.json` — Set US-007 passes to true
+
+**Manipulation Trajectory Data page:**
+- 4 citations: AgiBot World (1M+ trajectories, 217 tasks, 4000 sqm, GO-1 30% improvement), DROID (76K trajectories, 350 hours, Franka-only), Open X-Embodiment (1M+ trajectories, 22 robots), GEN-0 (270K hours, company-reported)
+- 4 comparison rows: AgiBot World, DROID, Open X-Embodiment, Claru Custom
+- 3 problem sections + 4 solution sections with question-form H2s
+- Solution sections pull from egocentric-video-collection.json (386K clips, 3 pipelines, ~500 contributors, activity taxonomy) and game-based-data-capture.json (10,000+ hours, <16ms alignment, zero data loss)
+- 5 FAQs targeting action space representations, cost, hardware, throughput, QA
+- "Claru" appears 10+ times in body copy by name
+- Case studies: egocentric-video-collection, game-based-data-capture
+- pillarLinks: ["/pillars/acquire/egocentric-video"]
+- relatedSlugs: ["egocentric-video-data", "vla-training-data", "teleoperation-data"]
+
+**Expert RLHF Annotation page:**
+- 4 citations: MM-RLHF (50+ experts, 120K samples, 19.5% improvement), RLTHF (6-7% volume needed), Secrets of RLHF Part II (incorrect pairs hinder reward models), cost analysis ($100/annotation, $60K/600 batch)
+- 4 comparison rows: Crowdsourced General, Crowdsourced Specialized, In-House Expert, Claru Expert
+- 3 problem sections + 4 solution sections with question-form H2s
+- Concrete cost comparison: $0.02-0.09/label crowdsourced vs $100/annotation expert
+- Solution sections pull from prompt-enhancement-benchmark.json (180 prompts, p<0.01, 60% reuse savings) and video-quality-at-scale.json (976K assessments, 4 dimensions, 85% calibration)
+- 5 FAQs targeting cost, domains, quality maintenance, hybrid pipelines, setup time
+- "Claru" appears 10+ times in body copy by name
+- Case studies: prompt-enhancement-benchmark, video-quality-at-scale
+- pillarLinks: ["/pillars/enrich/rlhf"]
+- relatedSlugs: ["crowdsourced-vs-expert-rlhf", "video-generation-training-data", "red-teaming-data"]
+
+**Verification:**
+- `npx tsc --noEmit` passes with zero errors
+- All case study slugs reference existing JSONs (build-time validation passes)
+- Meta titles: 52 chars (manipulation), 52 chars (RLHF) — within 50-60 target
+- Meta descriptions: 159 chars (manipulation), 155 chars (RLHF) — within 150-160 target
+- All H2 headings are question-form (Why/What/How)
+- No banned phrases used
+- 3+ numbers per 300 words in both pages
+- AEO: first paragraph under each H2 is self-contained 40-80 word answer
+- GEO: proprietary Claru data points in every section (386K clips, 976K assessments, 10K hours, 85% calibration, etc.)

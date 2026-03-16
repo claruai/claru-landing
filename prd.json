@@ -131,7 +131,7 @@
         "Code review agent passes"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "Dependencies: ['US-004']. Agents: ['frontend-expert', 'web-research-specialist', 'code-reviewer']. Read tasks/docs/content-pages-design.md and tasks/prd-content-pages.md for full context."
     },
     {
@@ -166,7 +166,7 @@
         "Code review agent passes"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": "Dependencies: ['US-004']. Agents: ['frontend-expert', 'web-research-specialist', 'code-reviewer']. Read tasks/docs/content-pages-design.md and tasks/prd-content-pages.md for full context."
     },
     {

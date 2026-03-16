@@ -28,6 +28,9 @@ import simToRealData from "./sim-to-real-data";
 import teleoperationData from "./teleoperation-data";
 import videoGenerationTrainingData from "./video-generation-training-data";
 import vlaTrainingData from "./vla-training-data";
+import openDatasetsVsCustom from "./open-datasets-vs-custom";
+import crowdsourcedVsExpertRlhf from "./crowdsourced-vs-expert-rlhf";
+import euAiActRedTeaming from "./eu-ai-act-red-teaming";
 
 // ---------------------------------------------------------------------------
 // Page Map — add one entry per page file
@@ -44,6 +47,9 @@ const PAGE_MAP: Record<string, ContentPageData> = {
   "teleoperation-data": teleoperationData,
   "video-generation-training-data": videoGenerationTrainingData,
   "vla-training-data": vlaTrainingData,
+  "open-datasets-vs-custom": openDatasetsVsCustom,
+  "crowdsourced-vs-expert-rlhf": crowdsourcedVsExpertRlhf,
+  "eu-ai-act-red-teaming": euAiActRedTeaming,
 };
 
 // ---------------------------------------------------------------------------
