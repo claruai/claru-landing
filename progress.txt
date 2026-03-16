@@ -314,3 +314,9 @@ Branch: ralph/content-pages
 - EU AI Act fine structure verified: 35M/7% (prohibited), 15M/3% (other obligations)
 - RLHF page includes 3 specific failure modes with citations (not just "quality is lower")
 - Each Tier 3 page has at least 1 case study (per Codex review requirement)
+
+## US-012: Add All Solutions Pages to Sitemap
+- Imported getAllContentPages in src/app/sitemap.ts
+- Added 11 solution page entries with changeFrequency: monthly, priority: 0.8
+- Sitemap total: 93 URLs (82 existing + 11 new), no duplicates
+- Build passes, typecheck passes

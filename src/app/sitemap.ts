@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getAllCaseStudies } from "@/lib/case-studies";
 import { getAllJobs } from "@/lib/jobs";
+import { getAllContentPages } from "@/data/content-pages";
 
 const BASE = "https://claru.ai";
 
@@ -62,5 +63,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  return [...staticPages, ...caseStudyPages, ...jobPages];
+  // ── Dynamic: Solution Pages ───────────────────────────────────────
+  const solutionPages: MetadataRoute.Sitemap = getAllContentPages().map(
+    (page) => ({
+      url: `${BASE}/solutions/${page.slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })
+  );
+
+  return [...staticPages, ...caseStudyPages, ...jobPages, ...solutionPages];
 }
