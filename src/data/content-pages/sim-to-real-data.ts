@@ -184,13 +184,13 @@ const simToRealData: ContentPageData = {
     {
       id: "abb-nvidia-hyperreality-2025",
       title:
-        "HyperReality: ABB and NVIDIA Digital Twin for Industrial Robotics",
+        "ABB Robotics Partners with NVIDIA to Deliver Industrial-Grade Physical AI at Scale (RobotStudio HyperReality)",
       authors: "ABB & NVIDIA",
       venue: "ABB Technology Review",
       year: 2025,
-      url: "https://new.abb.com/news/detail/118026/abb-and-nvidia-to-bring-ai-powered-robotics-to-manufacturing",
+      url: "https://new.abb.com/news/detail/134030/prsrl-abb-robotics-partners-with-nvidia-to-deliver-industrial-grade-physical-ai-at-scale",
       keyClaim:
-        "HyperReality achieves 99% correlation between simulated and real sensor readings with 0.5mm positioning accuracy in calibrated industrial robotic cells, shipping H2 2026.",
+        "RobotStudio HyperReality achieves 99% sim-to-real correlation using NVIDIA Omniverse with ABB's virtual controller firmware; Absolute Accuracy technology reduces positioning errors from 8-15mm to 0.5mm. Available H2 2026.",
     },
     {
       id: "sim2real-vla-2026",

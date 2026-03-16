@@ -211,13 +211,13 @@ const expertRlhfAnnotation: ContentPageData = {
     {
       id: "cost-analysis-2025",
       title:
-        "The Economics of Expert Annotation for RLHF",
-      authors: "Industry analysis",
-      venue: "Industry Report",
+        "RLTHF: Targeted Human Feedback for LLM Alignment (cost context)",
+      authors: "Xu et al.",
+      venue: "arXiv",
       year: 2025,
       url: "https://arxiv.org/abs/2502.13417",
       keyClaim:
-        "Expert RLHF annotation in specialized domains costs approximately $100 per annotation ($60,000 per 600-annotation batch), compared to $0.02-0.09 per label for crowdsourced general-purpose annotation.",
+        "RLTHF framework context: expert RLHF annotation in specialized domains is reported to cost approximately $100 per annotation ($60,000 per 600-annotation batch) versus $0.02-0.09 per label for crowdsourced general-purpose annotation — figures drawn from industry practice, not from this paper directly.",
     },
   ],
 

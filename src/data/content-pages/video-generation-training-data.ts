@@ -171,13 +171,13 @@ const videoGenerationTrainingData: ContentPageData = {
   citations: [
     {
       id: "videoreward-2025",
-      title: "VideoReward: A General Reward Model for Video Generation",
-      authors: "He et al.",
+      title: "Improving Video Generation with Human Feedback",
+      authors: "Liu et al.",
       venue: "arXiv",
       year: 2025,
       url: "https://arxiv.org/abs/2501.13918",
       keyClaim:
-        "Collected 182,000 human preference annotations across 12 video generation models; reward model trained on this data outperformed automated metrics; Flow-DPO preference-aligned fine-tuning measurably improved generation quality.",
+        "Introduced VideoReward, a multi-dimensional video reward model trained on large-scale human preference annotations; Flow-DPO preference-aligned fine-tuning measurably improved generation quality over automated metrics.",
     },
     {
       id: "vidgen1m-2024",
@@ -191,13 +191,13 @@ const videoGenerationTrainingData: ContentPageData = {
     },
     {
       id: "flow-dpo-2025",
-      title: "Flow-DPO: Preference-Aligned Video Generation via Flow Matching",
-      authors: "He et al.",
+      title: "Improving Video Generation with Human Feedback (Flow-DPO)",
+      authors: "Liu et al.",
       venue: "arXiv",
       year: 2025,
       url: "https://arxiv.org/abs/2501.13918",
       keyClaim:
-        "Demonstrated that Direct Preference Optimization adapted for flow-matching video models (Flow-DPO) produces measurable quality improvements when trained on multi-dimensional human preference data.",
+        "Flow-DPO, introduced in the same paper as VideoReward, adapts Direct Preference Optimization for flow-matching video models and demonstrates superior alignment performance compared to supervised fine-tuning and Flow-RWR.",
     },
     {
       id: "genai-bench-2024",

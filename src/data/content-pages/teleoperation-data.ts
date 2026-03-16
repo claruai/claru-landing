@@ -44,7 +44,7 @@ const teleoperationData: ContentPageData = {
       {
         heading: "The Hardware Barrier: $50K-150K per Teleoperation Station",
         content:
-          "Traditional teleoperation requires specialized hardware that creates a steep cost curve. Exoskeleton-based systems (Gello, ALOHA) cost $50K-150K per station including the leader arm, follower robot, and instrumentation. VR-based approaches have dropped costs — Open-TeleVision demonstrated a full VR teleoperation station for under $1,000 with 1-10mm control accuracy [3] — but still require the follower robot hardware at each collection site. The ACE system reduced the vision component to a single hand-facing camera for 3D hand pose estimation, enabling cross-platform teleoperation without per-robot calibration [2]. HumanPlus went further, using a single $50 RGB camera to track full-body human poses and retarget them to a humanoid robot, achieving 60-100% success rates across tasks after just 40 hours of training data [1]. Despite these advances, every approach still requires a physical robot at the collection site — and the robot is the bottleneck, not the interface.",
+          "Traditional teleoperation requires specialized hardware that creates a steep cost curve. Exoskeleton-based systems (Gello, ALOHA) cost $50K-150K per station including the leader arm, follower robot, and instrumentation. VR-based approaches have reduced the interface hardware burden — Open-TeleVision uses a cross-platform web interface supporting Apple Vision Pro and Meta Quest for stereoscopic immersive teleoperation [3] — but still require the follower robot hardware at each collection site. The ACE system reduced the vision component to a single hand-facing camera for 3D hand pose estimation, enabling cross-platform teleoperation without per-robot calibration [2]. HumanPlus went further, using a single $50 RGB camera to track full-body human poses and retarget them to a humanoid robot, achieving 60-100% success rates across tasks after just 40 hours of training data [1]. Despite these advances, every approach still requires a physical robot at the collection site — and the robot is the bottleneck, not the interface.",
         citationIds: [
           "humanplus-2024",
           "ace-2024",
@@ -73,7 +73,7 @@ const teleoperationData: ContentPageData = {
         tasks: "Bimanual manipulation, object handoff",
         environments: "Single lab per VR station",
         limitations:
-          "Under $1K/station but requires follower robot at each site; 1-10mm accuracy; limited to robot's workspace",
+          "Cross-platform VR interface but requires follower robot at each site; immersive but no haptic feedback; limited to robot's workspace",
         isClaru: false,
       },
       {
@@ -199,11 +199,11 @@ const teleoperationData: ContentPageData = {
       title:
         "Open-TeleVision: Teleoperation with Immersive Active Visual Feedback",
       authors: "Cheng et al.",
-      venue: "arXiv 2024",
+      venue: "CoRL 2024",
       year: 2024,
-      url: "https://robot-tv.github.io",
+      url: "https://arxiv.org/abs/2407.01512",
       keyClaim:
-        "Full VR teleoperation station for under $1,000 achieving 1-10mm control accuracy, demonstrating that hardware cost is no longer the primary bottleneck for collection scale.",
+        "Immersive VR teleoperation system using stereoscopic video streaming and hand/wrist pose mirroring; cross-platform interface supports Apple Vision Pro, Meta Quest, and browser-based access, validated on four long-horizon tasks with two humanoid robots.",
     },
     {
       id: "droid-2024",

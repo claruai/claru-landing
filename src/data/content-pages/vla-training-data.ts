@@ -49,7 +49,7 @@ const vlaTrainingData: ContentPageData = {
         heading:
           "How Do Current Open Datasets Limit VLA Generalization?",
         content:
-          "Open VLA datasets suffer from three structural limitations. First, environment diversity is shallow: DROID spans 564 scenes across 52 institutions, but these are overwhelmingly research labs with standardized table-top setups. Second, action space representations vary across datasets, making cross-dataset training lossy. Octo addressed this by tokenizing actions into a shared representation, but at the cost of action precision for tasks requiring sub-centimeter accuracy. Third, task horizon is constrained: Open X-Embodiment's million trajectories are predominantly short-horizon pick-and-place operations, providing minimal supervision for multi-step manipulation sequences. GR00T N1.5, trained on 10,000+ hours of robot data, achieved 93.3% language-following accuracy, but required curated demonstrations with consistent action labeling across all training episodes. For labs building general-purpose VLA policies, these gaps mean that public data serves as a pre-training foundation but cannot replace task-specific, environment-specific custom collection.",
+          "Open VLA datasets suffer from three structural limitations. First, environment diversity is shallow: DROID spans 564 scenes across 13 institutions, but these are overwhelmingly research labs with standardized table-top setups. Second, action space representations vary across datasets, making cross-dataset training lossy. Octo addressed this by tokenizing actions into a shared representation, but at the cost of action precision for tasks requiring sub-centimeter accuracy. Third, task horizon is constrained: Open X-Embodiment's million trajectories are predominantly short-horizon pick-and-place operations, providing minimal supervision for multi-step manipulation sequences. GR00T N1, NVIDIA's open foundation model, requires a heterogeneous data pyramid with consistent action labeling across embodiments — the model's dual-system architecture is sensitive to label consistency. For labs building general-purpose VLA policies, these gaps mean that public data serves as a pre-training foundation but cannot replace task-specific, environment-specific custom collection.",
         citationIds: [
           "droid-2024",
           "octo-2024",
@@ -79,7 +79,7 @@ const vlaTrainingData: ContentPageData = {
         name: "DROID",
         scale: "76K trajectories, 350 hours, 564 scenes",
         tasks: "Table-top manipulation with paired video and action labels",
-        environments: "52 institutions; predominantly research lab table-top setups",
+        environments: "13 institutions; predominantly research lab table-top setups",
         limitations:
           "Lab-centric environments; fixed robot morphologies; limited to manipulation",
         isClaru: false,
@@ -128,7 +128,7 @@ const vlaTrainingData: ContentPageData = {
         heading:
           "How Does Real-World Environment Diversity Improve VLA Generalization?",
         content:
-          "GR00T N1.5 achieved 93.3% language-following accuracy but required curated data from controlled environments, limiting its ability to generalize to novel settings. Claru's collection programs specifically target the environment diversity gap that lab-collected datasets cannot fill. The workplace egocentric data project captured first-person video across 10 real workplace categories (barista, carpentry, tailoring, furniture assembly, screen printing, phone repair, and more) spanning multiple countries. Workers captured 4K video at 60 fps during normal business operations using standard smartphones. This approach produces training data containing the improvisation, physical constraints, and contextual decision-making that staged environments systematically exclude. For VLA models, this diversity translates directly to improved zero-shot generalization in unseen environments.",
+          "GR00T N1 is trained on a heterogeneous data pyramid combining real-robot trajectories, human videos, and synthetic data, but its dual-system architecture requires consistent, high-quality demonstrations across embodiments to generalize to novel settings. Claru's collection programs specifically target the environment diversity gap that lab-collected datasets cannot fill. The workplace egocentric data project captured first-person video across 10 real workplace categories (barista, carpentry, tailoring, furniture assembly, screen printing, phone repair, and more) spanning multiple countries. Workers captured 4K video at 60 fps during normal business operations using standard smartphones. This approach produces training data containing the improvisation, physical constraints, and contextual decision-making that staged environments systematically exclude. For VLA models, this diversity translates directly to improved zero-shot generalization in unseen environments.",
         citationIds: ["groot-n15-2025"],
       },
     ],
@@ -156,7 +156,7 @@ const vlaTrainingData: ContentPageData = {
       question:
         "How much VLA training data is needed for a general-purpose robot policy?",
       answer:
-        "Current benchmarks suggest hundreds of thousands of diverse trajectories. Octo trained on 800,000 trajectories from 25 datasets and outperformed prior baselines by 52%. GR00T N1.5 used 10,000+ hours. However, diversity matters more than volume: OpenVLA with 7B parameters outperformed RT-2-X at 55B by 16.5% through higher-quality demonstrations. Claru scopes collection based on your model architecture and target task distribution.",
+        "Current benchmarks suggest hundreds of thousands of diverse trajectories. Octo trained on 800,000 trajectories from 25 datasets and outperformed prior baselines by 52%. GR00T N1 uses a data pyramid spanning real-robot, human video, and synthetic data. However, diversity matters more than volume: OpenVLA with 7B parameters outperformed RT-2-X at 55B by 16.5% through higher-quality demonstrations. Claru scopes collection based on your model architecture and target task distribution.",
     },
     {
       question:
@@ -174,7 +174,7 @@ const vlaTrainingData: ContentPageData = {
       question:
         "What environments are covered in Claru's VLA training data collection?",
       answer:
-        "Claru collects across real-world environments that public datasets underrepresent. The workplace program covers 10 categories including barista stations, carpentry workshops, tailoring studios, and phone repair shops across multiple countries. The egocentric pipeline spans homes, outdoor spaces, and controlled task environments. This diversity reduces the distribution shift between training data and deployment that limits lab-collected datasets like DROID (52 institutions, primarily labs).",
+        "Claru collects across real-world environments that public datasets underrepresent. The workplace program covers 10 categories including barista stations, carpentry workshops, tailoring studios, and phone repair shops across multiple countries. The egocentric pipeline spans homes, outdoor spaces, and controlled task environments. This diversity reduces the distribution shift between training data and deployment that limits lab-collected datasets like DROID (13 institutions, primarily labs).",
     },
   ],
 
@@ -194,13 +194,13 @@ const vlaTrainingData: ContentPageData = {
     {
       id: "groot-n15-2025",
       title:
-        "GR00T N1.5: Advancing Foundation Models for Generalist Humanoid Robots",
+        "GR00T N1: An Open Foundation Model for Generalist Humanoid Robots",
       authors: "NVIDIA et al.",
       venue: "arXiv 2025",
       year: 2025,
       url: "https://arxiv.org/abs/2503.14734",
       keyClaim:
-        "Trained on 10,000+ hours of robot data, achieving 93.3% language-following accuracy; demonstrated that curated demonstrations with consistent action labeling are required for reliable policy execution.",
+        "Open VLA foundation model for humanoid robots trained on heterogeneous mixture of real-robot trajectories, human videos, and synthetic data; dual-system architecture (VLM + diffusion transformer) achieves superior manipulation results over imitation learning baselines.",
     },
     {
       id: "openvla-2024",
@@ -255,7 +255,7 @@ const vlaTrainingData: ContentPageData = {
       year: 2024,
       url: "https://arxiv.org/abs/2403.12945",
       keyClaim:
-        "76,000 robot manipulation trajectories across 564 scenes and 52 institutions; demonstrated value of in-the-wild collection for robot learning.",
+        "76,000 robot manipulation trajectories across 564 scenes and 13 institutions; demonstrated value of in-the-wild collection for robot learning.",
     },
   ],
 
