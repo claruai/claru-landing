@@ -73,11 +73,11 @@ const egocentricVideoData: ContentPageData = {
       },
       {
         name: "EgoScale",
-        scale: "20,854 hours, 9,869 scenes",
-        tasks: "Egocentric activity recognition, long-form video understanding",
-        environments: "Large-scale diverse indoor and outdoor scenes",
+        scale: "20,854 hours of action-labeled egocentric video",
+        tasks: "Dexterous manipulation VLA pretraining; log-linear scaling law identification",
+        environments: "Diverse egocentric human video including wrist motion and retargeted dexterous hand actions",
         limitations:
-          "Focused on recognition benchmarks; limited manipulation-specific annotations; not paired with action labels",
+          "Focused on dexterous manipulation transfer; limited to wrist/hand tasks; not a general-purpose activity benchmark",
         isClaru: false,
       },
       {
@@ -151,7 +151,7 @@ const egocentricVideoData: ContentPageData = {
       question:
         "How much egocentric video data do I need to train an embodied AI model?",
       answer:
-        "Scale requirements depend on task complexity and model architecture. EgoScale showed that 20,854 hours across 9,869 diverse scenes improved egocentric activity recognition by 54%, but gains came from scene diversity rather than raw hours. Claru's egocentric collection projects have delivered 386K+ clips. For manipulation policies, hundreds of hours of task-specific footage paired with structured annotations typically outperform thousands of hours of unstructured video.",
+        "Scale requirements depend on task complexity and model architecture. EgoScale identified a log-linear scaling law between egocentric human video volume and dexterous manipulation performance, training on 20,854 hours to validate that validation loss correlates with real robot success rates. Claru's egocentric collection projects have delivered 386K+ clips. For manipulation policies, hundreds of hours of task-specific footage paired with structured annotations typically outperform thousands of hours of unstructured video.",
     },
     {
       question:
@@ -223,7 +223,7 @@ const egocentricVideoData: ContentPageData = {
       year: 2024,
       url: "https://arxiv.org/abs/2403.12945",
       keyClaim:
-        "76,000 robot manipulation trajectories totaling 350 hours across 564 scenes and 52 institutions, providing diverse robot manipulation demonstrations.",
+        "76,000 robot manipulation trajectories totaling 350 hours across 564 scenes and 13 institutions (50 data collectors), all on Franka Panda hardware.",
     },
     {
       id: "open-x-embodiment-2024",
