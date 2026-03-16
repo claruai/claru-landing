@@ -96,3 +96,24 @@ Branch: ralph/content-pages
 - Fonts: Geist Sans (headings/body) + JetBrains Mono (metrics, labels, badges)
 - All server components import zero client-only libraries (no framer-motion, no posthog-js)
 - `npx tsc --noEmit` passes with zero errors
+
+---
+
+## US-004: Dynamic [slug]/page.tsx Route with generateStaticParams [DONE]
+
+**Files created:**
+- `src/app/solutions/[slug]/page.tsx` — Server component; dynamic route for all /solutions/[slug] content pages
+
+**Implementation:**
+- `generateStaticParams()` — returns all slugs from `getAllContentPageSlugs()`; returns empty array when no pages registered (build succeeds with zero pages)
+- `generateMetadata()` — async with `const { slug } = await params` (Next.js 16 async params); returns title (metaTitle), description (metaDescription), keywords (secondaryKeywords), canonical URL (`/solutions/${slug}`), OG image via `ogImageUrl(page.title, { category: "solution" })`, twitter card `summary_large_image`; returns empty `{}` for unknown slugs
+- `revalidate = 3600` — 1-hour ISR for Supabase dataset refresh
+- Page component — async server component; calls `notFound()` for unknown slugs; injects JSON-LD via `buildContentPageJsonLd(page)` with `<script type="application/ld+json">` + `dangerouslySetInnerHTML`; renders `<ContentPageTemplate page={page} />`
+
+**Build-time validation:**
+- Handled by `src/data/content-pages/index.ts` (created in US-001) — validates case study references, FAQ counts, and slug consistency when the module is first imported during `generateStaticParams()`
+
+**Verification:**
+- `npx tsc --noEmit` passes with zero errors
+- `npm run build` succeeds with zero pages registered (empty `generateStaticParams` returns `[]`)
+- Route appears in build output as `● /solutions/[slug]` (SSG)
