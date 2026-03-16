@@ -1,0 +1,6 @@
+2026-03-16 | US-008 | Tier 2 data files — sim-to-real-data.ts + teleoperation-data.ts
+  - Created src/data/content-pages/sim-to-real-data.ts (slug: sim-to-real-data, 5 citations, 4 FAQs, 4 landscape rows)
+  - Created src/data/content-pages/teleoperation-data.ts (slug: teleoperation-data, 5 citations, 4 FAQs, 4 landscape rows)
+  - Registered both in src/data/content-pages/index.ts
+  - npx tsc --noEmit passes
+  - prd-content-pages.json US-008 status=done, passes=true

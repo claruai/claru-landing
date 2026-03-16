@@ -157,3 +157,47 @@ Branch: ralph/content-pages
 - All H2 headings are question-form (What/Why/How)
 - No banned phrases used
 - Max 2 citations per first-author per page
+
+---
+
+## US-006: Tier 1 Data Files — Red Teaming Data + Video Generation Training Data [DONE]
+
+**Files created:**
+- `src/data/content-pages/red-teaming-data.ts` — ContentPageData for /solutions/red-teaming-data
+- `src/data/content-pages/video-generation-training-data.ts` — ContentPageData for /solutions/video-generation-training-data
+
+**Files modified:**
+- `src/data/content-pages/index.ts` — Imported and registered both pages in PAGE_MAP
+- `tasks/prd-content-pages.json` — Set US-006 passes to true
+
+**Red Teaming Data page:**
+- 5 citations: Anthropic Constitutional Classifiers (86% → 4.4% jailbreak rate, 183 participants, 3,000+ hours), OpenAI red teaming paper (domain experts > crowdsourced), EU AI Act (Articles 55/99, €35M fines, Aug 2026 enforcement), NIST AI RMF 1.0 (Measure function), EO 14110 (defined "AI red-teaming", rescinded Jan 2025)
+- 4 comparison rows: Automated Red Teaming Tools, Crowdsourced Red Teaming, Expert Human Red Teaming, Claru Expert Red Teaming
+- 2 problem sections + 2 solution sections with question-form H2s
+- Solution sections pull from red-teaming-moderation.json (<2% rejection rate, 3 detection models, 0 critical safety gaps) and generative-ai-safety.json (241K+ annotations, <2% violation rate, 92%+ calibration, 3 systematic gaps found, 40% residual violation reduction)
+- 5 FAQs targeting EU AI Act compliance and red teaming methodology
+- "Claru" appears 10+ times in body copy by name
+- Case studies: red-teaming-moderation, generative-ai-safety
+- pillarLinks: ["/pillars/validate/red-teaming"]
+- relatedSlugs: ["eu-ai-act-red-teaming", "expert-rlhf-annotation", "video-generation-training-data"]
+
+**Video Generation Training Data page:**
+- 5 citations: VideoReward (arXiv 2501.13918, 182K annotations, 12 models), VidGen-1M (arXiv 2408.02629, 1M pairs, <15-word captions), Flow-DPO (from VideoReward paper), GenAI-Bench (1,600 prompts), VidProM (6.69M prompts)
+- 4 comparison rows: GenAI-Bench, VidProM, VidGen-1M, Claru Expert Preference Annotation
+- 2 problem sections + 2 solution sections with question-form H2s
+- Solution sections pull from video-model-evaluation.json (39K pairwise evals, 51 configs, Krippendorff's alpha >0.70, Swiss-style pairing), video-quality-at-scale.json (976K+ assessments, 4 dimensions, 85%+ calibration), video-content-classification.json (105K clips in 7 days, 0 rework, <24h framework redesign)
+- 5 FAQs targeting video generation RLHF and preference data
+- "Claru" appears 10+ times in body copy by name
+- Case studies: video-model-evaluation, video-quality-at-scale, video-content-classification
+- pillarLinks: ["/pillars/enrich/video-annotation"]
+- relatedSlugs: ["expert-rlhf-annotation", "red-teaming-data", "egocentric-video-data"]
+
+**Verification:**
+- `npx tsc --noEmit` passes with zero errors
+- All case study slugs reference existing JSONs (build-time validation passes)
+- Meta titles: 47 chars (red teaming), 50 chars (video gen) — within 50-60 target
+- Meta descriptions: 156 chars (red teaming), 155 chars (video gen) — within 150-160 target
+- All H2 headings are question-form (Why/What/How)
+- No banned phrases used
+- 3+ numbers per 300 words in both pages
+- Max 2 citations per first-author per page (Anthropic x1, OpenAI x1, EU x1, NIST x1, WH x1; He et al. x2 [VideoReward + Flow-DPO share paper], Tan x1, Lin x1, Wang x1)

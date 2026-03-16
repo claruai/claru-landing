@@ -21,6 +21,8 @@ import { caseStudyExists } from "@/lib/case-studies-server";
 // ---------------------------------------------------------------------------
 
 import egocentricVideoData from "./egocentric-video-data";
+import expertRlhfAnnotation from "./expert-rlhf-annotation";
+import manipulationTrajectoryData from "./manipulation-trajectory-data";
 import redTeamingData from "./red-teaming-data";
 import simToRealData from "./sim-to-real-data";
 import teleoperationData from "./teleoperation-data";
@@ -35,6 +37,8 @@ import vlaTrainingData from "./vla-training-data";
 
 const PAGE_MAP: Record<string, ContentPageData> = {
   "egocentric-video-data": egocentricVideoData,
+  "expert-rlhf-annotation": expertRlhfAnnotation,
+  "manipulation-trajectory-data": manipulationTrajectoryData,
   "red-teaming-data": redTeamingData,
   "sim-to-real-data": simToRealData,
   "teleoperation-data": teleoperationData,
