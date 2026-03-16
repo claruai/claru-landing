@@ -1,7 +1,36 @@
 # Progress Log
 
-Started: Thu Mar 13 2026
-Project: Personalized Prospect Pages
-Goal: Build custom deal room pages at /for/[company] with shared components, PostHog tracking, 30-day expiry. First page: /for/rime.
+Started: Sun Mar 16 14:30:00 EST 2026
+Project: SEO Content Pages (/solutions/[slug])
+Branch: ralph/content-pages
 
 ---
+
+## Pre-Loop Context
+- 11 content pages targeting low-competition keywords in AI training data space
+- Route: /solutions/[slug] with dynamic generateStaticParams
+- Data-driven: case study JSONs + Supabase datasets + research citations
+- AEO/GEO optimized: question-form H2s, answer-first paragraphs, entity naming, proprietary data anchors
+- QA loops: banned AI slop phrases, citation URL verification, readability checks
+- Design doc: tasks/docs/content-pages-design.md
+- Full PRD: tasks/prd-content-pages.md (18 stories)
+- Research citations pre-gathered for all 11 pages
+
+## Key Architecture
+- Glob-based page registry (no shared index file — avoids merge conflicts)
+- Each page = one data file in src/data/content-pages/{slug}.ts
+- Shared ContentPageTemplate server component with single prop: { page: ContentPageData }
+- JSON-LD: single @graph array (BreadcrumbList + Service + FAQPage)
+- Reuse existing: DatasetShowcase, WorkforceStats, FinalCTA, OG image generator
+
+## Prerequisite Components (already exist)
+- src/app/components/prospect/DatasetShowcase.tsx
+- src/app/components/prospect/WorkforceStats.tsx
+- src/app/components/sections/FinalCTA.tsx
+- src/lib/og.ts + src/app/api/og/route.tsx
+- src/lib/entity-profile.ts
+
+## Design System
+- bg: #0a0908, accent: #92B090, text: #FFFFFF
+- fonts: Geist Sans + JetBrains Mono
+- card bg: #121210, border: #2a2a28
