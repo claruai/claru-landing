@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-03-12 -->
+<!-- Last updated: 2026-03-16 -->
 # Claru
 
 > Purpose-built training data for frontier AI labs. From raw capture to production-ready dataset -- sourced, labeled, and validated for video, vision, and robotics AI.
@@ -33,6 +33,20 @@ Claru (operated by Reka AI Inc.) provides end-to-end data services for frontier 
 - [Benchmark Curation](https://claru.ai/pillars/validate/benchmark-curation): Build evaluation benchmarks for model assessment.
 - [Bias Detection](https://claru.ai/pillars/validate/bias-detection): Identify and mitigate bias in training data.
 - [Red Teaming](https://claru.ai/pillars/validate/red-teaming): Adversarial testing for AI safety and robustness.
+
+## Solutions Pages
+
+- [Egocentric Video Data for Embodied AI](https://claru.ai/solutions/egocentric-video-data): Custom egocentric video data collection at scale for robotics and world models. 386K+ clips across three parallel pipelines (GoPro wearable, smartphone, activity-specific) with same-day QA. Compares Ego4D, EgoScale, EgoDex, DROID, and Claru custom collection.
+- [VLA Training Data: From Collection to Policy](https://claru.ai/solutions/vla-training-data): Vision-language-action model training data including action-labeled demonstrations with sub-16ms temporal alignment. Compares Open X-Embodiment, DROID, AgiBot World, and Claru custom collection for robot policy training.
+- [Human Red Teaming Data for AI Safety and EU AI Act Compliance](https://claru.ai/solutions/red-teaming-data): Expert human red teaming for AI models with structured adversarial testing satisfying EU AI Act Articles 55 and 99. 241K+ safety annotations with 92%+ annotator calibration. Compares automated tools, crowdsourced testers, and Claru expert red teaming.
+- [Expert Preference Data for Video Generation Models](https://claru.ai/solutions/video-generation-training-data): Multi-dimensional human preference data for video generation RLHF. 976K+ quality assessments across four axes (motion, fidelity, viewer interest, text-video alignment), 39K pairwise evaluations across 51 model configurations, Swiss-style ELO tournament ranking.
+- [Custom Manipulation Trajectory Data Collection for Robotics](https://claru.ai/solutions/manipulation-trajectory-data): Custom trajectory datasets for robot manipulation policies. Three-pipeline capture architecture delivering 386K+ clips and 10,000+ hours of synchronized observation-action data. Compares AgiBot World, DROID, Open X-Embodiment, and Claru custom collection.
+- [Expert RLHF Annotation for Code and Specialized Domains](https://claru.ai/solutions/expert-rlhf-annotation): Expert preference annotation for reward model training in code, video generation, and specialized domains. 976K+ assessments delivered with 85%+ calibration threshold and Krippendorff's alpha monitoring. RLTHF framework reduces annotation volume needed by 93-94%.
+- [Closing the Sim-to-Real Gap with Real-World Data Collection](https://claru.ai/solutions/sim-to-real-data): Real-world data collection to bridge simulation-to-deployment performance gaps. 386K+ first-person clips across diverse environments. Game-based capture producing 10,000+ hours of synchronized data with sub-16ms alignment.
+- [Teleoperation Dataset Collection for Robot Learning](https://claru.ai/solutions/teleoperation-data): Scaled human demonstration capture as a complement to robot teleoperation. 386K+ clips from 500 global contributors across 10 workplace categories including barista, carpentry, tailoring, and phone repair. Compares VR-based, exoskeleton, camera-based, and Claru managed collection approaches.
+- [Open Robotics Datasets vs Custom Collection: When Open Isn't Enough](https://claru.ai/solutions/open-datasets-vs-custom): Structured comparison of Open X-Embodiment (1M+ trajectories, 22 robots), DROID (76K trajectories, Franka-only), and AgiBot World (1M+ trajectories, 217 tasks) against custom data collection for frontier robotics research. Claru custom collection covers 12+ environment types.
+- [Why Crowdsourced RLHF Fails for Code and Math Models](https://claru.ai/solutions/crowdsourced-vs-expert-rlhf): Analysis of how incorrect preference pairs from crowdsourced annotation degrade reward models in technical domains. Expert annotation requires only 6-7% of crowdsourced volume for equivalent quality. Reward hacking debugging costs $50,000-$200,000 per cycle.
+- [EU AI Act Red Teaming Requirements: What Data You Actually Need](https://claru.ai/solutions/eu-ai-act-red-teaming): Complete breakdown of EU AI Act Articles 5, 55, and 99 adversarial testing obligations. Enforcement timeline: Article 5 (Feb 2025), Article 55 new GPAI (Aug 2025), Article 99 full enforcement (Aug 2026), existing GPAI deadline (Aug 2027). Fines up to 35M euros or 7% global turnover.
 
 ## Case Studies
 

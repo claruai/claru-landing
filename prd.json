@@ -327,7 +327,7 @@
         "Baseline check: search ChatGPT/Perplexity for target queries, document if Claru appears"
       ],
       "priority": 18,
-      "passes": false,
+      "passes": true,
       "notes": "Dependencies: ['US-010', 'US-011', 'US-012']. Agents: ['web-research-specialist', 'code-reviewer']. Read tasks/docs/content-pages-design.md and tasks/prd-content-pages.md for full context."
     }
   ]

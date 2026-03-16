@@ -31,7 +31,7 @@ const egocentricVideoData: ContentPageData = {
         heading:
           "What Makes Egocentric Video Data Critical for Robot Learning?",
         content:
-          "Egocentric video data captures the world from the perspective of the actor performing a task, providing the visual grounding that embodied AI models need to connect perception with action. Unlike third-person footage, first-person video preserves the spatial relationships between hands, tools, and objects as they appear during manipulation. Ego4D demonstrated this at scale with 3,670 hours of egocentric footage from 931 participants across 74 worldwide locations, establishing benchmarks for episodic memory, hand-object interaction, and social understanding. EgoScale extended the paradigm further, collecting 20,854 hours across 9,869 scenes and reporting a 54% improvement in egocentric activity recognition when models trained on diverse first-person data. The consistent finding across these benchmarks is that egocentric perspective is not a stylistic choice but a structural requirement: models trained on third-person video systematically fail to predict hand-object contact timing, grasp pose, and tool orientation from a first-person viewpoint.",
+          "Egocentric video data captures the world from the perspective of the actor performing a task, providing the visual grounding that embodied AI models need to connect perception with action. Unlike third-person footage, first-person video preserves the spatial relationships between hands, tools, and objects as they appear during manipulation. Ego4D demonstrated this at scale with 3,670 hours of egocentric footage from 931 participants across 74 worldwide locations, establishing benchmarks for episodic memory, hand-object interaction, and social understanding. EgoScale extended the paradigm further, training a VLA model on 20,854 hours of action-labeled egocentric human video and identifying a log-linear scaling law between data scale and dexterous manipulation performance. The consistent finding across these benchmarks is that egocentric perspective is not a stylistic choice but a structural requirement: models trained on third-person video systematically fail to predict hand-object contact timing, grasp pose, and tool orientation from a first-person viewpoint.",
         citationIds: ["ego4d-2022", "egoscale-2025"],
       },
       {
@@ -49,7 +49,7 @@ const egocentricVideoData: ContentPageData = {
         heading:
           "How Does Data Quality Affect Egocentric Model Performance?",
         content:
-          "Data quality in egocentric video is not a single metric but a composite of frame-level properties: resolution, stability, field of view, temporal coverage of manipulation phases, and consistency of capture angle relative to the task workspace. EgoScale found that scaling hours alone was insufficient; their 54% activity recognition improvement came from increasing scene diversity across 9,869 environments, not from additional hours within existing scenes. EgoDex demonstrated that hand-pose annotation quality directly determines downstream grasp prediction accuracy, with 25-joint per-hand annotations at 30 fps providing substantially better supervision than coarse bounding-box labels. Claru enforces quality at the capture level through automated upload-time validation of resolution, duration, orientation, and file integrity, followed by same-day human QA. In the egocentric video collection project, this pipeline processed 386,000+ clips from approximately 500 contributors with same-day turnaround, catching quality issues before they propagated into delivered batches.",
+          "Data quality in egocentric video is not a single metric but a composite of frame-level properties: resolution, stability, field of view, temporal coverage of manipulation phases, and consistency of capture angle relative to the task workspace. EgoScale's scaling law shows that validation loss decreases predictably as egocentric data volume grows, and that this loss reduction correlates with real robot performance — meaning data quality and volume jointly determine downstream policy quality. EgoDex demonstrated that hand-pose annotation quality directly determines downstream grasp prediction accuracy, with 25-joint per-hand annotations at 30 fps providing substantially better supervision than coarse bounding-box labels. Claru enforces quality at the capture level through automated upload-time validation of resolution, duration, orientation, and file integrity, followed by same-day human QA. In the egocentric video collection project, this pipeline processed 386,000+ clips from approximately 500 contributors with same-day turnaround, catching quality issues before they propagated into delivered batches.",
         citationIds: ["egoscale-2025", "egodex-2025"],
       },
     ],
@@ -93,9 +93,9 @@ const egocentricVideoData: ContentPageData = {
         name: "DROID",
         scale: "76K trajectories, 350 hours, 564 scenes",
         tasks: "Robot manipulation with paired video and action labels",
-        environments: "Research labs and structured workspaces across 52 institutions",
+        environments: "Research labs and structured workspaces across 13 institutions, 50 data collectors",
         limitations:
-          "Robot-centric (not human egocentric); limited to lab environments; fixed robot morphologies",
+          "Robot-centric (not human egocentric); limited to lab environments; fixed robot morphologies (Franka Panda only)",
         isClaru: false,
       },
       {
@@ -195,13 +195,13 @@ const egocentricVideoData: ContentPageData = {
     {
       id: "egoscale-2025",
       title:
-        "EgoScale: Benchmarking Egocentric Video Understanding at Scale",
-      authors: "Chen et al.",
+        "EgoScale: Scaling Dexterous Manipulation with Diverse Egocentric Human Data",
+      authors: "Zheng et al.",
       venue: "arXiv 2025",
       year: 2025,
       url: "https://arxiv.org/abs/2602.16710",
       keyClaim:
-        "20,854 hours across 9,869 scenes; demonstrated 54% improvement in egocentric activity recognition from scaling scene diversity rather than raw hours.",
+        "Trained a VLA model on 20,854 hours of action-labeled egocentric human video; identified a log-linear scaling law between human data scale and downstream dexterous manipulation performance.",
     },
     {
       id: "egodex-2025",
