@@ -70,3 +70,29 @@ Branch: ralph/content-pages
 - Service schema uses `@id` reference to Organization (`https://claru.ai/#organization`) rather than inline Organization object — leverages the global JSON-LD graph from root layout.tsx
 - `buildContentPageJsonLd` uses entityProfile.url as base URL for all canonical references
 - `npx tsc --noEmit` passes with zero errors
+
+---
+
+## US-003: Shared Page Template Components [DONE]
+
+**Files created (all in `src/app/components/content/`):**
+- `ContentPageTemplate.tsx` — Server component; single prop `{ page: ContentPageData }`; composes all sections in order: ContentHero, ProblemSection, DatasetComparison, InlineCaseStudy (per slug), DatasetShowcase, WorkforceStats, ContentFAQ, FinalCTA, ResearchCitations, RelatedSolutions; each section wrapped in semantic `<section>` with id for anchor linking; conditionally renders sections when data is present
+- `ContentHero.tsx` — Server component; breadcrumb `<nav>` with `<ol>` (Home > Solutions > {breadcrumbLabel}), H1 (primary keyword target), subtitle paragraph; no animations for SSR/crawler friendliness
+- `ProblemSection.tsx` — Server component; takes ContentSection[] + ResearchCitation[]; renders question-form H2 headings with content paragraphs; inline citations via CitationLink using buildCitationMap()
+- `DatasetComparison.tsx` — Server component; responsive table on desktop, stacked cards on mobile; Claru rows (isClaru=true) get #92B090 accent border and highlight bg; card bg #121210, border #2a2a28
+- `InlineCaseStudy.tsx` — Server component; calls getCaseStudyData(slug); renders H3 title, up to 4 metric cards (value + label), methodology excerpt (first 3 sentences of approach), "Read Full Case Study" link; returns null with console.warn if JSON missing
+- `ResearchCitations.tsx` — Server component; numbered [1]-style reference list; format: Author. "Title." Venue, Year. keyClaim. [Link]; external links use rel="noopener noreferrer"
+- `ContentFAQ.tsx` — Client component ('use client'); expandable accordion with toggle state; keyboard accessible (Enter/Space, aria-expanded); answers render as plain text paragraphs
+- `CitationLink.tsx` — Server component; superscript [N] anchor linking to #references; uses citationMap for numbering
+- `RelatedSolutions.tsx` — Server component; resolves slugs via getContentPage(); renders 2-col grid on desktop, 1-col on mobile; card with title, primaryKeyword, link to /solutions/{slug}
+
+**Existing components reused:**
+- `DatasetShowcase` from `src/app/components/prospect/DatasetShowcase.tsx` (async server component)
+- `WorkforceStats` from `src/app/components/prospect/WorkforceStats.tsx` (client component)
+- `FinalCTA` from `src/app/components/sections/FinalCTA.tsx` (client component)
+
+**Design system compliance:**
+- bg: #0a0908, accent: #92B090, text: #FFFFFF, card bg: #121210, border: #2a2a28
+- Fonts: Geist Sans (headings/body) + JetBrains Mono (metrics, labels, badges)
+- All server components import zero client-only libraries (no framer-motion, no posthog-js)
+- `npx tsc --noEmit` passes with zero errors
