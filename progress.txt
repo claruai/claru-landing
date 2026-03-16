@@ -117,3 +117,43 @@ Branch: ralph/content-pages
 - `npx tsc --noEmit` passes with zero errors
 - `npm run build` succeeds with zero pages registered (empty `generateStaticParams` returns `[]`)
 - Route appears in build output as `● /solutions/[slug]` (SSG)
+
+---
+
+## US-005: Tier 1 Data Files — Egocentric Video Data + VLA Training Data [DONE]
+
+**Files created:**
+- `src/data/content-pages/egocentric-video-data.ts` — ContentPageData for /solutions/egocentric-video-data
+- `src/data/content-pages/vla-training-data.ts` — ContentPageData for /solutions/vla-training-data
+
+**Files modified:**
+- `src/data/content-pages/index.ts` — Imported and registered both pages in PAGE_MAP
+- `prd.json` — Set US-005 passes to true
+
+**Egocentric Video Data page:**
+- 5 citations: Ego4D (3,670h, 931 participants), EgoScale (20,854h, 54% improvement), EgoDex (829h, 25-joint hands), DROID (76K trajectories), Open X-Embodiment (1M+ trajectories)
+- 5 comparison rows: Ego4D, EgoScale, EgoDex, DROID, Claru Custom
+- 3 problem sections + 3 solution sections with question-form H2s
+- Solution sections pull real methodology from egocentric-video-collection.json (386K clips, 3 pipelines, same-day QA, ~500 contributors) and workplace-egocentric-data.json (10 workplace categories, 4K/60fps)
+- 5 FAQs targeting long-tail keywords, answer-first format
+- "Claru" appears 10+ times in body copy by name
+- Case studies: egocentric-video-collection, workplace-egocentric-data
+
+**VLA Training Data page:**
+- 7 citations: pi-zero (flow matching VLA), GR00T N1.5 (10K+ hours, 93.3% language following), OpenVLA (7B outperforms 55B by 16.5%), RT-2 (3x generalization), Octo (800K trajectories, 52% improvement), Open X-Embodiment, DROID
+- 4 comparison rows: Open X-Embodiment, DROID, AgiBot World, Claru Custom
+- 3 problem sections + 3 solution sections with question-form H2s
+- Solution sections pull from egocentric-video-collection.json, workplace-egocentric-data.json, and game-based-data-capture.json (10K+ hours, <16ms alignment)
+- 5 FAQs targeting VLA-specific long-tail keywords, answer-first format
+- "Claru" appears 10+ times in body copy by name
+- Case studies: egocentric-video-collection, workplace-egocentric-data, game-based-data-capture
+
+**Verification:**
+- `npx tsc --noEmit` passes with zero errors
+- `npm run build` succeeds; both pages rendered as SSG at /solutions/egocentric-video-data and /solutions/vla-training-data
+- All case study slugs reference existing JSONs (build-time validation passes)
+- Meta titles: 49 chars (ego), 48 chars (VLA) — within 50-60 target
+- Meta descriptions: 155 chars (ego), 157 chars (VLA) — within 150-160 target
+- All H2 headings are question-form (What/Why/How)
+- No banned phrases used
+- Max 2 citations per first-author per page

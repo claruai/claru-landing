@@ -19,11 +19,13 @@ import { caseStudyExists } from "@/lib/case-studies-server";
 // ---------------------------------------------------------------------------
 // Page Imports — add one line per page file
 // ---------------------------------------------------------------------------
-// (No page data files exist yet — they will be added in US-005+)
 
-// import egocentricVideoData from "./egocentric-video-data";
-// import vlaTrainingData from "./vla-training-data";
-// ... etc.
+import egocentricVideoData from "./egocentric-video-data";
+import redTeamingData from "./red-teaming-data";
+import simToRealData from "./sim-to-real-data";
+import teleoperationData from "./teleoperation-data";
+import videoGenerationTrainingData from "./video-generation-training-data";
+import vlaTrainingData from "./vla-training-data";
 
 // ---------------------------------------------------------------------------
 // Page Map — add one entry per page file
@@ -32,9 +34,12 @@ import { caseStudyExists } from "@/lib/case-studies-server";
 // Each key is the slug; each value is the imported ContentPageData.
 
 const PAGE_MAP: Record<string, ContentPageData> = {
-  // "egocentric-video-data": egocentricVideoData,
-  // "vla-training-data": vlaTrainingData,
-  // ... etc.
+  "egocentric-video-data": egocentricVideoData,
+  "red-teaming-data": redTeamingData,
+  "sim-to-real-data": simToRealData,
+  "teleoperation-data": teleoperationData,
+  "video-generation-training-data": videoGenerationTrainingData,
+  "vla-training-data": vlaTrainingData,
 };
 
 // ---------------------------------------------------------------------------
