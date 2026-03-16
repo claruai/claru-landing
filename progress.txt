@@ -51,3 +51,22 @@ Branch: ralph/content-pages
 - Build-time validation runs on module load (when index.ts is first imported)
 - Registry uses simple Record<string, ContentPageData> — adding a page = one import + one map entry
 - `npx tsc --noEmit` passes with zero errors
+
+---
+
+## US-002: /solutions Layout with JSON-LD, OG Images, Canonical URLs [DONE]
+
+**Files created:**
+- `src/app/solutions/layout.tsx` — Shared server component layout for all /solutions/[slug] pages; provides common OG metadata defaults; children rendered as-is since page-specific JSON-LD is injected at [slug]/page.tsx level
+- `src/lib/content-page-jsonld.ts` — `buildContentPageJsonLd(page: ContentPageData)` helper returning a single `@graph` array with BreadcrumbList (Home > Solutions > {breadcrumbLabel}), Service (linked to Organization via @id: "https://claru.ai/#organization", dateModified from BUILD_DATE), and FAQPage (from page.faqs)
+
+**Files modified:**
+- `src/app/api/og/route.tsx` — Added "solution" to VALID_CATEGORIES and CATEGORY_CONFIG with `{ badge: "SOLUTION", borderColor: "#92B090", titlePrefix: "" }`
+- `prd.json` — Set US-002 passes to true
+
+**Key decisions:**
+- JSON-LD is NOT injected in layout.tsx — it requires page-specific data (title, slug, faqs) that the layout does not have access to; injected in [slug]/page.tsx (US-004)
+- Layout provides OG metadata defaults that page-level generateMetadata will override/merge
+- Service schema uses `@id` reference to Organization (`https://claru.ai/#organization`) rather than inline Organization object — leverages the global JSON-LD graph from root layout.tsx
+- `buildContentPageJsonLd` uses entityProfile.url as base URL for all canonical references
+- `npx tsc --noEmit` passes with zero errors

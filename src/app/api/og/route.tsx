@@ -10,6 +10,7 @@ const VALID_CATEGORIES = [
   "job",
   "data-catalog",
   "legal",
+  "solution",
 ] as const;
 
 type Category = (typeof VALID_CATEGORIES)[number];
@@ -24,6 +25,7 @@ const CATEGORY_CONFIG: Record<
   job: { badge: "NOW HIRING", borderColor: "#92B090", titlePrefix: "" },
   "data-catalog": { badge: "DATA", borderColor: "#92B090", titlePrefix: "" },
   legal: { badge: null, borderColor: "#666666", titlePrefix: "" },
+  solution: { badge: "SOLUTION", borderColor: "#92B090", titlePrefix: "" },
 };
 
 // Google Fonts CDN URLs for woff format
