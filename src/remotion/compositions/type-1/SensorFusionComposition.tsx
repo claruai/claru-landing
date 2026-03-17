@@ -2,7 +2,6 @@ import React from "react";
 import {
   AbsoluteFill,
   OffthreadVideo,
-  OffthreadVideo,
   interpolate,
   useCurrentFrame,
   useVideoConfig,
