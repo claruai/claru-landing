@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { createClient } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
   Lead,
@@ -7,6 +8,7 @@ import type {
   DatasetCategory,
 } from "@/types/data-catalog";
 import { CatalogBrowser } from "./CatalogBrowser";
+import { OtherDatasets } from "./OtherDatasets";
 
 // ---------------------------------------------------------------------------
 // Data Fetching
@@ -103,7 +105,44 @@ async function getCatalogData() {
     a.name.localeCompare(b.name)
   );
 
-  return { datasets, categories };
+  // Fetch all other published datasets the user does NOT have access to
+  // Use anon client to bypass the authenticated RLS policy (which only shows granted datasets)
+  const grantedIds = datasets.map((d) => d.id);
+
+  let otherDatasets: Array<{
+    id: string;
+    name: string;
+    description: string | null;
+    total_samples: number;
+    category_name: string | null;
+    source_type: string;
+  }> = [];
+
+  const anonClient = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  const { data: allPublished } = await anonClient
+    .from("datasets")
+    .select("id, name, description, total_samples, source_type, dataset_categories(name)")
+    .eq("is_published", true)
+    .order("total_samples", { ascending: false });
+
+  if (allPublished) {
+    otherDatasets = allPublished
+      .filter((d) => !grantedIds.includes(d.id))
+      .map((d) => ({
+        id: d.id,
+        name: d.name,
+        description: d.description,
+        total_samples: d.total_samples,
+        source_type: d.source_type,
+        category_name: (d.dataset_categories as unknown as { name: string } | null)?.name ?? null,
+      }));
+  }
+
+  return { datasets, categories, otherDatasets };
 }
 
 // ---------------------------------------------------------------------------
@@ -111,7 +150,16 @@ async function getCatalogData() {
 // ---------------------------------------------------------------------------
 
 export default async function PortalCatalogPage() {
-  const { datasets, categories } = await getCatalogData();
+  const { datasets, categories, otherDatasets } = await getCatalogData();
+
+  // Fetch booking URL
+  const supabase = await createSupabaseServerClient();
+  const { data: bookingSetting } = await supabase
+    .from("settings")
+    .select("value")
+    .eq("key", "booking_url")
+    .single<{ value: string }>();
+  const bookingUrl = bookingSetting?.value ?? "mailto:team@claru.ai";
 
   return (
     <div className="mx-auto max-w-[var(--container-max)] px-[var(--container-padding)] py-12">
@@ -136,6 +184,11 @@ export default async function PortalCatalogPage() {
           categories={categories}
         />
       </Suspense>
+
+      {/* Other available datasets (expandable) */}
+      {otherDatasets.length > 0 && (
+        <OtherDatasets datasets={otherDatasets} bookingUrl={bookingUrl} />
+      )}
     </div>
   );
 }
