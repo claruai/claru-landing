@@ -49,3 +49,61 @@ Branch: ralph/remotion-media
 - All colors from TOKENS (DesignTokens.ts), no hardcoded values
 - npx tsc --noEmit passes (only pre-existing EgocentricPipeline errors remain)
 - prd.json US-005 passes=true
+
+## US-013 through US-018: Extract Real Annotation Data for 15 Compositions (DONE)
+
+Ran scripts/extract-annotations.ts for all 15 compositions with annotationSource: "real".
+Fixed 3 dataset slug mismatches in composition-manifest.json:
+- video-generation-preference -> video-generation-preference-data (ID: bafc163f-83c5-48d5-8944-bd6808cf8688)
+- ai-image-generation-eval -> ai-image-generation-evaluation (ID: 55f26c56-04d5-4a30-9939-b49e3ad809bb)
+
+### Annotation JSONs Created (15/15)
+All written to public/remotion-assets/annotations/:
+
+**Type 2 (Pairwise Arena) — 4 compositions:**
+- sol-video-gen.json — winner: prompt_aea28902, promptText present, videoA/B URLs present
+- sol-rlhf.json — same dataset (video-generation-preference-data), winner + prompts
+- cs-vid-eval.json — winner: "21" (selectedAnswer), configKey present, promptText present
+- cs-prompt-bench.json — winner: bestVideo present, promptText present
+
+**Type 3 (Multi-Gen Gallery) — 1 composition:**
+- sol-crowd-vs-expert.json — bestImage present, 6 selectedImages, 8 generations with IDs and URLs
+
+**Type 4 (Detection + Annotation) — 2 compositions:**
+- cs-fashion.json — brandName: "Craghoppers", category: "Fashion (Men's)", no bbox (files lacked coords)
+- cs-object-id.json — 2 segments with real bboxes ([965,222,1390,829] face, [0,377,582,937] fedora), identity matches
+
+**Type 5 (Classification Pipeline) — 3 compositions:**
+- sol-sim2real.json — selectedGame: "Red Dead Redemption 2", projectType: VIDEO_GAME_CAPTURE
+- cs-game-capture.json — same dataset, selectedGame: "Red Dead Redemption 2"
+- cs-vid-classify.json — category: "Technology & Computing", subcategory: "Smartphones & Gadget Use"
+
+**Type 6 (Quality Rubric) — 1 composition:**
+- cs-vid-quality.json — 5 scores: cinematic=0.2, motion=0.8, quality=0.2, interest=0.8, textAlignment=0.8
+
+**Type 7 (Safety Shield) — 4 compositions:**
+- sol-red-teaming.json — textPolicyViolation: "no", videoPolicyViolation: "no", prompt present
+- sol-eu-ai-act.json — same + policyReferences: ["EU AI Act Art.52", "Art.6 High-Risk Systems"]
+- cs-gen-safety.json — same content-safety dataset
+- cs-red-team.json — same content-safety dataset
+
+### Media Samples Downloaded (11/15)
+All in public/remotion-assets/samples/:
+- sol-video-gen.mp4 (5.3 MB), sol-rlhf.mp4 (5.3 MB)
+- sol-crowd-vs-expert.png (1.0 MB)
+- cs-fashion.jpg (38 KB)
+- cs-game-capture.mp4 (189 MB), sol-sim2real.mp4 (189 MB)
+- cs-vid-classify.mp4 (4.0 MB), cs-vid-eval.mp4 (6.0 MB)
+- cs-vid-quality.mp4 (4.8 MB), cs-prompt-bench.mp4 (19.9 MB)
+- cs-object-id.mp4 (6.4 MB)
+
+### Media 404s (4 compositions — all content-safety dataset)
+- sol-red-teaming, sol-eu-ai-act, cs-gen-safety, cs-red-team
+- These are Type 7 Safety Shield compositions that always blur content anyway
+- Annotation JSONs extracted successfully; media not needed for blurred display
+
+### Zod Validation
+All 15 annotation JSONs pass their respective type schemas.
+
+### prd.json Updated
+US-013, US-014, US-015, US-016, US-017, US-018 all set to passes: true

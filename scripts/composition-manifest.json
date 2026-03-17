@@ -40,7 +40,7 @@
       "id": "sol-video-gen",
       "type": 2,
       "page": { "route": "/solutions/video-generation-training-data", "placement": "hero" },
-      "samples": [{ "datasetId": "bafc163f-c839-4e52-8684-5c9cbfbc89e5", "datasetSlug": "video-generation-preference" }],
+      "samples": [{ "datasetId": "bafc163f-83c5-48d5-8944-bd6808cf8688", "datasetSlug": "video-generation-preference-data" }],
       "annotationSource": "real",
       "enrichment": null,
       "render": { "durationFrames": 360, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
@@ -49,7 +49,7 @@
       "id": "sol-rlhf",
       "type": 2,
       "page": { "route": "/solutions/expert-rlhf-annotation", "placement": "hero" },
-      "samples": [{ "datasetId": "bafc163f-c839-4e52-8684-5c9cbfbc89e5", "datasetSlug": "video-generation-preference" }],
+      "samples": [{ "datasetId": "bafc163f-83c5-48d5-8944-bd6808cf8688", "datasetSlug": "video-generation-preference-data" }],
       "annotationSource": "real",
       "enrichment": null,
       "render": { "durationFrames": 360, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
@@ -85,7 +85,7 @@
       "id": "sol-crowd-vs-expert",
       "type": 3,
       "page": { "route": "/solutions/crowdsourced-vs-expert-rlhf", "placement": "hero" },
-      "samples": [{ "datasetId": "55f26c56-fca3-4b23-8e1a-4ab32b34e3af", "datasetSlug": "ai-image-generation-eval" }],
+      "samples": [{ "datasetId": "55f26c56-04d5-4a30-9939-b49e3ad809bb", "datasetSlug": "ai-image-generation-evaluation" }],
       "annotationSource": "real",
       "enrichment": null,
       "render": { "durationFrames": 300, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }

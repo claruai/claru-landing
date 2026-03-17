@@ -300,7 +300,7 @@
       "title": "Extract Real Annotation Data for Type 2 Compositions (4 Pairwise Arena)",
       "description": "Extract and transform real annotation data from S3 for sol-video-gen, sol-rlhf, cs-vid-eval, cs-prompt-bench. Uses betterVideoId, selectedAnswer, bestVideo from annotation JSONs.",
       "priority": "high",
-      "passes": false,
+      "passes": true,
       "dependencies": ["US-003b", "US-006"],
       "acceptanceCriteria": [
         "sol-video-gen + sol-rlhf: extract betterVideoId, prompt_text, video_1/video_2 URLs from Video Generation Preference (bafc163f)",
@@ -317,7 +317,7 @@
       "title": "Extract Real Annotation Data for Type 3 Composition (Multi-Gen Gallery)",
       "description": "Extract real annotation data for sol-crowd-vs-expert from AI Image Generation Evaluation dataset (55f26c56).",
       "priority": "high",
-      "passes": false,
+      "passes": true,
       "dependencies": ["US-003b", "US-007"],
       "acceptanceCriteria": [
         "Download annotation JSON from AI Image Eval dataset (55f26c56)",
@@ -333,7 +333,7 @@
       "title": "Extract Real Annotation Data for Type 4 Compositions (Detection + Annotation)",
       "description": "Extract real bbox/identity data for cs-fashion (Product Image) and cs-object-id (Face Identity).",
       "priority": "high",
-      "passes": false,
+      "passes": true,
       "dependencies": ["US-003b", "US-008"],
       "acceptanceCriteria": [
         "cs-fashion: extract brandName ('Craghoppers'), category, subcategory, captions (short + long), lifestyle bbox {x1:175.26, y1:64.57, x2:365.51, y2:317.09} from Product Image (f6bdb2f1)",
@@ -348,7 +348,7 @@
       "title": "Extract Real Annotation Data for Type 5 Compositions (Classification Pipeline)",
       "description": "Extract real classification/taxonomy data for sol-sim2real, cs-game-capture, cs-vid-classify.",
       "priority": "high",
-      "passes": false,
+      "passes": true,
       "dependencies": ["US-003b", "US-009"],
       "acceptanceCriteria": [
         "cs-vid-classify: dual taxonomy from Video Classification (ca2465cf) -- content (Technology & Computing / Smartphones & Gadget Use) + visual style (Portrait photography / Urban outdoor portraits), caption, concept ('People')",
@@ -362,7 +362,7 @@
       "title": "Extract Real Annotation Data for Type 6 Composition (Quality Rubric)",
       "description": "Extract real 5-axis quality rubric data for cs-vid-quality from Video Quality Annotations (4bda56db).",
       "priority": "high",
-      "passes": false,
+      "passes": true,
       "dependencies": ["US-003b", "US-010"],
       "acceptanceCriteria": [
         "Download annotation JSON from Video Quality Annotations (4bda56db)",
@@ -379,7 +379,7 @@
       "title": "Extract Real Annotation Data for Type 7 Compositions (Safety Shield)",
       "description": "Extract real safety/policy data for sol-red-teaming, sol-eu-ai-act, cs-gen-safety, cs-red-team from Content Safety (132debad).",
       "priority": "high",
-      "passes": false,
+      "passes": true,
       "dependencies": ["US-003b", "US-011"],
       "acceptanceCriteria": [
         "Download annotation JSONs from Content Safety dataset (132debad)",
