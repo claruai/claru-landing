@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, X } from "lucide-react";
+import { Search, X, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import type { Dataset, DatasetCategory } from "@/types/data-catalog";
 
@@ -81,6 +81,7 @@ export function CatalogBrowser({ datasets, categories }: CatalogBrowserProps) {
   const [selectedTags, setSelectedTags] = useState<string[]>(() =>
     parseTagsParam(searchParams.get("tags"))
   );
+  const [tagsExpanded, setTagsExpanded] = useState(false);
 
   // -------------------------------------------------------------------------
   // Derived: deduplicated, alphabetically sorted tags across all datasets
@@ -224,35 +225,54 @@ export function CatalogBrowser({ datasets, categories }: CatalogBrowserProps) {
           </div>
         )}
 
-        {/* Tag pills */}
+        {/* Tag pills — collapsible */}
         {availableTags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2">
-            {availableTags.map((tag) => {
-              const isActive = selectedTags.includes(tag);
-              return (
-                <button
-                  key={tag}
-                  onClick={() => toggleTag(tag)}
-                  className={`rounded-full px-3 py-1.5 text-xs font-mono transition-colors duration-200 ${
-                    isActive
-                      ? "bg-[var(--bg-secondary)] text-[var(--accent-primary)] border border-[var(--accent-primary)]"
-                      : "bg-[var(--bg-secondary)] text-[var(--text-tertiary)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] hover:text-[var(--text-secondary)]"
-                  }`}
-                >
-                  #{tag}
-                </button>
-              );
-            })}
+          <div>
+            <button
+              onClick={() => setTagsExpanded((v) => !v)}
+              className="flex items-center gap-1.5 text-xs font-mono text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors duration-200"
+            >
+              <ChevronDown
+                className={`h-3.5 w-3.5 transition-transform duration-200 ${tagsExpanded ? "rotate-180" : ""}`}
+                strokeWidth={1.5}
+              />
+              {tagsExpanded ? "Hide tag filters" : "Tag filters"}
+              {selectedTags.length > 0 && (
+                <span className="ml-1 rounded-full bg-[var(--accent-primary)] text-[var(--bg-primary)] px-1.5 py-0.5 text-[10px] leading-none">
+                  {selectedTags.length}
+                </span>
+              )}
+            </button>
 
-            {/* Clear all tags button */}
-            {selectedTags.length > 0 && (
-              <button
-                onClick={clearAllTags}
-                className="rounded-full px-3 py-1.5 text-xs font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors duration-200 flex items-center gap-1"
-              >
-                <X className="h-3 w-3" strokeWidth={1.5} />
-                Clear tags
-              </button>
+            {tagsExpanded && (
+              <div className="flex flex-wrap items-center gap-2 mt-3">
+                {availableTags.map((tag) => {
+                  const isActive = selectedTags.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      onClick={() => toggleTag(tag)}
+                      className={`rounded-full px-3 py-1.5 text-xs font-mono transition-colors duration-200 ${
+                        isActive
+                          ? "bg-[var(--bg-secondary)] text-[var(--accent-primary)] border border-[var(--accent-primary)]"
+                          : "bg-[var(--bg-secondary)] text-[var(--text-tertiary)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] hover:text-[var(--text-secondary)]"
+                      }`}
+                    >
+                      #{tag}
+                    </button>
+                  );
+                })}
+
+                {selectedTags.length > 0 && (
+                  <button
+                    onClick={clearAllTags}
+                    className="rounded-full px-3 py-1.5 text-xs font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors duration-200 flex items-center gap-1"
+                  >
+                    <X className="h-3 w-3" strokeWidth={1.5} />
+                    Clear tags
+                  </button>
+                )}
+              </div>
             )}
           </div>
         )}
@@ -318,7 +338,7 @@ export function CatalogBrowser({ datasets, categories }: CatalogBrowserProps) {
                   <span className="text-[var(--accent-primary)]">
                     {ds.total_samples.toLocaleString()}
                   </span>{" "}
-                  samples
+                  assets
                 </span>
                 {ds.total_duration_hours > 0 && (
                   <span>
