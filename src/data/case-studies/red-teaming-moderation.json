@@ -56,6 +56,6 @@
     { "step": "04", "title": "Operationalize", "description": "Deploy with real-time monitoring dashboard" }
   ],
   "images": [],
-  "datePublished": "2026-01-22",
+  "datePublished": "2026-02-28",
   "sampleData": { "type": "red-teaming-dashboard" }
 }
