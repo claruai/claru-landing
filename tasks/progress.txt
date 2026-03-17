@@ -185,3 +185,47 @@
   - Uses shared components: RadarChart, ProgressBar, BottomBar, TechMetadataOverlay, DesignTokens
   - npx tsc --noEmit passes (no new errors; only pre-existing EgocentricPipeline/SensorFusion errors)
   - prd.json US-010 passes=true
+
+2026-03-16 | US-012 | Type 8 -- Cinematic Showcase Composition (replace placeholder)
+  - Replaced placeholder CinematicShowcaseComposition.tsx with full cinematic showcase implementation
+  - Video plays full-bleed with LetterboxBars component (2.39:1 cinematic within 16:9 frame, calculated bar height)
+  - Minimal overlay emphasizing TECHNICAL QUALITY SIGNALS: ResolutionBadge (3840x2160 top-right), TechSignals panel (codec, fps, color depth)
+  - Category tag + subcategory + licensing badge ("Licensed 4K") slide in from left via SlideLabel component
+  - SlideLabel uses motion blur effect during slide-in/out transitions (CSS filter blur during movement frames)
+  - FilmGrain CSS overlay using SVG feTurbulence noise texture at 8% opacity, mixBlendMode overlay
+  - cs-egocentric: cross-fade between primary egocentric clip and secondary cinematic clip (frames 120-150)
+  - sol-open-vs-custom: CustomDataLabel with premium styling, accent glow dot, uppercase tracking
+  - Gemini scene description as TypedSubtitle at bottom with blinking cursor, character-by-character reveal
+  - Timeline: 0-15 fade through letterbox, 15-90 video plays with labels sliding in/out, 90-180 scene description types, 180-270 hold with gentle zoom (1.0 to 1.04), 270-300 fade to CLARU watermark + "Licensed Collection" badge
+  - TechMetadataOverlay prominently placed (this type is about quality signals)
+  - BottomBar minimal (CLARU branding with timestamp)
+  - LicensingBadge "Licensed Collection" fades in during final watermark phase
+  - Created src/remotion/compositions/type-8/types.ts with Type8Annotation, TechnicalQuality, CategoryMeta, FALLBACK_TYPE8_ANNOTATION
+  - Graceful fallback: useAnnotation helper catches require errors, merges with FALLBACK_TYPE8_ANNOTATION
+  - Uses shared components: TechMetadataOverlay, BottomBar, DesignTokens
+  - npx tsc --noEmit passes (only pre-existing EgocentricPipeline.tsx errors)
+  - prd-remotion-media.json US-012 status=done, passes=true
+
+2026-03-16 | US-009 | Type 5 -- Classification Pipeline Composition (replace placeholder)
+  - Replaced placeholder ClassificationPipelineComposition.tsx with full classification pipeline implementation
+  - Video left (60%) with vignette overlay, taxonomy panel right (40%) with TerminalHeader
+  - cs-vid-classify: dual taxonomy -- Content (People -> Technology & Computing -> Smartphones & Gadget Use) AND Visual Style (Portrait photography -> Urban outdoor portraits)
+  - cs-game-capture: game taxonomy with 25-game catalog fanning out at second level, selected game (Red Dead Redemption 2) gets checkmark leaf
+  - sol-sim2real: game taxonomy with 25-game catalog, Microsoft Flight Simulator selected
+  - Caption typewriter effect below video (frames 180-270) with blinking cursor and "caption:" label
+  - Pipeline stages animate at bottom of right panel: Raw Capture -> Classification -> Review -> Approved (18-frame stagger, green checkmarks on complete)
+  - VerdictBadge "APPROVED" with glow animation appears at frame 260
+  - Timeline: 0-30 fade in, 30-90 first taxonomy tree level-by-level (12 frames/level), 90-180 second taxonomy (if dual, 15 frames/level), 180-270 caption + pipeline stages, 270-360 hold + fade
+  - Graceful fallback: VideoPlaceholder component shown when media sample not yet extracted
+  - Media loading: tries .mp4/.webm video first, then .jpg/.png/.webp image, falls back to placeholder
+  - Includes TechMetadataOverlay (h264, 1280x720, 30fps) and BottomBar with phase-aware label
+  - Created src/remotion/compositions/type-5/types.ts with:
+    - Type5Annotation interface (taxonomies[], caption, pipelineStages[], gameTitle?, gameCatalog?)
+    - TaxonomyPath interface (root, levels[])
+    - PipelineStage interface (label, status)
+    - FALLBACK_ANNOTATIONS for cs-vid-classify, cs-game-capture, sol-sim2real
+    - GAME_CATALOG_25 with 25 real game titles
+    - getType5Annotation() helper with graceful fallback
+  - Uses shared components: TaxonomyTree, BottomBar, VerdictBadge, TechMetadataOverlay, TerminalHeader, DesignTokens
+  - npx tsc --noEmit passes (no new errors; only pre-existing EgocentricPipeline/SensorFusion errors)
+  - prd-remotion-media.json US-009 status=done, passes=true
