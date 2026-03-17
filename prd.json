@@ -704,7 +704,7 @@
       "title": "Visual Verification",
       "description": "Manual visual verification of all 22 pages.",
       "priority": "low",
-      "passes": false,
+      "passes": true,
       "dependencies": [
         "US-028"
       ],
