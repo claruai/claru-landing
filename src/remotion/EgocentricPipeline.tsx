@@ -251,9 +251,9 @@ function SidePanel({ annotation, show }: { annotation: Keyframe; show: boolean }
               <span style={{ color: MUTED, fontSize: 8 }}>[{obj.affordance}]</span>
             </div>
             <div style={{ paddingLeft: 14, color: MUTED }}>
-              {(obj as Record<string, unknown>).state && <span>state: {(obj as Record<string, unknown>).state as string} · </span>}
-              {(obj as Record<string, unknown>).fill_level_pct != null && <span>fill: {(obj as Record<string, unknown>).fill_level_pct as number}% · </span>}
-              {(obj as Record<string, unknown>).pose_6dof && (
+              {Boolean((obj as Record<string, unknown>).state) && <span>state: {String((obj as Record<string, unknown>).state)} · </span>}
+              {(obj as Record<string, unknown>).fill_level_pct != null && <span>fill: {String((obj as Record<string, unknown>).fill_level_pct)}% · </span>}
+              {Boolean((obj as Record<string, unknown>).pose_6dof) && (
                 <span>pitch: {((obj as Record<string, unknown>).pose_6dof as Record<string, number>).pitch}°</span>
               )}
             </div>
@@ -373,7 +373,7 @@ export default function EgocentricPipeline() {
               bbox={obj.bbox}
               label={obj.label}
               color={BBOX_OBJECT}
-              sublabel={obj.affordance}
+              sublabel={obj.affordance ?? undefined}
               opacity={overlayOpacity}
             />
           ))}

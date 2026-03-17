@@ -89,6 +89,9 @@ export interface CaseStudy {
   /** ISO 8601 date string for when the case study was last modified. Falls back to datePublished if omitted. */
   dateModified?: string;
 
+  /** Optional path to a pre-rendered Remotion composition video (e.g. "/videos/cs-egocentric.mp4"). */
+  videoComposition?: string;
+
   /** Optional sample data configuration for the interactive viewer. */
   sampleData?: {
     type: string;

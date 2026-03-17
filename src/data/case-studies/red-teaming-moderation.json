@@ -2,20 +2,32 @@
   "slug": "red-teaming-moderation",
   "title": "Building and Red-Teaming an AI Content Moderation System",
   "category": "safety",
-  "teaser": "Designed, calibrated, and stress-tested a production content moderation system — achieving sub-2% rejection while maintaining safety coverage across all AI products.",
+  "teaser": "Designed, calibrated, and stress-tested a production content moderation system \u2014 achieving sub-2% rejection while maintaining safety coverage across all AI products.",
   "headlineStat": "<2%",
   "headlineStatLabel": "Output rejection rate with full safety coverage",
   "summary": "Partnered with an AI lab to design, validate, and operationalize a scalable content moderation system. Combined system design, threshold calibration, and extensive red teaming across NSFW, celebrity, and IP likeness categories. Built a red teaming dashboard that ran adversarial datasets against live models. Achieved sub-2% rejection rate while maintaining robust safety coverage.",
   "challenge": "The AI lab needed a unified content moderation system across all products. Existing moderation generated excessive false positives creating user friction, while coverage gaps exposed the platform to safety and abuse risks. The system needed to align with internal content policy, reduce risk at scale, and maintain high-quality UX across consumer and enterprise products.",
-  "approach": "We decomposed the moderation pipeline into discrete visual and text classification models — NSFW detection, celebrity likeness recognition, and IP likeness detection — each with independent confidence thresholds. Rather than applying a single binary filter, we defined category-level rulings and conjunction-based logic: a piece of content could be flagged by one model but cleared by another depending on the product context and risk profile. Confidence thresholds were calibrated per category using labeled datasets, with separate configurations for consumer-facing products (stricter) and enterprise APIs (more permissive). Each threshold was validated through structured A/B testing against held-out evaluation sets to measure the trade-off between false positive rate and safety coverage.\n\nThe second phase focused on adversarial stress-testing. We built a red teaming dashboard that ran structured adversarial datasets against the live moderation system — including AI-generated pentesting prompts, known jailbreaking patterns, and edge-case inputs designed to exploit gaps between visual and text classifiers. The dashboard tracked block rates, false negative rates, and latency per model in real time. Each red teaming cycle produced a structured report identifying failure modes, which fed directly into threshold adjustments and model retraining priorities.\n\nThe result was a moderation system that could be tuned by product context — lighter filtering for enterprise customers who manage their own compliance, stricter enforcement for consumer-facing products — while maintaining a consistent safety floor across all endpoints.",
+  "approach": "We decomposed the moderation pipeline into discrete visual and text classification models \u2014 NSFW detection, celebrity likeness recognition, and IP likeness detection \u2014 each with independent confidence thresholds. Rather than applying a single binary filter, we defined category-level rulings and conjunction-based logic: a piece of content could be flagged by one model but cleared by another depending on the product context and risk profile. Confidence thresholds were calibrated per category using labeled datasets, with separate configurations for consumer-facing products (stricter) and enterprise APIs (more permissive). Each threshold was validated through structured A/B testing against held-out evaluation sets to measure the trade-off between false positive rate and safety coverage.\n\nThe second phase focused on adversarial stress-testing. We built a red teaming dashboard that ran structured adversarial datasets against the live moderation system \u2014 including AI-generated pentesting prompts, known jailbreaking patterns, and edge-case inputs designed to exploit gaps between visual and text classifiers. The dashboard tracked block rates, false negative rates, and latency per model in real time. Each red teaming cycle produced a structured report identifying failure modes, which fed directly into threshold adjustments and model retraining priorities.\n\nThe result was a moderation system that could be tuned by product context \u2014 lighter filtering for enterprise customers who manage their own compliance, stricter enforcement for consumer-facing products \u2014 while maintaining a consistent safety floor across all endpoints.",
   "results": [
-    { "value": "<2%", "label": "Output rejection rate with full safety coverage" },
-    { "value": "3", "label": "Detection models calibrated (NSFW, celebrity, IP)" },
-    { "value": "2", "label": "Product contexts (consumer strict, enterprise permissive)" },
-    { "value": "0", "label": "Critical safety gaps remaining after red team cycles" }
+    {
+      "value": "<2%",
+      "label": "Output rejection rate with full safety coverage"
+    },
+    {
+      "value": "3",
+      "label": "Detection models calibrated (NSFW, celebrity, IP)"
+    },
+    {
+      "value": "2",
+      "label": "Product contexts (consumer strict, enterprise permissive)"
+    },
+    {
+      "value": "0",
+      "label": "Critical safety gaps remaining after red team cycles"
+    }
   ],
-  "impact": "The moderation system shipped to production with sub-2% rejection rates — meaning fewer than 2 in 100 user requests were blocked — while maintaining robust safety coverage across NSFW, celebrity likeness, and IP detection. Red teaming cycles surfaced and closed critical failure modes before launch, including edge cases where visual and text classifiers disagreed and conjunction logic produced incorrect rulings. The product-context architecture enabled the lab to offer enterprise customers permissive defaults while maintaining stricter enforcement for consumer products, without maintaining separate moderation stacks. The real-time dashboard became ongoing infrastructure, not just a launch tool — the team continues to run adversarial tests against each model update.",
-  "whyItMatters": "Most AI companies bolt on content moderation after launch — reacting to incidents rather than engineering safety into the system. This engagement shows what proactive safety looks like: decomposing moderation into independent detection models with per-category thresholds, validating every configuration through structured A/B testing, and stress-testing the full pipeline with adversarial red teaming before it reaches users. The result is a system where the safety-UX trade-off is explicit, measurable, and tunable by product context — not a guessing game that swings between over-blocking and under-filtering.",
+  "impact": "The moderation system shipped to production with sub-2% rejection rates \u2014 meaning fewer than 2 in 100 user requests were blocked \u2014 while maintaining robust safety coverage across NSFW, celebrity likeness, and IP detection. Red teaming cycles surfaced and closed critical failure modes before launch, including edge cases where visual and text classifiers disagreed and conjunction logic produced incorrect rulings. The product-context architecture enabled the lab to offer enterprise customers permissive defaults while maintaining stricter enforcement for consumer products, without maintaining separate moderation stacks. The real-time dashboard became ongoing infrastructure, not just a launch tool \u2014 the team continues to run adversarial tests against each model update.",
+  "whyItMatters": "Most AI companies bolt on content moderation after launch \u2014 reacting to incidents rather than engineering safety into the system. This engagement shows what proactive safety looks like: decomposing moderation into independent detection models with per-category thresholds, validating every configuration through structured A/B testing, and stress-testing the full pipeline with adversarial red teaming before it reaches users. The result is a system where the safety-UX trade-off is explicit, measurable, and tunable by product context \u2014 not a guessing game that swings between over-blocking and under-filtering.",
   "faqs": [
     {
       "question": "What red teaming methodology was used?",
@@ -23,7 +35,7 @@
     },
     {
       "question": "How were confidence thresholds calibrated?",
-      "answer": "Thresholds were set per category (NSFW, celebrity, IP likeness) using labeled evaluation datasets. We ran structured A/B tests comparing threshold configurations against held-out sets, measuring the trade-off between false positive rate and safety coverage. Consumer products received stricter thresholds, while enterprise APIs used more permissive settings — all validated through controlled experiments before deployment."
+      "answer": "Thresholds were set per category (NSFW, celebrity, IP likeness) using labeled evaluation datasets. We ran structured A/B tests comparing threshold configurations against held-out sets, measuring the trade-off between false positive rate and safety coverage. Consumer products received stricter thresholds, while enterprise APIs used more permissive settings \u2014 all validated through controlled experiments before deployment."
     },
     {
       "question": "What models were tested in the moderation pipeline?",
@@ -31,7 +43,7 @@
     },
     {
       "question": "How does the system handle different product contexts?",
-      "answer": "The moderation framework supports product-specific configurations. Consumer-facing products use stricter thresholds with lower tolerance for false negatives, while enterprise APIs apply more permissive settings since enterprise customers often manage their own compliance layers. Both configurations share the same underlying models and safety floor — only the threshold profiles differ."
+      "answer": "The moderation framework supports product-specific configurations. Consumer-facing products use stricter thresholds with lower tolerance for false negatives, while enterprise APIs apply more permissive settings since enterprise customers often manage their own compliance layers. Both configurations share the same underlying models and safety floor \u2014 only the threshold profiles differ."
     },
     {
       "question": "What did the red teaming dashboard track?",
@@ -50,12 +62,31 @@
   "metaTitle": "Red-Teaming AI Content Moderation | Claru",
   "metaDescription": "How we built and stress-tested a production content moderation system achieving sub-2% rejection with full safety coverage. Red teaming, threshold calibration, real-time monitoring.",
   "processSteps": [
-    { "step": "01", "title": "Design", "description": "Decompose moderation into visual and text models" },
-    { "step": "02", "title": "Calibrate", "description": "Set confidence thresholds per category" },
-    { "step": "03", "title": "Red Team", "description": "Adversarial testing via pentesting and jailbreaking" },
-    { "step": "04", "title": "Operationalize", "description": "Deploy with real-time monitoring dashboard" }
+    {
+      "step": "01",
+      "title": "Design",
+      "description": "Decompose moderation into visual and text models"
+    },
+    {
+      "step": "02",
+      "title": "Calibrate",
+      "description": "Set confidence thresholds per category"
+    },
+    {
+      "step": "03",
+      "title": "Red Team",
+      "description": "Adversarial testing via pentesting and jailbreaking"
+    },
+    {
+      "step": "04",
+      "title": "Operationalize",
+      "description": "Deploy with real-time monitoring dashboard"
+    }
   ],
   "images": [],
   "datePublished": "2026-01-22",
-  "sampleData": { "type": "red-teaming-dashboard" }
+  "sampleData": {
+    "type": "red-teaming-dashboard"
+  },
+  "videoComposition": "/videos/cs-red-team.mp4"
 }

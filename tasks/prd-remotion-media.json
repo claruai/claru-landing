@@ -285,6 +285,65 @@
         "Graceful fallback when annotation JSON missing",
         "TypeScript strict mode passes with no new errors"
       ]
+    },
+    {
+      "id": "US-024",
+      "title": "Create Case Study Enhancement Components",
+      "description": "Build AnimatedMetrics and ProcessTimeline components for case study pages.",
+      "status": "done",
+      "passes": true,
+      "priority": "medium",
+      "estimation": "M",
+      "dependencies": [
+        "US-023"
+      ],
+      "acceptance_criteria": [
+        "Create src/app/components/media/AnimatedMetrics.tsx with Framer Motion useInView triggered counter animation",
+        "Grid layout: grid-cols-2 md:grid-cols-4, terminal aesthetic with JetBrains Mono",
+        "Create src/app/components/media/ProcessTimeline.tsx with staggered step reveal and connecting line draw animation",
+        "Responsive: horizontal on desktop, vertical on mobile",
+        "Both components work standalone",
+        "TypeScript strict mode passes"
+      ]
+    },
+    {
+      "id": "US-025",
+      "title": "Redesign Case Study Detail Page Layout",
+      "description": "Update CaseStudyDetailClient.tsx to conditionally render video hero, animated metrics, and process timeline.",
+      "status": "done",
+      "passes": true,
+      "priority": "medium",
+      "estimation": "M",
+      "dependencies": [
+        "US-023",
+        "US-024"
+      ],
+      "acceptance_criteria": [
+        "Render <VideoHero> when cs.videoComposition present",
+        "Replace static snapshot stats with <AnimatedMetrics>",
+        "Replace <ProcessFlow> with <ProcessTimeline>",
+        "All changes conditional -- no regressions for case studies without videoComposition",
+        "TypeScript strict mode passes"
+      ]
+    },
+    {
+      "id": "US-026",
+      "title": "Wire Up All 11 Case Study Pages",
+      "description": "Add videoComposition field to all 11 case study data files.",
+      "status": "done",
+      "passes": true,
+      "priority": "medium",
+      "estimation": "S",
+      "dependencies": [
+        "US-022",
+        "US-025"
+      ],
+      "acceptance_criteria": [
+        "Add videoComposition? to CaseStudy type",
+        "Update all 11 case study JSONs with correct composition IDs",
+        "All set placement: hero",
+        "Smoke test: no console errors, video plays, metrics animate"
+      ]
     }
   ]
 }

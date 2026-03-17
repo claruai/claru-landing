@@ -202,3 +202,53 @@ All 22 compositions rendered successfully to public/videos/{id}.mp4 at 1280x720,
 
 ### prd.json Updated
 US-021, US-022 set to passes: true
+
+---
+
+## US-024 + US-025 + US-026: Case Study Page Redesign (2026-03-16)
+
+### US-024: Case Study Enhancement Components
+- Created src/app/components/media/AnimatedMetrics.tsx
+  - Framer Motion useInView triggered counter animation
+  - Parses metric strings (prefix/number/suffix), animates from 0 with ease-out cubic over 1.2s
+  - Handles commas, decimals, prefixes (~, $), suffixes (K+, %, M, x)
+  - Grid: grid-cols-2 md:grid-cols-4, JetBrains Mono for numbers, accent color
+- Created src/app/components/media/ProcessTimeline.tsx
+  - Staggered step reveal with connecting line draw animation (scaleX/scaleY from 0)
+  - Horizontal on desktop with spring-animated step circles and horizontal connecting line
+  - Vertical on mobile with vertical connecting line
+  - Step numbers zero-padded (01, 02, etc.), accent-colored circles with bg-primary fill
+  - Props: steps Array<{label: string, description?: string}>
+
+### US-025: Redesign Case Study Detail Page Layout
+- Updated src/app/case-studies/[slug]/CaseStudyDetailClient.tsx
+  - Imports VideoHero, AnimatedMetrics, ProcessTimeline
+  - VideoHero renders below hero text when cs.videoComposition is present (with category badge)
+  - Snapshot bar: AnimatedMetrics when videoComposition present, static grid otherwise
+  - Process flow: ProcessTimeline when videoComposition present, ProcessFlow otherwise
+  - All changes fully conditional — pages without videoComposition render exactly as before
+
+### US-026: Wire Up All 11 Case Study Pages
+- Added videoComposition?: string to CaseStudy interface in src/types/case-study.ts
+- Updated all 11 case study JSON files:
+  - egocentric-video-collection.json -> "/videos/cs-egocentric.mp4"
+  - workplace-egocentric-data.json -> "/videos/cs-workplace.mp4"
+  - fashion-ai-annotation.json -> "/videos/cs-fashion.mp4"
+  - game-based-data-capture.json -> "/videos/cs-game-capture.mp4"
+  - generative-ai-safety.json -> "/videos/cs-gen-safety.mp4"
+  - red-teaming-moderation.json -> "/videos/cs-red-team.mp4"
+  - video-content-classification.json -> "/videos/cs-vid-classify.mp4"
+  - video-model-evaluation.json -> "/videos/cs-vid-eval.mp4"
+  - video-quality-at-scale.json -> "/videos/cs-vid-quality.mp4"
+  - prompt-enhancement-benchmark.json -> "/videos/cs-prompt-bench.mp4"
+  - object-identity-persistence.json -> "/videos/cs-object-id.mp4"
+
+### Bonus: Fixed pre-existing EgocentricPipeline.tsx TypeScript errors
+- Line 254/256: Wrapped unknown && JSX with Boolean() to produce boolean instead of unknown
+- Line 376: Changed obj.affordance to obj.affordance ?? undefined (null -> undefined)
+- npx tsc --noEmit now passes with zero errors (was 3 pre-existing errors)
+
+### Validation
+- npx tsc --noEmit passes (0 errors)
+- npm run build succeeds
+- prd-remotion-media.json US-024, US-025, US-026 set to status=done, passes=true

@@ -88,5 +88,6 @@
   "datePublished": "2025-12-01",
   "sampleData": {
     "type": "fashion-annotation"
-  }
+  },
+  "videoComposition": "/videos/cs-fashion.mp4"
 }
