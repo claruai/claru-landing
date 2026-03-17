@@ -1,0 +1,255 @@
+2026-03-16 | US-008 | Tier 2 data files — sim-to-real-data.ts + teleoperation-data.ts
+  - Created src/data/content-pages/sim-to-real-data.ts (slug: sim-to-real-data, 5 citations, 4 FAQs, 4 landscape rows)
+  - Created src/data/content-pages/teleoperation-data.ts (slug: teleoperation-data, 5 citations, 4 FAQs, 4 landscape rows)
+  - Registered both in src/data/content-pages/index.ts
+  - npx tsc --noEmit passes
+  - prd-content-pages.json US-008 status=done, passes=true
+
+2026-03-16 | US-013 | Playwright E2E tests — all 11 solution pages verified
+  - Created tests/e2e/content-pages.spec.ts (122 tests across 11 slugs + OG image API)
+  - Data-driven pattern: parameterized across all 11 /solutions/[slug] pages
+  - Per-page tests: HTTP 200, exactly 1 h1, BreadcrumbList JSON-LD, FAQPage JSON-LD (3-5 items), Service JSON-LD, canonical URL, og:image meta, sections, external citation links (3+), FAQ accordion expand/collapse
+  - OG image API test: /api/og?title=Test&category=solution returns image
+  - All 122 tests pass on chromium (27s)
+  - npx tsc --noEmit passes
+  - prd-content-pages.json US-013 status=done, passes=true
+
+2026-03-16 | US-001 | Extract shared Remotion components from EgocentricPipeline prototype
+  - Created src/remotion/shared/DesignTokens.ts (TOKENS with colors, fonts, bbox as const)
+  - Created src/remotion/shared/BoundingBox.tsx (bbox overlay with corners, confidence, sublabel)
+  - Created src/remotion/shared/MetadataPanel.tsx (generalized terminal-style panel with sections/rows)
+  - Created src/remotion/shared/ProgressBar.tsx (animated bar using Remotion interpolate)
+  - Created src/remotion/shared/BottomBar.tsx (CLARU-branded timestamp bar with scrub indicator)
+  - Created src/remotion/shared/TerminalHeader.tsx (macOS-style terminal title bar with traffic light dots)
+  - Created src/remotion/shared/RadarChart.tsx (5-axis SVG spider chart with animated fill)
+  - Created src/remotion/shared/TaxonomyTree.tsx (animated hierarchical label tree with depth control)
+  - Created src/remotion/shared/VerdictBadge.tsx (label/border-glow/badge variants, fade/glow animation)
+  - Created src/remotion/shared/TechMetadataOverlay.tsx (codec, resolution, fps, duration at 9px)
+  - All components import from DesignTokens.ts, all export prop interfaces
+  - EgocentricPipeline.tsx unchanged
+  - npx tsc --noEmit passes (pre-existing errors in EgocentricPipeline.tsx only)
+  - prd-remotion-media.json US-001 status=done, passes=true
+
+2026-03-16 | US-002 | Create composition manifest and Root.tsx registry with 22 compositions
+  - Created scripts/composition-manifest.json with 22 entries (11 solution + 11 case study)
+  - Each entry: id, type (1-8), page (route + placement), samples (datasetId + datasetSlug), annotationSource, enrichment, render config
+  - Solution IDs: sol-egocentric, sol-vla, sol-manipulation, sol-teleop, sol-video-gen, sol-rlhf, sol-red-teaming, sol-sim2real, sol-open-vs-custom, sol-crowd-vs-expert, sol-eu-ai-act
+  - Case study IDs: cs-egocentric, cs-workplace, cs-fashion, cs-game-capture, cs-gen-safety, cs-red-team, cs-vid-classify, cs-vid-eval, cs-vid-quality, cs-prompt-bench, cs-object-id
+  - Duration by type: 1=300f, 2=360f, 3=300f, 4=300f, 5=360f, 6=360f, 7=300f, 8=300f
+  - annotationSource: "gemini" for Types 1,8 (7 compositions); "real" for Types 2-7 (15 compositions)
+  - Created 8 placeholder composition components in src/remotion/compositions/type-{1-8}/
+  - Updated src/remotion/Root.tsx: TYPE_MAP maps 1-8 to components, dynamically registers all 22 from manifest
+  - Existing EgocentricPipeline composition preserved (23 total compositions)
+  - npx remotion studio launches without errors (Built in 584ms)
+  - npx tsc --noEmit passes (only pre-existing EgocentricPipeline.tsx errors)
+  - prd.json US-002 passes=true
+
+2026-03-16 | US-004 | Create render pipeline script (render-all.ts)
+  - Created scripts/render-all.ts — reads composition-manifest.json, renders each to MP4 via Remotion CLI
+  - Batch rendering (2 concurrent) using child_process.spawn
+  - File size checks: warns > 10 MB, auto re-renders with CRF 28 if > 15 MB
+  - Summary table output: composition ID, type, duration(s), size(MB), status
+  - --dry-run flag prints commands without executing (verified: all 22 compositions)
+  - --composition {id} flag filters to single composition (verified: sol-egocentric)
+  - Creates public/videos/ directory if missing
+  - Exits non-zero on any render failure
+  - Added package.json scripts: remotion:render, remotion:pipeline
+  - prd-remotion-media.json US-004 status=done, passes=true
+
+2026-03-16 | US-003b | Create real annotation data extraction script
+  - Created scripts/extract-annotations.ts — downloads S3 annotation JSONs for 13 real-annotation compositions
+  - Reads composition-manifest.json, filters to annotationSource === "real"
+  - Per composition: queries Supabase for s3_annotation_key, downloads annotation JSON via S3 presigned URLs
+  - Per-type extraction: Type 2 (Pairwise: winner, promptText, videoA/B URLs), Type 3 (Multi-Gen: bestImage, selectedImages, generations), Type 4 (Detection: bbox, class, score, brandName, captions), Type 5 (Classification: category, subcategory, selectedGame, templateCategories), Type 6 (Quality Rubric: 5-axis quality dimensions + numeric scores), Type 7 (Safety: text/video policy violation, prompt)
+  - Zod validation schemas for all 6 types
+  - Downloads media files to public/remotion-assets/samples/{id}.{ext}
+  - Writes formatted JSON to public/remotion-assets/annotations/{id}.json
+  - --composition flag for single composition extraction
+  - If sample 404s, tries next sample in dataset
+  - Tested: npx tsx scripts/extract-annotations.ts --composition cs-vid-quality — extracts quality rubric with all 5 axes + video description + numeric scores
+  - Added "remotion:extract" to package.json scripts
+  - TypeScript strict mode passes (no new errors in extract-annotations.ts)
+  - prd-remotion-media.json US-003b status=done, passes=true
+
+2026-03-16 | US-003 | Create Gemini enrichment pipeline script for all 22 compositions
+  - Created scripts/gemini-enrich.ts — downloads S3 samples, extracts frames with ffmpeg, calls Gemini 2.5 Flash, validates with Zod, saves enrichment JSON
+  - Processes ALL 22 compositions: Types 1,8 generate all data; Types 2-7 supplement human annotations
+  - Created 8 prompt templates in scripts/gemini-prompts/type-{1-8}.txt — tailored per composition type
+    - Type 1: Sensor-fusion (hand pose, force, grip, IMU, spatial, object state)
+    - Type 2: Quality dimension comparison (prompt adherence, motion quality, visual fidelity, artifacts)
+    - Type 3: Per-image quality analysis (artifact descriptions, comparative notes)
+    - Type 4: Object detection + material/affordance supplementation
+    - Type 5: Scene description + object inventory + visual style classification
+    - Type 6: Frame-level quality analysis + artifact timestamps + motion metrics
+    - Type 7: Content category analysis + risk severity + policy mapping (EU AI Act)
+    - Type 8: Scene description + camera movement + technical quality + licensing
+  - Zod validation schemas for all 8 types; retry with stricter prompt on validation failure
+  - S3 sample download with fallback (tries multiple prefixes, logs 404s to tmp/missing-samples.log)
+  - Frame extraction via ffmpeg at configurable fps with 512px resize
+  - Concurrency limit 3, 1s batch delay, exponential backoff (2s base, max 5 retries) for rate limits
+  - --composition {id} flag for single composition enrichment
+  - Requires GOOGLE_API_KEY from .env.local; exits with clear error if missing
+  - Tested: npx tsx scripts/gemini-enrich.ts --composition sol-egocentric — downloaded 81.9 MB sample, extracted 30 frames, Gemini returned valid Type 1 data (128 KB enrichment JSON), Zod validation passed
+  - Added "remotion:enrich": "tsx scripts/gemini-enrich.ts" to package.json
+  - npx tsc --noEmit passes
+  - prd-remotion-media.json US-003 status=done, passes=true
+
+2026-03-16 | US-008 | Type 4 -- Detection + Annotation Composition (replace placeholder)
+  - Replaced placeholder DetectionAnnotationComposition.tsx with full implementation
+  - Created src/remotion/compositions/type-4/types.ts (Type4Annotation, DetectionSegment, ProductBBox, IdentityMatches, isObjectIdentity, isProductImage)
+  - Object Identity (cs-object-id): plays video, draws face bboxes from real segment[].bbox ([965,222,1390,829]), shows class:"face", score:0.825, identity match lines with "Same person? YES" verdict via SVG
+  - Product Image (cs-fashion): displays image with zoom-in, draws product bbox from real files[1].metadata ({x1:175.26, y1:64.57, x2:365.51, y2:317.09}), types captions letter-by-letter, brand/category labels slide in
+  - Bboxes draw progressively using shared BoundingBox with confidence prop, staggered per segment
+  - Caption types letter-by-letter via TypewriterText sub-component with blinking cursor
+  - Timeline: 0-20 fade in, 20-60 bboxes draw, 60-90 labels+scores, 90-150 captions, 150-210 identity/brand metadata, 210-270 hold, 270-300 fade out
+  - Includes TechMetadataOverlay (codec, resolution, fps, duration) and BottomBar with phase labels
+  - Uses VerdictBadge for identity match confirmation ("MATCH CONFIRMED" badge with glow)
+  - Graceful fallback: hardcoded real annotation data from media-asset-audit.md when JSON not yet extracted
+  - npx tsc --noEmit passes (only pre-existing EgocentricPipeline.tsx errors)
+  - prd-remotion-media.json US-008 status=done, passes=true
+
+2026-03-16 | US-006 | Type 2 -- Pairwise Arena Composition (replace placeholder)
+  - Replaced placeholder PairwiseArenaComposition.tsx with full split-screen A vs B implementation
+  - Two videos side by side (50/50 split) with Video/staticFile loading + graceful fallback
+  - Prompt text typewriter effect at top bar (starts frame 30, 1.5 chars/frame)
+  - Selected video gets subtle accent border glow (#92B090) via VerdictBadge border-glow variant
+  - Non-selected side dims (0.4 opacity) + desaturates (0.6) -- no crown/trophy/flashy animations
+  - Neutral split divider with config labels (e.g. "Config 21 | Config 41") or default "A | B"
+  - cs-vid-eval: supports configLabels prop for quality parameter config comparison
+  - cs-prompt-bench: supports categoryLabel with verification checkmark badge
+  - Timeline: 0-30 fade in + spring divider, 30-60 prompt types, 60-180 play, 180-240 selection glow + dim, 240-360 hold with pulse
+  - Includes TechMetadataOverlay (h264, 1280x720, 30fps) and BottomBar with phase-aware "Arena" label
+  - Created src/remotion/compositions/type-2/types.ts with Type2Annotation, Type2VideoRef, FALLBACK_TYPE2_ANNOTATION
+  - Uses shared components: VerdictBadge, BottomBar, TechMetadataOverlay, DesignTokens
+  - npx tsc --noEmit passes (only pre-existing EgocentricPipeline.tsx errors)
+  - prd-remotion-media.json US-006 status=done, passes=true
+
+2026-03-16 | US-007 | Type 3 -- Multi-Gen Gallery Composition (replace placeholder)
+  - Replaced placeholder MultiGenGalleryComposition.tsx with full 2x4 grid implementation
+  - 2x4 grid of 8 generation images from annotation JSON metadata.generations array
+  - Prompt typewriter effect above grid from metadata.prompt (starts frame 90, terminal $ prefix)
+  - Images stagger in 6 frames apart (starting frame 30), with scale+opacity entrance
+  - Green checkmarks on selectedImages via VerdictBadge variant:"badge" (PASS label, starts frame 120)
+  - Red Xs on rejected images via VerdictBadge variant:"badge" (FAIL label) + dark overlay dim
+  - Best image gets subtle accent border glow (#92B090) via VerdictBadge variant:"border-glow" with glow animation -- NOT a crown
+  - Stats bar: animated counters for "6/8 acceptable (75%), 1 best, 2 rejected" (starts frame 210)
+  - Timeline: 0-30 grid fades, 30-90 images appear, 90-120 prompt types, 120-180 checkmarks/Xs, 180-210 selection highlight, 210-240 stats, 240-300 hold
+  - Includes TechMetadataOverlay (h264, 1280x720, 30fps) and BottomBar with phase-aware "Generation Eval" label
+  - Created src/remotion/compositions/type-3/types.ts with Type3Annotation, Type3Generation, FALLBACK_TYPE3
+  - Graceful fallback: fetches annotation JSON, uses FALLBACK_TYPE3 if not available
+  - Uses shared components: VerdictBadge, BottomBar, TechMetadataOverlay, DesignTokens
+  - npx tsc --noEmit passes (only pre-existing EgocentricPipeline.tsx + type-1 errors)
+  - prd-remotion-media.json US-007 status=done, passes=true
+
+2026-03-16 | US-011 | Type 7 -- Safety Shield Composition (replace placeholder)
+  - Replaced placeholder SafetyShieldComposition.tsx with full safety review implementation
+  - Left 60%: blurred/pixelated content area (never actual unsafe content) with "CONTENT UNDER REVIEW" watermark
+  - Scanning line animation sweeps vertically during frames 30-60
+  - Right 40%: analysis panel with TerminalHeader-powered prompt terminal, verdict badges, shield icon
+  - Prompt typewriter effect in terminal panel (frames 60-90) with $ prefix and blinking cursor
+  - Dual-channel verdict badges via shared VerdictBadge: Text Policy (frames 90-150) + Video Policy (frames 150-210)
+  - sol-eu-ai-act: EU AI Act article reference badges (Art. 52 Transparency, Art. 6 High-Risk) in EU blue #003399
+  - cs-red-team: dual-channel scan animation — Phase 1 horizontal text scan (blue, 30-45) then Phase 2 vertical video scan (green, 45-60) with progress labels and checklist
+  - Shield SVG icon: outline draws (210-240), fills with color (240-270), checkmark (pass) or X (violation) appears
+  - Shield glows green for safe content, red for violations
+  - Timeline: 0-30 blur fade, 30-60 scan, 60-90 prompt types, 90-150 text verdict, 150-210 video verdict, 210-270 shield, 270-300 fade to CLARU watermark
+  - Includes TechMetadataOverlay (h264, 1280x720, 30fps) and BottomBar with phase-aware "Safety Review" label
+  - Created src/remotion/compositions/type-7/types.ts with Type7Annotation, PolicyReference interfaces
+  - Fallback annotations for all 4 type-7 compositions: sol-red-teaming, sol-eu-ai-act, cs-gen-safety, cs-red-team
+  - Uses shared components: VerdictBadge, TerminalHeader, BottomBar, TechMetadataOverlay, DesignTokens
+  - npx tsc --noEmit passes (only pre-existing EgocentricPipeline.tsx errors)
+  - prd-remotion-media.json US-011 status=done, passes=true
+
+2026-03-16 | US-010 | Type 6 -- Quality Rubric Composition (replace placeholder)
+  - Replaced placeholder QualityRubricComposition.tsx with full video + scoring panel implementation
+  - Video left (60%) with gradient overlay, scoring panel right (40%) with slide-in animation
+  - 5 quality dimension gauges using shared ProgressBar with score-based colors:
+    - Cinematic: "not-cinematic" -> 0.2 (red)
+    - Motion: "good-motion" -> 0.8 (green)
+    - Quality: "not-high-quality" -> 0.3 (orange)
+    - Interest: "interesting" -> 0.7 (green)
+    - Alignment: "good-alignment" -> 0.8 (green)
+  - Each gauge shows dimension name, percentage (spring-animated), raw value label, and colored ProgressBar
+  - After gauges fill, shared RadarChart builds 5-axis spider chart with animated fill (frames 90-150)
+  - metadata.video_description types out beneath video as annotator assessment (frames 150-240)
+  - Timeline: 0-30 fade in, 30-60 first gauge, 60-90 remaining gauges stagger (7-frame intervals), 90-150 radar chart, 150-240 description typewriter, 240-360 hold
+  - Average score summary appears below radar chart
+  - Includes TechMetadataOverlay (h264, 1280x720, 30fps, 12s) and BottomBar with phase-aware "Quality Assessment" label
+  - Created src/remotion/compositions/type-6/types.ts with:
+    - Type6Annotation interface (5 string dimension fields + videoDescription + optional scores)
+    - QualityDimension interface ({name, value: string, numericScore: number})
+    - ParsedQualityData interface (5-tuple dimensions + videoDescription)
+    - DIMENSION_SCORE_MAP with documented string->numeric mapping
+    - resolveScore(), scoreColor(), parseAnnotation() helper functions
+  - Graceful fallback: loadAnnotation() returns FALLBACK_DATA if annotation JSON fails to load
+  - Uses shared components: RadarChart, ProgressBar, BottomBar, TechMetadataOverlay, DesignTokens
+  - npx tsc --noEmit passes (no new errors; only pre-existing EgocentricPipeline/SensorFusion errors)
+  - prd.json US-010 passes=true
+
+2026-03-16 | US-012 | Type 8 -- Cinematic Showcase Composition (replace placeholder)
+  - Replaced placeholder CinematicShowcaseComposition.tsx with full cinematic showcase implementation
+  - Video plays full-bleed with LetterboxBars component (2.39:1 cinematic within 16:9 frame, calculated bar height)
+  - Minimal overlay emphasizing TECHNICAL QUALITY SIGNALS: ResolutionBadge (3840x2160 top-right), TechSignals panel (codec, fps, color depth)
+  - Category tag + subcategory + licensing badge ("Licensed 4K") slide in from left via SlideLabel component
+  - SlideLabel uses motion blur effect during slide-in/out transitions (CSS filter blur during movement frames)
+  - FilmGrain CSS overlay using SVG feTurbulence noise texture at 8% opacity, mixBlendMode overlay
+  - cs-egocentric: cross-fade between primary egocentric clip and secondary cinematic clip (frames 120-150)
+  - sol-open-vs-custom: CustomDataLabel with premium styling, accent glow dot, uppercase tracking
+  - Gemini scene description as TypedSubtitle at bottom with blinking cursor, character-by-character reveal
+  - Timeline: 0-15 fade through letterbox, 15-90 video plays with labels sliding in/out, 90-180 scene description types, 180-270 hold with gentle zoom (1.0 to 1.04), 270-300 fade to CLARU watermark + "Licensed Collection" badge
+  - TechMetadataOverlay prominently placed (this type is about quality signals)
+  - BottomBar minimal (CLARU branding with timestamp)
+  - LicensingBadge "Licensed Collection" fades in during final watermark phase
+  - Created src/remotion/compositions/type-8/types.ts with Type8Annotation, TechnicalQuality, CategoryMeta, FALLBACK_TYPE8_ANNOTATION
+  - Graceful fallback: useAnnotation helper catches require errors, merges with FALLBACK_TYPE8_ANNOTATION
+  - Uses shared components: TechMetadataOverlay, BottomBar, DesignTokens
+  - npx tsc --noEmit passes (only pre-existing EgocentricPipeline.tsx errors)
+  - prd-remotion-media.json US-012 status=done, passes=true
+
+2026-03-16 | US-009 | Type 5 -- Classification Pipeline Composition (replace placeholder)
+  - Replaced placeholder ClassificationPipelineComposition.tsx with full classification pipeline implementation
+  - Video left (60%) with vignette overlay, taxonomy panel right (40%) with TerminalHeader
+  - cs-vid-classify: dual taxonomy -- Content (People -> Technology & Computing -> Smartphones & Gadget Use) AND Visual Style (Portrait photography -> Urban outdoor portraits)
+  - cs-game-capture: game taxonomy with 25-game catalog fanning out at second level, selected game (Red Dead Redemption 2) gets checkmark leaf
+  - sol-sim2real: game taxonomy with 25-game catalog, Microsoft Flight Simulator selected
+  - Caption typewriter effect below video (frames 180-270) with blinking cursor and "caption:" label
+  - Pipeline stages animate at bottom of right panel: Raw Capture -> Classification -> Review -> Approved (18-frame stagger, green checkmarks on complete)
+  - VerdictBadge "APPROVED" with glow animation appears at frame 260
+  - Timeline: 0-30 fade in, 30-90 first taxonomy tree level-by-level (12 frames/level), 90-180 second taxonomy (if dual, 15 frames/level), 180-270 caption + pipeline stages, 270-360 hold + fade
+  - Graceful fallback: VideoPlaceholder component shown when media sample not yet extracted
+  - Media loading: tries .mp4/.webm video first, then .jpg/.png/.webp image, falls back to placeholder
+  - Includes TechMetadataOverlay (h264, 1280x720, 30fps) and BottomBar with phase-aware label
+  - Created src/remotion/compositions/type-5/types.ts with:
+    - Type5Annotation interface (taxonomies[], caption, pipelineStages[], gameTitle?, gameCatalog?)
+    - TaxonomyPath interface (root, levels[])
+    - PipelineStage interface (label, status)
+    - FALLBACK_ANNOTATIONS for cs-vid-classify, cs-game-capture, sol-sim2real
+    - GAME_CATALOG_25 with 25 real game titles
+    - getType5Annotation() helper with graceful fallback
+  - Uses shared components: TaxonomyTree, BottomBar, VerdictBadge, TechMetadataOverlay, TerminalHeader, DesignTokens
+  - npx tsc --noEmit passes (no new errors; only pre-existing EgocentricPipeline/SensorFusion errors)
+  - prd-remotion-media.json US-009 status=done, passes=true
+
+2026-03-16 | US-023 | VideoHero component + wire into all 11 solution pages
+  - Created src/app/components/media/VideoHero.tsx (client component)
+    - Props: videoSrc, posterSrc?, badge?, aspectRatio? (default "aspect-video")
+    - <video autoPlay muted loop playsInline> with IntersectionObserver pause/play
+    - onError handler: falls back to poster image, or hides component if no poster
+    - Fixed aspect-video container prevents CLS, rounded-2xl border border-[var(--border-subtle)]
+    - Responsive: full-width mobile, max-w-6xl desktop
+  - Added videoSrc?: string to ContentPageData interface in types.ts
+  - Updated ContentPageTemplate.tsx: renders <VideoHero> after ContentHero when page.videoSrc present
+  - Updated all 11 solution page data files with videoSrc:
+    - egocentric-video-data.ts -> /videos/sol-egocentric.mp4
+    - vla-training-data.ts -> /videos/sol-vla.mp4
+    - manipulation-trajectory-data.ts -> /videos/sol-manipulation.mp4
+    - teleoperation-data.ts -> /videos/sol-teleop.mp4
+    - video-generation-training-data.ts -> /videos/sol-video-gen.mp4
+    - expert-rlhf-annotation.ts -> /videos/sol-rlhf.mp4
+    - red-teaming-data.ts -> /videos/sol-red-teaming.mp4
+    - sim-to-real-data.ts -> /videos/sol-sim2real.mp4
+    - open-datasets-vs-custom.ts -> /videos/sol-open-vs-custom.mp4
+    - crowdsourced-vs-expert-rlhf.ts -> /videos/sol-crowd-vs-expert.mp4
+    - eu-ai-act-red-teaming.ts -> /videos/sol-eu-ai-act.mp4
+  - npx tsc --noEmit passes (only pre-existing EgocentricPipeline.tsx errors)
+  - prd.json US-023 passes=true

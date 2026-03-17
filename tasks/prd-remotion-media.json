@@ -1,0 +1,349 @@
+{
+  "id": "prd-remotion-media",
+  "title": "Remotion + Gemini Media Enhancement",
+  "description": "22 pre-rendered Remotion video compositions (11 solution pages + 11 case study pages) that visualize real annotation workflows using actual S3 media samples and annotation JSON data.",
+  "status": "draft",
+  "created": "2026-03-16",
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Extract Shared Remotion Components from EgocentricPipeline Prototype",
+      "description": "Extract reusable components from EgocentricPipeline.tsx into src/remotion/shared/. Foundation for all 8 composition types.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "M",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "DesignTokens.ts exports TOKENS with colors, fonts, bbox as const",
+        "BoundingBox.tsx with BoundingBoxProps interface extracted from EgocentricPipeline lines 91-165",
+        "MetadataPanel.tsx with MetadataPanelProps, MetadataSection, MetadataRow interfaces",
+        "ProgressBar.tsx with animated horizontal bar using Remotion interpolate",
+        "BottomBar.tsx with CLARU-branded timestamp bar and scrub indicator",
+        "TerminalHeader.tsx with macOS-style terminal title bar",
+        "RadarChart.tsx with 5-axis radar/spider chart using SVG with animated fill",
+        "TaxonomyTree.tsx with animated hierarchical label tree",
+        "VerdictBadge.tsx with verdict indicator (PASS/FAIL/SELECTED/REJECTED), no crown/trophy/stamp/flash",
+        "TechMetadataOverlay.tsx with codec, resolution, fps, duration overlay",
+        "All shared components import from DesignTokens.ts",
+        "All components export their prop interfaces",
+        "TypeScript strict mode passes with no new errors"
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Create Composition Manifest and Root.tsx Registry",
+      "description": "Create composition-manifest.json with 22 entries and update Root.tsx to dynamically register all compositions.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "M",
+      "dependencies": [
+        "US-001"
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Create Render Pipeline Script",
+      "description": "Build scripts/render-all.ts that reads the manifest and renders each composition to MP4 using Remotion CLI.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "M",
+      "dependencies": [
+        "US-002"
+      ],
+      "acceptance_criteria": [
+        "scripts/render-all.ts is a TypeScript script runnable with tsx",
+        "Reads composition-manifest.json and iterates all 22 compositions",
+        "For each: runs npx remotion render with --codec h264 --crf 23 --props",
+        "Renders in batches of 2 (CPU-bound concurrency)",
+        "After each render: checks file size -- warns if > 10 MB, re-renders with --crf 28 if > 15 MB",
+        "Outputs a summary table: composition ID, type, duration, file size, status",
+        "Creates public/videos/ directory if it doesn't exist",
+        "Script accepts optional --composition {id} flag to render a single composition",
+        "Script accepts optional --dry-run flag that prints render commands without executing",
+        "remotion:render and remotion:pipeline scripts added to package.json",
+        "Exits with non-zero code if any composition fails to render"
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Create Gemini Enrichment Pipeline Script",
+      "description": "Build scripts/gemini-enrich.ts that downloads S3 samples, extracts frames with ffmpeg, sends to Gemini 2.5 Flash with type-specific prompts, validates with Zod, and saves enrichment JSON for all 22 compositions.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "L",
+      "dependencies": [
+        "US-002"
+      ],
+      "acceptance_criteria": [
+        "scripts/gemini-enrich.ts is a TypeScript script runnable with tsx",
+        "Script reads composition-manifest.json and processes ALL 22 compositions",
+        "Downloads S3 video/image samples with 404 fallback and missing-samples.log",
+        "Extracts frames using ffmpeg -vf fps={fps},scale=512:-1",
+        "Loads type-specific prompt templates from scripts/gemini-prompts/type-{N}.txt",
+        "Types 1, 8: Gemini generates ALL annotation data",
+        "Types 2-7: Gemini SUPPLEMENTS real annotation data",
+        "Sends frames as base64 inline data to Gemini 2.5 Flash with responseMimeType: application/json",
+        "Validates against Zod schema per type; retries once with stricter prompt on failure",
+        "Writes enrichment JSON to public/remotion-assets/enrichments/{id}.json",
+        "Concurrency limit of 3, 1-second delay between batches",
+        "Exponential backoff (2s base, max 5 retries) for rate limits",
+        "Prompt templates for ALL 8 types in scripts/gemini-prompts/type-{1-8}.txt",
+        "Accepts --composition {id} flag for single composition",
+        "Requires GOOGLE_API_KEY in .env.local; exits with clear error if missing",
+        "remotion:enrich script added to package.json"
+      ]
+    },
+    {
+      "id": "US-003b",
+      "title": "Create Real Annotation Data Extraction Script",
+      "description": "Build scripts/extract-annotations.ts that downloads existing S3 annotation JSONs for compositions with annotationSource: real, extracts relevant fields per type, validates against Zod schemas, and writes formatted JSON for Remotion.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "L",
+      "dependencies": [
+        "US-002"
+      ],
+      "acceptance_criteria": [
+        "scripts/extract-annotations.ts is a TypeScript script runnable with tsx",
+        "Script reads composition-manifest.json and filters to annotationSource === real",
+        "For each composition: queries Supabase for s3_annotation_key, downloads annotation JSON from S3",
+        "Extracts and transforms per type: Type 2 (Pairwise), Type 3 (Multi-Gen), Type 4 (Detection), Type 5 (Classification), Type 6 (Quality Rubric), Type 7 (Safety)",
+        "Validates extracted data against per-type Zod schemas",
+        "Writes formatted JSON to public/remotion-assets/annotations/{id}.json",
+        "Downloads media files to public/remotion-assets/samples/{id}.{ext}",
+        "If sample 404s, tries next sample in dataset",
+        "Accepts --composition {id} flag for single composition",
+        "remotion:extract script added to package.json",
+        "TypeScript strict mode passes with no new errors"
+      ]
+    },
+    {
+      "id": "US-007",
+      "title": "Type 3 -- Multi-Gen Gallery Composition",
+      "description": "Build MultiGenGalleryComposition showing a 2x4 grid of 8 image generations with checkmark/X filtering and best-of-N selection. Uses real annotation data from AI Image Generation Evaluation dataset.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "L",
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
+      "acceptance_criteria": [
+        "MultiGenGalleryComposition.tsx accepts { compositionId: string } props",
+        "Renders 2x4 grid of 8 generation images from annotation JSON metadata.generations array",
+        "Prompt types out above grid from metadata.prompt",
+        "Images stagger in (6 frames apart)",
+        "Green checkmarks on selectedImages (6 of 8) via VerdictBadge variant:badge",
+        "Red Xs on rejected (2 of 8)",
+        "Subtle accent border glow on bestImage via VerdictBadge variant:border-glow -- NOT a crown",
+        "Stats: 6/8 acceptable (75%), 1 best with animated counter",
+        "Timeline: 0-30 grid fades, 30-90 images appear, 90-120 prompt types, 120-180 checkmarks/Xs, 180-210 selection highlight, 210-240 stats, 240-300 hold",
+        "Includes TechMetadataOverlay, BottomBar with Generation Eval",
+        "types.ts with Type3Annotation",
+        "TypeScript strict mode passes with no new errors"
+      ]
+    },
+    {
+      "id": "US-009",
+      "title": "Type 5 -- Classification Pipeline Composition",
+      "description": "Build ClassificationPipelineComposition showing video with animated taxonomy tree expanding from root to leaf. Uses real category/subcategory annotation data from Video Classification and Game Environment datasets.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "L",
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
+      "acceptance_criteria": [
+        "ClassificationPipelineComposition.tsx accepts { compositionId: string } props",
+        "Video plays on the left (60% width), taxonomy tree animates on the right (40% width) using shared TaxonomyTree",
+        "cs-vid-classify: dual taxonomy -- Content (People -> Technology & Computing -> Smartphones & Gadget Use) AND Visual Style (Portrait photography -> Urban outdoor portraits)",
+        "cs-game-capture/sol-sim2real: game taxonomy with 25-game catalog fanning out then narrowing to selected game",
+        "Caption text from metadata.caption types out below the video",
+        "Pipeline stages animate: raw capture -> classification -> review -> approved with checkmarks",
+        "Timeline: 0-30 fade, 30-90 first tree, 90-180 second tree (if dual), 180-270 caption + pipeline, 270-360 hold",
+        "Uses shared TaxonomyTree, BottomBar, VerdictBadge for approved status, TechMetadataOverlay",
+        "types.ts with Type5Annotation containing taxonomies, caption, pipelineStages, gameTitle, gameCatalog",
+        "Graceful fallback when annotation data not yet extracted",
+        "TypeScript strict mode passes with no new errors"
+      ]
+    },
+    {
+      "id": "US-006",
+      "title": "Type 2 -- Pairwise Arena Composition",
+      "description": "Build PairwiseArenaComposition showing split-screen A vs B comparison with both videos playing simultaneously and selection highlight. Uses real annotation data showing which video was preferred.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "L",
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
+      "acceptance_criteria": [
+        "PairwiseArenaComposition.tsx accepts { compositionId: string } props",
+        "Renders two videos side by side (50/50 split) -- Video A left, Video B right",
+        "Prompt text types out at top from annotation data",
+        "Selected video determined from real annotation data (betterVideoId, selectedAnswer, bestVideo)",
+        "Selected gets subtle accent border glow (#92B090) -- non-selected dims. NO crown/trophy.",
+        "Neutral split divider label (e.g. A | B or Config 21 | Config 41)",
+        "cs-vid-eval: handles configLabels for config comparison",
+        "cs-prompt-bench: handles categoryLabel with verification checkmark",
+        "Timeline: 0-30 fade in + divider, 30-60 prompt types, 60-180 play, 180-240 selection glow + dim, 240-360 hold",
+        "Includes TechMetadataOverlay and BottomBar with Arena label",
+        "types.ts with Type2Annotation, Type2VideoRef, FALLBACK_TYPE2_ANNOTATION",
+        "TypeScript strict mode passes with no new errors"
+      ]
+    },
+    {
+      "id": "US-011",
+      "title": "Type 7 -- Safety Shield Composition",
+      "description": "Build SafetyShieldComposition showing video with scanning overlay, prompt analysis, and binary verdict badges. Uses real policy violation annotation data from the Content Safety dataset.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "L",
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
+      "acceptance_criteria": [
+        "SafetyShieldComposition.tsx accepts { compositionId: string } props",
+        "Content area shows blurred/pixelated visual (never actual unsafe content) with scanning line animation",
+        "Prompt text from metadata.prompt types out in terminal-style overlay panel via TerminalHeader",
+        "Dual-channel verdict badges: Text Policy PASS/VIOLATION + Video Policy PASS/VIOLATION via VerdictBadge",
+        "sol-eu-ai-act: EU AI Act article reference badges (Art.52, Art.6) in EU blue #003399",
+        "cs-red-team: dual-channel Phase 1 (text scan) then Phase 2 (video scan)",
+        "Shield icon fills green (pass) or red (violation)",
+        "Timeline: 0-30 blur fade, 30-60 scan, 60-90 prompt types, 90-150 text verdict, 150-210 video verdict, 210-270 shield, 270-300 fade",
+        "Includes TechMetadataOverlay, BottomBar with Safety Review",
+        "types.ts with Type7Annotation",
+        "TypeScript strict mode passes with no new errors"
+      ]
+    },
+    {
+      "id": "US-008",
+      "title": "Type 4 -- Detection + Annotation Composition",
+      "description": "Build DetectionAnnotationComposition showing video/image with bounding boxes drawing progressively, labels appearing, and confidence scores. Uses real bbox annotation data from Object & Face Identity and Product Image datasets.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "L",
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
+      "acceptance_criteria": [
+        "DetectionAnnotationComposition.tsx accepts { compositionId: string } props",
+        "For video sources (Object Identity): plays video, then freeze-frames at annotated frame",
+        "For image sources (Product Image): displays image with animated zoom-in",
+        "Bounding boxes draw progressively using shared BoundingBox with confidence prop",
+        "Object Identity (cs-object-id): face bboxes from segment[].bbox, class:face, score:0.825, identity match lines, Same person? YES verdict",
+        "Product Image (cs-fashion): product bbox from files[1].metadata coords, typed captions, brand/category labels",
+        "Caption text types out letter-by-letter beneath media",
+        "Timeline: 0-20 fade, 20-60 bboxes draw, 60-90 labels+scores, 90-150 captions, 150-210 identity/brand, 210-270 hold, 270-300 fade",
+        "Includes TechMetadataOverlay, BottomBar",
+        "types.ts with Type4Annotation supporting identity match and product annotation",
+        "Graceful fallback with hardcoded real annotation data",
+        "TypeScript strict mode passes with no new errors"
+      ]
+    },
+    {
+      "id": "US-012",
+      "title": "Type 8 -- Cinematic Showcase Composition",
+      "description": "Build CinematicShowcaseComposition showing 4K footage with minimal elegant overlay emphasizing technical quality signals. Cinematic 2.39:1 letterbox, resolution badge, codec/fps/color depth, category labels, film grain, Gemini scene description typed subtitle.",
+      "status": "done",
+      "passes": true,
+      "priority": "medium",
+      "estimation": "L",
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
+      "acceptance_criteria": [
+        "CinematicShowcaseComposition.tsx accepts { compositionId: string } props",
+        "Video plays full-bleed with letterbox bars (cinematic 2.39:1 within 16:9 frame)",
+        "Minimal overlay: category tag, subcategory, licensing badge (Licensed 4K)",
+        "Labels slide in from left with subtle motion blur, hold, slide out",
+        "Film grain CSS overlay for cinematic quality",
+        "cs-egocentric: cross-fade between egocentric and cinematic clips",
+        "sol-open-vs-custom: This is custom data premium label",
+        "Gemini scene description as typed subtitle",
+        "Resolution badge (3840x2160) prominently placed top-right",
+        "Codec, frame rate, color depth tech signals panel",
+        "Timeline: 0-15 fade through letterbox, 15-90 play with labels, 90-180 description types, 180-270 gentle zoom, 270-300 fade + CLARU watermark + Licensed Collection badge",
+        "TechMetadataOverlay prominently placed",
+        "BottomBar minimal (CLARU branding)",
+        "types.ts with Type8Annotation, FALLBACK_TYPE8_ANNOTATION",
+        "Graceful fallback when annotation JSON missing",
+        "TypeScript strict mode passes with no new errors"
+      ]
+    },
+    {
+      "id": "US-024",
+      "title": "Create Case Study Enhancement Components",
+      "description": "Build AnimatedMetrics and ProcessTimeline components for case study pages.",
+      "status": "done",
+      "passes": true,
+      "priority": "medium",
+      "estimation": "M",
+      "dependencies": [
+        "US-023"
+      ],
+      "acceptance_criteria": [
+        "Create src/app/components/media/AnimatedMetrics.tsx with Framer Motion useInView triggered counter animation",
+        "Grid layout: grid-cols-2 md:grid-cols-4, terminal aesthetic with JetBrains Mono",
+        "Create src/app/components/media/ProcessTimeline.tsx with staggered step reveal and connecting line draw animation",
+        "Responsive: horizontal on desktop, vertical on mobile",
+        "Both components work standalone",
+        "TypeScript strict mode passes"
+      ]
+    },
+    {
+      "id": "US-025",
+      "title": "Redesign Case Study Detail Page Layout",
+      "description": "Update CaseStudyDetailClient.tsx to conditionally render video hero, animated metrics, and process timeline.",
+      "status": "done",
+      "passes": true,
+      "priority": "medium",
+      "estimation": "M",
+      "dependencies": [
+        "US-023",
+        "US-024"
+      ],
+      "acceptance_criteria": [
+        "Render <VideoHero> when cs.videoComposition present",
+        "Replace static snapshot stats with <AnimatedMetrics>",
+        "Replace <ProcessFlow> with <ProcessTimeline>",
+        "All changes conditional -- no regressions for case studies without videoComposition",
+        "TypeScript strict mode passes"
+      ]
+    },
+    {
+      "id": "US-026",
+      "title": "Wire Up All 11 Case Study Pages",
+      "description": "Add videoComposition field to all 11 case study data files.",
+      "status": "done",
+      "passes": true,
+      "priority": "medium",
+      "estimation": "S",
+      "dependencies": [
+        "US-022",
+        "US-025"
+      ],
+      "acceptance_criteria": [
+        "Add videoComposition? to CaseStudy type",
+        "Update all 11 case study JSONs with correct composition IDs",
+        "All set placement: hero",
+        "Smoke test: no console errors, video plays, metrics animate"
+      ]
+    }
+  ]
+}

@@ -13,6 +13,16 @@ const navLinks = [
   { href: "/#contact", label: "Contact" },
 ];
 
+const solutionLinks = [
+  { href: "/solutions", label: "All Solutions" },
+  { href: "/solutions/egocentric-video-data", label: "Egocentric Video Data" },
+  { href: "/solutions/vla-training-data", label: "VLA Training Data" },
+  { href: "/solutions/red-teaming-data", label: "Red Teaming & AI Safety" },
+  { href: "/solutions/video-generation-training-data", label: "Video Generation Data" },
+  { href: "/solutions/expert-rlhf-annotation", label: "Expert RLHF Annotation" },
+  { href: "/solutions/eu-ai-act-red-teaming", label: "EU AI Act Compliance" },
+];
+
 const legalLinks = [
   { href: "/terms", label: "Terms of Service" },
   { href: "/prohibited-use", label: "Prohibited Use Policy" },
@@ -29,7 +39,7 @@ export default function Footer() {
       className="relative py-16 md:py-24 bg-[var(--bg-secondary)]/80 backdrop-blur-sm z-10"
     >
       <div className="container">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
           {/* Logo and tagline */}
           <div className="flex flex-col items-center md:items-start gap-2">
             <a href="/">
@@ -46,6 +56,22 @@ export default function Footer() {
               Navigation
             </h4>
             {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-sm text-[var(--text-tertiary)] hover:text-[var(--accent-primary)] transition-colors"
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+
+          {/* Solutions Links */}
+          <div className="flex flex-col items-center md:items-start gap-3">
+            <h4 className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider mb-2">
+              Solutions
+            </h4>
+            {solutionLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}

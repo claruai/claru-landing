@@ -10,6 +10,9 @@ import FadeIn from "@/app/components/effects/FadeIn";
 import TextScramble from "@/app/components/effects/TextScramble";
 import Button from "@/app/components/ui/Button";
 import SampleDataViewer from "@/app/components/ui/SampleDataViewer";
+import VideoHero from "@/app/components/media/VideoHero";
+import AnimatedMetrics from "@/app/components/media/AnimatedMetrics";
+import ProcessTimeline from "@/app/components/media/ProcessTimeline";
 import type { CaseStudy } from "@/types/case-study";
 
 /* ==========================================================================
@@ -239,12 +242,15 @@ interface CaseStudyDetailClientProps {
   caseStudy: CaseStudy;
   categoryLabel: string;
   relatedCaseStudies: CaseStudy[];
+  /** Optional server-rendered content injected between sections (e.g. GameCaptureSamples). */
+  children?: React.ReactNode;
 }
 
 export default function CaseStudyDetailClient({
   caseStudy: cs,
   categoryLabel,
   relatedCaseStudies,
+  children,
 }: CaseStudyDetailClientProps) {
   const summaryLines = buildCondensedSummary(cs);
   const snapshotStats = cs.results.slice(0, 4);
@@ -320,6 +326,16 @@ export default function CaseStudyDetailClient({
         </section>
 
         {/* ==============================================================
+           1b. VIDEO HERO (conditional — only when videoComposition present)
+        =============================================================== */}
+        {cs.videoComposition && (
+          <VideoHero
+            videoSrc={cs.videoComposition}
+            badge={categoryLabel}
+          />
+        )}
+
+        {/* ==============================================================
            2. QUICK SUMMARY (terminal callout)
         =============================================================== */}
         <section className="pb-12 md:pb-16">
@@ -354,31 +370,35 @@ export default function CaseStudyDetailClient({
         </section>
 
         {/* ==============================================================
-           3. SNAPSHOT BAR
+           3. SNAPSHOT BAR — AnimatedMetrics when video present, static otherwise
         =============================================================== */}
         <section className="pb-12 md:pb-16">
           <div className="container max-w-4xl">
-            <FadeIn delay={0.15}>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-                {snapshotStats.map((stat, i) => (
-                  <motion.div
-                    key={i}
-                    className="text-center md:text-left"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1, duration: 0.5 }}
-                  >
-                    <span className="block font-mono text-2xl md:text-3xl font-bold text-[var(--accent-primary)]">
-                      {stat.value}
-                    </span>
-                    <span className="block text-xs md:text-sm text-[var(--text-tertiary)] mt-1">
-                      {stat.label}
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
-            </FadeIn>
+            {cs.videoComposition ? (
+              <AnimatedMetrics metrics={snapshotStats} />
+            ) : (
+              <FadeIn delay={0.15}>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+                  {snapshotStats.map((stat, i) => (
+                    <motion.div
+                      key={i}
+                      className="text-center md:text-left"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1, duration: 0.5 }}
+                    >
+                      <span className="block font-mono text-2xl md:text-3xl font-bold text-[var(--accent-primary)]">
+                        {stat.value}
+                      </span>
+                      <span className="block text-xs md:text-sm text-[var(--text-tertiary)] mt-1">
+                        {stat.label}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+              </FadeIn>
+            )}
           </div>
         </section>
 
@@ -416,9 +436,18 @@ export default function CaseStudyDetailClient({
               </div>
             </FadeIn>
 
-            {/* Process flow diagram */}
+            {/* Process flow diagram — ProcessTimeline when video present, ProcessFlow otherwise */}
             {cs.processSteps && cs.processSteps.length > 0 && (
-              <ProcessFlow steps={cs.processSteps} />
+              cs.videoComposition ? (
+                <ProcessTimeline
+                  steps={cs.processSteps.map((s) => ({
+                    label: s.title,
+                    description: s.description,
+                  }))}
+                />
+              ) : (
+                <ProcessFlow steps={cs.processSteps} />
+              )
             )}
           </div>
         </section>
@@ -495,6 +524,14 @@ export default function CaseStudyDetailClient({
                 <SampleDataViewer type={cs.sampleData.type} data={cs.sampleData} />
               </div>
             </section>
+          </>
+        )}
+
+        {/* Slot for server-rendered custom sections (e.g. GameCaptureSamples) */}
+        {children && (
+          <>
+            <div className="section-divider" />
+            {children}
           </>
         )}
 

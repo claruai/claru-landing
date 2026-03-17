@@ -1,0 +1,979 @@
+{
+  "compositionId": "sol-teleop",
+  "type": 1,
+  "annotationSource": "gemini",
+  "generatedAt": "2026-03-17T02:28:01.919Z",
+  "framesAnalyzed": 30,
+  "data": {
+    "frames": [
+      {
+        "timestamp_s": 0,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 1,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 2,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 3,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 4,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 5,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 6,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 7,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 8,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 9,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 10,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 11,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 12,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 13,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 14,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 15,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 16,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 17,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 18,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 19,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 20,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 21,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 22,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 23,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 24,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 25,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 26,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 27,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 28,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      },
+      {
+        "timestamp_s": 29,
+        "manipulation_phase": "idle",
+        "task_step": "Observing urban street traffic from an elevated stationary position.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [],
+        "spatial": {
+          "camera_height_est_m": 2,
+          "camera_pitch_deg": -35,
+          "workspace_depth_m": 3,
+          "dominant_hand_distance_m": 0.1
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 4500,
+          "clutter_level": "low",
+          "surface_material": "asphalt and concrete"
+        }
+      }
+    ],
+    "summary": {
+      "total_frames": 30,
+      "primary_task": "Monitoring urban traffic flow from a static, elevated perspective.",
+      "objects_involved": [],
+      "manipulation_phases_observed": [
+        "idle"
+      ]
+    }
+  }
+}

@@ -8,6 +8,7 @@ import {
 } from "@/lib/case-studies";
 import { CASE_STUDY_CATEGORIES } from "@/types/case-study";
 import CaseStudyDetailClient from "./CaseStudyDetailClient";
+import GameCaptureSamples from "@/app/components/content/GameCaptureSamples";
 
 /* ==========================================================================
    STATIC GENERATION
@@ -165,7 +166,9 @@ export default async function CaseStudyDetailPage({
         caseStudy={cs}
         categoryLabel={categoryLabel}
         relatedCaseStudies={related}
-      />
+      >
+        {slug === "game-based-data-capture" && <GameCaptureSamples />}
+      </CaseStudyDetailClient>
     </>
   );
 }

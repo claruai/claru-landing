@@ -1,247 +1,719 @@
 {
-  "project": "Personalized Prospect Pages",
-  "branchName": "ralph/prospect-pages",
-  "description": "Custom deal room pages at /for/[company] combining hand-crafted prospect narratives with shared dynamic components. Dark terminal aesthetic, PostHog tracking, 30-day expiry, noindex privacy. First page: /for/rime.",
+  "id": "prd-remotion-media",
+  "project": "Remotion + Gemini Media Enhancement",
+  "version": 2,
+  "title": "22 Pre-Rendered Annotation Workflow Compositions with Real S3 Data",
+  "description": "22 pre-rendered Remotion video compositions (11 solution pages + 11 case study pages) that visualize real annotation workflows using actual S3 media samples and annotation JSON data. 8 composition types grounded in real media assets. Gemini 2.5 Flash enrichment used ONLY for datasets lacking annotation data (Egocentric, Cinematic). Every composition shows a specific annotation workflow in action.",
+  "branchName": "ralph/remotion-media",
+  "status": "draft",
+  "created": "2026-03-16",
+  "updated": "2026-03-16",
+  "compositionTypes": {
+    "1": {
+      "name": "Sensor-Fusion Tracking",
+      "annotationSource": "gemini",
+      "description": "Video + interpolated bboxes + hand telemetry + metadata panel"
+    },
+    "2": {
+      "name": "Pairwise Arena",
+      "annotationSource": "real",
+      "description": "Split-screen A vs B, subtle selection highlight, uses betterVideoId/selectedAnswer/bestVideo"
+    },
+    "3": {
+      "name": "Multi-Gen Gallery",
+      "annotationSource": "real",
+      "description": "Grid of N generations, checkmark/X, best selection highlight, uses bestImage/selectedImages"
+    },
+    "4": {
+      "name": "Detection + Annotation",
+      "annotationSource": "real",
+      "description": "Progressive bboxes, labels, confidence scores, uses real bbox coordinates"
+    },
+    "5": {
+      "name": "Classification Pipeline",
+      "annotationSource": "real",
+      "description": "Taxonomy tree expanding root to leaf, uses real category/subcategory data"
+    },
+    "6": {
+      "name": "Quality Rubric",
+      "annotationSource": "real",
+      "description": "Multi-dimension scoring gauges + radar chart, uses real 5-axis rubric"
+    },
+    "7": {
+      "name": "Safety Shield",
+      "annotationSource": "real",
+      "description": "Scanning overlay + verdict badges, uses real policy violation data"
+    },
+    "8": {
+      "name": "Cinematic Showcase",
+      "annotationSource": "gemini",
+      "description": "Minimal overlay on 4K footage, metadata labels, licensing badge"
+    }
+  },
   "userStories": [
     {
       "id": "US-001",
-      "title": "Shared Case Study Mapping",
-      "description": "As a developer, I need a case study metadata mapping so prospect pages can reference case studies by slug.",
+      "title": "Extract Shared Remotion Components from EgocentricPipeline Prototype",
+      "description": "Extract reusable components from src/remotion/EgocentricPipeline.tsx into src/remotion/shared/: BoundingBox, MetadataPanel, ProgressBar, BottomBar, TerminalHeader, DesignTokens, RadarChart, TaxonomyTree, VerdictBadge. Foundation for all 8 composition types.",
+      "priority": "high",
+      "passes": false,
+      "dependencies": [],
       "acceptanceCriteria": [
-        "Create src/lib/case-studies.ts with a CASE_STUDIES const object mapping slug to { title, description, tags, url }",
-        "Include all 11 published case studies: red-teaming-moderation, video-quality-at-scale, video-content-classification, prompt-enhancement-benchmark, object-identity-persistence, workplace-egocentric-data, video-model-evaluation, generative-ai-safety, fashion-ai-annotation, game-based-data-capture, egocentric-video-collection",
-        "Tags include relevant keywords (video, annotation, robotics, safety, gaming, speech, content-moderation, manufacturing, fashion, egocentric)",
-        "Export getCaseStudy(slug) helper and getCaseStudiesByTag(tag) helper",
-        "Typecheck passes"
-      ],
-      "priority": 1,
-      "passes": true,
-      "notes": "Case studies are static Next.js pages at /case-studies/[slug]. No Supabase table. This mapping provides metadata for the CaseStudyCard component. Check the live site at claru.ai/case-studies for titles and descriptions. | COMPLETED by background agent"
+        "Create src/remotion/shared/DesignTokens.ts with TOKENS constant: colors (accent #92B090, accentAlt #4a90d9, text #e8e8e8, muted #888, panelBg, error, warning, success, chosen, rejected, selected #92B090), fonts (mono: JetBrains Mono, sans: Geist), bbox (hand, object, face, violation, highlight, product)",
+        "Create src/remotion/shared/BoundingBox.tsx with props: bbox [number,number,number,number], label, color, sublabel?, opacity, showCorners?, confidence? -- extracted from EgocentricPipeline.tsx lines 91-165",
+        "Create src/remotion/shared/MetadataPanel.tsx with props: title, sections MetadataSection[], width? (320), visible, position? ('right'|'left') -- generalized from SidePanel",
+        "Create src/remotion/shared/ProgressBar.tsx -- animated horizontal bar using Remotion interpolate",
+        "Create src/remotion/shared/BottomBar.tsx -- CLARU-branded timestamp bar with scrub indicator",
+        "Create src/remotion/shared/TerminalHeader.tsx -- macOS-style terminal title bar",
+        "Create src/remotion/shared/RadarChart.tsx -- 5-axis radar/spider chart using SVG with animated fill for Type 6",
+        "Create src/remotion/shared/TaxonomyTree.tsx -- animated hierarchical label tree for Type 5 with levels array and activeDepth prop",
+        "Create src/remotion/shared/VerdictBadge.tsx -- animated verdict (PASS/FAIL/CHOSEN/REJECTED/WINNER/BLOCKED) with variant: label|border-glow|badge and animationStyle: fade|glow -- NO crowns, trophies, or flashy animations",
+        "All shared components import from DesignTokens.ts, export prop interfaces",
+        "EgocentricPipeline.tsx continues to work unchanged",
+        "TypeScript strict mode passes"
+      ]
     },
     {
       "id": "US-002",
-      "title": "CaseStudyCard Component",
-      "description": "As a prospect viewing the page, I want to see relevant case studies as rich cards.",
-      "acceptanceCriteria": [
-        "Create src/app/components/prospect/CaseStudyCard.tsx as a client component ('use client')",
-        "Props: slug: string (looks up from CASE_STUDIES mapping in src/lib/case-studies.ts)",
-        "Displays: title, description (line-clamp-2), tags as pills, 'Read Case Study \u2192' link",
-        "Dark card style: bg #121210, border #2a2a28, accent #92B090, text #FFFFFF",
-        "Framer Motion fade-in animation on scroll using whileInView",
-        "Case study links open in new tab with rel='noopener noreferrer'",
-        "Gracefully render 'Unavailable' state when slug not found \u2014 do NOT throw",
-        "Responsive: full-width on mobile, side-by-side grid on desktop",
-        "Typecheck passes"
-      ],
-      "priority": 2,
+      "title": "Create Composition Manifest and Root.tsx Registry",
+      "description": "Create scripts/composition-manifest.json mapping all 22 compositions to type (1-8), S3 datasets, annotation source (real|gemini|metadata-only), and render settings. Update Root.tsx to register all.",
+      "priority": "high",
       "passes": true,
-      "notes": "Depends on US-001 for the CASE_STUDIES mapping. Design should match the landing page card style from src/app/components/sections/. Use JetBrains Mono for tag pills. | COMPLETED by background agent"
+      "dependencies": [
+        "US-001"
+      ],
+      "acceptanceCriteria": [
+        "Create scripts/composition-manifest.json with 22 entries: id, type (1-8), page ({route, placement}), samples ({datasetId, datasetSlug, sampleId?, subcategory?}), annotationSource ('real'|'gemini'|'metadata-only'), enrichment (config or null), render ({durationFrames, fps:30, width:1280, height:720, codec:'h264'})",
+        "Solution IDs: sol-egocentric, sol-vla, sol-manipulation, sol-teleop, sol-video-gen, sol-rlhf, sol-red-teaming, sol-sim2real, sol-open-vs-custom, sol-crowd-vs-expert, sol-eu-ai-act",
+        "Case study IDs: cs-egocentric, cs-workplace, cs-fashion, cs-game-capture, cs-gen-safety, cs-red-team, cs-vid-classify, cs-vid-eval, cs-vid-quality, cs-prompt-bench, cs-object-id",
+        "Duration: Type 1=300f (10s), Type 2=360f (12s), Type 3=300f (10s), Type 4=300f (10s), Type 5=360f (12s), Type 6=360f (12s), Type 7=300f (10s), Type 8=300f (10s)",
+        "Entries with annotationSource 'real' have enrichment: null and reference s3_annotation_key",
+        "Entries with annotationSource 'gemini' have enrichment config pointing to prompt file",
+        "Update Root.tsx: TYPE_MAP maps 1->SensorFusionComposition, 2->PairwiseArenaComposition, 3->MultiGenGalleryComposition, 4->DetectionAnnotationComposition, 5->ClassificationPipelineComposition, 6->QualityRubricComposition, 7->SafetyShieldComposition, 8->CinematicShowcaseComposition",
+        "Each <Composition> passes compositionId via defaultProps",
+        "Existing EgocentricPipeline composition remains registered",
+        "npx remotion studio launches without errors"
+      ]
     },
     {
       "id": "US-003",
-      "title": "DatasetShowcase Component",
-      "description": "As a prospect, I want to see relevant datasets from Claru's catalog.",
-      "acceptanceCriteria": [
-        "Create src/app/components/prospect/DatasetShowcase.tsx as an async server component",
-        "Props: datasetIds: string[] (UUIDs from Supabase datasets table)",
-        "Fetch dataset metadata using createClient with anon key (NOT createSupabaseServerClient \u2014 same pattern as src/app/api/public/datasets/route.ts)",
-        "Query MUST filter is_published = true",
-        "Each card shows: name, category badge, source_type badge (COLLECTED/SYNTHETIC/CURATED), sample count, duration if applicable",
-        "Handle empty datasetIds array \u2014 hide section entirely",
-        "If any dataset ID returns null or is filtered by RLS, show 'Dataset unavailable' pill rather than crashing",
-        "Dark card style matching landing page: bg #121210, border #2a2a28, accent #92B090",
-        "Responsive: horizontal scroll on mobile, grid on desktop",
-        "Typecheck passes"
+      "title": "Create Gemini Enrichment Pipeline Script (Types 1, 8 Only)",
+      "description": "Build scripts/gemini-enrich.ts for compositions where annotationSource === 'gemini'. Only needed for Type 1 (sensor-fusion, 5 compositions) and Type 8 (cinematic, 2 compositions) where no annotation JSON exists in S3.",
+      "priority": "high",
+      "passes": false,
+      "dependencies": [
+        "US-002"
       ],
-      "priority": 3,
-      "passes": true,
-      "notes": "IMPORTANT: Use createClient from @supabase/supabase-js with NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY directly. Do NOT use createSupabaseServerClient which passes auth cookies and causes RLS issues (this was a bug we fixed in the public datasets API). Wrap in cache() to avoid new connections per request. Dataset type is defined in src/types/data-catalog.ts. | COMPLETED by background agent"
+      "acceptanceCriteria": [
+        "Create scripts/gemini-enrich.ts runnable with tsx",
+        "Reads manifest, filters to annotationSource === 'gemini' only (7 compositions: sol-egocentric, sol-vla, sol-manipulation, sol-teleop, cs-workplace, sol-open-vs-custom, cs-egocentric)",
+        "Downloads S3 samples to tmp/samples/{id}/ (skips if cached)",
+        "Extracts frames with ffmpeg to tmp/frames/{id}/",
+        "Sends frames to Gemini 2.5 Flash with type-specific prompts",
+        "Validates against Type1AnnotationSchema or Type8AnnotationSchema",
+        "Retries once on validation failure, logs error and skips if still invalid",
+        "Writes to public/remotion-assets/annotations/{id}.json",
+        "Concurrency limit 3, 1s delay between batches, exponential backoff for rate limits",
+        "Create scripts/gemini-prompts/type-1-sensor-fusion.txt",
+        "Accepts --composition {id} flag",
+        "Requires GOOGLE_API_KEY from .env.local",
+        "Add remotion:enrich script to package.json"
+      ]
+    },
+    {
+      "id": "US-003b",
+      "title": "Create Real Annotation Data Extraction Script",
+      "description": "Build scripts/extract-annotations.ts that downloads existing S3 annotation JSONs for compositions with annotationSource: 'real', extracts relevant fields per type, and writes formatted annotation JSON for Remotion.",
+      "priority": "high",
+      "passes": false,
+      "dependencies": [
+        "US-002"
+      ],
+      "acceptanceCriteria": [
+        "Create scripts/extract-annotations.ts runnable with tsx",
+        "Reads manifest, filters to annotationSource === 'real' (13 compositions)",
+        "Downloads S3 annotation JSON for each composition's dataset",
+        "Type 2: extracts betterVideoId/selectedAnswer/bestVideo, prompt_text, video URLs",
+        "Type 3: extracts bestImage, selectedImages, hasGoodQuality, generations array",
+        "Type 4: extracts bbox coordinates, class labels, score confidence, captions, brandName",
+        "Type 5: extracts category, subcategory, selectedGame, concept, template categories catalog",
+        "Type 6: extracts isCinematic, hasGoodMotion, isHighQuality, isVideoInteresting, hasGoodTextAlignment, video_description",
+        "Type 7: extracts text_policy_violation, video_policy_violation, prompt text",
+        "Validates extracted data against per-type Zod schemas",
+        "Writes to public/remotion-assets/annotations/{id}.json",
+        "Accepts --composition {id} flag",
+        "Add remotion:extract script to package.json"
+      ]
     },
     {
       "id": "US-004",
-      "title": "WorkforceStats Component",
-      "description": "As a prospect, I want to see Claru's operational scale.",
-      "acceptanceCriteria": [
-        "Create src/app/components/prospect/WorkforceStats.tsx as a client component ('use client')",
-        "Display 4 stats in terminal-styled grid: Annotators (2,000+), Countries (14), Annotations Delivered (3M+), QA Turnaround (Same-day)",
-        "Stats are hardcoded constants in a WORKFORCE_STATS array \u2014 easy to update in one place",
-        "Animated counter effect on scroll using Framer Motion useInView + animate",
-        "JetBrains Mono font for numbers, Geist Sans for labels",
-        "Dark terminal aesthetic: bg #0a0908, accent #92B090 for numbers, #FFFFFF for labels",
-        "Responsive: 2x2 grid on mobile, 4-column on desktop",
-        "Typecheck passes"
+      "title": "Create Render Pipeline Script",
+      "description": "Build scripts/render-all.ts that reads manifest and renders each composition to MP4 via Remotion CLI.",
+      "priority": "high",
+      "passes": false,
+      "dependencies": [
+        "US-002"
       ],
-      "priority": 4,
-      "passes": true,
-      "notes": "Check src/app/components/sections/CatalogPreview.tsx for the existing animated counter pattern \u2014 reuse that approach. Stats should feel like a terminal readout. | COMPLETED by background agent"
+      "acceptanceCriteria": [
+        "Create scripts/render-all.ts runnable with tsx",
+        "Reads composition-manifest.json, iterates all 22 compositions",
+        "Runs npx remotion render for each with --codec h264 --crf 23",
+        "Batches of 2 (CPU-bound concurrency)",
+        "Warns if > 10 MB, re-renders with --crf 28 if > 15 MB",
+        "Summary table: composition ID, type, duration, file size, status",
+        "Creates public/videos/ if not exists",
+        "Accepts --composition {id} and --dry-run flags",
+        "Add remotion:render and remotion:pipeline scripts to package.json",
+        "Exits non-zero if any render fails"
+      ]
     },
     {
       "id": "US-005",
-      "title": "CalendlyEmbed Component",
-      "description": "As a prospect, I want to book a call directly from the page.",
-      "acceptanceCriteria": [
-        "Create src/app/components/prospect/CalendlyEmbed.tsx as a client component ('use client')",
-        "Load Calendly inline embed script dynamically \u2014 only once per page",
-        "Use a hardcoded booking URL (check Supabase settings table for current booking_url value and hardcode it)",
-        "If booking_url is misconfigured, render fallback CTA button with mailto:team@claru.ai",
-        "Inline widget (not popup) with dark theme (background_color=0a0908, text_color=ffffff, primary_color=92B090)",
-        "Section header: 'Book a Call' in JetBrains Mono",
-        "Responsive: full-width embed, min-height 650px",
-        "Typecheck passes"
-      ],
-      "priority": 5,
+      "title": "Type 1: Sensor-Fusion Tracking Composition",
+      "description": "Build SensorFusionComposition: video + interpolated bboxes + hand telemetry + metadata panel. Parameterized version of EgocentricPipeline.tsx prototype.",
+      "priority": "high",
       "passes": true,
-      "notes": "Calendly inline embed uses their embed.js script. Load it once in useEffect. The existing CalendlyContext in the landing page uses a popup model \u2014 this component should be self-contained with inline embed instead. Check settings table: SELECT value FROM settings WHERE key = 'booking_url'. | COMPLETED by background agent"
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
+      "acceptanceCriteria": [
+        "Create src/remotion/compositions/type-1/SensorFusionComposition.tsx accepting { compositionId: string }",
+        "Loads annotation JSON and hero video from staticFile paths",
+        "Keyframe interpolation for smooth bbox tracking (same algorithm as EgocentricPipeline getAnnotationAtTime)",
+        "Uses shared BoundingBox for hand (TOKENS.bbox.hand) and object (TOKENS.bbox.object) bboxes",
+        "Uses shared MetadataPanel for sensor-fusion panel: TASK STATE, HAND TELEMETRY, OBJECT STATES, SPATIAL, IMU ESTIMATE, SCENE",
+        "Uses shared BottomBar with CLARU branding, timestamp, phase label, scrub bar",
+        "Timeline: 0-15 video only, 15-24 bboxes fade in, 24-30 panel slides in, 30-270 full composition, 270-300 fade to CLARU watermark",
+        "Create types.ts with Type1Annotation, Type1Frame, HandAnnotation, ObjectAnnotation, SpatialEstimate, IMUEstimate, SceneContext",
+        "Renders correctly at 1280x720, 30fps",
+        "TypeScript strict mode passes"
+      ]
     },
     {
       "id": "US-006",
-      "title": "ChallengesSolutions Component",
-      "description": "As a prospect, I want to see my specific challenges mapped to Claru's solutions.",
-      "acceptanceCriteria": [
-        "Create src/app/components/prospect/ChallengesSolutions.tsx as a client component ('use client')",
-        "Props: items: Array<{ challenge: string; solution: string }>",
-        "Two-column layout: left = 'Your Challenge' (monospace, #e8e8e8), right = 'How We Help' (accent #92B090)",
-        "Subtle connecting arrow or line between challenge and solution columns",
-        "Framer Motion stagger animation on scroll \u2014 each row animates in sequence",
-        "Section header: 'Your Challenges \u2192 Our Solutions' in JetBrains Mono",
-        "Responsive: stacks vertically on mobile (challenge above solution per item)",
-        "Typecheck passes"
+      "title": "Type 2: Pairwise Arena Composition",
+      "description": "Build PairwiseArenaComposition: split-screen A vs B with real annotation data determining winner. Uses betterVideoId/selectedAnswer/bestVideo from S3 annotation JSONs.",
+      "priority": "high",
+      "passes": false,
+      "dependencies": [
+        "US-001",
+        "US-002"
       ],
-      "priority": 6,
-      "passes": true,
-      "notes": "This is the most custom section per prospect page \u2014 the items array is different for every company. Keep the component generic so it just renders whatever items are passed in. | COMPLETED by background agent"
+      "acceptanceCriteria": [
+        "Create src/remotion/compositions/type-2/PairwiseArenaComposition.tsx accepting { compositionId: string }",
+        "Two videos side by side (50/50 split) -- Video A left, Video B right",
+        "Prompt text types out at top from real annotation metadata.prompt_text",
+        "Winner from real annotation data (betterVideoId, selectedAnswer, or bestVideo)",
+        "Selected video gets subtle accent border glow (#92B090) — non-selected dims. NO crown/trophy. Feels like a research interface.",
+        "Loser gets subtle dim/desaturation",
+        "For cs-vid-eval: shows config IDs ('Config 21 vs Config 41') from metadata.key",
+        "For cs-prompt-bench: shows category label ('Kayaking') and category verification checkmark from videoBelongsToCategory",
+        "Timeline: 0-30 fade in with split divider labels, 30-60 prompt types, 60-180 play, 180-240 selection glow + dim, 240-360 hold with pulse",
+        "Uses shared BottomBar with 'Arena' label",
+        "Create types.ts with Type2Annotation: videoA, videoB, winner, promptText, configLabels?, categoryLabel?",
+        "TypeScript strict mode passes"
+      ]
     },
     {
       "id": "US-007",
-      "title": "ExpiryGate Component (30-day expiry)",
-      "description": "As the business owner, I want prospect pages to auto-expire after 30 days.",
-      "acceptanceCriteria": [
-        "Create src/app/components/prospect/ExpiryGate.tsx as a client component ('use client')",
-        "Props: createdAt: string (ISO date), children: React.ReactNode",
-        "Compare current date to createdAt + 30 days",
-        "If expired: render graceful expired state with Claru branding \u2014 'This page is no longer available. Please contact us at team@claru.ai for updated information.'",
-        "If not expired: render children normally",
-        "Show subtle 'This page expires in X days' note when < 7 days remain",
-        "Expired state uses same dark theme, centered layout, Claru logo",
-        "Typecheck passes"
+      "title": "Type 3: Multi-Gen Gallery Composition",
+      "description": "Build MultiGenGalleryComposition: 2x4 grid of 8 generations with checkmark/X and best selection highlight. Uses real bestImage/selectedImages from AI Image Eval annotation JSON.",
+      "priority": "high",
+      "passes": false,
+      "dependencies": [
+        "US-001",
+        "US-002"
       ],
-      "priority": 7,
-      "passes": true,
-      "notes": "Client-side date check is the primary mechanism. Server-side ISR revalidation (revalidate: 86400) in the layout provides a backup so expired pages re-render server-side daily. | COMPLETED by background agent"
+      "acceptanceCriteria": [
+        "Create src/remotion/compositions/type-3/MultiGenGalleryComposition.tsx accepting { compositionId: string }",
+        "2x4 grid of 8 generation images from real metadata.generations array",
+        "Prompt types out above from real metadata.prompt",
+        "Images stagger in (6 frames apart)",
+        "Green checkmarks on selectedImages (6 of 8) via VerdictBadge variant:'badge'",
+        "Red Xs on rejected (2 of 8)",
+        "Subtle accent border glow on bestImage via VerdictBadge variant:'border-glow'",
+        "Stats: '6/8 acceptable (75%), 1 best' with animated counter",
+        "Timeline: 0-30 grid fades in, 30-90 images appear, 90-120 prompt types, 120-180 checkmarks/Xs, 180-210 selection highlight, 210-240 stats, 240-300 hold",
+        "Uses shared BottomBar with 'Generation Eval' label",
+        "Create types.ts with Type3Annotation: bestImage, selectedImages, hasGoodQuality, generations[], prompt",
+        "TypeScript strict mode passes"
+      ]
     },
     {
       "id": "US-008",
-      "title": "ProspectPageLayout \u2014 layout.tsx for /for/*",
-      "description": "As a developer, I need a shared layout for all prospect pages.",
-      "acceptanceCriteria": [
-        "Create src/app/for/layout.tsx as the layout for all /for/* routes",
-        "Export metadata with robots: { index: false, follow: false }",
-        "Set X-Robots-Tag: noindex, nofollow response header as backup",
-        "Apply dark theme matching main landing page (NOT portal theme)",
-        "Minimal header: Claru logo (links to claru.ai), no navigation links",
-        "Minimal footer: 'Prepared for [Company]' text + legal links (Privacy, Terms)",
-        "Footer includes subtle 'Shared with [Name] \u00b7 [Company]' watermark",
-        "Layout accepts children and passes through companyName and recipientName props via React context or slot pattern",
-        "Set revalidate: 86400 for ISR (server-side expiry backup)",
-        "Typecheck passes"
+      "title": "Type 4: Detection + Annotation Composition",
+      "description": "Build DetectionAnnotationComposition: progressive bboxes with labels and confidence scores. Uses real bbox coordinates from Object & Face Identity and Product Image annotation JSONs.",
+      "priority": "high",
+      "passes": false,
+      "dependencies": [
+        "US-001",
+        "US-002"
       ],
-      "priority": 8,
-      "passes": true,
-      "notes": "IMPORTANT: Check src/middleware.ts and ensure /for/* routes are NOT caught by portal auth middleware. If middleware checks portal paths, add an exclusion for /for/. The layout should NOT import posthog-js directly \u2014 tracking goes in a client wrapper component. Use the existing design system from src/app/globals.css. | COMPLETED by background agent"
+      "acceptanceCriteria": [
+        "Create src/remotion/compositions/type-4/DetectionAnnotationComposition.tsx accepting { compositionId: string }",
+        "For video (Object Identity): plays video, freeze-frames at annotated frame",
+        "For image (Product Image): displays image with animated zoom-in",
+        "Bboxes draw progressively using BoundingBox with confidence prop",
+        "cs-object-id: face bboxes from real segment[].bbox ([965,222,1390,829]), class:'face', score:0.825, identity match lines with 'Same person? YES' verdict",
+        "cs-fashion: product bbox from real files[1].metadata ({x1:175.26, y1:64.57, x2:365.51, y2:317.09}), typed captions (short then long), brand/category labels",
+        "Caption types letter-by-letter beneath media",
+        "Timeline: 0-20 fade in, 20-60 bboxes draw, 60-90 labels+scores, 90-150 captions type, 150-210 identity/brand, 210-270 hold, 270-300 fade",
+        "Uses BoundingBox (TOKENS.bbox.face for faces, TOKENS.bbox.product for products), BottomBar",
+        "Create types.ts with Type4Annotation supporting identity match and product annotation structures",
+        "TypeScript strict mode passes"
+      ]
     },
     {
       "id": "US-009",
-      "title": "Privacy & SEO \u2014 robots.txt update",
-      "description": "As the business owner, I want prospect pages excluded from search engines.",
-      "acceptanceCriteria": [
-        "Add Disallow: /for/ to robots.txt (check if public/robots.txt exists, create if not)",
-        "Verify /for/ paths are NOT in any sitemap (check for sitemap generation in next-sitemap or similar)",
-        "Confirm no internal links from public pages point to /for/* routes (grep codebase)",
-        "Typecheck passes"
+      "title": "Type 5: Classification Pipeline Composition",
+      "description": "Build ClassificationPipelineComposition: animated taxonomy tree expanding root to leaf. Uses real category/subcategory data from Video Classification and Game Environment annotation JSONs.",
+      "priority": "high",
+      "passes": false,
+      "dependencies": [
+        "US-001",
+        "US-002"
       ],
-      "priority": 9,
-      "passes": true,
-      "notes": "The noindex meta tag is handled in US-008 layout. This story handles robots.txt and sitemap exclusion as defense-in-depth. | COMPLETED by background agent"
+      "acceptanceCriteria": [
+        "Create src/remotion/compositions/type-5/ClassificationPipelineComposition.tsx accepting { compositionId: string }",
+        "Video left (60%), taxonomy tree right (40%) using shared TaxonomyTree",
+        "cs-vid-classify: dual taxonomy -- Content (People -> Technology & Computing -> Smartphones & Gadget Use) AND Visual Style (Portrait photography -> Urban outdoor portraits)",
+        "cs-game-capture/sol-sim2real: game taxonomy with 25-game catalog fanning out then narrowing to selected game",
+        "Caption from real metadata.caption types out below video",
+        "Pipeline stages animate: raw capture -> classification -> review -> approved",
+        "Timeline: 0-30 fade in, 30-90 first tree, 90-180 second tree (if dual), 180-270 caption + pipeline, 270-300/360 hold + fade",
+        "Uses TaxonomyTree, BottomBar, VerdictBadge ('approved' status)",
+        "Create types.ts with Type5Annotation: taxonomies[], caption, pipelineStages, gameTitle?, gameCatalog?",
+        "TypeScript strict mode passes"
+      ]
     },
     {
       "id": "US-010",
-      "title": "PostHog Tracking Hook for Prospect Pages",
-      "description": "As the sales team, I want to track prospect engagement on their pages.",
-      "acceptanceCriteria": [
-        "Create src/app/components/prospect/ProspectTracking.tsx as a client component ('use client')",
-        "Props: companySlug: string, companyName: string",
-        "Fire prospect_page_viewed event on mount with { company_slug, company_name, utm_source: 'prospect_page' }",
-        "Track prospect_page_scroll_depth at 25%, 50%, 75%, 100% thresholds \u2014 throttled to once per 3s",
-        "Track prospect_section_viewed via IntersectionObserver when each section enters viewport with { company_slug, section_name }",
-        "Track prospect_page_time_spent on page visibility change / unload with { company_slug, seconds_spent }",
-        "Track cta_clicked for Calendly or mailto clicks with { company_slug, cta_type }",
-        "Track case_study_clicked with { company_slug, case_study_slug }",
-        "All PostHog events include utm_source: 'prospect_page' property",
-        "PostHog logic must NOT be imported in server components",
-        "Use existing posthog-js setup (check for PostHogProvider in root layout or posthog init)",
-        "Typecheck passes"
-      ],
-      "priority": 10,
+      "title": "Type 6: Quality Rubric Composition",
+      "description": "Build QualityRubricComposition: 5-axis quality gauges + radar chart. Uses real quality dimension data from Video Quality Annotations JSON (isCinematic, hasGoodMotion, isHighQuality, isVideoInteresting, hasGoodTextAlignment).",
+      "priority": "high",
       "passes": true,
-      "notes": "Check if posthog-js is already installed and initialized. If not, install it and add a basic init. The section tracking needs data-section attributes on each section wrapper in the prospect page. Export a useProspectTracking hook and a SectionTracker wrapper component. | COMPLETED by background agent"
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
+      "acceptanceCriteria": [
+        "Create src/remotion/compositions/type-6/QualityRubricComposition.tsx accepting { compositionId: string }",
+        "Video left (60%), scoring panel right (40%)",
+        "5 gauges from real annotation data: Cinematic (not-cinematic->0.2 red), Motion (good-motion->0.8 green), Quality (not-high-quality->0.3 orange), Interest (interesting->0.7 green), Alignment (good-alignment->0.8 green)",
+        "After gauges fill, RadarChart builds 5-axis spider chart with animated fill",
+        "metadata.video_description types out beneath video",
+        "Timeline: 0-30 fade in, 30-60 first gauge, 60-90 remaining gauges stagger, 90-150 radar chart, 150-240 description types, 240-360 hold",
+        "Uses RadarChart, ProgressBar, BottomBar with 'Quality Assessment' label",
+        "Create types.ts with Type6Annotation: dimensions[{name, value:string, numericScore}], videoDescription",
+        "Documented mapping: good-*=0.8, not-*=0.2-0.3, interesting=0.7",
+        "TypeScript strict mode passes"
+      ]
     },
     {
       "id": "US-011",
-      "title": "Supabase Schema \u2014 custom_page_slug on leads",
-      "description": "As a developer, I need to track which leads have custom prospect pages.",
-      "acceptanceCriteria": [
-        "Add custom_page_slug column (text, nullable, unique) to leads table via Supabase migration using mcp__supabase-db__apply_migration",
-        "Update Lead interface in src/types/data-catalog.ts to include custom_page_slug: string | null",
-        "Typecheck passes"
+      "title": "Type 7: Safety Shield Composition",
+      "description": "Build SafetyShieldComposition: scanning overlay + prompt analysis + binary verdict badges. Uses real policy violation data from Content Safety annotation JSON.",
+      "priority": "high",
+      "passes": false,
+      "dependencies": [
+        "US-001",
+        "US-002"
       ],
-      "priority": 11,
-      "passes": true,
-      "notes": "Use the Supabase MCP tool: mcp__supabase-db__apply_migration. Migration SQL: ALTER TABLE leads ADD COLUMN custom_page_slug text UNIQUE; No RLS changes needed. | COMPLETED by background agent"
+      "acceptanceCriteria": [
+        "Create src/remotion/compositions/type-7/SafetyShieldComposition.tsx accepting { compositionId: string }",
+        "Blurred content area (never actual unsafe content) with scanning line",
+        "Prompt from real metadata.prompt types in terminal panel via TerminalHeader",
+        "Dual-channel verdicts from real generalData: Text Policy PASS/VIOLATION + Video Policy PASS/VIOLATION via VerdictBadge",
+        "sol-eu-ai-act: EU AI Act article reference badges (Art.52, Art.6) in EU blue #003399",
+        "cs-red-team: dual-channel Phase 1 (text scan) then Phase 2 (video scan) split animation",
+        "Shield icon fills green (pass) or red (violation) based on overall result",
+        "Timeline: 0-30 blur fade, 30-60 scan, 60-90 prompt types, 90-150 text verdict, 150-210 video verdict, 210-270 shield + overall, 270-300 fade",
+        "Uses VerdictBadge, TerminalHeader, BottomBar with 'Safety Review' label",
+        "Create types.ts with Type7Annotation: prompt, textPolicyViolation:boolean, videoPolicyViolation:boolean, policyRefs?, reviewType:'single'|'dual-channel'",
+        "TypeScript strict mode passes"
+      ]
     },
     {
       "id": "US-012",
-      "title": "/for/rime \u2014 Rime prospect page content and copy",
-      "description": "As Lily at Rime, I want to see a personalized page showing Claru understands my annotation challenges.",
-      "acceptanceCriteria": [
-        "Create src/app/for/rime/page.tsx as a static page",
-        "Set PAGE_CREATED constant to today's date for expiry tracking",
-        "Wrap content in ExpiryGate with createdAt={PAGE_CREATED}",
-        "Include ProspectTracking component with companySlug='rime' companyName='Rime'",
-        "Hero section: 'Prepared for Rime' with brief context about TTS/speech AI and multilingual annotation needs",
-        "ChallengesSolutions with 3 items: (1) Hiring annotation experts across 10+ languages \u2192 Managed annotator workforce with native speakers, (2) Building annotation guidelines per language from scratch \u2192 Proven annotation protocols with linguistic QA, (3) Quality control across diverse annotators \u2192 Same-day QA pipeline with multi-reviewer consensus",
-        "2-3 CaseStudyCards using slugs: video-quality-at-scale, video-content-classification (closest proxies for annotation-at-scale)",
-        "DatasetShowcase \u2014 select 2-3 relevant published dataset IDs (query Supabase to find annotation-heavy datasets)",
-        "WorkforceStats section",
-        "CalendlyEmbed at bottom",
-        "Pass companyName='Rime' and recipientName='Lily' to layout context for footer personalization",
-        "Page matches dark terminal aesthetic with Framer Motion animations",
-        "Responsive across desktop, tablet, mobile",
-        "Typecheck passes"
+      "title": "Type 8: Cinematic Showcase Composition",
+      "description": "Build CinematicShowcaseComposition: stunning 4K footage with minimal overlay. For pages emphasizing data quality. Gemini-enriched for scene descriptions.",
+      "priority": "medium",
+      "passes": false,
+      "dependencies": [
+        "US-001",
+        "US-002"
       ],
-      "priority": 12,
-      "passes": true,
-      "notes": "This is the template page \u2014 future prospect pages will be created by copying this file and changing the custom content. Section order: Hero \u2192 Challenges/Solutions \u2192 Case Studies \u2192 Datasets \u2192 Workforce Stats \u2192 Book a Call. Design system: bg #0a0908, accent #92B090, text #FFFFFF, fonts Geist Sans + JetBrains Mono. Check src/app/globals.css for existing CSS variables and classes. | COMPLETED by background agent"
+      "acceptanceCriteria": [
+        "Create src/remotion/compositions/type-8/CinematicShowcaseComposition.tsx accepting { compositionId: string }",
+        "Video full-bleed with letterbox bars (2.39:1 within 16:9)",
+        "Minimal overlay: category tag, subcategory, licensing badge ('Licensed 4K')",
+        "Labels slide in from left with motion blur, hold, slide out",
+        "Film grain CSS overlay for cinematic quality",
+        "cs-egocentric: cross-fade between egocentric and cinematic clips",
+        "sol-open-vs-custom: 'This is custom data' premium gold label",
+        "Gemini scene description as typed subtitle",
+        "Timeline: 0-15 fade through letterbox, 15-90 play with labels, 90-180 description types, 180-270 gentle zoom, 270-300 fade + badge",
+        "Uses BottomBar (minimal variant, no timestamp)",
+        "Create types.ts with Type8Annotation: category, subcategory, sceneDescription, licensingType, resolution",
+        "TypeScript strict mode passes"
+      ]
     },
     {
       "id": "US-013",
-      "title": "Visual QA \u2014 verify /for/rime in browser",
-      "description": "As QA, I need to verify the Rime prospect page renders correctly across viewports.",
-      "acceptanceCriteria": [
-        "Run dev server on port 3000 or 3005",
-        "Navigate to /for/rime in browser",
-        "Take screenshots at: hero, challenges/solutions, case studies, datasets, workforce stats, calendly",
-        "Verify all 6 sections render with content (no blank sections)",
-        "Verify noindex meta tag is present in page source",
-        "Verify dark theme is applied (not portal theme or light theme)",
-        "Verify responsive at desktop (1440px) and mobile (375px)",
-        "Verify case study links open in new tab",
-        "Verify no console errors",
-        "Fix any critical visual issues found",
-        "Typecheck passes"
-      ],
-      "priority": 13,
+      "title": "Extract Real Annotation Data for Type 2 Compositions (4 Pairwise Arena)",
+      "description": "Extract and transform real annotation data from S3 for sol-video-gen, sol-rlhf, cs-vid-eval, cs-prompt-bench. Uses betterVideoId, selectedAnswer, bestVideo from annotation JSONs.",
+      "priority": "high",
       "passes": true,
-      "notes": "Use Playwright MCP or agent-browser skill to automate screenshots. If dev server isn't running, start it with npm run dev -- --port 3005. Check that middleware doesn't redirect /for/rime to login. | COMPLETED - all sections render, noindex present, responsive works, zero console errors"
+      "dependencies": [
+        "US-003b",
+        "US-006"
+      ],
+      "acceptanceCriteria": [
+        "sol-video-gen + sol-rlhf: extract betterVideoId, prompt_text, video_1/video_2 URLs from Video Generation Preference (bafc163f)",
+        "cs-vid-eval: extract selectedAnswer ('21'), metadata.key ('video_110_config_21_config_41'), video URLs, prompt_text from Quality Parameters (a5f0c373)",
+        "cs-prompt-bench: extract bestVideo, video categories ('Kayaking'), videoBelongsToCategory from Prompt Rankings (8689f381)",
+        "Download both video files per composition to tmp/samples/{id}/",
+        "Transform to Type2Annotation format: { videoA, videoB, winner, promptText, configLabels?, categoryLabel? }",
+        "All 4 JSONs validate against Type2AnnotationSchema",
+        "All 4 written to public/remotion-assets/annotations/"
+      ]
+    },
+    {
+      "id": "US-014",
+      "title": "Extract Real Annotation Data for Type 3 Composition (Multi-Gen Gallery)",
+      "description": "Extract real annotation data for sol-crowd-vs-expert from AI Image Generation Evaluation dataset (55f26c56).",
+      "priority": "high",
+      "passes": true,
+      "dependencies": [
+        "US-003b",
+        "US-007"
+      ],
+      "acceptanceCriteria": [
+        "Download annotation JSON from AI Image Eval dataset (55f26c56)",
+        "Extract bestImage ID, selectedImages (6 of 8), hasGoodQuality, prompt, 8 generation URLs",
+        "Download all 8 generation images to tmp/samples/sol-crowd-vs-expert/",
+        "Transform to Type3Annotation format",
+        "Validates against Type3AnnotationSchema",
+        "Written to public/remotion-assets/annotations/sol-crowd-vs-expert.json"
+      ]
+    },
+    {
+      "id": "US-015",
+      "title": "Extract Real Annotation Data for Type 4 Compositions (Detection + Annotation)",
+      "description": "Extract real bbox/identity data for cs-fashion (Product Image) and cs-object-id (Face Identity).",
+      "priority": "high",
+      "passes": true,
+      "dependencies": [
+        "US-003b",
+        "US-008"
+      ],
+      "acceptanceCriteria": [
+        "cs-fashion: extract brandName ('Craghoppers'), category, subcategory, captions (short + long), lifestyle bbox {x1:175.26, y1:64.57, x2:365.51, y2:317.09} from Product Image (f6bdb2f1)",
+        "cs-object-id: extract segment[] with bbox ([965,222,1390,829]), class ('face'), score (0.825), frame_index, identity match verdicts from Object Identity (040fee50)",
+        "Download media files (images for fashion, video + thumbnails for identity)",
+        "Both validate against Type4AnnotationSchema",
+        "Both written to public/remotion-assets/annotations/"
+      ]
+    },
+    {
+      "id": "US-016",
+      "title": "Extract Real Annotation Data for Type 5 Compositions (Classification Pipeline)",
+      "description": "Extract real classification/taxonomy data for sol-sim2real, cs-game-capture, cs-vid-classify.",
+      "priority": "high",
+      "passes": true,
+      "dependencies": [
+        "US-003b",
+        "US-009"
+      ],
+      "acceptanceCriteria": [
+        "cs-vid-classify: dual taxonomy from Video Classification (ca2465cf) -- content (Technology & Computing / Smartphones & Gadget Use) + visual style (Portrait photography / Urban outdoor portraits), caption, concept ('People')",
+        "cs-game-capture + sol-sim2real: game taxonomy from Game Environment (b2b542aa) -- selectedGame ('Red Dead Redemption 2'), category ('Adventure'), full 25-game catalog from project.templateData.categories",
+        "All 3 validate against Type5AnnotationSchema",
+        "All 3 written to public/remotion-assets/annotations/"
+      ]
+    },
+    {
+      "id": "US-017",
+      "title": "Extract Real Annotation Data for Type 6 Composition (Quality Rubric)",
+      "description": "Extract real 5-axis quality rubric data for cs-vid-quality from Video Quality Annotations (4bda56db).",
+      "priority": "high",
+      "passes": true,
+      "dependencies": [
+        "US-003b",
+        "US-010"
+      ],
+      "acceptanceCriteria": [
+        "Download annotation JSON from Video Quality Annotations (4bda56db)",
+        "Extract 5 dimensions: isCinematic ('not-cinematic'), hasGoodMotion ('good-motion'), isHighQuality ('not-high-quality'), isVideoInteresting ('interesting'), hasGoodTextAlignment ('good-alignment')",
+        "Extract metadata.video_description for typed assessment overlay",
+        "Map string values to numeric: good-motion->0.8, not-cinematic->0.2, not-high-quality->0.3, interesting->0.7, good-alignment->0.8",
+        "Download video sample",
+        "Validates against Type6AnnotationSchema",
+        "Written to public/remotion-assets/annotations/cs-vid-quality.json"
+      ]
+    },
+    {
+      "id": "US-018",
+      "title": "Extract Real Annotation Data for Type 7 Compositions (Safety Shield)",
+      "description": "Extract real safety/policy data for sol-red-teaming, sol-eu-ai-act, cs-gen-safety, cs-red-team from Content Safety (132debad).",
+      "priority": "high",
+      "passes": true,
+      "dependencies": [
+        "US-003b",
+        "US-011"
+      ],
+      "acceptanceCriteria": [
+        "Download annotation JSONs from Content Safety dataset (132debad)",
+        "Extract text_policy_violation, video_policy_violation, prompt (200+ words), project.type",
+        "Note: sample video 404'd -- compositions use blurred placeholder (safety compositions always blur anyway)",
+        "sol-eu-ai-act: add policy refs ('EU AI Act Art.52', 'Art.6 High-Risk Systems')",
+        "All 4 validate against Type7AnnotationSchema",
+        "All 4 written to public/remotion-assets/annotations/"
+      ]
+    },
+    {
+      "id": "US-019",
+      "title": "Gemini Enrichment for Type 1 Compositions (5 Sensor-Fusion)",
+      "description": "Run Gemini 2.5 Flash for sol-egocentric, sol-vla, sol-manipulation, sol-teleop, cs-workplace. These datasets have no annotation JSON.",
+      "priority": "high",
+      "passes": true,
+      "dependencies": [
+        "US-003",
+        "US-005"
+      ],
+      "acceptanceCriteria": [
+        "Download best S3 samples: sol-egocentric (traffic 4K), sol-vla (multi-activity), sol-manipulation (grasping/pouring), sol-teleop (outdoor/workplace), cs-workplace (workplace activities)",
+        "Select single best hero sample per composition",
+        "Run gemini-enrich.ts --composition {id} for each",
+        "Each JSON validates against Type1AnnotationSchema with zero errors",
+        "Each has 20-30 frame annotations at 2-3 fps with smooth bbox coordinates",
+        "Every frame has 1+ hand annotation and 1+ object annotation in [0,1]",
+        "manipulation_phase uses canonical vocabulary: idle, approach, contact, grasp, transport, place, pour, stir, release",
+        "All 5 written to public/remotion-assets/annotations/",
+        "Total Gemini API cost documented"
+      ]
+    },
+    {
+      "id": "US-020",
+      "title": "Gemini Enrichment for Type 8 Compositions (2 Cinematic Showcase)",
+      "description": "Run Gemini for sol-open-vs-custom and cs-egocentric. Cinematic dataset has no annotation JSON.",
+      "priority": "medium",
+      "passes": true,
+      "dependencies": [
+        "US-003",
+        "US-012"
+      ],
+      "acceptanceCriteria": [
+        "sol-open-vs-custom: download 4K safari footage from Cinematic Action (b2d26fd9)",
+        "cs-egocentric: download best egocentric clip + cinematic safari clip for cross-fade",
+        "Run Gemini for scene descriptions (overlay text)",
+        "Use metadata category/subcategory for labels",
+        "Both validate against Type8AnnotationSchema",
+        "Both written to public/remotion-assets/annotations/"
+      ]
+    },
+    {
+      "id": "US-021",
+      "title": "Render All 11 Solution Page Compositions to MP4",
+      "description": "Execute render pipeline for all 11 solution page compositions.",
+      "priority": "high",
+      "passes": true,
+      "dependencies": [
+        "US-005",
+        "US-006",
+        "US-007",
+        "US-008",
+        "US-009",
+        "US-010",
+        "US-011",
+        "US-012",
+        "US-013",
+        "US-014",
+        "US-015",
+        "US-016",
+        "US-017",
+        "US-018",
+        "US-019",
+        "US-020"
+      ],
+      "acceptanceCriteria": [
+        "Render all 11 solution compositions to public/videos/{id}.mp4 at 1280x720, 30fps, h264, CRF 23",
+        "Each MP4 between 1-10 MB (re-render CRF 28 if > 10 MB)",
+        "Type 1: bboxes track smoothly, sensor panel readable",
+        "Type 2: both sides play, prompt visible, subtle selection highlight appears",
+        "Type 3: 8-image grid, checkmarks/Xs, accent highlight on selected",
+        "Type 5: taxonomy tree animates level by level",
+        "Type 7: content blurred, scanning animation, verdict badges stamp",
+        "Type 8: letterbox framing, labels slide in/out",
+        "All 11 committed to public/videos/",
+        "Print summary: ID | type | duration | size | render time"
+      ]
+    },
+    {
+      "id": "US-022",
+      "title": "Render All 11 Case Study Compositions to MP4",
+      "description": "Execute render pipeline for all 11 case study compositions.",
+      "priority": "high",
+      "passes": true,
+      "dependencies": [
+        "US-005",
+        "US-006",
+        "US-007",
+        "US-008",
+        "US-009",
+        "US-010",
+        "US-011",
+        "US-012",
+        "US-013",
+        "US-014",
+        "US-015",
+        "US-016",
+        "US-017",
+        "US-018",
+        "US-019",
+        "US-020"
+      ],
+      "acceptanceCriteria": [
+        "Render all 11 case study compositions to public/videos/{id}.mp4",
+        "Each between 1-10 MB",
+        "Type 1 (cs-workplace): sensor-fusion on workplace footage",
+        "Type 2 (cs-vid-eval, cs-prompt-bench): capybara A/B, kayaking A/B",
+        "Type 4 (cs-fashion, cs-object-id): product bbox + captions, face detection + identity",
+        "Type 5 (cs-game-capture, cs-vid-classify): RDR2 taxonomy, dual taxonomy tree",
+        "Type 6 (cs-vid-quality): 5-axis radar chart with gauges",
+        "Type 7 (cs-gen-safety, cs-red-team): safety scan + verdicts",
+        "Type 8 (cs-egocentric): cinematic showcase cross-fade",
+        "All 11 committed to public/videos/",
+        "Total directory under 220 MB"
+      ]
+    },
+    {
+      "id": "US-023",
+      "title": "Add Video Hero to All 11 Solution Pages",
+      "description": "Create VideoHero component and integrate into ContentPageTemplate for all 11 solution pages.",
+      "priority": "high",
+      "passes": true,
+      "dependencies": [
+        "US-021"
+      ],
+      "acceptanceCriteria": [
+        "Create src/app/components/media/VideoHero.tsx (client) with <video autoPlay muted loop playsInline>",
+        "IntersectionObserver pauses video off-screen",
+        "Poster fallback, onError graceful hide",
+        "Fixed aspect-video container, rounded-2xl border",
+        "Add videoSrc? to ContentPageData interface",
+        "Update ContentPageTemplate.tsx to render VideoHero when videoSrc present",
+        "Update all 11 solution page data files with videoSrc",
+        "Responsive: full-width mobile, max-w-6xl desktop",
+        "TypeScript strict mode passes"
+      ]
+    },
+    {
+      "id": "US-024",
+      "title": "Create Case Study Enhancement Components",
+      "description": "Build AnimatedMetrics and ProcessTimeline components for case study page redesign.",
+      "priority": "medium",
+      "passes": false,
+      "dependencies": [
+        "US-023"
+      ],
+      "acceptanceCriteria": [
+        "Create AnimatedMetrics.tsx with Framer Motion useInView counter animation, grid-cols-2 md:grid-cols-4",
+        "Create ProcessTimeline.tsx with staggered step reveal and connecting line draw",
+        "Both standalone, responsive, TypeScript strict passes"
+      ]
+    },
+    {
+      "id": "US-025",
+      "title": "Redesign Case Study Detail Page Layout",
+      "description": "Update CaseStudyDetailClient.tsx with conditional VideoHero, AnimatedMetrics, ProcessTimeline.",
+      "priority": "medium",
+      "passes": false,
+      "dependencies": [
+        "US-023",
+        "US-024"
+      ],
+      "acceptanceCriteria": [
+        "Render VideoHero when cs.videoComposition present",
+        "Replace static stats with AnimatedMetrics",
+        "Replace ProcessFlow with ProcessTimeline",
+        "Conditional: no regressions for pages without videoComposition",
+        "TypeScript strict mode passes"
+      ]
+    },
+    {
+      "id": "US-026",
+      "title": "Wire Up All 11 Case Study Pages",
+      "description": "Add videoComposition field to all 11 case study data files.",
+      "priority": "medium",
+      "passes": false,
+      "dependencies": [
+        "US-022",
+        "US-025"
+      ],
+      "acceptanceCriteria": [
+        "Add videoComposition? to CaseStudy type",
+        "Update 11 JSONs: egocentric-video-collection->cs-egocentric, workplace->cs-workplace, fashion->cs-fashion, game->cs-game-capture, gen-safety->cs-gen-safety, red-team->cs-red-team, vid-classify->cs-vid-classify, vid-eval->cs-vid-eval, vid-quality->cs-vid-quality, prompt-bench->cs-prompt-bench, object-id->cs-object-id",
+        "All placement: 'hero'",
+        "Smoke test: no errors, video plays, metrics animate"
+      ]
+    },
+    {
+      "id": "US-027",
+      "title": "Code Review",
+      "description": "Comprehensive code review of all new files.",
+      "priority": "high",
+      "passes": true,
+      "dependencies": [
+        "US-026"
+      ],
+      "acceptanceCriteria": [
+        "Review src/remotion/shared/ -- DesignTokens consistency, interfaces",
+        "Review all 8 composition templates -- annotation data loading, error handling",
+        "Review extract-annotations.ts -- correct field extraction per type",
+        "Review gemini-enrich.ts -- only Types 1 and 8",
+        "Review composition-manifest.json -- all 22 entries, correct annotation sources",
+        "npm run build succeeds",
+        "npm run lint passes",
+        "TypeScript strict mode passes"
+      ]
+    },
+    {
+      "id": "US-028",
+      "title": "Playwright E2E Tests",
+      "description": "Write Playwright tests for all 22 pages with video compositions.",
+      "priority": "medium",
+      "passes": true,
+      "dependencies": [
+        "US-026",
+        "US-027"
+      ],
+      "acceptanceCriteria": [
+        "Create tests/e2e/remotion-media.spec.ts",
+        "Test 11 solution pages load <video> with correct src",
+        "Test 11 case study pages load <video>",
+        "Test video attributes: autoplay, muted, loop, playsinline",
+        "Test no console errors",
+        "Test mobile viewport responsive",
+        "All tests pass"
+      ]
+    },
+    {
+      "id": "US-029",
+      "title": "Visual Verification",
+      "description": "Manual visual verification of all 22 pages.",
+      "priority": "low",
+      "passes": true,
+      "dependencies": [
+        "US-028"
+      ],
+      "acceptanceCriteria": [
+        "Screenshot all 22 pages at 375px, 768px, 1440px",
+        "Verify each composition shows correct annotation workflow for its type",
+        "Verify no layout shifts",
+        "Document issues as GitHub issues"
+      ]
     }
   ]
 }

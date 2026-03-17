@@ -1,0 +1,482 @@
+{
+  "id": "prd-content-pages",
+  "title": "Claru SEO Content Pages (/solutions/[slug])",
+  "description": "Build 11 data-driven content pages at /solutions/[slug] targeting low-competition, high-value buyer-intent keywords in the AI training data space. Each page pulls real data from Supabase datasets + case study JSONs, cites 5-8 research papers, and goes through a multi-agent copy QA review loop.",
+  "status": "draft",
+  "created": "2026-03-16",
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Create Shared ContentPageData Type System and Data Loading Utilities",
+      "description": "Create the type system, page registry, and server-side data loading utilities so all subsequent page data files and components have a typed foundation.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "S",
+      "dependencies": [],
+      "agents": ["frontend-expert", "code-reviewer"],
+      "acceptance_criteria": [
+        "Create src/data/content-pages/types.ts with ContentPageData interface matching design doc specification",
+        "Create src/data/content-pages/index.ts with getContentPage(slug), getAllContentPageSlugs(), getAllContentPages() functions",
+        "Create src/lib/case-studies-server.ts with getCaseStudyData(slug) function using fs.readFileSync",
+        "CaseStudyData interface includes: slug, title, teaser, headlineStat, headlineStatLabel, results array, approach, processSteps",
+        "Export ResearchCitation interface from types: id, title, authors, venue, year, url, keyClaim",
+        "All types are strict — no any types",
+        "Typecheck passes"
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Create /solutions Layout with JSON-LD, OG Images, Canonical URLs, Breadcrumbs",
+      "description": "Create the shared layout that injects structured data (BreadcrumbList, Service, FAQPage JSON-LD), OG image metadata, and canonical URLs for all content pages.",
+      "status": "pending",
+      "priority": "high",
+      "estimation": "M",
+      "dependencies": ["US-001"],
+      "agents": ["frontend-expert", "code-reviewer"],
+      "acceptance_criteria": [
+        "Create src/app/solutions/layout.tsx as a server component",
+        "Layout injects three JSON-LD schemas: BreadcrumbList, Service (linked to Organization), FAQPage",
+        "JSON-LD uses canonical base URL https://claru.ai",
+        "Service schema includes dateModified with build date",
+        "OG image URL generated via ogImageUrl(title, { category: 'solution' }) from src/lib/og.ts",
+        "Add 'solution' to VALID_CATEGORIES in src/app/api/og/route.tsx with config: { badge: 'SOLUTION', borderColor: '#92B090', titlePrefix: '' }",
+        "Typecheck passes"
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Create Shared Page Template Components",
+      "description": "Create the reusable section components: ContentPageTemplate, ContentHero, ProblemSection, DatasetComparison, InlineCaseStudy, ResearchCitations, ContentFAQ, CitationLink.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "L",
+      "dependencies": ["US-001"],
+      "agents": ["frontend-expert", "code-reviewer"],
+      "acceptance_criteria": [
+        "Create ContentPageTemplate.tsx (server component) — composes all sections from ContentPageData",
+        "Create ContentHero.tsx (server component) — breadcrumb nav, H1, subtitle, CTA",
+        "Create ProblemSection.tsx (server component) — question-form H2, answer-first paragraphs, citations, callout",
+        "Create DatasetComparison.tsx (server component) — responsive table/cards with #121210 bg, #92B090 accent",
+        "Create InlineCaseStudy.tsx (server component) — reads case study JSON, renders metrics, methodology excerpt",
+        "Create ResearchCitations.tsx (server component) — numbered reference list with external links",
+        "Create ContentFAQ.tsx (client component) — expandable accordion, keyboard accessible",
+        "Create CitationLink.tsx (server component) — simple anchor tag for inline citations",
+        "All components follow design system: #0a0908 bg, #92B090 accent, #FFFFFF text",
+        "Reuses existing DatasetShowcase, WorkforceStats, FinalCTA, Button",
+        "InlineCaseStudy returns null with console.warn if case study JSON missing",
+        "Typecheck passes"
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Create Dynamic [slug]/page.tsx Route with generateStaticParams",
+      "description": "Create the dynamic route that maps slugs to page data and renders ContentPageTemplate with build-time validation.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "M",
+      "dependencies": ["US-002", "US-003"],
+      "agents": ["frontend-expert", "code-reviewer"],
+      "acceptance_criteria": [
+        "Create src/app/solutions/[slug]/page.tsx as a server component",
+        "generateStaticParams() returns all slugs from getAllContentPageSlugs()",
+        "generateMetadata() returns title, description, keywords, canonical URL, OG image",
+        "revalidate = 3600 for 1-hour ISR",
+        "Unknown slugs call notFound() returning 404",
+        "Build-time validation warns on missing case studies and out-of-range FAQ counts",
+        "Page renders ContentPageTemplate with resolved ContentPageData",
+        "Typecheck passes"
+      ]
+    },
+    {
+      "id": "US-005",
+      "title": "Tier 1 Data Files — Egocentric Video Data + VLA Training Data",
+      "description": "Create two pillar-tier page data files: egocentric-video-data.ts and vla-training-data.ts with research-backed copy, citations, dataset comparisons, FAQs, and case study mappings.",
+      "status": "pending",
+      "priority": "high",
+      "estimation": "L",
+      "dependencies": ["US-004"],
+      "agents": ["frontend-expert", "web-research-specialist", "code-reviewer"],
+      "acceptance_criteria": [
+        "egocentric-video-data.ts exports typed ContentPageData with citations: EgoDex, EgoScale, Ego4D, DROID, Open X-Embodiment",
+        "vla-training-data.ts exports typed ContentPageData with citations: pi-0, GR00T N1.5, OpenVLA, RT-2, Octo",
+        "Every citation has real URL, correct arxiv ID, and keyClaim matching source paper",
+        "Dataset comparison tables have accurate scale numbers from source papers",
+        "FAQ answers are self-contained and answer-first",
+        "Meta titles 50-60 chars, meta descriptions 150-160 chars",
+        "H2 headings are question-form",
+        "All case study slugs reference existing JSONs",
+        "Pages render locally (npm run build succeeds)",
+        "Content QA agent verifies citation accuracy, copy quality, SEO optimization",
+        "Code review agent verifies types, data integrity, no runtime errors"
+      ]
+    },
+    {
+      "id": "US-006",
+      "title": "Tier 1 Data Files — Red Teaming Data + Video Generation Training Data",
+      "description": "Create two pillar-tier page data files: red-teaming-data.ts and video-generation-training-data.ts.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "L",
+      "dependencies": ["US-004"],
+      "agents": ["frontend-expert", "web-research-specialist", "code-reviewer"],
+      "acceptance_criteria": [
+        "red-teaming-data.ts exports typed ContentPageData with citations: EU AI Act, Anthropic Constitutional Classifiers, OpenAI red teaming, NIST AI RMF",
+        "video-generation-training-data.ts exports typed ContentPageData with citations: VideoReward, VidGen-1M, Flow-DPO",
+        "Red teaming page accurately represents EU AI Act requirements (Articles 55, 99, enforcement dates)",
+        "Video generation page cites correct arXiv IDs and paper claims",
+        "Same quality criteria as US-005 (typed exports, real citations, accurate tables, answer-first FAQs, SEO meta)",
+        "Pages render locally",
+        "Content QA agent review passes",
+        "Code review agent passes"
+      ]
+    },
+    {
+      "id": "US-007",
+      "title": "Tier 2 Data Files — Manipulation Trajectory Data + Expert RLHF Annotation",
+      "description": "Create two cluster-tier page data files: manipulation-trajectory-data.ts and expert-rlhf-annotation.ts.",
+      "status": "pending",
+      "priority": "medium",
+      "estimation": "L",
+      "dependencies": ["US-004"],
+      "agents": ["frontend-expert", "web-research-specialist", "code-reviewer"],
+      "acceptance_criteria": [
+        "manipulation-trajectory-data.ts exports typed ContentPageData with citations: AgiBot World, DROID, Open X-Embodiment, GEN-0",
+        "expert-rlhf-annotation.ts exports typed ContentPageData with citations: MM-RLHF, RLTHF, cost analysis",
+        "Expert RLHF page includes concrete cost comparison data (crowdsourced vs expert)",
+        "Manipulation trajectory page accurately describes action space representations",
+        "Same quality criteria as US-005",
+        "Pages render locally",
+        "Content QA agent review passes",
+        "Code review agent passes"
+      ]
+    },
+    {
+      "id": "US-008",
+      "title": "Tier 2 Data Files — Sim-to-Real Data + Teleoperation Data",
+      "description": "Create two cluster-tier page data files: sim-to-real-data.ts and teleoperation-data.ts.",
+      "status": "done",
+      "passes": true,
+      "priority": "medium",
+      "estimation": "L",
+      "dependencies": ["US-004"],
+      "agents": ["frontend-expert", "web-research-specialist", "code-reviewer"],
+      "acceptance_criteria": [
+        "sim-to-real-data.ts exports typed ContentPageData with citations: ABB/NVIDIA HyperReality, Sim2Real-VLA",
+        "teleoperation-data.ts exports typed ContentPageData with citations: HumanPlus, ACE, Open-TeleVision",
+        "Sim-to-real page explains domain gap problem with specific examples from cited research",
+        "Teleoperation page covers hardware/interface considerations from cited papers",
+        "Same quality criteria as US-005",
+        "Pages render locally",
+        "Content QA agent review passes",
+        "Code review agent passes"
+      ]
+    },
+    {
+      "id": "US-009",
+      "title": "Tier 3 Data Files — Comparison/Guide Articles (3 Pages)",
+      "description": "Create three comparison/guide page data files: open-datasets-vs-custom.ts, crowdsourced-vs-expert-rlhf.ts, eu-ai-act-red-teaming.ts.",
+      "status": "pending",
+      "priority": "medium",
+      "estimation": "L",
+      "dependencies": ["US-004"],
+      "agents": ["frontend-expert", "web-research-specialist", "code-reviewer"],
+      "acceptance_criteria": [
+        "open-datasets-vs-custom.ts has accurate comparison table: Open X-Embodiment vs DROID vs AgiBot World vs custom",
+        "crowdsourced-vs-expert-rlhf.ts includes specific failure mode examples with citations: RLTHF, MM-RLHF, Secrets of RLHF Part II",
+        "eu-ai-act-red-teaming.ts correctly represents enforcement dates (Feb 2025, Aug 2025, Aug 2026) and article numbers (55, 99)",
+        "Same quality criteria as US-005",
+        "Pages render locally",
+        "Content QA agent review passes",
+        "Code review agent passes"
+      ]
+    },
+    {
+      "id": "US-010",
+      "title": "Content QA Review Loop — All 11 Pages",
+      "description": "Dedicated content review pass across all 11 pages to verify citation accuracy, copy quality, SEO optimization, and factual claims.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "L",
+      "dependencies": ["US-005", "US-006", "US-007", "US-008", "US-009"],
+      "agents": ["web-research-specialist", "code-reviewer"],
+      "acceptance_criteria": [
+        "Every citation URL resolves (not 404/dead link)",
+        "Claimed numbers in dataset comparison tables match source papers",
+        "keyClaim text on each citation accurately represents the paper's finding",
+        "Copy doesn't read like AI-generated marketing fluff",
+        "FAQ answers are self-contained and answer-first",
+        "Primary keyword appears in H1, at least one H2, and meta description",
+        "H2 headings are question-form",
+        "Meta titles 50-60 chars, meta descriptions 150-160 chars",
+        "All critical issues resolved and re-verified"
+      ]
+    },
+    {
+      "id": "US-011",
+      "title": "Code Review — All Components, Data Types, SSR Rendering, JSON-LD Validity",
+      "description": "Comprehensive code review of all new files to verify TypeScript correctness, server/client boundaries, JSON-LD validity, and performance.",
+      "status": "pending",
+      "priority": "high",
+      "estimation": "M",
+      "dependencies": ["US-005", "US-006", "US-007", "US-008", "US-009"],
+      "agents": ["code-reviewer"],
+      "acceptance_criteria": [
+        "All server components do NOT import client-only libraries",
+        "All client components have 'use client' directive",
+        "JSON-LD output parses as valid JSON and validates against schema.org types",
+        "generateStaticParams correctly enumerates all slugs",
+        "generateMetadata produces correct canonical URLs, OG images, descriptions",
+        "revalidate = 3600 is set on the dynamic route",
+        "notFound() called for unknown slugs",
+        "No any types or unsafe type assertions",
+        "InlineCaseStudy gracefully handles missing case study JSONs",
+        "npm run build succeeds with zero errors"
+      ]
+    },
+    {
+      "id": "US-012",
+      "title": "Add All Solutions Pages to Sitemap",
+      "description": "Include all 11 solutions pages in the sitemap for Google indexing.",
+      "status": "pending",
+      "priority": "medium",
+      "estimation": "S",
+      "dependencies": ["US-005", "US-006", "US-007", "US-008", "US-009"],
+      "agents": ["frontend-expert", "code-reviewer"],
+      "acceptance_criteria": [
+        "Import getAllContentPages from src/data/content-pages/index.ts in src/app/sitemap.ts",
+        "Map all content page slugs to sitemap entries with url, changeFrequency: monthly, priority: 0.8",
+        "Verify sitemap output includes all 11 URLs after build",
+        "No duplicate URLs in sitemap",
+        "Typecheck passes"
+      ]
+    },
+    {
+      "id": "US-013",
+      "title": "Playwright E2E Tests — All 11 Pages Render",
+      "description": "E2E tests verifying all content pages render correctly with proper structured data.",
+      "status": "done",
+      "passes": true,
+      "priority": "medium",
+      "estimation": "M",
+      "dependencies": ["US-010", "US-011", "US-012"],
+      "agents": ["general-purpose", "code-reviewer"],
+      "skills": ["mcp__playwright"],
+      "acceptance_criteria": [
+        "Create tests/e2e/content-pages.spec.ts",
+        "For each of 11 slugs: page loads HTTP 200, exactly 1 h1, question-form h2s, BreadcrumbList JSON-LD present, FAQPage JSON-LD with 3-5 items, Service JSON-LD present, canonical link matches /solutions/{slug}, og:image meta present",
+        "FAQ accordion expands/collapses on click",
+        "Research citations section has at least 3 references with external links",
+        "Test uses data-driven pattern parameterized across all 11 slugs",
+        "Test runs against local dev server",
+        "Typecheck passes"
+      ]
+    },
+    {
+      "id": "US-014",
+      "title": "Playwright MCP UAT — Visual Verification",
+      "description": "Visual user acceptance testing via Playwright MCP browser automation at desktop and mobile viewports.",
+      "status": "pending",
+      "priority": "low",
+      "estimation": "M",
+      "dependencies": ["US-013", "US-018"],
+      "agents": ["general-purpose"],
+      "skills": ["mcp__playwright"],
+      "acceptance_criteria": [
+        "Test at least 3 representative pages (1 Tier-1: egocentric-video-data, 1 Tier-2: expert-rlhf-annotation, 1 Tier-3: open-datasets-vs-custom) at desktop (1440px) and mobile (375px)",
+        "Take screenshots of hero, comparison table, inline case study, FAQ section",
+        "Verify breadcrumb navigation is visible and clickable",
+        "Verify dataset showcase renders cards if page has datasetIds",
+        "Verify no console errors",
+        "Verify responsive layout — table becomes cards on mobile",
+        "Verify OG image renders at /api/og?title=...&category=solution",
+        "Document any visual issues and fix critical blockers"
+      ]
+    },
+    {
+      "id": "US-015",
+      "title": "Post-Deploy GSC — Re-submit Sitemap and Verify Indexing",
+      "description": "Re-submit sitemap to GSC, verify all 11 new /solutions/ URLs are discoverable, check for indexing issues.",
+      "status": "pending",
+      "priority": "high",
+      "estimation": "S",
+      "dependencies": ["US-014"],
+      "agents": ["general-purpose"],
+      "acceptance_criteria": [
+        "Re-submit sitemap via GSC MCP submit_sitemap",
+        "Verify sitemap processes with 0 errors and URL count increased by 11",
+        "Batch inspect all 11 /solutions/ URLs via batch_url_inspection",
+        "Check indexing issues — no robots blocks, no noindex, no fetch errors",
+        "Verify /robots.txt does NOT block /solutions/",
+        "Document initial crawl status in tasks/docs/gsc-sitemap-verification.md"
+      ]
+    },
+    {
+      "id": "US-016",
+      "title": "GSC — Monitor Indexing Progress and Request Crawling",
+      "description": "3-7 days post-deploy: check indexing progress, diagnose any pages not yet crawled, verify FAQ rich results.",
+      "status": "pending",
+      "priority": "medium",
+      "estimation": "S",
+      "dependencies": ["US-015"],
+      "agents": ["general-purpose"],
+      "acceptance_criteria": [
+        "Batch inspect all 11 URLs for current status",
+        "For unindexed pages: run enhanced inspection for diagnostics",
+        "Check search analytics for /solutions/ page impressions",
+        "Compare overall site performance before/after deploy",
+        "Verify FAQ rich results showing for indexed pages",
+        "Report table: all 11 URLs with status, last crawl, rich results"
+      ]
+    },
+    {
+      "id": "US-017",
+      "title": "GSC — Keyword Performance Baseline for Solution Pages",
+      "description": "Establish keyword performance baseline at deploy time so we can measure impact at 30 and 60 days.",
+      "status": "pending",
+      "priority": "medium",
+      "estimation": "S",
+      "dependencies": ["US-015"],
+      "agents": ["general-purpose"],
+      "acceptance_criteria": [
+        "Capture current rankings for all 11 target keywords plus long-tail variants and plural/singular forms",
+        "Include SERP features column (FAQ rich results, sitelinks, AI Overview citations)",
+        "Save baseline to tasks/docs/gsc-keyword-baseline.md with date stamp",
+        "Record impressions, clicks, CTR, avg position per keyword at deploy date",
+        "Schedule 30-day and 60-day follow-up checks in progress.txt"
+      ]
+    },
+    {
+      "id": "US-018",
+      "title": "AEO/GEO Validation — Optimize All Pages for AI Answer Engines",
+      "description": "Validate and optimize all 11 solution pages for AEO (Google AI Overviews, Featured Snippets, PAA) and GEO (ChatGPT, Claude, Perplexity citations).",
+      "status": "pending",
+      "priority": "high",
+      "estimation": "M",
+      "dependencies": ["US-010", "US-011", "US-012"],
+      "agents": ["web-research-specialist", "code-reviewer"],
+      "acceptance_criteria": [
+        "AEO: Every H2 is question-form, first paragraph is self-contained 40-80 word answer",
+        "AEO: 3-5 FAQPage JSON-LD Q&As per page targeting long-tail PAA queries",
+        "AEO: First 150 words contain primary keyword and extractable definition",
+        "GEO: Every page includes proprietary Claru data (case study metrics) not available elsewhere",
+        "GEO: Each page has at least 1 named Claru methodology/framework that LLMs can quote",
+        "GEO: Every factual claim anchored to citation or case study metric — no unsubstantiated assertions",
+        "GEO: Pages are fully SSR — curl returns H1 and content without JS execution",
+        "GEO: 'Claru' entity name appears 3+ times in body copy (not just we/our)",
+        "GEO: Each semantic section independently comprehensible out of context",
+        "GEO: Comparison tables include Claru as a named row",
+        "GEO: Research citations include claim + source inline for LLM extraction",
+        "GEO: relatedSlugs and pillarLinks populated on every page for cross-linking",
+        "GEO: public/llms.txt updated with all 11 /solutions/ URLs and descriptions",
+        "Verify robots.txt allows GPTBot, ClaudeBot, PerplexityBot on /solutions/",
+        "Baseline check: search ChatGPT/Perplexity for target queries, document if Claru appears"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "slug": "egocentric-video-data",
+      "title": "Custom Egocentric Video Data Collection for Embodied AI",
+      "tier": 1,
+      "primary_keyword": "egocentric video data",
+      "case_studies": ["egocentric-video-collection", "workplace-egocentric-data"],
+      "pillar_links": ["/pillars/acquire/egocentric-video"],
+      "story": "US-005"
+    },
+    {
+      "slug": "vla-training-data",
+      "title": "VLA Training Data: From Collection to Policy",
+      "tier": 1,
+      "primary_keyword": "VLA training data",
+      "case_studies": ["egocentric-video-collection", "workplace-egocentric-data", "game-based-data-capture"],
+      "pillar_links": ["/pillars/acquire/egocentric-video", "/pillars/acquire/synthetic-data"],
+      "story": "US-005"
+    },
+    {
+      "slug": "red-teaming-data",
+      "title": "Human Red Teaming Data for AI Safety and EU AI Act Compliance",
+      "tier": 1,
+      "primary_keyword": "red teaming AI models",
+      "case_studies": ["red-teaming-moderation", "generative-ai-safety"],
+      "pillar_links": ["/pillars/validate/red-teaming"],
+      "story": "US-006"
+    },
+    {
+      "slug": "video-generation-training-data",
+      "title": "Expert Preference Data for Video Generation Models",
+      "tier": 1,
+      "primary_keyword": "video generation training data",
+      "case_studies": ["video-model-evaluation", "video-quality-at-scale", "video-content-classification"],
+      "pillar_links": ["/pillars/enrich/video-annotation"],
+      "story": "US-006"
+    },
+    {
+      "slug": "manipulation-trajectory-data",
+      "title": "Custom Manipulation Trajectory Data Collection",
+      "tier": 2,
+      "primary_keyword": "manipulation trajectory data",
+      "case_studies": ["egocentric-video-collection", "game-based-data-capture"],
+      "pillar_links": ["/pillars/acquire/egocentric-video"],
+      "story": "US-007"
+    },
+    {
+      "slug": "expert-rlhf-annotation",
+      "title": "Expert RLHF Annotation for Code and Specialized Domains",
+      "tier": 2,
+      "primary_keyword": "expert RLHF annotation",
+      "case_studies": ["prompt-enhancement-benchmark", "video-quality-at-scale"],
+      "pillar_links": ["/pillars/enrich/rlhf"],
+      "story": "US-007"
+    },
+    {
+      "slug": "sim-to-real-data",
+      "title": "Closing the Sim-to-Real Gap with Real-World Data Collection",
+      "tier": 2,
+      "primary_keyword": "sim-to-real transfer data",
+      "case_studies": ["game-based-data-capture", "egocentric-video-collection"],
+      "pillar_links": ["/pillars/acquire/synthetic-data"],
+      "story": "US-008"
+    },
+    {
+      "slug": "teleoperation-data",
+      "title": "Teleoperation Dataset Collection for Robot Learning",
+      "tier": 2,
+      "primary_keyword": "teleoperation data",
+      "case_studies": ["egocentric-video-collection", "workplace-egocentric-data"],
+      "pillar_links": ["/pillars/acquire/egocentric-video"],
+      "story": "US-008"
+    },
+    {
+      "slug": "open-datasets-vs-custom",
+      "title": "Open Robotics Datasets vs Custom Collection: When Open Isn't Enough",
+      "tier": 3,
+      "primary_keyword": "open robotics datasets",
+      "case_studies": [],
+      "pillar_links": [],
+      "story": "US-009"
+    },
+    {
+      "slug": "crowdsourced-vs-expert-rlhf",
+      "title": "Why Crowdsourced RLHF Fails for Code and Math Models",
+      "tier": 3,
+      "primary_keyword": "crowdsourced vs expert RLHF",
+      "case_studies": ["prompt-enhancement-benchmark"],
+      "pillar_links": ["/pillars/enrich/rlhf"],
+      "story": "US-009"
+    },
+    {
+      "slug": "eu-ai-act-red-teaming",
+      "title": "EU AI Act Red Teaming Requirements: What Data You Actually Need",
+      "tier": 3,
+      "primary_keyword": "EU AI Act red teaming",
+      "case_studies": ["red-teaming-moderation", "generative-ai-safety"],
+      "pillar_links": ["/pillars/validate/red-teaming"],
+      "story": "US-009"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+You are an expert egocentric video annotator for robotics training data.
+
+Analyze these sequential video frames (extracted from an egocentric camera).
+
+For EACH frame, provide a JSON object with:
+- timestamp_s: estimated time in seconds (based on frame index)
+- manipulation_phase: one of [idle, approach, contact, grasp, transport, place, pour, stir, release]
+- task_step: natural language description of current action
+- task_pct: estimated task completion percentage (0-100)
+- hands: array of detected hands, each with:
+  - side: "left" or "right"
+  - bbox: [x1, y1, x2, y2] normalized to [0,1] range
+  - action: current hand action description
+  - holding: object being held (null if empty)
+  - finger_state: grip type - one of [pinch, power, precision, open]
+  - force_estimate_N: estimated force in Newtons (0.0-50.0)
+  - velocity_ms: estimated hand velocity in m/s (0.0-5.0)
+  - wrist_pose: {x: number, y: number, z_depth_est: number} relative coordinates [0,1]
+- objects: array of visible objects, each with:
+  - label: object name
+  - bbox: [x1, y1, x2, y2] normalized to [0,1] range
+  - affordance: primary affordance (e.g. "graspable", "pourable", "stirrable", "openable")
+  - interacting: boolean - whether a hand is currently interacting with this object
+  - state: current object state description (e.g. "upright", "tilted", "open")
+  - fill_level_pct: if container, fill percentage (0-100), null otherwise
+  - pose_6dof: {roll: number, pitch: number, yaw: number} estimated angles in degrees
+- spatial: {
+    camera_height_est_m: number (0.5-2.5),
+    camera_pitch_deg: number (-90 to 90),
+    workspace_depth_m: number (0.3-3.0),
+    dominant_hand_distance_m: number (0.1-1.5)
+  }
+- imu_estimate: {
+    head_angular_vel_dps: {x: number, y: number, z: number},
+    linear_accel_ms2: {x: number, y: number, z: number},
+    head_stable: boolean
+  }
+- scene: {
+    lighting_lux_est: number (100-10000),
+    clutter_level: "low" | "medium" | "high",
+    surface_material: string (e.g. "wood", "granite", "stainless steel")
+  }
+
+Return a JSON object with shape:
+{
+  "frames": [array of frame annotations],
+  "summary": {
+    "total_frames": number,
+    "primary_task": string,
+    "objects_involved": string[],
+    "manipulation_phases_observed": string[]
+  }
+}
+
+Ensure bounding boxes are smooth and consistent between consecutive frames. Use realistic physics-based estimates for force, velocity, and spatial measurements.

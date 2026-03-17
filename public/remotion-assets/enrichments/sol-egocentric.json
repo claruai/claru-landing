@@ -1,0 +1,5336 @@
+{
+  "compositionId": "sol-egocentric",
+  "type": 1,
+  "annotationSource": "gemini",
+  "generatedAt": "2026-03-17T02:10:41.508Z",
+  "framesAnalyzed": 30,
+  "data": {
+    "frames": [
+      {
+        "timestamp_s": 0,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 1,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 2,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 3,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 4,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 5,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 6,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 7,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 8,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 9,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 10,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 11,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 12,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 13,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 14,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 15,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 16,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 17,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 18,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 19,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 20,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 21,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 22,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 23,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 24,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 25,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 26,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 27,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 28,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      },
+      {
+        "timestamp_s": 29,
+        "manipulation_phase": "idle",
+        "task_step": "Observing traffic flow on a busy road from an elevated, static viewpoint.",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "SUV",
+            "bbox": [
+              0.245,
+              0.62,
+              0.45,
+              0.88
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "van",
+            "bbox": [
+              0.345,
+              0.49,
+              0.55,
+              0.7
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.415,
+              0.395,
+              0.55,
+              0.58
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "car",
+            "bbox": [
+              0.545,
+              0.675,
+              0.745,
+              0.895
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "motorcycle",
+            "bbox": [
+              0.49,
+              0.465,
+              0.545,
+              0.54
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.82,
+              0.48,
+              0.85,
+              0.56
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person",
+            "bbox": [
+              0.86,
+              0.45,
+              0.88,
+              0.51
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "standing",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tricycle",
+            "bbox": [
+              0.555,
+              0.375,
+              0.655,
+              0.5
+            ],
+            "affordance": "none",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 5,
+          "camera_pitch_deg": -30,
+          "workspace_depth_m": 150,
+          "dominant_hand_distance_m": 0
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "head_stable": true
+        },
+        "scene": {
+          "lighting_lux_est": 7000,
+          "clutter_level": "medium",
+          "surface_material": "asphalt"
+        }
+      }
+    ],
+    "summary": {
+      "total_frames": 30,
+      "primary_task": "Observing urban traffic from an elevated viewpoint.",
+      "objects_involved": [
+        "SUV",
+        "van",
+        "car",
+        "motorcycle",
+        "person",
+        "tricycle"
+      ],
+      "manipulation_phases_observed": [
+        "idle"
+      ]
+    }
+  }
+}

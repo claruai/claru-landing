@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getAllCaseStudies } from "@/lib/case-studies";
 import { getAllJobs } from "@/lib/jobs";
+import { getAllContentPages } from "@/data/content-pages";
 
 const BASE = "https://claru.ai";
 
@@ -16,6 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/for-annotators`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/labeling`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/data`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/solutions`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     // Pillar landing pages
     { url: `${BASE}/pillars/acquire`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/pillars/enrich`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
@@ -62,5 +64,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  return [...staticPages, ...caseStudyPages, ...jobPages];
+  // ── Dynamic: Solution Pages ───────────────────────────────────────
+  const solutionPages: MetadataRoute.Sitemap = getAllContentPages().map(
+    (page) => ({
+      url: `${BASE}/solutions/${page.slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })
+  );
+
+  return [...staticPages, ...caseStudyPages, ...jobPages, ...solutionPages];
 }
