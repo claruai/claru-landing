@@ -93,3 +93,19 @@
   - Added "remotion:enrich": "tsx scripts/gemini-enrich.ts" to package.json
   - npx tsc --noEmit passes
   - prd-remotion-media.json US-003 status=done, passes=true
+
+2026-03-16 | US-006 | Type 2 -- Pairwise Arena Composition (replace placeholder)
+  - Replaced placeholder PairwiseArenaComposition.tsx with full split-screen A vs B implementation
+  - Two videos side by side (50/50 split) with Video/staticFile loading + graceful fallback
+  - Prompt text typewriter effect at top bar (starts frame 30, 1.5 chars/frame)
+  - Selected video gets subtle accent border glow (#92B090) via VerdictBadge border-glow variant
+  - Non-selected side dims (0.4 opacity) + desaturates (0.6) -- no crown/trophy/flashy animations
+  - Neutral split divider with config labels (e.g. "Config 21 | Config 41") or default "A | B"
+  - cs-vid-eval: supports configLabels prop for quality parameter config comparison
+  - cs-prompt-bench: supports categoryLabel with verification checkmark badge
+  - Timeline: 0-30 fade in + spring divider, 30-60 prompt types, 60-180 play, 180-240 selection glow + dim, 240-360 hold with pulse
+  - Includes TechMetadataOverlay (h264, 1280x720, 30fps) and BottomBar with phase-aware "Arena" label
+  - Created src/remotion/compositions/type-2/types.ts with Type2Annotation, Type2VideoRef, FALLBACK_TYPE2_ANNOTATION
+  - Uses shared components: VerdictBadge, BottomBar, TechMetadataOverlay, DesignTokens
+  - npx tsc --noEmit passes (only pre-existing EgocentricPipeline.tsx errors)
+  - prd-remotion-media.json US-006 status=done, passes=true

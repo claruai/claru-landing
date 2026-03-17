@@ -113,6 +113,30 @@
         "remotion:extract script added to package.json",
         "TypeScript strict mode passes with no new errors"
       ]
+    },
+    {
+      "id": "US-006",
+      "title": "Type 2 -- Pairwise Arena Composition",
+      "description": "Build PairwiseArenaComposition showing split-screen A vs B comparison with both videos playing simultaneously and selection highlight. Uses real annotation data showing which video was preferred.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "L",
+      "dependencies": ["US-001", "US-002"],
+      "acceptance_criteria": [
+        "PairwiseArenaComposition.tsx accepts { compositionId: string } props",
+        "Renders two videos side by side (50/50 split) -- Video A left, Video B right",
+        "Prompt text types out at top from annotation data",
+        "Selected video determined from real annotation data (betterVideoId, selectedAnswer, bestVideo)",
+        "Selected gets subtle accent border glow (#92B090) -- non-selected dims. NO crown/trophy.",
+        "Neutral split divider label (e.g. A | B or Config 21 | Config 41)",
+        "cs-vid-eval: handles configLabels for config comparison",
+        "cs-prompt-bench: handles categoryLabel with verification checkmark",
+        "Timeline: 0-30 fade in + divider, 30-60 prompt types, 60-180 play, 180-240 selection glow + dim, 240-360 hold",
+        "Includes TechMetadataOverlay and BottomBar with Arena label",
+        "types.ts with Type2Annotation, Type2VideoRef, FALLBACK_TYPE2_ANNOTATION",
+        "TypeScript strict mode passes with no new errors"
+      ]
     }
   ]
 }
