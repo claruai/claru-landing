@@ -13,3 +13,19 @@
   - All 122 tests pass on chromium (27s)
   - npx tsc --noEmit passes
   - prd-content-pages.json US-013 status=done, passes=true
+
+2026-03-16 | US-001 | Extract shared Remotion components from EgocentricPipeline prototype
+  - Created src/remotion/shared/DesignTokens.ts (TOKENS with colors, fonts, bbox as const)
+  - Created src/remotion/shared/BoundingBox.tsx (bbox overlay with corners, confidence, sublabel)
+  - Created src/remotion/shared/MetadataPanel.tsx (generalized terminal-style panel with sections/rows)
+  - Created src/remotion/shared/ProgressBar.tsx (animated bar using Remotion interpolate)
+  - Created src/remotion/shared/BottomBar.tsx (CLARU-branded timestamp bar with scrub indicator)
+  - Created src/remotion/shared/TerminalHeader.tsx (macOS-style terminal title bar with traffic light dots)
+  - Created src/remotion/shared/RadarChart.tsx (5-axis SVG spider chart with animated fill)
+  - Created src/remotion/shared/TaxonomyTree.tsx (animated hierarchical label tree with depth control)
+  - Created src/remotion/shared/VerdictBadge.tsx (label/border-glow/badge variants, fade/glow animation)
+  - Created src/remotion/shared/TechMetadataOverlay.tsx (codec, resolution, fps, duration at 9px)
+  - All components import from DesignTokens.ts, all export prop interfaces
+  - EgocentricPipeline.tsx unchanged
+  - npx tsc --noEmit passes (pre-existing errors in EgocentricPipeline.tsx only)
+  - prd-remotion-media.json US-001 status=done, passes=true
