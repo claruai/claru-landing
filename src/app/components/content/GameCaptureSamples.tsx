@@ -1,7 +1,7 @@
 import GameCaptureSampleCard from "./GameCaptureSampleCard";
 
 // ---------------------------------------------------------------------------
-// Sample definitions
+// Sample definitions — each has an S3 video key and local input JSON
 // ---------------------------------------------------------------------------
 
 const SAMPLES = [
@@ -14,11 +14,6 @@ const SAMPLES = [
     gameTitle: "PUBG: Battlegrounds",
     videoPath: "/remotion-assets/samples/game-pubg.mp4",
     inputJsonPath: "/remotion-assets/annotations/game-pubg-input.json",
-  },
-  {
-    gameTitle: "GTA 5",
-    videoPath: "/remotion-assets/samples/game-gta5.mp4",
-    inputJsonPath: "/remotion-assets/annotations/game-gta5-input.json",
   },
 ] as const;
 
@@ -40,7 +35,8 @@ export default async function GameCaptureSamples() {
           </h2>
           <p className="text-base" style={{ color: "#999" }}>
             Real gameplay with synchronized input telemetry. Each clip includes
-            the raw keystroke and mouse data captured alongside the video.
+            the raw keystroke and mouse data captured alongside the video at
+            microsecond precision.
           </p>
         </div>
 

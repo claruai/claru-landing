@@ -1,7 +1,8 @@
 import React from "react";
 import {
   AbsoluteFill,
-  Video,
+  OffthreadVideo,
+  OffthreadVideo,
   interpolate,
   useCurrentFrame,
   useVideoConfig,
@@ -518,14 +519,14 @@ const SensorFusionComposition: React.FC<SensorFusionCompositionProps> = ({
     <AbsoluteFill style={{ backgroundColor: "#000", opacity: globalOpacity }}>
       {/* Hero video — only rendered if sample exists to avoid delayRender timeout */}
       {videoAvailable ? (
-        <Video
+        <OffthreadVideo
           src={videoSrc}
           style={{
             width: "100%",
             height: "100%",
             objectFit: "cover",
           }}
-          onError={() => {}}
+          toneMapped={false}
         />
       ) : (
         <AbsoluteFill

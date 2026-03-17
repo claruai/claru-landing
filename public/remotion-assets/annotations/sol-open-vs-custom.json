@@ -1,0 +1,16 @@
+{
+  "compositionId": "sol-open-vs-custom",
+  "type": 8,
+  "category": "Custom Data Collection",
+  "subcategory": "Open Datasets vs Custom",
+  "sceneDescription": "An overhead shot captures a dark-skinned hand carefully placing a small, black, undefined object into the soil among lush green plants adorned with vibrant red and subtle white flowers. The action implies a subtle interaction with nature or a task of cultivation, imparting a straightforward and observational mood to the scene.",
+  "licensingType": "Custom Collection",
+  "resolution": "1920x1080",
+  "technical": {
+    "resolution": "1920x1080",
+    "codec": "h264",
+    "fps": 30,
+    "colorDepth": "8-bit"
+  },
+  "isCustomData": true
+}
