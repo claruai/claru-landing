@@ -242,12 +242,15 @@ interface CaseStudyDetailClientProps {
   caseStudy: CaseStudy;
   categoryLabel: string;
   relatedCaseStudies: CaseStudy[];
+  /** Optional server-rendered content injected between sections (e.g. GameCaptureSamples). */
+  children?: React.ReactNode;
 }
 
 export default function CaseStudyDetailClient({
   caseStudy: cs,
   categoryLabel,
   relatedCaseStudies,
+  children,
 }: CaseStudyDetailClientProps) {
   const summaryLines = buildCondensedSummary(cs);
   const snapshotStats = cs.results.slice(0, 4);
@@ -521,6 +524,14 @@ export default function CaseStudyDetailClient({
                 <SampleDataViewer type={cs.sampleData.type} data={cs.sampleData} />
               </div>
             </section>
+          </>
+        )}
+
+        {/* Slot for server-rendered custom sections (e.g. GameCaptureSamples) */}
+        {children && (
+          <>
+            <div className="section-divider" />
+            {children}
           </>
         )}
 

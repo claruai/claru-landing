@@ -528,3 +528,49 @@ Remotion compositions were rendering "Video not found" placeholders because vide
 - Type 7 (safety) compositions are intentionally small (~0.6 MB) — they use CSS-generated blurred content, no video
 - Type 3 (multi-gen) and Type 4 (cs-fashion) are image-based, hence smaller files
 - All videos are 1280x720 h264 as specified in composition-manifest.json
+
+---
+
+## 2026-03-17: Game Capture Sample Gallery with Real Input Telemetry
+
+### What Was Built
+Interactive sample data section for the game-based-data-capture case study page showing 3 game clips alongside their real raw input telemetry data, synced to video playback.
+
+### Assets Downloaded & Processed
+- **PUBG: Battlegrounds**: Video from S3 (completed/afd2c2ce), .gz input from S3 (drafts/f1ab55e0)
+  - Compressed to 720p 12s -> public/remotion-assets/samples/game-pubg.mp4 (6.7 MB)
+  - Extracted 978 input events (first 12s) -> public/remotion-assets/annotations/game-pubg-input.json
+- **GTA 5**: Video from S3 (drafts/918bc510), .gz input from same folder
+  - Compressed to 720p 12s -> public/remotion-assets/samples/game-gta5.mp4 (6.7 MB)
+  - Extracted 3,144 input events (first 12s) -> public/remotion-assets/annotations/game-gta5-input.json
+- **Red Dead Redemption 2**: Reused existing cs-game-capture.mp4 + cs-game-capture-input.json (630 events)
+
+### Components Created
+1. **GameCaptureSampleCardClient.tsx** (client component)
+   - Left (55%): video player with hover-to-play, game title badge
+   - Right (45%): terminal-style panel with:
+     - WASD keyboard visualization (keys light up when active)
+     - Mouse trail mini SVG visualization
+     - JSONL event stream that auto-scrolls synced to video currentTime
+     - Event count progress (e.g. "342/978")
+   - Bottom: technical specs strip (resolution, fps, sync error, total events, events/sec, cost/sec)
+   - Key events highlighted in accent green, mouse events dimmed
+
+2. **GameCaptureSampleCard.tsx** (async server component)
+   - Reads input JSON from filesystem at build time
+   - Passes data to client component
+
+3. **GameCaptureSamples.tsx** (async server component)
+   - Section heading: "Sample Capture Data"
+   - Renders 3 GameCaptureSampleCard components (RDR2, PUBG, GTA 5)
+
+### Integration
+- Added `children?: React.ReactNode` prop to CaseStudyDetailClient
+- In page.tsx, conditionally renders `<GameCaptureSamples />` when slug is "game-based-data-capture"
+- Server component passed as children through client component boundary (React composition pattern)
+- Section appears after SAMPLE DATA, before SERVICE USED
+
+### Verification
+- TypeScript: passes (only pre-existing error in unrelated Remotion file)
+- Page renders correctly at http://localhost:3006/case-studies/game-based-data-capture
+- All 3 cards visible with correct game titles, event counts, and input streams
