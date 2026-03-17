@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { DatasetCategory } from "@/types/data-catalog";
 import AdminCatalogHeader from "./AdminCatalogHeader";

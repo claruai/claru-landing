@@ -8,16 +8,16 @@ import type { DatasetSample } from "@/types/data-catalog";
 // ---------------------------------------------------------------------------
 
 export function isVideoUrl(url: string, mimeType: string): boolean {
-  if (mimeType.startsWith("video/")) return true;
+  if (mimeType?.startsWith("video/")) return true;
   const videoExts = [".mp4", ".webm", ".mov", ".avi", ".mkv"];
-  const urlLower = url.split("?")[0].toLowerCase();
+  const urlLower = (url ?? "").split("?")[0].toLowerCase();
   return videoExts.some((ext) => urlLower.endsWith(ext));
 }
 
 export function isImageUrl(url: string, mimeType: string): boolean {
-  if (mimeType.startsWith("image/")) return true;
+  if (mimeType?.startsWith("image/")) return true;
   const imgExts = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif", ".svg"];
-  const urlLower = url.split("?")[0].toLowerCase();
+  const urlLower = (url ?? "").split("?")[0].toLowerCase();
   return imgExts.some((ext) => urlLower.endsWith(ext));
 }
 
@@ -141,7 +141,7 @@ export function GalleryCard({
               playsInline
               loop
               preload="metadata"
-              src={isInView ? signedUrl : undefined}
+              src={isInView && signedUrl ? signedUrl : undefined}
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
               style={{ colorScheme: "dark" }}
             />
@@ -164,7 +164,7 @@ export function GalleryCard({
         )}
 
         {/* Image card */}
-        {isImage && isInView && (
+        {isImage && isInView && signedUrl && (
           <img
             src={signedUrl}
             alt={`Sample ${index + 1}`}

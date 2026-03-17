@@ -71,13 +71,33 @@ export async function GET(
     }
   }
 
-  // Presign S3 URLs so admin thumbnails and video previews work
+  // Fetch dataset's s3_bucket for multi-bucket support
+  const { data: datasetRow } = await supabase
+    .from("datasets")
+    .select("s3_bucket")
+    .eq("id", id)
+    .single();
+  const bucketOverride = datasetRow?.s3_bucket && datasetRow.s3_bucket !== "moonvalley-annotation-platform"
+    ? datasetRow.s3_bucket
+    : undefined;
+
+  // Presign URLs so admin thumbnails and video previews work
   const samplesWithUrls = await Promise.all(
     (samples ?? []).map(async (sample: Record<string, unknown>) => {
+      // Priority 1: S3 object key
       if (typeof sample.s3_object_key === "string" && sample.s3_object_key) {
-        const signedUrl = await getS3SignedUrl(sample.s3_object_key);
+        const signedUrl = await getS3SignedUrl(sample.s3_object_key, 3600, bucketOverride);
         if (signedUrl) {
           return { ...sample, media_url: signedUrl };
+        }
+      }
+      // Priority 2: Supabase Storage path
+      if (typeof sample.storage_path === "string" && sample.storage_path) {
+        const { data: storageData } = await supabase.storage
+          .from("dataset-samples")
+          .createSignedUrl(sample.storage_path, 3600);
+        if (storageData?.signedUrl) {
+          return { ...sample, media_url: storageData.signedUrl };
         }
       }
       return sample;

@@ -22,6 +22,13 @@ const DATASET_TYPES: DatasetType[] = [
   "long_form",
   "cinematic",
   "game_capture",
+  "evaluation",
+  "annotation",
+  "moderation",
+  "preference",
+  "classification",
+  "instruction",
+  "generation",
 ];
 
 // ---------------------------------------------------------------------------

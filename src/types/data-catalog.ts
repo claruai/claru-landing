@@ -9,7 +9,7 @@
 
 export type LeadStatus = 'pending' | 'approved' | 'rejected';
 
-export type DatasetType = 'short_form' | 'long_form' | 'cinematic' | 'game_capture';
+export type DatasetType = 'short_form' | 'long_form' | 'cinematic' | 'game_capture' | 'evaluation' | 'annotation' | 'moderation' | 'preference' | 'classification' | 'instruction' | 'generation';
 
 export type RequestStatus = 'pending' | 'reviewed';
 
@@ -44,6 +44,7 @@ export interface Dataset {
   thumbnail_url: string;
   is_published: boolean;
   show_enrichment: boolean;
+  s3_bucket: string | null;
   created_at: string;
   updated_at: string;
 }
