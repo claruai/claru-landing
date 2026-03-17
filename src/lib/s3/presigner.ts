@@ -33,11 +33,12 @@ function getS3Client(): S3Client {
  */
 export async function getS3SignedUrl(
   objectKey: string,
-  expiresIn: number = DEFAULT_EXPIRY_SECONDS
+  expiresIn: number = DEFAULT_EXPIRY_SECONDS,
+  bucketOverride?: string
 ): Promise<string | null> {
-  // Prefer CloudFront signed URLs when configured — synchronous crypto,
-  // no network call, and responses are edge-cached.
-  if (isCloudFrontConfigured()) {
+  // Prefer CloudFront signed URLs when configured and using the default bucket
+  // (CloudFront is only set up for the primary annotation-platform bucket)
+  if (!bucketOverride && isCloudFrontConfigured()) {
     try {
       return getCloudFrontSignedUrl(objectKey, expiresIn);
     } catch (error) {
@@ -49,7 +50,7 @@ export async function getS3SignedUrl(
     }
   }
 
-  const bucket = process.env.S3_BUCKET_NAME;
+  const bucket = bucketOverride ?? process.env.S3_BUCKET_NAME;
 
   if (!bucket) {
     console.error("[s3] S3_BUCKET_NAME environment variable is not set");

@@ -57,7 +57,9 @@ const WILDCARD_RENDERERS: Record<string, FileRenderer> = {
  *  2. Wildcard prefix match (e.g. "video/*" matches any "video/..." type)
  *  3. Returns null if no renderer is registered
  */
-export function getRendererForMime(mimeType: string): FileRenderer | null {
+export function getRendererForMime(mimeType: string | null | undefined): FileRenderer | null {
+  if (!mimeType) return null;
+
   // 1. Exact match
   const exact = FILE_RENDERERS[mimeType];
   if (exact) return exact;

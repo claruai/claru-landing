@@ -2,14 +2,14 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
   FolderOpen,
-  MessageSquarePlus,
   CalendarClock,
   Database,
   Layers,
-  Clock,
   ShieldX,
 } from "lucide-react";
+import { createClient } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { OtherDatasets } from "./catalog/OtherDatasets";
 import type {
   Lead,
   Dataset,
@@ -77,6 +77,20 @@ async function getPortalData() {
       return sum + (ds?.total_samples ?? 0);
     }, 0);
 
+  // Count actual viewable samples (rows in dataset_samples for granted datasets)
+  const grantedDatasetIds = (accessGrants ?? [])
+    .map((g) => (g.datasets as unknown as Dataset | null)?.id)
+    .filter(Boolean) as string[];
+
+  let viewableSamples = 0;
+  if (grantedDatasetIds.length > 0) {
+    const { count } = await supabase
+      .from("dataset_samples")
+      .select("id", { count: "exact", head: true })
+      .in("dataset_id", grantedDatasetIds);
+    viewableSamples = count ?? 0;
+  }
+
   // Fetch booking URL from settings (if configured)
   const { data: bookingSetting } = await supabase
     .from("settings")
@@ -84,13 +98,41 @@ async function getPortalData() {
     .eq("key", "booking_url")
     .single<{ value: string }>();
 
+  // Fetch other published datasets via anon client (bypasses authenticated RLS)
+  const grantedIds = (accessGrants ?? [])
+    .map((g) => (g.datasets as unknown as Dataset | null)?.id)
+    .filter(Boolean) as string[];
+
+  const anonClient = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+  const { data: allPublished } = await anonClient
+    .from("datasets")
+    .select("id, name, description, total_samples, source_type, dataset_categories(name)")
+    .eq("is_published", true)
+    .order("total_samples", { ascending: false });
+
+  const otherDatasets = (allPublished ?? [])
+    .filter((d) => !grantedIds.includes(d.id))
+    .map((d) => ({
+      id: d.id,
+      name: d.name,
+      description: d.description,
+      total_samples: d.total_samples,
+      source_type: d.source_type,
+      category_name: (d.dataset_categories as unknown as { name: string } | null)?.name ?? null,
+    }));
+
   return {
     noAccess: false as const,
     lead,
     accessGrants: accessGrants ?? [],
     totalDatasets: (accessGrants ?? []).length,
     totalSamples,
+    viewableSamples,
     bookingUrl: bookingSetting?.value ?? null,
+    otherDatasets,
   };
 }
 
@@ -105,10 +147,7 @@ export default async function PortalDashboardPage() {
     return <NoAccessView email={data.email} />;
   }
 
-  const { lead, accessGrants, totalDatasets, totalSamples, bookingUrl } = data;
-
-  // Recent activity: latest 6 grants
-  const recentGrants = accessGrants.slice(0, 6);
+  const { lead, accessGrants, totalDatasets, totalSamples, viewableSamples, bookingUrl, otherDatasets } = data;
 
   return (
     <div className="mx-auto max-w-[var(--container-max)] px-[var(--container-padding)] py-12">
@@ -128,7 +167,7 @@ export default async function PortalDashboardPage() {
       </section>
 
       {/* Quick Stats */}
-      <section className="mb-12 grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <section className="mb-12 grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-5">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[var(--accent-primary)]/10">
@@ -160,7 +199,25 @@ export default async function PortalDashboardPage() {
                 {totalSamples.toLocaleString()}
               </p>
               <p className="text-xs font-mono text-[var(--text-muted)]">
-                total dataset size
+                total assets
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[var(--accent-primary)]/10">
+              <FolderOpen
+                className="h-5 w-5 text-[var(--accent-primary)]"
+                strokeWidth={1.5}
+              />
+            </div>
+            <div>
+              <p className="text-2xl font-semibold text-[var(--text-primary)]">
+                {viewableSamples}
+              </p>
+              <p className="text-xs font-mono text-[var(--text-muted)]">
+                samples to explore
               </p>
             </div>
           </div>
@@ -168,18 +225,12 @@ export default async function PortalDashboardPage() {
       </section>
 
       {/* Navigation Cards */}
-      <section className="mb-12 grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <section className="mb-12 grid grid-cols-1 sm:grid-cols-2 gap-4">
         <NavCard
           href="/portal/catalog"
           icon={FolderOpen}
           title="Browse Catalog"
           description="Explore your granted datasets and samples"
-        />
-        <NavCard
-          href="/portal/request"
-          icon={MessageSquarePlus}
-          title="Request Data"
-          description="Submit a custom data request"
         />
         {bookingUrl ? (
           <NavCard
@@ -191,22 +242,23 @@ export default async function PortalDashboardPage() {
           />
         ) : (
           <NavCard
-            href="/portal/request"
+            href="mailto:team@claru.ai"
             icon={CalendarClock}
             title="Contact Us"
             description="Reach out to our data team"
+            external
           />
         )}
       </section>
 
-      {/* Recent Activity */}
+      {/* Your Datasets */}
       <section>
         <h2 className="mb-4 text-sm font-mono uppercase tracking-wider text-[var(--text-muted)]">
-          <span className="text-[var(--accent-primary)]">#</span> recent
-          activity
+          <span className="text-[var(--accent-primary)]">#</span> your
+          datasets
         </h2>
 
-        {recentGrants.length === 0 ? (
+        {accessGrants.length === 0 ? (
           <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-8 text-center">
             <p className="text-sm font-mono text-[var(--text-muted)]">
               No datasets granted yet. Your catalog is being prepared.
@@ -214,7 +266,7 @@ export default async function PortalDashboardPage() {
           </div>
         ) : (
           <div className="space-y-2">
-            {recentGrants.map((grant) => {
+            {accessGrants.map((grant) => {
               const ds = grant.datasets as unknown as
                 | (Dataset & {
                     dataset_categories: Pick<
@@ -249,14 +301,10 @@ export default async function PortalDashboardPage() {
                           </span>
                         )}
                         <span className="text-xs font-mono text-[var(--text-muted)]">
-                          {ds.total_samples.toLocaleString()} samples
+                          {ds.total_samples.toLocaleString()} assets
                         </span>
                       </div>
                     </div>
-                  </div>
-                  <div className="ml-4 flex shrink-0 items-center gap-1.5 text-xs font-mono text-[var(--text-muted)]">
-                    <Clock className="h-3 w-3" strokeWidth={1.5} />
-                    {formatRelativeDate(grant.granted_at)}
                   </div>
                 </Link>
               );
@@ -264,6 +312,11 @@ export default async function PortalDashboardPage() {
           </div>
         )}
       </section>
+
+      {/* Other available datasets */}
+      {otherDatasets.length > 0 && (
+        <OtherDatasets datasets={otherDatasets} bookingUrl={bookingUrl ?? "mailto:team@claru.ai"} />
+      )}
     </div>
   );
 }
@@ -363,19 +416,3 @@ function NavCard({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function formatRelativeDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) return "today";
-  if (diffDays === 1) return "yesterday";
-  if (diffDays < 7) return `${diffDays}d ago`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}

@@ -37,6 +37,34 @@ const requestSchema = z.object({
 // ---------------------------------------------------------------------------
 
 
+const SENSITIVE_KEYS = new Set([
+  "userId", "reviewerId", "payoutId", "amount", "paymentStatus",
+  "paymentDate", "cost", "browserMetadata", "rejectionReason",
+  "rejectionCount", "rejectedAt", "isTestTemplate", "annotationIndex",
+]);
+const SENSITIVE_PROJECT_KEYS = new Set([
+  "annotationCost", "annotationCostType", "reviewCost", "isCompleted",
+  "isActive", "projectGuideLink", "slackChannel", "generalDataSchema",
+  "templateData", "configuration",
+]);
+
+function stripSensitiveFields(data: Record<string, unknown>): Record<string, unknown> {
+  const cleaned: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (SENSITIVE_KEYS.has(key)) continue;
+    if (key === "project" && value && typeof value === "object") {
+      const project: Record<string, unknown> = {};
+      for (const [pk, pv] of Object.entries(value as Record<string, unknown>)) {
+        if (!SENSITIVE_PROJECT_KEYS.has(pk)) project[pk] = pv;
+      }
+      cleaned[key] = project;
+    } else {
+      cleaned[key] = value;
+    }
+  }
+  return cleaned;
+}
+
 /**
  * Fire-and-forget: merge annotation data + `_cached_at` timestamp into the
  * sample's `metadata_json` column using the admin client (bypasses RLS).
@@ -121,7 +149,7 @@ export async function POST(request: NextRequest) {
       // - The requested objectKey matches the stored s3_annotation_key
       //   (if the key changed, the cache is stale)
       if (cachedAt && storedKey === objectKey) {
-        return NextResponse.json({ annotation: metadata, cached: true });
+        return NextResponse.json({ annotation: stripSensitiveFields(metadata), cached: true });
       }
     }
     // If sample not found or cache miss, fall through to S3 fetch
@@ -154,6 +182,6 @@ export async function POST(request: NextRequest) {
     cacheAnnotationInBackground(sampleId, existingMetadata, annotationData);
   }
 
-  // 6. Return the annotation data immediately
-  return NextResponse.json({ annotation: annotationData, cached: false });
+  // 6. Strip sensitive fields (costs, PII) before returning to leads
+  return NextResponse.json({ annotation: stripSensitiveFields(annotationData), cached: false });
 }
