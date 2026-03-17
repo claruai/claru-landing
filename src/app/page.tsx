@@ -77,12 +77,13 @@ const faqJsonLd = {
 
 export default function Home() {
   return (
-    <ClientProviders>
-      {/* FAQ structured data for search engines */}
+    <>
+      {/* FAQ structured data — outside ClientProviders to avoid PostHog hydration collision */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
+      <ClientProviders>
       {/* Header */}
       <Header />
 
@@ -103,5 +104,6 @@ export default function Home() {
       {/* Footer */}
       <Footer />
     </ClientProviders>
+    </>
   );
 }
