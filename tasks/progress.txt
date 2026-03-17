@@ -70,3 +70,26 @@
   - Added "remotion:extract" to package.json scripts
   - TypeScript strict mode passes (no new errors in extract-annotations.ts)
   - prd-remotion-media.json US-003b status=done, passes=true
+
+2026-03-16 | US-003 | Create Gemini enrichment pipeline script for all 22 compositions
+  - Created scripts/gemini-enrich.ts — downloads S3 samples, extracts frames with ffmpeg, calls Gemini 2.5 Flash, validates with Zod, saves enrichment JSON
+  - Processes ALL 22 compositions: Types 1,8 generate all data; Types 2-7 supplement human annotations
+  - Created 8 prompt templates in scripts/gemini-prompts/type-{1-8}.txt — tailored per composition type
+    - Type 1: Sensor-fusion (hand pose, force, grip, IMU, spatial, object state)
+    - Type 2: Quality dimension comparison (prompt adherence, motion quality, visual fidelity, artifacts)
+    - Type 3: Per-image quality analysis (artifact descriptions, comparative notes)
+    - Type 4: Object detection + material/affordance supplementation
+    - Type 5: Scene description + object inventory + visual style classification
+    - Type 6: Frame-level quality analysis + artifact timestamps + motion metrics
+    - Type 7: Content category analysis + risk severity + policy mapping (EU AI Act)
+    - Type 8: Scene description + camera movement + technical quality + licensing
+  - Zod validation schemas for all 8 types; retry with stricter prompt on validation failure
+  - S3 sample download with fallback (tries multiple prefixes, logs 404s to tmp/missing-samples.log)
+  - Frame extraction via ffmpeg at configurable fps with 512px resize
+  - Concurrency limit 3, 1s batch delay, exponential backoff (2s base, max 5 retries) for rate limits
+  - --composition {id} flag for single composition enrichment
+  - Requires GOOGLE_API_KEY from .env.local; exits with clear error if missing
+  - Tested: npx tsx scripts/gemini-enrich.ts --composition sol-egocentric — downloaded 81.9 MB sample, extracted 30 frames, Gemini returned valid Type 1 data (128 KB enrichment JSON), Zod validation passed
+  - Added "remotion:enrich": "tsx scripts/gemini-enrich.ts" to package.json
+  - npx tsc --noEmit passes
+  - prd-remotion-media.json US-003 status=done, passes=true

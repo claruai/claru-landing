@@ -64,6 +64,34 @@
       ]
     },
     {
+      "id": "US-003",
+      "title": "Create Gemini Enrichment Pipeline Script",
+      "description": "Build scripts/gemini-enrich.ts that downloads S3 samples, extracts frames with ffmpeg, sends to Gemini 2.5 Flash with type-specific prompts, validates with Zod, and saves enrichment JSON for all 22 compositions.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "L",
+      "dependencies": ["US-002"],
+      "acceptance_criteria": [
+        "scripts/gemini-enrich.ts is a TypeScript script runnable with tsx",
+        "Script reads composition-manifest.json and processes ALL 22 compositions",
+        "Downloads S3 video/image samples with 404 fallback and missing-samples.log",
+        "Extracts frames using ffmpeg -vf fps={fps},scale=512:-1",
+        "Loads type-specific prompt templates from scripts/gemini-prompts/type-{N}.txt",
+        "Types 1, 8: Gemini generates ALL annotation data",
+        "Types 2-7: Gemini SUPPLEMENTS real annotation data",
+        "Sends frames as base64 inline data to Gemini 2.5 Flash with responseMimeType: application/json",
+        "Validates against Zod schema per type; retries once with stricter prompt on failure",
+        "Writes enrichment JSON to public/remotion-assets/enrichments/{id}.json",
+        "Concurrency limit of 3, 1-second delay between batches",
+        "Exponential backoff (2s base, max 5 retries) for rate limits",
+        "Prompt templates for ALL 8 types in scripts/gemini-prompts/type-{1-8}.txt",
+        "Accepts --composition {id} flag for single composition",
+        "Requires GOOGLE_API_KEY in .env.local; exits with clear error if missing",
+        "remotion:enrich script added to package.json"
+      ]
+    },
+    {
       "id": "US-003b",
       "title": "Create Real Annotation Data Extraction Script",
       "description": "Build scripts/extract-annotations.ts that downloads existing S3 annotation JSONs for compositions with annotationSource: real, extracts relevant fields per type, validates against Zod schemas, and writes formatted JSON for Remotion.",
