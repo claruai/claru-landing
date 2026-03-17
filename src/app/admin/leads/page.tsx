@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Lead } from "@/types/data-catalog";
 import AdminLeadsHeader from "./AdminLeadsHeader";
