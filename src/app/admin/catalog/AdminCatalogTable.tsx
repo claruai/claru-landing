@@ -29,6 +29,13 @@ const TYPE_LABELS: Record<DatasetType, string> = {
   long_form: "Long Form",
   cinematic: "Cinematic",
   game_capture: "Game Capture",
+  evaluation: "Evaluation",
+  annotation: "Annotation",
+  moderation: "Moderation",
+  preference: "Preference",
+  classification: "Classification",
+  instruction: "Instruction",
+  generation: "Generation",
 };
 
 function publishedBadge(isPublished: boolean) {

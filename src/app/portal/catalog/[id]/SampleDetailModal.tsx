@@ -373,7 +373,7 @@ export function SampleDetailModal({
         {/* Left side -- Media (60% desktop, full width mobile)            */}
         {/* ------------------------------------------------------------- */}
         <div className="lg:w-[60%] flex-shrink-0 bg-[var(--bg-primary)] flex items-center justify-center min-h-[240px] lg:min-h-0">
-          {rendererComponent === "VideoPlayer" && (
+          {rendererComponent === "VideoPlayer" && signedUrl && (
             <VideoPlayer
               src={signedUrl}
               mimeType={sample.mime_type}
@@ -383,7 +383,7 @@ export function SampleDetailModal({
             />
           )}
 
-          {rendererComponent === "ImageViewer" && (
+          {rendererComponent === "ImageViewer" && signedUrl && (
             <img
               src={signedUrl}
               alt={`Sample ${selectedIndex + 1}`}
