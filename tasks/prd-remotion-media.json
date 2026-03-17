@@ -184,6 +184,34 @@
         "types.ts with Type7Annotation",
         "TypeScript strict mode passes with no new errors"
       ]
+    },
+    {
+      "id": "US-012",
+      "title": "Type 8 -- Cinematic Showcase Composition",
+      "description": "Build CinematicShowcaseComposition showing 4K footage with minimal elegant overlay emphasizing technical quality signals. Cinematic 2.39:1 letterbox, resolution badge, codec/fps/color depth, category labels, film grain, Gemini scene description typed subtitle.",
+      "status": "done",
+      "passes": true,
+      "priority": "medium",
+      "estimation": "L",
+      "dependencies": ["US-001", "US-002"],
+      "acceptance_criteria": [
+        "CinematicShowcaseComposition.tsx accepts { compositionId: string } props",
+        "Video plays full-bleed with letterbox bars (cinematic 2.39:1 within 16:9 frame)",
+        "Minimal overlay: category tag, subcategory, licensing badge (Licensed 4K)",
+        "Labels slide in from left with subtle motion blur, hold, slide out",
+        "Film grain CSS overlay for cinematic quality",
+        "cs-egocentric: cross-fade between egocentric and cinematic clips",
+        "sol-open-vs-custom: This is custom data premium label",
+        "Gemini scene description as typed subtitle",
+        "Resolution badge (3840x2160) prominently placed top-right",
+        "Codec, frame rate, color depth tech signals panel",
+        "Timeline: 0-15 fade through letterbox, 15-90 play with labels, 90-180 description types, 180-270 gentle zoom, 270-300 fade + CLARU watermark + Licensed Collection badge",
+        "TechMetadataOverlay prominently placed",
+        "BottomBar minimal (CLARU branding)",
+        "types.ts with Type8Annotation, FALLBACK_TYPE8_ANNOTATION",
+        "Graceful fallback when annotation JSON missing",
+        "TypeScript strict mode passes with no new errors"
+      ]
     }
   ]
 }
