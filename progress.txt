@@ -107,3 +107,42 @@ All 15 annotation JSONs pass their respective type schemas.
 
 ### prd.json Updated
 US-013, US-014, US-015, US-016, US-017, US-018 all set to passes: true
+
+---
+
+## US-019 + US-020: Gemini Enrichment (2026-03-16)
+
+### Gemini Enrichment Completed (7/7 compositions)
+All in public/remotion-assets/enrichments/:
+
+**Type 1 (Sensor-Fusion) — 5 compositions, 30 frames each at 3 fps:**
+- sol-egocentric.json (128 KB) — frame-by-frame hand/object/spatial/IMU annotations
+- sol-vla.json (24 KB) — validated on retry with stricter prompt
+- sol-manipulation.json (94 KB) — validated on retry with stricter prompt
+- sol-teleop.json (26 KB) — validated first pass
+- cs-workplace.json (112 KB) — validated first pass
+
+**Type 8 (Cinematic Showcase) — 2 compositions, 20 frames each at 2 fps:**
+- sol-open-vs-custom.json (2.4 KB) — scene description, camera movement, color analysis, composition, licensing
+- cs-egocentric.json (2.2 KB) — scene description, camera movement, color analysis, composition, licensing
+
+### Samples Downloaded
+- tmp/samples/sol-egocentric/ — 81.9 MB (egocentric traffic video)
+- tmp/samples/sol-vla/ — 81.9 MB (egocentric traffic video)
+- tmp/samples/sol-manipulation/ — 81.9 MB (egocentric traffic video)
+- tmp/samples/sol-teleop/ — 81.9 MB (egocentric traffic video)
+- tmp/samples/cs-workplace/ — 81.9 MB (egocentric traffic video)
+- tmp/samples/sol-open-vs-custom/ — 60.0 MB (cinematic action footage)
+- tmp/samples/cs-egocentric/ — 81.9 MB (egocentric traffic video)
+
+### Gemini API Cost
+- ~210 Gemini 2.5 Flash calls (150 frames Type 1 + 40 frames Type 8 + ~20 retries)
+- Estimated cost: ~$0.06 total (at ~$0.03/100 frames)
+
+### Validation
+- Type 1: All 5 pass Type1Schema (frames[] + summary)
+- Type 8: Both pass Type8Schema (scene_description, scene_elements, camera_movement, technical_quality, color_analysis, composition, licensing_suitability)
+- 3 of 7 needed stricter prompt retry; all ultimately validated
+
+### prd.json Updated
+US-019, US-020 set to passes: true

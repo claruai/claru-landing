@@ -1,0 +1,63 @@
+{
+  "compositionId": "sol-open-vs-custom",
+  "type": 8,
+  "annotationSource": "gemini",
+  "generatedAt": "2026-03-17T02:31:24.992Z",
+  "framesAnalyzed": 20,
+  "data": {
+    "scene_description": "An overhead shot captures a dark-skinned hand carefully placing a small, black, undefined object into the soil among lush green plants adorned with vibrant red and subtle white flowers. The action implies a subtle interaction with nature or a task of cultivation, imparting a straightforward and observational mood to the scene.",
+    "scene_elements": {
+      "setting": "A garden bed or planter, likely outdoors in daylight, featuring ornamental thorny plants.",
+      "subjects": [
+        "Dark-skinned hand",
+        "Small black object (possibly a USB drive or compact tool)",
+        "Green foliage (likely Euphorbia milii or similar succulent)",
+        "Red flowers",
+        "White flowers",
+        "Soil",
+        "Brick border"
+      ],
+      "action": "A hand placing then removing a small object from the soil amidst plants.",
+      "mood": "Functional, observational, practical"
+    },
+    "camera_movement": {
+      "type": "static_tripod",
+      "direction": "N/A",
+      "speed": "N/A",
+      "stability": "rock_solid"
+    },
+    "technical_quality": {
+      "estimated_resolution": "1920x1080",
+      "dynamic_range": "SDR",
+      "color_depth_est": "8-bit",
+      "noise_level": "noisy",
+      "sharpness": "soft",
+      "codec_impression": "The presence of visible compression artifacts, macroblocking in darker areas, and a general lack of high-frequency detail strongly suggest a heavily compressed codec, likely a standard H.264 profile at a moderate-to-low bitrate, rather than a high-quality, high-bitrate codec like ProRes or similar production formats."
+    },
+    "color_analysis": {
+      "dominant_colors": [
+        "Green",
+        "Brown",
+        "Red",
+        "White",
+        "Tan"
+      ],
+      "color_temperature": "neutral",
+      "saturation": "natural",
+      "contrast": "medium"
+    },
+    "composition": {
+      "framing": "Top-down medium shot",
+      "depth_of_field": "deep",
+      "rule_of_thirds": false,
+      "leading_lines": false,
+      "symmetry": false
+    },
+    "licensing_suitability": {
+      "commercial_use": true,
+      "identifiable_persons": false,
+      "brand_logos_visible": false,
+      "location_identifiable": false
+    }
+  }
+}

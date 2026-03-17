@@ -395,7 +395,7 @@
       "title": "Gemini Enrichment for Type 1 Compositions (5 Sensor-Fusion)",
       "description": "Run Gemini 2.5 Flash for sol-egocentric, sol-vla, sol-manipulation, sol-teleop, cs-workplace. These datasets have no annotation JSON.",
       "priority": "high",
-      "passes": false,
+      "passes": true,
       "dependencies": ["US-003", "US-005"],
       "acceptanceCriteria": [
         "Download best S3 samples: sol-egocentric (traffic 4K), sol-vla (multi-activity), sol-manipulation (grasping/pouring), sol-teleop (outdoor/workplace), cs-workplace (workplace activities)",
@@ -414,7 +414,7 @@
       "title": "Gemini Enrichment for Type 8 Compositions (2 Cinematic Showcase)",
       "description": "Run Gemini for sol-open-vs-custom and cs-egocentric. Cinematic dataset has no annotation JSON.",
       "priority": "medium",
-      "passes": false,
+      "passes": true,
       "dependencies": ["US-003", "US-012"],
       "acceptanceCriteria": [
         "sol-open-vs-custom: download 4K safari footage from Cinematic Action (b2d26fd9)",
