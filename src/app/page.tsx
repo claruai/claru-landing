@@ -78,10 +78,11 @@ const faqJsonLd = {
 export default function Home() {
   return (
     <>
-      {/* FAQ structured data — outside ClientProviders to avoid PostHog hydration collision */}
+      {/* FAQ structured data — suppressHydrationWarning prevents PostHog script injection mismatch */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        suppressHydrationWarning
       />
       <ClientProviders>
       {/* Header */}
