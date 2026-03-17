@@ -145,6 +145,17 @@ export interface ContentPageData {
   /** Supabase dataset UUIDs to feature (empty array is valid) */
   datasetIds: string[];
 
+  // -- Media Showcase --
+
+  /** Supabase dataset_samples UUIDs for VideoShowcase (S3 presigned videos). Empty = no showcase. */
+  sampleIds?: string[];
+
+  /** Optional heading for the video showcase section */
+  sampleShowcaseHeading?: string;
+
+  /** Optional subheading for the video showcase section */
+  sampleShowcaseSubheading?: string;
+
   // -- FAQ --
 
   /** 3-5 FAQ items for both rendered HTML and FAQPage JSON-LD */

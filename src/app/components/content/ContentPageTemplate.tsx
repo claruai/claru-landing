@@ -15,6 +15,8 @@ import ProblemSection from "./ProblemSection";
 import DatasetComparison from "./DatasetComparison";
 import InlineCaseStudy from "./InlineCaseStudy";
 import DatasetShowcase from "@/app/components/prospect/DatasetShowcase";
+import VideoShowcase from "@/app/components/prospect/VideoShowcase";
+import DataPreview from "./DataPreview";
 import WorkforceStats from "@/app/components/prospect/WorkforceStats";
 import ContentFAQ from "./ContentFAQ";
 import FinalCTA from "@/app/components/sections/FinalCTA";
@@ -46,7 +48,16 @@ export default function ContentPageTemplate({
         />
       )}
 
-      {/* 3. Dataset Comparison (landscape) — only if rows exist */}
+      {/* 3. Data Preview — real samples with video + metadata side-by-side */}
+      {page.sampleIds && page.sampleIds.length > 0 && (
+        <DataPreview
+          sampleIds={page.sampleIds.slice(0, 6)}
+          heading={page.sampleShowcaseHeading ?? "Inside the Data"}
+          subheading={page.sampleShowcaseSubheading ?? "Real samples with metadata and enrichment — exactly what gets delivered to your training pipeline."}
+        />
+      )}
+
+      {/* 4. Dataset Comparison (landscape) — only if rows exist */}
       {page.landscape.datasets.length > 0 && (
         <DatasetComparison
           title={page.landscape.heading}

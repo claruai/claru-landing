@@ -143,7 +143,32 @@ const egocentricVideoData: ContentPageData = {
   caseStudySlugs: ["egocentric-video-collection", "workplace-egocentric-data"],
 
   // -- Dataset Showcase --
-  datasetIds: [],
+  datasetIds: [
+    "eb07cf5b-55b1-45ec-a513-65b9e78956de", // Egocentric Activity Capture (386K)
+    "b2d26fd9-745a-4161-9ecf-b784d743f5cf", // Cinematic Action Footage
+  ],
+
+  // -- Video Showcase (real S3 samples) --
+  sampleIds: [
+    // Manipulation tasks
+    "3486e6a3-8f4c-488d-8893-020168ec0c90", // Pour Liquid
+    "60277d2b-31d0-4dcd-bb9b-7951083a40a8", // Fasten & Unfasten
+    "49675c80-81c4-4707-8a73-5aaa57bbc4f4", // Pick Up & Unfold Clothes
+    "be857dc2-e865-4824-9e7d-52758d5d6b6f", // Screw/Unscrew Tool
+    // Kitchen / cooking
+    "ef71891e-29a4-46a9-bb6a-30e0928393c1", // Stirring Food & Cleaning Counter
+    "b2b1db5c-ee4c-485e-8d71-4826dd8b081d", // Peeling & Chopping Food
+    "52358b98-d55e-4bcc-8e03-d5befa834888", // Washing Dishes
+    // Workplace / specialized
+    "4bfc4680-c3cf-4e7f-8c36-076bae7f600a", // Barista - Preparing Drinks
+    "98fa7945-6c66-41d7-b257-66c86755d886", // Carpenter - Cutting Wood
+    "7a334748-8606-448a-8b9e-655be2a26ea2", // Phone Repair
+    // Outdoor / locomotion
+    "e2875e4b-851e-4a3c-a496-2c38c54d4284", // Move Forward - Outdoor
+    "7b1a317c-e59e-424c-ae35-8dd68cabb3b2", // Safari (cinematic)
+  ],
+  sampleShowcaseHeading: "Real Egocentric Video from Claru's Pipeline",
+  sampleShowcaseSubheading: "Hover to preview. Samples span manipulation, cooking, workplace, and outdoor activities — captured across GoPro, smartphone, and activity-specific pipelines.",
 
   // -- FAQ --
   faqs: [
