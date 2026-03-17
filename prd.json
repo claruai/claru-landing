@@ -132,7 +132,7 @@
       "title": "Type 1: Sensor-Fusion Tracking Composition",
       "description": "Build SensorFusionComposition: video + interpolated bboxes + hand telemetry + metadata panel. Parameterized version of EgocentricPipeline.tsx prototype.",
       "priority": "high",
-      "passes": false,
+      "passes": true,
       "dependencies": ["US-001", "US-002"],
       "acceptanceCriteria": [
         "Create src/remotion/compositions/type-1/SensorFusionComposition.tsx accepting { compositionId: string }",
@@ -237,7 +237,7 @@
       "title": "Type 6: Quality Rubric Composition",
       "description": "Build QualityRubricComposition: 5-axis quality gauges + radar chart. Uses real quality dimension data from Video Quality Annotations JSON (isCinematic, hasGoodMotion, isHighQuality, isVideoInteresting, hasGoodTextAlignment).",
       "priority": "high",
-      "passes": false,
+      "passes": true,
       "dependencies": ["US-001", "US-002"],
       "acceptanceCriteria": [
         "Create src/remotion/compositions/type-6/QualityRubricComposition.tsx accepting { compositionId: string }",

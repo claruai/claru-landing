@@ -33,3 +33,19 @@ Branch: ralph/remotion-media
 - tasks/prd-remotion-media.md — 30 user stories
 - tasks/docs/remotion-media-design.md — architecture
 - tasks/docs/media-asset-audit.md — visual inspection of all 12 datasets
+
+---
+
+## US-005: Type 1 — Sensor-Fusion Tracking Composition (DONE)
+- Replaced placeholder SensorFusionComposition.tsx with full implementation
+- Created types.ts with Type1Frame, Type1Annotation, HandAnnotation, ObjectAnnotation, SpatialEstimate, IMUEstimate, SceneContext interfaces
+- Accepts { compositionId: string } props, loads annotation JSON from staticFile annotations/ or enrichments/ paths
+- Loads hero video from staticFile(`remotion-assets/samples/${compositionId}.mp4`)
+- Keyframe interpolation for smooth bbox tracking (same getAnnotationAtTime algorithm as EgocentricPipeline)
+- Uses shared BoundingBox (TOKENS.bbox.hand / TOKENS.bbox.object), MetadataPanel, BottomBar, TechMetadataOverlay
+- MetadataPanel sections: TASK STATE, HAND TELEMETRY, OBJECT STATES, SPATIAL, IMU ESTIMATE, SCENE
+- Timeline: 0-15 video only, 15-24 bboxes fade in, 24-30 panel slides in, 30-270 full, 270-300 fade
+- Graceful fallback: PlaceholderFallback if annotation/video not found (no crash)
+- All colors from TOKENS (DesignTokens.ts), no hardcoded values
+- npx tsc --noEmit passes (only pre-existing EgocentricPipeline errors remain)
+- prd.json US-005 passes=true
