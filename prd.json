@@ -684,7 +684,7 @@
       "title": "Playwright E2E Tests",
       "description": "Write Playwright tests for all 22 pages with video compositions.",
       "priority": "medium",
-      "passes": false,
+      "passes": true,
       "dependencies": [
         "US-026",
         "US-027"

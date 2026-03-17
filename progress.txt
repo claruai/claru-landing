@@ -338,3 +338,31 @@ US-021, US-022 set to passes: true
 
 ### prd.json Updated
 US-027 set to passes: true
+
+---
+
+## US-028: Playwright E2E Tests (2026-03-16)
+
+### Test File Created
+- tests/e2e/remotion-media.spec.ts — 94 tests across 3 describe blocks
+
+### Test Coverage (94 tests, all passing)
+
+**Solution pages (33 tests):**
+- 11 pages x 3 tests each: video src correctness (/videos/sol-*), video attributes (autoplay, muted, loop, playsInline), no console errors
+
+**Case study pages (33 tests):**
+- 11 pages x 3 tests each: video src correctness (/videos/cs-*), video attributes, no console errors
+
+**Mobile viewport 375px (28 tests):**
+- 6 pages detailed bounding box checks (video width <= 375px, no overflow)
+- 22 pages video element presence at mobile viewport
+
+### Test Execution
+- Dev server: Next.js 16.1.1 on port 3001
+- Browser: Chromium (via playwright-e2e.config.ts)
+- Duration: ~2.1 minutes for all 94 tests
+- Result: 94 passed, 0 failed
+
+### prd.json Updated
+US-028 set to passes: true
