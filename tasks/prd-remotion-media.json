@@ -29,6 +29,39 @@
         "All components export their prop interfaces",
         "TypeScript strict mode passes with no new errors"
       ]
+    },
+    {
+      "id": "US-002",
+      "title": "Create Composition Manifest and Root.tsx Registry",
+      "description": "Create composition-manifest.json with 22 entries and update Root.tsx to dynamically register all compositions.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "M",
+      "dependencies": ["US-001"]
+    },
+    {
+      "id": "US-004",
+      "title": "Create Render Pipeline Script",
+      "description": "Build scripts/render-all.ts that reads the manifest and renders each composition to MP4 using Remotion CLI.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "M",
+      "dependencies": ["US-002"],
+      "acceptance_criteria": [
+        "scripts/render-all.ts is a TypeScript script runnable with tsx",
+        "Reads composition-manifest.json and iterates all 22 compositions",
+        "For each: runs npx remotion render with --codec h264 --crf 23 --props",
+        "Renders in batches of 2 (CPU-bound concurrency)",
+        "After each render: checks file size -- warns if > 10 MB, re-renders with --crf 28 if > 15 MB",
+        "Outputs a summary table: composition ID, type, duration, file size, status",
+        "Creates public/videos/ directory if it doesn't exist",
+        "Script accepts optional --composition {id} flag to render a single composition",
+        "Script accepts optional --dry-run flag that prints render commands without executing",
+        "remotion:render and remotion:pipeline scripts added to package.json",
+        "Exits with non-zero code if any composition fails to render"
+      ]
     }
   ]
 }

@@ -43,3 +43,15 @@
   - npx remotion studio launches without errors (Built in 584ms)
   - npx tsc --noEmit passes (only pre-existing EgocentricPipeline.tsx errors)
   - prd.json US-002 passes=true
+
+2026-03-16 | US-004 | Create render pipeline script (render-all.ts)
+  - Created scripts/render-all.ts — reads composition-manifest.json, renders each to MP4 via Remotion CLI
+  - Batch rendering (2 concurrent) using child_process.spawn
+  - File size checks: warns > 10 MB, auto re-renders with CRF 28 if > 15 MB
+  - Summary table output: composition ID, type, duration(s), size(MB), status
+  - --dry-run flag prints commands without executing (verified: all 22 compositions)
+  - --composition {id} flag filters to single composition (verified: sol-egocentric)
+  - Creates public/videos/ directory if missing
+  - Exits non-zero on any render failure
+  - Added package.json scripts: remotion:render, remotion:pipeline
+  - prd-remotion-media.json US-004 status=done, passes=true
