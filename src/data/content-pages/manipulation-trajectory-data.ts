@@ -22,6 +22,7 @@ const manipulationTrajectoryData: ContentPageData = {
   // -- Hero --
   heroSubtitle:
     "Open manipulation datasets cover broad task distributions but rarely match the specific embodiment, environment, and action-space representation your policy requires. Claru builds custom trajectory datasets from scratch — capturing the exact manipulation behaviors, sensor configurations, and annotation formats that production robotics systems need to generalize beyond the lab.",
+  videoSrc: "/videos/sol-manipulation.mp4",
 
   // -- Problem Section --
   problem: {

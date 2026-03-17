@@ -22,6 +22,7 @@ const expertRlhfAnnotation: ContentPageData = {
   // -- Hero --
   heroSubtitle:
     "Crowdsourced annotation produces cheap labels but noisy reward signal — and for specialized domains like code generation, legal reasoning, and medical QA, noisy signal teaches models the wrong preferences. Claru provides expert RLHF annotation with domain-qualified annotators, calibrated rubrics, and continuous inter-rater agreement monitoring that delivers the preference data quality frontier labs require.",
+  videoSrc: "/videos/sol-rlhf.mp4",
 
   // -- Problem Section --
   problem: {

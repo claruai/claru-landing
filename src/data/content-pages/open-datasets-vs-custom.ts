@@ -22,6 +22,7 @@ const openDatasetsVsCustom: ContentPageData = {
   // -- Hero --
   heroSubtitle:
     "Open robotics datasets like Open X-Embodiment offer million-trajectory scale at zero marginal cost, but frontier labs routinely find that scale alone does not translate to task performance. This guide compares the three largest open datasets against custom collection, using real project metrics from Claru engagements to quantify when open data reaches its ceiling and custom collection becomes the faster path to production performance.",
+  videoSrc: "/videos/sol-open-vs-custom.mp4",
 
   // -- Problem Section --
   problem: {

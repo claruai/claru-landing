@@ -9,14 +9,46 @@
   "created": "2026-03-16",
   "updated": "2026-03-16",
   "compositionTypes": {
-    "1": { "name": "Sensor-Fusion Tracking", "annotationSource": "gemini", "description": "Video + interpolated bboxes + hand telemetry + metadata panel" },
-    "2": { "name": "Pairwise Arena", "annotationSource": "real", "description": "Split-screen A vs B, subtle selection highlight, uses betterVideoId/selectedAnswer/bestVideo" },
-    "3": { "name": "Multi-Gen Gallery", "annotationSource": "real", "description": "Grid of N generations, checkmark/X, best selection highlight, uses bestImage/selectedImages" },
-    "4": { "name": "Detection + Annotation", "annotationSource": "real", "description": "Progressive bboxes, labels, confidence scores, uses real bbox coordinates" },
-    "5": { "name": "Classification Pipeline", "annotationSource": "real", "description": "Taxonomy tree expanding root to leaf, uses real category/subcategory data" },
-    "6": { "name": "Quality Rubric", "annotationSource": "real", "description": "Multi-dimension scoring gauges + radar chart, uses real 5-axis rubric" },
-    "7": { "name": "Safety Shield", "annotationSource": "real", "description": "Scanning overlay + verdict badges, uses real policy violation data" },
-    "8": { "name": "Cinematic Showcase", "annotationSource": "gemini", "description": "Minimal overlay on 4K footage, metadata labels, licensing badge" }
+    "1": {
+      "name": "Sensor-Fusion Tracking",
+      "annotationSource": "gemini",
+      "description": "Video + interpolated bboxes + hand telemetry + metadata panel"
+    },
+    "2": {
+      "name": "Pairwise Arena",
+      "annotationSource": "real",
+      "description": "Split-screen A vs B, subtle selection highlight, uses betterVideoId/selectedAnswer/bestVideo"
+    },
+    "3": {
+      "name": "Multi-Gen Gallery",
+      "annotationSource": "real",
+      "description": "Grid of N generations, checkmark/X, best selection highlight, uses bestImage/selectedImages"
+    },
+    "4": {
+      "name": "Detection + Annotation",
+      "annotationSource": "real",
+      "description": "Progressive bboxes, labels, confidence scores, uses real bbox coordinates"
+    },
+    "5": {
+      "name": "Classification Pipeline",
+      "annotationSource": "real",
+      "description": "Taxonomy tree expanding root to leaf, uses real category/subcategory data"
+    },
+    "6": {
+      "name": "Quality Rubric",
+      "annotationSource": "real",
+      "description": "Multi-dimension scoring gauges + radar chart, uses real 5-axis rubric"
+    },
+    "7": {
+      "name": "Safety Shield",
+      "annotationSource": "real",
+      "description": "Scanning overlay + verdict badges, uses real policy violation data"
+    },
+    "8": {
+      "name": "Cinematic Showcase",
+      "annotationSource": "gemini",
+      "description": "Minimal overlay on 4K footage, metadata labels, licensing badge"
+    }
   },
   "userStories": [
     {
@@ -47,7 +79,9 @@
       "description": "Create scripts/composition-manifest.json mapping all 22 compositions to type (1-8), S3 datasets, annotation source (real|gemini|metadata-only), and render settings. Update Root.tsx to register all.",
       "priority": "high",
       "passes": true,
-      "dependencies": ["US-001"],
+      "dependencies": [
+        "US-001"
+      ],
       "acceptanceCriteria": [
         "Create scripts/composition-manifest.json with 22 entries: id, type (1-8), page ({route, placement}), samples ({datasetId, datasetSlug, sampleId?, subcategory?}), annotationSource ('real'|'gemini'|'metadata-only'), enrichment (config or null), render ({durationFrames, fps:30, width:1280, height:720, codec:'h264'})",
         "Solution IDs: sol-egocentric, sol-vla, sol-manipulation, sol-teleop, sol-video-gen, sol-rlhf, sol-red-teaming, sol-sim2real, sol-open-vs-custom, sol-crowd-vs-expert, sol-eu-ai-act",
@@ -67,7 +101,9 @@
       "description": "Build scripts/gemini-enrich.ts for compositions where annotationSource === 'gemini'. Only needed for Type 1 (sensor-fusion, 5 compositions) and Type 8 (cinematic, 2 compositions) where no annotation JSON exists in S3.",
       "priority": "high",
       "passes": false,
-      "dependencies": ["US-002"],
+      "dependencies": [
+        "US-002"
+      ],
       "acceptanceCriteria": [
         "Create scripts/gemini-enrich.ts runnable with tsx",
         "Reads manifest, filters to annotationSource === 'gemini' only (7 compositions: sol-egocentric, sol-vla, sol-manipulation, sol-teleop, cs-workplace, sol-open-vs-custom, cs-egocentric)",
@@ -90,7 +126,9 @@
       "description": "Build scripts/extract-annotations.ts that downloads existing S3 annotation JSONs for compositions with annotationSource: 'real', extracts relevant fields per type, and writes formatted annotation JSON for Remotion.",
       "priority": "high",
       "passes": false,
-      "dependencies": ["US-002"],
+      "dependencies": [
+        "US-002"
+      ],
       "acceptanceCriteria": [
         "Create scripts/extract-annotations.ts runnable with tsx",
         "Reads manifest, filters to annotationSource === 'real' (13 compositions)",
@@ -113,7 +151,9 @@
       "description": "Build scripts/render-all.ts that reads manifest and renders each composition to MP4 via Remotion CLI.",
       "priority": "high",
       "passes": false,
-      "dependencies": ["US-002"],
+      "dependencies": [
+        "US-002"
+      ],
       "acceptanceCriteria": [
         "Create scripts/render-all.ts runnable with tsx",
         "Reads composition-manifest.json, iterates all 22 compositions",
@@ -133,7 +173,10 @@
       "description": "Build SensorFusionComposition: video + interpolated bboxes + hand telemetry + metadata panel. Parameterized version of EgocentricPipeline.tsx prototype.",
       "priority": "high",
       "passes": true,
-      "dependencies": ["US-001", "US-002"],
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
       "acceptanceCriteria": [
         "Create src/remotion/compositions/type-1/SensorFusionComposition.tsx accepting { compositionId: string }",
         "Loads annotation JSON and hero video from staticFile paths",
@@ -153,13 +196,16 @@
       "description": "Build PairwiseArenaComposition: split-screen A vs B with real annotation data determining winner. Uses betterVideoId/selectedAnswer/bestVideo from S3 annotation JSONs.",
       "priority": "high",
       "passes": false,
-      "dependencies": ["US-001", "US-002"],
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
       "acceptanceCriteria": [
         "Create src/remotion/compositions/type-2/PairwiseArenaComposition.tsx accepting { compositionId: string }",
         "Two videos side by side (50/50 split) -- Video A left, Video B right",
         "Prompt text types out at top from real annotation metadata.prompt_text",
         "Winner from real annotation data (betterVideoId, selectedAnswer, or bestVideo)",
-        "Selected video gets subtle accent border glow (#92B090) — non-selected dims. NO crown/trophy. Feels like a research interface.",
+        "Selected video gets subtle accent border glow (#92B090) \u2014 non-selected dims. NO crown/trophy. Feels like a research interface.",
         "Loser gets subtle dim/desaturation",
         "For cs-vid-eval: shows config IDs ('Config 21 vs Config 41') from metadata.key",
         "For cs-prompt-bench: shows category label ('Kayaking') and category verification checkmark from videoBelongsToCategory",
@@ -175,7 +221,10 @@
       "description": "Build MultiGenGalleryComposition: 2x4 grid of 8 generations with checkmark/X and best selection highlight. Uses real bestImage/selectedImages from AI Image Eval annotation JSON.",
       "priority": "high",
       "passes": false,
-      "dependencies": ["US-001", "US-002"],
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
       "acceptanceCriteria": [
         "Create src/remotion/compositions/type-3/MultiGenGalleryComposition.tsx accepting { compositionId: string }",
         "2x4 grid of 8 generation images from real metadata.generations array",
@@ -197,7 +246,10 @@
       "description": "Build DetectionAnnotationComposition: progressive bboxes with labels and confidence scores. Uses real bbox coordinates from Object & Face Identity and Product Image annotation JSONs.",
       "priority": "high",
       "passes": false,
-      "dependencies": ["US-001", "US-002"],
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
       "acceptanceCriteria": [
         "Create src/remotion/compositions/type-4/DetectionAnnotationComposition.tsx accepting { compositionId: string }",
         "For video (Object Identity): plays video, freeze-frames at annotated frame",
@@ -218,7 +270,10 @@
       "description": "Build ClassificationPipelineComposition: animated taxonomy tree expanding root to leaf. Uses real category/subcategory data from Video Classification and Game Environment annotation JSONs.",
       "priority": "high",
       "passes": false,
-      "dependencies": ["US-001", "US-002"],
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
       "acceptanceCriteria": [
         "Create src/remotion/compositions/type-5/ClassificationPipelineComposition.tsx accepting { compositionId: string }",
         "Video left (60%), taxonomy tree right (40%) using shared TaxonomyTree",
@@ -238,7 +293,10 @@
       "description": "Build QualityRubricComposition: 5-axis quality gauges + radar chart. Uses real quality dimension data from Video Quality Annotations JSON (isCinematic, hasGoodMotion, isHighQuality, isVideoInteresting, hasGoodTextAlignment).",
       "priority": "high",
       "passes": true,
-      "dependencies": ["US-001", "US-002"],
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
       "acceptanceCriteria": [
         "Create src/remotion/compositions/type-6/QualityRubricComposition.tsx accepting { compositionId: string }",
         "Video left (60%), scoring panel right (40%)",
@@ -258,7 +316,10 @@
       "description": "Build SafetyShieldComposition: scanning overlay + prompt analysis + binary verdict badges. Uses real policy violation data from Content Safety annotation JSON.",
       "priority": "high",
       "passes": false,
-      "dependencies": ["US-001", "US-002"],
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
       "acceptanceCriteria": [
         "Create src/remotion/compositions/type-7/SafetyShieldComposition.tsx accepting { compositionId: string }",
         "Blurred content area (never actual unsafe content) with scanning line",
@@ -279,7 +340,10 @@
       "description": "Build CinematicShowcaseComposition: stunning 4K footage with minimal overlay. For pages emphasizing data quality. Gemini-enriched for scene descriptions.",
       "priority": "medium",
       "passes": false,
-      "dependencies": ["US-001", "US-002"],
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
       "acceptanceCriteria": [
         "Create src/remotion/compositions/type-8/CinematicShowcaseComposition.tsx accepting { compositionId: string }",
         "Video full-bleed with letterbox bars (2.39:1 within 16:9)",
@@ -301,7 +365,10 @@
       "description": "Extract and transform real annotation data from S3 for sol-video-gen, sol-rlhf, cs-vid-eval, cs-prompt-bench. Uses betterVideoId, selectedAnswer, bestVideo from annotation JSONs.",
       "priority": "high",
       "passes": true,
-      "dependencies": ["US-003b", "US-006"],
+      "dependencies": [
+        "US-003b",
+        "US-006"
+      ],
       "acceptanceCriteria": [
         "sol-video-gen + sol-rlhf: extract betterVideoId, prompt_text, video_1/video_2 URLs from Video Generation Preference (bafc163f)",
         "cs-vid-eval: extract selectedAnswer ('21'), metadata.key ('video_110_config_21_config_41'), video URLs, prompt_text from Quality Parameters (a5f0c373)",
@@ -318,7 +385,10 @@
       "description": "Extract real annotation data for sol-crowd-vs-expert from AI Image Generation Evaluation dataset (55f26c56).",
       "priority": "high",
       "passes": true,
-      "dependencies": ["US-003b", "US-007"],
+      "dependencies": [
+        "US-003b",
+        "US-007"
+      ],
       "acceptanceCriteria": [
         "Download annotation JSON from AI Image Eval dataset (55f26c56)",
         "Extract bestImage ID, selectedImages (6 of 8), hasGoodQuality, prompt, 8 generation URLs",
@@ -334,7 +404,10 @@
       "description": "Extract real bbox/identity data for cs-fashion (Product Image) and cs-object-id (Face Identity).",
       "priority": "high",
       "passes": true,
-      "dependencies": ["US-003b", "US-008"],
+      "dependencies": [
+        "US-003b",
+        "US-008"
+      ],
       "acceptanceCriteria": [
         "cs-fashion: extract brandName ('Craghoppers'), category, subcategory, captions (short + long), lifestyle bbox {x1:175.26, y1:64.57, x2:365.51, y2:317.09} from Product Image (f6bdb2f1)",
         "cs-object-id: extract segment[] with bbox ([965,222,1390,829]), class ('face'), score (0.825), frame_index, identity match verdicts from Object Identity (040fee50)",
@@ -349,7 +422,10 @@
       "description": "Extract real classification/taxonomy data for sol-sim2real, cs-game-capture, cs-vid-classify.",
       "priority": "high",
       "passes": true,
-      "dependencies": ["US-003b", "US-009"],
+      "dependencies": [
+        "US-003b",
+        "US-009"
+      ],
       "acceptanceCriteria": [
         "cs-vid-classify: dual taxonomy from Video Classification (ca2465cf) -- content (Technology & Computing / Smartphones & Gadget Use) + visual style (Portrait photography / Urban outdoor portraits), caption, concept ('People')",
         "cs-game-capture + sol-sim2real: game taxonomy from Game Environment (b2b542aa) -- selectedGame ('Red Dead Redemption 2'), category ('Adventure'), full 25-game catalog from project.templateData.categories",
@@ -363,7 +439,10 @@
       "description": "Extract real 5-axis quality rubric data for cs-vid-quality from Video Quality Annotations (4bda56db).",
       "priority": "high",
       "passes": true,
-      "dependencies": ["US-003b", "US-010"],
+      "dependencies": [
+        "US-003b",
+        "US-010"
+      ],
       "acceptanceCriteria": [
         "Download annotation JSON from Video Quality Annotations (4bda56db)",
         "Extract 5 dimensions: isCinematic ('not-cinematic'), hasGoodMotion ('good-motion'), isHighQuality ('not-high-quality'), isVideoInteresting ('interesting'), hasGoodTextAlignment ('good-alignment')",
@@ -380,7 +459,10 @@
       "description": "Extract real safety/policy data for sol-red-teaming, sol-eu-ai-act, cs-gen-safety, cs-red-team from Content Safety (132debad).",
       "priority": "high",
       "passes": true,
-      "dependencies": ["US-003b", "US-011"],
+      "dependencies": [
+        "US-003b",
+        "US-011"
+      ],
       "acceptanceCriteria": [
         "Download annotation JSONs from Content Safety dataset (132debad)",
         "Extract text_policy_violation, video_policy_violation, prompt (200+ words), project.type",
@@ -396,7 +478,10 @@
       "description": "Run Gemini 2.5 Flash for sol-egocentric, sol-vla, sol-manipulation, sol-teleop, cs-workplace. These datasets have no annotation JSON.",
       "priority": "high",
       "passes": true,
-      "dependencies": ["US-003", "US-005"],
+      "dependencies": [
+        "US-003",
+        "US-005"
+      ],
       "acceptanceCriteria": [
         "Download best S3 samples: sol-egocentric (traffic 4K), sol-vla (multi-activity), sol-manipulation (grasping/pouring), sol-teleop (outdoor/workplace), cs-workplace (workplace activities)",
         "Select single best hero sample per composition",
@@ -415,7 +500,10 @@
       "description": "Run Gemini for sol-open-vs-custom and cs-egocentric. Cinematic dataset has no annotation JSON.",
       "priority": "medium",
       "passes": true,
-      "dependencies": ["US-003", "US-012"],
+      "dependencies": [
+        "US-003",
+        "US-012"
+      ],
       "acceptanceCriteria": [
         "sol-open-vs-custom: download 4K safari footage from Cinematic Action (b2d26fd9)",
         "cs-egocentric: download best egocentric clip + cinematic safari clip for cross-fade",
@@ -431,7 +519,24 @@
       "description": "Execute render pipeline for all 11 solution page compositions.",
       "priority": "high",
       "passes": true,
-      "dependencies": ["US-005", "US-006", "US-007", "US-008", "US-009", "US-010", "US-011", "US-012", "US-013", "US-014", "US-015", "US-016", "US-017", "US-018", "US-019", "US-020"],
+      "dependencies": [
+        "US-005",
+        "US-006",
+        "US-007",
+        "US-008",
+        "US-009",
+        "US-010",
+        "US-011",
+        "US-012",
+        "US-013",
+        "US-014",
+        "US-015",
+        "US-016",
+        "US-017",
+        "US-018",
+        "US-019",
+        "US-020"
+      ],
       "acceptanceCriteria": [
         "Render all 11 solution compositions to public/videos/{id}.mp4 at 1280x720, 30fps, h264, CRF 23",
         "Each MP4 between 1-10 MB (re-render CRF 28 if > 10 MB)",
@@ -451,7 +556,24 @@
       "description": "Execute render pipeline for all 11 case study compositions.",
       "priority": "high",
       "passes": true,
-      "dependencies": ["US-005", "US-006", "US-007", "US-008", "US-009", "US-010", "US-011", "US-012", "US-013", "US-014", "US-015", "US-016", "US-017", "US-018", "US-019", "US-020"],
+      "dependencies": [
+        "US-005",
+        "US-006",
+        "US-007",
+        "US-008",
+        "US-009",
+        "US-010",
+        "US-011",
+        "US-012",
+        "US-013",
+        "US-014",
+        "US-015",
+        "US-016",
+        "US-017",
+        "US-018",
+        "US-019",
+        "US-020"
+      ],
       "acceptanceCriteria": [
         "Render all 11 case study compositions to public/videos/{id}.mp4",
         "Each between 1-10 MB",
@@ -471,8 +593,10 @@
       "title": "Add Video Hero to All 11 Solution Pages",
       "description": "Create VideoHero component and integrate into ContentPageTemplate for all 11 solution pages.",
       "priority": "high",
-      "passes": false,
-      "dependencies": ["US-021"],
+      "passes": true,
+      "dependencies": [
+        "US-021"
+      ],
       "acceptanceCriteria": [
         "Create src/app/components/media/VideoHero.tsx (client) with <video autoPlay muted loop playsInline>",
         "IntersectionObserver pauses video off-screen",
@@ -491,7 +615,9 @@
       "description": "Build AnimatedMetrics and ProcessTimeline components for case study page redesign.",
       "priority": "medium",
       "passes": false,
-      "dependencies": ["US-023"],
+      "dependencies": [
+        "US-023"
+      ],
       "acceptanceCriteria": [
         "Create AnimatedMetrics.tsx with Framer Motion useInView counter animation, grid-cols-2 md:grid-cols-4",
         "Create ProcessTimeline.tsx with staggered step reveal and connecting line draw",
@@ -504,7 +630,10 @@
       "description": "Update CaseStudyDetailClient.tsx with conditional VideoHero, AnimatedMetrics, ProcessTimeline.",
       "priority": "medium",
       "passes": false,
-      "dependencies": ["US-023", "US-024"],
+      "dependencies": [
+        "US-023",
+        "US-024"
+      ],
       "acceptanceCriteria": [
         "Render VideoHero when cs.videoComposition present",
         "Replace static stats with AnimatedMetrics",
@@ -519,7 +648,10 @@
       "description": "Add videoComposition field to all 11 case study data files.",
       "priority": "medium",
       "passes": false,
-      "dependencies": ["US-022", "US-025"],
+      "dependencies": [
+        "US-022",
+        "US-025"
+      ],
       "acceptanceCriteria": [
         "Add videoComposition? to CaseStudy type",
         "Update 11 JSONs: egocentric-video-collection->cs-egocentric, workplace->cs-workplace, fashion->cs-fashion, game->cs-game-capture, gen-safety->cs-gen-safety, red-team->cs-red-team, vid-classify->cs-vid-classify, vid-eval->cs-vid-eval, vid-quality->cs-vid-quality, prompt-bench->cs-prompt-bench, object-id->cs-object-id",
@@ -533,7 +665,9 @@
       "description": "Comprehensive code review of all new files.",
       "priority": "high",
       "passes": false,
-      "dependencies": ["US-026"],
+      "dependencies": [
+        "US-026"
+      ],
       "acceptanceCriteria": [
         "Review src/remotion/shared/ -- DesignTokens consistency, interfaces",
         "Review all 8 composition templates -- annotation data loading, error handling",
@@ -551,7 +685,10 @@
       "description": "Write Playwright tests for all 22 pages with video compositions.",
       "priority": "medium",
       "passes": false,
-      "dependencies": ["US-026", "US-027"],
+      "dependencies": [
+        "US-026",
+        "US-027"
+      ],
       "acceptanceCriteria": [
         "Create tests/e2e/remotion-media.spec.ts",
         "Test 11 solution pages load <video> with correct src",
@@ -568,7 +705,9 @@
       "description": "Manual visual verification of all 22 pages.",
       "priority": "low",
       "passes": false,
-      "dependencies": ["US-028"],
+      "dependencies": [
+        "US-028"
+      ],
       "acceptanceCriteria": [
         "Screenshot all 22 pages at 375px, 768px, 1440px",
         "Verify each composition shows correct annotation workflow for its type",

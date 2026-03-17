@@ -22,6 +22,7 @@ const vlaTrainingData: ContentPageData = {
   // -- Hero --
   heroSubtitle:
     "Vision-language-action models need paired observation-action data at scales that no single public dataset provides. The bottleneck for VLA research is not architecture or compute but the cost and complexity of collecting diverse, action-labeled demonstrations across real-world environments.",
+  videoSrc: "/videos/sol-vla.mp4",
 
   // -- Problem Section --
   problem: {

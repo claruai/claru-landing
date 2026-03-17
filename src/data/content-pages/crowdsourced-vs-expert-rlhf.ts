@@ -22,6 +22,7 @@ const crowdsourcedVsExpertRlhf: ContentPageData = {
   // -- Hero --
   heroSubtitle:
     "Reinforcement learning from human feedback depends on the quality of human judgments. For code and math models, crowdsourced annotators introduce incorrect preference pairs that actively degrade reward model performance. This analysis compares specific failure modes, cost structures, and the empirical evidence for why expert annotation produces measurably better RLHF outcomes in technical domains.",
+  videoSrc: "/videos/sol-crowd-vs-expert.mp4",
 
   // -- Problem Section --
   problem: {

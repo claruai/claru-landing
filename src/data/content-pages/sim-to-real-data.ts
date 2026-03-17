@@ -29,6 +29,7 @@ const simToRealData: ContentPageData = {
   // -- Hero --
   heroSubtitle:
     "Simulation trains fast but deploys brittle. The gap between rendered physics and physical reality still causes 30-50% performance drops when policies transfer to hardware. Closing that gap requires structured real-world data collected at the exact distribution your simulator cannot reproduce. Claru operates the collection infrastructure that bridges simulation and deployment.",
+  videoSrc: "/videos/sol-sim2real.mp4",
 
   // -- Problem Section --
   problem: {

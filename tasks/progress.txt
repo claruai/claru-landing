@@ -229,3 +229,27 @@
   - Uses shared components: TaxonomyTree, BottomBar, VerdictBadge, TechMetadataOverlay, TerminalHeader, DesignTokens
   - npx tsc --noEmit passes (no new errors; only pre-existing EgocentricPipeline/SensorFusion errors)
   - prd-remotion-media.json US-009 status=done, passes=true
+
+2026-03-16 | US-023 | VideoHero component + wire into all 11 solution pages
+  - Created src/app/components/media/VideoHero.tsx (client component)
+    - Props: videoSrc, posterSrc?, badge?, aspectRatio? (default "aspect-video")
+    - <video autoPlay muted loop playsInline> with IntersectionObserver pause/play
+    - onError handler: falls back to poster image, or hides component if no poster
+    - Fixed aspect-video container prevents CLS, rounded-2xl border border-[var(--border-subtle)]
+    - Responsive: full-width mobile, max-w-6xl desktop
+  - Added videoSrc?: string to ContentPageData interface in types.ts
+  - Updated ContentPageTemplate.tsx: renders <VideoHero> after ContentHero when page.videoSrc present
+  - Updated all 11 solution page data files with videoSrc:
+    - egocentric-video-data.ts -> /videos/sol-egocentric.mp4
+    - vla-training-data.ts -> /videos/sol-vla.mp4
+    - manipulation-trajectory-data.ts -> /videos/sol-manipulation.mp4
+    - teleoperation-data.ts -> /videos/sol-teleop.mp4
+    - video-generation-training-data.ts -> /videos/sol-video-gen.mp4
+    - expert-rlhf-annotation.ts -> /videos/sol-rlhf.mp4
+    - red-teaming-data.ts -> /videos/sol-red-teaming.mp4
+    - sim-to-real-data.ts -> /videos/sol-sim2real.mp4
+    - open-datasets-vs-custom.ts -> /videos/sol-open-vs-custom.mp4
+    - crowdsourced-vs-expert-rlhf.ts -> /videos/sol-crowd-vs-expert.mp4
+    - eu-ai-act-red-teaming.ts -> /videos/sol-eu-ai-act.mp4
+  - npx tsc --noEmit passes (only pre-existing EgocentricPipeline.tsx errors)
+  - prd.json US-023 passes=true

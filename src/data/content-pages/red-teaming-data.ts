@@ -31,6 +31,7 @@ const redTeamingData: ContentPageData = {
   // -- Hero --
   heroSubtitle:
     "Automated scanners find the vulnerabilities they were programmed to find. Expert human red teamers find the vulnerabilities that matter — the novel attack vectors, social engineering exploits, and multi-step jailbreaks that automated tools miss entirely. Claru delivers structured adversarial testing data that satisfies EU AI Act requirements and closes the safety gaps that automated red teaming leaves open.",
+  videoSrc: "/videos/sol-red-teaming.mp4",
 
   // -- Problem Section --
   problem: {

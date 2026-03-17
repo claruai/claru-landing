@@ -22,6 +22,7 @@ const egocentricVideoData: ContentPageData = {
   // -- Hero --
   heroSubtitle:
     "Frontier robotics and world-model research demands massive volumes of first-person video showing natural human behavior in diverse real-world environments. Public datasets top out at thousands of hours with fixed activity distributions. Custom collection closes the gap between what open data provides and what your model actually needs.",
+  videoSrc: "/videos/sol-egocentric.mp4",
 
   // -- Problem Section --
   problem: {

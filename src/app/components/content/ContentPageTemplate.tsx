@@ -11,6 +11,7 @@
 import type { ContentPageData } from "@/data/content-pages/types";
 
 import ContentHero from "./ContentHero";
+import VideoHero from "@/app/components/media/VideoHero";
 import ProblemSection from "./ProblemSection";
 import DatasetComparison from "./DatasetComparison";
 import InlineCaseStudy from "./InlineCaseStudy";
@@ -39,6 +40,9 @@ export default function ContentPageTemplate({
         subtitle={page.heroSubtitle}
         breadcrumbLabel={page.breadcrumbLabel}
       />
+
+      {/* 1b. Video Hero (pre-rendered Remotion composition) */}
+      {page.videoSrc && <VideoHero videoSrc={page.videoSrc} />}
 
       {/* 2. Problem Section */}
       {page.problem.sections.length > 0 && (

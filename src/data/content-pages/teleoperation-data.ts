@@ -29,6 +29,7 @@ const teleoperationData: ContentPageData = {
   // -- Hero --
   heroSubtitle:
     "Teleoperation generates the highest-quality demonstration data for robot learning — a human operator directly controlling the robot produces state-action pairs that imitation learning algorithms consume without inference. But current teleoperation pipelines produce fewer than 200 demonstrations per day and require $50K-150K hardware rigs per station. Claru scales demonstration collection by deploying managed contributor networks across real-world environments, capturing the behavioral diversity that single-lab teleoperation cannot provide.",
+  videoSrc: "/videos/sol-teleop.mp4",
 
   // -- Problem Section --
   problem: {

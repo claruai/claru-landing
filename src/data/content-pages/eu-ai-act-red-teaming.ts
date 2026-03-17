@@ -22,6 +22,7 @@ const euAiActRedTeaming: ContentPageData = {
   // -- Hero --
   heroSubtitle:
     "The EU AI Act introduces the first legally binding red teaming requirements for AI systems. Article 55 mandates adversarial testing for general-purpose AI (GPAI) providers, with fines up to 35 million euros or 7% of global turnover for prohibited practices under Article 99. This guide breaks down the specific articles, enforcement dates, and the red teaming data infrastructure you need to demonstrate compliance before the August 2025 deadline for new GPAI providers.",
+  videoSrc: "/videos/sol-eu-ai-act.mp4",
 
   // -- Problem Section --
   problem: {

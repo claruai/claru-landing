@@ -32,6 +32,7 @@ const videoGenerationTrainingData: ContentPageData = {
   // -- Hero --
   heroSubtitle:
     "Video generation models improve through human preference data — not just more training compute. But existing preference datasets cap at 182,000 annotations with narrow evaluation criteria, while frontier labs need millions of multi-dimensional quality assessments to train reward models that generalize across content types and failure modes. Claru delivers calibrated human preference data at the scale and specificity that RLHF for video generation demands.",
+  videoSrc: "/videos/sol-video-gen.mp4",
 
   // -- Problem Section --
   problem: {

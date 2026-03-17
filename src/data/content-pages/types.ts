@@ -103,6 +103,9 @@ export interface ContentPageData {
   /** Lead paragraph under the H1 */
   heroSubtitle: string;
 
+  /** Optional path to a pre-rendered hero video (e.g. "/videos/sol-egocentric.mp4") */
+  videoSrc?: string;
+
   // -- Problem Section --
 
   /** The "problem" this page addresses */
