@@ -115,6 +115,30 @@
       ]
     },
     {
+      "id": "US-007",
+      "title": "Type 3 -- Multi-Gen Gallery Composition",
+      "description": "Build MultiGenGalleryComposition showing a 2x4 grid of 8 image generations with checkmark/X filtering and best-of-N selection. Uses real annotation data from AI Image Generation Evaluation dataset.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "L",
+      "dependencies": ["US-001", "US-002"],
+      "acceptance_criteria": [
+        "MultiGenGalleryComposition.tsx accepts { compositionId: string } props",
+        "Renders 2x4 grid of 8 generation images from annotation JSON metadata.generations array",
+        "Prompt types out above grid from metadata.prompt",
+        "Images stagger in (6 frames apart)",
+        "Green checkmarks on selectedImages (6 of 8) via VerdictBadge variant:badge",
+        "Red Xs on rejected (2 of 8)",
+        "Subtle accent border glow on bestImage via VerdictBadge variant:border-glow -- NOT a crown",
+        "Stats: 6/8 acceptable (75%), 1 best with animated counter",
+        "Timeline: 0-30 grid fades, 30-90 images appear, 90-120 prompt types, 120-180 checkmarks/Xs, 180-210 selection highlight, 210-240 stats, 240-300 hold",
+        "Includes TechMetadataOverlay, BottomBar with Generation Eval",
+        "types.ts with Type3Annotation",
+        "TypeScript strict mode passes with no new errors"
+      ]
+    },
+    {
       "id": "US-006",
       "title": "Type 2 -- Pairwise Arena Composition",
       "description": "Build PairwiseArenaComposition showing split-screen A vs B comparison with both videos playing simultaneously and selection highlight. Uses real annotation data showing which video was preferred.",
@@ -135,6 +159,29 @@
         "Timeline: 0-30 fade in + divider, 30-60 prompt types, 60-180 play, 180-240 selection glow + dim, 240-360 hold",
         "Includes TechMetadataOverlay and BottomBar with Arena label",
         "types.ts with Type2Annotation, Type2VideoRef, FALLBACK_TYPE2_ANNOTATION",
+        "TypeScript strict mode passes with no new errors"
+      ]
+    },
+    {
+      "id": "US-011",
+      "title": "Type 7 -- Safety Shield Composition",
+      "description": "Build SafetyShieldComposition showing video with scanning overlay, prompt analysis, and binary verdict badges. Uses real policy violation annotation data from the Content Safety dataset.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "L",
+      "dependencies": ["US-001", "US-002"],
+      "acceptance_criteria": [
+        "SafetyShieldComposition.tsx accepts { compositionId: string } props",
+        "Content area shows blurred/pixelated visual (never actual unsafe content) with scanning line animation",
+        "Prompt text from metadata.prompt types out in terminal-style overlay panel via TerminalHeader",
+        "Dual-channel verdict badges: Text Policy PASS/VIOLATION + Video Policy PASS/VIOLATION via VerdictBadge",
+        "sol-eu-ai-act: EU AI Act article reference badges (Art.52, Art.6) in EU blue #003399",
+        "cs-red-team: dual-channel Phase 1 (text scan) then Phase 2 (video scan)",
+        "Shield icon fills green (pass) or red (violation)",
+        "Timeline: 0-30 blur fade, 30-60 scan, 60-90 prompt types, 90-150 text verdict, 150-210 video verdict, 210-270 shield, 270-300 fade",
+        "Includes TechMetadataOverlay, BottomBar with Safety Review",
+        "types.ts with Type7Annotation",
         "TypeScript strict mode passes with no new errors"
       ]
     }
