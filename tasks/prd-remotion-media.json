@@ -62,6 +62,29 @@
         "remotion:render and remotion:pipeline scripts added to package.json",
         "Exits with non-zero code if any composition fails to render"
       ]
+    },
+    {
+      "id": "US-003b",
+      "title": "Create Real Annotation Data Extraction Script",
+      "description": "Build scripts/extract-annotations.ts that downloads existing S3 annotation JSONs for compositions with annotationSource: real, extracts relevant fields per type, validates against Zod schemas, and writes formatted JSON for Remotion.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "L",
+      "dependencies": ["US-002"],
+      "acceptance_criteria": [
+        "scripts/extract-annotations.ts is a TypeScript script runnable with tsx",
+        "Script reads composition-manifest.json and filters to annotationSource === real",
+        "For each composition: queries Supabase for s3_annotation_key, downloads annotation JSON from S3",
+        "Extracts and transforms per type: Type 2 (Pairwise), Type 3 (Multi-Gen), Type 4 (Detection), Type 5 (Classification), Type 6 (Quality Rubric), Type 7 (Safety)",
+        "Validates extracted data against per-type Zod schemas",
+        "Writes formatted JSON to public/remotion-assets/annotations/{id}.json",
+        "Downloads media files to public/remotion-assets/samples/{id}.{ext}",
+        "If sample 404s, tries next sample in dataset",
+        "Accepts --composition {id} flag for single composition",
+        "remotion:extract script added to package.json",
+        "TypeScript strict mode passes with no new errors"
+      ]
     }
   ]
 }

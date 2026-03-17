@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "remotion:extract": "tsx scripts/extract-annotations.ts",
     "remotion:render": "tsx scripts/render-all.ts",
     "remotion:pipeline": "npm run remotion:extract && npm run remotion:enrich && npm run remotion:render"
   },

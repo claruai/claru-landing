@@ -55,3 +55,18 @@
   - Exits non-zero on any render failure
   - Added package.json scripts: remotion:render, remotion:pipeline
   - prd-remotion-media.json US-004 status=done, passes=true
+
+2026-03-16 | US-003b | Create real annotation data extraction script
+  - Created scripts/extract-annotations.ts — downloads S3 annotation JSONs for 13 real-annotation compositions
+  - Reads composition-manifest.json, filters to annotationSource === "real"
+  - Per composition: queries Supabase for s3_annotation_key, downloads annotation JSON via S3 presigned URLs
+  - Per-type extraction: Type 2 (Pairwise: winner, promptText, videoA/B URLs), Type 3 (Multi-Gen: bestImage, selectedImages, generations), Type 4 (Detection: bbox, class, score, brandName, captions), Type 5 (Classification: category, subcategory, selectedGame, templateCategories), Type 6 (Quality Rubric: 5-axis quality dimensions + numeric scores), Type 7 (Safety: text/video policy violation, prompt)
+  - Zod validation schemas for all 6 types
+  - Downloads media files to public/remotion-assets/samples/{id}.{ext}
+  - Writes formatted JSON to public/remotion-assets/annotations/{id}.json
+  - --composition flag for single composition extraction
+  - If sample 404s, tries next sample in dataset
+  - Tested: npx tsx scripts/extract-annotations.ts --composition cs-vid-quality — extracts quality rubric with all 5 axes + video description + numeric scores
+  - Added "remotion:extract" to package.json scripts
+  - TypeScript strict mode passes (no new errors in extract-annotations.ts)
+  - prd-remotion-media.json US-003b status=done, passes=true
