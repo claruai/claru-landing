@@ -430,7 +430,7 @@
       "title": "Render All 11 Solution Page Compositions to MP4",
       "description": "Execute render pipeline for all 11 solution page compositions.",
       "priority": "high",
-      "passes": false,
+      "passes": true,
       "dependencies": ["US-005", "US-006", "US-007", "US-008", "US-009", "US-010", "US-011", "US-012", "US-013", "US-014", "US-015", "US-016", "US-017", "US-018", "US-019", "US-020"],
       "acceptanceCriteria": [
         "Render all 11 solution compositions to public/videos/{id}.mp4 at 1280x720, 30fps, h264, CRF 23",
@@ -450,7 +450,7 @@
       "title": "Render All 11 Case Study Compositions to MP4",
       "description": "Execute render pipeline for all 11 case study compositions.",
       "priority": "high",
-      "passes": false,
+      "passes": true,
       "dependencies": ["US-005", "US-006", "US-007", "US-008", "US-009", "US-010", "US-011", "US-012", "US-013", "US-014", "US-015", "US-016", "US-017", "US-018", "US-019", "US-020"],
       "acceptanceCriteria": [
         "Render all 11 case study compositions to public/videos/{id}.mp4",

@@ -146,3 +146,59 @@ All in public/remotion-assets/enrichments/:
 
 ### prd.json Updated
 US-019, US-020 set to passes: true
+
+---
+
+## US-021 + US-022: Render All 22 Compositions to MP4 (2026-03-16)
+
+### Render Pipeline Executed
+All 22 compositions rendered successfully to public/videos/{id}.mp4 at 1280x720, 30fps, h264, CRF 23.
+
+### Bug Fixes Required During Render
+1. **Type 1 (SensorFusionComposition)**: `<Video>` component triggers Remotion `delayRender` internally before `onError` fires. Fixed by pre-checking video availability via HEAD request before rendering `<Video>`.
+2. **Type 2 (PairwiseArenaComposition)**: Same `<Video>` delayRender timeout issue. Fixed with HEAD pre-check using `delayRender`/`continueRender` pattern.
+3. **Type 8 (CinematicShowcaseComposition)**: Two issues:
+   - Same `<OffthreadVideo>` delayRender timeout. Fixed with HEAD pre-check.
+   - React error #310 (too many re-renders): `TypedSubtitle` component called `useVideoConfig()` AFTER an early return, violating React's rules of hooks. Moved hook call before conditional return.
+
+### Render Results (22/22 OK)
+
+**Solution Pages (11):**
+| ID | Type | Duration | Size |
+|---|---|---|---|
+| sol-egocentric | 1 | 10.0s | 0.5 MB |
+| sol-vla | 1 | 10.0s | 0.5 MB |
+| sol-manipulation | 1 | 10.0s | 0.5 MB |
+| sol-teleop | 1 | 10.0s | 0.5 MB |
+| sol-video-gen | 2 | 12.0s | 0.5 MB |
+| sol-rlhf | 2 | 12.0s | 0.5 MB |
+| sol-red-teaming | 7 | 10.0s | 0.6 MB |
+| sol-sim2real | 5 | 12.0s | 6.0 MB |
+| sol-open-vs-custom | 8 | 10.0s | 0.5 MB |
+| sol-crowd-vs-expert | 3 | 10.0s | 0.5 MB |
+| sol-eu-ai-act | 7 | 10.0s | 0.6 MB |
+
+**Case Study Pages (11):**
+| ID | Type | Duration | Size |
+|---|---|---|---|
+| cs-egocentric | 8 | 10.0s | 0.5 MB |
+| cs-workplace | 1 | 10.0s | 0.6 MB |
+| cs-fashion | 4 | 10.0s | 0.7 MB |
+| cs-game-capture | 5 | 12.0s | 5.9 MB |
+| cs-gen-safety | 7 | 10.0s | 0.6 MB |
+| cs-red-team | 7 | 10.0s | 0.6 MB |
+| cs-vid-classify | 5 | 12.0s | 1.6 MB |
+| cs-vid-eval | 2 | 12.0s | 0.5 MB |
+| cs-vid-quality | 6 | 12.0s | 2.0 MB |
+| cs-prompt-bench | 2 | 12.0s | 0.5 MB |
+| cs-object-id | 4 | 10.0s | 1.9 MB |
+
+### Summary
+- Total: 22/22 OK, 0 failed
+- All files between 0.5-6.0 MB (target: 1-10 MB)
+- Total public/videos/ directory: 86 MB (target: under 220 MB)
+- No CRF re-renders needed (all under 15 MB)
+- MP4 files NOT committed to git (too large for version control)
+
+### prd.json Updated
+US-021, US-022 set to passes: true

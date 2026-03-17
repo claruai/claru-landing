@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   AbsoluteFill,
   OffthreadVideo,
+  delayRender,
+  continueRender,
   interpolate,
   staticFile,
   useCurrentFrame,
@@ -355,6 +357,7 @@ const TypedSubtitle: React.FC<{
   speed?: number;
 }> = ({ text, startFrame, speed = 1.2 }) => {
   const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
 
   if (frame < startFrame) return null;
 
@@ -366,7 +369,6 @@ const TypedSubtitle: React.FC<{
   const showCursor = charCount < text.length || elapsed % 30 < 15;
 
   // Fade out near end
-  const { durationInFrames } = useVideoConfig();
   const fadeOut = interpolate(
     frame,
     [durationInFrames - 30, durationInFrames],
@@ -541,6 +543,27 @@ const CinematicShowcaseComposition: React.FC<
   const isCsEgocentric = compositionId === "cs-egocentric";
   const isSolOpenVsCustom = compositionId === "sol-open-vs-custom";
 
+  // Pre-check video availability to avoid delayRender timeout on 404
+  const [heroAvailable, setHeroAvailable] = useState(false);
+  const [secondaryAvailable, setSecondaryAvailable] = useState(false);
+  const [handle] = useState(() => delayRender("Checking video availability"));
+
+  useEffect(() => {
+    let cancelled = false;
+    async function check() {
+      const heroRes = await fetch(heroVideoPath(compositionId), { method: "HEAD" }).catch(() => null);
+      if (!cancelled) setHeroAvailable(heroRes?.ok ?? false);
+      if (compositionId === "cs-egocentric") {
+        const secRes = await fetch(secondaryVideoPath(compositionId), { method: "HEAD" }).catch(() => null);
+        if (!cancelled) setSecondaryAvailable(secRes?.ok ?? false);
+      }
+      if (!cancelled) continueRender(handle);
+    }
+    check();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [compositionId]);
+
   // -----------------------------------------------------------------------
   // Timeline phases (300 frames = 10s at 30fps)
   // 0-15:    Fade in through letterbox
@@ -604,22 +627,34 @@ const CinematicShowcaseComposition: React.FC<
           opacity: fadeIn * fadeOut,
         }}
       >
-        {/* Primary video */}
-        <OffthreadVideo
-          src={heroVideoPath(compositionId)}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            opacity: isCsEgocentric ? 1 - crossFadeOpacity : 1,
-          }}
-          onError={() => {
-            // Graceful fallback — composition still renders with overlay
-          }}
-        />
+        {/* Primary video — only rendered if sample exists */}
+        {heroAvailable ? (
+          <OffthreadVideo
+            src={heroVideoPath(compositionId)}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              opacity: isCsEgocentric ? 1 - crossFadeOpacity : 1,
+            }}
+          />
+        ) : (
+          <AbsoluteFill
+            style={{
+              backgroundColor: "#0a0908",
+              justifyContent: "center",
+              alignItems: "center",
+              fontFamily: TOKENS.fonts.mono,
+              fontSize: 12,
+              color: TOKENS.colors.muted,
+            }}
+          >
+            Cinematic Showcase: {compositionId}
+          </AbsoluteFill>
+        )}
 
-        {/* Secondary video for cs-egocentric cross-fade */}
-        {isCsEgocentric && (
+        {/* Secondary video for cs-egocentric cross-fade — only if available */}
+        {isCsEgocentric && secondaryAvailable && (
           <div
             style={{
               position: "absolute",
@@ -634,7 +669,6 @@ const CinematicShowcaseComposition: React.FC<
                 height: "100%",
                 objectFit: "cover",
               }}
-              onError={() => {}}
             />
           </div>
         )}

@@ -391,7 +391,7 @@ const SensorFusionComposition: React.FC<SensorFusionCompositionProps> = ({
   // -- Data Loading --
   // Use delayRender + fetch pattern for dynamic compositionId
   const [keyframes, setKeyframes] = React.useState<Type1Frame[] | null>(null);
-  const [videoError, setVideoError] = React.useState(false);
+  const [videoAvailable, setVideoAvailable] = React.useState(false);
   const [dataError, setDataError] = React.useState<string | null>(null);
 
   // Suppress unused warning for useAnnotationData — kept for reference
@@ -418,6 +418,19 @@ const SensorFusionComposition: React.FC<SensorFusionCompositionProps> = ({
       const { continueRender } = require("remotion") as {
         continueRender: (handle: number) => void;
       };
+
+      // Check if video sample exists (HEAD request to avoid downloading full file)
+      try {
+        const videoRes = await fetch(
+          staticFile(`remotion-assets/samples/${compositionId}.mp4`),
+          { method: "HEAD" }
+        );
+        if (!cancelled && videoRes.ok) {
+          setVideoAvailable(true);
+        }
+      } catch {
+        // Video not available — will render placeholder
+      }
 
       // Try annotations directory first, then enrichments
       const paths = [
@@ -503,8 +516,8 @@ const SensorFusionComposition: React.FC<SensorFusionCompositionProps> = ({
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#000", opacity: globalOpacity }}>
-      {/* Hero video */}
-      {!videoError ? (
+      {/* Hero video — only rendered if sample exists to avoid delayRender timeout */}
+      {videoAvailable ? (
         <Video
           src={videoSrc}
           style={{
@@ -512,7 +525,7 @@ const SensorFusionComposition: React.FC<SensorFusionCompositionProps> = ({
             height: "100%",
             objectFit: "cover",
           }}
-          onError={() => setVideoError(true)}
+          onError={() => {}}
         />
       ) : (
         <AbsoluteFill

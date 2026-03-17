@@ -1,7 +1,9 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   AbsoluteFill,
   Video,
+  delayRender,
+  continueRender,
   interpolate,
   spring,
   staticFile,
@@ -350,6 +352,29 @@ const PairwiseArenaComposition: React.FC<PairwiseArenaCompositionProps> = ({
     [annotation.videoB, compositionId],
   );
 
+  // Pre-check video availability to avoid delayRender timeout on 404
+  const [videoAAvailable, setVideoAAvailable] = useState(false);
+  const [videoBAvailable, setVideoBAvailable] = useState(false);
+  const [checked, setChecked] = useState(false);
+  const [handle] = useState(() => delayRender("Checking video availability"));
+
+  useEffect(() => {
+    let cancelled = false;
+    async function check() {
+      const [resA, resB] = await Promise.all([
+        fetch(videoASrc, { method: "HEAD" }).catch(() => null),
+        fetch(videoBSrc, { method: "HEAD" }).catch(() => null),
+      ]);
+      if (cancelled) return;
+      setVideoAAvailable(resA?.ok ?? false);
+      setVideoBAvailable(resB?.ok ?? false);
+      setChecked(true);
+      continueRender(handle);
+    }
+    check();
+    return () => { cancelled = true; };
+  }, [videoASrc, videoBSrc, handle]);
+
   // Derive labels
   const labelA = annotation.configLabels?.a ?? annotation.videoA.label ?? "A";
   const labelB = annotation.configLabels?.b ?? annotation.videoB.label ?? "B";
@@ -445,7 +470,7 @@ const PairwiseArenaComposition: React.FC<PairwiseArenaCompositionProps> = ({
         }}
       >
         <VideoPanel
-          src={videoASrc}
+          src={videoAAvailable ? videoASrc : ""}
           label={labelA}
           side="left"
           isWinner={annotation.winner === "A"}
@@ -455,7 +480,7 @@ const PairwiseArenaComposition: React.FC<PairwiseArenaCompositionProps> = ({
           fps={fps}
         />
         <VideoPanel
-          src={videoBSrc}
+          src={videoBAvailable ? videoBSrc : ""}
           label={labelB}
           side="right"
           isWinner={annotation.winner === "B"}
