@@ -1,0 +1,205 @@
+{
+  "compositions": [
+    {
+      "id": "sol-egocentric",
+      "type": 1,
+      "page": { "route": "/solutions/egocentric-video-data", "placement": "hero" },
+      "samples": [{ "datasetId": "eb07cf5b-55b1-45ec-a513-65b9e78956de", "datasetSlug": "egocentric-activity-capture" }],
+      "annotationSource": "gemini",
+      "enrichment": { "promptFile": "scripts/gemini-prompts/type-1-sensor-fusion.txt", "framesPerSecond": 3, "maxFrames": 30 },
+      "render": { "durationFrames": 300, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "sol-vla",
+      "type": 1,
+      "page": { "route": "/solutions/vla-training-data", "placement": "hero" },
+      "samples": [{ "datasetId": "eb07cf5b-55b1-45ec-a513-65b9e78956de", "datasetSlug": "egocentric-activity-capture" }],
+      "annotationSource": "gemini",
+      "enrichment": { "promptFile": "scripts/gemini-prompts/type-1-sensor-fusion.txt", "framesPerSecond": 3, "maxFrames": 30 },
+      "render": { "durationFrames": 300, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "sol-manipulation",
+      "type": 1,
+      "page": { "route": "/solutions/manipulation-trajectory-data", "placement": "hero" },
+      "samples": [{ "datasetId": "eb07cf5b-55b1-45ec-a513-65b9e78956de", "datasetSlug": "egocentric-activity-capture" }],
+      "annotationSource": "gemini",
+      "enrichment": { "promptFile": "scripts/gemini-prompts/type-1-sensor-fusion.txt", "framesPerSecond": 3, "maxFrames": 30 },
+      "render": { "durationFrames": 300, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "sol-teleop",
+      "type": 1,
+      "page": { "route": "/solutions/teleoperation-data", "placement": "hero" },
+      "samples": [{ "datasetId": "eb07cf5b-55b1-45ec-a513-65b9e78956de", "datasetSlug": "egocentric-activity-capture" }],
+      "annotationSource": "gemini",
+      "enrichment": { "promptFile": "scripts/gemini-prompts/type-1-sensor-fusion.txt", "framesPerSecond": 3, "maxFrames": 30 },
+      "render": { "durationFrames": 300, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "sol-video-gen",
+      "type": 2,
+      "page": { "route": "/solutions/video-generation-training-data", "placement": "hero" },
+      "samples": [{ "datasetId": "bafc163f-c839-4e52-8684-5c9cbfbc89e5", "datasetSlug": "video-generation-preference" }],
+      "annotationSource": "real",
+      "enrichment": null,
+      "render": { "durationFrames": 360, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "sol-rlhf",
+      "type": 2,
+      "page": { "route": "/solutions/expert-rlhf-annotation", "placement": "hero" },
+      "samples": [{ "datasetId": "bafc163f-c839-4e52-8684-5c9cbfbc89e5", "datasetSlug": "video-generation-preference" }],
+      "annotationSource": "real",
+      "enrichment": null,
+      "render": { "durationFrames": 360, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "sol-red-teaming",
+      "type": 7,
+      "page": { "route": "/solutions/red-teaming-data", "placement": "hero" },
+      "samples": [{ "datasetId": "132debad-5810-4396-896c-e254a8bd0490", "datasetSlug": "content-safety-policy-review" }],
+      "annotationSource": "real",
+      "enrichment": null,
+      "render": { "durationFrames": 300, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "sol-sim2real",
+      "type": 5,
+      "page": { "route": "/solutions/sim-to-real-data", "placement": "hero" },
+      "samples": [{ "datasetId": "b2b542aa-0d14-4e8a-b0f1-6fe7c0d0b865", "datasetSlug": "game-environment-capture" }],
+      "annotationSource": "real",
+      "enrichment": null,
+      "render": { "durationFrames": 360, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "sol-open-vs-custom",
+      "type": 8,
+      "page": { "route": "/solutions/open-datasets-vs-custom", "placement": "hero" },
+      "samples": [{ "datasetId": "b2d26fd9-e03a-4d29-86e8-bc7a3a1e7c24", "datasetSlug": "cinematic-action-footage" }],
+      "annotationSource": "gemini",
+      "enrichment": { "promptFile": "scripts/gemini-prompts/type-8-cinematic-showcase.txt", "framesPerSecond": 2, "maxFrames": 20 },
+      "render": { "durationFrames": 300, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "sol-crowd-vs-expert",
+      "type": 3,
+      "page": { "route": "/solutions/crowdsourced-vs-expert-rlhf", "placement": "hero" },
+      "samples": [{ "datasetId": "55f26c56-fca3-4b23-8e1a-4ab32b34e3af", "datasetSlug": "ai-image-generation-eval" }],
+      "annotationSource": "real",
+      "enrichment": null,
+      "render": { "durationFrames": 300, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "sol-eu-ai-act",
+      "type": 7,
+      "page": { "route": "/solutions/eu-ai-act-red-teaming", "placement": "hero" },
+      "samples": [{ "datasetId": "132debad-5810-4396-896c-e254a8bd0490", "datasetSlug": "content-safety-policy-review" }],
+      "annotationSource": "real",
+      "enrichment": null,
+      "render": { "durationFrames": 300, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "cs-egocentric",
+      "type": 8,
+      "page": { "route": "/case-studies/egocentric-video-collection", "placement": "hero" },
+      "samples": [
+        { "datasetId": "eb07cf5b-55b1-45ec-a513-65b9e78956de", "datasetSlug": "egocentric-activity-capture" },
+        { "datasetId": "b2d26fd9-e03a-4d29-86e8-bc7a3a1e7c24", "datasetSlug": "cinematic-action-footage" }
+      ],
+      "annotationSource": "gemini",
+      "enrichment": { "promptFile": "scripts/gemini-prompts/type-8-cinematic-showcase.txt", "framesPerSecond": 2, "maxFrames": 20 },
+      "render": { "durationFrames": 300, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "cs-workplace",
+      "type": 1,
+      "page": { "route": "/case-studies/workplace-egocentric-data", "placement": "hero" },
+      "samples": [{ "datasetId": "eb07cf5b-55b1-45ec-a513-65b9e78956de", "datasetSlug": "egocentric-activity-capture" }],
+      "annotationSource": "gemini",
+      "enrichment": { "promptFile": "scripts/gemini-prompts/type-1-sensor-fusion.txt", "framesPerSecond": 3, "maxFrames": 30 },
+      "render": { "durationFrames": 300, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "cs-fashion",
+      "type": 4,
+      "page": { "route": "/case-studies/fashion-ai-annotation", "placement": "hero" },
+      "samples": [{ "datasetId": "f6bdb2f1-8c1a-4f5e-9d3b-2a7c6e8f0d1b", "datasetSlug": "product-image-annotation" }],
+      "annotationSource": "real",
+      "enrichment": null,
+      "render": { "durationFrames": 300, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "cs-game-capture",
+      "type": 5,
+      "page": { "route": "/case-studies/game-based-data-capture", "placement": "hero" },
+      "samples": [{ "datasetId": "b2b542aa-0d14-4e8a-b0f1-6fe7c0d0b865", "datasetSlug": "game-environment-capture" }],
+      "annotationSource": "real",
+      "enrichment": null,
+      "render": { "durationFrames": 360, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "cs-gen-safety",
+      "type": 7,
+      "page": { "route": "/case-studies/generative-ai-safety", "placement": "hero" },
+      "samples": [{ "datasetId": "132debad-5810-4396-896c-e254a8bd0490", "datasetSlug": "content-safety-policy-review" }],
+      "annotationSource": "real",
+      "enrichment": null,
+      "render": { "durationFrames": 300, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "cs-red-team",
+      "type": 7,
+      "page": { "route": "/case-studies/red-teaming-moderation", "placement": "hero" },
+      "samples": [{ "datasetId": "132debad-5810-4396-896c-e254a8bd0490", "datasetSlug": "content-safety-policy-review" }],
+      "annotationSource": "real",
+      "enrichment": null,
+      "render": { "durationFrames": 300, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "cs-vid-classify",
+      "type": 5,
+      "page": { "route": "/case-studies/video-content-classification", "placement": "hero" },
+      "samples": [{ "datasetId": "ca2465cf-3a1b-4d8e-9f2c-7b6a5e4d3c2b", "datasetSlug": "video-classification-supervised-labels" }],
+      "annotationSource": "real",
+      "enrichment": null,
+      "render": { "durationFrames": 360, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "cs-vid-eval",
+      "type": 2,
+      "page": { "route": "/case-studies/video-model-evaluation", "placement": "hero" },
+      "samples": [{ "datasetId": "a5f0c373-2b1a-4e8d-9c3f-6d5e4a3b2c1d", "datasetSlug": "systematic-quality-parameter-evaluations" }],
+      "annotationSource": "real",
+      "enrichment": null,
+      "render": { "durationFrames": 360, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "cs-vid-quality",
+      "type": 6,
+      "page": { "route": "/case-studies/video-quality-at-scale", "placement": "hero" },
+      "samples": [{ "datasetId": "4bda56db-7c2a-4f1e-8d3b-9a5e6c4d2b1a", "datasetSlug": "video-quality-annotations" }],
+      "annotationSource": "real",
+      "enrichment": null,
+      "render": { "durationFrames": 360, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "cs-prompt-bench",
+      "type": 2,
+      "page": { "route": "/case-studies/prompt-enhancement-benchmark", "placement": "hero" },
+      "samples": [{ "datasetId": "8689f381-4a2b-4c1e-8d3f-7e6a5b4c3d2e", "datasetSlug": "prompt-video-selection-rankings" }],
+      "annotationSource": "real",
+      "enrichment": null,
+      "render": { "durationFrames": 360, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    },
+    {
+      "id": "cs-object-id",
+      "type": 4,
+      "page": { "route": "/case-studies/object-identity-persistence", "placement": "hero" },
+      "samples": [{ "datasetId": "040fee50-5b3a-4c2e-8d1f-9a7e6b5c4d3e", "datasetSlug": "object-face-identity-matching" }],
+      "annotationSource": "real",
+      "enrichment": null,
+      "render": { "durationFrames": 300, "fps": 30, "width": 1280, "height": 720, "codec": "h264" }
+    }
+  ]
+}

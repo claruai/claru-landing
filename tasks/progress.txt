@@ -29,3 +29,17 @@
   - EgocentricPipeline.tsx unchanged
   - npx tsc --noEmit passes (pre-existing errors in EgocentricPipeline.tsx only)
   - prd-remotion-media.json US-001 status=done, passes=true
+
+2026-03-16 | US-002 | Create composition manifest and Root.tsx registry with 22 compositions
+  - Created scripts/composition-manifest.json with 22 entries (11 solution + 11 case study)
+  - Each entry: id, type (1-8), page (route + placement), samples (datasetId + datasetSlug), annotationSource, enrichment, render config
+  - Solution IDs: sol-egocentric, sol-vla, sol-manipulation, sol-teleop, sol-video-gen, sol-rlhf, sol-red-teaming, sol-sim2real, sol-open-vs-custom, sol-crowd-vs-expert, sol-eu-ai-act
+  - Case study IDs: cs-egocentric, cs-workplace, cs-fashion, cs-game-capture, cs-gen-safety, cs-red-team, cs-vid-classify, cs-vid-eval, cs-vid-quality, cs-prompt-bench, cs-object-id
+  - Duration by type: 1=300f, 2=360f, 3=300f, 4=300f, 5=360f, 6=360f, 7=300f, 8=300f
+  - annotationSource: "gemini" for Types 1,8 (7 compositions); "real" for Types 2-7 (15 compositions)
+  - Created 8 placeholder composition components in src/remotion/compositions/type-{1-8}/
+  - Updated src/remotion/Root.tsx: TYPE_MAP maps 1-8 to components, dynamically registers all 22 from manifest
+  - Existing EgocentricPipeline composition preserved (23 total compositions)
+  - npx remotion studio launches without errors (Built in 584ms)
+  - npx tsc --noEmit passes (only pre-existing EgocentricPipeline.tsx errors)
+  - prd.json US-002 passes=true

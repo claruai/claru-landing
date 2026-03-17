@@ -46,7 +46,7 @@
       "title": "Create Composition Manifest and Root.tsx Registry",
       "description": "Create scripts/composition-manifest.json mapping all 22 compositions to type (1-8), S3 datasets, annotation source (real|gemini|metadata-only), and render settings. Update Root.tsx to register all.",
       "priority": "high",
-      "passes": false,
+      "passes": true,
       "dependencies": ["US-001"],
       "acceptanceCriteria": [
         "Create scripts/composition-manifest.json with 22 entries: id, type (1-8), page ({route, placement}), samples ({datasetId, datasetSlug, sampleId?, subcategory?}), annotationSource ('real'|'gemini'|'metadata-only'), enrichment (config or null), render ({durationFrames, fps:30, width:1280, height:720, codec:'h264'})",
