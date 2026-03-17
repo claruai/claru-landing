@@ -3,8 +3,11 @@ import {
   AbsoluteFill,
   Img,
   interpolate,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
+  delayRender,
+  continueRender,
 } from "remotion";
 import { TOKENS } from "../../shared/DesignTokens";
 import { TechMetadataOverlay } from "../../shared/TechMetadataOverlay";
@@ -38,25 +41,37 @@ export interface MultiGenGalleryCompositionProps {
 
 function useAnnotation(compositionId: string): Type3Annotation {
   const [data, setData] = React.useState<Type3Annotation | null>(null);
+  const [handle] = React.useState(() => delayRender("Loading Type3 annotation"));
 
   React.useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         const res = await fetch(
-          `/remotion-assets/annotations/${compositionId}.json`
+          staticFile(`remotion-assets/annotations/${compositionId}.json`)
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = (await res.json()) as Type3Annotation;
-        if (!cancelled && json.type === 3) setData(json);
+        if (!cancelled && json.type === 3) {
+          // Resolve generation image URLs to staticFile paths
+          for (const gen of json.generations) {
+            if (gen.url && !gen.url.startsWith("http") && !gen.url.startsWith("blob:")) {
+              // Convert relative paths like /remotion-assets/... to staticFile URLs
+              const cleanPath = gen.url.replace(/^\//, "");
+              gen.url = staticFile(cleanPath);
+            }
+          }
+          setData(json);
+        }
       } catch {
         // Annotation not yet extracted — use fallback
       }
+      if (!cancelled) continueRender(handle);
     })();
     return () => {
       cancelled = true;
     };
-  }, [compositionId]);
+  }, [compositionId, handle]);
 
   if (data) return data;
   return { ...FALLBACK_TYPE3, compositionId };

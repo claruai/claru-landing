@@ -1,16 +1,16 @@
 {
   "type": 2,
   "compositionId": "cs-prompt-bench",
-  "winner": "s3://mv-troveo/2024_12_06_tranche6/delivery69/payload/dt_2024_11_28_02_04_935767701_clips_qszc3elv_clip_13.mp4",
-  "selectedAnswer": null,
-  "bestVideo": "s3://mv-troveo/2024_12_06_tranche6/delivery69/payload/dt_2024_11_28_02_04_935767701_clips_qszc3elv_clip_13.mp4",
-  "promptText": null,
-  "videoAUrl": "s3://mv-troveo/2024_12_16_tranche8/delivery81/payload/dt_2024_12_12_16_24_581933473_clips_yal7dfai_clip_0.mp4",
-  "videoBUrl": "s3://mv-troveo/2024_12_06_tranche6/delivery69/payload/dt_2024_11_28_02_04_935767701_clips_qszc3elv_clip_13.mp4",
-  "configKey": null,
+  "videoA": {
+    "url": "s3://mv-troveo/2024_12_16_tranche8/delivery81/payload/dt_2024_12_12_16_24_581933473_clips_yal7dfai_clip_0.mp4",
+    "label": "A"
+  },
+  "videoB": {
+    "url": "s3://mv-troveo/2024_12_06_tranche6/delivery69/payload/dt_2024_11_28_02_04_935767701_clips_qszc3elv_clip_13.mp4",
+    "label": "B"
+  },
+  "winner": "B",
+  "promptText": "Pairwise video comparison",
   "categoryLabel": "Kayaking",
-  "videoBelongsToCategory": true,
-  "video1EndedAt": 4.337667,
-  "video2EndedAt": 4.938267,
-  "projectType": "SUPER_CATEGORY_BEST_VIDEO"
+  "categoryVerified": true
 }
