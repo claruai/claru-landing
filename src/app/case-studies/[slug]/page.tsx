@@ -148,7 +148,7 @@ export default async function CaseStudyDetailPage({
   };
 
   return (
-    <>
+    <div>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
@@ -169,6 +169,6 @@ export default async function CaseStudyDetailPage({
       >
         {slug === "game-based-data-capture" && <GameCaptureSamples />}
       </CaseStudyDetailClient>
-    </>
+    </div>
   );
 }

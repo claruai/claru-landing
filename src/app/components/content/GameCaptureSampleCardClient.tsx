@@ -370,7 +370,7 @@ export function GameCaptureSampleCardClient({
       className="rounded-xl border overflow-hidden"
       style={{ backgroundColor: "#121210", borderColor: "#2a2a28" }}
     >
-      <div className="grid grid-cols-1 lg:grid-cols-[55%_45%] gap-0">
+      <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-0">
         {/* Video */}
         <div
           className="relative aspect-video cursor-pointer overflow-hidden"

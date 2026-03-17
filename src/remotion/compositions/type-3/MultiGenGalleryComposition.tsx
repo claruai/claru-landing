@@ -14,6 +14,7 @@ import { TechMetadataOverlay } from "../../shared/TechMetadataOverlay";
 import { BottomBar } from "../../shared/BottomBar";
 import { VerdictBadge } from "../../shared/VerdictBadge";
 import { Type3Annotation, FALLBACK_TYPE3 } from "./types";
+import QualityComparisonWorkflow from "./QualityComparisonWorkflow";
 
 // ---------------------------------------------------------------------------
 // MultiGenGalleryComposition — Type 3
@@ -320,7 +321,7 @@ const AnimatedCounter: React.FC<{
 // Main Composition
 // ---------------------------------------------------------------------------
 
-const MultiGenGalleryComposition: React.FC<
+const MultiGenGalleryDefault: React.FC<
   MultiGenGalleryCompositionProps
 > = ({ compositionId }) => {
   const frame = useCurrentFrame();
@@ -606,6 +607,16 @@ const MultiGenGalleryComposition: React.FC<
       <BottomBar timeS={timeS} phaseLabel={phaseLabel} />
     </AbsoluteFill>
   );
+};
+
+/** Router: delegates to QualityComparisonWorkflow for sol-crowd-vs-expert */
+const MultiGenGalleryComposition: React.FC<
+  MultiGenGalleryCompositionProps
+> = ({ compositionId }) => {
+  if (compositionId === "sol-crowd-vs-expert") {
+    return <QualityComparisonWorkflow />;
+  }
+  return <MultiGenGalleryDefault compositionId={compositionId} />;
 };
 
 export default MultiGenGalleryComposition;

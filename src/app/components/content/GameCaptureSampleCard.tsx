@@ -13,16 +13,13 @@ interface InputEvent {
 }
 
 interface GameCaptureSampleCardProps {
-  /** Game title displayed as badge on the video */
   gameTitle: string;
-  /** Path to the video file relative to /public (e.g. "/remotion-assets/samples/game-pubg.mp4") */
   videoPath: string;
-  /** Path to the input JSON file relative to /public */
   inputJsonPath: string;
 }
 
 // ---------------------------------------------------------------------------
-// Server Component
+// Server Component — reads input JSON at build time, passes to client
 // ---------------------------------------------------------------------------
 
 export default async function GameCaptureSampleCard({
@@ -30,7 +27,6 @@ export default async function GameCaptureSampleCard({
   videoPath,
   inputJsonPath,
 }: GameCaptureSampleCardProps) {
-  // Read input events from the local JSON file at build time
   const absolutePath = join(process.cwd(), "public", inputJsonPath);
   let inputEvents: InputEvent[] = [];
 
@@ -39,7 +35,7 @@ export default async function GameCaptureSampleCard({
     inputEvents = JSON.parse(raw) as InputEvent[];
   } catch (err) {
     console.error(
-      `[GameCaptureSampleCard] Failed to read input JSON at ${absolutePath}:`,
+      `[GameCaptureSampleCard] Failed to read ${absolutePath}:`,
       err instanceof Error ? err.message : err
     );
   }

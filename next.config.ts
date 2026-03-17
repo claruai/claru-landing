@@ -1,6 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Exclude large media files from serverless function bundles.
+  // Videos and remotion samples are served as static assets — never needed server-side.
+  outputFileTracingExcludes: {
+    "*": [
+      "./public/videos/**",
+      "./public/remotion-assets/samples/**",
+      "./public/remotion-assets/enrichments/**",
+      "./public/qa-frames/**",
+    ],
+  },
   skipTrailingSlashRedirect: true,
   async rewrites() {
     return [

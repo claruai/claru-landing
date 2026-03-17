@@ -105,15 +105,29 @@ const caseStudies = [
 
 export default function LabelingPage() {
   return (
-    <>
+    <div className="min-h-screen bg-[var(--bg-primary)]">
+      <div className="noise-overlay-animated" />
+
       <Header opaque />
 
       <main className="relative z-10">
         {/* ----------------------------------------
             SECTION 1: HERO
         ---------------------------------------- */}
-        <section className="pt-28 md:pt-36 pb-16 md:pb-24">
-          <div className="container">
+        <section className="relative pt-28 md:pt-36 pb-16 md:pb-24 overflow-hidden">
+          {/* Subtle grid pattern */}
+          <div
+            className="absolute inset-0 pointer-events-none opacity-[0.03]"
+            style={{
+              backgroundImage: `
+                linear-gradient(var(--text-primary) 1px, transparent 1px),
+                linear-gradient(90deg, var(--text-primary) 1px, transparent 1px)
+              `,
+              backgroundSize: "80px 80px",
+            }}
+          />
+
+          <div className="container relative z-10">
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-[var(--text-tertiary)] font-mono mb-10">
               <Link
@@ -362,6 +376,6 @@ export default function LabelingPage() {
       </main>
 
       <Footer />
-    </>
+    </div>
   );
 }

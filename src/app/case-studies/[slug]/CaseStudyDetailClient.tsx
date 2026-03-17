@@ -508,9 +508,9 @@ export default function CaseStudyDetailClient({
         </section>
 
         {/* ==============================================================
-           SAMPLE DATA
+           SAMPLE DATA — hidden when custom children replace it
         =============================================================== */}
-        {cs.sampleData && (
+        {cs.sampleData && !children && (
           <>
             <div className="section-divider" />
             <section className="section">
@@ -527,7 +527,7 @@ export default function CaseStudyDetailClient({
           </>
         )}
 
-        {/* Slot for server-rendered custom sections (e.g. GameCaptureSamples) */}
+        {/* Custom sample section (replaces default sampleData when provided) */}
         {children && (
           <>
             <div className="section-divider" />

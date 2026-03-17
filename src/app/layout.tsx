@@ -174,14 +174,14 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://claru.ai" />
         <link rel="preconnect" href="https://claru.ai" />
         <link rel="preconnect" href="https://calendly.com" />
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${jetbrainsMono.variable} antialiased`}
-      >
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(globalJsonLd) }}
         />
+      </head>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${jetbrainsMono.variable} antialiased`}
+      >
         <PostHogProvider>
           <MotionProvider>
             <CalendlyProvider>

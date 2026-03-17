@@ -13,6 +13,8 @@ import { TOKENS } from "../../shared/DesignTokens";
 import { TechMetadataOverlay } from "../../shared/TechMetadataOverlay";
 import { BottomBar } from "../../shared/BottomBar";
 import { Type8Annotation, FALLBACK_TYPE8_ANNOTATION } from "./types";
+import EgocentricGridShowcase from "./EgocentricGridShowcase";
+import DatasetComparisonWorkflow from "./DatasetComparisonWorkflow";
 
 // ---------------------------------------------------------------------------
 // Type 8: Cinematic Showcase Composition
@@ -525,7 +527,7 @@ const CustomDataLabel: React.FC<{
 // Main Composition
 // ---------------------------------------------------------------------------
 
-const CinematicShowcaseComposition: React.FC<
+const CinematicShowcaseDefault: React.FC<
   CinematicShowcaseCompositionProps
 > = ({ compositionId }) => {
   const frame = useCurrentFrame();
@@ -812,6 +814,19 @@ const CinematicShowcaseComposition: React.FC<
       )}
     </AbsoluteFill>
   );
+};
+
+/** Router: delegates to specialized compositions by compositionId */
+const CinematicShowcaseComposition: React.FC<
+  CinematicShowcaseCompositionProps
+> = ({ compositionId }) => {
+  if (compositionId === "cs-egocentric") {
+    return <EgocentricGridShowcase />;
+  }
+  if (compositionId === "sol-open-vs-custom") {
+    return <DatasetComparisonWorkflow />;
+  }
+  return <CinematicShowcaseDefault compositionId={compositionId} />;
 };
 
 export default CinematicShowcaseComposition;

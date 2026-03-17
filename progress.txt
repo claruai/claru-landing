@@ -574,3 +574,142 @@ Interactive sample data section for the game-based-data-capture case study page 
 - TypeScript: passes (only pre-existing error in unrelated Remotion file)
 - Page renders correctly at http://localhost:3006/case-studies/game-based-data-capture
 - All 3 cards visible with correct game titles, event counts, and input streams
+
+---
+
+## 2026-03-17: Visual QA of 10 Compositions (Targeted Review)
+
+### Method
+- Extracted frames at 2fps from all 10 rendered MP4s using ffmpeg
+- Visually inspected key frames (start, mid-play, selection, JSON output) using multimodal analysis
+- Compared composition content against page data (solution content pages, case study JSONs, annotation JSONs)
+- Checked specific technical requirements per composition type
+
+### Results
+
+**Type 2 — Pairwise Arena:**
+1. sol-video-gen — FIXED
+   - Was showing fallback "Pairwise video comparison" text (missing ANNOTATIONS entry)
+   - No last-frame freeze images existed
+   - No VIDEO_DURATION_MAP entry (source videos are 5.33s = 160 frames at 30fps)
+   - Fix: Added annotation entry with cowboy western prompt, "Model A"/"Model B" labels
+   - Fix: Generated last-frame freeze images (sol-video-gen-{a,b}-last.jpg)
+   - Fix: Added duration entry (160 frames)
+   - Re-rendered. Verified: prompt visible, videos play with no black screens, freeze-frame
+     works after video ends, SELECTED badge on winner A, JSON output panel correct.
+
+2. sol-rlhf — FIXED
+   - Same issues as sol-video-gen (same source data). Same fixes applied. Re-rendered and verified.
+
+**Type 3 — Multi-Gen Gallery:**
+3. sol-crowd-vs-expert — PASS
+   - All 8 images render (no placeholders). PASS/FAIL/BEST badges show correctly.
+   - Images are diverse product/lifestyle AI generations (matches actual annotation data).
+
+**Type 4 — Detection (Fashion):**
+4. cs-fashion — PASS
+   - Product image (blue pullover) renders. Bbox at correct coordinates. "product Tops 97%" label.
+   - Caption typewriter works. Brand/category metadata panel shows correctly.
+
+**Type 5 — Classification:**
+5. cs-vid-classify — PASS
+   - Dual taxonomy tree correct (Content + Visual Style). Video plays. Pipeline stages complete.
+
+6. sol-sim2real — PASS
+   - Game capture footage (RDR2). Game taxonomy tree renders. Caption correct. Pipeline completes.
+
+**Type 7 — Safety Shield:**
+7. sol-red-teaming — PASS
+   Content blurred. Prompt: deepfake. VIOLATION verdicts. Red shield X.
+
+8. sol-eu-ai-act — PASS
+   Content blurred. Prompt: workplace surveillance. EU AI Act Art. 52 reference. VIOLATION.
+
+9. cs-gen-safety — PASS
+   Content blurred. Prompt: unsafe chemical mixing. VIOLATION verdicts. Red shield X.
+
+10. cs-red-team — PASS
+    Content blurred. Prompt: social engineering phishing. DUAL-CHANNEL PIPELINE. VIOLATION.
+
+### Summary
+- PASS: 8 compositions
+- FIXED: 2 compositions (sol-video-gen, sol-rlhf)
+- NEEDS_WORK: 0
+
+### Files Modified
+- src/remotion/compositions/type-2/PairwiseArenaComposition.tsx (added ANNOTATIONS + VIDEO_DURATION_MAP entries)
+- public/remotion-assets/samples/sol-video-gen-{a,b}-last.jpg (new freeze-frame images)
+- public/remotion-assets/samples/sol-rlhf-{a,b}-last.jpg (new freeze-frame images)
+- public/videos/sol-video-gen.mp4 (re-rendered)
+- public/videos/sol-rlhf.mp4 (re-rendered)
+
+---
+
+## 2026-03-17: Visual QA of Type 1 & Type 8 Compositions (7 compositions)
+
+### Method
+- Extracted frames at 2fps from all 7 rendered MP4s using ffmpeg
+- Visually inspected start, middle, and end frames using multimodal analysis
+- Read corresponding page data files (content-pages/*.ts, case-studies/*.json)
+- Compared composition content against page purpose
+- Verified overlay elements (bboxes, metadata panels, labels, badges)
+
+### Critical Finding: Shared Source Video Problem
+All 6 compositions using datasetSlug "egocentric-activity-capture" received
+the EXACT SAME traffic surveillance video (MD5: 9dbef624ceec61e3364276a8c0a8a46a).
+This is elevated traffic footage from Southeast Asia — NOT egocentric first-person
+video. Affected: sol-egocentric, sol-vla, sol-manipulation, sol-teleop,
+cs-workplace, cs-egocentric.
+
+### Results
+
+**FIXED: cs-workplace (Type 1)**
+- Replaced sample video with case-study-workplace-barista-web.mp4 (real
+  egocentric barista footage: first-person espresso making, 1280x720, 60fps)
+- Rewrote enrichments/cs-workplace.json with 8 barista-task keyframes
+  (approach -> contact -> manipulation -> transport -> release)
+- Re-rendered: 5.1 MB. Verified: hand bboxes, object bboxes (portafilter,
+  espresso machine, cup stack, group head, brew button, knock box), hand
+  telemetry (gripping/twisting/pressing/transporting/knocking), correct
+  phase progression, IMU switching STABLE->MOVING during transport.
+
+**FIXED: cs-egocentric (Type 8)**
+- Created annotations/cs-egocentric.json with Type8Annotation format:
+  category="Egocentric Video Collection", subcategory="Robotics & World
+  Modeling", resolution="1920x1080", licensingType="Licensed 4K"
+- Previously showed generic fallback labels ("Cinematic Footage / Premium Collection")
+- Re-rendered: 1.9 MB. Verified: correct category/subcategory labels, proper
+  resolution badge (1920x1080 not 3840x2160), tech signals, typed subtitle.
+
+**FIXED: sol-open-vs-custom (Type 8)**
+- Created annotations/sol-open-vs-custom.json with Type8Annotation format:
+  category="Custom Data Collection", subcategory="Open Datasets vs Custom",
+  licensingType="Custom Collection", isCustomData=true
+- Previously showed generic fallback labels
+- Re-rendered: 3.2 MB. Verified: correct labels, "Custom Collection" badge,
+  "THIS IS CUSTOM DATA" premium label visible, proper resolution badge.
+
+**CONTENT MISMATCH (unfixed — needs new source videos):**
+- sol-egocentric: Traffic video, needs egocentric first-person footage
+- sol-vla: Traffic video, needs VLA manipulation footage
+- sol-manipulation: Traffic video, needs manipulation trajectory footage
+- sol-teleop: Traffic video, needs teleoperation footage
+
+### Root Cause Analysis
+1. composition-manifest.json maps all 5 Type 1 compositions + cs-egocentric
+   to the same datasetSlug "egocentric-activity-capture"
+2. The fetch-sample pipeline downloaded the same clip for all of them
+3. Gemini enrichment faithfully described the traffic (correct for the video,
+   wrong for the page context)
+4. Type 8 enrichment format (scene_description, technical_quality) differs
+   from the Type8Annotation interface (sceneDescription, resolution) — no
+   conversion step existed in the pipeline
+
+### Files Modified
+- public/remotion-assets/samples/cs-workplace.mp4 (replaced with barista video)
+- public/remotion-assets/enrichments/cs-workplace.json (rewritten)
+- public/remotion-assets/annotations/cs-egocentric.json (created)
+- public/remotion-assets/annotations/sol-open-vs-custom.json (created)
+- public/videos/cs-workplace.mp4 (re-rendered)
+- public/videos/cs-egocentric.mp4 (re-rendered)
+- public/videos/sol-open-vs-custom.mp4 (re-rendered)
