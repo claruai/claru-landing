@@ -371,6 +371,7 @@ function CreateLeadPanel({ onClose }: { onClose: () => void }) {
  * - Slide-over panel for creating new leads
  */
 export default function AdminLeadsTable({ leads }: AdminLeadsTableProps) {
+  const router = useRouter();
   /* ----- state ---------------------------------------------------- */
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
@@ -594,6 +595,9 @@ export default function AdminLeadsTable({ leads }: AdminLeadsTableProps) {
               <th className="px-4 py-3 text-left text-xs font-mono uppercase tracking-wider text-[var(--text-tertiary)]">
                 Use Case
               </th>
+              <th className="px-4 py-3 text-left text-xs font-mono uppercase tracking-wider text-[var(--text-tertiary)]">
+                Temp Pass
+              </th>
               {th("Status", "status")}
               {th("Date", "created_at")}
               <th className="px-4 py-3 text-left text-xs font-mono uppercase tracking-wider text-[var(--text-tertiary)]">
@@ -606,7 +610,7 @@ export default function AdminLeadsTable({ leads }: AdminLeadsTableProps) {
             {sorted.length === 0 ? (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={8}
                   className="px-4 py-12 text-center text-sm text-[var(--text-muted)]"
                 >
                   {search.trim()
@@ -640,6 +644,13 @@ export default function AdminLeadsTable({ leads }: AdminLeadsTableProps) {
                     {lead.use_case || "\u2014"}
                   </td>
 
+                  {/* Temp Password */}
+                  <td className="px-4 py-3">
+                    <code className="text-xs font-mono text-[var(--text-muted)] bg-[var(--bg-secondary)] px-2 py-1 rounded border border-[var(--border-subtle)]">
+                      {lead.name.split(" ")[0].toLowerCase()}!123
+                    </code>
+                  </td>
+
                   {/* Status badge */}
                   <td className="px-4 py-3">{statusBadge(lead.status)}</td>
 
@@ -650,12 +661,29 @@ export default function AdminLeadsTable({ leads }: AdminLeadsTableProps) {
 
                   {/* Actions */}
                   <td className="px-4 py-3">
-                    <Link
-                      href={`/admin/leads/${lead.id}`}
-                      className="text-xs text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] transition-colors duration-150"
-                    >
-                      [view]
-                    </Link>
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href={`/admin/leads/${lead.id}`}
+                        className="text-xs text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] transition-colors duration-150"
+                      >
+                        [view]
+                      </Link>
+                      <button
+                        onClick={async () => {
+                          if (!confirm(`Delete lead "${lead.name}" (${lead.email})? This will also remove their auth account and dataset access.`)) return;
+                          const res = await fetch(`/api/admin/leads/${lead.id}`, { method: "DELETE" });
+                          if (res.ok) {
+                            router.refresh();
+                          } else {
+                            const data = await res.json().catch(() => null);
+                            alert(data?.error ?? "Failed to delete lead");
+                          }
+                        }}
+                        className="text-xs text-[var(--error)] hover:text-[var(--error)]/80 transition-colors duration-150"
+                      >
+                        [delete]
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

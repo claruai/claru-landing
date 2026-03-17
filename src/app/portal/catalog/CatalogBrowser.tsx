@@ -381,21 +381,6 @@ export function CatalogBrowser({ datasets, categories }: CatalogBrowserProps) {
         </div>
       )}
 
-      {/* "Can't find what you need?" banner */}
-      <div className="mt-12 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-6 py-8 text-center">
-        <p className="text-sm font-medium text-[var(--text-secondary)] mb-1">
-          Can&apos;t find what you need?
-        </p>
-        <p className="text-xs font-mono text-[var(--text-muted)] mb-4">
-          Submit a custom data request and our team will follow up.
-        </p>
-        <Link
-          href="/portal/request"
-          className="inline-flex items-center gap-2 rounded-lg bg-[var(--accent-primary)] px-5 py-2.5 text-sm font-mono font-medium text-[var(--bg-primary)] hover:bg-[var(--accent-secondary)] transition-colors duration-200"
-        >
-          Request Data
-        </Link>
-      </div>
     </>
   );
 }

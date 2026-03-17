@@ -25,8 +25,9 @@ function PortalLoginForm() {
   const reason = searchParams.get("reason");
 
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [status, setStatus] = useState<
-    "idle" | "loading" | "success" | "error"
+    "idle" | "loading" | "error"
   >("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -38,34 +39,25 @@ function PortalLoginForm() {
 
       const supabase = getSupabaseBrowserClient();
 
-      const { error } = await supabase.auth.signInWithOtp({
+      const { error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
-        options: {
-          emailRedirectTo: `${window.location.origin}/portal/auth/callback`,
-        },
+        password,
       });
 
       if (error) {
         setStatus("error");
-        setErrorMessage("Unable to send sign-in link. Please try again.");
+        setErrorMessage("Invalid email or password. Please try again.");
         return;
       }
 
-      // Always show success regardless of whether the email exists in the
-      // system. This prevents information leakage about which emails are
-      // registered.
-      setStatus("success");
+      // Redirect to portal on success — middleware handles the rest
+      window.location.href = "/portal";
     },
-    [email]
+    [email, password]
   );
 
   // If stale cookies exist (e.g. expired refresh token), clear them
   // silently so Supabase doesn't log AuthApiError to the console.
-  // NOTE: We intentionally do NOT redirect to /portal when a valid
-  // session is detected client-side. The middleware already handles
-  // authenticated users hitting /portal/login. Redirecting here caused
-  // a loop when the browser client could refresh tokens but the
-  // server-side middleware disagreed about session validity.
   const clearStaleCookies = useCallback(async () => {
     const supabase = getSupabaseBrowserClient();
     const {
@@ -105,83 +97,76 @@ function PortalLoginForm() {
           </div>
         )}
 
-        {status === "success" ? (
-          /* Success state */
-          <div className="text-center space-y-4">
-            <div className="px-4 py-6 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg">
-              <div className="text-[var(--accent-primary)] text-3xl mb-3 font-mono">
-                {">>>"}
-              </div>
-              <h2 className="text-lg font-mono font-medium text-[var(--text-primary)] mb-2">
-                Check your email
-              </h2>
-              <p className="text-sm font-mono text-[var(--text-muted)] leading-relaxed">
-                We sent a sign-in link to{" "}
-                <span className="text-[var(--text-secondary)]">{email}</span>.
-                <br />
-                Click the link in the email to access your portal.
+        {/* Login form */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Email field */}
+          <div>
+            <label
+              htmlFor="portal-email"
+              className="block text-xs font-mono text-[var(--text-tertiary)] uppercase tracking-wider mb-2"
+            >
+              email
+            </label>
+            <input
+              id="portal-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+              autoFocus
+              disabled={status === "loading"}
+              placeholder="you@company.com"
+              className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] transition-colors duration-200 disabled:opacity-50"
+            />
+          </div>
+
+          {/* Password field */}
+          <div>
+            <label
+              htmlFor="portal-password"
+              className="block text-xs font-mono text-[var(--text-tertiary)] uppercase tracking-wider mb-2"
+            >
+              password
+            </label>
+            <input
+              id="portal-password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+              disabled={status === "loading"}
+              placeholder="••••••••"
+              className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] transition-colors duration-200 disabled:opacity-50"
+            />
+          </div>
+
+          {/* Error message */}
+          {status === "error" && errorMessage && (
+            <div className="px-4 py-3 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-lg">
+              <p className="text-sm font-mono text-[var(--error)]">
+                <span className="opacity-60">error: </span>
+                {errorMessage}
               </p>
             </div>
-            <button
-              onClick={() => setStatus("idle")}
-              className="text-sm font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors duration-200"
-            >
-              use a different email
-            </button>
-          </div>
-        ) : (
-          /* Login form */
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email field */}
-            <div>
-              <label
-                htmlFor="portal-email"
-                className="block text-xs font-mono text-[var(--text-tertiary)] uppercase tracking-wider mb-2"
-              >
-                email
-              </label>
-              <input
-                id="portal-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-                autoFocus
-                disabled={status === "loading"}
-                placeholder="you@company.com"
-                className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] transition-colors duration-200 disabled:opacity-50"
-              />
-            </div>
+          )}
 
-            {/* Error message */}
-            {status === "error" && errorMessage && (
-              <div className="px-4 py-3 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-lg">
-                <p className="text-sm font-mono text-[var(--error)]">
-                  <span className="opacity-60">error: </span>
-                  {errorMessage}
-                </p>
-              </div>
-            )}
-
-            {/* Submit button */}
-            <button
-              type="submit"
-              disabled={status === "loading"}
-              className="w-full px-4 py-3 bg-[var(--accent-primary)] text-[var(--bg-primary)] font-mono text-sm font-medium rounded-lg hover:bg-[var(--accent-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {status === "loading"
-                ? "sending link..."
-                : "sign in with magic link"}
-            </button>
-          </form>
-        )}
+          {/* Submit button */}
+          <button
+            type="submit"
+            disabled={status === "loading"}
+            className="w-full px-4 py-3 bg-[var(--accent-primary)] text-[var(--bg-primary)] font-mono text-sm font-medium rounded-lg hover:bg-[var(--accent-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {status === "loading" ? "signing in..." : "sign in"}
+          </button>
+        </form>
 
         {/* Terminal footer */}
         <div className="mt-8 text-center">
           <p className="text-xs font-mono text-[var(--text-muted)]">
-            <span className="text-[var(--accent-primary)]">$</span> passwordless
-            authentication via email
+            <span className="text-[var(--accent-primary)]">$</span> credentials
+            provided by your Claru contact
             <span className="cursor ml-1" />
           </p>
         </div>

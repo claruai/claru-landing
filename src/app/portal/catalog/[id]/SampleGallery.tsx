@@ -21,13 +21,15 @@ export interface SampleWithUrl {
 
 interface SampleGalleryProps {
   samplesWithUrls: SampleWithUrl[];
+  /** Override the annotation endpoint (default: portal). Use "/api/public/s3-annotation" for prospect pages. */
+  annotationEndpoint?: string;
 }
 
 // ---------------------------------------------------------------------------
 // SampleGallery -- Main exported grid component
 // ---------------------------------------------------------------------------
 
-export function SampleGallery({ samplesWithUrls }: SampleGalleryProps) {
+export function SampleGallery({ samplesWithUrls, annotationEndpoint }: SampleGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const handleSelect = useCallback((index: number) => {
@@ -64,6 +66,7 @@ export function SampleGallery({ samplesWithUrls }: SampleGalleryProps) {
           selectedIndex={selectedIndex}
           onClose={handleClose}
           onNavigate={handleNavigate}
+          {...(annotationEndpoint ? { annotationEndpoint } : {})}
         />
       )}
     </div>

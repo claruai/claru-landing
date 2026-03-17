@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
-import { LogOut, FolderOpen, MessageSquarePlus, Sun, Moon } from "lucide-react";
+import { LogOut, FolderOpen, Home, Sun, Moon } from "lucide-react";
 import { useTheme } from "next-themes";
 
 function getSupabaseBrowserClient() {
@@ -15,8 +15,8 @@ function getSupabaseBrowserClient() {
 }
 
 const navItems = [
-  { href: "/portal/catalog", label: "Catalog", icon: FolderOpen },
-  { href: "/portal/request", label: "Request", icon: MessageSquarePlus },
+  { href: "/portal", label: "Dashboard", icon: Home, exact: true },
+  { href: "/portal/catalog", label: "Catalog", icon: FolderOpen, exact: false },
 ];
 
 export function PortalNav() {
@@ -50,8 +50,9 @@ export function PortalNav() {
         {/* Navigation */}
         <nav className="flex items-center gap-1">
           {navItems.map((item) => {
-            const isActive =
-              pathname === item.href || pathname.startsWith(item.href + "/");
+            const isActive = item.exact
+              ? pathname === item.href
+              : pathname === item.href || pathname.startsWith(item.href + "/");
             return (
               <Link
                 key={item.href}

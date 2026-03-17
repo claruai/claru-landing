@@ -4,9 +4,17 @@ import { verifyAdminToken } from "@/lib/admin-auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 /**
+ * Generate a temp password from the lead's first name: firstname!123
+ */
+function generateTempPassword(name: string): string {
+  const firstName = name.split(" ")[0].toLowerCase();
+  return `${firstName}!123`;
+}
+
+/**
  * POST /api/admin/leads
  *
- * Creates a new lead. Requires admin authentication.
+ * Creates a new lead + Supabase auth user with temp password.
  * Body: { name, email, company?, role?, data_needs?, use_case?, admin_notes? }
  */
 export async function POST(request: NextRequest) {
@@ -43,11 +51,38 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Build insert object with optional fields
+  const supabase = createSupabaseAdminClient();
+  const tempPassword = generateTempPassword(name);
+
+  // Step 1: Create Supabase auth user with temp password
+  const { data: authUser, error: authError } =
+    await supabase.auth.admin.createUser({
+      email,
+      password: tempPassword,
+      email_confirm: true, // Skip email verification
+    });
+
+  if (authError) {
+    // User may already exist in auth
+    if (authError.message?.includes("already been registered")) {
+      return NextResponse.json(
+        { error: "A user with this email already exists" },
+        { status: 409 }
+      );
+    }
+    console.error("[POST /api/admin/leads] Auth user creation failed:", authError);
+    return NextResponse.json(
+      { error: `Failed to create auth user: ${authError.message}` },
+      { status: 500 }
+    );
+  }
+
+  // Step 2: Create lead record linked to the auth user
   const insertData: Record<string, unknown> = {
     name,
     email,
     status: "pending",
+    supabase_user_id: authUser.user.id,
   };
 
   if (typeof body.company === "string" && body.company.trim()) {
@@ -66,8 +101,6 @@ export async function POST(request: NextRequest) {
     insertData.admin_notes = body.admin_notes.trim();
   }
 
-  const supabase = createSupabaseAdminClient();
-
   const { data: lead, error } = await supabase
     .from("leads")
     .insert(insertData)
@@ -75,13 +108,16 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error) {
-    // UNIQUE violation on email
+    // UNIQUE violation on email — clean up the auth user we just created
     if (error.code === "23505") {
+      await supabase.auth.admin.deleteUser(authUser.user.id);
       return NextResponse.json(
         { error: "A lead with this email already exists" },
         { status: 409 }
       );
     }
+    // Other error — clean up auth user
+    await supabase.auth.admin.deleteUser(authUser.user.id);
     console.error("[POST /api/admin/leads]", error);
     return NextResponse.json(
       { error: "Failed to create lead" },
@@ -89,5 +125,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  return NextResponse.json({ lead }, { status: 201 });
+  return NextResponse.json(
+    { lead, tempPassword },
+    { status: 201 }
+  );
 }
