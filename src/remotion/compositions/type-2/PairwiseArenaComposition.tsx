@@ -212,8 +212,6 @@ const VideoPanel: React.FC<{
   isWinner: boolean;
   fadeInOpacity: number;
   selectionProgress: number;
-  frame: number;
-  fps: number;
 }> = ({
   src,
   label,
@@ -221,8 +219,6 @@ const VideoPanel: React.FC<{
   isWinner,
   fadeInOpacity,
   selectionProgress,
-  frame,
-  fps,
 }) => {
   // Dim the non-selected side
   const dimAmount = isWinner
@@ -355,7 +351,6 @@ const PairwiseArenaComposition: React.FC<PairwiseArenaCompositionProps> = ({
   // Pre-check video availability to avoid delayRender timeout on 404
   const [videoAAvailable, setVideoAAvailable] = useState(false);
   const [videoBAvailable, setVideoBAvailable] = useState(false);
-  const [checked, setChecked] = useState(false);
   const [handle] = useState(() => delayRender("Checking video availability"));
 
   useEffect(() => {
@@ -368,7 +363,6 @@ const PairwiseArenaComposition: React.FC<PairwiseArenaCompositionProps> = ({
       if (cancelled) return;
       setVideoAAvailable(resA?.ok ?? false);
       setVideoBAvailable(resB?.ok ?? false);
-      setChecked(true);
       continueRender(handle);
     }
     check();
@@ -476,8 +470,6 @@ const PairwiseArenaComposition: React.FC<PairwiseArenaCompositionProps> = ({
           isWinner={annotation.winner === "A"}
           fadeInOpacity={fadeIn}
           selectionProgress={selectionProgress}
-          frame={frame}
-          fps={fps}
         />
         <VideoPanel
           src={videoBAvailable ? videoBSrc : ""}
@@ -486,8 +478,6 @@ const PairwiseArenaComposition: React.FC<PairwiseArenaCompositionProps> = ({
           isWinner={annotation.winner === "B"}
           fadeInOpacity={fadeIn}
           selectionProgress={selectionProgress}
-          frame={frame}
-          fps={fps}
         />
       </div>
 

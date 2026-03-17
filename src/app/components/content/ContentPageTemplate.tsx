@@ -16,7 +16,6 @@ import ProblemSection from "./ProblemSection";
 import DatasetComparison from "./DatasetComparison";
 import InlineCaseStudy from "./InlineCaseStudy";
 import DatasetShowcase from "@/app/components/prospect/DatasetShowcase";
-import VideoShowcase from "@/app/components/prospect/VideoShowcase";
 import DataPreview from "./DataPreview";
 import WorkforceStats from "@/app/components/prospect/WorkforceStats";
 import ContentFAQ from "./ContentFAQ";

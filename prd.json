@@ -205,7 +205,7 @@
         "Two videos side by side (50/50 split) -- Video A left, Video B right",
         "Prompt text types out at top from real annotation metadata.prompt_text",
         "Winner from real annotation data (betterVideoId, selectedAnswer, or bestVideo)",
-        "Selected video gets subtle accent border glow (#92B090) \u2014 non-selected dims. NO crown/trophy. Feels like a research interface.",
+        "Selected video gets subtle accent border glow (#92B090) — non-selected dims. NO crown/trophy. Feels like a research interface.",
         "Loser gets subtle dim/desaturation",
         "For cs-vid-eval: shows config IDs ('Config 21 vs Config 41') from metadata.key",
         "For cs-prompt-bench: shows category label ('Kayaking') and category verification checkmark from videoBelongsToCategory",
@@ -664,7 +664,7 @@
       "title": "Code Review",
       "description": "Comprehensive code review of all new files.",
       "priority": "high",
-      "passes": false,
+      "passes": true,
       "dependencies": [
         "US-026"
       ],

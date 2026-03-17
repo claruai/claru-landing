@@ -4,7 +4,6 @@ import {
   interpolate,
   useCurrentFrame,
   useVideoConfig,
-  spring,
   staticFile,
 } from "remotion";
 import keyframes from "../../public/remotion-assets/video-annotations.json";

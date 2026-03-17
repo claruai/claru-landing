@@ -252,3 +252,89 @@ US-021, US-022 set to passes: true
 - npx tsc --noEmit passes (0 errors)
 - npm run build succeeds
 - prd-remotion-media.json US-024, US-025, US-026 set to status=done, passes=true
+
+---
+
+## US-027: Comprehensive Code Review (2026-03-16)
+
+### Files Reviewed (10 groups)
+
+1. **src/remotion/shared/ (10 components)**
+   - DesignTokens.ts: Consistent token object with colors, fonts, bbox categories. Exported as `const`.
+   - All 10 shared components properly import and use TOKENS — no hardcoded colors found.
+   - Clean interfaces exported from each file.
+   - BoundingBox, MetadataPanel, ProgressBar, RadarChart, TaxonomyTree all use Remotion's interpolate/useCurrentFrame correctly.
+   - VerdictBadge explicitly documents "No crown, trophy, stamp, or flash" in header comment.
+
+2. **src/remotion/compositions/type-{1-8}/ (8 composition templates)**
+   - All 8 compositions load annotations with graceful fallbacks (try/catch, FALLBACK constants, PlaceholderFallback components).
+   - Type 1: delayRender/continueRender pattern, HEAD request pre-check for video.
+   - Type 2: delayRender/continueRender, HEAD pre-check for both A/B videos, FALLBACK_TYPE2_ANNOTATION.
+   - Type 3: useEffect async fetch with cancelled flag, FALLBACK_TYPE3.
+   - Type 4: Hardcoded FALLBACK_OBJECT_IDENTITY and FALLBACK_PRODUCT_IMAGE from real data.
+   - Type 5: getType5Annotation() with fallback annotations keyed by compositionId.
+   - Type 6: require() with try/catch fallback to FALLBACK_DATA.
+   - Type 7: FALLBACK_ANNOTATIONS record with DEFAULT_ANNOTATION fallback.
+   - Type 8: require() with try/catch, FALLBACK_TYPE8_ANNOTATION, HEAD pre-check.
+   - No crown/trophy/game-show elements in any composition.
+
+3. **scripts/gemini-enrich.ts**
+   - Processes all 22 compositions. Types 1, 8 (annotationSource: "gemini") generate full data; Types 2-7 get supplementary enrichment.
+   - Zod schemas for all 8 types with strict validation.
+   - Retry logic with exponential backoff (5 retries, 2s base).
+   - Concurrency limit of 3 with batch delays.
+   - Saves unvalidated responses for debugging.
+
+4. **scripts/extract-annotations.ts**
+   - Per-type extraction functions (extractType2 through extractType7) correctly map raw Supabase annotation JSON to typed schemas.
+   - Type 6 mapQualityScore correctly maps string values to numeric scores.
+   - Zod validation for all 6 real-annotation types.
+   - Graceful S3 error handling with timeouts.
+
+5. **scripts/render-all.ts**
+   - Batch rendering with concurrent spawned processes (batch size 2).
+   - Auto re-render at CRF 28 if file exceeds 15 MB.
+   - Summary table with status tracking.
+
+6. **scripts/composition-manifest.json**
+   - 22 entries confirmed: Type 1 (5), Type 2 (4), Type 3 (1), Type 4 (2), Type 5 (3), Type 6 (1), Type 7 (4), Type 8 (2).
+   - All annotationSource values correct: "gemini" for Types 1, 8; "real" for Types 2-7.
+
+7. **src/app/components/media/ (3 components)**
+   - VideoHero.tsx: "use client", IntersectionObserver play/pause, graceful error fallback.
+   - AnimatedMetrics.tsx: "use client", framer-motion useInView, no server-component violations.
+   - ProcessTimeline.tsx: "use client", framer-motion, responsive desktop/mobile layouts.
+
+8. **src/app/case-studies/[slug]/CaseStudyDetailClient.tsx**
+   - "use client" — correctly client component.
+   - Conditional VideoHero, AnimatedMetrics, ProcessTimeline only when cs.videoComposition present.
+   - No framer-motion leaking into server components.
+
+9. **src/app/components/content/ContentPageTemplate.tsx**
+   - Server component (no "use client").
+   - VideoHero (client) imported and conditionally rendered — no boundary violation.
+   - Removed unused VideoShowcase import.
+
+10. **src/data/content-pages/types.ts**
+    - videoSrc?: string properly added as optional field on ContentPageData.
+    - Clean interface with JSDoc documentation.
+
+### Issues Found and Fixed
+
+1. **Unused import**: `spring` in EgocentricPipeline.tsx — removed.
+2. **Unused import**: `VideoShowcase` in ContentPageTemplate.tsx — removed.
+3. **Unused props**: `frame` and `fps` in PairwiseArenaComposition VideoPanel — removed from interface, destructuring, and call sites.
+4. **Unused state**: `checked`/`setChecked` in PairwiseArenaComposition — removed.
+
+### TypeScript Strictness
+- No `any` types in any reviewed file.
+- No unsafe type assertions (all `as` casts use proper interfaces).
+- Zod schemas provide runtime validation at pipeline boundaries.
+
+### Verification
+- npm run build: PASSES
+- npm run lint: No new errors/warnings in reviewed files (78 pre-existing errors in unrelated files)
+- Composition manifest: 22/22 entries verified
+
+### prd.json Updated
+US-027 set to passes: true
