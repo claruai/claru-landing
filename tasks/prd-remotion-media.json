@@ -38,7 +38,9 @@
       "passes": true,
       "priority": "high",
       "estimation": "M",
-      "dependencies": ["US-001"]
+      "dependencies": [
+        "US-001"
+      ]
     },
     {
       "id": "US-004",
@@ -48,7 +50,9 @@
       "passes": true,
       "priority": "high",
       "estimation": "M",
-      "dependencies": ["US-002"],
+      "dependencies": [
+        "US-002"
+      ],
       "acceptance_criteria": [
         "scripts/render-all.ts is a TypeScript script runnable with tsx",
         "Reads composition-manifest.json and iterates all 22 compositions",
@@ -71,7 +75,9 @@
       "passes": true,
       "priority": "high",
       "estimation": "L",
-      "dependencies": ["US-002"],
+      "dependencies": [
+        "US-002"
+      ],
       "acceptance_criteria": [
         "scripts/gemini-enrich.ts is a TypeScript script runnable with tsx",
         "Script reads composition-manifest.json and processes ALL 22 compositions",
@@ -99,7 +105,9 @@
       "passes": true,
       "priority": "high",
       "estimation": "L",
-      "dependencies": ["US-002"],
+      "dependencies": [
+        "US-002"
+      ],
       "acceptance_criteria": [
         "scripts/extract-annotations.ts is a TypeScript script runnable with tsx",
         "Script reads composition-manifest.json and filters to annotationSource === real",
@@ -122,7 +130,10 @@
       "passes": true,
       "priority": "high",
       "estimation": "L",
-      "dependencies": ["US-001", "US-002"],
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
       "acceptance_criteria": [
         "MultiGenGalleryComposition.tsx accepts { compositionId: string } props",
         "Renders 2x4 grid of 8 generation images from annotation JSON metadata.generations array",
@@ -139,6 +150,32 @@
       ]
     },
     {
+      "id": "US-009",
+      "title": "Type 5 -- Classification Pipeline Composition",
+      "description": "Build ClassificationPipelineComposition showing video with animated taxonomy tree expanding from root to leaf. Uses real category/subcategory annotation data from Video Classification and Game Environment datasets.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "L",
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
+      "acceptance_criteria": [
+        "ClassificationPipelineComposition.tsx accepts { compositionId: string } props",
+        "Video plays on the left (60% width), taxonomy tree animates on the right (40% width) using shared TaxonomyTree",
+        "cs-vid-classify: dual taxonomy -- Content (People -> Technology & Computing -> Smartphones & Gadget Use) AND Visual Style (Portrait photography -> Urban outdoor portraits)",
+        "cs-game-capture/sol-sim2real: game taxonomy with 25-game catalog fanning out then narrowing to selected game",
+        "Caption text from metadata.caption types out below the video",
+        "Pipeline stages animate: raw capture -> classification -> review -> approved with checkmarks",
+        "Timeline: 0-30 fade, 30-90 first tree, 90-180 second tree (if dual), 180-270 caption + pipeline, 270-360 hold",
+        "Uses shared TaxonomyTree, BottomBar, VerdictBadge for approved status, TechMetadataOverlay",
+        "types.ts with Type5Annotation containing taxonomies, caption, pipelineStages, gameTitle, gameCatalog",
+        "Graceful fallback when annotation data not yet extracted",
+        "TypeScript strict mode passes with no new errors"
+      ]
+    },
+    {
       "id": "US-006",
       "title": "Type 2 -- Pairwise Arena Composition",
       "description": "Build PairwiseArenaComposition showing split-screen A vs B comparison with both videos playing simultaneously and selection highlight. Uses real annotation data showing which video was preferred.",
@@ -146,7 +183,10 @@
       "passes": true,
       "priority": "high",
       "estimation": "L",
-      "dependencies": ["US-001", "US-002"],
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
       "acceptance_criteria": [
         "PairwiseArenaComposition.tsx accepts { compositionId: string } props",
         "Renders two videos side by side (50/50 split) -- Video A left, Video B right",
@@ -170,7 +210,10 @@
       "passes": true,
       "priority": "high",
       "estimation": "L",
-      "dependencies": ["US-001", "US-002"],
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
       "acceptance_criteria": [
         "SafetyShieldComposition.tsx accepts { compositionId: string } props",
         "Content area shows blurred/pixelated visual (never actual unsafe content) with scanning line animation",
@@ -186,6 +229,33 @@
       ]
     },
     {
+      "id": "US-008",
+      "title": "Type 4 -- Detection + Annotation Composition",
+      "description": "Build DetectionAnnotationComposition showing video/image with bounding boxes drawing progressively, labels appearing, and confidence scores. Uses real bbox annotation data from Object & Face Identity and Product Image datasets.",
+      "status": "done",
+      "passes": true,
+      "priority": "high",
+      "estimation": "L",
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
+      "acceptance_criteria": [
+        "DetectionAnnotationComposition.tsx accepts { compositionId: string } props",
+        "For video sources (Object Identity): plays video, then freeze-frames at annotated frame",
+        "For image sources (Product Image): displays image with animated zoom-in",
+        "Bounding boxes draw progressively using shared BoundingBox with confidence prop",
+        "Object Identity (cs-object-id): face bboxes from segment[].bbox, class:face, score:0.825, identity match lines, Same person? YES verdict",
+        "Product Image (cs-fashion): product bbox from files[1].metadata coords, typed captions, brand/category labels",
+        "Caption text types out letter-by-letter beneath media",
+        "Timeline: 0-20 fade, 20-60 bboxes draw, 60-90 labels+scores, 90-150 captions, 150-210 identity/brand, 210-270 hold, 270-300 fade",
+        "Includes TechMetadataOverlay, BottomBar",
+        "types.ts with Type4Annotation supporting identity match and product annotation",
+        "Graceful fallback with hardcoded real annotation data",
+        "TypeScript strict mode passes with no new errors"
+      ]
+    },
+    {
       "id": "US-012",
       "title": "Type 8 -- Cinematic Showcase Composition",
       "description": "Build CinematicShowcaseComposition showing 4K footage with minimal elegant overlay emphasizing technical quality signals. Cinematic 2.39:1 letterbox, resolution badge, codec/fps/color depth, category labels, film grain, Gemini scene description typed subtitle.",
@@ -193,7 +263,10 @@
       "passes": true,
       "priority": "medium",
       "estimation": "L",
-      "dependencies": ["US-001", "US-002"],
+      "dependencies": [
+        "US-001",
+        "US-002"
+      ],
       "acceptance_criteria": [
         "CinematicShowcaseComposition.tsx accepts { compositionId: string } props",
         "Video plays full-bleed with letterbox bars (cinematic 2.39:1 within 16:9 frame)",

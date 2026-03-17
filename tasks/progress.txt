@@ -94,6 +94,20 @@
   - npx tsc --noEmit passes
   - prd-remotion-media.json US-003 status=done, passes=true
 
+2026-03-16 | US-008 | Type 4 -- Detection + Annotation Composition (replace placeholder)
+  - Replaced placeholder DetectionAnnotationComposition.tsx with full implementation
+  - Created src/remotion/compositions/type-4/types.ts (Type4Annotation, DetectionSegment, ProductBBox, IdentityMatches, isObjectIdentity, isProductImage)
+  - Object Identity (cs-object-id): plays video, draws face bboxes from real segment[].bbox ([965,222,1390,829]), shows class:"face", score:0.825, identity match lines with "Same person? YES" verdict via SVG
+  - Product Image (cs-fashion): displays image with zoom-in, draws product bbox from real files[1].metadata ({x1:175.26, y1:64.57, x2:365.51, y2:317.09}), types captions letter-by-letter, brand/category labels slide in
+  - Bboxes draw progressively using shared BoundingBox with confidence prop, staggered per segment
+  - Caption types letter-by-letter via TypewriterText sub-component with blinking cursor
+  - Timeline: 0-20 fade in, 20-60 bboxes draw, 60-90 labels+scores, 90-150 captions, 150-210 identity/brand metadata, 210-270 hold, 270-300 fade out
+  - Includes TechMetadataOverlay (codec, resolution, fps, duration) and BottomBar with phase labels
+  - Uses VerdictBadge for identity match confirmation ("MATCH CONFIRMED" badge with glow)
+  - Graceful fallback: hardcoded real annotation data from media-asset-audit.md when JSON not yet extracted
+  - npx tsc --noEmit passes (only pre-existing EgocentricPipeline.tsx errors)
+  - prd-remotion-media.json US-008 status=done, passes=true
+
 2026-03-16 | US-006 | Type 2 -- Pairwise Arena Composition (replace placeholder)
   - Replaced placeholder PairwiseArenaComposition.tsx with full split-screen A vs B implementation
   - Two videos side by side (50/50 split) with Video/staticFile loading + graceful fallback
