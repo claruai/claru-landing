@@ -121,6 +121,14 @@ export default function ProofOfWork() {
             </Link>
             <span className="hidden sm:inline text-[var(--text-muted)] font-mono text-xs">|</span>
             <Link
+              href="/solutions"
+              className="inline-flex items-center gap-2 text-[var(--text-secondary)] font-mono text-sm hover:text-[var(--accent-primary)] hover:gap-3 transition-all duration-300 group"
+            >
+              Browse solutions
+              <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </Link>
+            <span className="hidden sm:inline text-[var(--text-muted)] font-mono text-xs">|</span>
+            <Link
               href="/data-catalog"
               className="inline-flex items-center gap-2 text-[var(--text-secondary)] font-mono text-sm hover:text-[var(--accent-primary)] hover:gap-3 transition-all duration-300 group"
             >
