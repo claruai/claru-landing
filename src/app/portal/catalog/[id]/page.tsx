@@ -9,6 +9,18 @@ import type { Dataset, DatasetCategory, DatasetSample } from "@/types/data-catal
 
 import { SampleGallery } from "./SampleGallery";
 
+/** Recursively replace any string containing "s3://" with "[redacted]". */
+function scrubS3Urls(value: unknown): unknown {
+  if (typeof value === "string") return value.includes("s3://") ? "[redacted]" : value;
+  if (Array.isArray(value)) return value.map(scrubS3Urls);
+  if (value !== null && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([k, v]) => [k, scrubS3Urls(v)])
+    );
+  }
+  return value;
+}
+
 // =============================================================================
 // Dataset Detail Page (Server Component)
 // Route: /portal/catalog/[id]
@@ -124,8 +136,12 @@ export default async function DatasetDetailPage({
   // Pair samples with their resolved URLs for the client component.
   // Coerce null signed URLs to empty string so the gallery can handle
   // the "no preview" state without nullable types.
+  // Also scrub any s3:// paths from metadata_json before sending to client.
   const samplesWithUrls = samplesList.map((sample, i) => ({
-    sample,
+    sample: {
+      ...sample,
+      metadata_json: (scrubS3Urls(sample.metadata_json) ?? {}) as Record<string, unknown>,
+    },
     signedUrl: signedUrls[i] ?? "",
   }));
 

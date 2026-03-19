@@ -48,6 +48,27 @@ const SENSITIVE_PROJECT_KEYS = new Set([
   "templateData", "configuration",
 ]);
 
+/**
+ * Recursively walk any JSON value and replace strings containing "s3://"
+ * with "[redacted]" so internal bucket paths never reach the client.
+ */
+function scrubS3Urls(value: unknown): unknown {
+  if (typeof value === "string") {
+    return value.includes("s3://") ? "[redacted]" : value;
+  }
+  if (Array.isArray(value)) {
+    return value.map(scrubS3Urls);
+  }
+  if (value !== null && typeof value === "object") {
+    const result: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      result[k] = scrubS3Urls(v);
+    }
+    return result;
+  }
+  return value;
+}
+
 function stripSensitiveFields(data: Record<string, unknown>): Record<string, unknown> {
   const cleaned: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(data)) {
@@ -149,7 +170,7 @@ export async function POST(request: NextRequest) {
       // - The requested objectKey matches the stored s3_annotation_key
       //   (if the key changed, the cache is stale)
       if (cachedAt && storedKey === objectKey) {
-        return NextResponse.json({ annotation: stripSensitiveFields(metadata), cached: true });
+        return NextResponse.json({ annotation: scrubS3Urls(stripSensitiveFields(metadata)), cached: true });
       }
     }
     // If sample not found or cache miss, fall through to S3 fetch
@@ -183,5 +204,5 @@ export async function POST(request: NextRequest) {
   }
 
   // 6. Strip sensitive fields (costs, PII) before returning to leads
-  return NextResponse.json({ annotation: stripSensitiveFields(annotationData), cached: false });
+  return NextResponse.json({ annotation: scrubS3Urls(stripSensitiveFields(annotationData)), cached: false });
 }
