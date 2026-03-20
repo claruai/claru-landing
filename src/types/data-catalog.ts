@@ -137,6 +137,38 @@ export interface LeadCustomSample {
 }
 
 // ---------------------------------------------------------------------------
+// Unified Search Result (discriminated union for catalog vs full_corpus)
+// ---------------------------------------------------------------------------
+
+interface BaseSearchResult {
+  id: string;
+  similarity: number;
+  description: string | null;
+  signed_url: string | null;
+}
+
+export interface CatalogSearchResult extends BaseSearchResult {
+  source: 'catalog';
+  dataset_id: string;
+  dataset_name: string;
+  environments: string[];
+  activities: string[];
+  objects: string[];
+  camera_perspective: string | null;
+  mime_type: string;
+}
+
+export interface FullCorpusSearchResult extends BaseSearchResult {
+  source: 'full_corpus';
+  s3_bucket: string;
+  s3_key: string;
+  caption_text: string | null;
+  enrichment_source: string | null;
+}
+
+export type UnifiedSearchResult = CatalogSearchResult | FullCorpusSearchResult;
+
+// ---------------------------------------------------------------------------
 // Public API Response Types
 // ---------------------------------------------------------------------------
 
