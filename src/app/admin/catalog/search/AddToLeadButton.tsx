@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { UserPlus, Check, Loader2, X, ChevronDown } from "lucide-react";
+import { UserPlus, Check, Loader2, ChevronDown } from "lucide-react";
 
 // ---------------------------------------------------------------------------
 // Types
