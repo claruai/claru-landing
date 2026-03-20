@@ -406,7 +406,7 @@
         "Typecheck passes"
       ],
       "priority": 25,
-      "passes": false,
+      "passes": true,
       "notes": "UAT: admin portal UI only, no direct DB access"
     }
   ]
