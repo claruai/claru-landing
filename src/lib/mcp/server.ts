@@ -1,5 +1,10 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { generateEmbedding } from "@/lib/embeddings/openai";
+import { getS3SignedUrl } from "@/lib/s3/presigner";
+import { scrubS3Urls } from "@/lib/scrub-s3-urls";
+import type { AgentContext } from "@/lib/enrichment/types";
 
 /**
  * Create and configure the MCP server with all catalog tools.
@@ -11,17 +16,90 @@ export function createMcpServer(): McpServer {
     { capabilities: { tools: {} } },
   );
 
-  // Test tool — will be replaced/extended by US-010, US-011, US-012
-  server.tool(
-    "echo",
-    "Echo back the input (test tool)",
-    { message: z.string().describe("Message to echo") },
-    async ({ message }) => ({
-      content: [{ type: "text", text: `Echo: ${message}` }],
-    }),
-  );
+  registerSearchCatalog(server);
 
   return server;
+}
+
+// ---------------------------------------------------------------------------
+// search_catalog tool
+// ---------------------------------------------------------------------------
+
+function registerSearchCatalog(server: McpServer) {
+  server.tool(
+    "search_catalog",
+    "Semantic search over annotated dataset samples. Returns samples ranked by relevance to the query.",
+    {
+      query: z.string().describe("Natural language search query"),
+      limit: z.number().min(1).max(50).default(10).describe("Max results (default 10, max 50)"),
+      dataset_id: z.string().uuid().optional().describe("Optional: restrict to a single dataset"),
+    },
+    async ({ query, limit, dataset_id }) => {
+      const supabase = createSupabaseAdminClient();
+
+      // Embed the query
+      const queryEmbedding = await generateEmbedding(query);
+
+      // Call match_samples RPC
+      const { data: matches, error } = await supabase.rpc("match_samples", {
+        query_embedding: queryEmbedding,
+        match_count: limit,
+        filter_dataset_id: dataset_id ?? null,
+      });
+
+      if (error) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: error.message }) }],
+        };
+      }
+
+      if (!matches || matches.length === 0) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ results: [], message: "No samples found matching query" }) }],
+        };
+      }
+
+      // Generate signed URLs and format results
+      const results = await Promise.all(
+        matches.map(async (match: {
+          sample_id: string;
+          dataset_id: string;
+          dataset_name: string;
+          similarity: number;
+          agent_context: AgentContext | null;
+          s3_object_key: string | null;
+          mime_type: string;
+        }) => {
+          let signed_url: string | null = null;
+          if (match.s3_object_key) {
+            signed_url = await getS3SignedUrl(match.s3_object_key, 3600);
+          }
+
+          const ctx = match.agent_context;
+          return {
+            sample_id: match.sample_id,
+            dataset_id: match.dataset_id,
+            dataset_name: match.dataset_name,
+            similarity: Math.round(match.similarity * 1000) / 1000,
+            scene_summary: ctx?.scene_summary ?? null,
+            environments: ctx?.environments ?? [],
+            activities: ctx?.activities ?? [],
+            objects: ctx?.objects ?? [],
+            camera_perspective: ctx?.camera_perspective ?? null,
+            signed_url,
+            mime_type: match.mime_type,
+          };
+        }),
+      );
+
+      // Scrub any leaked S3 URLs
+      const scrubbed = scrubS3Urls({ results });
+
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify(scrubbed) }],
+      };
+    },
+  );
 }
 
 // ---------------------------------------------------------------------------
