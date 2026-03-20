@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Search, Loader2, Copy, Check, ExternalLink, UserPlus, X, ChevronDown } from "lucide-react";
 import AddToLeadButton from "./AddToLeadButton";
@@ -14,18 +15,28 @@ interface Dataset {
   name: string;
 }
 
-interface SearchResult {
-  sample_id: string;
-  dataset_id: string;
-  dataset_name: string;
+type SearchMode = "catalog" | "full_corpus" | "both";
+
+/** Unified result from the search API (discriminated by source) */
+interface UnifiedResult {
+  source: "catalog" | "full_corpus";
+  id: string;
   similarity: number;
-  scene_summary: string | null;
-  environments: string[];
-  activities: string[];
-  objects: string[];
-  camera_perspective: string | null;
+  description: string | null;
   signed_url: string | null;
-  mime_type: string;
+  // catalog
+  dataset_id?: string;
+  dataset_name?: string;
+  environments?: string[];
+  activities?: string[];
+  objects?: string[];
+  camera_perspective?: string | null;
+  mime_type?: string;
+  // full_corpus
+  s3_bucket?: string;
+  s3_key?: string;
+  caption_text?: string | null;
+  enrichment_source?: string | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -46,28 +57,57 @@ const EXAMPLE_QUERIES = [
 
 export default function CatalogSearchClient({
   datasets,
+  buckets,
+  videoIndexCount,
 }: {
   datasets: Dataset[];
+  buckets: string[];
+  videoIndexCount: number;
 }) {
-  const [query, setQuery] = useState("");
-  const [datasetFilter, setDatasetFilter] = useState("");
-  const [results, setResults] = useState<SearchResult[] | null>(null);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Init from URL params
+  const [query, setQuery] = useState(searchParams.get("q") ?? "");
+  const [mode, setMode] = useState<SearchMode>(
+    (searchParams.get("mode") as SearchMode) || "catalog",
+  );
+  const [datasetFilter, setDatasetFilter] = useState(searchParams.get("dataset") ?? "");
+  const [bucketFilter, setBucketFilter] = useState(searchParams.get("bucket") ?? "");
+  const [results, setResults] = useState<UnifiedResult[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
-  const toggleSelected = useCallback((sampleId: string) => {
+  const fullCorpusDisabled = videoIndexCount === 0;
+
+  const toggleSelected = useCallback((id: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
-      if (next.has(sampleId)) next.delete(sampleId);
-      else next.add(sampleId);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   }, []);
 
+  // Sync URL params
+  const updateUrl = useCallback(
+    (q: string, m: SearchMode, ds: string, bk: string) => {
+      const params = new URLSearchParams();
+      if (q) params.set("q", q);
+      if (m !== "catalog") params.set("mode", m);
+      if (ds) params.set("dataset", ds);
+      if (bk) params.set("bucket", bk);
+      const qs = params.toString();
+      router.replace(`/admin/catalog/search${qs ? `?${qs}` : ""}`, { scroll: false });
+    },
+    [router],
+  );
+
   const runSearch = useCallback(
-    async (searchQuery: string) => {
+    async (searchQuery: string, searchMode?: SearchMode) => {
       if (!searchQuery.trim()) return;
+      const m = searchMode ?? mode;
 
       setLoading(true);
       setError(null);
@@ -80,7 +120,9 @@ export default function CatalogSearchClient({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             query: searchQuery,
-            dataset_id: datasetFilter || undefined,
+            mode: m,
+            dataset_id: m === "catalog" || m === "both" ? datasetFilter || undefined : undefined,
+            s3_bucket: m === "full_corpus" || m === "both" ? bucketFilter || undefined : undefined,
             limit: 20,
           }),
         });
@@ -98,17 +140,34 @@ export default function CatalogSearchClient({
         setLoading(false);
       }
     },
-    [datasetFilter],
+    [mode, datasetFilter, bucketFilter],
   );
+
+  // Auto-run search from URL params on mount
+  const hasRun = useRef(false);
+  useEffect(() => {
+    if (!hasRun.current && query.trim()) {
+      hasRun.current = true;
+      runSearch(query);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    updateUrl(query, mode, datasetFilter, bucketFilter);
     runSearch(query);
   };
 
   const handleExampleClick = (example: string) => {
     setQuery(example);
+    updateUrl(example, mode, datasetFilter, bucketFilter);
     runSearch(example);
+  };
+
+  const handleModeChange = (newMode: SearchMode) => {
+    setMode(newMode);
+    updateUrl(query, newMode, datasetFilter, bucketFilter);
+    if (query.trim()) runSearch(query, newMode);
   };
 
   return (
@@ -149,6 +208,29 @@ export default function CatalogSearchClient({
       </header>
 
       <div className="max-w-5xl mx-auto px-6 py-8">
+        {/* Mode toggle */}
+        <div className="flex items-center gap-1 mb-4">
+          {(["catalog", "full_corpus", "both"] as const).map((m) => (
+            <button
+              key={m}
+              onClick={() => handleModeChange(m)}
+              disabled={m !== "catalog" && fullCorpusDisabled}
+              className={`px-3 py-1.5 text-xs font-mono rounded-md border transition-colors ${
+                mode === m
+                  ? "bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] border-[var(--accent-primary)]/30"
+                  : "bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-subtle)] hover:text-[var(--text-secondary)] hover:border-[var(--text-muted)]"
+              } ${m !== "catalog" && fullCorpusDisabled ? "opacity-40 cursor-not-allowed" : ""}`}
+            >
+              {m === "catalog" ? "Catalog Samples" : m === "full_corpus" ? "Full Corpus" : "Both"}
+            </button>
+          ))}
+          {fullCorpusDisabled && (
+            <span className="text-[10px] font-mono text-[var(--text-muted)] ml-2">
+              (video_index empty)
+            </span>
+          )}
+        </div>
+
         {/* Search form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex gap-3">
@@ -158,22 +240,40 @@ export default function CatalogSearchClient({
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Semantic search across all samples..."
+                placeholder={mode === "full_corpus" ? "Search full video corpus..." : "Semantic search across samples..."}
                 className="w-full pl-10 pr-4 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150"
               />
             </div>
-            <select
-              value={datasetFilter}
-              onChange={(e) => setDatasetFilter(e.target.value)}
-              className="px-3 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150"
-            >
-              <option value="">all datasets</option>
-              {datasets.map((ds) => (
-                <option key={ds.id} value={ds.id}>
-                  {ds.name}
-                </option>
-              ))}
-            </select>
+            {/* Dataset filter (catalog/both mode) */}
+            {(mode === "catalog" || mode === "both") && (
+              <select
+                value={datasetFilter}
+                onChange={(e) => setDatasetFilter(e.target.value)}
+                className="px-3 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150"
+              >
+                <option value="">all datasets</option>
+                {datasets.map((ds) => (
+                  <option key={ds.id} value={ds.id}>
+                    {ds.name}
+                  </option>
+                ))}
+              </select>
+            )}
+            {/* Bucket filter (full_corpus/both mode) */}
+            {(mode === "full_corpus" || mode === "both") && buckets.length > 0 && (
+              <select
+                value={bucketFilter}
+                onChange={(e) => setBucketFilter(e.target.value)}
+                className="px-3 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150"
+              >
+                <option value="">all buckets</option>
+                {buckets.map((b) => (
+                  <option key={b} value={b}>
+                    {b}
+                  </option>
+                ))}
+              </select>
+            )}
             <button
               type="submit"
               disabled={loading || !query.trim()}
@@ -251,9 +351,9 @@ export default function CatalogSearchClient({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {results.map((r) => (
                 <ResultCard
-                  key={r.sample_id}
+                  key={r.id}
                   result={r}
-                  isSelected={selected.has(r.sample_id)}
+                  isSelected={selected.has(r.id)}
                   onToggleSelect={toggleSelected}
                 />
               ))}
@@ -262,9 +362,10 @@ export default function CatalogSearchClient({
         )}
 
         {/* Floating bulk action bar */}
-        {selected.size > 0 && (
+        {selected.size > 0 && results && (
           <BulkActionBar
             selectedIds={selected}
+            results={results}
             onClear={() => setSelected(new Set())}
           />
         )}
@@ -282,12 +383,15 @@ function ResultCard({
   isSelected,
   onToggleSelect,
 }: {
-  result: SearchResult;
+  result: UnifiedResult;
   isSelected: boolean;
   onToggleSelect: (id: string) => void;
 }) {
   const similarityPct = Math.round(result.similarity * 100);
-  const isVideo = result.mime_type?.startsWith("video/");
+  const isFC = result.source === "full_corpus";
+  const isVideo = isFC
+    ? result.s3_key?.match(/\.(mp4|webm|mov)$/i)
+    : result.mime_type?.startsWith("video/");
   const [copied, setCopied] = useState<"id" | "url" | null>(null);
 
   const copyToClipboard = useCallback(async (text: string, type: "id" | "url") => {
@@ -311,7 +415,7 @@ function ResultCard({
           <input
             type="checkbox"
             checked={isSelected}
-            onChange={() => onToggleSelect(result.sample_id)}
+            onChange={() => onToggleSelect(result.id)}
             className="sr-only peer"
           />
           <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
@@ -341,7 +445,7 @@ function ResultCard({
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={result.signed_url}
-              alt={result.scene_summary ?? "Sample"}
+              alt={result.description ?? "Sample"}
               className="w-full h-full object-cover"
             />
           )
@@ -354,30 +458,36 @@ function ResultCard({
         <span className="absolute top-2 right-2 px-2 py-0.5 text-xs font-mono rounded bg-black/60 text-[var(--accent-primary)]">
           {similarityPct}%
         </span>
+        {/* FULL CORPUS badge */}
+        {isFC && (
+          <span className="absolute bottom-2 left-2 px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-purple-600/80 text-white uppercase tracking-wider">
+            full corpus
+          </span>
+        )}
       </div>
 
       {/* Content */}
       <div className="p-3 space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-xs font-mono text-[var(--text-muted)] truncate">
-            {result.dataset_name}
+            {isFC ? result.s3_bucket : result.dataset_name}
           </span>
         </div>
 
-        {result.scene_summary ? (
+        {result.description ? (
           <p className="text-sm text-[var(--text-secondary)] line-clamp-2">
-            {result.scene_summary}
+            {result.description}
           </p>
         ) : (
           <p className="text-sm text-[var(--text-muted)] italic">
-            Not yet enriched
+            {isFC ? "No caption" : "Not yet enriched"}
           </p>
         )}
 
-        {/* Tags */}
-        {(result.environments.length > 0 || result.activities.length > 0) && (
+        {/* Tags — catalog only */}
+        {!isFC && ((result.environments?.length ?? 0) > 0 || (result.activities?.length ?? 0) > 0) && (
           <div className="flex flex-wrap gap-1">
-            {result.environments.slice(0, 2).map((env) => (
+            {(result.environments ?? []).slice(0, 2).map((env) => (
               <span
                 key={env}
                 className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]"
@@ -385,7 +495,7 @@ function ResultCard({
                 {env}
               </span>
             ))}
-            {result.activities.slice(0, 2).map((act) => (
+            {(result.activities ?? []).slice(0, 2).map((act) => (
               <span
                 key={act}
                 className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-blue-500/10 text-blue-400"
@@ -396,15 +506,24 @@ function ResultCard({
           </div>
         )}
 
+        {/* Full corpus: enrichment_source tag */}
+        {isFC && result.enrichment_source && (
+          <div className="flex flex-wrap gap-1">
+            <span className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-purple-500/10 text-purple-400">
+              {result.enrichment_source}
+            </span>
+          </div>
+        )}
+
         {/* Copy links + Add to Lead */}
         <div className="flex items-center gap-2 pt-2 border-t border-[var(--border-subtle)]">
           <button
-            onClick={() => copyToClipboard(result.sample_id, "id")}
+            onClick={() => copyToClipboard(result.id, "id")}
             className="flex items-center gap-1 text-[10px] font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors"
-            title={`Sample ID: ${result.sample_id}`}
+            title={`ID: ${result.id}`}
           >
             {copied === "id" ? <Check className="w-2.5 h-2.5" /> : <Copy className="w-2.5 h-2.5" />}
-            {copied === "id" ? "copied" : result.sample_id.slice(0, 8)}
+            {copied === "id" ? "copied" : result.id.slice(0, 8)}
           </button>
           {result.signed_url && (
             <a
@@ -419,7 +538,11 @@ function ResultCard({
             </a>
           )}
           <div className="ml-auto">
-            <AddToLeadButton datasetSampleId={result.sample_id} compact />
+            <AddToLeadButton
+              videoIndexId={isFC ? result.id : undefined}
+              datasetSampleId={!isFC ? result.id : undefined}
+              compact
+            />
           </div>
         </div>
       </div>
@@ -439,9 +562,11 @@ interface LeadOption {
 
 function BulkActionBar({
   selectedIds,
+  results,
   onClear,
 }: {
   selectedIds: Set<string>;
+  results: UnifiedResult[];
   onClear: () => void;
 }) {
   const [leads, setLeads] = useState<LeadOption[]>([]);
@@ -488,9 +613,11 @@ function BulkActionBar({
     setError(null);
 
     try {
-      const items = Array.from(selectedIds).map((id) => ({
-        dataset_sample_id: id,
-      }));
+      const items = Array.from(selectedIds).map((id) => {
+        const r = results.find((res) => res.id === id);
+        if (r?.source === "full_corpus") return { video_index_id: id };
+        return { dataset_sample_id: id };
+      });
 
       const res = await fetch(
         `/api/admin/leads/${selectedLead.id}/custom-samples/bulk`,
