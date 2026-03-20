@@ -18,6 +18,7 @@ export function createMcpServer(): McpServer {
 
   registerSearchCatalog(server);
   registerGetDatasetOverview(server);
+  registerBuildLeadBrief(server);
 
   return server;
 }
@@ -212,6 +213,128 @@ function registerGetDatasetOverview(server: McpServer) {
 
       return {
         content: [{ type: "text" as const, text: JSON.stringify(result) }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// build_lead_brief tool
+// ---------------------------------------------------------------------------
+
+function registerBuildLeadBrief(server: McpServer) {
+  server.tool(
+    "build_lead_brief",
+    "Build a structured data brief for lead outbound messaging. Returns raw catalog data grouped by dataset — no marketing copy.",
+    {
+      company_description: z.string().describe("Brief description of the target company"),
+      use_case: z.string().describe("Their likely data use case"),
+      limit: z.number().min(1).max(20).default(5).describe("Max samples to search (default 5)"),
+    },
+    async ({ company_description, use_case, limit }) => {
+      const supabase = createSupabaseAdminClient();
+
+      // Combine inputs for semantic search
+      const searchQuery = `${company_description} ${use_case}`;
+      const queryEmbedding = await generateEmbedding(searchQuery);
+
+      const { data: matches, error } = await supabase.rpc("match_samples", {
+        query_embedding: queryEmbedding,
+        match_count: limit,
+        filter_dataset_id: null,
+      });
+
+      if (error) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: error.message }) }],
+        };
+      }
+
+      if (!matches || matches.length === 0) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ datasets: [], message: "No matching catalog data found" }) }],
+        };
+      }
+
+      // Group by dataset
+      const datasetMap = new Map<string, {
+        dataset_name: string;
+        dataset_id: string;
+        matched_samples: Array<{
+          similarity: number;
+          scene_summary: string | null;
+          environments: string[];
+          activities: string[];
+          signed_url: string | null;
+        }>;
+      }>();
+
+      for (const match of matches as Array<{
+        sample_id: string;
+        dataset_id: string;
+        dataset_name: string;
+        similarity: number;
+        agent_context: AgentContext | null;
+        s3_object_key: string | null;
+        mime_type: string;
+      }>) {
+        if (!datasetMap.has(match.dataset_id)) {
+          datasetMap.set(match.dataset_id, {
+            dataset_name: match.dataset_name,
+            dataset_id: match.dataset_id,
+            matched_samples: [],
+          });
+        }
+
+        let signed_url: string | null = null;
+        if (match.s3_object_key) {
+          signed_url = await getS3SignedUrl(match.s3_object_key, 3600);
+        }
+
+        const ctx = match.agent_context;
+        datasetMap.get(match.dataset_id)!.matched_samples.push({
+          similarity: Math.round(match.similarity * 1000) / 1000,
+          scene_summary: ctx?.scene_summary ?? null,
+          environments: ctx?.environments ?? [],
+          activities: ctx?.activities ?? [],
+          signed_url,
+        });
+      }
+
+      // Enrich with dataset metadata
+      const datasetIds = [...datasetMap.keys()];
+      const { data: datasets } = await supabase
+        .from("datasets")
+        .select("id, total_samples, annotation_types")
+        .in("id", datasetIds);
+
+      const result = [...datasetMap.values()].map((group) => {
+        const ds = datasets?.find((d) => d.id === group.dataset_id);
+        const allEnvs = new Set<string>();
+        const allActs = new Set<string>();
+        for (const s of group.matched_samples) {
+          s.environments.forEach((e) => allEnvs.add(e));
+          s.activities.forEach((a) => allActs.add(a));
+        }
+        return {
+          dataset_name: group.dataset_name,
+          dataset_id: group.dataset_id,
+          total_samples: ds?.total_samples ?? null,
+          annotation_types: ds?.annotation_types ?? [],
+          matched_sample_count: group.matched_samples.length,
+          representative_signed_urls: group.matched_samples
+            .map((s) => s.signed_url)
+            .filter(Boolean)
+            .slice(0, 3),
+          aggregated_environments: [...allEnvs],
+          aggregated_activities: [...allActs],
+        };
+      });
+
+      const scrubbed = scrubS3Urls({ datasets: result });
+
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify(scrubbed) }],
       };
     },
   );
