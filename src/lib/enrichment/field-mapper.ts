@@ -95,21 +95,75 @@ export function mapEgocentric(data: Record<string, unknown>): AgentContext {
 }
 
 // ---------------------------------------------------------------------------
-// Food/Lifestyle mapper (stub for US-005b)
+// Food/Lifestyle mapper
 // ---------------------------------------------------------------------------
 
 export function mapFoodLifestyle(data: Record<string, unknown>): AgentContext {
-  void data;
-  return fillDefaults({});
+  const captions = data.captions as Record<string, unknown> | undefined;
+  const captionAnalysis = data.caption_analysis as Record<string, unknown> | undefined;
+  const technical = data.technical as Record<string, unknown> | undefined;
+
+  // scene_summary: prefer captions.detailed, then caption_analysis.vlm_caption
+  const scene_summary =
+    asString(captions?.detailed) ||
+    asString(captionAnalysis?.vlm_caption) ||
+    "";
+
+  const activities = asStringArray(captions?.activities)
+    .length > 0
+      ? asStringArray(captions?.activities)
+      : asString(captions?.activities)
+        ? [asString(captions?.activities)]
+        : [];
+
+  const objects = asStringArray(captions?.objects)
+    .length > 0
+      ? asStringArray(captions?.objects)
+      : asString(captions?.objects)
+        ? [asString(captions?.objects)]
+        : [];
+
+  const camera = asString(captions?.camera);
+
+  return fillDefaults({
+    scene_summary,
+    activities,
+    objects,
+    camera_perspective: camera || "",
+    technical: {
+      fps: technical?.fps ? String(technical.fps) : null,
+      duration: technical?.duration_s ? String(technical.duration_s) : null,
+      resolution:
+        technical?.width && technical?.height
+          ? `${technical.width}x${technical.height}`
+          : null,
+    },
+  });
 }
 
 // ---------------------------------------------------------------------------
-// Generic mapper (stub for US-005b)
+// Generic mapper
 // ---------------------------------------------------------------------------
 
 export function mapGeneric(data: Record<string, unknown>): AgentContext {
-  void data;
-  return fillDefaults({});
+  // Try scene_analysis, then captions.detailed, then description
+  const captionAnalysis = data.caption_analysis as Record<string, unknown> | undefined;
+  const content = data.content as Record<string, unknown> | undefined;
+
+  const scene_summary =
+    asString((data.scene_analysis as Record<string, unknown>)?.summary) ||
+    asString(captionAnalysis?.vlm_caption) ||
+    asString(data.description) ||
+    "";
+
+  const objects: string[] = [];
+  if (content?.subject) objects.push(asString(content.subject));
+
+  return fillDefaults({
+    scene_summary,
+    objects,
+    camera_perspective: asString(content?.shot_type),
+  });
 }
 
 // ---------------------------------------------------------------------------
