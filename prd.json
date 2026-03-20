@@ -1,247 +1,280 @@
 {
-  "project": "Personalized Prospect Pages",
-  "branchName": "ralph/prospect-pages",
-  "description": "Custom deal room pages at /for/[company] combining hand-crafted prospect narratives with shared dynamic components. Dark terminal aesthetic, PostHog tracking, 30-day expiry, noindex privacy. First page: /for/rime.",
+  "project": "Full Corpus Semantic Search (Phase 2)",
+  "branchName": "ralph/full-corpus-search",
+  "description": "Extend semantic search to 1.3M+ S3 videos using existing cobry captions + embeddings. Add lead-specific sample curation workflow.",
   "userStories": [
     {
-      "id": "US-001",
-      "title": "Shared Case Study Mapping",
-      "description": "As a developer, I need a case study metadata mapping so prospect pages can reference case studies by slug.",
+      "id": "US-201",
+      "title": "Formalize video_index table migration + match function",
+      "description": "As a developer, I need the video_index table formalized as a migration and the match_video_index RPC function created.",
       "acceptanceCriteria": [
-        "Create src/lib/case-studies.ts with a CASE_STUDIES const object mapping slug to { title, description, tags, url }",
-        "Include all 11 published case studies: red-teaming-moderation, video-quality-at-scale, video-content-classification, prompt-enhancement-benchmark, object-identity-persistence, workplace-egocentric-data, video-model-evaluation, generative-ai-safety, fashion-ai-annotation, game-based-data-capture, egocentric-video-collection",
-        "Tags include relevant keywords (video, annotation, robotics, safety, gaming, speech, content-moderation, manufacturing, fashion, egocentric)",
-        "Export getCaseStudy(slug) helper and getCaseStudiesByTag(tag) helper",
+        "Migration creates video_index: id uuid PK, s3_bucket text NOT NULL, s3_key text NOT NULL, dataset_id uuid nullable FK, caption_text text, embedding extensions.vector(768), enrichment_source text, indexed_at timestamptz",
+        "Unique constraint on (s3_bucket, s3_key)",
+        "match_video_index(query_embedding vector(768), match_count int, filter_bucket text DEFAULT NULL, match_threshold float DEFAULT 0.40) returns (id, s3_bucket, s3_key, caption_text, similarity, enrichment_source)",
+        "Function uses cosine distance, filters embedding IS NOT NULL and similarity >= threshold",
+        "Function marked SECURITY DEFINER to bypass RLS",
+        "No HNSW index yet (deferred to US-205b)",
+        "TypeScript type VideoIndexRecord in src/types/data-catalog.ts",
         "Typecheck passes"
       ],
       "priority": 1,
       "passes": true,
-      "notes": "Case studies are static Next.js pages at /case-studies/[slug]. No Supabase table. This mapping provides metadata for the CaseStudyCard component. Check the live site at claru.ai/case-studies for titles and descriptions. | COMPLETED by background agent"
+      "notes": "Table already exists from PoC — formalize + add match function. Use Supabase MCP for migration."
     },
     {
-      "id": "US-002",
-      "title": "CaseStudyCard Component",
-      "description": "As a prospect viewing the page, I want to see relevant case studies as rich cards.",
+      "id": "US-202",
+      "title": "Cobry caption loader — Python script for mv-abaka + mv-artlist",
+      "description": "As a developer, I need a Python script that reads cobry caption parquets and bulk-loads them into video_index with 768-dim embeddings.",
       "acceptanceCriteria": [
-        "Create src/app/components/prospect/CaseStudyCard.tsx as a client component ('use client')",
-        "Props: slug: string (looks up from CASE_STUDIES mapping in src/lib/case-studies.ts)",
-        "Displays: title, description (line-clamp-2), tags as pills, 'Read Case Study \u2192' link",
-        "Dark card style: bg #121210, border #2a2a28, accent #92B090, text #FFFFFF",
-        "Framer Motion fade-in animation on scroll using whileInView",
-        "Case study links open in new tab with rel='noopener noreferrer'",
-        "Gracefully render 'Unavailable' state when slug not found \u2014 do NOT throw",
-        "Responsive: full-width on mobile, side-by-side grid on desktop",
-        "Typecheck passes"
+        "scripts/load_cobry_captions.py — standalone Python (no TS wrapper)",
+        "Uses pyarrow read_row_group() streaming — never loads entire parquet into memory",
+        "Calls OpenAI via openai Python SDK with dimensions=768",
+        "Upserts to Supabase via httpx POST to PostgREST with service-role key",
+        "Checkpoint file at scripts/.cobry_checkpoint.json for crash recovery",
+        "Extracts clip_storage_key → s3_key, text_short + text → caption_text",
+        "Strips s3://bucket/ prefix from keys",
+        "Flags: --bucket, --delivery, --limit, --dry-run via argparse",
+        "Uses boto3 paginator for S3 listing",
+        "Idempotent — upsert on (s3_bucket, s3_key) conflict = skip",
+        "Temp files deleted in finally block after processing each parquet",
+        "Runtime check: Python 3.10+, pyarrow, openai, httpx, boto3 — exit with clear error if missing",
+        "Summary log: Inserted X / skipped Y / failed Z"
       ],
       "priority": 2,
       "passes": true,
-      "notes": "Depends on US-001 for the CASE_STUDIES mapping. Design should match the landing page card style from src/app/components/sections/. Use JetBrains Mono for tag pills. | COMPLETED by background agent"
+      "notes": "This is the big one — ~800k abaka + ~200k artlist. PoC TS script exists at scripts/load-cobry-captions.ts for reference."
     },
     {
-      "id": "US-003",
-      "title": "DatasetShowcase Component",
-      "description": "As a prospect, I want to see relevant datasets from Claru's catalog.",
+      "id": "US-203",
+      "title": "Troveo metadata loader",
+      "description": "As a developer, I need a script that reads troveo per-video metadata JSONs and loads them into video_index.",
       "acceptanceCriteria": [
-        "Create src/app/components/prospect/DatasetShowcase.tsx as an async server component",
-        "Props: datasetIds: string[] (UUIDs from Supabase datasets table)",
-        "Fetch dataset metadata using createClient with anon key (NOT createSupabaseServerClient \u2014 same pattern as src/app/api/public/datasets/route.ts)",
-        "Query MUST filter is_published = true",
-        "Each card shows: name, category badge, source_type badge (COLLECTED/SYNTHETIC/CURATED), sample count, duration if applicable",
-        "Handle empty datasetIds array \u2014 hide section entirely",
-        "If any dataset ID returns null or is filtered by RLS, show 'Dataset unavailable' pill rather than crashing",
-        "Dark card style matching landing page: bg #121210, border #2a2a28, accent #92B090",
-        "Responsive: horizontal scroll on mobile, grid on desktop",
+        "scripts/load-troveo-metadata.ts created",
+        "Reads embedding parquets to get storage_key + meta_key mappings",
+        "Fetches metadata JSON per video, constructs caption from technical fields",
+        "Generates 768-dim OpenAI embedding from caption text",
+        "Upserts into video_index with enrichment_source = 'troveo_metadata'",
+        "Flags: --limit, --dry-run. Idempotent",
         "Typecheck passes"
       ],
       "priority": 3,
       "passes": true,
-      "notes": "IMPORTANT: Use createClient from @supabase/supabase-js with NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY directly. Do NOT use createSupabaseServerClient which passes auth cookies and causes RLS issues (this was a bug we fixed in the public datasets API). Wrap in cache() to avoid new connections per request. Dataset type is defined in src/types/data-catalog.ts. | COMPLETED by background agent"
+      "notes": "~112k videos. Troveo metadata is technical only — captions will be sparse."
     },
     {
-      "id": "US-004",
-      "title": "WorkforceStats Component",
-      "description": "As a prospect, I want to see Claru's operational scale.",
+      "id": "US-204",
+      "title": "Annotation platform loader",
+      "description": "As a developer, I need a script that reads annotation JSONs from completed tasks and loads into video_index.",
       "acceptanceCriteria": [
-        "Create src/app/components/prospect/WorkforceStats.tsx as a client component ('use client')",
-        "Display 4 stats in terminal-styled grid: Annotators (2,000+), Countries (14), Annotations Delivered (3M+), QA Turnaround (Same-day)",
-        "Stats are hardcoded constants in a WORKFORCE_STATS array \u2014 easy to update in one place",
-        "Animated counter effect on scroll using Framer Motion useInView + animate",
-        "JetBrains Mono font for numbers, Geist Sans for labels",
-        "Dark terminal aesthetic: bg #0a0908, accent #92B090 for numbers, #FFFFFF for labels",
-        "Responsive: 2x2 grid on mobile, 4-column on desktop",
+        "scripts/load-annotation-platform.ts created",
+        "Lists video_capture/completed/ and video-capture-activities/completed/ folders",
+        "Reads annotation JSON, extracts generalData fields, constructs caption",
+        "Generates 768-dim OpenAI embedding",
+        "Upserts with enrichment_source = 'annotation_json'",
+        "Maps dataset_id to Egocentric Activity Capture where path matches",
+        "Flags: --limit, --dry-run. Idempotent",
         "Typecheck passes"
       ],
       "priority": 4,
       "passes": true,
-      "notes": "Check src/app/components/sections/CatalogPreview.tsx for the existing animated counter pattern \u2014 reuse that approach. Stats should feel like a terminal readout. | COMPLETED by background agent"
+      "notes": "~220k annotation folders"
     },
     {
-      "id": "US-005",
-      "title": "CalendlyEmbed Component",
-      "description": "As a prospect, I want to book a call directly from the page.",
+      "id": "US-204b",
+      "title": "ML-datasets caption loader",
+      "description": "As a developer, I need a script to load captions from moonvalley-ml-datasets sources.",
       "acceptanceCriteria": [
-        "Create src/app/components/prospect/CalendlyEmbed.tsx as a client component ('use client')",
-        "Load Calendly inline embed script dynamically \u2014 only once per page",
-        "Use a hardcoded booking URL (check Supabase settings table for current booking_url value and hardcode it)",
-        "If booking_url is misconfigured, render fallback CTA button with mailto:team@claru.ai",
-        "Inline widget (not popup) with dark theme (background_color=0a0908, text_color=ffffff, primary_color=92B090)",
-        "Section header: 'Book a Call' in JetBrains Mono",
-        "Responsive: full-width embed, min-height 650px",
+        "scripts/load-ml-dataset-captions.ts created",
+        "Handles ShareGPT4Video JSONs (extract video[0].content)",
+        "Handles backup-caption-parquets movie_clips and tv_clips parquets",
+        "Generates 768-dim OpenAI embedding from caption text",
+        "Upserts with enrichment_source = 'ml_dataset_caption'",
+        "Flag: --source to select format, --limit, --dry-run. Idempotent",
         "Typecheck passes"
       ],
       "priority": 5,
       "passes": true,
-      "notes": "Calendly inline embed uses their embed.js script. Load it once in useEffect. The existing CalendlyContext in the landing page uses a popup model \u2014 this component should be self-contained with inline embed instead. Check settings table: SELECT value FROM settings WHERE key = 'booking_url'. | COMPLETED by background agent"
+      "notes": "~100k estimated across ShareGPT4Video + movie/TV clips"
     },
     {
-      "id": "US-006",
-      "title": "ChallengesSolutions Component",
-      "description": "As a prospect, I want to see my specific challenges mapped to Claru's solutions.",
+      "id": "US-205",
+      "title": "Gemini Vision for mv-xtr-external uncaptioned videos",
+      "description": "As a developer, I need Gemini enrichment for the ~1,257 videos with no metadata.",
       "acceptanceCriteria": [
-        "Create src/app/components/prospect/ChallengesSolutions.tsx as a client component ('use client')",
-        "Props: items: Array<{ challenge: string; solution: string }>",
-        "Two-column layout: left = 'Your Challenge' (monospace, #e8e8e8), right = 'How We Help' (accent #92B090)",
-        "Subtle connecting arrow or line between challenge and solution columns",
-        "Framer Motion stagger animation on scroll \u2014 each row animates in sequence",
-        "Section header: 'Your Challenges \u2192 Our Solutions' in JetBrains Mono",
-        "Responsive: stacks vertically on mobile (challenge above solution per item)",
+        "scripts/enrich-xtr-gemini.ts created — reuses Phase 1 Gemini client",
+        "Lists video files in mv-xtr-external (asteria/, david_darg/, paul_trillo/)",
+        "For each: signed URL → Gemini 2.5 Flash → caption text → 768-dim embedding",
+        "Upserts with enrichment_source = 'gemini_vision'",
+        "p-limit max 5, exponential backoff on 429",
+        "Flags: --limit, --dry-run. Idempotent",
         "Typecheck passes"
       ],
       "priority": 6,
       "passes": true,
-      "notes": "This is the most custom section per prospect page \u2014 the items array is different for every company. Keep the component generic so it just renders whatever items are passed in. | COMPLETED by background agent"
+      "notes": "~1,257 videos, ~$0.03 total"
     },
     {
-      "id": "US-007",
-      "title": "ExpiryGate Component (30-day expiry)",
-      "description": "As the business owner, I want prospect pages to auto-expire after 30 days.",
+      "id": "US-205b",
+      "title": "Build HNSW index on video_index after bulk loading",
+      "description": "As a developer, I need the HNSW vector index built after all data is loaded.",
       "acceptanceCriteria": [
-        "Create src/app/components/prospect/ExpiryGate.tsx as a client component ('use client')",
-        "Props: createdAt: string (ISO date), children: React.ReactNode",
-        "Compare current date to createdAt + 30 days",
-        "If expired: render graceful expired state with Claru branding \u2014 'This page is no longer available. Please contact us at team@claru.ai for updated information.'",
-        "If not expired: render children normally",
-        "Show subtle 'This page expires in X days' note when < 7 days remain",
-        "Expired state uses same dark theme, centered layout, Claru logo",
-        "Typecheck passes"
+        "Run CREATE INDEX CONCURRENTLY on video_index using hnsw vector_cosine_ops — outside transaction",
+        "Set hnsw.ef_search = 100 in match_video_index function",
+        "Document: 1.3M rows x 768 dims = ~4-6 GB index memory",
+        "Verify queries return in < 500ms after build"
       ],
       "priority": 7,
       "passes": true,
-      "notes": "Client-side date check is the primary mechanism. Server-side ISR revalidation (revalidate: 86400) in the layout provides a backup so expired pages re-render server-side daily. | COMPLETED by background agent"
+      "notes": "Must run AFTER all loader scripts complete"
     },
     {
-      "id": "US-008",
-      "title": "ProspectPageLayout \u2014 layout.tsx for /for/*",
-      "description": "As a developer, I need a shared layout for all prospect pages.",
+      "id": "US-206a",
+      "title": "Lead custom samples — table + RLS policies",
+      "description": "As a developer, I need the lead_custom_samples table with RLS for portal access.",
       "acceptanceCriteria": [
-        "Create src/app/for/layout.tsx as the layout for all /for/* routes",
-        "Export metadata with robots: { index: false, follow: false }",
-        "Set X-Robots-Tag: noindex, nofollow response header as backup",
-        "Apply dark theme matching main landing page (NOT portal theme)",
-        "Minimal header: Claru logo (links to claru.ai), no navigation links",
-        "Minimal footer: 'Prepared for [Company]' text + legal links (Privacy, Terms)",
-        "Footer includes subtle 'Shared with [Name] \u00b7 [Company]' watermark",
-        "Layout accepts children and passes through companyName and recipientName props via React context or slot pattern",
-        "Set revalidate: 86400 for ISR (server-side expiry backup)",
+        "Migration: lead_custom_samples with lead_id FK CASCADE, video_index_id FK SET NULL, dataset_sample_id FK SET NULL, s3_bucket, s3_key (denormalized), added_by, note, added_at",
+        "RLS on lead_custom_samples: EXISTS(leads WHERE lead_id match AND supabase_user_id = auth.uid())",
+        "RLS on video_index: EXISTS through lead_custom_samples + leads + auth.uid()",
+        "video_index RLS enabled",
         "Typecheck passes"
       ],
       "priority": 8,
       "passes": true,
-      "notes": "IMPORTANT: Check src/middleware.ts and ensure /for/* routes are NOT caught by portal auth middleware. If middleware checks portal paths, add an exclusion for /for/. The layout should NOT import posthog-js directly \u2014 tracking goes in a client wrapper component. Use the existing design system from src/app/globals.css. | COMPLETED by background agent"
+      "notes": "ON DELETE SET NULL preserves curation if index row deleted"
     },
     {
-      "id": "US-009",
-      "title": "Privacy & SEO \u2014 robots.txt update",
-      "description": "As the business owner, I want prospect pages excluded from search engines.",
+      "id": "US-206b",
+      "title": "Lead custom samples — admin API routes",
+      "description": "As a developer, I need API endpoints to add, list, bulk-add, and remove custom samples.",
       "acceptanceCriteria": [
-        "Add Disallow: /for/ to robots.txt (check if public/robots.txt exists, create if not)",
-        "Verify /for/ paths are NOT in any sitemap (check for sitemap generation in next-sitemap or similar)",
-        "Confirm no internal links from public pages point to /for/* routes (grep codebase)",
+        "POST /api/admin/leads/[id]/custom-samples — single add, validates UUID, service-role client",
+        "POST /api/admin/leads/[id]/custom-samples/bulk — bulk add in one transaction, returns { inserted, skipped }",
+        "GET /api/admin/leads/[id]/custom-samples — list with signed URLs",
+        "DELETE /api/admin/leads/[id]/custom-samples/[sampleId] — remove",
+        "All routes require verifyAdminToken(), validate [id] as z.string().uuid()",
+        "Denormalizes s3_bucket + s3_key from video_index at insert time",
         "Typecheck passes"
       ],
       "priority": 9,
       "passes": true,
-      "notes": "The noindex meta tag is handled in US-008 layout. This story handles robots.txt and sitemap exclusion as defense-in-depth. | COMPLETED by background agent"
+      "notes": ""
     },
     {
-      "id": "US-010",
-      "title": "PostHog Tracking Hook for Prospect Pages",
-      "description": "As the sales team, I want to track prospect engagement on their pages.",
+      "id": "US-207a",
+      "title": "Add to Lead — single-add combobox on result cards",
+      "description": "As an admin, I want to add a single search result to a lead via searchable combobox.",
       "acceptanceCriteria": [
-        "Create src/app/components/prospect/ProspectTracking.tsx as a client component ('use client')",
-        "Props: companySlug: string, companyName: string",
-        "Fire prospect_page_viewed event on mount with { company_slug, company_name, utm_source: 'prospect_page' }",
-        "Track prospect_page_scroll_depth at 25%, 50%, 75%, 100% thresholds \u2014 throttled to once per 3s",
-        "Track prospect_section_viewed via IntersectionObserver when each section enters viewport with { company_slug, section_name }",
-        "Track prospect_page_time_spent on page visibility change / unload with { company_slug, seconds_spent }",
-        "Track cta_clicked for Calendly or mailto clicks with { company_slug, cta_type }",
-        "Track case_study_clicked with { company_slug, case_study_slug }",
-        "All PostHog events include utm_source: 'prospect_page' property",
-        "PostHog logic must NOT be imported in server components",
-        "Use existing posthog-js setup (check for PostHogProvider in root layout or posthog init)",
-        "Typecheck passes"
+        "Each result card has Add to Lead button → searchable combobox with type-ahead",
+        "Fetches leads where status = 'approved'",
+        "On open: checks existing assignments, greyed leads with checkmark",
+        "After selecting: note input + Confirm button (note optional)",
+        "Success: checkmark + 'Added to [name]'. Error: inline error with retry",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 10,
       "passes": true,
-      "notes": "Check if posthog-js is already installed and initialized. If not, install it and add a basic init. The section tracking needs data-section attributes on each section wrapper in the prospect page. Export a useProspectTracking hook and a SectionTracker wrapper component. | COMPLETED by background agent"
+      "notes": ""
     },
     {
-      "id": "US-011",
-      "title": "Supabase Schema \u2014 custom_page_slug on leads",
-      "description": "As a developer, I need to track which leads have custom prospect pages.",
+      "id": "US-207b",
+      "title": "Add to Lead — bulk-add with checkboxes + floating action bar",
+      "description": "As an admin, I want to select multiple results and add them all to a lead at once.",
       "acceptanceCriteria": [
-        "Add custom_page_slug column (text, nullable, unique) to leads table via Supabase migration using mcp__supabase-db__apply_migration",
-        "Update Lead interface in src/types/data-catalog.ts to include custom_page_slug: string | null",
-        "Typecheck passes"
+        "Checkbox on each result card",
+        "1+ selected: floating bar at bottom '[N] selected — Add to Lead [combobox] [note] [Confirm]'",
+        "Bulk confirm calls POST /api/admin/leads/[id]/custom-samples/bulk",
+        "After add: checkboxes cleared, bar hidden, toast '[N] samples added to [lead name]'",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 11,
       "passes": true,
-      "notes": "Use the Supabase MCP tool: mcp__supabase-db__apply_migration. Migration SQL: ALTER TABLE leads ADD COLUMN custom_page_slug text UNIQUE; No RLS changes needed. | COMPLETED by background agent"
+      "notes": ""
     },
     {
-      "id": "US-012",
-      "title": "/for/rime \u2014 Rime prospect page content and copy",
-      "description": "As Lily at Rime, I want to see a personalized page showing Claru understands my annotation challenges.",
+      "id": "US-208",
+      "title": "Portal 'Curated for You' section",
+      "description": "As a lead, I want custom samples picked for me shown in the portal catalog.",
       "acceptanceCriteria": [
-        "Create src/app/for/rime/page.tsx as a static page",
-        "Set PAGE_CREATED constant to today's date for expiry tracking",
-        "Wrap content in ExpiryGate with createdAt={PAGE_CREATED}",
-        "Include ProspectTracking component with companySlug='rime' companyName='Rime'",
-        "Hero section: 'Prepared for Rime' with brief context about TTS/speech AI and multilingual annotation needs",
-        "ChallengesSolutions with 3 items: (1) Hiring annotation experts across 10+ languages \u2192 Managed annotator workforce with native speakers, (2) Building annotation guidelines per language from scratch \u2192 Proven annotation protocols with linguistic QA, (3) Quality control across diverse annotators \u2192 Same-day QA pipeline with multi-reviewer consensus",
-        "2-3 CaseStudyCards using slugs: video-quality-at-scale, video-content-classification (closest proxies for annotation-at-scale)",
-        "DatasetShowcase \u2014 select 2-3 relevant published dataset IDs (query Supabase to find annotation-heavy datasets)",
-        "WorkforceStats section",
-        "CalendlyEmbed at bottom",
-        "Pass companyName='Rime' and recipientName='Lily' to layout context for footer personalization",
-        "Page matches dark terminal aesthetic with Framer Motion animations",
-        "Responsive across desktop, tablet, mobile",
-        "Typecheck passes"
+        "Portal catalog queries lead_custom_samples (user client, RLS) then video_index details (service-role)",
+        "Section between header and CatalogBrowser, heading 'Curated for You'",
+        "Horizontal scrollable row, max 6 visible",
+        "Card: 16:9 thumbnail, caption_text 2-line truncation, bucket badge, admin note",
+        "Cards with no dataset_id are not clickable",
+        "Signed URLs generated server-side",
+        "Hidden entirely if no custom samples",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 12,
       "passes": true,
-      "notes": "This is the template page \u2014 future prospect pages will be created by copying this file and changing the custom content. Section order: Hero \u2192 Challenges/Solutions \u2192 Case Studies \u2192 Datasets \u2192 Workforce Stats \u2192 Book a Call. Design system: bg #0a0908, accent #92B090, text #FFFFFF, fonts Geist Sans + JetBrains Mono. Check src/app/globals.css for existing CSS variables and classes. | COMPLETED by background agent"
+      "notes": ""
     },
     {
-      "id": "US-013",
-      "title": "Visual QA \u2014 verify /for/rime in browser",
-      "description": "As QA, I need to verify the Rime prospect page renders correctly across viewports.",
+      "id": "US-209",
+      "title": "MCP tool: search_full_catalog + updated build_lead_brief",
+      "description": "As a Claude agent, I need MCP tools for full corpus search.",
       "acceptanceCriteria": [
-        "Run dev server on port 3000 or 3005",
-        "Navigate to /for/rime in browser",
-        "Take screenshots at: hero, challenges/solutions, case studies, datasets, workforce stats, calendly",
-        "Verify all 6 sections render with content (no blank sections)",
-        "Verify noindex meta tag is present in page source",
-        "Verify dark theme is applied (not portal theme or light theme)",
-        "Verify responsive at desktop (1440px) and mobile (375px)",
-        "Verify case study links open in new tab",
-        "Verify no console errors",
-        "Fix any critical visual issues found",
+        "Register search_full_catalog: { query, limit?, s3_bucket?, match_threshold? }",
+        "Embeds query → match_video_index RPC → signed URLs (600s TTL)",
+        "Output: { id, s3_bucket, s3_key, caption_text, similarity, enrichment_source, signed_url }",
+        "scrubS3Urls on caption_text only — signed_url preserved via PRESERVED_KEYS",
+        "build_lead_brief includes full_corpus results labelled source: 'full_corpus'",
         "Typecheck passes"
       ],
       "priority": 13,
       "passes": true,
-      "notes": "Use Playwright MCP or agent-browser skill to automate screenshots. If dev server isn't running, start it with npm run dev -- --port 3005. Check that middleware doesn't redirect /for/rime to login. | COMPLETED - all sections render, noindex present, responsive works, zero console errors"
+      "notes": "600s TTL for MCP signed URLs (not 3600s)"
+    },
+    {
+      "id": "US-210a",
+      "title": "Admin search: UnifiedSearchResult type + API mode param",
+      "description": "As a developer, I need the search API to support catalog/full_corpus/both modes.",
+      "acceptanceCriteria": [
+        "UnifiedSearchResult discriminated union: source 'catalog' | 'full_corpus', shared description field",
+        "POST /api/admin/catalog/search accepts mode: catalog | full_corpus | both (default: catalog)",
+        "full_corpus calls match_video_index, both calls both RPCs and merges by similarity",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-210b",
+      "title": "Admin search UI: full corpus toggle + bucket filter + URL params",
+      "description": "As an admin, I want to toggle search modes with URL state persistence.",
+      "acceptanceCriteria": [
+        "Segmented toggle: Catalog Samples | Full Corpus | Both",
+        "Toggle auto-re-executes current query",
+        "Full Corpus: dataset filter replaced with bucket filter",
+        "URL params: ?q=, ?dataset=, ?bucket=, ?mode=",
+        "Full corpus cards: FULL CORPUS badge, bucket name, caption in description slot, enrichment_source tag, copy copies video_index.id",
+        "Full Corpus disabled if video_index empty",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 15,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-211",
+      "title": "Playwright E2E + UAT for full corpus + lead curation",
+      "description": "As QA, full end-to-end testing of Phase 2.",
+      "acceptanceCriteria": [
+        "tests/e2e/full-corpus-search.spec.ts created",
+        "Test: search full corpus → FULL CORPUS badges → add to lead → portal Curated for You",
+        "Test: bulk select 3 → bulk add → verify count",
+        "Test: MCP search_full_catalog returns valid response",
+        "No s3:// strings in any response",
+        "UAT: admin portal UI only",
+        "Typecheck passes"
+      ],
+      "priority": 16,
+      "passes": true,
+      "notes": "Requires loader scripts to have populated video_index first"
     }
   ]
 }

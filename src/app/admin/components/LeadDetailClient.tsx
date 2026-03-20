@@ -4,7 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import LeadStatusBadge from "@/app/components/ui/LeadStatusBadge";
-import type { Lead, LeadStatus, Dataset, LeadDatasetAccess } from "@/types/data-catalog";
+import type { Lead, LeadStatus, Dataset, LeadDatasetAccess, DatasetSample } from "@/types/data-catalog";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -18,10 +18,15 @@ interface GrantWithDataset extends LeadDatasetAccess {
   datasets: DatasetWithCategory | null;
 }
 
+interface CustomSampleWithDataset extends DatasetSample {
+  datasets?: { name: string } | null;
+}
+
 interface LeadDetailClientProps {
   initialLead: Lead;
   initialGrants: GrantWithDataset[];
   allDatasets: DatasetWithCategory[];
+  initialCustomSamples: CustomSampleWithDataset[];
 }
 
 interface Toast {
@@ -111,9 +116,11 @@ export default function LeadDetailClient({
   initialLead,
   initialGrants,
   allDatasets,
+  initialCustomSamples,
 }: LeadDetailClientProps) {
   const [lead, setLead] = useState<Lead>(initialLead);
   const [grants, setGrants] = useState<GrantWithDataset[]>(initialGrants);
+  const [customSamples, setCustomSamples] = useState<CustomSampleWithDataset[]>(initialCustomSamples);
   const [adminNotes, setAdminNotes] = useState(lead.admin_notes ?? "");
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
@@ -427,6 +434,37 @@ export default function LeadDetailClient({
       setIsDeleting(false);
     }
   }, [lead.id, addToast, router]);
+
+  /* ---- Remove custom sample --------------------------------------- */
+
+  const [removingSampleId, setRemovingSampleId] = useState<string | null>(null);
+
+  const handleRemoveCustomSample = useCallback(
+    async (sample: CustomSampleWithDataset) => {
+      if (!window.confirm("Remove this custom sample?")) return;
+      setRemovingSampleId(sample.id);
+      try {
+        const res = await fetch(
+          `/api/admin/catalog/${sample.dataset_id}/samples/${sample.id}`,
+          { method: "DELETE" }
+        );
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({ error: "Unknown error" }));
+          throw new Error(body.error ?? "Delete failed");
+        }
+        setCustomSamples((prev) => prev.filter((s) => s.id !== sample.id));
+        addToast("Custom sample removed");
+      } catch (err) {
+        addToast(
+          `Remove failed: ${err instanceof Error ? err.message : "unknown"}`,
+          "error"
+        );
+      } finally {
+        setRemovingSampleId(null);
+      }
+    },
+    [addToast]
+  );
 
   // Dismiss delete dialog on Escape
   useEffect(() => {
@@ -911,6 +949,88 @@ export default function LeadDetailClient({
               </button>
             </div>
           </div>
+        )}
+      </div>
+
+      {/* Custom Samples Section */}
+      <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-6 space-y-4">
+        <h3 className="text-sm font-mono font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
+          Custom Samples
+          <span className="ml-2 text-[var(--accent-primary)]">
+            ({customSamples.length})
+          </span>
+        </h3>
+
+        {customSamples.length > 0 ? (
+          <div className="overflow-x-auto rounded-lg border border-[var(--border-subtle)]">
+            <table className="w-full font-mono text-sm">
+              <thead className="border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs uppercase tracking-wider text-[var(--text-tertiary)]">
+                    Dataset
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs uppercase tracking-wider text-[var(--text-tertiary)]">
+                    S3 Key
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs uppercase tracking-wider text-[var(--text-tertiary)]">
+                    Added By
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs uppercase tracking-wider text-[var(--text-tertiary)]">
+                    Added At
+                  </th>
+                  <th className="px-4 py-2 text-right text-xs uppercase tracking-wider text-[var(--text-tertiary)]">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border-subtle)]">
+                {customSamples.map((sample) => {
+                  const keyDisplay = sample.s3_object_key
+                    ? sample.s3_object_key.length > 50
+                      ? "..." + sample.s3_object_key.slice(-47)
+                      : sample.s3_object_key
+                    : sample.filename || "\u2014";
+                  return (
+                    <tr
+                      key={sample.id}
+                      className="hover:bg-[var(--bg-primary)] transition-colors"
+                    >
+                      <td className="px-4 py-2 text-[var(--text-primary)]">
+                        {sample.datasets?.name ?? "Unknown"}
+                      </td>
+                      <td
+                        className="px-4 py-2 text-[var(--text-muted)] max-w-[250px] truncate"
+                        title={sample.s3_object_key ?? sample.filename}
+                      >
+                        {keyDisplay}
+                      </td>
+                      <td className="px-4 py-2 text-[var(--text-muted)]">
+                        {sample.added_by ?? "\u2014"}
+                      </td>
+                      <td className="px-4 py-2 text-[var(--text-muted)]">
+                        {formatDate(sample.created_at)}
+                      </td>
+                      <td className="px-4 py-2 text-right">
+                        <button
+                          onClick={() => handleRemoveCustomSample(sample)}
+                          disabled={removingSampleId === sample.id}
+                          className="text-xs text-[var(--error)] hover:text-[var(--error)]/80 transition-colors disabled:opacity-50"
+                        >
+                          {removingSampleId === sample.id
+                            ? "[removing...]"
+                            : "[remove]"}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-sm font-mono text-[var(--text-muted)] py-4 text-center">
+            No custom samples added for this lead.
+          </p>
         )}
       </div>
 

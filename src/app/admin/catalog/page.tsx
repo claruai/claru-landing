@@ -17,7 +17,7 @@ import AdminCatalogTable from "./AdminCatalogTable";
 export default async function AdminCatalogPage() {
   const supabase = createSupabaseAdminClient();
 
-  const [datasetsResult, categoriesResult] = await Promise.all([
+  const [datasetsResult, categoriesResult, sampleCountsResult] = await Promise.all([
     supabase
       .from("datasets")
       .select("*, dataset_categories(name)")
@@ -26,7 +26,17 @@ export default async function AdminCatalogPage() {
       .from("dataset_categories")
       .select("*")
       .order("display_order", { ascending: true }),
+    supabase
+      .from("dataset_samples")
+      .select("dataset_id")
+      .is("lead_id", null),
   ]);
+
+  // Count samples per dataset (excluding lead-specific ones)
+  const sampleCounts: Record<string, number> = {};
+  for (const row of sampleCountsResult.data ?? []) {
+    sampleCounts[row.dataset_id] = (sampleCounts[row.dataset_id] ?? 0) + 1;
+  }
 
   if (datasetsResult.error) {
     return (
@@ -48,6 +58,7 @@ export default async function AdminCatalogPage() {
       <AdminCatalogTable
         datasets={datasetsResult.data ?? []}
         categories={(categoriesResult.data as DatasetCategory[]) ?? []}
+        sampleCounts={sampleCounts}
       />
     </div>
   );

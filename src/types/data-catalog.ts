@@ -67,6 +67,11 @@ export interface DatasetSample {
   s3_annotation_key: string | null;
   s3_specs_key: string | null;
   enrichment_json: Record<string, unknown>;
+  agent_context: Record<string, unknown> | null;
+  embedding: number[] | null;
+  lead_id: string | null;
+  added_by: string | null;
+  source_video_index_id: string | null;
   created_at: string;
 }
 
@@ -110,6 +115,61 @@ export interface AdminSetting {
   value: string;
   updated_at: string;
 }
+
+export interface VideoIndexRecord {
+  id: string;
+  s3_bucket: string;
+  s3_key: string;
+  dataset_id: string | null;
+  caption_text: string | null;
+  embedding: number[] | null;
+  enrichment_source: string | null;
+  indexed_at: string;
+}
+
+export interface LeadCustomSample {
+  id: string;
+  lead_id: string;
+  video_index_id: string | null;
+  dataset_sample_id: string | null;
+  s3_bucket: string | null;
+  s3_key: string | null;
+  added_by: string | null;
+  note: string | null;
+  added_at: string;
+}
+
+// ---------------------------------------------------------------------------
+// Unified Search Result (discriminated union for catalog vs full_corpus)
+// ---------------------------------------------------------------------------
+
+interface BaseSearchResult {
+  id: string;
+  similarity: number;
+  description: string | null;
+  signed_url: string | null;
+}
+
+export interface CatalogSearchResult extends BaseSearchResult {
+  source: 'catalog';
+  dataset_id: string;
+  dataset_name: string;
+  environments: string[];
+  activities: string[];
+  objects: string[];
+  camera_perspective: string | null;
+  mime_type: string;
+}
+
+export interface FullCorpusSearchResult extends BaseSearchResult {
+  source: 'full_corpus';
+  s3_bucket: string;
+  s3_key: string;
+  caption_text: string | null;
+  enrichment_source: string | null;
+}
+
+export type UnifiedSearchResult = CatalogSearchResult | FullCorpusSearchResult;
 
 // ---------------------------------------------------------------------------
 // Public API Response Types

@@ -8,18 +8,7 @@ import { getS3SignedUrl } from "@/lib/s3/presigner";
 import type { Dataset, DatasetCategory, DatasetSample } from "@/types/data-catalog";
 
 import { SampleGallery } from "./SampleGallery";
-
-/** Recursively replace any string containing "s3://" with "[redacted]". */
-function scrubS3Urls(value: unknown): unknown {
-  if (typeof value === "string") return value.includes("s3://") ? "[redacted]" : value;
-  if (Array.isArray(value)) return value.map(scrubS3Urls);
-  if (value !== null && typeof value === "object") {
-    return Object.fromEntries(
-      Object.entries(value as Record<string, unknown>).map(([k, v]) => [k, scrubS3Urls(v)])
-    );
-  }
-  return value;
-}
+import { scrubS3Urls } from "@/lib/scrub-s3-urls";
 
 // =============================================================================
 // Dataset Detail Page (Server Component)
@@ -41,6 +30,30 @@ function formatDatasetType(type: string): string {
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+}
+
+/** Keys to strip entirely from metadata before sending to portal clients. */
+const PORTAL_HIDDEN_KEYS = new Set([
+  "userId", "reviewerId", "payoutId", "amount", "paymentStatus",
+  "paymentDate", "cost", "browserMetadata", "rejectionReason",
+  "rejectionCount", "rejectedAt", "isTestTemplate", "annotationIndex",
+  "source_bucket", "source_torage_key", "source_url", "delivery", "tranche",
+  "annotationCost", "reviewCost", "projectGuideLink", "slackChannel",
+]);
+
+/** Recursively strip hidden keys from a value. */
+function stripHiddenKeys(value: unknown, key?: string): unknown {
+  if (key && PORTAL_HIDDEN_KEYS.has(key)) return undefined;
+  if (Array.isArray(value)) return value.map((v) => stripHiddenKeys(v));
+  if (value !== null && typeof value === "object") {
+    const result: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      const stripped = stripHiddenKeys(v, k);
+      if (stripped !== undefined) result[k] = stripped;
+    }
+    return result;
+  }
+  return value;
 }
 
 // ---------------------------------------------------------------------------
@@ -101,11 +114,21 @@ export default async function DatasetDetailPage({
     .eq("id", dataset.category_id)
     .single<DatasetCategory>();
 
-  // Fetch samples
+  // Get current user's lead_id for lead-specific sample filtering
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: leadRow } = user ? await supabase
+    .from("leads")
+    .select("id")
+    .eq("supabase_user_id", user.id)
+    .single() : { data: null };
+  const leadId = leadRow?.id;
+
+  // Fetch samples: base samples (lead_id IS NULL) + this lead's custom samples
   const { data: samples } = await supabase
     .from("dataset_samples")
     .select("*")
     .eq("dataset_id", id)
+    .or(leadId ? `lead_id.is.null,lead_id.eq.${leadId}` : "lead_id.is.null")
     .order("created_at", { ascending: true })
     .returns<DatasetSample[]>();
 
@@ -140,7 +163,7 @@ export default async function DatasetDetailPage({
   const samplesWithUrls = samplesList.map((sample, i) => ({
     sample: {
       ...sample,
-      metadata_json: (scrubS3Urls(sample.metadata_json) ?? {}) as Record<string, unknown>,
+      metadata_json: (scrubS3Urls(stripHiddenKeys(sample.metadata_json)) ?? {}) as Record<string, unknown>,
     },
     signedUrl: signedUrls[i] ?? "",
   }));

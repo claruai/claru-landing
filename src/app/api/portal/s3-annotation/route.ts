@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { fetchAnnotationJson } from "@/lib/s3/annotation";
+import { scrubS3Urls } from "@/lib/scrub-s3-urls";
 
 // =============================================================================
 // POST /api/portal/s3-annotation
@@ -41,6 +42,7 @@ const SENSITIVE_KEYS = new Set([
   "userId", "reviewerId", "payoutId", "amount", "paymentStatus",
   "paymentDate", "cost", "browserMetadata", "rejectionReason",
   "rejectionCount", "rejectedAt", "isTestTemplate", "annotationIndex",
+  "source_bucket", "source_torage_key", "source_url", "delivery", "tranche",
 ]);
 const SENSITIVE_PROJECT_KEYS = new Set([
   "annotationCost", "annotationCostType", "reviewCost", "isCompleted",
@@ -48,30 +50,15 @@ const SENSITIVE_PROJECT_KEYS = new Set([
   "templateData", "configuration",
 ]);
 
-/**
- * Recursively walk any JSON value and replace strings containing "s3://"
- * with "[redacted]" so internal bucket paths never reach the client.
- */
-function scrubS3Urls(value: unknown): unknown {
-  if (typeof value === "string") {
-    return value.includes("s3://") ? "[redacted]" : value;
-  }
-  if (Array.isArray(value)) {
-    return value.map(scrubS3Urls);
-  }
-  if (value !== null && typeof value === "object") {
-    const result: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
-      result[k] = scrubS3Urls(v);
-    }
-    return result;
-  }
-  return value;
-}
 
-function stripSensitiveFields(data: Record<string, unknown>): Record<string, unknown> {
+function stripSensitiveFields(data: unknown): unknown {
+  if (data === null || data === undefined) return data;
+  if (Array.isArray(data)) return data.map(stripSensitiveFields);
+  if (typeof data !== "object") return data;
+
+  const obj = data as Record<string, unknown>;
   const cleaned: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(data)) {
+  for (const [key, value] of Object.entries(obj)) {
     if (SENSITIVE_KEYS.has(key)) continue;
     if (key === "project" && value && typeof value === "object") {
       const project: Record<string, unknown> = {};
@@ -79,6 +66,8 @@ function stripSensitiveFields(data: Record<string, unknown>): Record<string, unk
         if (!SENSITIVE_PROJECT_KEYS.has(pk)) project[pk] = pv;
       }
       cleaned[key] = project;
+    } else if (value && typeof value === "object") {
+      cleaned[key] = stripSensitiveFields(value);
     } else {
       cleaned[key] = value;
     }
@@ -170,7 +159,7 @@ export async function POST(request: NextRequest) {
       // - The requested objectKey matches the stored s3_annotation_key
       //   (if the key changed, the cache is stale)
       if (cachedAt && storedKey === objectKey) {
-        return NextResponse.json({ annotation: scrubS3Urls(stripSensitiveFields(metadata)), cached: true });
+        return NextResponse.json({ annotation: scrubS3Urls(stripSensitiveFields(metadata) as Record<string, unknown>), cached: true });
       }
     }
     // If sample not found or cache miss, fall through to S3 fetch
@@ -204,5 +193,5 @@ export async function POST(request: NextRequest) {
   }
 
   // 6. Strip sensitive fields (costs, PII) before returning to leads
-  return NextResponse.json({ annotation: scrubS3Urls(stripSensitiveFields(annotationData)), cached: false });
+  return NextResponse.json({ annotation: scrubS3Urls(stripSensitiveFields(annotationData) as Record<string, unknown>), cached: false });
 }
