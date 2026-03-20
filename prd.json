@@ -1,247 +1,413 @@
 {
-  "project": "Personalized Prospect Pages",
-  "branchName": "ralph/prospect-pages",
-  "description": "Custom deal room pages at /for/[company] combining hand-crafted prospect narratives with shared dynamic components. Dark terminal aesthetic, PostHog tracking, 30-day expiry, noindex privacy. First page: /for/rime.",
+  "project": "Catalog Semantic Enrichment & MCP Server",
+  "branchName": "ralph/catalog-enrichment-mcp",
+  "description": "Semantic enrichment pipeline + pgvector embeddings + MCP server for AI agent catalog search + admin search/enrichment UI",
   "userStories": [
     {
-      "id": "US-001",
-      "title": "Shared Case Study Mapping",
-      "description": "As a developer, I need a case study metadata mapping so prospect pages can reference case studies by slug.",
+      "id": "US-000",
+      "title": "Create .env.example with all required environment variables",
+      "description": "As a developer, I need a .env.example file committed to the repo that documents every environment variable required by the enrichment and MCP features.",
       "acceptanceCriteria": [
-        "Create src/lib/case-studies.ts with a CASE_STUDIES const object mapping slug to { title, description, tags, url }",
-        "Include all 11 published case studies: red-teaming-moderation, video-quality-at-scale, video-content-classification, prompt-enhancement-benchmark, object-identity-persistence, workplace-egocentric-data, video-model-evaluation, generative-ai-safety, fashion-ai-annotation, game-based-data-capture, egocentric-video-collection",
-        "Tags include relevant keywords (video, annotation, robotics, safety, gaming, speech, content-moderation, manufacturing, fashion, egocentric)",
-        "Export getCaseStudy(slug) helper and getCaseStudiesByTag(tag) helper",
+        "Create .env.example at project root with all required variables: OPENAI_API_KEY, GEMINI_API_KEY, ADMIN_MCP_TOKEN, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION",
+        "Comments note which deployment targets need each variable (Vercel, Supabase Edge Functions, local scripts)",
+        ".env.example is NOT gitignored (must be committed)",
+        ".env.local remains gitignored (no change)",
         "Typecheck passes"
       ],
       "priority": 1,
       "passes": true,
-      "notes": "Case studies are static Next.js pages at /case-studies/[slug]. No Supabase table. This mapping provides metadata for the CaseStudyCard component. Check the live site at claru.ai/case-studies for titles and descriptions. | COMPLETED by background agent"
+      "notes": ""
     },
     {
-      "id": "US-002",
-      "title": "CaseStudyCard Component",
-      "description": "As a prospect viewing the page, I want to see relevant case studies as rich cards.",
+      "id": "US-001",
+      "title": "Enable pgvector and add DB columns to dataset_samples",
+      "description": "As a developer, I need the vector extension enabled and agent_context + embedding columns added to dataset_samples.",
       "acceptanceCriteria": [
-        "Create src/app/components/prospect/CaseStudyCard.tsx as a client component ('use client')",
-        "Props: slug: string (looks up from CASE_STUDIES mapping in src/lib/case-studies.ts)",
-        "Displays: title, description (line-clamp-2), tags as pills, 'Read Case Study \u2192' link",
-        "Dark card style: bg #121210, border #2a2a28, accent #92B090, text #FFFFFF",
-        "Framer Motion fade-in animation on scroll using whileInView",
-        "Case study links open in new tab with rel='noopener noreferrer'",
-        "Gracefully render 'Unavailable' state when slug not found \u2014 do NOT throw",
-        "Responsive: full-width on mobile, side-by-side grid on desktop",
+        "Run SQL: create extension if not exists vector with schema extensions",
+        "Add column: agent_context jsonb (nullable)",
+        "Add column: embedding extensions.vector(1536) (nullable)",
+        "Create HNSW index on embedding column using vector_cosine_ops",
+        "Migration is idempotent — running twice does not error",
+        "Update TypeScript types in src/types/data-catalog.ts to include agent_context and embedding fields",
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": true,
-      "notes": "Depends on US-001 for the CASE_STUDIES mapping. Design should match the landing page card style from src/app/components/sections/. Use JetBrains Mono for tag pills. | COMPLETED by background agent"
+      "passes": false,
+      "notes": "Use Supabase MCP to run migration. Read tasks/docs/catalog-enrichment-design.md sections: Database Schema"
     },
     {
-      "id": "US-003",
-      "title": "DatasetShowcase Component",
-      "description": "As a prospect, I want to see relevant datasets from Claru's catalog.",
+      "id": "US-002",
+      "title": "Extract scrubS3Urls into shared lib with expanded matching",
+      "description": "As a developer, I need scrubS3Urls() as a shared utility that catches all S3 reference variants.",
       "acceptanceCriteria": [
-        "Create src/app/components/prospect/DatasetShowcase.tsx as an async server component",
-        "Props: datasetIds: string[] (UUIDs from Supabase datasets table)",
-        "Fetch dataset metadata using createClient with anon key (NOT createSupabaseServerClient \u2014 same pattern as src/app/api/public/datasets/route.ts)",
-        "Query MUST filter is_published = true",
-        "Each card shows: name, category badge, source_type badge (COLLECTED/SYNTHETIC/CURATED), sample count, duration if applicable",
-        "Handle empty datasetIds array \u2014 hide section entirely",
-        "If any dataset ID returns null or is filtered by RLS, show 'Dataset unavailable' pill rather than crashing",
-        "Dark card style matching landing page: bg #121210, border #2a2a28, accent #92B090",
-        "Responsive: horizontal scroll on mobile, grid on desktop",
+        "Create src/lib/scrub-s3-urls.ts exporting scrubS3Urls(value: unknown): unknown",
+        "Handles s3://bucket/path, s3%3A%2F%2F (URL-encoded), arn:aws:s3:::bucket/path (ARN), presigned AWS URLs with X-Amz-Signature",
+        "Replacement is surgical: only matching portion replaced with [S3_REDACTED]",
+        "Update /api/portal/s3-annotation/route.ts to import from shared lib",
+        "Update portal/catalog/[id]/page.tsx to import from shared lib",
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": true,
-      "notes": "IMPORTANT: Use createClient from @supabase/supabase-js with NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY directly. Do NOT use createSupabaseServerClient which passes auth cookies and causes RLS issues (this was a bug we fixed in the public datasets API). Wrap in cache() to avoid new connections per request. Dataset type is defined in src/types/data-catalog.ts. | COMPLETED by background agent"
+      "passes": false,
+      "notes": ""
     },
     {
-      "id": "US-004",
-      "title": "WorkforceStats Component",
-      "description": "As a prospect, I want to see Claru's operational scale.",
+      "id": "US-003",
+      "title": "OpenAI embeddings wrapper + agentContextToEmbeddingText utility",
+      "description": "As a developer, I need a typed utility to generate embeddings and convert agent_context to embedding input text.",
       "acceptanceCriteria": [
-        "Create src/app/components/prospect/WorkforceStats.tsx as a client component ('use client')",
-        "Display 4 stats in terminal-styled grid: Annotators (2,000+), Countries (14), Annotations Delivered (3M+), QA Turnaround (Same-day)",
-        "Stats are hardcoded constants in a WORKFORCE_STATS array \u2014 easy to update in one place",
-        "Animated counter effect on scroll using Framer Motion useInView + animate",
-        "JetBrains Mono font for numbers, Geist Sans for labels",
-        "Dark terminal aesthetic: bg #0a0908, accent #92B090 for numbers, #FFFFFF for labels",
-        "Responsive: 2x2 grid on mobile, 4-column on desktop",
+        "Create src/lib/embeddings/openai.ts exporting generateEmbedding(text: string): Promise<number[]>",
+        "Uses text-embedding-3-small model, returns 1536-dimension vector",
+        "Throws typed error if OPENAI_API_KEY is not set",
+        "Also exports agentContextToEmbeddingText() that concatenates scene_summary + environments + activities + objects + camera_perspective",
+        "Handles missing/empty fields gracefully",
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": true,
-      "notes": "Check src/app/components/sections/CatalogPreview.tsx for the existing animated counter pattern \u2014 reuse that approach. Stats should feel like a terminal readout. | COMPLETED by background agent"
+      "passes": false,
+      "notes": "Use context7 MCP to check OpenAI SDK docs if needed"
     },
     {
-      "id": "US-005",
-      "title": "CalendlyEmbed Component",
-      "description": "As a prospect, I want to book a call directly from the page.",
+      "id": "US-004",
+      "title": "Create match_samples Postgres RPC function",
+      "description": "As a developer, I need a Postgres function for cosine similarity search over sample embeddings.",
       "acceptanceCriteria": [
-        "Create src/app/components/prospect/CalendlyEmbed.tsx as a client component ('use client')",
-        "Load Calendly inline embed script dynamically \u2014 only once per page",
-        "Use a hardcoded booking URL (check Supabase settings table for current booking_url value and hardcode it)",
-        "If booking_url is misconfigured, render fallback CTA button with mailto:team@claru.ai",
-        "Inline widget (not popup) with dark theme (background_color=0a0908, text_color=ffffff, primary_color=92B090)",
-        "Section header: 'Book a Call' in JetBrains Mono",
-        "Responsive: full-width embed, min-height 650px",
+        "SQL migration creates match_samples(query_embedding extensions.vector(1536), match_count int, dataset_id uuid default null)",
+        "Returns table(sample_id uuid, dataset_id uuid, dataset_name text, similarity float, agent_context jsonb, s3_object_key text, mime_type text)",
+        "Joins datasets table for dataset_name",
+        "Optional dataset_id filter",
+        "Excludes rows where embedding IS NULL",
+        "Results ordered by cosine similarity descending",
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": true,
-      "notes": "Calendly inline embed uses their embed.js script. Load it once in useEffect. The existing CalendlyContext in the landing page uses a popup model \u2014 this component should be self-contained with inline embed instead. Check settings table: SELECT value FROM settings WHERE key = 'booking_url'. | COMPLETED by background agent"
+      "passes": false,
+      "notes": "Use Supabase MCP to apply migration"
     },
     {
-      "id": "US-006",
-      "title": "ChallengesSolutions Component",
-      "description": "As a prospect, I want to see my specific challenges mapped to Claru's solutions.",
+      "id": "US-005a",
+      "title": "Field-mapping library: variant detection + Egocentric mapper",
+      "description": "As a developer, I need the field-mapping library that detects enrichment variants and maps Egocentric data.",
       "acceptanceCriteria": [
-        "Create src/app/components/prospect/ChallengesSolutions.tsx as a client component ('use client')",
-        "Props: items: Array<{ challenge: string; solution: string }>",
-        "Two-column layout: left = 'Your Challenge' (monospace, #e8e8e8), right = 'How We Help' (accent #92B090)",
-        "Subtle connecting arrow or line between challenge and solution columns",
-        "Framer Motion stagger animation on scroll \u2014 each row animates in sequence",
-        "Section header: 'Your Challenges \u2192 Our Solutions' in JetBrains Mono",
-        "Responsive: stacks vertically on mobile (challenge above solution per item)",
+        "Create src/lib/enrichment/field-mapper.ts with detectVariant() function",
+        "Detects: Egocentric (has environment_label), Food/Lifestyle (has captions.detailed), Generic (fallback)",
+        "mapEgocentric(): scene_summary = task_description + ' ' + environment_description; environments from environment_label; activities from task; hands -> objects; camera_perspective = egocentric_first_person",
+        "Returns AgentContext with zero-value defaults for missing fields",
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": true,
-      "notes": "This is the most custom section per prospect page \u2014 the items array is different for every company. Keep the component generic so it just renders whatever items are passed in. | COMPLETED by background agent"
+      "passes": false,
+      "notes": "Read tasks/docs/catalog-enrichment-design.md sections: Field Mapping Strategy"
     },
     {
-      "id": "US-007",
-      "title": "ExpiryGate Component (30-day expiry)",
-      "description": "As the business owner, I want prospect pages to auto-expire after 30 days.",
+      "id": "US-005b",
+      "title": "Field-mapping: Food/Lifestyle + Generic mappers + CLI script",
+      "description": "As a developer, I need remaining mappers and the runnable CLI script.",
       "acceptanceCriteria": [
-        "Create src/app/components/prospect/ExpiryGate.tsx as a client component ('use client')",
-        "Props: createdAt: string (ISO date), children: React.ReactNode",
-        "Compare current date to createdAt + 30 days",
-        "If expired: render graceful expired state with Claru branding \u2014 'This page is no longer available. Please contact us at team@claru.ai for updated information.'",
-        "If not expired: render children normally",
-        "Show subtle 'This page expires in X days' note when < 7 days remain",
-        "Expired state uses same dark theme, centered layout, Claru logo",
+        "mapFoodLifestyle(): scene_summary from captions.detailed; activities from captions.activities; objects from captions.objects",
+        "mapGeneric(): tries scene_analysis then captions.detailed then description",
+        "Create scripts/map-enrichment-to-agent-context.ts",
+        "Only processes samples where agent_context IS NULL (idempotent)",
+        "Supports --dry-run, --dataset-id, --limit flags",
+        "Summary log: Mapped X / skipped Y / failed Z",
         "Typecheck passes"
       ],
       "priority": 7,
-      "passes": true,
-      "notes": "Client-side date check is the primary mechanism. Server-side ISR revalidation (revalidate: 86400) in the layout provides a backup so expired pages re-render server-side daily. | COMPLETED by background agent"
+      "passes": false,
+      "notes": ""
     },
     {
-      "id": "US-008",
-      "title": "ProspectPageLayout \u2014 layout.tsx for /for/*",
-      "description": "As a developer, I need a shared layout for all prospect pages.",
+      "id": "US-006",
+      "title": "Gemini enrichment batch script",
+      "description": "As a developer, I need a script that calls Gemini Vision on unenriched samples.",
       "acceptanceCriteria": [
-        "Create src/app/for/layout.tsx as the layout for all /for/* routes",
-        "Export metadata with robots: { index: false, follow: false }",
-        "Set X-Robots-Tag: noindex, nofollow response header as backup",
-        "Apply dark theme matching main landing page (NOT portal theme)",
-        "Minimal header: Claru logo (links to claru.ai), no navigation links",
-        "Minimal footer: 'Prepared for [Company]' text + legal links (Privacy, Terms)",
-        "Footer includes subtle 'Shared with [Name] \u00b7 [Company]' watermark",
-        "Layout accepts children and passes through companyName and recipientName props via React context or slot pattern",
-        "Set revalidate: 86400 for ISR (server-side expiry backup)",
+        "Create scripts/enrich-samples-gemini.ts using gemini-2.0-flash",
+        "For each sample where agent_context IS NULL: generates signed URL, sends to Gemini with open-ended prompt",
+        "Parses response into AgentContext, preserves extra fields",
+        "Scrubs S3 URLs from response before DB write",
+        "p-limit concurrency: max 5 concurrent, exponential backoff on 429 (1s initial, 3 retries, 2x)",
+        "Supports --dry-run, --dataset-id, --limit flags",
+        "Per-sample error handling — failures logged, batch continues",
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": true,
-      "notes": "IMPORTANT: Check src/middleware.ts and ensure /for/* routes are NOT caught by portal auth middleware. If middleware checks portal paths, add an exclusion for /for/. The layout should NOT import posthog-js directly \u2014 tracking goes in a client wrapper component. Use the existing design system from src/app/globals.css. | COMPLETED by background agent"
+      "passes": false,
+      "notes": "Use context7 MCP for @google/generative-ai SDK docs"
     },
     {
-      "id": "US-009",
-      "title": "Privacy & SEO \u2014 robots.txt update",
-      "description": "As the business owner, I want prospect pages excluded from search engines.",
+      "id": "US-007a",
+      "title": "Embedding sync: Postgres trigger + Vercel cron route",
+      "description": "As a developer, I need a trigger that clears stale embeddings and a cron route.",
       "acceptanceCriteria": [
-        "Add Disallow: /for/ to robots.txt (check if public/robots.txt exists, create if not)",
-        "Verify /for/ paths are NOT in any sitemap (check for sitemap generation in next-sitemap or similar)",
-        "Confirm no internal links from public pages point to /for/* routes (grep codebase)",
+        "SQL: BEFORE UPDATE trigger sets embedding = NULL when agent_context changes",
+        "Create src/app/api/cron/embed-samples/route.ts — invokes Edge Function, validates CRON_SECRET",
+        "Update vercel.json with cron entry every 60 seconds",
         "Typecheck passes"
       ],
       "priority": 9,
-      "passes": true,
-      "notes": "The noindex meta tag is handled in US-008 layout. This story handles robots.txt and sitemap exclusion as defense-in-depth. | COMPLETED by background agent"
+      "passes": false,
+      "notes": ""
     },
     {
-      "id": "US-010",
-      "title": "PostHog Tracking Hook for Prospect Pages",
-      "description": "As the sales team, I want to track prospect engagement on their pages.",
+      "id": "US-007b",
+      "title": "Embedding sync: Supabase Edge Function embed-samples",
+      "description": "As a developer, I need the Edge Function that polls and generates embeddings.",
       "acceptanceCriteria": [
-        "Create src/app/components/prospect/ProspectTracking.tsx as a client component ('use client')",
-        "Props: companySlug: string, companyName: string",
-        "Fire prospect_page_viewed event on mount with { company_slug, company_name, utm_source: 'prospect_page' }",
-        "Track prospect_page_scroll_depth at 25%, 50%, 75%, 100% thresholds \u2014 throttled to once per 3s",
-        "Track prospect_section_viewed via IntersectionObserver when each section enters viewport with { company_slug, section_name }",
-        "Track prospect_page_time_spent on page visibility change / unload with { company_slug, seconds_spent }",
-        "Track cta_clicked for Calendly or mailto clicks with { company_slug, cta_type }",
-        "Track case_study_clicked with { company_slug, case_study_slug }",
-        "All PostHog events include utm_source: 'prospect_page' property",
-        "PostHog logic must NOT be imported in server components",
-        "Use existing posthog-js setup (check for PostHogProvider in root layout or posthog init)",
+        "Create supabase/functions/embed-samples/index.ts (Deno)",
+        "Polls: SELECT id, agent_context FROM dataset_samples WHERE agent_context IS NOT NULL AND embedding IS NULL LIMIT 10",
+        "Calls agentContextToEmbeddingText() then OpenAI, writes embedding column",
+        "Auth: validates service role key only",
+        "Per-sample error handling",
+        "Deploy via supabase functions deploy embed-samples",
         "Typecheck passes"
       ],
       "priority": 10,
-      "passes": true,
-      "notes": "Check if posthog-js is already installed and initialized. If not, install it and add a basic init. The section tracking needs data-section attributes on each section wrapper in the prospect page. Export a useProspectTracking hook and a SectionTracker wrapper component. | COMPLETED by background agent"
+      "passes": false,
+      "notes": ""
     },
     {
-      "id": "US-011",
-      "title": "Supabase Schema \u2014 custom_page_slug on leads",
-      "description": "As a developer, I need to track which leads have custom prospect pages.",
+      "id": "US-008",
+      "title": "Backfill embeddings for existing agent_context",
+      "description": "As a developer, I need a one-time backfill script for embeddings.",
       "acceptanceCriteria": [
-        "Add custom_page_slug column (text, nullable, unique) to leads table via Supabase migration using mcp__supabase-db__apply_migration",
-        "Update Lead interface in src/types/data-catalog.ts to include custom_page_slug: string | null",
+        "Create scripts/backfill-embeddings.ts",
+        "Queries agent_context IS NOT NULL AND embedding IS NULL",
+        "Uses generateEmbedding(agentContextToEmbeddingText(ctx)) in batches of 20",
+        "Idempotent, summary log",
         "Typecheck passes"
       ],
       "priority": 11,
-      "passes": true,
-      "notes": "Use the Supabase MCP tool: mcp__supabase-db__apply_migration. Migration SQL: ALTER TABLE leads ADD COLUMN custom_page_slug text UNIQUE; No RLS changes needed. | COMPLETED by background agent"
+      "passes": false,
+      "notes": ""
     },
     {
-      "id": "US-012",
-      "title": "/for/rime \u2014 Rime prospect page content and copy",
-      "description": "As Lily at Rime, I want to see a personalized page showing Claru understands my annotation challenges.",
+      "id": "US-009a",
+      "title": "MCP server: spike StreamableHTTPServerTransport on Vercel",
+      "description": "As a developer, I need to verify the MCP SDK works in serverless.",
       "acceptanceCriteria": [
-        "Create src/app/for/rime/page.tsx as a static page",
-        "Set PAGE_CREATED constant to today's date for expiry tracking",
-        "Wrap content in ExpiryGate with createdAt={PAGE_CREATED}",
-        "Include ProspectTracking component with companySlug='rime' companyName='Rime'",
-        "Hero section: 'Prepared for Rime' with brief context about TTS/speech AI and multilingual annotation needs",
-        "ChallengesSolutions with 3 items: (1) Hiring annotation experts across 10+ languages \u2192 Managed annotator workforce with native speakers, (2) Building annotation guidelines per language from scratch \u2192 Proven annotation protocols with linguistic QA, (3) Quality control across diverse annotators \u2192 Same-day QA pipeline with multi-reviewer consensus",
-        "2-3 CaseStudyCards using slugs: video-quality-at-scale, video-content-classification (closest proxies for annotation-at-scale)",
-        "DatasetShowcase \u2014 select 2-3 relevant published dataset IDs (query Supabase to find annotation-heavy datasets)",
-        "WorkforceStats section",
-        "CalendlyEmbed at bottom",
-        "Pass companyName='Rime' and recipientName='Lily' to layout context for footer personalization",
-        "Page matches dark terminal aesthetic with Framer Motion animations",
-        "Responsive across desktop, tablet, mobile",
+        "Create minimal src/app/api/mcp/route.ts with StreamableHTTPServerTransport",
+        "Register one test tool (echo) via mcpServer.tool()",
+        "Verify POST handles JSON-RPC tools/call and GET returns tool list",
+        "Document serverless compatibility findings in code comment",
+        "If incompatible, fall back to SSEServerTransport or manual JSON-RPC",
         "Typecheck passes"
       ],
       "priority": 12,
-      "passes": true,
-      "notes": "This is the template page \u2014 future prospect pages will be created by copying this file and changing the custom content. Section order: Hero \u2192 Challenges/Solutions \u2192 Case Studies \u2192 Datasets \u2192 Workforce Stats \u2192 Book a Call. Design system: bg #0a0908, accent #92B090, text #FFFFFF, fonts Geist Sans + JetBrains Mono. Check src/app/globals.css for existing CSS variables and classes. | COMPLETED by background agent"
+      "passes": false,
+      "notes": "Use context7 MCP for @modelcontextprotocol/sdk docs"
     },
     {
-      "id": "US-013",
-      "title": "Visual QA \u2014 verify /for/rime in browser",
-      "description": "As QA, I need to verify the Rime prospect page renders correctly across viewports.",
+      "id": "US-009b",
+      "title": "MCP server: auth + rate limiting",
+      "description": "As a developer, I need bearer token auth and rate limiting on the MCP endpoint.",
       "acceptanceCriteria": [
-        "Run dev server on port 3000 or 3005",
-        "Navigate to /for/rime in browser",
-        "Take screenshots at: hero, challenges/solutions, case studies, datasets, workforce stats, calendly",
-        "Verify all 6 sections render with content (no blank sections)",
-        "Verify noindex meta tag is present in page source",
-        "Verify dark theme is applied (not portal theme or light theme)",
-        "Verify responsive at desktop (1440px) and mobile (375px)",
-        "Verify case study links open in new tab",
-        "Verify no console errors",
-        "Fix any critical visual issues found",
+        "Auth: Bearer token from ADMIN_MCP_TOKEN, 401 on mismatch",
+        "Token comparison via crypto.timingSafeEqual",
+        "Rate limiting: 100/min, 1000/hr per IP, 429 with Retry-After",
+        "In-memory rate limit store",
+        "Create src/lib/mcp/server.ts exporting McpServer instance",
         "Typecheck passes"
       ],
       "priority": 13,
-      "passes": true,
-      "notes": "Use Playwright MCP or agent-browser skill to automate screenshots. If dev server isn't running, start it with npm run dev -- --port 3005. Check that middleware doesn't redirect /for/rime to login. | COMPLETED - all sections render, noindex present, responsive works, zero console errors"
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "MCP tool: search_catalog",
+      "description": "As a Claude agent, I want search_catalog for semantic sample search.",
+      "acceptanceCriteria": [
+        "Register search_catalog: { query, limit? (default 10, max 50), dataset_id? }",
+        "Embeds query, calls match_samples RPC, fetches signed URLs",
+        "Output: sample_id, dataset_id, dataset_name, similarity, scene_summary, environments, activities, objects, camera_perspective, signed_url, mime_type",
+        "S3 URLs scrubbed, signed URLs 1-hour expiry",
+        "Empty: { results: [], message: 'No samples found matching query' }",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "MCP tool: get_dataset_overview",
+      "description": "As a Claude agent, I want a complete dataset summary.",
+      "acceptanceCriteria": [
+        "Register get_dataset_overview: { dataset_id }",
+        "Returns name, description, category, subcategory, total_samples, total_duration_hours, annotation_types",
+        "Aggregates: top 5 environments, top 5 activities, camera perspectives, embedding counts",
+        "Up to 3 representative sample signed URLs (quality_notes ordering)",
+        "404 if dataset not found, S3 URLs scrubbed",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "MCP tool: build_lead_brief",
+      "description": "As a Claude agent, I want raw structured data for lead outbound messaging.",
+      "acceptanceCriteria": [
+        "Register build_lead_brief: { company_description, use_case, limit? (default 5) }",
+        "Calls search_catalog internally with concatenated input",
+        "Groups by dataset: dataset_name, total_samples, annotation_types, matched_sample_count, representative_signed_urls, aggregated_environments, aggregated_activities",
+        "Raw data only — no marketing copy",
+        "Typecheck passes"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Admin catalog search API route",
+      "description": "As an admin, I need a backend API for semantic search.",
+      "acceptanceCriteria": [
+        "Create POST /api/admin/catalog/search",
+        "Body: { query, dataset_id?, limit? (default 20) }",
+        "Auth via verifyAdminToken(), 401 on failure",
+        "Embeds query, calls match_samples, returns results with signed URLs",
+        "Empty: { results: [], message: 'No samples found matching query' }",
+        "Typecheck passes"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014a",
+      "title": "Admin search UI: page scaffold + search input",
+      "description": "As an admin, I want the search page structure with input and filters.",
+      "acceptanceCriteria": [
+        "Create /admin/catalog/search page within admin layout",
+        "Add [search catalog] link in admin catalog header",
+        "Add [enrichment status] bracket-link to enrichment page",
+        "Dataset filter dropdown, Search button",
+        "Idle state: clickable example queries that auto-execute",
+        "Admin terminal aesthetic",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014d",
+      "title": "Admin search UI: result cards + states",
+      "description": "As an admin, I want search results as cards with all states handled.",
+      "acceptanceCriteria": [
+        "Result card: thumbnail (video preload=none), dataset name, similarity %, scene_summary, env/activity tags",
+        "Null agent_context: 'Not yet enriched' placeholder",
+        "Loading: skeleton cards",
+        "Empty: 'No samples found. Try a broader query.'",
+        "Error: dismissible message",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014b-db",
+      "title": "Admin enrichment: enrichment_jobs table",
+      "description": "As a developer, I need the enrichment_jobs table for job tracking.",
+      "acceptanceCriteria": [
+        "Migration creates enrichment_jobs: id uuid PK, status text, action text, dataset_id uuid?, processed int, total int, failed int, error_log jsonb, started_at, completed_at",
+        "Status CHECK constraint: pending/running/completed/failed",
+        "Action CHECK: map_existing/gemini_enrich",
+        "Idempotent migration",
+        "Typecheck passes"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014b-api",
+      "title": "Admin enrichment: management API routes",
+      "description": "As a developer, I need enrichment trigger and status endpoints.",
+      "acceptanceCriteria": [
+        "POST /api/admin/catalog/enrichment/run: creates job row, invokes Edge Function, returns job_id",
+        "Dry run: synchronous response with would_process count and sample list",
+        "Single-job enforcement: atomic INSERT WHERE NOT EXISTS running — 409 if busy",
+        "GET /api/admin/catalog/enrichment/status: dataset_samples aggregation counts",
+        "GET /api/admin/catalog/enrichment/job/[id]: job row + log with ?log_offset=N",
+        "All routes require verifyAdminToken()",
+        "Typecheck passes"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014b-ef",
+      "title": "Admin enrichment: run-enrichment Edge Function",
+      "description": "As a developer, I need the Edge Function that performs enrichment work.",
+      "acceptanceCriteria": [
+        "Create supabase/functions/run-enrichment/index.ts",
+        "Accepts job_id, action, dataset_id, limit",
+        "map_existing: same logic as field-mapping script",
+        "gemini_enrich: same logic as Gemini script",
+        "Updates enrichment_jobs row: processed, failed, error_log, status transitions",
+        "Deploy via supabase functions deploy run-enrichment",
+        "Typecheck passes"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014c",
+      "title": "Admin enrichment management UI",
+      "description": "As an admin, I want an enrichment dashboard to trigger and monitor jobs.",
+      "acceptanceCriteria": [
+        "Page at /admin/catalog/enrichment",
+        "Cross-navigation: [search catalog] link",
+        "Status overview with progress bar, per-dataset table with Map Existing / Gemini Enrich dropdown per row",
+        "Global action buttons + dry run checkbox",
+        "Job progress: polls every 3s, progress bar + terminal log",
+        "Buttons disabled during active job",
+        "Terminal states stop polling",
+        "Admin terminal aesthetic",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 23,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Playwright E2E test for search flow",
+      "description": "As QA, I need an E2E test for admin search.",
+      "acceptanceCriteria": [
+        "Create tests/e2e/catalog-search.spec.ts",
+        "Log in, navigate to /admin/catalog/search, search, assert results with similarity scores",
+        "Assert cards show dataset name + scene_summary + media",
+        "Typecheck passes"
+      ],
+      "priority": 24,
+      "passes": false,
+      "notes": "Requires populated agent_context + embeddings"
+    },
+    {
+      "id": "US-016",
+      "title": "Playwright MCP UAT: full feature verification",
+      "description": "As QA, full UAT via Playwright MCP.",
+      "acceptanceCriteria": [
+        "Verify agent_context + embeddings populated for 5+ samples",
+        "Admin search: 2 queries with different results",
+        "Admin enrichment: verify status overview counts",
+        "MCP endpoint: POST /api/mcp search_catalog tool call returns valid response",
+        "No s3:// strings in any response",
+        "Typecheck passes"
+      ],
+      "priority": 25,
+      "passes": false,
+      "notes": "UAT: admin portal UI only, no direct DB access"
     }
   ]
 }
