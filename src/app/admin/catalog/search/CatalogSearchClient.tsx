@@ -2,7 +2,8 @@
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, Copy, Check, ExternalLink } from "lucide-react";
+import AddToLeadButton from "./AddToLeadButton";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -255,6 +256,15 @@ export default function CatalogSearchClient({
 function ResultCard({ result }: { result: SearchResult }) {
   const similarityPct = Math.round(result.similarity * 100);
   const isVideo = result.mime_type?.startsWith("video/");
+  const [copied, setCopied] = useState<"id" | "url" | null>(null);
+
+  const copyToClipboard = useCallback(async (text: string, type: "id" | "url") => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(type);
+      setTimeout(() => setCopied(null), 2000);
+    } catch { /* clipboard unavailable */ }
+  }, []);
 
   return (
     <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] overflow-hidden">
@@ -264,10 +274,11 @@ function ResultCard({ result }: { result: SearchResult }) {
           isVideo ? (
             <video
               src={result.signed_url}
-              preload="none"
+              preload="metadata"
               muted
+              playsInline
               className="w-full h-full object-cover"
-              onMouseEnter={(e) => (e.target as HTMLVideoElement).play()}
+              onMouseEnter={(e) => (e.target as HTMLVideoElement).play().catch(() => {})}
               onMouseLeave={(e) => {
                 const v = e.target as HTMLVideoElement;
                 v.pause();
@@ -332,6 +343,33 @@ function ResultCard({ result }: { result: SearchResult }) {
             ))}
           </div>
         )}
+
+        {/* Copy links + Add to Lead */}
+        <div className="flex items-center gap-2 pt-2 border-t border-[var(--border-subtle)]">
+          <button
+            onClick={() => copyToClipboard(result.sample_id, "id")}
+            className="flex items-center gap-1 text-[10px] font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors"
+            title={`Sample ID: ${result.sample_id}`}
+          >
+            {copied === "id" ? <Check className="w-2.5 h-2.5" /> : <Copy className="w-2.5 h-2.5" />}
+            {copied === "id" ? "copied" : result.sample_id.slice(0, 8)}
+          </button>
+          {result.signed_url && (
+            <a
+              href={result.signed_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-[10px] font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors"
+              title="Open media in new tab"
+            >
+              <ExternalLink className="w-2.5 h-2.5" />
+              open
+            </a>
+          )}
+          <div className="ml-auto">
+            <AddToLeadButton datasetSampleId={result.sample_id} compact />
+          </div>
+        </div>
       </div>
     </div>
   );
