@@ -105,49 +105,99 @@ export async function POST(
 
   const supabase = createSupabaseAdminClient();
 
-  // Denormalize s3_bucket + s3_key from the source
-  let s3_bucket: string | null = null;
-  let s3_key: string | null = null;
-
   if (video_index_id) {
+    // ------------------------------------------------------------------
+    // Adding a full-corpus clip → create a dataset_samples row with lead_id
+    // ------------------------------------------------------------------
     const { data: vi } = await supabase
       .from("video_index")
-      .select("s3_bucket, s3_key")
+      .select("s3_bucket, s3_key, caption_text, enrichment_source")
       .eq("id", video_index_id)
       .single();
-    if (vi) {
-      s3_bucket = vi.s3_bucket;
-      s3_key = vi.s3_key;
+
+    if (!vi) {
+      return NextResponse.json({ error: "Video not found" }, { status: 404 });
     }
-  } else if (dataset_sample_id) {
+
+    // Resolve which dataset this clip belongs to via prefix routing
+    const { data: routeResult } = await supabase.rpc("resolve_dataset_for_s3_key", {
+      p_bucket: vi.s3_bucket,
+      p_key: vi.s3_key,
+    });
+
+    const datasetId = routeResult as string | null;
+    if (!datasetId) {
+      return NextResponse.json(
+        { error: `No dataset mapping found for ${vi.s3_bucket}/${vi.s3_key.split("/")[0]}` },
+        { status: 400 }
+      );
+    }
+
+    // Guess mime type from extension
+    const ext = vi.s3_key.split(".").pop()?.toLowerCase();
+    const mimeMap: Record<string, string> = {
+      mp4: "video/mp4", mov: "video/quicktime", webm: "video/webm",
+      jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png",
+    };
+    const mimeType = (ext && mimeMap[ext]) || "video/mp4";
+
+    // Insert as a lead-specific sample in the resolved dataset
+    const { data: sample, error } = await supabase
+      .from("dataset_samples")
+      .insert({
+        dataset_id: datasetId,
+        lead_id: id,
+        s3_object_key: vi.s3_key,
+        filename: vi.s3_key.split("/").pop() || "sample",
+        mime_type: mimeType,
+        file_size_bytes: 0,
+        metadata_json: { caption: vi.caption_text, source: vi.enrichment_source, note },
+        added_by: "admin",
+        source_video_index_id: video_index_id,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("[POST custom-samples] insert dataset_samples", error);
+      return NextResponse.json({ error: "Insert failed" }, { status: 500 });
+    }
+
+    // Ensure the lead has access to this dataset
+    await supabase
+      .from("lead_dataset_access")
+      .upsert({ lead_id: id, dataset_id: datasetId }, { onConflict: "lead_id,dataset_id" });
+
+    return NextResponse.json({
+      sample,
+      dataset_id: datasetId,
+      message: "Added to dataset as lead-specific sample",
+    }, { status: 201 });
+
+  } else {
+    // ------------------------------------------------------------------
+    // Adding an existing catalog sample → just tag it for the lead
+    // (This is for cases where the sample already exists in dataset_samples
+    // but the lead doesn't have access to that dataset yet)
+    // ------------------------------------------------------------------
     const { data: ds } = await supabase
       .from("dataset_samples")
-      .select("s3_object_key")
-      .eq("id", dataset_sample_id)
+      .select("dataset_id")
+      .eq("id", dataset_sample_id!)
       .single();
-    if (ds?.s3_object_key) {
-      s3_key = ds.s3_object_key;
+
+    if (!ds) {
+      return NextResponse.json({ error: "Sample not found" }, { status: 404 });
     }
+
+    // Grant lead access to the dataset
+    await supabase
+      .from("lead_dataset_access")
+      .upsert({ lead_id: id, dataset_id: ds.dataset_id }, { onConflict: "lead_id,dataset_id" });
+
+    return NextResponse.json({
+      dataset_id: ds.dataset_id,
+      message: "Lead granted access to dataset containing this sample",
+    }, { status: 201 });
   }
-
-  const { data, error } = await supabase
-    .from("lead_custom_samples")
-    .insert({
-      lead_id: id,
-      video_index_id: video_index_id ?? null,
-      dataset_sample_id: dataset_sample_id ?? null,
-      s3_bucket,
-      s3_key,
-      added_by: "admin",
-      note: note ?? null,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    console.error("[POST custom-samples]", error);
-    return NextResponse.json({ error: "Insert failed" }, { status: 500 });
-  }
-
-  return NextResponse.json({ sample: data }, { status: 201 });
 }

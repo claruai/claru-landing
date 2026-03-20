@@ -69,6 +69,9 @@ export interface DatasetSample {
   enrichment_json: Record<string, unknown>;
   agent_context: Record<string, unknown> | null;
   embedding: number[] | null;
+  lead_id: string | null;
+  added_by: string | null;
+  source_video_index_id: string | null;
   created_at: string;
 }
 

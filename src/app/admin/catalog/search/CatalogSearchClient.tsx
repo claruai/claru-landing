@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Search, Loader2, Copy, Check, ExternalLink, UserPlus, X, ChevronDown } from "lucide-react";
+import { Search, Loader2, Copy, Check, ExternalLink, UserPlus, X, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import AddToLeadButton from "./AddToLeadButton";
 
 // ---------------------------------------------------------------------------
@@ -17,6 +17,12 @@ interface Dataset {
 
 type SearchMode = "catalog" | "full_corpus" | "both";
 
+interface AssignedLead {
+  lead_id: string;
+  lead_name: string;
+  lead_company: string;
+}
+
 /** Unified result from the search API (discriminated by source) */
 interface UnifiedResult {
   source: "catalog" | "full_corpus";
@@ -24,6 +30,7 @@ interface UnifiedResult {
   similarity: number;
   description: string | null;
   signed_url: string | null;
+  assigned_leads?: AssignedLead[];
   // catalog
   dataset_id?: string;
   dataset_name?: string;
@@ -51,6 +58,10 @@ const EXAMPLE_QUERIES = [
   "robot arm grasping objects",
 ];
 
+const SEARCH_PAGE_SIZE = 24;
+const SEARCH_MAX_RESULTS = 100;
+const BROWSE_PAGE_SIZE = 48;
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -74,12 +85,34 @@ export default function CatalogSearchClient({
   );
   const [datasetFilter, setDatasetFilter] = useState(searchParams.get("dataset") ?? "");
   const [bucketFilter, setBucketFilter] = useState(searchParams.get("bucket") ?? "");
+  const [subcategoryFilter, setSubcategoryFilter] = useState(searchParams.get("subcategory") ?? "");
+  const [subcategories, setSubcategories] = useState<Array<{ name: string; count: number }>>([]);
   const [results, setResults] = useState<UnifiedResult[] | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [offset, setOffset] = useState(0);
+  const [totalCount, setTotalCount] = useState<number | null>(null);
+  const [hasMore, setHasMore] = useState(false);
 
   const fullCorpusDisabled = (videoIndexCount ?? 0) === 0;
+
+  // Load subcategories when dataset filter changes
+  useEffect(() => {
+    if (!datasetFilter) {
+      setSubcategories([]);
+      setSubcategoryFilter("");
+      return;
+    }
+    fetch(`/api/admin/catalog/${datasetFilter}/subcategories`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => {
+        if (d?.categories) setSubcategories(d.categories);
+        else setSubcategories([]);
+      })
+      .catch(() => setSubcategories([]));
+  }, [datasetFilter]);
 
   const toggleSelected = useCallback((id: string) => {
     setSelected((prev) => {
@@ -104,15 +137,31 @@ export default function CatalogSearchClient({
     [router],
   );
 
-  const runSearch = useCallback(
-    async (searchQuery: string, searchMode?: SearchMode) => {
-      if (!searchQuery.trim()) return;
-      const m = searchMode ?? mode;
+  const isBrowseMode = useCallback(
+    (q: string) => !q.trim() && (!!datasetFilter || !!bucketFilter),
+    [datasetFilter, bucketFilter],
+  );
 
-      setLoading(true);
-      setError(null);
-      setResults(null);
-      setSelected(new Set());
+  const runSearch = useCallback(
+    async (searchQuery: string, searchMode?: SearchMode, opts?: { append?: boolean; searchOffset?: number }) => {
+      // Allow empty query when a dataset or bucket filter is set (browse mode)
+      if (!searchQuery.trim() && !datasetFilter && !bucketFilter) return;
+      const m = searchMode ?? mode;
+      const browsing = !searchQuery.trim();
+      const pageSize = browsing ? BROWSE_PAGE_SIZE : SEARCH_PAGE_SIZE;
+      const requestOffset = opts?.searchOffset ?? 0;
+
+      if (opts?.append) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+        setError(null);
+        setResults(null);
+        setSelected(new Set());
+        setOffset(requestOffset);
+        setTotalCount(null);
+        setHasMore(false);
+      }
 
       try {
         const res = await fetch("/api/admin/catalog/search", {
@@ -123,7 +172,9 @@ export default function CatalogSearchClient({
             mode: m,
             dataset_id: m === "catalog" || m === "both" ? datasetFilter || undefined : undefined,
             s3_bucket: m === "full_corpus" || m === "both" ? bucketFilter || undefined : undefined,
-            limit: 20,
+            subcategory: subcategoryFilter || undefined,
+            limit: pageSize,
+            offset: requestOffset,
           }),
         });
 
@@ -133,14 +184,33 @@ export default function CatalogSearchClient({
         }
 
         const data = await res.json();
-        setResults(data.results ?? []);
+        const newResults: UnifiedResult[] = data.results ?? [];
+
+        if (browsing) {
+          // Browse mode: replace results, track total
+          setResults(newResults);
+          setOffset(requestOffset);
+          if (data.total_count !== undefined && data.total_count !== null) {
+            setTotalCount(data.total_count);
+          }
+        } else {
+          // Search mode: append or replace
+          if (opts?.append) {
+            setResults((prev) => [...(prev ?? []), ...newResults]);
+          } else {
+            setResults(newResults);
+          }
+          // Determine if more results available
+          setHasMore(newResults.length >= pageSize);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Search failed");
       } finally {
         setLoading(false);
+        setLoadingMore(false);
       }
     },
-    [mode, datasetFilter, bucketFilter],
+    [mode, datasetFilter, bucketFilter, subcategoryFilter],
   );
 
   // Auto-run search from URL params on mount
@@ -154,21 +224,47 @@ export default function CatalogSearchClient({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setOffset(0);
     updateUrl(query, mode, datasetFilter, bucketFilter);
     runSearch(query);
   };
 
   const handleExampleClick = (example: string) => {
     setQuery(example);
+    setOffset(0);
     updateUrl(example, mode, datasetFilter, bucketFilter);
     runSearch(example);
   };
 
   const handleModeChange = (newMode: SearchMode) => {
     setMode(newMode);
+    setOffset(0);
     updateUrl(query, newMode, datasetFilter, bucketFilter);
-    if (query.trim()) runSearch(query, newMode);
+    if (query.trim() || datasetFilter || bucketFilter) runSearch(query, newMode);
   };
+
+  // Load more (search mode)
+  const handleLoadMore = () => {
+    if (!results || loadingMore) return;
+    const newOffset = results.length;
+    runSearch(query, mode, { append: true, searchOffset: newOffset });
+  };
+
+  // Browse pagination
+  const handleBrowsePage = (direction: "prev" | "next") => {
+    const newOffset = direction === "next"
+      ? offset + BROWSE_PAGE_SIZE
+      : Math.max(0, offset - BROWSE_PAGE_SIZE);
+    setOffset(newOffset);
+    runSearch(query, mode, { searchOffset: newOffset });
+  };
+
+  // Reset offset when filters change
+  useEffect(() => {
+    setOffset(0);
+    setTotalCount(null);
+    setHasMore(false);
+  }, [datasetFilter, subcategoryFilter]);
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
@@ -259,8 +355,23 @@ export default function CatalogSearchClient({
                 ))}
               </select>
             )}
-            {/* Bucket filter (full_corpus/both mode) — free text input */}
-            {(mode === "full_corpus" || mode === "both") && (
+            {/* Subcategory filter (level 2 — appears when a dataset is selected) */}
+            {datasetFilter && subcategories.length > 0 && (
+              <select
+                value={subcategoryFilter}
+                onChange={(e) => setSubcategoryFilter(e.target.value)}
+                className="px-3 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150"
+              >
+                <option value="">all categories</option>
+                {subcategories.map((sc) => (
+                  <option key={sc.name} value={sc.name}>
+                    {sc.name} ({sc.count.toLocaleString()})
+                  </option>
+                ))}
+              </select>
+            )}
+            {/* Bucket filter (full_corpus/both mode, no dataset selected) */}
+            {(mode === "full_corpus" || mode === "both") && !datasetFilter && (
               <input
                 type="text"
                 value={bucketFilter}
@@ -271,7 +382,7 @@ export default function CatalogSearchClient({
             )}
             <button
               type="submit"
-              disabled={loading || !query.trim()}
+              disabled={loading || (!query.trim() && !datasetFilter && !bucketFilter)}
               className="px-5 py-2.5 text-sm font-mono rounded-md bg-[var(--accent-primary)] text-[var(--bg-primary)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity duration-150"
             >
               {loading ? (
@@ -341,7 +452,9 @@ export default function CatalogSearchClient({
         {results && results.length > 0 && (
           <div className="mt-6 space-y-3">
             <p className="text-xs font-mono text-[var(--text-muted)]">
-              {results.length} result{results.length !== 1 ? "s" : ""}
+              {isBrowseMode(query) && totalCount !== null
+                ? `showing ${(offset + 1).toLocaleString()}\u2013${(offset + results.length).toLocaleString()} of ${totalCount.toLocaleString()}`
+                : `${results.length} result${results.length !== 1 ? "s" : ""}${results.length >= SEARCH_MAX_RESULTS ? " (max)" : ""}`}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {results.map((r) => (
@@ -353,6 +466,51 @@ export default function CatalogSearchClient({
                 />
               ))}
             </div>
+
+            {/* Search mode: Load More */}
+            {!isBrowseMode(query) && hasMore && results.length < SEARCH_MAX_RESULTS && (
+              <div className="flex justify-center pt-4">
+                <button
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  className="px-6 py-2 text-xs font-mono rounded-md border border-[var(--border-subtle)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150 flex items-center gap-2"
+                >
+                  {loadingMore ? (
+                    <>
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      loading...
+                    </>
+                  ) : (
+                    `load more (${results.length} / ${SEARCH_MAX_RESULTS})`
+                  )}
+                </button>
+              </div>
+            )}
+
+            {/* Browse mode: Prev / Next pagination */}
+            {isBrowseMode(query) && totalCount !== null && (
+              <div className="flex items-center justify-between pt-4 border-t border-[var(--border-subtle)]">
+                <button
+                  onClick={() => handleBrowsePage("prev")}
+                  disabled={offset === 0 || loading}
+                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-mono rounded-md border border-[var(--border-subtle)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-150"
+                >
+                  <ChevronLeft className="h-3 w-3" />
+                  previous
+                </button>
+                <span className="text-xs font-mono text-[var(--text-muted)]">
+                  page {Math.floor(offset / BROWSE_PAGE_SIZE) + 1} of {Math.max(1, Math.ceil(totalCount / BROWSE_PAGE_SIZE))}
+                </span>
+                <button
+                  onClick={() => handleBrowsePage("next")}
+                  disabled={offset + BROWSE_PAGE_SIZE >= totalCount || loading}
+                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-mono rounded-md border border-[var(--border-subtle)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-150"
+                >
+                  next
+                  <ChevronRight className="h-3 w-3" />
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -512,6 +670,23 @@ function ResultCard({
             <span className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-purple-500/10 text-purple-400">
               {result.enrichment_source}
             </span>
+          </div>
+        )}
+
+        {/* Assigned leads */}
+        {result.assigned_leads && result.assigned_leads.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-[10px] font-mono text-[var(--text-muted)]">Added to:</span>
+            {result.assigned_leads.map((l) => (
+              <a
+                key={l.lead_id}
+                href={`/admin/leads/${l.lead_id}`}
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-mono rounded bg-amber-500/15 text-amber-400 border border-amber-500/25 hover:border-amber-500/50 transition-colors"
+              >
+                {l.lead_name}
+                <span className="text-amber-400/60">({l.lead_company})</span>
+              </a>
+            ))}
           </div>
         )}
 

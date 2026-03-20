@@ -30,16 +30,33 @@ function scrubString(str: string): string {
 }
 
 /**
+ * Keys whose values should NEVER be scrubbed — these are intentionally
+ * returned presigned URLs, not internal S3 path leaks.
+ */
+const PRESERVED_KEYS = new Set([
+  "signed_url",
+  "source_video_url",
+  "thumbnail_url",
+  "representative_signed_urls",
+]);
+
+/**
  * Recursively walk any JSON-serializable value and surgically replace
  * S3 references with [S3_REDACTED].
+ *
+ * Keys listed in PRESERVED_KEYS are skipped — these are intentional
+ * presigned delivery URLs, not internal path leaks.
  */
-export function scrubS3Urls(value: unknown): unknown {
+export function scrubS3Urls(value: unknown, _key?: string): unknown {
+  // Skip preserved keys (presigned URLs we intentionally return)
+  if (_key && PRESERVED_KEYS.has(_key)) return value;
+
   if (typeof value === "string") return scrubString(value);
-  if (Array.isArray(value)) return value.map(scrubS3Urls);
+  if (Array.isArray(value)) return value.map((v) => scrubS3Urls(v));
   if (value !== null && typeof value === "object") {
     const result: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
-      result[k] = scrubS3Urls(v);
+      result[k] = scrubS3Urls(v, k);
     }
     return result;
   }

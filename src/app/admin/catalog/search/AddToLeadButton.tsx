@@ -174,7 +174,7 @@ export default function AddToLeadButton({
       </button>
 
       {open && (
-        <div className="absolute z-50 right-0 top-full mt-1 w-72 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-xl">
+        <div className="absolute z-50 right-0 bottom-full mb-1 w-72 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-xl">
           {/* Search input */}
           <div className="p-2 border-b border-[var(--border-subtle)]">
             <input

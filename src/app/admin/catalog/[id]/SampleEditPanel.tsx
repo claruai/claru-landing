@@ -238,6 +238,29 @@ export default function SampleEditPanel({
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+          {/* Lead-specific indicator */}
+          {sample.lead_id && (
+            <div className="rounded-md border border-purple-500/30 bg-purple-500/10 px-4 py-3 space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                  LEAD-SPECIFIC
+                </span>
+                <span className="text-xs font-mono text-purple-400">
+                  Custom sample added for a lead
+                </span>
+              </div>
+              <div className="text-xs font-mono text-[var(--text-muted)] space-y-0.5">
+                <p>Lead ID: <span className="text-[var(--text-secondary)]">{sample.lead_id}</span></p>
+                {sample.added_by && (
+                  <p>Added by: <span className="text-[var(--text-secondary)]">{sample.added_by}</span></p>
+                )}
+                {sample.source_video_index_id && (
+                  <p>Source video index: <span className="text-[var(--text-secondary)]">{sample.source_video_index_id}</span></p>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* S3 Object Key */}
           <div>
             <label className="block text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider mb-1.5">

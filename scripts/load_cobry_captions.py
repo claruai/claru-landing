@@ -244,8 +244,8 @@ def main() -> None:
                     row_dict = table.to_pydict()
                     num_rows = table.num_rows
 
-                    # Process in batches of 20
-                    batch_size = 20
+                    # Process in batches of 10 (reduced from 20 to avoid PostgREST statement timeouts)
+                    batch_size = 10
                     for batch_start in range(0, num_rows, batch_size):
                         if args.limit and total_inserted >= args.limit:
                             break
@@ -291,14 +291,25 @@ def main() -> None:
                         if not rows_to_insert:
                             continue
 
-                        try:
-                            assert http is not None
-                            inserted, skipped = upsert_rows(http, SUPABASE_URL, SUPABASE_KEY, rows_to_insert)
-                            total_inserted += inserted
-                            total_skipped += skipped
-                        except Exception as exc:
-                            print(f"  [error] upsert failed: {exc}", file=sys.stderr)
-                            total_failed += len(rows_to_insert)
+                        # Upsert with retry (statement timeouts are transient)
+                        for attempt in range(3):
+                            try:
+                                assert http is not None
+                                inserted, skipped = upsert_rows(http, SUPABASE_URL, SUPABASE_KEY, rows_to_insert)
+                                total_inserted += inserted
+                                total_skipped += skipped
+                                break
+                            except Exception as exc:
+                                if attempt < 2 and "57014" in str(exc):
+                                    import time
+                                    time.sleep(2 * (attempt + 1))
+                                    continue
+                                print(f"  [error] upsert failed after {attempt+1} attempts: {exc}", file=sys.stderr)
+                                total_failed += len(rows_to_insert)
+
+                        # Throttle: 1 second between batches to avoid DB IO exhaustion
+                        import time as _time
+                        _time.sleep(1)
 
                         # Progress every 200 rows
                         if total_inserted % 200 < batch_size:

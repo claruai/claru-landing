@@ -187,12 +187,12 @@ async function captionWithGemini(signedUrl: string, mimeType: string): Promise<s
 async function main() {
   console.log(`[enrich-xtr] bucket=${BUCKET} limit=${LIMIT ?? "all"} dry_run=${DRY_RUN}`);
 
-  // Collect all video files
-  const allVideoKeys: string[] = [];
+  // Collect all video files (use concat to avoid stack overflow with large arrays)
+  let allVideoKeys: string[] = [];
   for (const prefix of PREFIXES) {
     const keys = await listVideoFiles(prefix);
     console.log(`  ${prefix}: ${keys.length} videos`);
-    allVideoKeys.push(...keys);
+    allVideoKeys = allVideoKeys.concat(keys);
   }
 
   console.log(`[enrich-xtr] Total: ${allVideoKeys.length} video files`);

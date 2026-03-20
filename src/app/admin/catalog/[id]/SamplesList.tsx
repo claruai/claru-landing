@@ -359,15 +359,16 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
                 <th className="px-3 py-2 text-center text-[var(--text-muted)] w-12">Specs</th>
                 <th className="px-3 py-2 text-left text-[var(--text-muted)]">Metadata</th>
                 <th className="px-3 py-2 text-center text-[var(--text-muted)] w-16">Issues</th>
+                <th className="px-3 py-2 text-center text-[var(--text-muted)] w-12"></th>
               </tr>
             </thead>
             <tbody>
-              {samples.map((sample) => {
+              {samples.map((sample, index) => {
                 const issueCount = formatIssueCounts[sample.id] ?? 0;
                 return (
                   <tr
                     key={sample.id}
-                    onClick={() => setEditingSample(sample)}
+                    onClick={() => setPreviewIndex(index)}
                     className="border-t border-[var(--border-subtle)] hover:bg-[var(--bg-secondary)] cursor-pointer transition-colors"
                   >
                     <td
@@ -381,8 +382,17 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
                         className="rounded border-[var(--border-subtle)] bg-[var(--bg-secondary)] accent-[var(--accent-primary)]"
                       />
                     </td>
-                    <td className="px-3 py-2 text-[var(--text-primary)] max-w-[300px] truncate">
-                      {truncate(sample.s3_object_key ?? sample.filename, 60)}
+                    <td className="px-3 py-2 text-[var(--text-primary)] max-w-[300px]">
+                      <div className="flex items-center gap-2">
+                        <span className="truncate">
+                          {truncate(sample.s3_object_key ?? sample.filename, 60)}
+                        </span>
+                        {sample.lead_id && (
+                          <span className="inline-flex items-center shrink-0 px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                            LEAD-SPECIFIC
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-3 py-2 text-center">
                       {sample.s3_annotation_key ? (
@@ -410,6 +420,14 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
                       ) : (
                         <span className="text-[var(--text-muted)]">—</span>
                       )}
+                    </td>
+                    <td className="px-3 py-2 text-center" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        onClick={() => setEditingSample(sample)}
+                        className="text-[10px] font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors"
+                      >
+                        [edit]
+                      </button>
                     </td>
                   </tr>
                 );
