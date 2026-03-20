@@ -124,7 +124,7 @@
         "Verify queries return in < 500ms after build"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "Must run AFTER all loader scripts complete"
     },
     {
