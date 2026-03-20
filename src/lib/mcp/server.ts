@@ -17,6 +17,7 @@ export function createMcpServer(): McpServer {
   );
 
   registerSearchCatalog(server);
+  registerSearchFullCatalog(server);
   registerGetDatasetOverview(server);
   registerBuildLeadBrief(server);
 
@@ -95,6 +96,79 @@ function registerSearchCatalog(server: McpServer) {
       );
 
       // Scrub any leaked S3 URLs
+      const scrubbed = scrubS3Urls({ results });
+
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify(scrubbed) }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// search_full_catalog tool (video_index — 768-dim)
+// ---------------------------------------------------------------------------
+
+function registerSearchFullCatalog(server: McpServer) {
+  server.tool(
+    "search_full_catalog",
+    "Semantic search over the full video corpus (1.3M+ S3 videos). Returns results from video_index ranked by cosine similarity.",
+    {
+      query: z.string().describe("Natural language search query"),
+      limit: z.number().min(1).max(50).default(10).describe("Max results (default 10, max 50)"),
+      s3_bucket: z.string().optional().describe("Optional: filter to a specific S3 bucket"),
+      match_threshold: z.number().min(0).max(1).default(0.4).describe("Minimum similarity threshold (default 0.4)"),
+    },
+    async ({ query, limit, s3_bucket, match_threshold }) => {
+      const supabase = createSupabaseAdminClient();
+
+      // Embed query at 768 dimensions (matches video_index)
+      const queryEmbedding = await generateEmbedding(query, 768);
+
+      const { data: matches, error } = await supabase.rpc("match_video_index", {
+        query_embedding: queryEmbedding,
+        match_count: limit,
+        filter_bucket: s3_bucket ?? null,
+        match_threshold,
+      });
+
+      if (error) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: error.message }) }],
+        };
+      }
+
+      if (!matches || matches.length === 0) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ results: [], message: "No videos found matching query" }) }],
+        };
+      }
+
+      // Generate signed URLs (600s TTL for MCP)
+      const results = await Promise.all(
+        matches.map(async (match: {
+          id: string;
+          s3_bucket: string;
+          s3_key: string;
+          caption_text: string | null;
+          similarity: number;
+          enrichment_source: string | null;
+        }) => {
+          const signed_url = await getS3SignedUrl(match.s3_key, 600, match.s3_bucket);
+
+          return {
+            id: match.id,
+            s3_bucket: match.s3_bucket,
+            s3_key: match.s3_key,
+            caption_text: match.caption_text,
+            similarity: Math.round(match.similarity * 1000) / 1000,
+            enrichment_source: match.enrichment_source,
+            signed_url,
+          };
+        }),
+      );
+
+      // Scrub S3 URLs in caption_text only — signed_url preserved via PRESERVED_KEYS
       const scrubbed = scrubS3Urls({ results });
 
       return {
@@ -331,7 +405,54 @@ function registerBuildLeadBrief(server: McpServer) {
         };
       });
 
-      const scrubbed = scrubS3Urls({ datasets: result });
+      // Also search full corpus (768-dim)
+      let fullCorpusResults: Array<{
+        id: string;
+        s3_bucket: string;
+        caption_text: string | null;
+        similarity: number;
+        enrichment_source: string | null;
+        signed_url: string | null;
+        source: "full_corpus";
+      }> = [];
+
+      try {
+        const queryEmbedding768 = await generateEmbedding(searchQuery, 768);
+        const { data: fcMatches } = await supabase.rpc("match_video_index", {
+          query_embedding: queryEmbedding768,
+          match_count: limit,
+          filter_bucket: null,
+          match_threshold: 0.4,
+        });
+
+        if (fcMatches && fcMatches.length > 0) {
+          fullCorpusResults = await Promise.all(
+            (fcMatches as Array<{
+              id: string;
+              s3_bucket: string;
+              s3_key: string;
+              caption_text: string | null;
+              similarity: number;
+              enrichment_source: string | null;
+            }>).map(async (m) => ({
+              id: m.id,
+              s3_bucket: m.s3_bucket,
+              caption_text: m.caption_text,
+              similarity: Math.round(m.similarity * 1000) / 1000,
+              enrichment_source: m.enrichment_source,
+              signed_url: await getS3SignedUrl(m.s3_key, 600, m.s3_bucket),
+              source: "full_corpus" as const,
+            })),
+          );
+        }
+      } catch {
+        // full corpus search is optional — don't fail the whole brief
+      }
+
+      const scrubbed = scrubS3Urls({
+        datasets: result,
+        full_corpus: fullCorpusResults,
+      });
 
       return {
         content: [{ type: "text" as const, text: JSON.stringify(scrubbed) }],

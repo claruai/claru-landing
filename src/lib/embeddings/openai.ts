@@ -15,13 +15,19 @@ function getClient(): OpenAI {
 }
 
 /**
- * Generate a 1536-dimension embedding using text-embedding-3-small.
+ * Generate an embedding using text-embedding-3-small.
+ * Default: 1536 dimensions (for dataset_samples match_samples).
+ * Pass dimensions=768 for video_index match_video_index.
  */
-export async function generateEmbedding(text: string): Promise<number[]> {
+export async function generateEmbedding(
+  text: string,
+  dimensions?: number,
+): Promise<number[]> {
   const openai = getClient();
   const response = await openai.embeddings.create({
     model: "text-embedding-3-small",
     input: text,
+    ...(dimensions ? { dimensions } : {}),
   });
   return response.data[0].embedding;
 }
