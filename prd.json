@@ -58,7 +58,7 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "~112k videos. Troveo metadata is technical only — captions will be sparse."
     },
     {
