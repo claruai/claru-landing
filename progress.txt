@@ -1,83 +1,28 @@
 # Progress Log
 
-Started: Fri Mar 20 11:33:13 EDT 2026
-Project: Catalog Semantic Enrichment & MCP Server
+Started: Fri Mar 20 14:35:22 EDT 2026
+Project: Full Corpus Semantic Search (Phase 2)
 Goal: Unknown
 
 ---
 
-## 2026-03-20 - US-000: Create .env.example with all required environment variables
+## 2026-03-20 - US-201: Formalize video_index table migration + match function
 
 **What I did:**
-- Created .env.example with all required env vars grouped by deployment target
-- Added !.env.example exception to .gitignore so it can be committed
-- Verified .env.local remains gitignored
+- Applied Supabase migration (video_index_table_and_match_fn) via MCP
+- Migration uses CREATE TABLE IF NOT EXISTS + CREATE OR REPLACE FUNCTION (table existed from PoC)
+- Updated match_video_index function to SECURITY DEFINER with SET search_path = public
+- Added VideoIndexRecord TypeScript type to src/types/data-catalog.ts
 
 **Files changed:**
-- .env.example (new)
-- .gitignore (added exception)
+- src/types/data-catalog.ts (added VideoIndexRecord interface)
 
 **Learnings:**
-- .gitignore had `.env*` glob — needed explicit `!.env.example` exception
-- CRON_SECRET needed for US-007a (Vercel cron validation)
-
----
-
-## 2026-03-20 - US-001: Enable pgvector and add DB columns to dataset_samples
-
-**What I did:**
-- Applied Supabase migration via MCP: pgvector extension, agent_context jsonb, embedding vector(1536), HNSW index
-- Updated DatasetSample TypeScript type with agent_context and embedding fields
-- Verified idempotency (migration runs twice without error)
-
-**Files changed:**
-- src/types/data-catalog.ts (added agent_context, embedding fields)
-- Supabase migration: catalog_enrichment_pgvector
-
-**Learnings:**
-- pgvector extension lives in `extensions` schema — must reference as `extensions.vector(1536)` and `extensions.vector_cosine_ops`
-- `apply_migration` MCP tool is for DDL, `execute_sql` is for queries
-- TypeScript type uses `number[] | null` for embedding (Supabase returns vector as array)
-
----
-
-## 2026-03-20 - US-002 through US-016: Complete enrichment pipeline
-
-**What I did (all remaining stories):**
-- US-002: Extracted scrubS3Urls to shared lib with expanded pattern matching
-- US-003: Created OpenAI embeddings wrapper + AgentContext types
-- US-004: Created match_samples RPC function (renamed param to filter_dataset_id)
-- US-005a/b: Field-mapping library with egocentric/food_lifestyle/generic mappers + CLI script
-- US-006: Gemini enrichment batch script with p-limit concurrency
-- US-007a/b: Embedding sync trigger + cron route + Edge Function
-- US-008: Backfill embeddings script
-- US-009a/b: MCP server with WebStandardStreamableHTTPServerTransport + auth + rate limiting
-- US-010/011/012: search_catalog, get_dataset_overview, build_lead_brief MCP tools
-- US-013: Admin catalog search API route
-- US-014a/d: Admin search UI with result cards
-- US-014b-db/api/ef: Enrichment jobs table, API routes, Edge Function
-- US-014c: Admin enrichment management UI
-- US-015/016: Playwright E2E + UAT tests
-
-**Key files created:**
-- src/lib/scrub-s3-urls.ts, src/lib/embeddings/openai.ts, src/lib/enrichment/types.ts
-- src/lib/enrichment/field-mapper.ts, src/lib/mcp/server.ts
-- src/app/api/mcp/route.ts, src/app/api/admin/catalog/search/route.ts
-- src/app/api/admin/catalog/enrichment/{run,status,job/[id]}/route.ts
-- src/app/api/cron/embed-samples/route.ts
-- src/app/admin/catalog/search/{page.tsx,CatalogSearchClient.tsx}
-- src/app/admin/catalog/enrichment/page.tsx
-- supabase/functions/{embed-samples,run-enrichment}/index.ts
-- scripts/{map-enrichment-to-agent-context,enrich-samples-gemini,backfill-embeddings}.ts
-- tests/e2e/{catalog-search,catalog-enrichment-uat}.spec.ts
-
-**Learnings:**
-- PL/pgSQL: parameter names can't match return column names — prefix with `filter_`
-- Supabase Edge Functions (Deno) must be excluded from project tsconfig
-- WebStandardStreamableHTTPServerTransport works in stateless mode for Vercel serverless
-- MCP SDK enableJsonResponse avoids SSE streaming complexity in serverless
-- Regex patterns for S3 URLs need to handle URL-encoded variants (s3%3A%2F%2F)
-- p-limit is ESM-only, needs dynamic import in CommonJS-adjacent scripts
+- video_index table already existed from PoC with correct schema (id, s3_bucket, s3_key, dataset_id, caption_text, embedding vector(768), enrichment_source, indexed_at)
+- Unique constraint on (s3_bucket, s3_key) already in place
+- FK to datasets(id) ON DELETE SET NULL already in place
+- match_video_index function existed but was NOT SECURITY DEFINER — fixed by migration
+- Supabase MCP apply_migration works well for idempotent DDL
 
 ---
 
