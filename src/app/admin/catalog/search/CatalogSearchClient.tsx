@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Search, Loader2, Copy, Check, ExternalLink } from "lucide-react";
+import { Search, Loader2, Copy, Check, ExternalLink, UserPlus, X, ChevronDown } from "lucide-react";
 import AddToLeadButton from "./AddToLeadButton";
 
 // ---------------------------------------------------------------------------
@@ -54,6 +54,16 @@ export default function CatalogSearchClient({
   const [results, setResults] = useState<SearchResult[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const toggleSelected = useCallback((sampleId: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(sampleId)) next.delete(sampleId);
+      else next.add(sampleId);
+      return next;
+    });
+  }, []);
 
   const runSearch = useCallback(
     async (searchQuery: string) => {
@@ -62,6 +72,7 @@ export default function CatalogSearchClient({
       setLoading(true);
       setError(null);
       setResults(null);
+      setSelected(new Set());
 
       try {
         const res = await fetch("/api/admin/catalog/search", {
@@ -239,10 +250,23 @@ export default function CatalogSearchClient({
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {results.map((r) => (
-                <ResultCard key={r.sample_id} result={r} />
+                <ResultCard
+                  key={r.sample_id}
+                  result={r}
+                  isSelected={selected.has(r.sample_id)}
+                  onToggleSelect={toggleSelected}
+                />
               ))}
             </div>
           </div>
+        )}
+
+        {/* Floating bulk action bar */}
+        {selected.size > 0 && (
+          <BulkActionBar
+            selectedIds={selected}
+            onClear={() => setSelected(new Set())}
+          />
         )}
       </div>
     </div>
@@ -253,7 +277,15 @@ export default function CatalogSearchClient({
 // Result Card
 // ---------------------------------------------------------------------------
 
-function ResultCard({ result }: { result: SearchResult }) {
+function ResultCard({
+  result,
+  isSelected,
+  onToggleSelect,
+}: {
+  result: SearchResult;
+  isSelected: boolean;
+  onToggleSelect: (id: string) => void;
+}) {
   const similarityPct = Math.round(result.similarity * 100);
   const isVideo = result.mime_type?.startsWith("video/");
   const [copied, setCopied] = useState<"id" | "url" | null>(null);
@@ -267,9 +299,29 @@ function ResultCard({ result }: { result: SearchResult }) {
   }, []);
 
   return (
-    <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] overflow-hidden">
+    <div className={`rounded-lg border bg-[var(--bg-secondary)] overflow-hidden transition-colors ${
+      isSelected
+        ? "border-[var(--accent-primary)] ring-1 ring-[var(--accent-primary)]/30"
+        : "border-[var(--border-subtle)]"
+    }`}>
       {/* Thumbnail */}
       <div className="aspect-video bg-[var(--bg-primary)] relative overflow-hidden">
+        {/* Checkbox */}
+        <label className="absolute top-2 left-2 z-10 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={() => onToggleSelect(result.sample_id)}
+            className="sr-only peer"
+          />
+          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+            isSelected
+              ? "bg-[var(--accent-primary)] border-[var(--accent-primary)]"
+              : "bg-black/40 border-white/40 hover:border-white/70"
+          }`}>
+            {isSelected && <Check className="w-3 h-3 text-[var(--bg-primary)]" />}
+          </div>
+        </label>
         {result.signed_url ? (
           isVideo ? (
             <video
@@ -370,6 +422,216 @@ function ResultCard({ result }: { result: SearchResult }) {
             <AddToLeadButton datasetSampleId={result.sample_id} compact />
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Bulk Action Bar (floating)
+// ---------------------------------------------------------------------------
+
+interface LeadOption {
+  id: string;
+  name: string;
+  company: string;
+}
+
+function BulkActionBar({
+  selectedIds,
+  onClear,
+}: {
+  selectedIds: Set<string>;
+  onClear: () => void;
+}) {
+  const [leads, setLeads] = useState<LeadOption[]>([]);
+  const [leadsLoading, setLeadsLoading] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<LeadOption | null>(null);
+  const [leadSearch, setLeadSearch] = useState("");
+  const [note, setNote] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Fetch leads on mount
+  useEffect(() => {
+    setLeadsLoading(true);
+    fetch("/api/admin/leads?status=approved")
+      .then((r) => r.json())
+      .then((d) => setLeads(d.leads ?? []))
+      .catch(() => {})
+      .finally(() => setLeadsLoading(false));
+  }, []);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    if (dropdownOpen) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [dropdownOpen]);
+
+  const filteredLeads = leads.filter(
+    (l) =>
+      l.name.toLowerCase().includes(leadSearch.toLowerCase()) ||
+      l.company.toLowerCase().includes(leadSearch.toLowerCase()),
+  );
+
+  const handleConfirm = async () => {
+    if (!selectedLead) return;
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const items = Array.from(selectedIds).map((id) => ({
+        dataset_sample_id: id,
+      }));
+
+      const res = await fetch(
+        `/api/admin/leads/${selectedLead.id}/custom-samples/bulk`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items, note: note || undefined }),
+        },
+      );
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Bulk add failed");
+      }
+
+      const { inserted } = await res.json();
+      setToast(`${inserted} sample${inserted !== 1 ? "s" : ""} added to ${selectedLead.name}`);
+      onClear();
+      setSelectedLead(null);
+      setNote("");
+      setTimeout(() => setToast(null), 4000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Bulk add failed");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Toast only
+  if (toast) {
+    return (
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-lg bg-[var(--accent-primary)] text-[var(--bg-primary)] font-mono text-sm shadow-xl flex items-center gap-2">
+        <Check className="w-4 h-4" />
+        {toast}
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-3xl px-4">
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-2xl px-4 py-3 flex items-center gap-3">
+        {/* Count */}
+        <span className="text-sm font-mono text-[var(--text-primary)] whitespace-nowrap">
+          {selectedIds.size} selected
+        </span>
+
+        <span className="text-[var(--text-muted)]">—</span>
+
+        {/* Lead combobox */}
+        <div className="relative flex-shrink-0" ref={dropdownRef}>
+          <button
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-md bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)] transition-colors min-w-[160px]"
+          >
+            <UserPlus className="w-3 h-3" />
+            {selectedLead ? (
+              <span className="truncate">{selectedLead.name}</span>
+            ) : (
+              <span className="text-[var(--text-muted)]">Select lead...</span>
+            )}
+            <ChevronDown className="w-3 h-3 ml-auto" />
+          </button>
+
+          {dropdownOpen && (
+            <div className="absolute bottom-full mb-1 left-0 w-64 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-xl">
+              <div className="p-2 border-b border-[var(--border-subtle)]">
+                <input
+                  type="text"
+                  value={leadSearch}
+                  onChange={(e) => setLeadSearch(e.target.value)}
+                  placeholder="Search leads..."
+                  autoFocus
+                  className="w-full px-2 py-1.5 text-xs font-mono bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)]"
+                />
+              </div>
+              <div className="max-h-40 overflow-y-auto">
+                {leadsLoading ? (
+                  <div className="p-3 text-center">
+                    <Loader2 className="w-4 h-4 animate-spin text-[var(--accent-primary)] mx-auto" />
+                  </div>
+                ) : filteredLeads.length === 0 ? (
+                  <div className="p-3 text-xs font-mono text-[var(--text-muted)] text-center">
+                    No matching leads
+                  </div>
+                ) : (
+                  filteredLeads.map((lead) => (
+                    <button
+                      key={lead.id}
+                      onClick={() => {
+                        setSelectedLead(lead);
+                        setDropdownOpen(false);
+                      }}
+                      className="w-full px-3 py-2 text-left text-xs font-mono text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] hover:text-[var(--accent-primary)] border-b border-[var(--border-subtle)] last:border-0 transition-colors"
+                    >
+                      <span className="text-[var(--text-primary)]">{lead.name}</span>
+                      <span className="text-[var(--text-muted)] ml-1">({lead.company})</span>
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Note input */}
+        <input
+          type="text"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="Note (optional)"
+          className="flex-1 min-w-0 px-2 py-1.5 text-xs font-mono bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded-md text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)]"
+        />
+
+        {/* Confirm */}
+        <button
+          onClick={handleConfirm}
+          disabled={!selectedLead || submitting}
+          className="px-4 py-1.5 text-xs font-mono rounded-md bg-[var(--accent-primary)] text-[var(--bg-primary)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity whitespace-nowrap"
+        >
+          {submitting ? (
+            <Loader2 className="w-3 h-3 animate-spin" />
+          ) : (
+            "Confirm"
+          )}
+        </button>
+
+        {/* Clear */}
+        <button
+          onClick={onClear}
+          className="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+          title="Clear selection"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        {/* Error */}
+        {error && (
+          <span className="text-[10px] font-mono text-red-400 whitespace-nowrap">
+            {error}
+          </span>
+        )}
       </div>
     </div>
   );
