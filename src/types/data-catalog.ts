@@ -113,6 +113,17 @@ export interface AdminSetting {
   updated_at: string;
 }
 
+export interface VideoIndexRecord {
+  id: string;
+  s3_bucket: string;
+  s3_key: string;
+  dataset_id: string | null;
+  caption_text: string | null;
+  embedding: number[] | null;
+  enrichment_source: string | null;
+  indexed_at: string;
+}
+
 // ---------------------------------------------------------------------------
 // Public API Response Types
 // ---------------------------------------------------------------------------
