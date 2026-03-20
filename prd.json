@@ -1,413 +1,280 @@
 {
-  "project": "Catalog Semantic Enrichment & MCP Server",
-  "branchName": "ralph/catalog-enrichment-mcp",
-  "description": "Semantic enrichment pipeline + pgvector embeddings + MCP server for AI agent catalog search + admin search/enrichment UI",
+  "project": "Full Corpus Semantic Search (Phase 2)",
+  "branchName": "ralph/full-corpus-search",
+  "description": "Extend semantic search to 1.3M+ S3 videos using existing cobry captions + embeddings. Add lead-specific sample curation workflow.",
   "userStories": [
     {
-      "id": "US-000",
-      "title": "Create .env.example with all required environment variables",
-      "description": "As a developer, I need a .env.example file committed to the repo that documents every environment variable required by the enrichment and MCP features.",
+      "id": "US-201",
+      "title": "Formalize video_index table migration + match function",
+      "description": "As a developer, I need the video_index table formalized as a migration and the match_video_index RPC function created.",
       "acceptanceCriteria": [
-        "Create .env.example at project root with all required variables: OPENAI_API_KEY, GEMINI_API_KEY, ADMIN_MCP_TOKEN, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION",
-        "Comments note which deployment targets need each variable (Vercel, Supabase Edge Functions, local scripts)",
-        ".env.example is NOT gitignored (must be committed)",
-        ".env.local remains gitignored (no change)",
+        "Migration creates video_index: id uuid PK, s3_bucket text NOT NULL, s3_key text NOT NULL, dataset_id uuid nullable FK, caption_text text, embedding extensions.vector(768), enrichment_source text, indexed_at timestamptz",
+        "Unique constraint on (s3_bucket, s3_key)",
+        "match_video_index(query_embedding vector(768), match_count int, filter_bucket text DEFAULT NULL, match_threshold float DEFAULT 0.40) returns (id, s3_bucket, s3_key, caption_text, similarity, enrichment_source)",
+        "Function uses cosine distance, filters embedding IS NOT NULL and similarity >= threshold",
+        "Function marked SECURITY DEFINER to bypass RLS",
+        "No HNSW index yet (deferred to US-205b)",
+        "TypeScript type VideoIndexRecord in src/types/data-catalog.ts",
         "Typecheck passes"
       ],
       "priority": 1,
       "passes": true,
-      "notes": ""
+      "notes": "Table already exists from PoC — formalize + add match function. Use Supabase MCP for migration."
     },
     {
-      "id": "US-001",
-      "title": "Enable pgvector and add DB columns to dataset_samples",
-      "description": "As a developer, I need the vector extension enabled and agent_context + embedding columns added to dataset_samples.",
+      "id": "US-202",
+      "title": "Cobry caption loader — Python script for mv-abaka + mv-artlist",
+      "description": "As a developer, I need a Python script that reads cobry caption parquets and bulk-loads them into video_index with 768-dim embeddings.",
       "acceptanceCriteria": [
-        "Run SQL: create extension if not exists vector with schema extensions",
-        "Add column: agent_context jsonb (nullable)",
-        "Add column: embedding extensions.vector(1536) (nullable)",
-        "Create HNSW index on embedding column using vector_cosine_ops",
-        "Migration is idempotent — running twice does not error",
-        "Update TypeScript types in src/types/data-catalog.ts to include agent_context and embedding fields",
-        "Typecheck passes"
+        "scripts/load_cobry_captions.py — standalone Python (no TS wrapper)",
+        "Uses pyarrow read_row_group() streaming — never loads entire parquet into memory",
+        "Calls OpenAI via openai Python SDK with dimensions=768",
+        "Upserts to Supabase via httpx POST to PostgREST with service-role key",
+        "Checkpoint file at scripts/.cobry_checkpoint.json for crash recovery",
+        "Extracts clip_storage_key → s3_key, text_short + text → caption_text",
+        "Strips s3://bucket/ prefix from keys",
+        "Flags: --bucket, --delivery, --limit, --dry-run via argparse",
+        "Uses boto3 paginator for S3 listing",
+        "Idempotent — upsert on (s3_bucket, s3_key) conflict = skip",
+        "Temp files deleted in finally block after processing each parquet",
+        "Runtime check: Python 3.10+, pyarrow, openai, httpx, boto3 — exit with clear error if missing",
+        "Summary log: Inserted X / skipped Y / failed Z"
       ],
       "priority": 2,
-      "passes": true,
-      "notes": "Use Supabase MCP to run migration. Read tasks/docs/catalog-enrichment-design.md sections: Database Schema"
+      "passes": false,
+      "notes": "This is the big one — ~800k abaka + ~200k artlist. PoC TS script exists at scripts/load-cobry-captions.ts for reference."
     },
     {
-      "id": "US-002",
-      "title": "Extract scrubS3Urls into shared lib with expanded matching",
-      "description": "As a developer, I need scrubS3Urls() as a shared utility that catches all S3 reference variants.",
+      "id": "US-203",
+      "title": "Troveo metadata loader",
+      "description": "As a developer, I need a script that reads troveo per-video metadata JSONs and loads them into video_index.",
       "acceptanceCriteria": [
-        "Create src/lib/scrub-s3-urls.ts exporting scrubS3Urls(value: unknown): unknown",
-        "Handles s3://bucket/path, s3%3A%2F%2F (URL-encoded), arn:aws:s3:::bucket/path (ARN), presigned AWS URLs with X-Amz-Signature",
-        "Replacement is surgical: only matching portion replaced with [S3_REDACTED]",
-        "Update /api/portal/s3-annotation/route.ts to import from shared lib",
-        "Update portal/catalog/[id]/page.tsx to import from shared lib",
+        "scripts/load-troveo-metadata.ts created",
+        "Reads embedding parquets to get storage_key + meta_key mappings",
+        "Fetches metadata JSON per video, constructs caption from technical fields",
+        "Generates 768-dim OpenAI embedding from caption text",
+        "Upserts into video_index with enrichment_source = 'troveo_metadata'",
+        "Flags: --limit, --dry-run. Idempotent",
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": true,
-      "notes": ""
+      "passes": false,
+      "notes": "~112k videos. Troveo metadata is technical only — captions will be sparse."
     },
     {
-      "id": "US-003",
-      "title": "OpenAI embeddings wrapper + agentContextToEmbeddingText utility",
-      "description": "As a developer, I need a typed utility to generate embeddings and convert agent_context to embedding input text.",
+      "id": "US-204",
+      "title": "Annotation platform loader",
+      "description": "As a developer, I need a script that reads annotation JSONs from completed tasks and loads into video_index.",
       "acceptanceCriteria": [
-        "Create src/lib/embeddings/openai.ts exporting generateEmbedding(text: string): Promise<number[]>",
-        "Uses text-embedding-3-small model, returns 1536-dimension vector",
-        "Throws typed error if OPENAI_API_KEY is not set",
-        "Also exports agentContextToEmbeddingText() that concatenates scene_summary + environments + activities + objects + camera_perspective",
-        "Handles missing/empty fields gracefully",
+        "scripts/load-annotation-platform.ts created",
+        "Lists video_capture/completed/ and video-capture-activities/completed/ folders",
+        "Reads annotation JSON, extracts generalData fields, constructs caption",
+        "Generates 768-dim OpenAI embedding",
+        "Upserts with enrichment_source = 'annotation_json'",
+        "Maps dataset_id to Egocentric Activity Capture where path matches",
+        "Flags: --limit, --dry-run. Idempotent",
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": true,
-      "notes": "Use context7 MCP to check OpenAI SDK docs if needed"
+      "passes": false,
+      "notes": "~220k annotation folders"
     },
     {
-      "id": "US-004",
-      "title": "Create match_samples Postgres RPC function",
-      "description": "As a developer, I need a Postgres function for cosine similarity search over sample embeddings.",
+      "id": "US-204b",
+      "title": "ML-datasets caption loader",
+      "description": "As a developer, I need a script to load captions from moonvalley-ml-datasets sources.",
       "acceptanceCriteria": [
-        "SQL migration creates match_samples(query_embedding extensions.vector(1536), match_count int, dataset_id uuid default null)",
-        "Returns table(sample_id uuid, dataset_id uuid, dataset_name text, similarity float, agent_context jsonb, s3_object_key text, mime_type text)",
-        "Joins datasets table for dataset_name",
-        "Optional dataset_id filter",
-        "Excludes rows where embedding IS NULL",
-        "Results ordered by cosine similarity descending",
+        "scripts/load-ml-dataset-captions.ts created",
+        "Handles ShareGPT4Video JSONs (extract video[0].content)",
+        "Handles backup-caption-parquets movie_clips and tv_clips parquets",
+        "Generates 768-dim OpenAI embedding from caption text",
+        "Upserts with enrichment_source = 'ml_dataset_caption'",
+        "Flag: --source to select format, --limit, --dry-run. Idempotent",
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": true,
-      "notes": "Use Supabase MCP to apply migration. Note: param renamed to filter_dataset_id to avoid conflict with return column name."
+      "passes": false,
+      "notes": "~100k estimated across ShareGPT4Video + movie/TV clips"
     },
     {
-      "id": "US-005a",
-      "title": "Field-mapping library: variant detection + Egocentric mapper",
-      "description": "As a developer, I need the field-mapping library that detects enrichment variants and maps Egocentric data.",
+      "id": "US-205",
+      "title": "Gemini Vision for mv-xtr-external uncaptioned videos",
+      "description": "As a developer, I need Gemini enrichment for the ~1,257 videos with no metadata.",
       "acceptanceCriteria": [
-        "Create src/lib/enrichment/field-mapper.ts with detectVariant() function",
-        "Detects: Egocentric (has environment_label), Food/Lifestyle (has captions.detailed), Generic (fallback)",
-        "mapEgocentric(): scene_summary = task_description + ' ' + environment_description; environments from environment_label; activities from task; hands -> objects; camera_perspective = egocentric_first_person",
-        "Returns AgentContext with zero-value defaults for missing fields",
+        "scripts/enrich-xtr-gemini.ts created — reuses Phase 1 Gemini client",
+        "Lists video files in mv-xtr-external (asteria/, david_darg/, paul_trillo/)",
+        "For each: signed URL → Gemini 2.5 Flash → caption text → 768-dim embedding",
+        "Upserts with enrichment_source = 'gemini_vision'",
+        "p-limit max 5, exponential backoff on 429",
+        "Flags: --limit, --dry-run. Idempotent",
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": true,
-      "notes": "Read tasks/docs/catalog-enrichment-design.md sections: Field Mapping Strategy"
+      "passes": false,
+      "notes": "~1,257 videos, ~$0.03 total"
     },
     {
-      "id": "US-005b",
-      "title": "Field-mapping: Food/Lifestyle + Generic mappers + CLI script",
-      "description": "As a developer, I need remaining mappers and the runnable CLI script.",
+      "id": "US-205b",
+      "title": "Build HNSW index on video_index after bulk loading",
+      "description": "As a developer, I need the HNSW vector index built after all data is loaded.",
       "acceptanceCriteria": [
-        "mapFoodLifestyle(): scene_summary from captions.detailed; activities from captions.activities; objects from captions.objects",
-        "mapGeneric(): tries scene_analysis then captions.detailed then description",
-        "Create scripts/map-enrichment-to-agent-context.ts",
-        "Only processes samples where agent_context IS NULL (idempotent)",
-        "Supports --dry-run, --dataset-id, --limit flags",
-        "Summary log: Mapped X / skipped Y / failed Z",
-        "Typecheck passes"
+        "Run CREATE INDEX CONCURRENTLY on video_index using hnsw vector_cosine_ops — outside transaction",
+        "Set hnsw.ef_search = 100 in match_video_index function",
+        "Document: 1.3M rows x 768 dims = ~4-6 GB index memory",
+        "Verify queries return in < 500ms after build"
       ],
       "priority": 7,
-      "passes": true,
-      "notes": ""
+      "passes": false,
+      "notes": "Must run AFTER all loader scripts complete"
     },
     {
-      "id": "US-006",
-      "title": "Gemini enrichment batch script",
-      "description": "As a developer, I need a script that calls Gemini Vision on unenriched samples.",
+      "id": "US-206a",
+      "title": "Lead custom samples — table + RLS policies",
+      "description": "As a developer, I need the lead_custom_samples table with RLS for portal access.",
       "acceptanceCriteria": [
-        "Create scripts/enrich-samples-gemini.ts using gemini-2.0-flash",
-        "For each sample where agent_context IS NULL: generates signed URL, sends to Gemini with open-ended prompt",
-        "Parses response into AgentContext, preserves extra fields",
-        "Scrubs S3 URLs from response before DB write",
-        "p-limit concurrency: max 5 concurrent, exponential backoff on 429 (1s initial, 3 retries, 2x)",
-        "Supports --dry-run, --dataset-id, --limit flags",
-        "Per-sample error handling — failures logged, batch continues",
+        "Migration: lead_custom_samples with lead_id FK CASCADE, video_index_id FK SET NULL, dataset_sample_id FK SET NULL, s3_bucket, s3_key (denormalized), added_by, note, added_at",
+        "RLS on lead_custom_samples: EXISTS(leads WHERE lead_id match AND supabase_user_id = auth.uid())",
+        "RLS on video_index: EXISTS through lead_custom_samples + leads + auth.uid()",
+        "video_index RLS enabled",
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": true,
-      "notes": "Use context7 MCP for @google/generative-ai SDK docs"
+      "passes": false,
+      "notes": "ON DELETE SET NULL preserves curation if index row deleted"
     },
     {
-      "id": "US-007a",
-      "title": "Embedding sync: Postgres trigger + Vercel cron route",
-      "description": "As a developer, I need a trigger that clears stale embeddings and a cron route.",
+      "id": "US-206b",
+      "title": "Lead custom samples — admin API routes",
+      "description": "As a developer, I need API endpoints to add, list, bulk-add, and remove custom samples.",
       "acceptanceCriteria": [
-        "SQL: BEFORE UPDATE trigger sets embedding = NULL when agent_context changes",
-        "Create src/app/api/cron/embed-samples/route.ts — invokes Edge Function, validates CRON_SECRET",
-        "Update vercel.json with cron entry every 60 seconds",
+        "POST /api/admin/leads/[id]/custom-samples — single add, validates UUID, service-role client",
+        "POST /api/admin/leads/[id]/custom-samples/bulk — bulk add in one transaction, returns { inserted, skipped }",
+        "GET /api/admin/leads/[id]/custom-samples — list with signed URLs",
+        "DELETE /api/admin/leads/[id]/custom-samples/[sampleId] — remove",
+        "All routes require verifyAdminToken(), validate [id] as z.string().uuid()",
+        "Denormalizes s3_bucket + s3_key from video_index at insert time",
         "Typecheck passes"
       ],
       "priority": 9,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
-      "id": "US-007b",
-      "title": "Embedding sync: Supabase Edge Function embed-samples",
-      "description": "As a developer, I need the Edge Function that polls and generates embeddings.",
+      "id": "US-207a",
+      "title": "Add to Lead — single-add combobox on result cards",
+      "description": "As an admin, I want to add a single search result to a lead via searchable combobox.",
       "acceptanceCriteria": [
-        "Create supabase/functions/embed-samples/index.ts (Deno)",
-        "Polls: SELECT id, agent_context FROM dataset_samples WHERE agent_context IS NOT NULL AND embedding IS NULL LIMIT 10",
-        "Calls agentContextToEmbeddingText() then OpenAI, writes embedding column",
-        "Auth: validates service role key only",
-        "Per-sample error handling",
-        "Deploy via supabase functions deploy embed-samples",
-        "Typecheck passes"
+        "Each result card has Add to Lead button → searchable combobox with type-ahead",
+        "Fetches leads where status = 'approved'",
+        "On open: checks existing assignments, greyed leads with checkmark",
+        "After selecting: note input + Confirm button (note optional)",
+        "Success: checkmark + 'Added to [name]'. Error: inline error with retry",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 10,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
-      "id": "US-008",
-      "title": "Backfill embeddings for existing agent_context",
-      "description": "As a developer, I need a one-time backfill script for embeddings.",
+      "id": "US-207b",
+      "title": "Add to Lead — bulk-add with checkboxes + floating action bar",
+      "description": "As an admin, I want to select multiple results and add them all to a lead at once.",
       "acceptanceCriteria": [
-        "Create scripts/backfill-embeddings.ts",
-        "Queries agent_context IS NOT NULL AND embedding IS NULL",
-        "Uses generateEmbedding(agentContextToEmbeddingText(ctx)) in batches of 20",
-        "Idempotent, summary log",
-        "Typecheck passes"
+        "Checkbox on each result card",
+        "1+ selected: floating bar at bottom '[N] selected — Add to Lead [combobox] [note] [Confirm]'",
+        "Bulk confirm calls POST /api/admin/leads/[id]/custom-samples/bulk",
+        "After add: checkboxes cleared, bar hidden, toast '[N] samples added to [lead name]'",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 11,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
-      "id": "US-009a",
-      "title": "MCP server: spike StreamableHTTPServerTransport on Vercel",
-      "description": "As a developer, I need to verify the MCP SDK works in serverless.",
+      "id": "US-208",
+      "title": "Portal 'Curated for You' section",
+      "description": "As a lead, I want custom samples picked for me shown in the portal catalog.",
       "acceptanceCriteria": [
-        "Create minimal src/app/api/mcp/route.ts with StreamableHTTPServerTransport",
-        "Register one test tool (echo) via mcpServer.tool()",
-        "Verify POST handles JSON-RPC tools/call and GET returns tool list",
-        "Document serverless compatibility findings in code comment",
-        "If incompatible, fall back to SSEServerTransport or manual JSON-RPC",
-        "Typecheck passes"
+        "Portal catalog queries lead_custom_samples (user client, RLS) then video_index details (service-role)",
+        "Section between header and CatalogBrowser, heading 'Curated for You'",
+        "Horizontal scrollable row, max 6 visible",
+        "Card: 16:9 thumbnail, caption_text 2-line truncation, bucket badge, admin note",
+        "Cards with no dataset_id are not clickable",
+        "Signed URLs generated server-side",
+        "Hidden entirely if no custom samples",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 12,
-      "passes": true,
-      "notes": "WebStandardStreamableHTTPServerTransport works in stateless mode with enableJsonResponse. No SSE needed."
+      "passes": false,
+      "notes": ""
     },
     {
-      "id": "US-009b",
-      "title": "MCP server: auth + rate limiting",
-      "description": "As a developer, I need bearer token auth and rate limiting on the MCP endpoint.",
+      "id": "US-209",
+      "title": "MCP tool: search_full_catalog + updated build_lead_brief",
+      "description": "As a Claude agent, I need MCP tools for full corpus search.",
       "acceptanceCriteria": [
-        "Auth: Bearer token from ADMIN_MCP_TOKEN, 401 on mismatch",
-        "Token comparison via crypto.timingSafeEqual",
-        "Rate limiting: 100/min, 1000/hr per IP, 429 with Retry-After",
-        "In-memory rate limit store",
-        "Create src/lib/mcp/server.ts exporting McpServer instance",
+        "Register search_full_catalog: { query, limit?, s3_bucket?, match_threshold? }",
+        "Embeds query → match_video_index RPC → signed URLs (600s TTL)",
+        "Output: { id, s3_bucket, s3_key, caption_text, similarity, enrichment_source, signed_url }",
+        "scrubS3Urls on caption_text only — signed_url preserved via PRESERVED_KEYS",
+        "build_lead_brief includes full_corpus results labelled source: 'full_corpus'",
         "Typecheck passes"
       ],
       "priority": 13,
-      "passes": true,
-      "notes": ""
+      "passes": false,
+      "notes": "600s TTL for MCP signed URLs (not 3600s)"
     },
     {
-      "id": "US-010",
-      "title": "MCP tool: search_catalog",
-      "description": "As a Claude agent, I want search_catalog for semantic sample search.",
+      "id": "US-210a",
+      "title": "Admin search: UnifiedSearchResult type + API mode param",
+      "description": "As a developer, I need the search API to support catalog/full_corpus/both modes.",
       "acceptanceCriteria": [
-        "Register search_catalog: { query, limit? (default 10, max 50), dataset_id? }",
-        "Embeds query, calls match_samples RPC, fetches signed URLs",
-        "Output: sample_id, dataset_id, dataset_name, similarity, scene_summary, environments, activities, objects, camera_perspective, signed_url, mime_type",
-        "S3 URLs scrubbed, signed URLs 1-hour expiry",
-        "Empty: { results: [], message: 'No samples found matching query' }",
+        "UnifiedSearchResult discriminated union: source 'catalog' | 'full_corpus', shared description field",
+        "POST /api/admin/catalog/search accepts mode: catalog | full_corpus | both (default: catalog)",
+        "full_corpus calls match_video_index, both calls both RPCs and merges by similarity",
         "Typecheck passes"
       ],
       "priority": 14,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
-      "id": "US-011",
-      "title": "MCP tool: get_dataset_overview",
-      "description": "As a Claude agent, I want a complete dataset summary.",
+      "id": "US-210b",
+      "title": "Admin search UI: full corpus toggle + bucket filter + URL params",
+      "description": "As an admin, I want to toggle search modes with URL state persistence.",
       "acceptanceCriteria": [
-        "Register get_dataset_overview: { dataset_id }",
-        "Returns name, description, category, subcategory, total_samples, total_duration_hours, annotation_types",
-        "Aggregates: top 5 environments, top 5 activities, camera perspectives, embedding counts",
-        "Up to 3 representative sample signed URLs (quality_notes ordering)",
-        "404 if dataset not found, S3 URLs scrubbed",
-        "Typecheck passes"
+        "Segmented toggle: Catalog Samples | Full Corpus | Both",
+        "Toggle auto-re-executes current query",
+        "Full Corpus: dataset filter replaced with bucket filter",
+        "URL params: ?q=, ?dataset=, ?bucket=, ?mode=",
+        "Full corpus cards: FULL CORPUS badge, bucket name, caption in description slot, enrichment_source tag, copy copies video_index.id",
+        "Full Corpus disabled if video_index empty",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 15,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
-      "id": "US-012",
-      "title": "MCP tool: build_lead_brief",
-      "description": "As a Claude agent, I want raw structured data for lead outbound messaging.",
+      "id": "US-211",
+      "title": "Playwright E2E + UAT for full corpus + lead curation",
+      "description": "As QA, full end-to-end testing of Phase 2.",
       "acceptanceCriteria": [
-        "Register build_lead_brief: { company_description, use_case, limit? (default 5) }",
-        "Calls search_catalog internally with concatenated input",
-        "Groups by dataset: dataset_name, total_samples, annotation_types, matched_sample_count, representative_signed_urls, aggregated_environments, aggregated_activities",
-        "Raw data only — no marketing copy",
+        "tests/e2e/full-corpus-search.spec.ts created",
+        "Test: search full corpus → FULL CORPUS badges → add to lead → portal Curated for You",
+        "Test: bulk select 3 → bulk add → verify count",
+        "Test: MCP search_full_catalog returns valid response",
+        "No s3:// strings in any response",
+        "UAT: admin portal UI only",
         "Typecheck passes"
       ],
       "priority": 16,
-      "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-013",
-      "title": "Admin catalog search API route",
-      "description": "As an admin, I need a backend API for semantic search.",
-      "acceptanceCriteria": [
-        "Create POST /api/admin/catalog/search",
-        "Body: { query, dataset_id?, limit? (default 20) }",
-        "Auth via verifyAdminToken(), 401 on failure",
-        "Embeds query, calls match_samples, returns results with signed URLs",
-        "Empty: { results: [], message: 'No samples found matching query' }",
-        "Typecheck passes"
-      ],
-      "priority": 17,
-      "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-014a",
-      "title": "Admin search UI: page scaffold + search input",
-      "description": "As an admin, I want the search page structure with input and filters.",
-      "acceptanceCriteria": [
-        "Create /admin/catalog/search page within admin layout",
-        "Add [search catalog] link in admin catalog header",
-        "Add [enrichment status] bracket-link to enrichment page",
-        "Dataset filter dropdown, Search button",
-        "Idle state: clickable example queries that auto-execute",
-        "Admin terminal aesthetic",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 18,
-      "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-014d",
-      "title": "Admin search UI: result cards + states",
-      "description": "As an admin, I want search results as cards with all states handled.",
-      "acceptanceCriteria": [
-        "Result card: thumbnail (video preload=none), dataset name, similarity %, scene_summary, env/activity tags",
-        "Null agent_context: 'Not yet enriched' placeholder",
-        "Loading: skeleton cards",
-        "Empty: 'No samples found. Try a broader query.'",
-        "Error: dismissible message",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 19,
-      "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-014b-db",
-      "title": "Admin enrichment: enrichment_jobs table",
-      "description": "As a developer, I need the enrichment_jobs table for job tracking.",
-      "acceptanceCriteria": [
-        "Migration creates enrichment_jobs: id uuid PK, status text, action text, dataset_id uuid?, processed int, total int, failed int, error_log jsonb, started_at, completed_at",
-        "Status CHECK constraint: pending/running/completed/failed",
-        "Action CHECK: map_existing/gemini_enrich",
-        "Idempotent migration",
-        "Typecheck passes"
-      ],
-      "priority": 20,
-      "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-014b-api",
-      "title": "Admin enrichment: management API routes",
-      "description": "As a developer, I need enrichment trigger and status endpoints.",
-      "acceptanceCriteria": [
-        "POST /api/admin/catalog/enrichment/run: creates job row, invokes Edge Function, returns job_id",
-        "Dry run: synchronous response with would_process count and sample list",
-        "Single-job enforcement: atomic INSERT WHERE NOT EXISTS running — 409 if busy",
-        "GET /api/admin/catalog/enrichment/status: dataset_samples aggregation counts",
-        "GET /api/admin/catalog/enrichment/job/[id]: job row + log with ?log_offset=N",
-        "All routes require verifyAdminToken()",
-        "Typecheck passes"
-      ],
-      "priority": 21,
-      "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-014b-ef",
-      "title": "Admin enrichment: run-enrichment Edge Function",
-      "description": "As a developer, I need the Edge Function that performs enrichment work.",
-      "acceptanceCriteria": [
-        "Create supabase/functions/run-enrichment/index.ts",
-        "Accepts job_id, action, dataset_id, limit",
-        "map_existing: same logic as field-mapping script",
-        "gemini_enrich: same logic as Gemini script",
-        "Updates enrichment_jobs row: processed, failed, error_log, status transitions",
-        "Deploy via supabase functions deploy run-enrichment",
-        "Typecheck passes"
-      ],
-      "priority": 22,
-      "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-014c",
-      "title": "Admin enrichment management UI",
-      "description": "As an admin, I want an enrichment dashboard to trigger and monitor jobs.",
-      "acceptanceCriteria": [
-        "Page at /admin/catalog/enrichment",
-        "Cross-navigation: [search catalog] link",
-        "Status overview with progress bar, per-dataset table with Map Existing / Gemini Enrich dropdown per row",
-        "Global action buttons + dry run checkbox",
-        "Job progress: polls every 3s, progress bar + terminal log",
-        "Buttons disabled during active job",
-        "Terminal states stop polling",
-        "Admin terminal aesthetic",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 23,
-      "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-015",
-      "title": "Playwright E2E test for search flow",
-      "description": "As QA, I need an E2E test for admin search.",
-      "acceptanceCriteria": [
-        "Create tests/e2e/catalog-search.spec.ts",
-        "Log in, navigate to /admin/catalog/search, search, assert results with similarity scores",
-        "Assert cards show dataset name + scene_summary + media",
-        "Typecheck passes"
-      ],
-      "priority": 24,
-      "passes": true,
-      "notes": "Requires populated agent_context + embeddings"
-    },
-    {
-      "id": "US-016",
-      "title": "Playwright MCP UAT: full feature verification",
-      "description": "As QA, full UAT via Playwright MCP.",
-      "acceptanceCriteria": [
-        "Verify agent_context + embeddings populated for 5+ samples",
-        "Admin search: 2 queries with different results",
-        "Admin enrichment: verify status overview counts",
-        "MCP endpoint: POST /api/mcp search_catalog tool call returns valid response",
-        "No s3:// strings in any response",
-        "Typecheck passes"
-      ],
-      "priority": 25,
-      "passes": true,
-      "notes": "UAT: admin portal UI only, no direct DB access"
+      "passes": false,
+      "notes": "Requires loader scripts to have populated video_index first"
     }
   ]
 }
