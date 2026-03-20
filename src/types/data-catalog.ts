@@ -124,6 +124,18 @@ export interface VideoIndexRecord {
   indexed_at: string;
 }
 
+export interface LeadCustomSample {
+  id: string;
+  lead_id: string;
+  video_index_id: string | null;
+  dataset_sample_id: string | null;
+  s3_bucket: string | null;
+  s3_key: string | null;
+  added_by: string | null;
+  note: string | null;
+  added_at: string;
+}
+
 // ---------------------------------------------------------------------------
 // Public API Response Types
 // ---------------------------------------------------------------------------
