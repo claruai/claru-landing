@@ -41,7 +41,7 @@
         "Summary log: Inserted X / skipped Y / failed Z"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "notes": "This is the big one — ~800k abaka + ~200k artlist. PoC TS script exists at scripts/load-cobry-captions.ts for reference."
     },
     {
