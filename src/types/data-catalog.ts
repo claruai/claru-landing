@@ -67,6 +67,8 @@ export interface DatasetSample {
   s3_annotation_key: string | null;
   s3_specs_key: string | null;
   enrichment_json: Record<string, unknown>;
+  agent_context: Record<string, unknown> | null;
+  embedding: number[] | null;
   created_at: string;
 }
 
