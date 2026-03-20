@@ -45,3 +45,22 @@ Goal: Unknown
 - Existing TS script at scripts/load-cobry-captions.ts was good reference for column names
 
 ---
+
+## 2026-03-20 - US-203: Troveo metadata loader
+
+**What I did:**
+- Created scripts/load-troveo-metadata.ts
+- Reads embedding parquets from silver/quality_assessment/*/embeddings/*.parquet
+- Extracts storage_key + meta_key, fetches metadata JSON, builds caption from technical fields
+- Also checks for cobry-style captions under silver/cobry/deliveries/videos/ in troveo bucket
+- Generates 768-dim OpenAI embeddings, upserts with enrichment_source = 'troveo_metadata'
+
+**Files changed:**
+- scripts/load-troveo-metadata.ts (new)
+
+**Learnings:**
+- Troveo metadata JSONs have only technical info (format_note, resolution, codec, duration)
+- May also have cobry-style captions available — check silver/deliveries/videos/ path
+- Pattern: execSync python3 for parquet reading works well for TS scripts
+
+---
