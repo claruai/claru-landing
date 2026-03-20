@@ -57,12 +57,12 @@ const EXAMPLE_QUERIES = [
 
 export default function CatalogSearchClient({
   datasets,
-  buckets,
+  buckets: _buckets,
   videoIndexCount,
 }: {
   datasets: Dataset[];
-  buckets: string[];
-  videoIndexCount: number;
+  buckets?: string[];
+  videoIndexCount?: number;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -79,7 +79,7 @@ export default function CatalogSearchClient({
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
-  const fullCorpusDisabled = videoIndexCount === 0;
+  const fullCorpusDisabled = (videoIndexCount ?? 0) === 0;
 
   const toggleSelected = useCallback((id: string) => {
     setSelected((prev) => {
@@ -259,20 +259,15 @@ export default function CatalogSearchClient({
                 ))}
               </select>
             )}
-            {/* Bucket filter (full_corpus/both mode) */}
-            {(mode === "full_corpus" || mode === "both") && buckets.length > 0 && (
-              <select
+            {/* Bucket filter (full_corpus/both mode) — free text input */}
+            {(mode === "full_corpus" || mode === "both") && (
+              <input
+                type="text"
                 value={bucketFilter}
                 onChange={(e) => setBucketFilter(e.target.value)}
-                className="px-3 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150"
-              >
-                <option value="">all buckets</option>
-                {buckets.map((b) => (
-                  <option key={b} value={b}>
-                    {b}
-                  </option>
-                ))}
-              </select>
+                placeholder="s3 bucket filter..."
+                className="px-3 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150 w-48"
+              />
             )}
             <button
               type="submit"
@@ -458,20 +453,25 @@ function ResultCard({
         <span className="absolute top-2 right-2 px-2 py-0.5 text-xs font-mono rounded bg-black/60 text-[var(--accent-primary)]">
           {similarityPct}%
         </span>
-        {/* FULL CORPUS badge */}
-        {isFC && (
-          <span className="absolute bottom-2 left-2 px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-purple-600/80 text-white uppercase tracking-wider">
-            full corpus
-          </span>
-        )}
       </div>
 
       {/* Content */}
       <div className="p-3 space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-mono text-[var(--text-muted)] truncate">
-            {isFC ? result.s3_bucket : result.dataset_name}
-          </span>
+        <div className="flex items-center justify-between gap-2">
+          {isFC ? (
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="flex-shrink-0 px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30 uppercase tracking-wider">
+                full corpus
+              </span>
+              <span className="text-[10px] font-mono text-[var(--text-muted)] truncate">
+                {result.s3_bucket}
+              </span>
+            </div>
+          ) : (
+            <span className="text-xs font-mono text-[var(--text-muted)] truncate">
+              {result.dataset_name}
+            </span>
+          )}
         </div>
 
         {result.description ? (
