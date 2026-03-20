@@ -17,6 +17,7 @@ export function createMcpServer(): McpServer {
   );
 
   registerSearchCatalog(server);
+  registerGetDatasetOverview(server);
 
   return server;
 }
@@ -97,6 +98,120 @@ function registerSearchCatalog(server: McpServer) {
 
       return {
         content: [{ type: "text" as const, text: JSON.stringify(scrubbed) }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// get_dataset_overview tool
+// ---------------------------------------------------------------------------
+
+function registerGetDatasetOverview(server: McpServer) {
+  server.tool(
+    "get_dataset_overview",
+    "Get a complete summary of a dataset including sample counts, annotation types, and representative samples.",
+    {
+      dataset_id: z.string().uuid().describe("Dataset UUID"),
+    },
+    async ({ dataset_id }) => {
+      const supabase = createSupabaseAdminClient();
+
+      // Fetch dataset
+      const { data: dataset, error: dsError } = await supabase
+        .from("datasets")
+        .select("id, name, description, category_id, subcategory, total_samples, total_duration_hours, annotation_types")
+        .eq("id", dataset_id)
+        .single();
+
+      if (dsError || !dataset) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "Dataset not found" }) }],
+        };
+      }
+
+      // Fetch category name
+      const { data: category } = await supabase
+        .from("dataset_categories")
+        .select("name")
+        .eq("id", dataset.category_id)
+        .single();
+
+      // Aggregate agent_context fields from samples
+      const { data: samples } = await supabase
+        .from("dataset_samples")
+        .select("agent_context, s3_object_key, mime_type, embedding")
+        .eq("dataset_id", dataset_id)
+        .not("agent_context", "is", null)
+        .limit(200);
+
+      const envCounts = new Map<string, number>();
+      const actCounts = new Map<string, number>();
+      const perspectives = new Set<string>();
+      let embeddingCount = 0;
+
+      for (const s of samples ?? []) {
+        const ctx = s.agent_context as AgentContext | null;
+        if (!ctx) continue;
+        if (s.embedding) embeddingCount++;
+        for (const env of ctx.environments ?? []) {
+          envCounts.set(env, (envCounts.get(env) ?? 0) + 1);
+        }
+        for (const act of ctx.activities ?? []) {
+          actCounts.set(act, (actCounts.get(act) ?? 0) + 1);
+        }
+        if (ctx.camera_perspective) perspectives.add(ctx.camera_perspective);
+      }
+
+      const topEnvs = [...envCounts.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([env]) => env);
+      const topActs = [...actCounts.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([act]) => act);
+
+      // Get up to 3 representative samples with signed URLs
+      const { data: repSamples } = await supabase
+        .from("dataset_samples")
+        .select("s3_object_key, mime_type, agent_context")
+        .eq("dataset_id", dataset_id)
+        .not("agent_context", "is", null)
+        .not("s3_object_key", "is", null)
+        .limit(3);
+
+      const representative_samples = await Promise.all(
+        (repSamples ?? []).map(async (s) => {
+          const signedUrl = s.s3_object_key
+            ? await getS3SignedUrl(s.s3_object_key, 3600)
+            : null;
+          return {
+            signed_url: signedUrl,
+            mime_type: s.mime_type,
+            scene_summary: (s.agent_context as AgentContext | null)?.scene_summary ?? null,
+          };
+        }),
+      );
+
+      const result = scrubS3Urls({
+        name: dataset.name,
+        description: dataset.description,
+        category: category?.name ?? null,
+        subcategory: dataset.subcategory,
+        total_samples: dataset.total_samples,
+        total_duration_hours: dataset.total_duration_hours,
+        annotation_types: dataset.annotation_types,
+        top_environments: topEnvs,
+        top_activities: topActs,
+        camera_perspectives: [...perspectives],
+        embedding_count: embeddingCount,
+        enriched_count: (samples ?? []).length,
+        representative_samples,
+      });
+
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify(result) }],
       };
     },
   );
