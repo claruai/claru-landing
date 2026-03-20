@@ -273,7 +273,7 @@
         "Typecheck passes"
       ],
       "priority": 16,
-      "passes": false,
+      "passes": true,
       "notes": "Requires loader scripts to have populated video_index first"
     }
   ]
