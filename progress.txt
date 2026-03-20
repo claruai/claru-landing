@@ -26,3 +26,22 @@ Goal: Unknown
 
 ---
 
+## 2026-03-20 - US-202: Cobry caption loader — Python script
+
+**What I did:**
+- Created scripts/load_cobry_captions.py — standalone Python (no TS wrapper)
+- pyarrow read_row_group() for streaming parquet reads
+- OpenAI SDK with dimensions=768, httpx for PostgREST upserts
+- Crash recovery via scripts/.cobry_checkpoint.json
+- boto3 paginator for S3 listing, argparse CLI flags
+
+**Files changed:**
+- scripts/load_cobry_captions.py (new)
+
+**Learnings:**
+- PostgREST upsert uses Prefer: resolution=ignore-duplicates header + on_conflict query param
+- OpenAI batch embeddings API returns items with index field for reordering
+- pyarrow ParquetFile.read_row_group(idx) avoids loading entire file into memory
+- Existing TS script at scripts/load-cobry-captions.ts was good reference for column names
+
+---
