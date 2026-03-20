@@ -81,8 +81,8 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
-      "notes": "Use Supabase MCP to apply migration"
+      "passes": true,
+      "notes": "Use Supabase MCP to apply migration. Note: param renamed to filter_dataset_id to avoid conflict with return column name."
     },
     {
       "id": "US-005a",
