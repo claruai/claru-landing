@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getS3SignedUrl } from "@/lib/s3/presigner";
 import type {
   Lead,
   Dataset,
@@ -9,6 +11,7 @@ import type {
 } from "@/types/data-catalog";
 import { CatalogBrowser } from "./CatalogBrowser";
 import { OtherDatasets } from "./OtherDatasets";
+import { CuratedForYou } from "./CuratedForYou";
 
 // ---------------------------------------------------------------------------
 // Data Fetching
@@ -142,7 +145,61 @@ async function getCatalogData() {
       }));
   }
 
-  return { datasets, categories, otherDatasets };
+  // Fetch curated custom samples for this lead
+  const adminClient = createSupabaseAdminClient();
+  const { data: customSamples } = await adminClient
+    .from("lead_custom_samples")
+    .select("id, video_index_id, dataset_sample_id, s3_bucket, s3_key, note, added_at")
+    .eq("lead_id", lead.id)
+    .order("added_at", { ascending: false })
+    .limit(20);
+
+  // Enrich with video_index details and signed URLs
+  interface CuratedSample {
+    id: string;
+    caption_text: string | null;
+    s3_bucket: string | null;
+    s3_key: string | null;
+    dataset_id: string | null;
+    note: string | null;
+    signed_url: string | null;
+  }
+
+  const curatedSamples: CuratedSample[] = [];
+
+  for (const cs of customSamples ?? []) {
+    let caption_text: string | null = null;
+    let dataset_id: string | null = null;
+
+    if (cs.video_index_id) {
+      const { data: vi } = await adminClient
+        .from("video_index")
+        .select("caption_text, dataset_id, s3_bucket, s3_key")
+        .eq("id", cs.video_index_id)
+        .single();
+      if (vi) {
+        caption_text = vi.caption_text;
+        dataset_id = vi.dataset_id;
+      }
+    }
+
+    let signed_url: string | null = null;
+    if (cs.s3_key) {
+      signed_url = await getS3SignedUrl(cs.s3_key, 3600, cs.s3_bucket || undefined);
+    }
+
+    curatedSamples.push({
+      id: cs.id,
+      caption_text,
+      s3_bucket: cs.s3_bucket,
+      s3_key: cs.s3_key,
+      dataset_id,
+      note: cs.note,
+      signed_url,
+    });
+  }
+
+  return { datasets, categories, otherDatasets, curatedSamples };
 }
 
 // ---------------------------------------------------------------------------
@@ -150,7 +207,7 @@ async function getCatalogData() {
 // ---------------------------------------------------------------------------
 
 export default async function PortalCatalogPage() {
-  const { datasets, categories, otherDatasets } = await getCatalogData();
+  const { datasets, categories, otherDatasets, curatedSamples } = await getCatalogData();
 
   // Fetch booking URL
   const supabase = await createSupabaseServerClient();
@@ -176,6 +233,11 @@ export default async function PortalCatalogPage() {
           to you
         </p>
       </section>
+
+      {/* Curated for You — hidden if no custom samples */}
+      {curatedSamples.length > 0 && (
+        <CuratedForYou samples={curatedSamples} />
+      )}
 
       {/* Client-side browsing UI (search, filter, grid) */}
       <Suspense>
