@@ -193,8 +193,8 @@
         "Typecheck passes"
       ],
       "priority": 12,
-      "passes": false,
-      "notes": "Use context7 MCP for @modelcontextprotocol/sdk docs"
+      "passes": true,
+      "notes": "WebStandardStreamableHTTPServerTransport works in stateless mode with enableJsonResponse. No SSE needed."
     },
     {
       "id": "US-009b",
