@@ -1,41 +1,43 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
-import { z } from "zod";
+import { createMcpServer, validateBearerToken, checkRateLimit } from "@/lib/mcp/server";
 
 /**
  * MCP Server endpoint for Claru catalog tools.
  *
- * Serverless compatibility: Uses WebStandardStreamableHTTPServerTransport
- * which works with web standard Request/Response (compatible with Next.js
- * route handlers, Cloudflare Workers, etc.). Runs in stateless mode
- * (no session management) since each Vercel invocation is independent.
- *
- * The enableJsonResponse option ensures simple JSON-RPC responses instead
- * of SSE streams, which is more compatible with serverless cold starts
- * and short-lived function executions.
+ * Auth: Bearer token (ADMIN_MCP_TOKEN), 401 on mismatch.
+ * Rate limit: 100/min, 1000/hr per IP, 429 with Retry-After.
+ * Transport: WebStandardStreamableHTTPServerTransport (stateless, JSON response mode).
  */
 
-function createServer(): McpServer {
-  const server = new McpServer(
-    { name: "claru-catalog", version: "1.0.0" },
-    { capabilities: { tools: {} } },
-  );
-
-  // Test tool — will be replaced by real tools in US-010+
-  server.tool(
-    "echo",
-    "Echo back the input (test tool)",
-    { message: z.string().describe("Message to echo") },
-    async ({ message }) => ({
-      content: [{ type: "text", text: `Echo: ${message}` }],
-    }),
-  );
-
-  return server;
+function getClientIp(request: Request): string {
+  const forwarded = request.headers.get("x-forwarded-for");
+  if (forwarded) return forwarded.split(",")[0].trim();
+  return request.headers.get("x-real-ip") ?? "unknown";
 }
 
 async function handleMcpRequest(request: Request): Promise<Response> {
-  const server = createServer();
+  // Auth check
+  if (!validateBearerToken(request)) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Rate limit check
+  const ip = getClientIp(request);
+  const { allowed, retryAfter } = checkRateLimit(ip);
+  if (!allowed) {
+    return new Response(JSON.stringify({ error: "Too many requests" }), {
+      status: 429,
+      headers: {
+        "Content-Type": "application/json",
+        "Retry-After": String(retryAfter),
+      },
+    });
+  }
+
+  const server = createMcpServer();
   const transport = new WebStandardStreamableHTTPServerTransport({
     sessionIdGenerator: undefined, // stateless mode
     enableJsonResponse: true,
