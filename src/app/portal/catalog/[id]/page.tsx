@@ -8,18 +8,7 @@ import { getS3SignedUrl } from "@/lib/s3/presigner";
 import type { Dataset, DatasetCategory, DatasetSample } from "@/types/data-catalog";
 
 import { SampleGallery } from "./SampleGallery";
-
-/** Recursively replace any string containing "s3://" with "[redacted]". */
-function scrubS3Urls(value: unknown): unknown {
-  if (typeof value === "string") return value.includes("s3://") ? "[redacted]" : value;
-  if (Array.isArray(value)) return value.map(scrubS3Urls);
-  if (value !== null && typeof value === "object") {
-    return Object.fromEntries(
-      Object.entries(value as Record<string, unknown>).map(([k, v]) => [k, scrubS3Urls(v)])
-    );
-  }
-  return value;
-}
+import { scrubS3Urls } from "@/lib/scrub-s3-urls";
 
 // =============================================================================
 // Dataset Detail Page (Server Component)

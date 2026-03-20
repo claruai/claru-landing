@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { fetchAnnotationJson } from "@/lib/s3/annotation";
+import { scrubS3Urls } from "@/lib/scrub-s3-urls";
 
 // =============================================================================
 // POST /api/portal/s3-annotation
@@ -48,26 +49,6 @@ const SENSITIVE_PROJECT_KEYS = new Set([
   "templateData", "configuration",
 ]);
 
-/**
- * Recursively walk any JSON value and replace strings containing "s3://"
- * with "[redacted]" so internal bucket paths never reach the client.
- */
-function scrubS3Urls(value: unknown): unknown {
-  if (typeof value === "string") {
-    return value.includes("s3://") ? "[redacted]" : value;
-  }
-  if (Array.isArray(value)) {
-    return value.map(scrubS3Urls);
-  }
-  if (value !== null && typeof value === "object") {
-    const result: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
-      result[k] = scrubS3Urls(v);
-    }
-    return result;
-  }
-  return value;
-}
 
 function stripSensitiveFields(data: Record<string, unknown>): Record<string, unknown> {
   const cleaned: Record<string, unknown> = {};
