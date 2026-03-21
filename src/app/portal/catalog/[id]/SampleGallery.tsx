@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { DatasetSample } from "@/types/data-catalog";
 import { GalleryCard } from "@/app/components/catalog/GalleryCard";
 import { SampleDetailModal } from "./SampleDetailModal";
@@ -23,14 +23,23 @@ interface SampleGalleryProps {
   samplesWithUrls: SampleWithUrl[];
   /** Override the annotation endpoint (default: portal). Use "/api/public/s3-annotation" for prospect pages. */
   annotationEndpoint?: string;
+  /** Auto-open a specific sample by ID (from ?sample= query param). */
+  initialSampleId?: string;
 }
 
 // ---------------------------------------------------------------------------
 // SampleGallery -- Main exported grid component
 // ---------------------------------------------------------------------------
 
-export function SampleGallery({ samplesWithUrls, annotationEndpoint }: SampleGalleryProps) {
+export function SampleGallery({ samplesWithUrls, annotationEndpoint, initialSampleId }: SampleGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  // Auto-open a specific sample when deep-linked via ?sample=<id>
+  useEffect(() => {
+    if (!initialSampleId) return;
+    const idx = samplesWithUrls.findIndex((s) => s.sample.id === initialSampleId);
+    if (idx !== -1) setSelectedIndex(idx);
+  }, [initialSampleId, samplesWithUrls]);
 
   const handleSelect = useCallback((index: number) => {
     setSelectedIndex(index);

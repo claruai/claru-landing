@@ -20,6 +20,12 @@ export function createMcpServer(): McpServer {
   registerSearchFullCatalog(server);
   registerGetDatasetOverview(server);
   registerBuildLeadBrief(server);
+  registerListLeads(server);
+  registerCreateLead(server);
+  registerGetLead(server);
+  registerUpdateLead(server);
+  registerApproveLead(server);
+  registerCreateCustomCatalog(server);
 
   return server;
 }
@@ -456,6 +462,468 @@ function registerBuildLeadBrief(server: McpServer) {
 
       return {
         content: [{ type: "text" as const, text: JSON.stringify(scrubbed) }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// list_leads tool
+// ---------------------------------------------------------------------------
+
+function registerListLeads(server: McpServer) {
+  server.tool(
+    "list_leads",
+    "List leads in the system. Use to find existing leads before creating duplicates. Supports filtering by status and searching by name/email/company.",
+    {
+      status: z.enum(["pending", "approved", "rejected"]).optional().describe("Filter by status (default: all)"),
+      search: z.string().optional().describe("Search by name, email, or company"),
+      limit: z.number().min(1).max(100).default(20).describe("Max results (default 20)"),
+    },
+    async ({ status, search, limit }) => {
+      const supabase = createSupabaseAdminClient();
+
+      let query = supabase
+        .from("leads")
+        .select("id, name, email, company, role, status, data_needs, use_case, created_at")
+        .order("created_at", { ascending: false })
+        .limit(limit);
+
+      if (status) query = query.eq("status", status);
+      if (search) {
+        query = query.or(
+          `name.ilike.%${search}%,email.ilike.%${search}%,company.ilike.%${search}%`
+        );
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: error.message }) }],
+        };
+      }
+
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify({ leads: data ?? [], count: data?.length ?? 0 }) }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// create_lead tool
+// ---------------------------------------------------------------------------
+
+function registerCreateLead(server: McpServer) {
+  server.tool(
+    "create_lead",
+    "Create a new lead and optionally approve them immediately. Returns the lead record with ID. Check list_leads first to avoid duplicates.",
+    {
+      name: z.string().min(1).describe("Lead's full name"),
+      email: z.string().email().describe("Lead's email address"),
+      company: z.string().min(1).describe("Lead's company name"),
+      role: z.string().optional().describe("Lead's role/title"),
+      data_needs: z.string().optional().describe("What data they need"),
+      use_case: z.string().optional().describe("Their use case for the data"),
+      auto_approve: z.boolean().default(true).describe("Automatically approve the lead (default: true)"),
+    },
+    async ({ name, email, company, role, data_needs, use_case, auto_approve }) => {
+      const supabase = createSupabaseAdminClient();
+
+      // Check for existing lead with same email
+      const { data: existing } = await supabase
+        .from("leads")
+        .select("id, name, email, status")
+        .eq("email", email)
+        .single();
+
+      if (existing) {
+        return {
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({
+              error: "Lead with this email already exists",
+              existing_lead: existing,
+            }),
+          }],
+        };
+      }
+
+      const { data: lead, error } = await supabase
+        .from("leads")
+        .insert({
+          name,
+          email,
+          company,
+          role: role ?? "",
+          data_needs: data_needs ?? "",
+          use_case: use_case ?? "",
+          status: auto_approve ? "approved" : "pending",
+          admin_notes: "Created via MCP agent",
+        })
+        .select()
+        .single();
+
+      if (error) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: error.message }) }],
+        };
+      }
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({
+            lead,
+            message: `Lead created${auto_approve ? " and approved" : ""}`,
+          }),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// get_lead tool
+// ---------------------------------------------------------------------------
+
+function registerGetLead(server: McpServer) {
+  server.tool(
+    "get_lead",
+    "Get full details of a lead by ID, including their dataset access and custom samples.",
+    {
+      lead_id: z.string().uuid().describe("Lead UUID"),
+    },
+    async ({ lead_id }) => {
+      const supabase = createSupabaseAdminClient();
+
+      const { data: lead, error } = await supabase
+        .from("leads")
+        .select("*")
+        .eq("id", lead_id)
+        .single();
+
+      if (error || !lead) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "Lead not found" }) }],
+        };
+      }
+
+      // Get dataset access
+      const { data: access } = await supabase
+        .from("lead_dataset_access")
+        .select("dataset_id, granted_at, datasets:dataset_id(name)")
+        .eq("lead_id", lead_id);
+
+      // Get custom samples count
+      const { count: customSampleCount } = await supabase
+        .from("dataset_samples")
+        .select("id", { count: "exact", head: true })
+        .eq("lead_id", lead_id);
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({
+            lead,
+            dataset_access: (access ?? []).map((a: Record<string, unknown>) => ({
+              dataset_id: a.dataset_id,
+              dataset_name: (a.datasets as Record<string, unknown> | null)?.name ?? null,
+              granted_at: a.granted_at,
+            })),
+            custom_sample_count: customSampleCount ?? 0,
+          }),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// update_lead tool
+// ---------------------------------------------------------------------------
+
+function registerUpdateLead(server: McpServer) {
+  server.tool(
+    "update_lead",
+    "Update lead details (name, email, company, role, data_needs, use_case, admin_notes). Cannot change status — use approve_lead instead. Cannot delete leads.",
+    {
+      lead_id: z.string().uuid().describe("Lead UUID"),
+      name: z.string().optional().describe("Updated name"),
+      email: z.string().email().optional().describe("Updated email"),
+      company: z.string().optional().describe("Updated company"),
+      role: z.string().optional().describe("Updated role/title"),
+      data_needs: z.string().optional().describe("Updated data needs"),
+      use_case: z.string().optional().describe("Updated use case"),
+      admin_notes: z.string().optional().describe("Updated admin notes"),
+    },
+    async ({ lead_id, ...updates }) => {
+      const supabase = createSupabaseAdminClient();
+
+      // Filter out undefined values
+      const fields: Record<string, string> = {};
+      for (const [key, value] of Object.entries(updates)) {
+        if (value !== undefined) fields[key] = value;
+      }
+
+      if (Object.keys(fields).length === 0) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "No fields to update" }) }],
+        };
+      }
+
+      const { data: lead, error } = await supabase
+        .from("leads")
+        .update(fields)
+        .eq("id", lead_id)
+        .select()
+        .single();
+
+      if (error) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: error.message }) }],
+        };
+      }
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({ lead, message: `Updated fields: ${Object.keys(fields).join(", ")}` }),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// approve_lead tool
+// ---------------------------------------------------------------------------
+
+function registerApproveLead(server: McpServer) {
+  server.tool(
+    "approve_lead",
+    "Approve a pending lead. Sets status to 'approved' but does NOT send an invite email or create a Supabase auth user. Use the admin UI to send invites.",
+    {
+      lead_id: z.string().uuid().describe("Lead UUID to approve"),
+    },
+    async ({ lead_id }) => {
+      const supabase = createSupabaseAdminClient();
+
+      // Check current status
+      const { data: lead, error: fetchErr } = await supabase
+        .from("leads")
+        .select("id, name, email, status")
+        .eq("id", lead_id)
+        .single();
+
+      if (fetchErr || !lead) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "Lead not found" }) }],
+        };
+      }
+
+      if (lead.status === "approved") {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ message: "Lead is already approved", lead }) }],
+        };
+      }
+
+      const { data: updated, error } = await supabase
+        .from("leads")
+        .update({ status: "approved" })
+        .eq("id", lead_id)
+        .select()
+        .single();
+
+      if (error) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: error.message }) }],
+        };
+      }
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({
+            lead: updated,
+            message: `Lead "${lead.name}" approved. Use admin UI to send invite email.`,
+          }),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// create_custom_catalog tool
+// ---------------------------------------------------------------------------
+
+const CUSTOM_CURATIONS_CATEGORY_ID = "46cf5324-f3e3-484f-9cb3-7b1dffff0094";
+
+function registerCreateCustomCatalog(server: McpServer) {
+  server.tool(
+    "create_custom_catalog",
+    "Create a custom curated catalog for a lead from search results. Pass sample IDs from search_catalog (as dataset_sample_ids) and/or video IDs from search_full_catalog (as video_index_ids). The catalog is created, samples are added, and the lead gets access. Returns a portal URL the lead can visit.",
+    {
+      name: z.string().min(1).max(200).describe("Name for the custom catalog (e.g. 'Kitchen Activity Videos for Acme')"),
+      lead_id: z.string().uuid().describe("Lead UUID to assign this catalog to"),
+      dataset_sample_ids: z.array(z.string().uuid()).optional().describe("Sample IDs from search_catalog results"),
+      video_index_ids: z.array(z.string().uuid()).optional().describe("Video IDs from search_full_catalog results"),
+      note: z.string().optional().describe("Optional note about why these clips were selected"),
+    },
+    async ({ name, lead_id, dataset_sample_ids, video_index_ids, note }) => {
+      const sampleIds = dataset_sample_ids ?? [];
+      const videoIds = video_index_ids ?? [];
+
+      if (sampleIds.length === 0 && videoIds.length === 0) {
+        return {
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({ error: "Provide at least one dataset_sample_id or video_index_id" }),
+          }],
+        };
+      }
+
+      const supabase = createSupabaseAdminClient();
+
+      // Verify lead exists
+      const { data: lead } = await supabase
+        .from("leads")
+        .select("id, name, company")
+        .eq("id", lead_id)
+        .single();
+
+      if (!lead) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "Lead not found" }) }],
+        };
+      }
+
+      // Create the dataset
+      const slug = name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "") + "-" + Date.now().toString(36);
+
+      const { data: dataset, error: dsError } = await supabase
+        .from("datasets")
+        .insert({
+          name,
+          slug,
+          category_id: CUSTOM_CURATIONS_CATEGORY_ID,
+          type: "short_form",
+          source_type: "curated",
+          subcategory: "",
+          description: `Custom curated collection for ${lead.name} (${lead.company})`,
+          total_samples: 0,
+          total_duration_hours: 0,
+          geographic_coverage: "",
+          annotation_types: [],
+          is_published: true,
+        })
+        .select()
+        .single();
+
+      if (dsError || !dataset) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "Failed to create dataset", details: dsError?.message }) }],
+        };
+      }
+
+      const mimeMap: Record<string, string> = {
+        mp4: "video/mp4", mov: "video/quicktime", webm: "video/webm",
+        jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png",
+      };
+
+      let inserted = 0;
+
+      // Process video_index clips
+      for (const viId of videoIds) {
+        const { data: vi } = await supabase
+          .from("video_index")
+          .select("s3_bucket, s3_key, caption_text, enrichment_source")
+          .eq("id", viId)
+          .single();
+
+        if (!vi) continue;
+
+        const ext = vi.s3_key.split(".").pop()?.toLowerCase();
+        const mimeType = (ext && mimeMap[ext]) || "video/mp4";
+
+        const { error: insErr } = await supabase
+          .from("dataset_samples")
+          .insert({
+            dataset_id: dataset.id,
+            lead_id,
+            s3_object_key: vi.s3_key,
+            filename: vi.s3_key.split("/").pop() || "sample",
+            mime_type: mimeType,
+            file_size_bytes: 0,
+            metadata_json: { caption: vi.caption_text, source: vi.enrichment_source, note },
+            added_by: "mcp_agent",
+            source_video_index_id: viId,
+          });
+
+        if (!insErr) inserted++;
+      }
+
+      // Process existing catalog samples
+      for (const sId of sampleIds) {
+        const { data: existing } = await supabase
+          .from("dataset_samples")
+          .select("s3_object_key, filename, mime_type, file_size_bytes, metadata_json, agent_context")
+          .eq("id", sId)
+          .single();
+
+        if (!existing) continue;
+
+        const { error: insErr } = await supabase
+          .from("dataset_samples")
+          .insert({
+            dataset_id: dataset.id,
+            lead_id,
+            s3_object_key: existing.s3_object_key,
+            filename: existing.filename,
+            mime_type: existing.mime_type,
+            file_size_bytes: existing.file_size_bytes,
+            metadata_json: {
+              ...(existing.metadata_json as Record<string, unknown>),
+              note,
+              source_sample_id: sId,
+            },
+            agent_context: existing.agent_context,
+            added_by: "mcp_agent",
+          });
+
+        if (!insErr) inserted++;
+      }
+
+      // Update sample count
+      await supabase
+        .from("datasets")
+        .update({ total_samples: inserted })
+        .eq("id", dataset.id);
+
+      // Grant lead access
+      await supabase
+        .from("lead_dataset_access")
+        .upsert(
+          { lead_id, dataset_id: dataset.id },
+          { onConflict: "lead_id,dataset_id" }
+        );
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({
+            dataset: { id: dataset.id, name: dataset.name, slug: dataset.slug },
+            samples_added: inserted,
+            portal_url: `/portal/catalog/${dataset.id}`,
+            lead: { id: lead.id, name: lead.name, company: lead.company },
+            message: `Created catalog "${name}" with ${inserted} samples for ${lead.name}`,
+          }),
+        }],
       };
     },
   );

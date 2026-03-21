@@ -19,6 +19,7 @@ import { scrubS3Urls } from "@/lib/scrub-s3-urls";
 
 interface DatasetDetailPageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ sample?: string }>;
 }
 
 // ---------------------------------------------------------------------------
@@ -92,8 +93,10 @@ function Badge({
 
 export default async function DatasetDetailPage({
   params,
+  searchParams,
 }: DatasetDetailPageProps) {
   const { id } = await params;
+  const { sample: initialSampleId } = await searchParams;
   const supabase = await createSupabaseServerClient();
 
   // Fetch dataset (RLS ensures the lead has access)
@@ -280,7 +283,7 @@ export default async function DatasetDetailPage({
               </p>
             </div>
           ) : (
-            <SampleGallery samplesWithUrls={samplesWithUrls} />
+            <SampleGallery samplesWithUrls={samplesWithUrls} initialSampleId={initialSampleId} />
           )}
         </div>
       </div>

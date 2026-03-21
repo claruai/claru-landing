@@ -71,7 +71,12 @@ SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
 
-CHECKPOINT_PATH = Path(__file__).parent / ".cobry_checkpoint.json"
+def _checkpoint_path(bucket: str) -> Path:
+    safe = bucket.replace("/", "_")
+    return Path(__file__).parent / f".cobry_checkpoint_{safe}.json"
+
+# Will be set after argparse
+CHECKPOINT_PATH: Path = Path(__file__).parent / ".cobry_checkpoint.json"
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -187,8 +192,13 @@ def main() -> None:
             print("ERROR: Missing OPENAI_API_KEY", file=sys.stderr)
             sys.exit(1)
 
+    # Use bucket-specific checkpoint file
+    global CHECKPOINT_PATH
+    CHECKPOINT_PATH = _checkpoint_path(args.bucket)
+
     print(f"[load-cobry] bucket={args.bucket} delivery={args.delivery} "
-          f"limit={args.limit or 'all'} dry_run={args.dry_run}")
+          f"limit={args.limit or 'all'} dry_run={args.dry_run} "
+          f"checkpoint={CHECKPOINT_PATH}")
 
     # Load checkpoint for crash recovery
     checkpoint = load_checkpoint()

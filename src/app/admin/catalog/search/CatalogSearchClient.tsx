@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Search, Loader2, Copy, Check, ExternalLink, UserPlus, X, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Loader2, Copy, Check, ExternalLink, UserPlus, X, ChevronDown, ChevronLeft, ChevronRight, Link2, FolderPlus } from "lucide-react";
 import AddToLeadButton from "./AddToLeadButton";
 
 // ---------------------------------------------------------------------------
@@ -88,6 +88,7 @@ export default function CatalogSearchClient({
   const [subcategoryFilter, setSubcategoryFilter] = useState(searchParams.get("subcategory") ?? "");
   const [subcategories, setSubcategories] = useState<Array<{ name: string; count: number }>>([]);
   const [results, setResults] = useState<UnifiedResult[] | null>(null);
+  const [detailResult, setDetailResult] = useState<UnifiedResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -463,6 +464,7 @@ export default function CatalogSearchClient({
                   result={r}
                   isSelected={selected.has(r.id)}
                   onToggleSelect={toggleSelected}
+                  onOpen={() => setDetailResult(r)}
                 />
               ))}
             </div>
@@ -522,6 +524,22 @@ export default function CatalogSearchClient({
             onClear={() => setSelected(new Set())}
           />
         )}
+
+        {/* Detail modal */}
+        {detailResult && (
+          <ResultDetailModal
+            result={detailResult}
+            onClose={() => setDetailResult(null)}
+            onNavigate={(dir) => {
+              if (!results) return;
+              const idx = results.findIndex(r => r.id === detailResult.id);
+              const next = idx + (dir === "next" ? 1 : -1);
+              if (next >= 0 && next < results.length) setDetailResult(results[next]);
+            }}
+            hasPrev={results ? results.findIndex(r => r.id === detailResult.id) > 0 : false}
+            hasNext={results ? results.findIndex(r => r.id === detailResult.id) < results.length - 1 : false}
+          />
+        )}
       </div>
     </div>
   );
@@ -535,19 +553,21 @@ function ResultCard({
   result,
   isSelected,
   onToggleSelect,
+  onOpen,
 }: {
   result: UnifiedResult;
   isSelected: boolean;
   onToggleSelect: (id: string) => void;
+  onOpen: () => void;
 }) {
   const similarityPct = Math.round(result.similarity * 100);
   const isFC = result.source === "full_corpus";
   const isVideo = isFC
     ? result.s3_key?.match(/\.(mp4|webm|mov)$/i)
     : result.mime_type?.startsWith("video/");
-  const [copied, setCopied] = useState<"id" | "url" | null>(null);
+  const [copied, setCopied] = useState<"id" | "url" | "portal" | null>(null);
 
-  const copyToClipboard = useCallback(async (text: string, type: "id" | "url") => {
+  const copyToClipboard = useCallback(async (text: string, type: "id" | "url" | "portal") => {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(type);
@@ -556,15 +576,15 @@ function ResultCard({
   }, []);
 
   return (
-    <div className={`rounded-lg border bg-[var(--bg-secondary)] overflow-hidden transition-colors ${
+    <div className={`rounded-lg border bg-[var(--bg-secondary)] overflow-hidden transition-colors cursor-pointer ${
       isSelected
         ? "border-[var(--accent-primary)] ring-1 ring-[var(--accent-primary)]/30"
-        : "border-[var(--border-subtle)]"
-    }`}>
+        : "border-[var(--border-subtle)] hover:border-[var(--text-muted)]"
+    }`} onClick={onOpen}>
       {/* Thumbnail */}
       <div className="aspect-video bg-[var(--bg-primary)] relative overflow-hidden">
         {/* Checkbox */}
-        <label className="absolute top-2 left-2 z-10 cursor-pointer">
+        <label className="absolute top-2 left-2 z-10 cursor-pointer" onClick={(e) => e.stopPropagation()}>
           <input
             type="checkbox"
             checked={isSelected}
@@ -690,8 +710,9 @@ function ResultCard({
           </div>
         )}
 
-        {/* Copy links + Add to Lead */}
-        <div className="flex items-center gap-2 pt-2 border-t border-[var(--border-subtle)]">
+        {/* Copy links + Add to Lead — stop propagation so clicks don't open modal */}
+        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+        <div className="flex items-center gap-2 pt-2 border-t border-[var(--border-subtle)]" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => copyToClipboard(result.id, "id")}
             className="flex items-center gap-1 text-[10px] font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors"
@@ -711,6 +732,19 @@ function ResultCard({
               <ExternalLink className="w-2.5 h-2.5" />
               open
             </a>
+          )}
+          {!isFC && result.dataset_id && (
+            <button
+              onClick={() => copyToClipboard(
+                `${window.location.origin}/portal/catalog/${result.dataset_id}?sample=${result.id}`,
+                "portal"
+              )}
+              className="flex items-center gap-1 text-[10px] font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors"
+              title="Copy portal link for lead"
+            >
+              {copied === "portal" ? <Check className="w-2.5 h-2.5" /> : <Link2 className="w-2.5 h-2.5" />}
+              {copied === "portal" ? "copied" : "lead link"}
+            </button>
           )}
           <div className="ml-auto">
             <AddToLeadButton
@@ -735,6 +769,8 @@ interface LeadOption {
   company: string;
 }
 
+type BulkMode = "add_to_lead" | "create_catalog";
+
 function BulkActionBar({
   selectedIds,
   results,
@@ -744,13 +780,16 @@ function BulkActionBar({
   results: UnifiedResult[];
   onClear: () => void;
 }) {
+  const [bulkMode, setBulkMode] = useState<BulkMode>("add_to_lead");
   const [leads, setLeads] = useState<LeadOption[]>([]);
   const [leadsLoading, setLeadsLoading] = useState(false);
   const [selectedLead, setSelectedLead] = useState<LeadOption | null>(null);
   const [leadSearch, setLeadSearch] = useState("");
   const [note, setNote] = useState("");
+  const [catalogName, setCatalogName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [portalLink, setPortalLink] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -821,120 +860,378 @@ function BulkActionBar({
     }
   };
 
-  // Toast only
+  const handleCreateCatalog = async () => {
+    if (!selectedLead || !catalogName.trim()) return;
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const items = Array.from(selectedIds).map((id) => {
+        const r = results.find((res) => res.id === id);
+        if (r?.source === "full_corpus") return { video_index_id: id };
+        return { dataset_sample_id: id };
+      });
+
+      const res = await fetch("/api/admin/catalog/custom", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: catalogName.trim(),
+          lead_id: selectedLead.id,
+          items,
+          note: note || undefined,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to create catalog");
+      }
+
+      const data = await res.json();
+      const fullUrl = `${window.location.origin}${data.portal_url}`;
+      setPortalLink(fullUrl);
+      setToast(`Created "${data.dataset.name}" with ${data.samples_added} samples`);
+      onClear();
+      setSelectedLead(null);
+      setCatalogName("");
+      setNote("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create catalog");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Toast + portal link
   if (toast) {
     return (
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-lg bg-[var(--accent-primary)] text-[var(--bg-primary)] font-mono text-sm shadow-xl flex items-center gap-2">
-        <Check className="w-4 h-4" />
-        {toast}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-lg bg-[var(--accent-primary)] text-[var(--bg-primary)] font-mono text-sm shadow-xl flex items-center gap-3">
+        <Check className="w-4 h-4 flex-shrink-0" />
+        <span>{toast}</span>
+        {portalLink && (
+          <button
+            onClick={async () => {
+              await navigator.clipboard.writeText(portalLink);
+              setToast("Portal link copied!");
+              setPortalLink(null);
+              setTimeout(() => setToast(null), 2000);
+            }}
+            className="flex items-center gap-1 px-2 py-1 rounded bg-[var(--bg-primary)]/20 text-[var(--bg-primary)] hover:bg-[var(--bg-primary)]/30 text-xs whitespace-nowrap"
+          >
+            <Link2 className="w-3 h-3" />
+            copy portal link
+          </button>
+        )}
       </div>
     );
   }
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-3xl px-4">
-      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-2xl px-4 py-3 flex items-center gap-3">
-        {/* Count */}
-        <span className="text-sm font-mono text-[var(--text-primary)] whitespace-nowrap">
-          {selectedIds.size} selected
-        </span>
-
-        <span className="text-[var(--text-muted)]">—</span>
-
-        {/* Lead combobox */}
-        <div className="relative flex-shrink-0" ref={dropdownRef}>
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-4xl px-4">
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-2xl">
+        {/* Mode toggle tabs */}
+        <div className="flex border-b border-[var(--border-subtle)]">
           <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-md bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)] transition-colors min-w-[160px]"
+            onClick={() => setBulkMode("add_to_lead")}
+            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-mono transition-colors ${
+              bulkMode === "add_to_lead"
+                ? "text-[var(--accent-primary)] border-b-2 border-[var(--accent-primary)]"
+                : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+            }`}
           >
             <UserPlus className="w-3 h-3" />
-            {selectedLead ? (
-              <span className="truncate">{selectedLead.name}</span>
-            ) : (
-              <span className="text-[var(--text-muted)]">Select lead...</span>
+            Add to Existing
+          </button>
+          <button
+            onClick={() => setBulkMode("create_catalog")}
+            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-mono transition-colors ${
+              bulkMode === "create_catalog"
+                ? "text-purple-400 border-b-2 border-purple-400"
+                : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+            }`}
+          >
+            <FolderPlus className="w-3 h-3" />
+            Create Custom Catalog
+          </button>
+        </div>
+
+        <div className="px-4 py-3 flex items-center gap-3">
+          {/* Count */}
+          <span className="text-sm font-mono text-[var(--text-primary)] whitespace-nowrap">
+            {selectedIds.size} selected
+          </span>
+
+          <span className="text-[var(--text-muted)]">—</span>
+
+          {/* Catalog name input (create mode only) */}
+          {bulkMode === "create_catalog" && (
+            <input
+              type="text"
+              value={catalogName}
+              onChange={(e) => setCatalogName(e.target.value)}
+              placeholder="Catalog name..."
+              className="w-48 flex-shrink-0 px-2 py-1.5 text-xs font-mono bg-[var(--bg-primary)] border border-purple-500/30 rounded-md text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-purple-400"
+            />
+          )}
+
+          {/* Lead combobox */}
+          <div className="relative flex-shrink-0" ref={dropdownRef}>
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-md bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)] transition-colors min-w-[160px]"
+            >
+              <UserPlus className="w-3 h-3" />
+              {selectedLead ? (
+                <span className="truncate">{selectedLead.name}</span>
+              ) : (
+                <span className="text-[var(--text-muted)]">Select lead...</span>
+              )}
+              <ChevronDown className="w-3 h-3 ml-auto" />
+            </button>
+
+            {dropdownOpen && (
+              <div className="absolute bottom-full mb-1 left-0 w-64 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-xl">
+                <div className="p-2 border-b border-[var(--border-subtle)]">
+                  <input
+                    type="text"
+                    value={leadSearch}
+                    onChange={(e) => setLeadSearch(e.target.value)}
+                    placeholder="Search leads..."
+                    autoFocus
+                    className="w-full px-2 py-1.5 text-xs font-mono bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)]"
+                  />
+                </div>
+                <div className="max-h-40 overflow-y-auto">
+                  {leadsLoading ? (
+                    <div className="p-3 text-center">
+                      <Loader2 className="w-4 h-4 animate-spin text-[var(--accent-primary)] mx-auto" />
+                    </div>
+                  ) : filteredLeads.length === 0 ? (
+                    <div className="p-3 text-xs font-mono text-[var(--text-muted)] text-center">
+                      No matching leads
+                    </div>
+                  ) : (
+                    filteredLeads.map((lead) => (
+                      <button
+                        key={lead.id}
+                        onClick={() => {
+                          setSelectedLead(lead);
+                          setDropdownOpen(false);
+                        }}
+                        className="w-full px-3 py-2 text-left text-xs font-mono text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] hover:text-[var(--accent-primary)] border-b border-[var(--border-subtle)] last:border-0 transition-colors"
+                      >
+                        <span className="text-[var(--text-primary)]">{lead.name}</span>
+                        <span className="text-[var(--text-muted)] ml-1">({lead.company})</span>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
             )}
-            <ChevronDown className="w-3 h-3 ml-auto" />
+          </div>
+
+          {/* Note input */}
+          <input
+            type="text"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Note (optional)"
+            className="flex-1 min-w-0 px-2 py-1.5 text-xs font-mono bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded-md text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)]"
+          />
+
+          {/* Confirm */}
+          <button
+            onClick={bulkMode === "create_catalog" ? handleCreateCatalog : handleConfirm}
+            disabled={
+              !selectedLead ||
+              submitting ||
+              (bulkMode === "create_catalog" && !catalogName.trim())
+            }
+            className={`px-4 py-1.5 text-xs font-mono rounded-md hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity whitespace-nowrap ${
+              bulkMode === "create_catalog"
+                ? "bg-purple-500 text-white"
+                : "bg-[var(--accent-primary)] text-[var(--bg-primary)]"
+            }`}
+          >
+            {submitting ? (
+              <Loader2 className="w-3 h-3 animate-spin" />
+            ) : bulkMode === "create_catalog" ? (
+              "Create Catalog"
+            ) : (
+              "Confirm"
+            )}
           </button>
 
-          {dropdownOpen && (
-            <div className="absolute bottom-full mb-1 left-0 w-64 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-xl">
-              <div className="p-2 border-b border-[var(--border-subtle)]">
-                <input
-                  type="text"
-                  value={leadSearch}
-                  onChange={(e) => setLeadSearch(e.target.value)}
-                  placeholder="Search leads..."
-                  autoFocus
-                  className="w-full px-2 py-1.5 text-xs font-mono bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)]"
-                />
-              </div>
-              <div className="max-h-40 overflow-y-auto">
-                {leadsLoading ? (
-                  <div className="p-3 text-center">
-                    <Loader2 className="w-4 h-4 animate-spin text-[var(--accent-primary)] mx-auto" />
-                  </div>
-                ) : filteredLeads.length === 0 ? (
-                  <div className="p-3 text-xs font-mono text-[var(--text-muted)] text-center">
-                    No matching leads
-                  </div>
-                ) : (
-                  filteredLeads.map((lead) => (
-                    <button
-                      key={lead.id}
-                      onClick={() => {
-                        setSelectedLead(lead);
-                        setDropdownOpen(false);
-                      }}
-                      className="w-full px-3 py-2 text-left text-xs font-mono text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] hover:text-[var(--accent-primary)] border-b border-[var(--border-subtle)] last:border-0 transition-colors"
-                    >
-                      <span className="text-[var(--text-primary)]">{lead.name}</span>
-                      <span className="text-[var(--text-muted)] ml-1">({lead.company})</span>
-                    </button>
-                  ))
-                )}
-              </div>
-            </div>
+          {/* Clear */}
+          <button
+            onClick={onClear}
+            className="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+            title="Clear selection"
+          >
+            <X className="w-4 h-4" />
+          </button>
+
+          {/* Error */}
+          {error && (
+            <span className="text-[10px] font-mono text-red-400 whitespace-nowrap">
+              {error}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Result Detail Modal — split view: media left, data right
+// ---------------------------------------------------------------------------
+
+function ResultDetailModal({
+  result,
+  onClose,
+  onNavigate,
+  hasPrev,
+  hasNext,
+}: {
+  result: UnifiedResult;
+  onClose: () => void;
+  onNavigate: (dir: "prev" | "next") => void;
+  hasPrev: boolean;
+  hasNext: boolean;
+}) {
+  const isFC = result.source === "full_corpus";
+  const isVideo = isFC
+    ? result.s3_key?.match(/\.(mp4|webm|mov)$/i)
+    : result.mime_type?.startsWith("video/");
+  const similarityPct = Math.round(result.similarity * 100);
+
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+      else if (e.key === "ArrowLeft" && hasPrev) onNavigate("prev");
+      else if (e.key === "ArrowRight" && hasNext) onNavigate("next");
+    }
+    document.addEventListener("keydown", handleKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", handleKey);
+      document.body.style.overflow = "";
+    };
+  }, [onClose, onNavigate, hasPrev, hasNext]);
+
+  const fields: Array<{ key: string; value: string | string[] }> = [];
+  if (result.description) fields.push({ key: "description", value: result.description });
+  if (result.dataset_name) fields.push({ key: "dataset", value: result.dataset_name });
+  if (isFC && result.s3_bucket) fields.push({ key: "bucket", value: result.s3_bucket });
+  if (isFC && result.enrichment_source) fields.push({ key: "source", value: result.enrichment_source });
+  if (result.environments && result.environments.length > 0) fields.push({ key: "environments", value: result.environments });
+  if (result.activities && result.activities.length > 0) fields.push({ key: "activities", value: result.activities });
+  if (result.objects && result.objects.length > 0) fields.push({ key: "objects", value: result.objects });
+  if (result.camera_perspective) fields.push({ key: "camera", value: result.camera_perspective });
+  fields.push({ key: "similarity", value: `${similarityPct}%` });
+  fields.push({ key: "id", value: result.id });
+  if (isFC && result.s3_key) fields.push({ key: "s3_key", value: result.s3_key });
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 lg:p-8"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+
+      <button onClick={onClose} className="absolute top-4 right-4 z-[60] w-10 h-10 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)]/80 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
+        <X className="w-5 h-5" />
+      </button>
+
+      {hasPrev && (
+        <button onClick={() => onNavigate("prev")} className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-[60] w-10 h-10 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)]/80 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+      )}
+      {hasNext && (
+        <button onClick={() => onNavigate("next")} className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-[60] w-10 h-10 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)]/80 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      )}
+
+      <div className="relative z-[55] flex flex-col lg:flex-row w-full max-w-6xl max-h-[90vh] rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-2xl shadow-black/50">
+        {/* Left: Media */}
+        <div className="lg:w-[60%] flex-shrink-0 bg-[var(--bg-primary)] flex items-center justify-center min-h-[240px]">
+          {result.signed_url ? (
+            isVideo ? (
+              <video key={result.id} src={result.signed_url} controls autoPlay muted playsInline className="w-full h-full max-h-[50vh] lg:max-h-[90vh] object-contain" style={{ colorScheme: "dark" }} />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={result.signed_url} alt="Sample" className="w-full h-full max-h-[50vh] lg:max-h-[90vh] object-contain" />
+            )
+          ) : (
+            <span className="font-mono text-sm text-[var(--text-muted)]">No preview</span>
           )}
         </div>
 
-        {/* Note input */}
-        <input
-          type="text"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder="Note (optional)"
-          className="flex-1 min-w-0 px-2 py-1.5 text-xs font-mono bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded-md text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)]"
-        />
+        {/* Right: Data panel */}
+        <div className="lg:w-[40%] flex flex-col min-h-0 border-t lg:border-t-0 lg:border-l border-[var(--border-subtle)]">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]/50 flex-shrink-0">
+            <span className="font-mono text-xs text-[var(--accent-primary)] tracking-wider">{"// DETAILS"}</span>
+            {isFC && (
+              <span className="px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30 uppercase">full corpus</span>
+            )}
+          </div>
 
-        {/* Confirm */}
-        <button
-          onClick={handleConfirm}
-          disabled={!selectedLead || submitting}
-          className="px-4 py-1.5 text-xs font-mono rounded-md bg-[var(--accent-primary)] text-[var(--bg-primary)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity whitespace-nowrap"
-        >
-          {submitting ? (
-            <Loader2 className="w-3 h-3 animate-spin" />
-          ) : (
-            "Confirm"
-          )}
-        </button>
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {fields.map(({ key, value }) => (
+              <div key={key}>
+                <span className="text-[10px] font-mono text-[var(--accent-primary)] uppercase tracking-wider">{key}</span>
+                {Array.isArray(value) ? (
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {value.map((v) => (
+                      <span key={v} className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)]">{v}</span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="font-mono text-xs text-[var(--text-secondary)] mt-0.5 break-all">{value}</p>
+                )}
+              </div>
+            ))}
+          </div>
 
-        {/* Clear */}
-        <button
-          onClick={onClear}
-          className="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-          title="Clear selection"
-        >
-          <X className="w-4 h-4" />
-        </button>
-
-        {/* Error */}
-        {error && (
-          <span className="text-[10px] font-mono text-red-400 whitespace-nowrap">
-            {error}
-          </span>
-        )}
+          <div className="px-4 py-2.5 border-t border-[var(--border-subtle)] bg-[var(--bg-primary)]/30 flex-shrink-0 flex items-center justify-between">
+            <span className="font-mono text-[10px] text-[var(--text-muted)]">esc close &middot; &larr;&rarr; navigate</span>
+            {!isFC && result.dataset_id && (
+              <CopyPortalLinkButton datasetId={result.dataset_id} sampleId={result.id} />
+            )}
+          </div>
+        </div>
       </div>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Copy Portal Link Button (reusable for modal footer)
+// ---------------------------------------------------------------------------
+
+function CopyPortalLinkButton({ datasetId, sampleId }: { datasetId: string; sampleId: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    const url = `${window.location.origin}/portal/catalog/${datasetId}?sample=${sampleId}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch { /* clipboard unavailable */ }
+  };
+
+  return (
+    <button
+      onClick={handleCopy}
+      className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-mono rounded bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/20 transition-colors"
+    >
+      {copied ? <Check className="w-3 h-3" /> : <Link2 className="w-3 h-3" />}
+      {copied ? "copied!" : "copy lead link"}
+    </button>
   );
 }
