@@ -217,6 +217,7 @@ export default async function DatasetDetailPage({
             </span>
           </div>
 
+          {dataset.total_duration_hours > 0 && (
           <div className="rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-subtle)] p-4">
             <div className="flex items-center gap-2 mb-2">
               <Clock className="w-4 h-4 text-[var(--accent-primary)]" />
@@ -225,11 +226,10 @@ export default async function DatasetDetailPage({
               </span>
             </div>
             <span className="block font-mono text-xl font-bold text-[var(--text-primary)]">
-              {dataset.total_duration_hours > 0
-                ? `${dataset.total_duration_hours.toLocaleString()}h`
-                : "--"}
+              {dataset.total_duration_hours.toLocaleString()}h
             </span>
           </div>
+          )}
 
           <div className="rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-subtle)] p-4">
             <div className="flex items-center gap-2 mb-2">
