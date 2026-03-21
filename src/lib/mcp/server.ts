@@ -34,6 +34,8 @@ export function createMcpServer(): McpServer {
   registerListLeadCatalogs(server);
   registerListCaseStudies(server);
   registerGetCaseStudy(server);
+  registerUpdateDataset(server);
+  registerRemoveClipsFromCatalog(server);
 
   return server;
 }
@@ -1521,6 +1523,142 @@ function registerGetCaseStudy(server: McpServer) {
             related_slugs: study.relatedSlugs,
             url: `/case-studies/${study.slug}`,
             date_published: study.datePublished,
+          }),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// update_dataset tool
+// ---------------------------------------------------------------------------
+
+function registerUpdateDataset(server: McpServer) {
+  server.tool(
+    "update_dataset",
+    "Update metadata on any dataset/catalog — name, description, geographic coverage, annotation types, published status, type, subcategory, etc. Cannot delete datasets.",
+    {
+      dataset_id: z.string().uuid().describe("Dataset UUID to update"),
+      name: z.string().optional().describe("Updated name"),
+      description: z.string().optional().describe("Updated description"),
+      geographic_coverage: z.string().optional().describe("Updated geographic coverage (e.g. 'Global', 'North America')"),
+      annotation_types: z.array(z.string()).optional().describe("Updated annotation type tags"),
+      subcategory: z.string().optional().describe("Updated subcategory"),
+      total_samples: z.number().optional().describe("Updated total sample count"),
+      total_duration_hours: z.number().optional().describe("Updated total duration in hours"),
+      is_published: z.boolean().optional().describe("Set published status"),
+      type: z.string().optional().describe("Dataset type (short_form, long_form, cinematic, etc.)"),
+      source_type: z.string().optional().describe("Source type (collected, synthetic, curated)"),
+      modality: z.string().optional().describe("Modality (video_text, image_text, etc.)"),
+    },
+    async ({ dataset_id, ...updates }) => {
+      const supabase = createSupabaseAdminClient();
+
+      // Filter out undefined values
+      const fields: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(updates)) {
+        if (value !== undefined) fields[key] = value;
+      }
+
+      if (Object.keys(fields).length === 0) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "No fields to update" }) }],
+        };
+      }
+
+      const { data: dataset, error } = await supabase
+        .from("datasets")
+        .update(fields)
+        .eq("id", dataset_id)
+        .select("id, name, description, type, source_type, subcategory, total_samples, total_duration_hours, geographic_coverage, annotation_types, is_published, modality")
+        .single();
+
+      if (error) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: error.message }) }],
+        };
+      }
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({
+            dataset,
+            updated_fields: Object.keys(fields),
+            message: `Updated ${Object.keys(fields).join(", ")} on "${dataset.name}"`,
+          }),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// remove_clips_from_catalog tool
+// ---------------------------------------------------------------------------
+
+function registerRemoveClipsFromCatalog(server: McpServer) {
+  server.tool(
+    "remove_clips_from_catalog",
+    "Remove specific samples from a dataset/catalog by their sample IDs. Use list_lead_catalogs or get_dataset_overview to find sample IDs first.",
+    {
+      dataset_id: z.string().uuid().describe("Dataset UUID to remove samples from"),
+      sample_ids: z.array(z.string().uuid()).min(1).describe("Sample IDs to remove from this dataset"),
+    },
+    async ({ dataset_id, sample_ids }) => {
+      const supabase = createSupabaseAdminClient();
+
+      // Verify dataset exists
+      const { data: dataset } = await supabase
+        .from("datasets")
+        .select("id, name")
+        .eq("id", dataset_id)
+        .single();
+
+      if (!dataset) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "Dataset not found" }) }],
+        };
+      }
+
+      // Delete the specified samples (only within this dataset for safety)
+      const { data: deleted, error } = await supabase
+        .from("dataset_samples")
+        .delete()
+        .eq("dataset_id", dataset_id)
+        .in("id", sample_ids)
+        .select("id");
+
+      if (error) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: error.message }) }],
+        };
+      }
+
+      const removedCount = deleted?.length ?? 0;
+
+      // Update the dataset sample count
+      const { count } = await supabase
+        .from("dataset_samples")
+        .select("id", { count: "exact", head: true })
+        .eq("dataset_id", dataset_id);
+
+      await supabase
+        .from("datasets")
+        .update({ total_samples: count ?? 0 })
+        .eq("id", dataset_id);
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({
+            dataset_id,
+            dataset_name: dataset.name,
+            removed: removedCount,
+            requested: sample_ids.length,
+            remaining_samples: count ?? 0,
+            message: `Removed ${removedCount} sample${removedCount !== 1 ? "s" : ""} from "${dataset.name}"`,
           }),
         }],
       };
