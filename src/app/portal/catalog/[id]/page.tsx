@@ -1,8 +1,11 @@
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import Link from "next/link";
-import { ArrowLeft, Clock, MapPin, Database, Film } from "lucide-react";
+import { ArrowLeft, Clock, MapPin, Database, Film, Shield } from "lucide-react";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { verifyAdminToken } from "@/lib/admin-auth";
 import { getSignedUrl } from "@/lib/supabase/storage";
 import { getS3SignedUrl } from "@/lib/s3/presigner";
 import type { Dataset, DatasetCategory, DatasetSample } from "@/types/data-catalog";
@@ -14,12 +17,13 @@ import { scrubS3Urls } from "@/lib/scrub-s3-urls";
 // Dataset Detail Page (Server Component)
 // Route: /portal/catalog/[id]
 // Fetches dataset + samples via Supabase server client (RLS enforced).
+// Admin preview: admin-token cookie bypasses RLS, ?as_lead= impersonates a lead.
 // Samples are rendered by the SampleGallery client component (US-007).
 // =============================================================================
 
 interface DatasetDetailPageProps {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ sample?: string }>;
+  searchParams: Promise<{ sample?: string; as_lead?: string }>;
 }
 
 // ---------------------------------------------------------------------------
@@ -96,10 +100,19 @@ export default async function DatasetDetailPage({
   searchParams,
 }: DatasetDetailPageProps) {
   const { id } = await params;
-  const { sample: initialSampleId } = await searchParams;
-  const supabase = await createSupabaseServerClient();
+  const { sample: initialSampleId, as_lead: asLeadId } = await searchParams;
 
-  // Fetch dataset (RLS ensures the lead has access)
+  // Detect admin preview mode
+  const cookieStore = await cookies();
+  const adminToken = cookieStore.get("admin-token")?.value;
+  const isAdminPreview = adminToken ? await verifyAdminToken(adminToken) : false;
+
+  // Use admin client (bypasses RLS) when admin, otherwise session client
+  const supabase = isAdminPreview
+    ? createSupabaseAdminClient()
+    : await createSupabaseServerClient();
+
+  // Fetch dataset
   const { data: dataset, error: datasetError } = await supabase
     .from("datasets")
     .select("*")
@@ -117,23 +130,54 @@ export default async function DatasetDetailPage({
     .eq("id", dataset.category_id)
     .single<DatasetCategory>();
 
-  // Get current user's lead_id for lead-specific sample filtering
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: leadRow } = user ? await supabase
-    .from("leads")
-    .select("id")
-    .eq("supabase_user_id", user.id)
-    .single() : { data: null };
-  const leadId = leadRow?.id;
+  // Determine lead_id for sample filtering
+  let leadId: string | undefined;
+  let impersonatedLeadName: string | null = null;
 
-  // Fetch samples: base samples (lead_id IS NULL) + this lead's custom samples
-  const { data: samples } = await supabase
+  if (isAdminPreview && asLeadId) {
+    // Admin impersonating a specific lead
+    const { data: impersonatedLead } = await supabase
+      .from("leads")
+      .select("id, name, company")
+      .eq("id", asLeadId)
+      .single();
+    leadId = impersonatedLead?.id;
+    impersonatedLeadName = impersonatedLead
+      ? `${impersonatedLead.name} (${impersonatedLead.company})`
+      : null;
+  } else if (isAdminPreview) {
+    // Admin without impersonation — show all samples
+    leadId = undefined;
+  } else {
+    // Normal portal user — resolve lead from Supabase session
+    const { data: { user } } = await supabase.auth.getUser();
+    const { data: leadRow } = user ? await supabase
+      .from("leads")
+      .select("id")
+      .eq("supabase_user_id", user.id)
+      .single() : { data: null };
+    leadId = leadRow?.id;
+  }
+
+  // Fetch samples
+  // Admin (no impersonation): show ALL samples
+  // Admin (impersonating): show base + that lead's samples
+  // Normal user: show base + their samples
+  let samplesQuery = supabase
     .from("dataset_samples")
     .select("*")
     .eq("dataset_id", id)
-    .or(leadId ? `lead_id.is.null,lead_id.eq.${leadId}` : "lead_id.is.null")
-    .order("created_at", { ascending: true })
-    .returns<DatasetSample[]>();
+    .order("created_at", { ascending: true });
+
+  if (isAdminPreview && !asLeadId) {
+    // Admin sees everything — no lead filter
+  } else {
+    samplesQuery = samplesQuery.or(
+      leadId ? `lead_id.is.null,lead_id.eq.${leadId}` : "lead_id.is.null"
+    );
+  }
+
+  const { data: samples } = await samplesQuery.returns<DatasetSample[]>();
 
   const samplesList = samples ?? [];
 
@@ -173,15 +217,40 @@ export default async function DatasetDetailPage({
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
+      {/* Admin preview banner */}
+      {isAdminPreview && (
+        <div className="bg-amber-500/10 border-b border-amber-500/30 px-4 py-2">
+          <div className="max-w-7xl mx-auto flex items-center gap-3 font-mono text-xs">
+            <Shield className="w-4 h-4 text-amber-400 flex-shrink-0" />
+            <span className="text-amber-400 font-semibold">ADMIN PREVIEW</span>
+            {impersonatedLeadName ? (
+              <span className="text-amber-400/70">
+                Viewing as: <span className="text-amber-300">{impersonatedLeadName}</span>
+              </span>
+            ) : (
+              <span className="text-amber-400/70">
+                Showing all samples (no lead filter)
+              </span>
+            )}
+            <Link
+              href="/admin/catalog"
+              className="ml-auto text-amber-400 hover:text-amber-300 transition-colors"
+            >
+              [back to admin]
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Wider container for gallery grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12">
         {/* Back link */}
         <Link
-          href="/portal/catalog"
+          href={isAdminPreview ? "/admin/catalog" : "/portal/catalog"}
           className="inline-flex items-center gap-2 text-sm font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors duration-200 mb-8"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Catalog
+          {isAdminPreview ? "Back to Admin Catalog" : "Back to Catalog"}
         </Link>
 
         {/* ---------------------------------------------------------------- */}

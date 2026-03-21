@@ -89,6 +89,25 @@ async function handlePortalAuth(request: NextRequest): Promise<NextResponse> {
     return NextResponse.next();
   }
 
+  // --- Admin impersonation: valid admin-token cookie bypasses portal auth ---
+  const adminToken = request.cookies.get("admin-token")?.value;
+  if (adminToken) {
+    try {
+      const secret = process.env.JWT_SECRET;
+      if (secret) {
+        await jwtVerify(adminToken, new TextEncoder().encode(secret));
+        // Valid admin — let them through with an admin-preview header
+        const response = NextResponse.next({
+          request: { headers: request.headers },
+        });
+        response.headers.set("x-admin-preview", "true");
+        return response;
+      }
+    } catch {
+      // Invalid admin token — fall through to normal portal auth
+    }
+  }
+
   // Create a response we can modify (for cookie refresh)
   const response = NextResponse.next({
     request: { headers: request.headers },
