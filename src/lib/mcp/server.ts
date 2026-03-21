@@ -26,6 +26,11 @@ export function createMcpServer(): McpServer {
   registerUpdateLead(server);
   registerApproveLead(server);
   registerCreateCustomCatalog(server);
+  registerDownloadClips(server);
+  registerListDatasets(server);
+  registerAddClipsToCatalog(server);
+  registerGetCorpusStats(server);
+  registerListLeadCatalogs(server);
 
   return server;
 }
@@ -922,6 +927,500 @@ function registerCreateCustomCatalog(server: McpServer) {
             portal_url: `/portal/catalog/${dataset.id}`,
             lead: { id: lead.id, name: lead.name, company: lead.company },
             message: `Created catalog "${name}" with ${inserted} samples for ${lead.name}`,
+          }),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// download_clips tool
+// ---------------------------------------------------------------------------
+
+function registerDownloadClips(server: McpServer) {
+  server.tool(
+    "download_clips",
+    "Get download-ready signed URLs for a list of clips. Works with both dataset sample IDs and video_index IDs. URLs are valid for 1 hour.",
+    {
+      dataset_sample_ids: z.array(z.string().uuid()).optional().describe("Sample IDs from search_catalog"),
+      video_index_ids: z.array(z.string().uuid()).optional().describe("Video IDs from search_full_catalog"),
+    },
+    async ({ dataset_sample_ids, video_index_ids }) => {
+      const sampleIds = dataset_sample_ids ?? [];
+      const videoIds = video_index_ids ?? [];
+
+      if (sampleIds.length === 0 && videoIds.length === 0) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "Provide at least one ID" }) }],
+        };
+      }
+
+      const supabase = createSupabaseAdminClient();
+      const downloads: Array<{
+        id: string;
+        source: "catalog" | "full_corpus";
+        filename: string;
+        mime_type: string;
+        download_url: string | null;
+        caption: string | null;
+      }> = [];
+
+      // Catalog samples
+      if (sampleIds.length > 0) {
+        const { data: samples } = await supabase
+          .from("dataset_samples")
+          .select("id, filename, mime_type, s3_object_key, agent_context")
+          .in("id", sampleIds);
+
+        for (const s of samples ?? []) {
+          const url = s.s3_object_key ? await getS3SignedUrl(s.s3_object_key, 3600) : null;
+          const ctx = s.agent_context as AgentContext | null;
+          downloads.push({
+            id: s.id,
+            source: "catalog",
+            filename: s.filename,
+            mime_type: s.mime_type,
+            download_url: url,
+            caption: ctx?.scene_summary ?? null,
+          });
+        }
+      }
+
+      // Full corpus
+      if (videoIds.length > 0) {
+        const { data: videos } = await supabase
+          .from("video_index")
+          .select("id, s3_bucket, s3_key, caption_text")
+          .in("id", videoIds);
+
+        for (const v of videos ?? []) {
+          const url = await getS3SignedUrl(v.s3_key, 3600, v.s3_bucket);
+          const filename = v.s3_key.split("/").pop() || "clip";
+          const ext = filename.split(".").pop()?.toLowerCase();
+          const mimeMap: Record<string, string> = {
+            mp4: "video/mp4", mov: "video/quicktime", webm: "video/webm",
+            jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png",
+          };
+          downloads.push({
+            id: v.id,
+            source: "full_corpus",
+            filename,
+            mime_type: (ext && mimeMap[ext]) || "video/mp4",
+            download_url: url,
+            caption: v.caption_text,
+          });
+        }
+      }
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({ downloads, count: downloads.length, expires_in: "1 hour" }),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// list_datasets tool
+// ---------------------------------------------------------------------------
+
+function registerListDatasets(server: McpServer) {
+  server.tool(
+    "list_datasets",
+    "List all datasets in the catalog with filtering. Shows name, category, type, sample count, and published status. Use to browse what data is available before searching.",
+    {
+      category: z.string().optional().describe("Filter by category name (e.g. 'Licensed Cinematic', 'Egocentric Crowd')"),
+      published_only: z.boolean().default(true).describe("Only show published datasets (default: true)"),
+      search: z.string().optional().describe("Search by dataset name or description"),
+    },
+    async ({ category, published_only, search }) => {
+      const supabase = createSupabaseAdminClient();
+
+      let query = supabase
+        .from("datasets")
+        .select("id, name, slug, description, type, source_type, subcategory, total_samples, total_duration_hours, annotation_types, is_published, category_id, dataset_categories:category_id(name)")
+        .order("name");
+
+      if (published_only) query = query.eq("is_published", true);
+      if (search) query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
+
+      const { data, error } = await query;
+
+      if (error) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: error.message }) }],
+        };
+      }
+
+      let datasets = (data ?? []).map((d: Record<string, unknown>) => ({
+        id: d.id,
+        name: d.name,
+        category: (d.dataset_categories as Record<string, unknown> | null)?.name ?? null,
+        type: d.type,
+        source_type: d.source_type,
+        subcategory: d.subcategory,
+        total_samples: d.total_samples,
+        total_duration_hours: d.total_duration_hours,
+        annotation_types: d.annotation_types,
+        is_published: d.is_published,
+        description: d.description,
+      }));
+
+      if (category) {
+        datasets = datasets.filter((d) =>
+          (d.category as string | null)?.toLowerCase().includes(category.toLowerCase())
+        );
+      }
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({ datasets, count: datasets.length }),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// add_clips_to_catalog tool
+// ---------------------------------------------------------------------------
+
+function registerAddClipsToCatalog(server: McpServer) {
+  server.tool(
+    "add_clips_to_catalog",
+    "Add more clips to an existing catalog/dataset. Use to expand a custom catalog after initial creation. Requires the dataset ID and lead ID.",
+    {
+      dataset_id: z.string().uuid().describe("Dataset UUID to add clips to"),
+      lead_id: z.string().uuid().describe("Lead UUID (clips are added as lead-specific samples)"),
+      dataset_sample_ids: z.array(z.string().uuid()).optional().describe("Catalog sample IDs to copy into this dataset"),
+      video_index_ids: z.array(z.string().uuid()).optional().describe("Full corpus video IDs to add"),
+      note: z.string().optional().describe("Optional note"),
+    },
+    async ({ dataset_id, lead_id, dataset_sample_ids, video_index_ids, note }) => {
+      const sampleIds = dataset_sample_ids ?? [];
+      const videoIds = video_index_ids ?? [];
+
+      if (sampleIds.length === 0 && videoIds.length === 0) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "Provide at least one clip ID" }) }],
+        };
+      }
+
+      const supabase = createSupabaseAdminClient();
+
+      // Verify dataset exists
+      const { data: dataset } = await supabase
+        .from("datasets")
+        .select("id, name")
+        .eq("id", dataset_id)
+        .single();
+
+      if (!dataset) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "Dataset not found" }) }],
+        };
+      }
+
+      const mimeMap: Record<string, string> = {
+        mp4: "video/mp4", mov: "video/quicktime", webm: "video/webm",
+        jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png",
+      };
+
+      let inserted = 0;
+
+      for (const viId of videoIds) {
+        const { data: vi } = await supabase
+          .from("video_index")
+          .select("s3_bucket, s3_key, caption_text, enrichment_source")
+          .eq("id", viId)
+          .single();
+
+        if (!vi) continue;
+
+        const ext = vi.s3_key.split(".").pop()?.toLowerCase();
+        const mimeType = (ext && mimeMap[ext]) || "video/mp4";
+
+        const { error: insErr } = await supabase
+          .from("dataset_samples")
+          .insert({
+            dataset_id,
+            lead_id,
+            s3_object_key: vi.s3_key,
+            filename: vi.s3_key.split("/").pop() || "sample",
+            mime_type: mimeType,
+            file_size_bytes: 0,
+            metadata_json: { caption: vi.caption_text, source: vi.enrichment_source, note },
+            added_by: "mcp_agent",
+            source_video_index_id: viId,
+          });
+
+        if (!insErr) inserted++;
+      }
+
+      for (const sId of sampleIds) {
+        const { data: existing } = await supabase
+          .from("dataset_samples")
+          .select("s3_object_key, filename, mime_type, file_size_bytes, metadata_json, agent_context")
+          .eq("id", sId)
+          .single();
+
+        if (!existing) continue;
+
+        const { error: insErr } = await supabase
+          .from("dataset_samples")
+          .insert({
+            dataset_id,
+            lead_id,
+            s3_object_key: existing.s3_object_key,
+            filename: existing.filename,
+            mime_type: existing.mime_type,
+            file_size_bytes: existing.file_size_bytes,
+            metadata_json: {
+              ...(existing.metadata_json as Record<string, unknown>),
+              note,
+              source_sample_id: sId,
+            },
+            agent_context: existing.agent_context,
+            added_by: "mcp_agent",
+          });
+
+        if (!insErr) inserted++;
+      }
+
+      // Update sample count
+      const { count } = await supabase
+        .from("dataset_samples")
+        .select("id", { count: "exact", head: true })
+        .eq("dataset_id", dataset_id);
+
+      await supabase
+        .from("datasets")
+        .update({ total_samples: count ?? 0 })
+        .eq("id", dataset_id);
+
+      // Ensure lead has access
+      await supabase
+        .from("lead_dataset_access")
+        .upsert({ lead_id, dataset_id }, { onConflict: "lead_id,dataset_id" });
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({
+            dataset_id,
+            dataset_name: dataset.name,
+            clips_added: inserted,
+            total_samples: count ?? 0,
+            message: `Added ${inserted} clips to "${dataset.name}"`,
+          }),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// get_corpus_stats tool
+// ---------------------------------------------------------------------------
+
+function registerGetCorpusStats(server: McpServer) {
+  server.tool(
+    "get_corpus_stats",
+    "Get statistics about the full video corpus and dataset catalog. Returns total counts, per-bucket breakdowns, and keyword prevalence. Useful for citing real numbers in outreach.",
+    {
+      keyword: z.string().optional().describe("Optional: check how many clips mention this keyword (e.g. 'person', 'kitchen', 'face')"),
+    },
+    async ({ keyword }) => {
+      const supabase = createSupabaseAdminClient();
+
+      // Video index stats by bucket
+      const { data: bucketStats } = await supabase.rpc("get_video_index_stats" as never) as { data: null };
+
+      // Fallback: manual query
+      let stats: Array<{ s3_bucket: string; enrichment_source: string; total: number }> = [];
+
+      if (!bucketStats) {
+        // Direct query
+        const { data } = await supabase
+          .from("video_index")
+          .select("s3_bucket, enrichment_source")
+          .limit(0);
+
+        // Use raw SQL via a simpler approach — count per bucket
+        // Since we can't do GROUP BY via PostgREST easily, use known buckets
+        const buckets = [
+          "mv-artlist-external", "mv-abaka-external", "mv-troveo",
+          "moonvalley-annotation-platform", "moonvalley-ml-datasets", "mv-xtr-external",
+        ];
+
+        for (const bucket of buckets) {
+          const { count } = await supabase
+            .from("video_index")
+            .select("id", { count: "exact", head: true })
+            .eq("s3_bucket", bucket);
+
+          if (count && count > 0) {
+            stats.push({ s3_bucket: bucket, enrichment_source: "", total: count });
+          }
+        }
+      }
+
+      // Total video index
+      const { count: totalVideos } = await supabase
+        .from("video_index")
+        .select("id", { count: "exact", head: true });
+
+      // Total datasets
+      const { count: totalDatasets } = await supabase
+        .from("datasets")
+        .select("id", { count: "exact", head: true })
+        .eq("is_published", true);
+
+      // Total dataset samples
+      const { count: totalSamples } = await supabase
+        .from("dataset_samples")
+        .select("id", { count: "exact", head: true });
+
+      // Total leads
+      const { count: totalLeads } = await supabase
+        .from("leads")
+        .select("id", { count: "exact", head: true });
+
+      // Keyword prevalence
+      let keywordCount: number | null = null;
+      if (keyword) {
+        const { count } = await supabase
+          .from("video_index")
+          .select("id", { count: "exact", head: true })
+          .ilike("caption_text", `%${keyword}%`);
+        keywordCount = count;
+      }
+
+      const result: Record<string, unknown> = {
+        full_corpus: {
+          total_indexed_videos: totalVideos ?? 0,
+          by_bucket: stats.map((s) => ({ bucket: s.s3_bucket, count: s.total })),
+        },
+        catalog: {
+          total_published_datasets: totalDatasets ?? 0,
+          total_samples_with_previews: totalSamples ?? 0,
+        },
+        leads: {
+          total: totalLeads ?? 0,
+        },
+      };
+
+      if (keyword && keywordCount !== null) {
+        result.keyword_search = {
+          keyword,
+          matching_clips: keywordCount,
+          percentage: totalVideos ? `${Math.round((keywordCount / totalVideos) * 100)}%` : "N/A",
+        };
+      }
+
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify(result) }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// list_lead_catalogs tool
+// ---------------------------------------------------------------------------
+
+function registerListLeadCatalogs(server: McpServer) {
+  server.tool(
+    "list_lead_catalogs",
+    "List all catalogs/datasets a lead has access to, including sample counts and portal URLs. Use to see what a lead already has before adding more.",
+    {
+      lead_id: z.string().uuid().describe("Lead UUID"),
+    },
+    async ({ lead_id }) => {
+      const supabase = createSupabaseAdminClient();
+
+      // Verify lead
+      const { data: lead } = await supabase
+        .from("leads")
+        .select("id, name, company")
+        .eq("id", lead_id)
+        .single();
+
+      if (!lead) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "Lead not found" }) }],
+        };
+      }
+
+      // Get dataset access with dataset details
+      const { data: access } = await supabase
+        .from("lead_dataset_access")
+        .select("dataset_id, granted_at")
+        .eq("lead_id", lead_id);
+
+      if (!access || access.length === 0) {
+        return {
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({
+              lead: { id: lead.id, name: lead.name, company: lead.company },
+              catalogs: [],
+              message: "Lead has no catalog access",
+            }),
+          }],
+        };
+      }
+
+      const datasetIds = access.map((a) => a.dataset_id);
+
+      const { data: datasets } = await supabase
+        .from("datasets")
+        .select("id, name, description, type, total_samples, is_published")
+        .in("id", datasetIds);
+
+      // Count lead-specific samples per dataset
+      const catalogs = await Promise.all(
+        (datasets ?? []).map(async (ds) => {
+          const { count: leadSamples } = await supabase
+            .from("dataset_samples")
+            .select("id", { count: "exact", head: true })
+            .eq("dataset_id", ds.id)
+            .eq("lead_id", lead_id);
+
+          const { count: baseSamples } = await supabase
+            .from("dataset_samples")
+            .select("id", { count: "exact", head: true })
+            .eq("dataset_id", ds.id)
+            .is("lead_id", null);
+
+          const grantedAt = access.find((a) => a.dataset_id === ds.id)?.granted_at;
+
+          return {
+            dataset_id: ds.id,
+            name: ds.name,
+            description: ds.description,
+            type: ds.type,
+            total_dataset_samples: ds.total_samples,
+            base_preview_samples: baseSamples ?? 0,
+            lead_specific_samples: leadSamples ?? 0,
+            is_published: ds.is_published,
+            granted_at: grantedAt,
+            portal_url: `/portal/catalog/${ds.id}`,
+          };
+        })
+      );
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({
+            lead: { id: lead.id, name: lead.name, company: lead.company },
+            catalogs,
+            total_catalogs: catalogs.length,
           }),
         }],
       };
