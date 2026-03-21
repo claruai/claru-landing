@@ -5,6 +5,7 @@ import { generateEmbedding } from "@/lib/embeddings/openai";
 import { getS3SignedUrl } from "@/lib/s3/presigner";
 import { scrubS3Urls } from "@/lib/scrub-s3-urls";
 import type { AgentContext } from "@/lib/enrichment/types";
+import { getAllCaseStudies, getCaseStudyBySlug } from "@/lib/case-studies";
 
 /**
  * Create and configure the MCP server with all catalog tools.
@@ -31,6 +32,8 @@ export function createMcpServer(): McpServer {
   registerAddClipsToCatalog(server);
   registerGetCorpusStats(server);
   registerListLeadCatalogs(server);
+  registerListCaseStudies(server);
+  registerGetCaseStudy(server);
 
   return server;
 }
@@ -1421,6 +1424,103 @@ function registerListLeadCatalogs(server: McpServer) {
             lead: { id: lead.id, name: lead.name, company: lead.company },
             catalogs,
             total_catalogs: catalogs.length,
+          }),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// list_case_studies tool
+// ---------------------------------------------------------------------------
+
+function registerListCaseStudies(server: McpServer) {
+  server.tool(
+    "list_case_studies",
+    "List all published case studies with title, category, teaser, headline stat, and tags. Use to find relevant case studies for a prospect's use case or industry.",
+    {
+      category: z.string().optional().describe("Filter by category (e.g. 'robotics', 'annotation', 'safety', 'evaluation', 'video', 'data-collection', 'gaming', 'fashion-ai')"),
+      tag: z.string().optional().describe("Filter by tag keyword (e.g. 'video', 'rlhf', 'egocentric')"),
+    },
+    async ({ category, tag }) => {
+      let studies = getAllCaseStudies();
+
+      if (category) {
+        studies = studies.filter((s) => s.category === category);
+      }
+
+      if (tag) {
+        const lowerTag = tag.toLowerCase();
+        studies = studies.filter((s) =>
+          s.title.toLowerCase().includes(lowerTag) ||
+          s.teaser.toLowerCase().includes(lowerTag) ||
+          s.category.includes(lowerTag)
+        );
+      }
+
+      const results = studies.map((s) => ({
+        slug: s.slug,
+        title: s.title,
+        category: s.category,
+        teaser: s.teaser,
+        headline_stat: s.headlineStat,
+        headline_stat_label: s.headlineStatLabel,
+        url: `/case-studies/${s.slug}`,
+        date_published: s.datePublished,
+        results_summary: s.results.map((r) => `${r.value} ${r.label}`),
+      }));
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({ case_studies: results, count: results.length }),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// get_case_study tool
+// ---------------------------------------------------------------------------
+
+function registerGetCaseStudy(server: McpServer) {
+  server.tool(
+    "get_case_study",
+    "Get the full content of a case study by slug. Returns challenge, approach, results, impact, FAQs, and related studies. Use in outreach to reference specific proof points.",
+    {
+      slug: z.string().describe("Case study slug (e.g. 'egocentric-video-collection', 'video-quality-at-scale')"),
+    },
+    async ({ slug }) => {
+      const study = getCaseStudyBySlug(slug);
+
+      if (!study) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: `Case study "${slug}" not found` }) }],
+        };
+      }
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({
+            slug: study.slug,
+            title: study.title,
+            category: study.category,
+            headline_stat: study.headlineStat,
+            headline_stat_label: study.headlineStatLabel,
+            summary: study.summary,
+            challenge: study.challenge,
+            approach: study.approach,
+            results: study.results,
+            impact: study.impact,
+            why_it_matters: study.whyItMatters,
+            faqs: study.faqs,
+            process_steps: study.processSteps ?? [],
+            related_slugs: study.relatedSlugs,
+            url: `/case-studies/${study.slug}`,
+            date_published: study.datePublished,
           }),
         }],
       };
