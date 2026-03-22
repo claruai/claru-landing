@@ -38,6 +38,7 @@ export function createMcpServer(): McpServer {
   registerRemoveClipsFromCatalog(server);
   registerGrantLeadAccess(server);
   registerRevokeLeadAccess(server);
+  registerSendLeadInvite(server);
 
   return server;
 }
@@ -1774,6 +1775,133 @@ function registerRevokeLeadAccess(server: McpServer) {
           text: JSON.stringify({
             revoked: deleted?.length ?? 0,
             message: `Revoked access to ${deleted?.length ?? 0} dataset${(deleted?.length ?? 0) !== 1 ? "s" : ""}`,
+          }),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// send_lead_invite tool
+// ---------------------------------------------------------------------------
+
+function registerSendLeadInvite(server: McpServer) {
+  server.tool(
+    "send_lead_invite",
+    "Create a Supabase auth account for a lead so they can log in to the portal. Generates a magic link. The lead must be approved first. Does NOT send an invite email by default — use the admin UI for that.",
+    {
+      lead_id: z.string().uuid().describe("Lead UUID"),
+      send_email: z.boolean().default(false).describe("Send the invite email (default: false — use admin UI to send invites)"),
+    },
+    async ({ lead_id, send_email }) => {
+      const supabase = createSupabaseAdminClient();
+
+      // Fetch lead
+      const { data: lead, error: fetchErr } = await supabase
+        .from("leads")
+        .select("*")
+        .eq("id", lead_id)
+        .single();
+
+      if (fetchErr || !lead) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "Lead not found" }) }],
+        };
+      }
+
+      if (lead.status !== "approved") {
+        return {
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({ error: "Lead must be approved first. Use approve_lead tool.", status: lead.status }),
+          }],
+        };
+      }
+
+      // Create or find Supabase Auth user
+      let supabaseUserId = lead.supabase_user_id;
+
+      if (!supabaseUserId) {
+        const { data: authUser, error: createErr } =
+          await supabase.auth.admin.createUser({
+            email: lead.email,
+            email_confirm: true,
+          });
+
+        if (createErr) {
+          // User might already exist
+          const { data: existingUsers } = await supabase.auth.admin.listUsers();
+          const existing = existingUsers?.users?.find((u) => u.email === lead.email);
+
+          if (existing) {
+            supabaseUserId = existing.id;
+          } else {
+            return {
+              content: [{
+                type: "text" as const,
+                text: JSON.stringify({ error: "Failed to create auth user", details: createErr.message }),
+              }],
+            };
+          }
+        } else {
+          supabaseUserId = authUser.user.id;
+        }
+
+        // Store supabase_user_id on lead
+        await supabase
+          .from("leads")
+          .update({ supabase_user_id: supabaseUserId })
+          .eq("id", lead_id);
+      }
+
+      // Generate magic link
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://claru.ai";
+      const { data: linkData, error: linkErr } =
+        await supabase.auth.admin.generateLink({
+          type: "magiclink",
+          email: lead.email,
+          options: {
+            redirectTo: `${siteUrl}/portal/auth/callback`,
+          },
+        });
+
+      let magicLink: string | null = null;
+      if (!linkErr && linkData?.properties?.action_link) {
+        magicLink = linkData.properties.action_link;
+      }
+
+      // Optionally send invite email
+      let inviteSent = false;
+      if (send_email && magicLink) {
+        try {
+          const { sendInviteEmail } = await import("@/lib/email/invite");
+          const result = await sendInviteEmail({
+            to: lead.email,
+            name: lead.name,
+            magicLink,
+          });
+          inviteSent = result.success;
+        } catch {
+          // Email sending failed — still return the magic link
+        }
+      }
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({
+            lead_id,
+            email: lead.email,
+            supabase_user_id: supabaseUserId,
+            magic_link: magicLink,
+            invite_email_sent: inviteSent,
+            portal_url: `${siteUrl}/portal`,
+            message: inviteSent
+              ? `Invite sent to ${lead.email}`
+              : magicLink
+                ? `Auth user created. Magic link generated (email not sent).`
+                : `Auth user created but magic link generation failed.`,
           }),
         }],
       };
