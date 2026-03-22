@@ -144,12 +144,12 @@ export default function CatalogSearchClient({
   );
 
   const runSearch = useCallback(
-    async (searchQuery: string, searchMode?: SearchMode, opts?: { append?: boolean; searchOffset?: number }) => {
+    async (searchQuery: string, searchMode?: SearchMode, opts?: { append?: boolean; searchOffset?: number; overrideLimit?: number }) => {
       // Allow empty query when a dataset or bucket filter is set (browse mode)
       if (!searchQuery.trim() && !datasetFilter && !bucketFilter) return;
       const m = searchMode ?? mode;
       const browsing = !searchQuery.trim();
-      const pageSize = browsing ? BROWSE_PAGE_SIZE : SEARCH_PAGE_SIZE;
+      const pageSize = opts?.overrideLimit ?? (browsing ? BROWSE_PAGE_SIZE : SEARCH_PAGE_SIZE);
       const requestOffset = opts?.searchOffset ?? 0;
 
       if (opts?.append) {
@@ -197,12 +197,18 @@ export default function CatalogSearchClient({
         } else {
           // Search mode: append or replace
           if (opts?.append) {
-            setResults((prev) => [...(prev ?? []), ...newResults]);
+            // Deduplicate: semantic search returns top N by similarity,
+            // so requesting a larger N may return overlapping results
+            setResults((prev) => {
+              const existingIds = new Set((prev ?? []).map((r) => r.id));
+              const fresh = newResults.filter((r) => !existingIds.has(r.id));
+              return [...(prev ?? []), ...fresh];
+            });
+            setHasMore(newResults.length >= pageSize);
           } else {
             setResults(newResults);
+            setHasMore(newResults.length >= pageSize);
           }
-          // Determine if more results available
-          setHasMore(newResults.length >= pageSize);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Search failed");
@@ -244,11 +250,12 @@ export default function CatalogSearchClient({
     if (query.trim() || datasetFilter || bucketFilter) runSearch(query, newMode);
   };
 
-  // Load more (search mode)
+  // Load more (search mode) — request total needed count since semantic
+  // search doesn't support offset (it always returns top N by similarity)
   const handleLoadMore = () => {
     if (!results || loadingMore) return;
-    const newOffset = results.length;
-    runSearch(query, mode, { append: true, searchOffset: newOffset });
+    const totalNeeded = results.length + SEARCH_PAGE_SIZE;
+    runSearch(query, mode, { append: true, searchOffset: 0, overrideLimit: totalNeeded });
   };
 
   // Browse pagination
