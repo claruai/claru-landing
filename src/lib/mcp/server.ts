@@ -36,6 +36,8 @@ export function createMcpServer(): McpServer {
   registerGetCaseStudy(server);
   registerUpdateDataset(server);
   registerRemoveClipsFromCatalog(server);
+  registerGrantLeadAccess(server);
+  registerRevokeLeadAccess(server);
 
   return server;
 }
@@ -1659,6 +1661,119 @@ function registerRemoveClipsFromCatalog(server: McpServer) {
             requested: sample_ids.length,
             remaining_samples: count ?? 0,
             message: `Removed ${removedCount} sample${removedCount !== 1 ? "s" : ""} from "${dataset.name}"`,
+          }),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// grant_lead_access tool
+// ---------------------------------------------------------------------------
+
+function registerGrantLeadAccess(server: McpServer) {
+  server.tool(
+    "grant_lead_access",
+    "Grant a lead access to one or more existing datasets/catalogs. The lead will see these in their portal. Use list_datasets to find dataset IDs.",
+    {
+      lead_id: z.string().uuid().describe("Lead UUID"),
+      dataset_ids: z.array(z.string().uuid()).min(1).describe("Dataset UUIDs to grant access to"),
+    },
+    async ({ lead_id, dataset_ids }) => {
+      const supabase = createSupabaseAdminClient();
+
+      // Verify lead exists
+      const { data: lead } = await supabase
+        .from("leads")
+        .select("id, name, company")
+        .eq("id", lead_id)
+        .single();
+
+      if (!lead) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "Lead not found" }) }],
+        };
+      }
+
+      // Verify datasets exist
+      const { data: datasets } = await supabase
+        .from("datasets")
+        .select("id, name")
+        .in("id", dataset_ids);
+
+      const foundIds = new Set((datasets ?? []).map((d) => d.id));
+      const notFound = dataset_ids.filter((id) => !foundIds.has(id));
+
+      // Upsert access grants
+      const rows = dataset_ids
+        .filter((id) => foundIds.has(id))
+        .map((dataset_id) => ({ lead_id, dataset_id }));
+
+      let granted = 0;
+      if (rows.length > 0) {
+        const { error } = await supabase
+          .from("lead_dataset_access")
+          .upsert(rows, { onConflict: "lead_id,dataset_id" });
+
+        if (error) {
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ error: error.message }) }],
+          };
+        }
+        granted = rows.length;
+      }
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({
+            lead: { id: lead.id, name: lead.name, company: lead.company },
+            granted,
+            datasets_granted: (datasets ?? []).map((d) => ({ id: d.id, name: d.name })),
+            not_found: notFound.length > 0 ? notFound : undefined,
+            message: `Granted ${lead.name} access to ${granted} dataset${granted !== 1 ? "s" : ""}`,
+          }),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// revoke_lead_access tool
+// ---------------------------------------------------------------------------
+
+function registerRevokeLeadAccess(server: McpServer) {
+  server.tool(
+    "revoke_lead_access",
+    "Revoke a lead's access to one or more datasets/catalogs. They will no longer see these in their portal.",
+    {
+      lead_id: z.string().uuid().describe("Lead UUID"),
+      dataset_ids: z.array(z.string().uuid()).min(1).describe("Dataset UUIDs to revoke access from"),
+    },
+    async ({ lead_id, dataset_ids }) => {
+      const supabase = createSupabaseAdminClient();
+
+      const { data: deleted, error } = await supabase
+        .from("lead_dataset_access")
+        .delete()
+        .eq("lead_id", lead_id)
+        .in("dataset_id", dataset_ids)
+        .select("dataset_id");
+
+      if (error) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: error.message }) }],
+        };
+      }
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({
+            revoked: deleted?.length ?? 0,
+            message: `Revoked access to ${deleted?.length ?? 0} dataset${(deleted?.length ?? 0) !== 1 ? "s" : ""}`,
           }),
         }],
       };
