@@ -38,7 +38,7 @@ export function createMcpServer(): McpServer {
   registerRemoveClipsFromCatalog(server);
   registerGrantLeadAccess(server);
   registerRevokeLeadAccess(server);
-  registerSendLeadInvite(server);
+  registerCreateLeadAuthUser(server);
 
   return server;
 }
@@ -1786,10 +1786,10 @@ function registerRevokeLeadAccess(server: McpServer) {
 // send_lead_invite tool
 // ---------------------------------------------------------------------------
 
-function registerSendLeadInvite(server: McpServer) {
+function registerCreateLeadAuthUser(server: McpServer) {
   server.tool(
-    "send_lead_invite",
-    "Create a Supabase auth account for a lead so they can log in to the portal. Generates a magic link URL. The lead must be approved first. NEVER sends emails — use the admin UI to send invite emails.",
+    "create_lead_auth_user",
+    "Create a Supabase auth account for an approved lead so they can log in to the portal. Required before a lead can access the portal. Does NOT send any emails.",
     {
       lead_id: z.string().uuid().describe("Lead UUID"),
     },
