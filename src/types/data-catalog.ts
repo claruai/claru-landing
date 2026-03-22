@@ -64,6 +64,7 @@ export interface DatasetSample {
   metadata_json: Record<string, unknown>;
   annotation_id: string;
   s3_object_key: string | null;
+  s3_bucket: string | null;
   s3_annotation_key: string | null;
   s3_specs_key: string | null;
   enrichment_json: Record<string, unknown>;

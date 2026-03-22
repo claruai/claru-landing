@@ -186,21 +186,26 @@ export default async function DatasetDetailPage({
   // 2. media_url      -> direct URL (legacy / external hosting)
   // 3. storage_path   -> Supabase Storage signed URL (legacy)
   // 4. fallback       -> empty string (no preview available)
-  // Use dataset-level s3_bucket if set, otherwise default
-  const bucketOverride = dataset.s3_bucket && dataset.s3_bucket !== "moonvalley-annotation-platform"
+  // Bucket priority: sample-level s3_bucket > dataset-level s3_bucket > default
+  const datasetBucket = dataset.s3_bucket && dataset.s3_bucket !== "moonvalley-annotation-platform"
     ? dataset.s3_bucket
     : undefined;
 
   const signedUrls = await Promise.all(
-    samplesList.map((sample) =>
-      sample.s3_object_key
-        ? getS3SignedUrl(sample.s3_object_key, 3600, bucketOverride)
+    samplesList.map((sample) => {
+      const sampleBucket = sample.s3_bucket;
+      const bucket = (sampleBucket && sampleBucket !== "moonvalley-annotation-platform")
+        ? sampleBucket
+        : datasetBucket;
+
+      return sample.s3_object_key
+        ? getS3SignedUrl(sample.s3_object_key, 3600, bucket)
         : sample.media_url
           ? Promise.resolve(sample.media_url)
           : sample.storage_path
             ? getSignedUrl(sample.storage_path)
-            : Promise.resolve("")
-    )
+            : Promise.resolve("");
+    })
   );
 
   // Pair samples with their resolved URLs for the client component.

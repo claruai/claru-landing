@@ -125,6 +125,7 @@ export async function POST(request: NextRequest) {
           dataset_id: dataset.id,
           lead_id,
           s3_object_key: vi.s3_key,
+          s3_bucket: vi.s3_bucket,
           filename: vi.s3_key.split("/").pop() || "sample",
           mime_type: mimeType,
           file_size_bytes: 0,
@@ -142,7 +143,7 @@ export async function POST(request: NextRequest) {
       // Existing catalog sample → copy its S3 info into the new dataset
       const { data: existing } = await supabase
         .from("dataset_samples")
-        .select("s3_object_key, filename, mime_type, file_size_bytes, metadata_json, agent_context")
+        .select("s3_object_key, s3_bucket, filename, mime_type, file_size_bytes, metadata_json, agent_context")
         .eq("id", item.dataset_sample_id)
         .single();
 
@@ -154,6 +155,7 @@ export async function POST(request: NextRequest) {
           dataset_id: dataset.id,
           lead_id,
           s3_object_key: existing.s3_object_key,
+          s3_bucket: existing.s3_bucket,
           filename: existing.filename,
           mime_type: existing.mime_type,
           file_size_bytes: existing.file_size_bytes,
