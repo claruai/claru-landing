@@ -1789,12 +1789,11 @@ function registerRevokeLeadAccess(server: McpServer) {
 function registerSendLeadInvite(server: McpServer) {
   server.tool(
     "send_lead_invite",
-    "Create a Supabase auth account for a lead so they can log in to the portal. Generates a magic link. The lead must be approved first. Does NOT send an invite email by default — use the admin UI for that.",
+    "Create a Supabase auth account for a lead so they can log in to the portal. Generates a magic link URL. The lead must be approved first. NEVER sends emails — use the admin UI to send invite emails.",
     {
       lead_id: z.string().uuid().describe("Lead UUID"),
-      send_email: z.boolean().default(false).describe("Send the invite email (default: false — use admin UI to send invites)"),
     },
-    async ({ lead_id, send_email }) => {
+    async ({ lead_id }) => {
       const supabase = createSupabaseAdminClient();
 
       // Fetch lead
@@ -1871,22 +1870,6 @@ function registerSendLeadInvite(server: McpServer) {
         magicLink = linkData.properties.action_link;
       }
 
-      // Optionally send invite email
-      let inviteSent = false;
-      if (send_email && magicLink) {
-        try {
-          const { sendInviteEmail } = await import("@/lib/email/invite");
-          const result = await sendInviteEmail({
-            to: lead.email,
-            name: lead.name,
-            magicLink,
-          });
-          inviteSent = result.success;
-        } catch {
-          // Email sending failed — still return the magic link
-        }
-      }
-
       return {
         content: [{
           type: "text" as const,
@@ -1895,13 +1878,10 @@ function registerSendLeadInvite(server: McpServer) {
             email: lead.email,
             supabase_user_id: supabaseUserId,
             magic_link: magicLink,
-            invite_email_sent: inviteSent,
             portal_url: `${siteUrl}/portal`,
-            message: inviteSent
-              ? `Invite sent to ${lead.email}`
-              : magicLink
-                ? `Auth user created. Magic link generated (email not sent).`
-                : `Auth user created but magic link generation failed.`,
+            message: magicLink
+              ? `Auth account created. Use admin UI to send invite email.`
+              : `Auth account created but magic link generation failed.`,
           }),
         }],
       };
