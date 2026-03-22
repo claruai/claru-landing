@@ -1789,12 +1789,16 @@ function registerRevokeLeadAccess(server: McpServer) {
 function registerCreateLeadAuthUser(server: McpServer) {
   server.tool(
     "create_lead_auth_user",
-    "Create a Supabase auth account for an approved lead so they can log in to the portal. Required before a lead can access the portal. Does NOT send any emails.",
+    "Create a Supabase auth account with a temporary password for an approved lead so they can log in to the portal. Required before a lead can access the portal. Does NOT send any emails. Returns the temp password — share it with the lead securely.",
     {
       lead_id: z.string().uuid().describe("Lead UUID"),
+      password: z.string().min(8).optional().describe("Custom password. If omitted, a random temp password is generated."),
     },
-    async ({ lead_id }) => {
+    async ({ lead_id, password: customPassword }) => {
       const supabase = createSupabaseAdminClient();
+
+      // Generate a temp password if not provided
+      const tempPassword = customPassword ?? `Claru-${crypto.randomUUID().slice(0, 8)}`;
 
       // Fetch lead
       const { data: lead, error: fetchErr } = await supabase
@@ -1818,23 +1822,30 @@ function registerCreateLeadAuthUser(server: McpServer) {
         };
       }
 
-      // Create or find Supabase Auth user
+      // Create or find Supabase Auth user (with temp password for signInWithPassword)
       let supabaseUserId = lead.supabase_user_id;
+      let passwordSet = false;
 
       if (!supabaseUserId) {
         const { data: authUser, error: createErr } =
           await supabase.auth.admin.createUser({
             email: lead.email,
+            password: tempPassword,
             email_confirm: true,
           });
 
         if (createErr) {
-          // User might already exist
+          // User might already exist — find and update their password
           const { data: existingUsers } = await supabase.auth.admin.listUsers();
           const existing = existingUsers?.users?.find((u) => u.email === lead.email);
 
           if (existing) {
             supabaseUserId = existing.id;
+            // Update password on existing user
+            await supabase.auth.admin.updateUserById(existing.id, {
+              password: tempPassword,
+            });
+            passwordSet = true;
           } else {
             return {
               content: [{
@@ -1845,6 +1856,7 @@ function registerCreateLeadAuthUser(server: McpServer) {
           }
         } else {
           supabaseUserId = authUser.user.id;
+          passwordSet = true;
         }
 
         // Store supabase_user_id on lead
@@ -1852,23 +1864,15 @@ function registerCreateLeadAuthUser(server: McpServer) {
           .from("leads")
           .update({ supabase_user_id: supabaseUserId })
           .eq("id", lead_id);
-      }
-
-      // Generate magic link
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://claru.ai";
-      const { data: linkData, error: linkErr } =
-        await supabase.auth.admin.generateLink({
-          type: "magiclink",
-          email: lead.email,
-          options: {
-            redirectTo: `${siteUrl}/portal/auth/callback`,
-          },
+      } else {
+        // Auth user already exists — update password
+        await supabase.auth.admin.updateUserById(supabaseUserId, {
+          password: tempPassword,
         });
-
-      let magicLink: string | null = null;
-      if (!linkErr && linkData?.properties?.action_link) {
-        magicLink = linkData.properties.action_link;
+        passwordSet = true;
       }
+
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://claru.ai";
 
       return {
         content: [{
@@ -1877,11 +1881,10 @@ function registerCreateLeadAuthUser(server: McpServer) {
             lead_id,
             email: lead.email,
             supabase_user_id: supabaseUserId,
-            magic_link: magicLink,
-            portal_url: `${siteUrl}/portal`,
-            message: magicLink
-              ? `Auth account created. Use admin UI to send invite email.`
-              : `Auth account created but magic link generation failed.`,
+            temp_password: tempPassword,
+            password_set: passwordSet,
+            portal_url: `${siteUrl}/portal/login`,
+            message: `Auth account ready. Lead can log in with email: ${lead.email} and the temp password.`,
           }),
         }],
       };
