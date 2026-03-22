@@ -24,6 +24,7 @@ const itemSchema = z.object({
 const requestSchema = z.object({
   name: z.string().min(1, "Name is required").max(200),
   lead_id: z.string().uuid("Invalid lead ID"),
+  dataset_id: z.string().uuid().optional().describe("If provided, add clips to this existing dataset instead of creating a new one"),
   items: z.array(itemSchema).min(1, "At least one item is required"),
   note: z.string().optional(),
 });
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { name, lead_id, items, note } = parsed.data;
+  const { name, lead_id, dataset_id: existingDatasetId, items, note } = parsed.data;
   const supabase = createSupabaseAdminClient();
 
   // Verify lead exists
@@ -71,30 +72,46 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Lead not found" }, { status: 404 });
   }
 
-  // 1. Create the dataset
-  const slug = slugify(name) + "-" + Date.now().toString(36);
-  const { data: dataset, error: dsError } = await supabase
-    .from("datasets")
-    .insert({
-      name,
-      slug,
-      category_id: CUSTOM_CURATIONS_CATEGORY_ID,
-      type: "short_form",
-      source_type: "curated",
-      subcategory: "",
-      description: `Custom curated collection for ${lead.name} (${lead.company})`,
-      total_samples: 0,
-      total_duration_hours: 0,
-      geographic_coverage: "",
-      annotation_types: [],
-      is_published: true,
-    })
-    .select()
-    .single();
+  // 1. Use existing dataset or create a new one
+  let dataset: { id: string; name: string; slug: string };
 
-  if (dsError || !dataset) {
-    console.error("[POST /api/admin/catalog/custom] create dataset", dsError);
-    return NextResponse.json({ error: "Failed to create dataset" }, { status: 500 });
+  if (existingDatasetId) {
+    const { data: existing } = await supabase
+      .from("datasets")
+      .select("id, name, slug")
+      .eq("id", existingDatasetId)
+      .single();
+
+    if (!existing) {
+      return NextResponse.json({ error: "Dataset not found" }, { status: 404 });
+    }
+    dataset = existing;
+  } else {
+    const slug = slugify(name) + "-" + Date.now().toString(36);
+    const { data: created, error: dsError } = await supabase
+      .from("datasets")
+      .insert({
+        name,
+        slug,
+        category_id: CUSTOM_CURATIONS_CATEGORY_ID,
+        type: "short_form",
+        source_type: "curated",
+        subcategory: "",
+        description: `Custom curated collection for ${lead.name} (${lead.company})`,
+        total_samples: 0,
+        total_duration_hours: 0,
+        geographic_coverage: "",
+        annotation_types: [],
+        is_published: true,
+      })
+      .select()
+      .single();
+
+    if (dsError || !created) {
+      console.error("[POST /api/admin/catalog/custom] create dataset", dsError);
+      return NextResponse.json({ error: "Failed to create dataset" }, { status: 500 });
+    }
+    dataset = created;
   }
 
   // 2. Process each item — resolve S3 info and insert as lead-specific samples
@@ -172,10 +189,15 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // 3. Update dataset sample count
+  // 3. Update dataset sample count (use actual count for existing datasets)
+  const { count: totalCount } = await supabase
+    .from("dataset_samples")
+    .select("id", { count: "exact", head: true })
+    .eq("dataset_id", dataset.id);
+
   await supabase
     .from("datasets")
-    .update({ total_samples: inserted })
+    .update({ total_samples: totalCount ?? inserted })
     .eq("id", dataset.id);
 
   // 4. Grant lead access

@@ -769,7 +769,12 @@ interface LeadOption {
   company: string;
 }
 
-type BulkMode = "add_to_lead" | "create_catalog";
+interface DatasetOption {
+  id: string;
+  name: string;
+}
+
+type BulkMode = "add_to_lead" | "create_catalog" | "add_to_catalog";
 
 function BulkActionBar({
   selectedIds,
@@ -785,6 +790,12 @@ function BulkActionBar({
   const [leadsLoading, setLeadsLoading] = useState(false);
   const [selectedLead, setSelectedLead] = useState<LeadOption | null>(null);
   const [leadSearch, setLeadSearch] = useState("");
+  const [catalogList, setCatalogList] = useState<DatasetOption[]>([]);
+  const [catalogsLoading, setCatalogsLoading] = useState(false);
+  const [selectedCatalog, setSelectedCatalog] = useState<DatasetOption | null>(null);
+  const [catalogSearch, setCatalogSearch] = useState("");
+  const [catalogDropdownOpen, setCatalogDropdownOpen] = useState(false);
+  const catalogDropdownRef = useRef<HTMLDivElement>(null);
   const [note, setNote] = useState("");
   const [catalogName, setCatalogName] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -804,16 +815,29 @@ function BulkActionBar({
       .finally(() => setLeadsLoading(false));
   }, []);
 
+  // Fetch catalog list on mount
+  useEffect(() => {
+    setCatalogsLoading(true);
+    fetch("/api/admin/catalog")
+      .then((r) => r.json())
+      .then((d) => setCatalogList(d.datasets ?? []))
+      .catch(() => {})
+      .finally(() => setCatalogsLoading(false));
+  }, []);
+
   // Close dropdown on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setDropdownOpen(false);
       }
+      if (catalogDropdownRef.current && !catalogDropdownRef.current.contains(e.target as Node)) {
+        setCatalogDropdownOpen(false);
+      }
     }
-    if (dropdownOpen) document.addEventListener("mousedown", handleClick);
+    if (dropdownOpen || catalogDropdownOpen) document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
-  }, [dropdownOpen]);
+  }, [dropdownOpen, catalogDropdownOpen]);
 
   const filteredLeads = leads.filter(
     (l) =>
@@ -903,6 +927,52 @@ function BulkActionBar({
     }
   };
 
+  const handleAddToCatalog = async () => {
+    if (!selectedCatalog || !selectedLead) return;
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const items = Array.from(selectedIds).map((id) => {
+        const r = results.find((res) => res.id === id);
+        if (r?.source === "full_corpus") return { video_index_id: id };
+        return { dataset_sample_id: id };
+      });
+
+      const res = await fetch("/api/admin/catalog/custom", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: selectedCatalog.name,
+          lead_id: selectedLead.id,
+          dataset_id: selectedCatalog.id,
+          items,
+          note: note || undefined,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to add to catalog");
+      }
+
+      const data = await res.json();
+      setToast(`Added ${data.samples_added} clips to "${selectedCatalog.name}"`);
+      onClear();
+      setSelectedLead(null);
+      setSelectedCatalog(null);
+      setNote("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to add to catalog");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const filteredCatalogs = catalogList.filter((c) =>
+    c.name.toLowerCase().includes(catalogSearch.toLowerCase())
+  );
+
   // Toast + portal link
   if (toast) {
     return (
@@ -952,7 +1022,18 @@ function BulkActionBar({
             }`}
           >
             <FolderPlus className="w-3 h-3" />
-            Create Custom Catalog
+            Create New
+          </button>
+          <button
+            onClick={() => setBulkMode("add_to_catalog")}
+            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-mono transition-colors ${
+              bulkMode === "add_to_catalog"
+                ? "text-blue-400 border-b-2 border-blue-400"
+                : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+            }`}
+          >
+            <FolderPlus className="w-3 h-3" />
+            Add to Catalog
           </button>
         </div>
 
@@ -963,6 +1044,63 @@ function BulkActionBar({
           </span>
 
           <span className="text-[var(--text-muted)]">—</span>
+
+          {/* Catalog picker (add_to_catalog mode) */}
+          {bulkMode === "add_to_catalog" && (
+            <div className="relative flex-shrink-0" ref={catalogDropdownRef}>
+              <button
+                onClick={() => setCatalogDropdownOpen(!catalogDropdownOpen)}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-md bg-[var(--bg-primary)] border border-blue-500/30 text-[var(--text-secondary)] hover:border-blue-400 transition-colors min-w-[200px]"
+              >
+                <FolderPlus className="w-3 h-3" />
+                {selectedCatalog ? (
+                  <span className="truncate">{selectedCatalog.name}</span>
+                ) : (
+                  <span className="text-[var(--text-muted)]">Select catalog...</span>
+                )}
+                <ChevronDown className="w-3 h-3 ml-auto" />
+              </button>
+
+              {catalogDropdownOpen && (
+                <div className="absolute bottom-full mb-1 left-0 w-80 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-xl">
+                  <div className="p-2 border-b border-[var(--border-subtle)]">
+                    <input
+                      type="text"
+                      value={catalogSearch}
+                      onChange={(e) => setCatalogSearch(e.target.value)}
+                      placeholder="Search catalogs..."
+                      autoFocus
+                      className="w-full px-2 py-1.5 text-xs font-mono bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-400"
+                    />
+                  </div>
+                  <div className="max-h-48 overflow-y-auto">
+                    {catalogsLoading ? (
+                      <div className="p-3 text-center">
+                        <Loader2 className="w-4 h-4 animate-spin text-blue-400 mx-auto" />
+                      </div>
+                    ) : filteredCatalogs.length === 0 ? (
+                      <div className="p-3 text-xs font-mono text-[var(--text-muted)] text-center">
+                        No matching catalogs
+                      </div>
+                    ) : (
+                      filteredCatalogs.map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => {
+                            setSelectedCatalog(cat);
+                            setCatalogDropdownOpen(false);
+                          }}
+                          className="w-full px-3 py-2 text-left text-xs font-mono text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] hover:text-blue-400 border-b border-[var(--border-subtle)] last:border-0 transition-colors"
+                        >
+                          {cat.name}
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Catalog name input (create mode only) */}
           {bulkMode === "create_catalog" && (
@@ -1042,22 +1180,33 @@ function BulkActionBar({
 
           {/* Confirm */}
           <button
-            onClick={bulkMode === "create_catalog" ? handleCreateCatalog : handleConfirm}
+            onClick={
+              bulkMode === "create_catalog"
+                ? handleCreateCatalog
+                : bulkMode === "add_to_catalog"
+                  ? handleAddToCatalog
+                  : handleConfirm
+            }
             disabled={
               !selectedLead ||
               submitting ||
-              (bulkMode === "create_catalog" && !catalogName.trim())
+              (bulkMode === "create_catalog" && !catalogName.trim()) ||
+              (bulkMode === "add_to_catalog" && !selectedCatalog)
             }
             className={`px-4 py-1.5 text-xs font-mono rounded-md hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity whitespace-nowrap ${
               bulkMode === "create_catalog"
                 ? "bg-purple-500 text-white"
-                : "bg-[var(--accent-primary)] text-[var(--bg-primary)]"
+                : bulkMode === "add_to_catalog"
+                  ? "bg-blue-500 text-white"
+                  : "bg-[var(--accent-primary)] text-[var(--bg-primary)]"
             }`}
           >
             {submitting ? (
               <Loader2 className="w-3 h-3 animate-spin" />
             ) : bulkMode === "create_catalog" ? (
               "Create Catalog"
+            ) : bulkMode === "add_to_catalog" ? (
+              "Add to Catalog"
             ) : (
               "Confirm"
             )}
