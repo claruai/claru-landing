@@ -17,8 +17,7 @@ export function createMcpServer(): McpServer {
     { capabilities: { tools: {} } },
   );
 
-  registerSearchCatalog(server);
-  registerSearchFullCatalog(server);
+  registerSearchClips(server);
   registerGetDatasetOverview(server);
   registerBuildLeadBrief(server);
   registerListLeads(server);
@@ -44,109 +43,31 @@ export function createMcpServer(): McpServer {
 }
 
 // ---------------------------------------------------------------------------
-// search_catalog tool
+// search_clips tool (unified — replaces search_catalog + search_full_catalog)
 // ---------------------------------------------------------------------------
 
-function registerSearchCatalog(server: McpServer) {
+function registerSearchClips(server: McpServer) {
   server.tool(
-    "search_catalog",
-    "Semantic search over annotated dataset samples. Returns samples ranked by relevance to the query.",
+    "search_clips",
+    "Semantic search over the unified clips table. Returns clips ranked by cosine similarity with structured metadata. Replaces the old search_catalog and search_full_catalog tools.",
     {
       query: z.string().describe("Natural language search query"),
       limit: z.number().min(1).max(50).default(10).describe("Max results (default 10, max 50)"),
-      dataset_id: z.string().uuid().optional().describe("Optional: restrict to a single dataset"),
-    },
-    async ({ query, limit, dataset_id }) => {
-      const supabase = createSupabaseAdminClient();
-
-      // Embed the query
-      const queryEmbedding = await generateEmbedding(query);
-
-      // Call match_samples RPC
-      const { data: matches, error } = await supabase.rpc("match_samples", {
-        query_embedding: queryEmbedding,
-        match_count: limit,
-        filter_dataset_id: dataset_id ?? null,
-      });
-
-      if (error) {
-        return {
-          content: [{ type: "text" as const, text: JSON.stringify({ error: error.message }) }],
-        };
-      }
-
-      if (!matches || matches.length === 0) {
-        return {
-          content: [{ type: "text" as const, text: JSON.stringify({ results: [], message: "No samples found matching query" }) }],
-        };
-      }
-
-      // Generate signed URLs and format results
-      const results = await Promise.all(
-        matches.map(async (match: {
-          sample_id: string;
-          dataset_id: string;
-          dataset_name: string;
-          similarity: number;
-          agent_context: AgentContext | null;
-          s3_object_key: string | null;
-          mime_type: string;
-        }) => {
-          let signed_url: string | null = null;
-          if (match.s3_object_key) {
-            signed_url = await getS3SignedUrl(match.s3_object_key, 3600);
-          }
-
-          const ctx = match.agent_context;
-          return {
-            sample_id: match.sample_id,
-            dataset_id: match.dataset_id,
-            dataset_name: match.dataset_name,
-            similarity: Math.round(match.similarity * 1000) / 1000,
-            scene_summary: ctx?.scene_summary ?? null,
-            environments: ctx?.environments ?? [],
-            activities: ctx?.activities ?? [],
-            objects: ctx?.objects ?? [],
-            camera_perspective: ctx?.camera_perspective ?? null,
-            signed_url,
-            mime_type: match.mime_type,
-          };
-        }),
-      );
-
-      // Scrub any leaked S3 URLs
-      const scrubbed = scrubS3Urls({ results });
-
-      return {
-        content: [{ type: "text" as const, text: JSON.stringify(scrubbed) }],
-      };
-    },
-  );
-}
-
-// ---------------------------------------------------------------------------
-// search_full_catalog tool (video_index — 768-dim)
-// ---------------------------------------------------------------------------
-
-function registerSearchFullCatalog(server: McpServer) {
-  server.tool(
-    "search_full_catalog",
-    "Semantic search over the full video corpus (1.3M+ S3 videos). Returns results from video_index ranked by cosine similarity.",
-    {
-      query: z.string().describe("Natural language search query"),
-      limit: z.number().min(1).max(50).default(10).describe("Max results (default 10, max 50)"),
+      dataset_id: z.string().uuid().optional().describe("Optional: restrict to clips in a specific dataset"),
       s3_bucket: z.string().optional().describe("Optional: filter to a specific S3 bucket"),
       match_threshold: z.number().min(0).max(1).default(0.4).describe("Minimum similarity threshold (default 0.4)"),
     },
-    async ({ query, limit, s3_bucket, match_threshold }) => {
+    async ({ query, limit, dataset_id, s3_bucket, match_threshold }) => {
       const supabase = createSupabaseAdminClient();
 
-      // Embed query at 768 dimensions (matches video_index)
+      // Embed query at 768 dimensions (clips table uses 768-dim vectors)
       const queryEmbedding = await generateEmbedding(query, 768);
 
-      const { data: matches, error } = await supabase.rpc("match_video_index", {
+      // Call unified match_clips RPC
+      const { data: matches, error } = await supabase.rpc("match_clips", {
         query_embedding: queryEmbedding,
         match_count: limit,
+        filter_dataset_id: dataset_id ?? null,
         filter_bucket: s3_bucket ?? null,
         match_threshold,
       });
@@ -159,35 +80,53 @@ function registerSearchFullCatalog(server: McpServer) {
 
       if (!matches || matches.length === 0) {
         return {
-          content: [{ type: "text" as const, text: JSON.stringify({ results: [], message: "No videos found matching query" }) }],
+          content: [{ type: "text" as const, text: JSON.stringify({ results: [], message: "No clips found matching query" }) }],
         };
       }
 
-      // Generate signed URLs (600s TTL for MCP)
+      // Generate signed URLs and format as ClipSearchResult
       const results = await Promise.all(
         matches.map(async (match: {
           id: string;
           s3_bucket: string;
           s3_key: string;
-          caption_text: string | null;
+          mime_type: string | null;
           similarity: number;
-          enrichment_source: string | null;
+          ai_caption: string | null;
+          caption_text: string | null;
+          ai_enrichment_source: string | null;
+          ai_agent_context: Record<string, unknown> | null;
+          ann_metadata: Record<string, unknown> | null;
+          tech_resolution_width: number | null;
+          tech_resolution_height: number | null;
+          tech_fps: number | null;
+          tech_duration_seconds: number | null;
+          tech_codec: string | null;
         }) => {
           const signed_url = await getS3SignedUrl(match.s3_key, 600, match.s3_bucket);
 
           return {
             id: match.id,
+            similarity: Math.round(match.similarity * 1000) / 1000,
+            signed_url,
             s3_bucket: match.s3_bucket,
             s3_key: match.s3_key,
+            mime_type: match.mime_type,
+            ann_metadata: match.ann_metadata,
+            tech_resolution_width: match.tech_resolution_width,
+            tech_resolution_height: match.tech_resolution_height,
+            tech_fps: match.tech_fps,
+            tech_duration_seconds: match.tech_duration_seconds,
+            tech_codec: match.tech_codec,
+            ai_caption: match.ai_caption,
+            ai_enrichment_source: match.ai_enrichment_source,
+            ai_agent_context: match.ai_agent_context,
             caption_text: match.caption_text,
-            similarity: Math.round(match.similarity * 1000) / 1000,
-            enrichment_source: match.enrichment_source,
-            signed_url,
           };
         }),
       );
 
-      // Scrub S3 URLs in caption_text only — signed_url preserved via PRESERVED_KEYS
+      // Scrub any leaked S3 URLs in caption/metadata fields
       const scrubbed = scrubS3Urls({ results });
 
       return {
@@ -204,7 +143,7 @@ function registerSearchFullCatalog(server: McpServer) {
 function registerGetDatasetOverview(server: McpServer) {
   server.tool(
     "get_dataset_overview",
-    "Get a complete summary of a dataset including sample counts, annotation types, and representative samples.",
+    "Get a complete summary of a dataset including clip counts, annotation types, and representative clips.",
     {
       dataset_id: z.string().uuid().describe("Dataset UUID"),
     },
@@ -231,23 +170,43 @@ function registerGetDatasetOverview(server: McpServer) {
         .eq("id", dataset.category_id)
         .single();
 
-      // Aggregate agent_context fields from samples
-      const { data: samples } = await supabase
-        .from("dataset_samples")
-        .select("agent_context, s3_object_key, mime_type, embedding")
+      // Get clip IDs for this dataset via dataset_clips join
+      const { data: dcRows } = await supabase
+        .from("dataset_clips")
+        .select("clip_id")
         .eq("dataset_id", dataset_id)
-        .not("agent_context", "is", null)
         .limit(200);
+
+      const clipIds = (dcRows ?? []).map((r) => r.clip_id);
+
+      // Fetch clips with ai_agent_context for aggregation
+      let clips: Array<{
+        id: string;
+        ai_agent_context: AgentContext | null;
+        s3_key: string;
+        s3_bucket: string;
+        mime_type: string | null;
+        ai_caption: string | null;
+        embedding: number[] | null;
+      }> = [];
+
+      if (clipIds.length > 0) {
+        const { data } = await supabase
+          .from("clips")
+          .select("id, ai_agent_context, s3_key, s3_bucket, mime_type, ai_caption, embedding")
+          .in("id", clipIds);
+        clips = (data ?? []) as typeof clips;
+      }
 
       const envCounts = new Map<string, number>();
       const actCounts = new Map<string, number>();
       const perspectives = new Set<string>();
       let embeddingCount = 0;
 
-      for (const s of samples ?? []) {
-        const ctx = s.agent_context as AgentContext | null;
+      for (const c of clips) {
+        const ctx = c.ai_agent_context as AgentContext | null;
+        if (c.embedding) embeddingCount++;
         if (!ctx) continue;
-        if (s.embedding) embeddingCount++;
         for (const env of ctx.environments ?? []) {
           envCounts.set(env, (envCounts.get(env) ?? 0) + 1);
         }
@@ -266,24 +225,21 @@ function registerGetDatasetOverview(server: McpServer) {
         .slice(0, 5)
         .map(([act]) => act);
 
-      // Get up to 3 representative samples with signed URLs
-      const { data: repSamples } = await supabase
-        .from("dataset_samples")
-        .select("s3_object_key, mime_type, agent_context")
-        .eq("dataset_id", dataset_id)
-        .not("agent_context", "is", null)
-        .not("s3_object_key", "is", null)
-        .limit(3);
+      // Get up to 3 representative clips with signed URLs
+      const repClips = clips
+        .filter((c) => c.ai_agent_context || c.ai_caption)
+        .slice(0, 3);
 
-      const representative_samples = await Promise.all(
-        (repSamples ?? []).map(async (s) => {
-          const signedUrl = s.s3_object_key
-            ? await getS3SignedUrl(s.s3_object_key, 3600)
-            : null;
+      const representative_clips = await Promise.all(
+        repClips.map(async (c) => {
+          const signedUrl = await getS3SignedUrl(c.s3_key, 3600, c.s3_bucket);
+          const ctx = c.ai_agent_context as AgentContext | null;
           return {
+            clip_id: c.id,
             signed_url: signedUrl,
-            mime_type: s.mime_type,
-            scene_summary: (s.agent_context as AgentContext | null)?.scene_summary ?? null,
+            mime_type: c.mime_type,
+            ai_caption: c.ai_caption,
+            scene_summary: ctx?.scene_summary ?? null,
           };
         }),
       );
@@ -296,12 +252,13 @@ function registerGetDatasetOverview(server: McpServer) {
         total_samples: dataset.total_samples,
         total_duration_hours: dataset.total_duration_hours,
         annotation_types: dataset.annotation_types,
+        clip_count: clipIds.length,
         top_environments: topEnvs,
         top_activities: topActs,
         camera_perspectives: [...perspectives],
         embedding_count: embeddingCount,
-        enriched_count: (samples ?? []).length,
-        representative_samples,
+        enriched_count: clips.filter((c) => c.ai_agent_context || c.ai_caption).length,
+        representative_clips,
       });
 
       return {
@@ -318,23 +275,26 @@ function registerGetDatasetOverview(server: McpServer) {
 function registerBuildLeadBrief(server: McpServer) {
   server.tool(
     "build_lead_brief",
-    "Build a structured data brief for lead outbound messaging. Returns raw catalog data grouped by dataset — no marketing copy.",
+    "Build a structured data brief for lead outbound messaging. Returns raw catalog data grouped by dataset — no marketing copy. Uses unified clips search.",
     {
       company_description: z.string().describe("Brief description of the target company"),
       use_case: z.string().describe("Their likely data use case"),
-      limit: z.number().min(1).max(20).default(5).describe("Max samples to search (default 5)"),
+      limit: z.number().min(1).max(20).default(5).describe("Max clips to search (default 5)"),
     },
     async ({ company_description, use_case, limit }) => {
       const supabase = createSupabaseAdminClient();
 
-      // Combine inputs for semantic search
+      // Combine inputs for semantic search — single 768-dim embedding
       const searchQuery = `${company_description} ${use_case}`;
-      const queryEmbedding = await generateEmbedding(searchQuery);
+      const queryEmbedding = await generateEmbedding(searchQuery, 768);
 
-      const { data: matches, error } = await supabase.rpc("match_samples", {
+      // Single match_clips call replaces old match_samples + match_video_index
+      const { data: matches, error } = await supabase.rpc("match_clips", {
         query_embedding: queryEmbedding,
         match_count: limit,
         filter_dataset_id: null,
+        filter_bucket: null,
+        match_threshold: 0.4,
       });
 
       if (error) {
@@ -345,78 +305,113 @@ function registerBuildLeadBrief(server: McpServer) {
 
       if (!matches || matches.length === 0) {
         return {
-          content: [{ type: "text" as const, text: JSON.stringify({ datasets: [], message: "No matching catalog data found" }) }],
+          content: [{ type: "text" as const, text: JSON.stringify({ clips: [], message: "No matching clips found" }) }],
         };
       }
 
-      // Group by dataset
+      // Look up which datasets each clip belongs to via dataset_clips
+      const clipIds = (matches as Array<{ id: string }>).map((m) => m.id);
+      const { data: dcRows } = await supabase
+        .from("dataset_clips")
+        .select("clip_id, dataset_id")
+        .in("clip_id", clipIds);
+
+      const clipToDatasets = new Map<string, string[]>();
+      for (const row of dcRows ?? []) {
+        const arr = clipToDatasets.get(row.clip_id) ?? [];
+        arr.push(row.dataset_id);
+        clipToDatasets.set(row.clip_id, arr);
+      }
+
+      // Fetch dataset metadata for referenced datasets
+      const allDatasetIds = [...new Set((dcRows ?? []).map((r) => r.dataset_id))];
+      const { data: datasets } = allDatasetIds.length > 0
+        ? await supabase
+            .from("datasets")
+            .select("id, name, total_samples, annotation_types")
+            .in("id", allDatasetIds)
+        : { data: [] };
+
+      const datasetLookup = new Map((datasets ?? []).map((d) => [d.id, d]));
+
+      // Build clips array with signed URLs and dataset context
+      const clips = await Promise.all(
+        (matches as Array<{
+          id: string;
+          s3_bucket: string;
+          s3_key: string;
+          similarity: number;
+          ai_caption: string | null;
+          caption_text: string | null;
+          ai_agent_context: Record<string, unknown> | null;
+          ai_enrichment_source: string | null;
+          mime_type: string | null;
+        }>).map(async (match) => {
+          const signed_url = await getS3SignedUrl(match.s3_key, 600, match.s3_bucket);
+          const ctx = match.ai_agent_context as AgentContext | null;
+
+          // Datasets this clip belongs to
+          const dsIds = clipToDatasets.get(match.id) ?? [];
+          const clipDatasets = dsIds
+            .map((id) => datasetLookup.get(id))
+            .filter(Boolean)
+            .map((d) => ({ id: d!.id, name: d!.name }));
+
+          return {
+            clip_id: match.id,
+            similarity: Math.round(match.similarity * 1000) / 1000,
+            s3_bucket: match.s3_bucket,
+            ai_caption: match.ai_caption,
+            caption_text: match.caption_text,
+            scene_summary: ctx?.scene_summary ?? null,
+            environments: ctx?.environments ?? [],
+            activities: ctx?.activities ?? [],
+            signed_url,
+            datasets: clipDatasets,
+          };
+        }),
+      );
+
+      // Aggregate into dataset groups for backward-compatible brief structure
       const datasetMap = new Map<string, {
         dataset_name: string;
         dataset_id: string;
-        matched_samples: Array<{
-          similarity: number;
-          scene_summary: string | null;
-          environments: string[];
-          activities: string[];
-          signed_url: string | null;
-        }>;
+        total_samples: number | null;
+        annotation_types: string[];
+        matched_clips: typeof clips;
       }>();
 
-      for (const match of matches as Array<{
-        sample_id: string;
-        dataset_id: string;
-        dataset_name: string;
-        similarity: number;
-        agent_context: AgentContext | null;
-        s3_object_key: string | null;
-        mime_type: string;
-      }>) {
-        if (!datasetMap.has(match.dataset_id)) {
-          datasetMap.set(match.dataset_id, {
-            dataset_name: match.dataset_name,
-            dataset_id: match.dataset_id,
-            matched_samples: [],
-          });
+      for (const clip of clips) {
+        for (const ds of clip.datasets) {
+          if (!datasetMap.has(ds.id)) {
+            const dsMeta = datasetLookup.get(ds.id);
+            datasetMap.set(ds.id, {
+              dataset_name: ds.name,
+              dataset_id: ds.id,
+              total_samples: dsMeta?.total_samples ?? null,
+              annotation_types: dsMeta?.annotation_types ?? [],
+              matched_clips: [],
+            });
+          }
+          datasetMap.get(ds.id)!.matched_clips.push(clip);
         }
-
-        let signed_url: string | null = null;
-        if (match.s3_object_key) {
-          signed_url = await getS3SignedUrl(match.s3_object_key, 3600);
-        }
-
-        const ctx = match.agent_context;
-        datasetMap.get(match.dataset_id)!.matched_samples.push({
-          similarity: Math.round(match.similarity * 1000) / 1000,
-          scene_summary: ctx?.scene_summary ?? null,
-          environments: ctx?.environments ?? [],
-          activities: ctx?.activities ?? [],
-          signed_url,
-        });
       }
 
-      // Enrich with dataset metadata
-      const datasetIds = [...datasetMap.keys()];
-      const { data: datasets } = await supabase
-        .from("datasets")
-        .select("id, total_samples, annotation_types")
-        .in("id", datasetIds);
-
-      const result = [...datasetMap.values()].map((group) => {
-        const ds = datasets?.find((d) => d.id === group.dataset_id);
+      const datasetResults = [...datasetMap.values()].map((group) => {
         const allEnvs = new Set<string>();
         const allActs = new Set<string>();
-        for (const s of group.matched_samples) {
-          s.environments.forEach((e) => allEnvs.add(e));
-          s.activities.forEach((a) => allActs.add(a));
+        for (const c of group.matched_clips) {
+          c.environments.forEach((e: string) => allEnvs.add(e));
+          c.activities.forEach((a: string) => allActs.add(a));
         }
         return {
           dataset_name: group.dataset_name,
           dataset_id: group.dataset_id,
-          total_samples: ds?.total_samples ?? null,
-          annotation_types: ds?.annotation_types ?? [],
-          matched_sample_count: group.matched_samples.length,
-          representative_signed_urls: group.matched_samples
-            .map((s) => s.signed_url)
+          total_samples: group.total_samples,
+          annotation_types: group.annotation_types,
+          matched_clip_count: group.matched_clips.length,
+          representative_signed_urls: group.matched_clips
+            .map((c) => c.signed_url)
             .filter(Boolean)
             .slice(0, 3),
           aggregated_environments: [...allEnvs],
@@ -424,53 +419,18 @@ function registerBuildLeadBrief(server: McpServer) {
         };
       });
 
-      // Also search full corpus (768-dim)
-      let fullCorpusResults: Array<{
-        id: string;
-        s3_bucket: string;
-        caption_text: string | null;
-        similarity: number;
-        enrichment_source: string | null;
-        signed_url: string | null;
-        source: "full_corpus";
-      }> = [];
-
-      try {
-        const queryEmbedding768 = await generateEmbedding(searchQuery, 768);
-        const { data: fcMatches } = await supabase.rpc("match_video_index", {
-          query_embedding: queryEmbedding768,
-          match_count: limit,
-          filter_bucket: null,
-          match_threshold: 0.4,
-        });
-
-        if (fcMatches && fcMatches.length > 0) {
-          fullCorpusResults = await Promise.all(
-            (fcMatches as Array<{
-              id: string;
-              s3_bucket: string;
-              s3_key: string;
-              caption_text: string | null;
-              similarity: number;
-              enrichment_source: string | null;
-            }>).map(async (m) => ({
-              id: m.id,
-              s3_bucket: m.s3_bucket,
-              caption_text: m.caption_text,
-              similarity: Math.round(m.similarity * 1000) / 1000,
-              enrichment_source: m.enrichment_source,
-              signed_url: await getS3SignedUrl(m.s3_key, 600, m.s3_bucket),
-              source: "full_corpus" as const,
-            })),
-          );
-        }
-      } catch {
-        // full corpus search is optional — don't fail the whole brief
-      }
+      // Include unaffiliated clips (not in any dataset)
+      const unaffiliated = clips.filter((c) => c.datasets.length === 0);
 
       const scrubbed = scrubS3Urls({
-        datasets: result,
-        full_corpus: fullCorpusResults,
+        datasets: datasetResults,
+        unaffiliated_clips: unaffiliated.map((c) => ({
+          clip_id: c.clip_id,
+          s3_bucket: c.s3_bucket,
+          similarity: c.similarity,
+          ai_caption: c.ai_caption,
+          signed_url: c.signed_url,
+        })),
       });
 
       return {
@@ -629,9 +589,9 @@ function registerGetLead(server: McpServer) {
         .select("dataset_id, granted_at, datasets:dataset_id(name)")
         .eq("lead_id", lead_id);
 
-      // Get custom samples count
+      // Get custom clips count (lead-specific dataset_clips entries)
       const { count: customSampleCount } = await supabase
-        .from("dataset_samples")
+        .from("dataset_clips")
         .select("id", { count: "exact", head: true })
         .eq("lead_id", lead_id);
 
@@ -777,27 +737,14 @@ const CUSTOM_CURATIONS_CATEGORY_ID = "46cf5324-f3e3-484f-9cb3-7b1dffff0094";
 function registerCreateCustomCatalog(server: McpServer) {
   server.tool(
     "create_custom_catalog",
-    "Create a custom curated catalog for a lead from search results. Pass sample IDs from search_catalog (as dataset_sample_ids) and/or video IDs from search_full_catalog (as video_index_ids). The catalog is created, samples are added, and the lead gets access. Returns a portal URL the lead can visit.",
+    "Create a custom curated catalog for a lead from search results. Pass clip IDs from search_clips. Creates a dataset, inserts dataset_clips rows (no data copying), and grants lead access. Returns a portal URL.",
     {
       name: z.string().min(1).max(200).describe("Name for the custom catalog (e.g. 'Kitchen Activity Videos for Acme')"),
       lead_id: z.string().uuid().describe("Lead UUID to assign this catalog to"),
-      dataset_sample_ids: z.array(z.string().uuid()).optional().describe("Sample IDs from search_catalog results"),
-      video_index_ids: z.array(z.string().uuid()).optional().describe("Video IDs from search_full_catalog results"),
+      clip_ids: z.array(z.string().uuid()).min(1).describe("Clip IDs from search_clips results"),
       note: z.string().optional().describe("Optional note about why these clips were selected"),
     },
-    async ({ name, lead_id, dataset_sample_ids, video_index_ids, note }) => {
-      const sampleIds = dataset_sample_ids ?? [];
-      const videoIds = video_index_ids ?? [];
-
-      if (sampleIds.length === 0 && videoIds.length === 0) {
-        return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({ error: "Provide at least one dataset_sample_id or video_index_id" }),
-          }],
-        };
-      }
-
+    async ({ name, lead_id, clip_ids, note }) => {
       const supabase = createSupabaseAdminClient();
 
       // Verify lead exists
@@ -810,6 +757,21 @@ function registerCreateCustomCatalog(server: McpServer) {
       if (!lead) {
         return {
           content: [{ type: "text" as const, text: JSON.stringify({ error: "Lead not found" }) }],
+        };
+      }
+
+      // Verify clip IDs exist
+      const { data: validClips } = await supabase
+        .from("clips")
+        .select("id")
+        .in("id", clip_ids);
+
+      const validIds = new Set((validClips ?? []).map((c) => c.id));
+      const invalidIds = clip_ids.filter((id) => !validIds.has(id));
+
+      if (validIds.size === 0) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "No valid clip IDs provided" }) }],
         };
       }
 
@@ -844,77 +806,28 @@ function registerCreateCustomCatalog(server: McpServer) {
         };
       }
 
-      const mimeMap: Record<string, string> = {
-        mp4: "video/mp4", mov: "video/quicktime", webm: "video/webm",
-        jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png",
-      };
+      // Insert dataset_clips rows — no data copying
+      const dcRows = [...validIds].map((clipId) => ({
+        dataset_id: dataset.id,
+        clip_id: clipId,
+        lead_id,
+        added_by: "mcp_agent",
+        note: note ?? null,
+      }));
 
-      let inserted = 0;
+      const { data: insertedRows, error: dcError } = await supabase
+        .from("dataset_clips")
+        .insert(dcRows)
+        .select("id");
 
-      // Process video_index clips
-      for (const viId of videoIds) {
-        const { data: vi } = await supabase
-          .from("video_index")
-          .select("s3_bucket, s3_key, caption_text, enrichment_source")
-          .eq("id", viId)
-          .single();
+      const inserted = insertedRows?.length ?? 0;
 
-        if (!vi) continue;
-
-        const ext = vi.s3_key.split(".").pop()?.toLowerCase();
-        const mimeType = (ext && mimeMap[ext]) || "video/mp4";
-
-        const { error: insErr } = await supabase
-          .from("dataset_samples")
-          .insert({
-            dataset_id: dataset.id,
-            lead_id,
-            s3_object_key: vi.s3_key,
-            s3_bucket: vi.s3_bucket,
-            filename: vi.s3_key.split("/").pop() || "sample",
-            mime_type: mimeType,
-            file_size_bytes: 0,
-            metadata_json: { caption: vi.caption_text, source: vi.enrichment_source, note },
-            added_by: "mcp_agent",
-            source_video_index_id: viId,
-          });
-
-        if (!insErr) inserted++;
+      if (dcError) {
+        // Partial failure — some clips may have been inserted
+        console.error("dataset_clips insert error:", dcError.message);
       }
 
-      // Process existing catalog samples
-      for (const sId of sampleIds) {
-        const { data: existing } = await supabase
-          .from("dataset_samples")
-          .select("s3_object_key, s3_bucket, filename, mime_type, file_size_bytes, metadata_json, agent_context")
-          .eq("id", sId)
-          .single();
-
-        if (!existing) continue;
-
-        const { error: insErr } = await supabase
-          .from("dataset_samples")
-          .insert({
-            dataset_id: dataset.id,
-            lead_id,
-            s3_object_key: existing.s3_object_key,
-            s3_bucket: existing.s3_bucket,
-            filename: existing.filename,
-            mime_type: existing.mime_type,
-            file_size_bytes: existing.file_size_bytes,
-            metadata_json: {
-              ...(existing.metadata_json as Record<string, unknown>),
-              note,
-              source_sample_id: sId,
-            },
-            agent_context: existing.agent_context,
-            added_by: "mcp_agent",
-          });
-
-        if (!insErr) inserted++;
-      }
-
-      // Update sample count
+      // Update sample count on dataset
       await supabase
         .from("datasets")
         .update({ total_samples: inserted })
@@ -933,10 +846,11 @@ function registerCreateCustomCatalog(server: McpServer) {
           type: "text" as const,
           text: JSON.stringify({
             dataset: { id: dataset.id, name: dataset.name, slug: dataset.slug },
-            samples_added: inserted,
+            clips_added: inserted,
+            invalid_clip_ids: invalidIds.length > 0 ? invalidIds : undefined,
             portal_url: `/portal/catalog/${dataset.id}`,
             lead: { id: lead.id, name: lead.name, company: lead.company },
-            message: `Created catalog "${name}" with ${inserted} samples for ${lead.name}`,
+            message: `Created catalog "${name}" with ${inserted} clips for ${lead.name}`,
           }),
         }],
       };
@@ -951,77 +865,43 @@ function registerCreateCustomCatalog(server: McpServer) {
 function registerDownloadClips(server: McpServer) {
   server.tool(
     "download_clips",
-    "Get download-ready signed URLs for a list of clips. Works with both dataset sample IDs and video_index IDs. URLs are valid for 1 hour.",
+    "Get download-ready signed URLs for a list of clips by their clip IDs. URLs are valid for 1 hour.",
     {
-      dataset_sample_ids: z.array(z.string().uuid()).optional().describe("Sample IDs from search_catalog"),
-      video_index_ids: z.array(z.string().uuid()).optional().describe("Video IDs from search_full_catalog"),
+      clip_ids: z.array(z.string().uuid()).min(1).describe("Clip IDs from search_clips results"),
     },
-    async ({ dataset_sample_ids, video_index_ids }) => {
-      const sampleIds = dataset_sample_ids ?? [];
-      const videoIds = video_index_ids ?? [];
+    async ({ clip_ids }) => {
+      const supabase = createSupabaseAdminClient();
 
-      if (sampleIds.length === 0 && videoIds.length === 0) {
+      const { data: clips } = await supabase
+        .from("clips")
+        .select("id, s3_bucket, s3_key, mime_type, filename, ai_caption, caption_text")
+        .in("id", clip_ids);
+
+      if (!clips || clips.length === 0) {
         return {
-          content: [{ type: "text" as const, text: JSON.stringify({ error: "Provide at least one ID" }) }],
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "No clips found for given IDs" }) }],
         };
       }
 
-      const supabase = createSupabaseAdminClient();
-      const downloads: Array<{
-        id: string;
-        source: "catalog" | "full_corpus";
-        filename: string;
-        mime_type: string;
-        download_url: string | null;
-        caption: string | null;
-      }> = [];
+      const mimeMap: Record<string, string> = {
+        mp4: "video/mp4", mov: "video/quicktime", webm: "video/webm",
+        jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png",
+      };
 
-      // Catalog samples
-      if (sampleIds.length > 0) {
-        const { data: samples } = await supabase
-          .from("dataset_samples")
-          .select("id, filename, mime_type, s3_object_key, agent_context")
-          .in("id", sampleIds);
-
-        for (const s of samples ?? []) {
-          const url = s.s3_object_key ? await getS3SignedUrl(s.s3_object_key, 3600) : null;
-          const ctx = s.agent_context as AgentContext | null;
-          downloads.push({
-            id: s.id,
-            source: "catalog",
-            filename: s.filename,
-            mime_type: s.mime_type,
+      const downloads = await Promise.all(
+        clips.map(async (c) => {
+          const url = await getS3SignedUrl(c.s3_key, 3600, c.s3_bucket);
+          const derivedFilename = c.filename || c.s3_key.split("/").pop() || "clip";
+          const ext = derivedFilename.split(".").pop()?.toLowerCase();
+          return {
+            id: c.id,
+            filename: derivedFilename,
+            mime_type: c.mime_type || (ext && mimeMap[ext]) || "video/mp4",
             download_url: url,
-            caption: ctx?.scene_summary ?? null,
-          });
-        }
-      }
-
-      // Full corpus
-      if (videoIds.length > 0) {
-        const { data: videos } = await supabase
-          .from("video_index")
-          .select("id, s3_bucket, s3_key, caption_text")
-          .in("id", videoIds);
-
-        for (const v of videos ?? []) {
-          const url = await getS3SignedUrl(v.s3_key, 3600, v.s3_bucket);
-          const filename = v.s3_key.split("/").pop() || "clip";
-          const ext = filename.split(".").pop()?.toLowerCase();
-          const mimeMap: Record<string, string> = {
-            mp4: "video/mp4", mov: "video/quicktime", webm: "video/webm",
-            jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png",
+            caption: c.ai_caption ?? c.caption_text ?? null,
           };
-          downloads.push({
-            id: v.id,
-            source: "full_corpus",
-            filename,
-            mime_type: (ext && mimeMap[ext]) || "video/mp4",
-            download_url: url,
-            caption: v.caption_text,
-          });
-        }
-      }
+        }),
+      );
 
       return {
         content: [{
@@ -1102,24 +982,14 @@ function registerListDatasets(server: McpServer) {
 function registerAddClipsToCatalog(server: McpServer) {
   server.tool(
     "add_clips_to_catalog",
-    "Add more clips to an existing catalog/dataset. Use to expand a custom catalog after initial creation. Requires the dataset ID and lead ID.",
+    "Add clips to an existing catalog/dataset by inserting dataset_clips rows. No data copying — clips already exist in the clips table. Optionally assigns to a lead.",
     {
       dataset_id: z.string().uuid().describe("Dataset UUID to add clips to"),
-      lead_id: z.string().uuid().describe("Lead UUID (clips are added as lead-specific samples)"),
-      dataset_sample_ids: z.array(z.string().uuid()).optional().describe("Catalog sample IDs to copy into this dataset"),
-      video_index_ids: z.array(z.string().uuid()).optional().describe("Full corpus video IDs to add"),
+      clip_ids: z.array(z.string().uuid()).min(1).describe("Clip IDs to add to this dataset"),
+      lead_id: z.string().uuid().optional().describe("Optional: Lead UUID (makes clips lead-specific)"),
       note: z.string().optional().describe("Optional note"),
     },
-    async ({ dataset_id, lead_id, dataset_sample_ids, video_index_ids, note }) => {
-      const sampleIds = dataset_sample_ids ?? [];
-      const videoIds = video_index_ids ?? [];
-
-      if (sampleIds.length === 0 && videoIds.length === 0) {
-        return {
-          content: [{ type: "text" as const, text: JSON.stringify({ error: "Provide at least one clip ID" }) }],
-        };
-      }
-
+    async ({ dataset_id, clip_ids, lead_id, note }) => {
       const supabase = createSupabaseAdminClient();
 
       // Verify dataset exists
@@ -1135,77 +1005,37 @@ function registerAddClipsToCatalog(server: McpServer) {
         };
       }
 
-      const mimeMap: Record<string, string> = {
-        mp4: "video/mp4", mov: "video/quicktime", webm: "video/webm",
-        jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png",
-      };
+      // Verify clip IDs exist
+      const { data: validClips } = await supabase
+        .from("clips")
+        .select("id")
+        .in("id", clip_ids);
+
+      const validIds = new Set((validClips ?? []).map((c) => c.id));
+
+      // Insert dataset_clips rows
+      const dcRows = [...validIds].map((clipId) => ({
+        dataset_id,
+        clip_id: clipId,
+        lead_id: lead_id ?? null,
+        added_by: "mcp_agent",
+        note: note ?? null,
+      }));
 
       let inserted = 0;
-
-      for (const viId of videoIds) {
-        const { data: vi } = await supabase
-          .from("video_index")
-          .select("s3_bucket, s3_key, caption_text, enrichment_source")
-          .eq("id", viId)
-          .single();
-
-        if (!vi) continue;
-
-        const ext = vi.s3_key.split(".").pop()?.toLowerCase();
-        const mimeType = (ext && mimeMap[ext]) || "video/mp4";
-
-        const { error: insErr } = await supabase
-          .from("dataset_samples")
-          .insert({
-            dataset_id,
-            lead_id,
-            s3_object_key: vi.s3_key,
-            s3_bucket: vi.s3_bucket,
-            filename: vi.s3_key.split("/").pop() || "sample",
-            mime_type: mimeType,
-            file_size_bytes: 0,
-            metadata_json: { caption: vi.caption_text, source: vi.enrichment_source, note },
-            added_by: "mcp_agent",
-            source_video_index_id: viId,
-          });
-
-        if (!insErr) inserted++;
+      if (dcRows.length > 0) {
+        // Use individual inserts to handle duplicates gracefully (UNIQUE constraint)
+        for (const row of dcRows) {
+          const { error: insErr } = await supabase
+            .from("dataset_clips")
+            .insert(row);
+          if (!insErr) inserted++;
+        }
       }
 
-      for (const sId of sampleIds) {
-        const { data: existing } = await supabase
-          .from("dataset_samples")
-          .select("s3_object_key, s3_bucket, filename, mime_type, file_size_bytes, metadata_json, agent_context")
-          .eq("id", sId)
-          .single();
-
-        if (!existing) continue;
-
-        const { error: insErr } = await supabase
-          .from("dataset_samples")
-          .insert({
-            dataset_id,
-            lead_id,
-            s3_object_key: existing.s3_object_key,
-            s3_bucket: existing.s3_bucket,
-            filename: existing.filename,
-            mime_type: existing.mime_type,
-            file_size_bytes: existing.file_size_bytes,
-            metadata_json: {
-              ...(existing.metadata_json as Record<string, unknown>),
-              note,
-              source_sample_id: sId,
-            },
-            agent_context: existing.agent_context,
-            added_by: "mcp_agent",
-          });
-
-        if (!insErr) inserted++;
-      }
-
-      // Update sample count
+      // Update sample count from dataset_clips
       const { count } = await supabase
-        .from("dataset_samples")
+        .from("dataset_clips")
         .select("id", { count: "exact", head: true })
         .eq("dataset_id", dataset_id);
 
@@ -1214,10 +1044,12 @@ function registerAddClipsToCatalog(server: McpServer) {
         .update({ total_samples: count ?? 0 })
         .eq("id", dataset_id);
 
-      // Ensure lead has access
-      await supabase
-        .from("lead_dataset_access")
-        .upsert({ lead_id, dataset_id }, { onConflict: "lead_id,dataset_id" });
+      // Ensure lead has access if lead_id provided
+      if (lead_id) {
+        await supabase
+          .from("lead_dataset_access")
+          .upsert({ lead_id, dataset_id }, { onConflict: "lead_id,dataset_id" });
+      }
 
       return {
         content: [{
@@ -1226,7 +1058,7 @@ function registerAddClipsToCatalog(server: McpServer) {
             dataset_id,
             dataset_name: dataset.name,
             clips_added: inserted,
-            total_samples: count ?? 0,
+            total_clips: count ?? 0,
             message: `Added ${inserted} clips to "${dataset.name}"`,
           }),
         }],
@@ -1242,48 +1074,34 @@ function registerAddClipsToCatalog(server: McpServer) {
 function registerGetCorpusStats(server: McpServer) {
   server.tool(
     "get_corpus_stats",
-    "Get statistics about the full video corpus and dataset catalog. Returns total counts, per-bucket breakdowns, and keyword prevalence. Useful for citing real numbers in outreach.",
+    "Get statistics about the full clip corpus and dataset catalog. Returns total counts, per-bucket breakdowns, and keyword prevalence. Useful for citing real numbers in outreach.",
     {
       keyword: z.string().optional().describe("Optional: check how many clips mention this keyword (e.g. 'person', 'kitchen', 'face')"),
     },
     async ({ keyword }) => {
       const supabase = createSupabaseAdminClient();
 
-      // Video index stats by bucket
-      const { data: bucketStats } = await supabase.rpc("get_video_index_stats" as never) as { data: null };
+      // Count clips per bucket (known buckets)
+      const buckets = [
+        "mv-artlist-external", "mv-abaka-external", "mv-troveo",
+        "moonvalley-annotation-platform", "moonvalley-ml-datasets", "mv-xtr-external",
+      ];
 
-      // Fallback: manual query
-      let stats: Array<{ s3_bucket: string; enrichment_source: string; total: number }> = [];
+      const bucketStats: Array<{ bucket: string; count: number }> = [];
+      for (const bucket of buckets) {
+        const { count } = await supabase
+          .from("clips")
+          .select("id", { count: "exact", head: true })
+          .eq("s3_bucket", bucket);
 
-      if (!bucketStats) {
-        // Direct query
-        const { data } = await supabase
-          .from("video_index")
-          .select("s3_bucket, enrichment_source")
-          .limit(0);
-
-        // Use raw SQL via a simpler approach — count per bucket
-        // Since we can't do GROUP BY via PostgREST easily, use known buckets
-        const buckets = [
-          "mv-artlist-external", "mv-abaka-external", "mv-troveo",
-          "moonvalley-annotation-platform", "moonvalley-ml-datasets", "mv-xtr-external",
-        ];
-
-        for (const bucket of buckets) {
-          const { count } = await supabase
-            .from("video_index")
-            .select("id", { count: "exact", head: true })
-            .eq("s3_bucket", bucket);
-
-          if (count && count > 0) {
-            stats.push({ s3_bucket: bucket, enrichment_source: "", total: count });
-          }
+        if (count && count > 0) {
+          bucketStats.push({ bucket, count });
         }
       }
 
-      // Total video index
-      const { count: totalVideos } = await supabase
-        .from("video_index")
+      // Total clips
+      const { count: totalClips } = await supabase
+        .from("clips")
         .select("id", { count: "exact", head: true });
 
       // Total datasets
@@ -1292,9 +1110,9 @@ function registerGetCorpusStats(server: McpServer) {
         .select("id", { count: "exact", head: true })
         .eq("is_published", true);
 
-      // Total dataset samples
-      const { count: totalSamples } = await supabase
-        .from("dataset_samples")
+      // Total dataset_clips (clips assigned to datasets)
+      const { count: totalDatasetClips } = await supabase
+        .from("dataset_clips")
         .select("id", { count: "exact", head: true });
 
       // Total leads
@@ -1302,24 +1120,24 @@ function registerGetCorpusStats(server: McpServer) {
         .from("leads")
         .select("id", { count: "exact", head: true });
 
-      // Keyword prevalence
+      // Keyword prevalence (search in caption_text on clips)
       let keywordCount: number | null = null;
       if (keyword) {
         const { count } = await supabase
-          .from("video_index")
+          .from("clips")
           .select("id", { count: "exact", head: true })
           .ilike("caption_text", `%${keyword}%`);
         keywordCount = count;
       }
 
       const result: Record<string, unknown> = {
-        full_corpus: {
-          total_indexed_videos: totalVideos ?? 0,
-          by_bucket: stats.map((s) => ({ bucket: s.s3_bucket, count: s.total })),
+        corpus: {
+          total_clips: totalClips ?? 0,
+          by_bucket: bucketStats,
         },
         catalog: {
           total_published_datasets: totalDatasets ?? 0,
-          total_samples_with_previews: totalSamples ?? 0,
+          total_dataset_clip_assignments: totalDatasetClips ?? 0,
         },
         leads: {
           total: totalLeads ?? 0,
@@ -1330,7 +1148,7 @@ function registerGetCorpusStats(server: McpServer) {
         result.keyword_search = {
           keyword,
           matching_clips: keywordCount,
-          percentage: totalVideos ? `${Math.round((keywordCount / totalVideos) * 100)}%` : "N/A",
+          percentage: totalClips ? `${Math.round((keywordCount / totalClips) * 100)}%` : "N/A",
         };
       }
 
@@ -1348,7 +1166,7 @@ function registerGetCorpusStats(server: McpServer) {
 function registerListLeadCatalogs(server: McpServer) {
   server.tool(
     "list_lead_catalogs",
-    "List all catalogs/datasets a lead has access to, including sample counts and portal URLs. Use to see what a lead already has before adding more.",
+    "List all catalogs/datasets a lead has access to, including clip counts and portal URLs. Use to see what a lead already has before adding more.",
     {
       lead_id: z.string().uuid().describe("Lead UUID"),
     },
@@ -1394,17 +1212,17 @@ function registerListLeadCatalogs(server: McpServer) {
         .select("id, name, description, type, total_samples, is_published")
         .in("id", datasetIds);
 
-      // Count lead-specific samples per dataset
+      // Count clips per dataset via dataset_clips (lead-specific vs base)
       const catalogs = await Promise.all(
         (datasets ?? []).map(async (ds) => {
-          const { count: leadSamples } = await supabase
-            .from("dataset_samples")
+          const { count: leadClips } = await supabase
+            .from("dataset_clips")
             .select("id", { count: "exact", head: true })
             .eq("dataset_id", ds.id)
             .eq("lead_id", lead_id);
 
-          const { count: baseSamples } = await supabase
-            .from("dataset_samples")
+          const { count: baseClips } = await supabase
+            .from("dataset_clips")
             .select("id", { count: "exact", head: true })
             .eq("dataset_id", ds.id)
             .is("lead_id", null);
@@ -1416,9 +1234,9 @@ function registerListLeadCatalogs(server: McpServer) {
             name: ds.name,
             description: ds.description,
             type: ds.type,
-            total_dataset_samples: ds.total_samples,
-            base_preview_samples: baseSamples ?? 0,
-            lead_specific_samples: leadSamples ?? 0,
+            total_dataset_clips: ds.total_samples,
+            base_clips: baseClips ?? 0,
+            lead_specific_clips: leadClips ?? 0,
             is_published: ds.is_published,
             granted_at: grantedAt,
             portal_url: `/portal/catalog/${ds.id}`,
@@ -1544,7 +1362,7 @@ function registerGetCaseStudy(server: McpServer) {
 function registerUpdateDataset(server: McpServer) {
   server.tool(
     "update_dataset",
-    "Update metadata on any dataset/catalog — name, description, geographic coverage, annotation types, published status, type, subcategory, etc. Cannot delete datasets.",
+    "Update metadata on any dataset/catalog — name, description, geographic coverage, annotation types, published status, type, subcategory, etc. Cannot delete datasets. If sync_clip_count is true, total_samples is derived from dataset_clips count.",
     {
       dataset_id: z.string().uuid().describe("Dataset UUID to update"),
       name: z.string().optional().describe("Updated name"),
@@ -1552,20 +1370,30 @@ function registerUpdateDataset(server: McpServer) {
       geographic_coverage: z.string().optional().describe("Updated geographic coverage (e.g. 'Global', 'North America')"),
       annotation_types: z.array(z.string()).optional().describe("Updated annotation type tags"),
       subcategory: z.string().optional().describe("Updated subcategory"),
-      total_samples: z.number().optional().describe("Updated total sample count"),
+      total_samples: z.number().optional().describe("Updated total sample count (overridden if sync_clip_count is true)"),
       total_duration_hours: z.number().optional().describe("Updated total duration in hours"),
       is_published: z.boolean().optional().describe("Set published status"),
       type: z.string().optional().describe("Dataset type (short_form, long_form, cinematic, etc.)"),
       source_type: z.string().optional().describe("Source type (collected, synthetic, curated)"),
       modality: z.string().optional().describe("Modality (video_text, image_text, etc.)"),
+      sync_clip_count: z.boolean().default(false).describe("If true, derive total_samples from COUNT on dataset_clips"),
     },
-    async ({ dataset_id, ...updates }) => {
+    async ({ dataset_id, sync_clip_count, ...updates }) => {
       const supabase = createSupabaseAdminClient();
 
       // Filter out undefined values
       const fields: Record<string, unknown> = {};
       for (const [key, value] of Object.entries(updates)) {
         if (value !== undefined) fields[key] = value;
+      }
+
+      // Derive total_samples from dataset_clips count if requested
+      if (sync_clip_count) {
+        const { count } = await supabase
+          .from("dataset_clips")
+          .select("id", { count: "exact", head: true })
+          .eq("dataset_id", dataset_id);
+        fields.total_samples = count ?? 0;
       }
 
       if (Object.keys(fields).length === 0) {
@@ -1608,12 +1436,12 @@ function registerUpdateDataset(server: McpServer) {
 function registerRemoveClipsFromCatalog(server: McpServer) {
   server.tool(
     "remove_clips_from_catalog",
-    "Remove specific samples from a dataset/catalog by their sample IDs. Use list_lead_catalogs or get_dataset_overview to find sample IDs first.",
+    "Remove clips from a dataset/catalog by their clip IDs. Deletes dataset_clips join rows only — the clips themselves are preserved. Use list_lead_catalogs or get_dataset_overview to find clip IDs.",
     {
-      dataset_id: z.string().uuid().describe("Dataset UUID to remove samples from"),
-      sample_ids: z.array(z.string().uuid()).min(1).describe("Sample IDs to remove from this dataset"),
+      dataset_id: z.string().uuid().describe("Dataset UUID to remove clips from"),
+      clip_ids: z.array(z.string().uuid()).min(1).describe("Clip IDs to remove from this dataset"),
     },
-    async ({ dataset_id, sample_ids }) => {
+    async ({ dataset_id, clip_ids }) => {
       const supabase = createSupabaseAdminClient();
 
       // Verify dataset exists
@@ -1629,12 +1457,12 @@ function registerRemoveClipsFromCatalog(server: McpServer) {
         };
       }
 
-      // Delete the specified samples (only within this dataset for safety)
+      // Delete dataset_clips rows (not the clips themselves)
       const { data: deleted, error } = await supabase
-        .from("dataset_samples")
+        .from("dataset_clips")
         .delete()
         .eq("dataset_id", dataset_id)
-        .in("id", sample_ids)
+        .in("clip_id", clip_ids)
         .select("id");
 
       if (error) {
@@ -1645,9 +1473,9 @@ function registerRemoveClipsFromCatalog(server: McpServer) {
 
       const removedCount = deleted?.length ?? 0;
 
-      // Update the dataset sample count
+      // Update the dataset clip count
       const { count } = await supabase
-        .from("dataset_samples")
+        .from("dataset_clips")
         .select("id", { count: "exact", head: true })
         .eq("dataset_id", dataset_id);
 
@@ -1663,9 +1491,9 @@ function registerRemoveClipsFromCatalog(server: McpServer) {
             dataset_id,
             dataset_name: dataset.name,
             removed: removedCount,
-            requested: sample_ids.length,
-            remaining_samples: count ?? 0,
-            message: `Removed ${removedCount} sample${removedCount !== 1 ? "s" : ""} from "${dataset.name}"`,
+            requested: clip_ids.length,
+            remaining_clips: count ?? 0,
+            message: `Removed ${removedCount} clip${removedCount !== 1 ? "s" : ""} from "${dataset.name}"`,
           }),
         }],
       };
