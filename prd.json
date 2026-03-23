@@ -251,8 +251,8 @@
         "Typecheck passes"
       ],
       "priority": 15,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "search_clips uses 768-dim embedding + match_clips RPC. build_lead_brief collapsed from 2 embed calls to 1."
     },
     {
       "id": "US-016",
@@ -268,8 +268,8 @@
         "Typecheck passes"
       ],
       "priority": 16,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "All catalog tools now use dataset_clips. No data copying. get_lead also updated."
     },
     {
       "id": "US-017",
