@@ -95,3 +95,24 @@ Goal: Unknown
 - 588 distinct s3_object_keys from 694 valid rows = ~15% duplication (same clip in multiple datasets)
 - Caption text built from agent_context.caption + enrichment_json.description/visual_description
 
+## 2026-03-23 - US-006: Add Clip and DatasetClip TypeScript types
+
+**What I did:**
+- Added `Clip` interface matching canonical schema from `009_create_clips_table.sql` (24 fields across core identity, annotation, technical, AI, derived, and timestamps groups)
+- Added `DatasetClip` interface matching `010_create_dataset_clips_table.sql` (7 fields)
+- Added `ClipSearchResult` interface — unified search result with no source discriminator, includes similarity, signed_url, and all clip fields returned by match_clips RPC
+- Added field mapping comments at file header: old column names -> new column names (13 mappings)
+- Marked `DatasetSample`, `VideoIndexRecord`, `LeadCustomSample` as `@deprecated` with JSDoc pointing to replacement types
+- Marked legacy search types (`BaseSearchResult`, `CatalogSearchResult`, `FullCorpusSearchResult`, `UnifiedSearchResult`) as `@deprecated` with JSDoc pointing to `ClipSearchResult`
+- Did NOT remove any legacy types (still used by existing code; removal deferred to US-020)
+- Did NOT change `generateEmbedding()` default dimension
+- Typecheck passes (`npx tsc --noEmit` — zero errors)
+
+**Files changed:**
+- src/types/data-catalog.ts (modified)
+- prd.json (US-006 passes: true)
+
+**Learnings:**
+- Legacy types must stay until call sites are migrated (US-007 through US-016); removing them now would break the build
+- The design doc proposed different column names (e.g. `ann_category`, `tech_width`) than the actual migration used (`ann_metadata`, `tech_resolution_width`); always match the real DDL, not the design doc
+

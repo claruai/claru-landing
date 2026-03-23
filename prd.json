@@ -108,7 +108,7 @@
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "Embedding default changes AFTER US-007 and US-015."
     },
     {
