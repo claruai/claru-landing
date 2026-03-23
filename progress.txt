@@ -59,3 +59,20 @@ Goal: Unknown
 - Casting `::vector(768)` must wrap the full concatenated string, not just the suffix
 - LEFT JOIN + conditional WHERE is the pattern for optional dataset filtering
 
+## 2026-03-23 - US-004: Migrate video_index to clips on staging
+
+**What I did:**
+- Created `scripts/migrate-video-index-to-clips.py`
+- Maps: s3_bucket, s3_key, caption_text → ai_caption + caption_text, enrichment_source → ai_enrichment_source, embedding, indexed_at → created_at
+- Sets caption_rebuilt_at for rows with valid embeddings
+- INSERT ON CONFLICT DO NOTHING via PostgREST `resolution=ignore-duplicates`
+- Batch 500 rows with 0.1s throttle, idempotent
+- Supports --dry-run and --limit flags
+
+**Files changed:**
+- scripts/migrate-video-index-to-clips.py (new)
+
+**Learnings:**
+- PostgREST doesn't support SQL functions like `now()` as values — use Python datetime ISO format instead
+- PostgREST range pagination: `Range: offset-end` header with `Prefer: count=exact`
+
