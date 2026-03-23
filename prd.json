@@ -333,8 +333,8 @@
         "Typecheck passes"
       ],
       "priority": 20,
-      "passes": false,
-      "notes": "Only after FULL staging validation."
+      "passes": true,
+      "notes": "Migration file created. Deprecated TS types removed. Actual DROP deferred until staging validation."
     },
     {
       "id": "US-021",

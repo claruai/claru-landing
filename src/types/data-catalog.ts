@@ -140,37 +140,6 @@ export interface AdminSetting {
   updated_at: string;
 }
 
-/**
- * @deprecated Use {@link Clip} instead.
- * Will be removed after legacy table drop (US-020).
- */
-export interface VideoIndexRecord {
-  id: string;
-  s3_bucket: string;
-  s3_key: string;
-  dataset_id: string | null;
-  caption_text: string | null;
-  embedding: number[] | null;
-  enrichment_source: string | null;
-  indexed_at: string;
-}
-
-/**
- * @deprecated Use {@link DatasetClip} instead.
- * Will be removed after legacy table drop (US-020).
- */
-export interface LeadCustomSample {
-  id: string;
-  lead_id: string;
-  video_index_id: string | null;
-  dataset_sample_id: string | null;
-  s3_bucket: string | null;
-  s3_key: string | null;
-  added_by: string | null;
-  note: string | null;
-  added_at: string;
-}
-
 // ---------------------------------------------------------------------------
 // Unified Clip Architecture — new types (US-006)
 // Matches canonical schema from supabase/migrations/009_create_clips_table.sql
@@ -261,43 +230,6 @@ export interface ClipSearchResult {
   // Derived
   caption_text: string | null;
 }
-
-// ---------------------------------------------------------------------------
-// Legacy Search Result types (discriminated union for catalog vs full_corpus)
-// @deprecated — Use ClipSearchResult instead. Will be removed in US-020.
-// ---------------------------------------------------------------------------
-
-/** @deprecated Use {@link ClipSearchResult} instead. */
-interface BaseSearchResult {
-  id: string;
-  similarity: number;
-  description: string | null;
-  signed_url: string | null;
-}
-
-/** @deprecated Use {@link ClipSearchResult} instead. */
-export interface CatalogSearchResult extends BaseSearchResult {
-  source: 'catalog';
-  dataset_id: string;
-  dataset_name: string;
-  environments: string[];
-  activities: string[];
-  objects: string[];
-  camera_perspective: string | null;
-  mime_type: string;
-}
-
-/** @deprecated Use {@link ClipSearchResult} instead. */
-export interface FullCorpusSearchResult extends BaseSearchResult {
-  source: 'full_corpus';
-  s3_bucket: string;
-  s3_key: string;
-  caption_text: string | null;
-  enrichment_source: string | null;
-}
-
-/** @deprecated Use {@link ClipSearchResult} instead. */
-export type UnifiedSearchResult = CatalogSearchResult | FullCorpusSearchResult;
 
 // ---------------------------------------------------------------------------
 // Public API Response Types

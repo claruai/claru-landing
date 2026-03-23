@@ -204,3 +204,20 @@ Goal: Unknown
 **Learnings:**
 - When spreading a Record<string, unknown> in TS, explicitly type the result array to avoid losing spread properties in inference
 
+## 2026-03-23 - US-020: Drop legacy tables
+
+**What I did:**
+- Created `supabase/migrations/012_drop_legacy_tables.sql` with DROP statements for dataset_samples, video_index, lead_custom_samples, dataset_prefix_routes, match_samples, match_video_index
+- Removed unused deprecated TS types: VideoIndexRecord, LeadCustomSample, BaseSearchResult, CatalogSearchResult, FullCorpusSearchResult, UnifiedSearchResult
+- Kept DatasetSample type (still referenced by 8 files — enrichment, portal, custom-samples, etc.)
+- Did NOT execute the DROP migration yet — deferred until full staging validation
+- Typecheck passes
+
+**Files changed:**
+- supabase/migrations/012_drop_legacy_tables.sql (new)
+- src/types/data-catalog.ts (removed unused deprecated types)
+
+**Learnings:**
+- DatasetSample is still widely used (portal, enrichment, custom-samples APIs) — full table drop needs those code paths migrated first
+- VideoIndexRecord and LeadCustomSample had zero imports — safe to remove immediately
+
