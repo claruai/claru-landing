@@ -157,8 +157,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 9,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "3-tab detail modal (AI Enrichment, Annotation, Technical) with entry counts. Resolution filter and AI description toggle are client-side filters. CopyPortalLinkButton uses clip ID."
     },
     {
       "id": "US-010",

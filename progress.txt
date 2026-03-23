@@ -170,3 +170,20 @@ Goal: Unknown
 - Agent committed US-008 through US-016 in prior session — only uncommitted delta needed this commit
 - Supabase `.from('clips').select('s3_bucket').limit(500)` + JS Set for distinct buckets (no SQL DISTINCT available via PostgREST)
 
+## 2026-03-23 - US-009: Add admin search filters and structured detail modal
+
+**What I did:**
+- Added resolution filter dropdown (All / 720p+ / 1080p+ / 4K) to search filters
+- Added "has AI description" toggle checkbox
+- Both filters sent to search API: browse mode uses SQL filters, semantic mode uses post-filters
+- ResultDetailModal already had 3 tabs (AI Enrichment, Annotation, Technical) from agent work
+- Tabs show entry counts, icons (Sparkles, FileText, Cpu), and empty states
+
+**Files changed:**
+- src/app/api/admin/catalog/search/route.ts (min_resolution_height, has_ai_caption filters)
+- src/app/admin/catalog/search/CatalogSearchClient.tsx (filter state, filter UI, dependency arrays)
+
+**Learnings:**
+- Semantic search RPC can't filter by resolution/caption — post-filtering is necessary
+- Pre-existing type errors in SamplesList.tsx are from US-019 (incomplete) — don't block US-009
+

@@ -31,6 +31,8 @@ export async function POST(request: NextRequest) {
   const subcategory = body.subcategory as string | undefined;
   const limit = Math.min(Math.max(body.limit ?? 20, 1), 100);
   const offset = Math.max(body.offset ?? 0, 0);
+  const min_resolution_height = body.min_resolution_height as number | undefined;
+  const has_ai_caption = body.has_ai_caption as boolean | undefined;
 
   const isBrowseMode = !query || !query.trim();
   if (isBrowseMode && !dataset_id && !s3_bucket) {
@@ -72,6 +74,14 @@ export async function POST(request: NextRequest) {
 
       if (subcategory) {
         browseQuery = browseQuery.ilike("caption_text", `%${subcategory}%`);
+      }
+
+      if (min_resolution_height) {
+        browseQuery = browseQuery.gte("tech_resolution_height", min_resolution_height);
+      }
+
+      if (has_ai_caption) {
+        browseQuery = browseQuery.not("ai_caption", "is", null);
       }
 
       browseQuery = browseQuery
@@ -124,6 +134,18 @@ export async function POST(request: NextRequest) {
           filtered = filtered.filter(
             (m) => ((m.caption_text as string) ?? "").toLowerCase().includes(subcategory.toLowerCase()),
           );
+        }
+
+        // Post-filter by resolution
+        if (min_resolution_height) {
+          filtered = filtered.filter(
+            (m) => (m.tech_resolution_height as number | null) != null && (m.tech_resolution_height as number) >= min_resolution_height,
+          );
+        }
+
+        // Post-filter by has AI caption
+        if (has_ai_caption) {
+          filtered = filtered.filter((m) => m.ai_caption != null);
         }
 
         results = filtered.map((m) => ({
