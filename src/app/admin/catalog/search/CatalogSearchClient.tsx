@@ -154,7 +154,6 @@ export default function CatalogSearchClient({
   const isBrowseMode = useCallback((q: string) => !q.trim() && (!!datasetFilter || !!bucketFilter), [datasetFilter, bucketFilter]);
 
   const runSearch = useCallback(async (searchQuery: string, opts?: { append?: boolean; searchOffset?: number; overrideLimit?: number }) => {
-    if (!searchQuery.trim() && !datasetFilter && !bucketFilter) return;
     const browsing = !searchQuery.trim();
     const pageSize = opts?.overrideLimit ?? (browsing ? BROWSE_PAGE_SIZE : SEARCH_PAGE_SIZE);
     const requestOffset = opts?.searchOffset ?? 0;
@@ -188,7 +187,7 @@ export default function CatalogSearchClient({
   }, [datasetFilter, bucketFilter, subcategoryFilter]);
 
   const hasRun = useRef(false);
-  useEffect(() => { if (!hasRun.current && query.trim()) { hasRun.current = true; runSearch(query); } }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!hasRun.current) { hasRun.current = true; runSearch(query); } }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); setOffset(0); updateUrl(query, datasetFilter, bucketFilter); runSearch(query); };
   const handleExampleClick = (example: string) => { setQuery(example); setOffset(0); updateUrl(example, datasetFilter, bucketFilter); runSearch(example); };
@@ -223,7 +222,7 @@ export default function CatalogSearchClient({
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)]" />
               <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Semantic search across all clips..." className="w-full pl-10 pr-4 py-3 sm:py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150" />
             </div>
-            <button type="submit" disabled={loading || (!query.trim() && !datasetFilter && !bucketFilter)} className="px-5 py-3 sm:py-2.5 text-sm font-mono rounded-md bg-[var(--accent-primary)] text-[var(--bg-primary)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity duration-150 flex-shrink-0">
+            <button type="submit" disabled={loading} className="px-5 py-3 sm:py-2.5 text-sm font-mono rounded-md bg-[var(--accent-primary)] text-[var(--bg-primary)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity duration-150 flex-shrink-0">
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "search"}
             </button>
           </div>

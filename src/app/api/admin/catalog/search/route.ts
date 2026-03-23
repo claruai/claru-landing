@@ -35,9 +35,6 @@ export async function POST(request: NextRequest) {
   const has_ai_caption = body.has_ai_caption as boolean | undefined;
 
   const isBrowseMode = !query || !query.trim();
-  if (isBrowseMode && !dataset_id && !s3_bucket) {
-    return NextResponse.json({ error: "query or dataset filter is required" }, { status: 400 });
-  }
 
   const supabase = createSupabaseAdminClient();
 
