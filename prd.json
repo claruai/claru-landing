@@ -318,8 +318,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 19,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "All admin catalog pages now query dataset_clips JOIN clips. Field renames: s3_object_key->s3_key, metadata_json->ann_metadata, enrichment_json->ai_enrichment_json, s3_annotation_key->ann_annotation_key, s3_specs_key->ann_specs_key. SamplePreviewModal passes Clip objects to ClipDetailModal for structured tabs. Delete removes dataset_clips row (preserves clip). Catalog list page counts from dataset_clips."
     },
     {
       "id": "US-020",

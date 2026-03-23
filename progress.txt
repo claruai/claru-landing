@@ -187,3 +187,20 @@ Goal: Unknown
 - Semantic search RPC can't filter by resolution/caption — post-filtering is necessary
 - Pre-existing type errors in SamplesList.tsx are from US-019 (incomplete) — don't block US-009
 
+## 2026-03-23 - US-019: Update admin catalog detail pages
+
+**What I did:**
+- Fixed type errors in samples/route.ts: changed DatasetClipRow to Record<string, unknown> for proper spread typing
+- All 11 admin catalog files now use clips via dataset_clips JOIN
+- AdminClip interface extends Clip with dataset_clip_id, lead_id, added_by, note
+- SamplePreviewModal wraps ClipDetailModal for structured tabs
+- samples/route.ts flattens dataset_clips JOIN clips response into flat records
+- Typecheck passes clean
+
+**Files changed:**
+- src/app/api/admin/catalog/[id]/samples/route.ts (fixed typing)
+- 10 other admin catalog files (from prior agent work, now committed)
+
+**Learnings:**
+- When spreading a Record<string, unknown> in TS, explicitly type the result array to avoid losing spread properties in inference
+
