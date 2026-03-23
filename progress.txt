@@ -1,183 +1,29 @@
 # Progress Log
 
-Started: Fri Mar 20 14:35:22 EDT 2026
-Project: Full Corpus Semantic Search (Phase 2)
+Started: Mon Mar 23 15:08:00 EDT 2026
+Project: Claru Landing
 Goal: Unknown
 
 ---
 
-## 2026-03-20 - US-201: Formalize video_index table migration + match function
+## 2026-03-23 - US-001: Create clips table DDL on staging
 
 **What I did:**
-- Applied Supabase migration (video_index_table_and_match_fn) via MCP
-- Migration uses CREATE TABLE IF NOT EXISTS + CREATE OR REPLACE FUNCTION (table existed from PoC)
-- Updated match_video_index function to SECURITY DEFINER with SET search_path = public
-- Added VideoIndexRecord TypeScript type to src/types/data-catalog.ts
+- Created `clips` table on staging DB (kpjcbemvwxffibiohmvi) via Supabase MCP
+- 24 columns: core identity, annotation, technical, AI, derived, timestamps
+- UNIQUE(s3_bucket, s3_key) constraint
+- Auto-update trigger for updated_at
+- HNSW index on embedding (vector_cosine_ops, m=16, ef_construction=64)
+- GIN index on ann_metadata
+- B-tree index on s3_bucket
+- RLS enabled with service-role-only policy
+- Created local migration file for reproducibility
 
 **Files changed:**
-- src/types/data-catalog.ts (added VideoIndexRecord interface)
+- supabase/migrations/009_create_clips_table.sql (new)
 
 **Learnings:**
-- video_index table already existed from PoC with correct schema (id, s3_bucket, s3_key, dataset_id, caption_text, embedding vector(768), enrichment_source, indexed_at)
-- Unique constraint on (s3_bucket, s3_key) already in place
-- FK to datasets(id) ON DELETE SET NULL already in place
-- match_video_index function existed but was NOT SECURITY DEFINER — fixed by migration
-- Supabase MCP apply_migration works well for idempotent DDL
+- Supabase MCP apply_migration doesn't create local migration files — need to create manually
+- vector extension v0.8.0 is available on staging
+- Staging DB has 145k rows in video_index and 714 in dataset_samples (migration targets)
 
----
-
-## 2026-03-20 - US-202: Cobry caption loader — Python script
-
-**What I did:**
-- Created scripts/load_cobry_captions.py — standalone Python (no TS wrapper)
-- pyarrow read_row_group() for streaming parquet reads
-- OpenAI SDK with dimensions=768, httpx for PostgREST upserts
-- Crash recovery via scripts/.cobry_checkpoint.json
-- boto3 paginator for S3 listing, argparse CLI flags
-
-**Files changed:**
-- scripts/load_cobry_captions.py (new)
-
-**Learnings:**
-- PostgREST upsert uses Prefer: resolution=ignore-duplicates header + on_conflict query param
-- OpenAI batch embeddings API returns items with index field for reordering
-- pyarrow ParquetFile.read_row_group(idx) avoids loading entire file into memory
-- Existing TS script at scripts/load-cobry-captions.ts was good reference for column names
-
----
-
-## 2026-03-20 - US-203: Troveo metadata loader
-
-**What I did:**
-- Created scripts/load-troveo-metadata.ts
-- Reads embedding parquets from silver/quality_assessment/*/embeddings/*.parquet
-- Extracts storage_key + meta_key, fetches metadata JSON, builds caption from technical fields
-- Also checks for cobry-style captions under silver/cobry/deliveries/videos/ in troveo bucket
-- Generates 768-dim OpenAI embeddings, upserts with enrichment_source = 'troveo_metadata'
-
-**Files changed:**
-- scripts/load-troveo-metadata.ts (new)
-
-**Learnings:**
-- Troveo metadata JSONs have only technical info (format_note, resolution, codec, duration)
-- May also have cobry-style captions available — check silver/deliveries/videos/ path
-- Pattern: execSync python3 for parquet reading works well for TS scripts
-
----
-
-## 2026-03-20 - US-207a: Add to Lead — single-add combobox
-
-**What I did:**
-- Created AddToLeadButton component with searchable lead combobox
-- Fetches approved leads, checks existing assignments (greyed + checkmark)
-- Note input + confirm, success/error states with retry
-
-**Files changed:**
-- src/app/admin/catalog/search/AddToLeadButton.tsx (new)
-- src/app/admin/catalog/search/CatalogSearchClient.tsx (import + usage)
-
-**Learnings:**
-- Component was already created in working tree from previous session, just needed commit
-- GET /api/admin/leads?status=approved returns {leads: [{id, name, company, email, status}]}
-
----
-
-## 2026-03-20 - US-207b: Bulk-add with checkboxes + floating action bar
-
-**What I did:**
-- Added checkbox on each result card with ring highlight
-- Selection state in parent, cleared on new search
-- Floating BulkActionBar: count, lead combobox, note input, confirm
-- Toast on success
-
-**Files changed:**
-- src/app/admin/catalog/search/CatalogSearchClient.tsx
-
-**Learnings:**
-- Floating bar needs z-50 and fixed positioning at bottom
-- BulkActionBar needs results array to distinguish catalog vs full_corpus items
-
----
-
-## 2026-03-20 - US-208: Portal 'Curated for You' section
-
-**What I did:**
-- Server-side fetch of lead_custom_samples + video_index enrichment
-- CuratedForYou client component: horizontal scroll, max 6, 16:9 cards
-- Hidden when no custom samples
-
-**Files changed:**
-- src/app/portal/catalog/page.tsx (data fetch + rendering)
-- src/app/portal/catalog/CuratedForYou.tsx (new)
-
-**Learnings:**
-- Used admin client for video_index queries (RLS would block user client)
-- getS3SignedUrl handles cross-bucket signing with bucket param
-
----
-
-## 2026-03-20 - US-209: MCP search_full_catalog + updated build_lead_brief
-
-**What I did:**
-- Registered search_full_catalog tool: query → 768-dim embed → match_video_index
-- Updated build_lead_brief to include full_corpus results (source: 'full_corpus')
-- Added dimensions param to generateEmbedding (768 for video_index, default 1536)
-
-**Files changed:**
-- src/lib/mcp/server.ts
-- src/lib/embeddings/openai.ts
-
-**Learnings:**
-- match_video_index uses 768-dim, match_samples uses 1536-dim — different embedding calls
-- 600s TTL for MCP signed URLs vs 3600s for UI
-
----
-
-## 2026-03-20 - US-210a: UnifiedSearchResult type + API mode param
-
-**What I did:**
-- Added UnifiedSearchResult discriminated union type
-- POST /api/admin/catalog/search now accepts mode: catalog | full_corpus | both
-- Mode=both merges results sorted by similarity
-
-**Files changed:**
-- src/types/data-catalog.ts (UnifiedSearchResult types)
-- src/app/api/admin/catalog/search/route.ts (full rewrite)
-
-**Learnings:**
-- Two embedding calls needed for mode=both (1536-dim + 768-dim)
-
----
-
-## 2026-03-20 - US-210b: Admin search UI — mode toggle + bucket filter
-
-**What I did:**
-- Segmented mode toggle: Catalog Samples | Full Corpus | Both
-- Conditional dataset/bucket filter based on mode
-- URL params: ?q=, ?dataset=, ?bucket=, ?mode=
-- Full corpus cards: FULL CORPUS badge, bucket name, enrichment_source tag
-- Full Corpus disabled if videoIndexCount=0
-
-**Files changed:**
-- src/app/admin/catalog/search/CatalogSearchClient.tsx (major update)
-- src/app/admin/catalog/search/page.tsx (pass videoIndexCount)
-
-**Learnings:**
-- useSearchParams() requires Suspense boundary in Next.js 16
-- Bucket filter simplified to free-text input (no server-side bucket list needed)
-
----
-
-## 2026-03-20 - US-211: Playwright E2E for full corpus + lead curation
-
-**What I did:**
-- Created tests/e2e/full-corpus-search.spec.ts with 6 test cases
-- Covers mode toggle, FULL CORPUS badges, URL params, bulk select, s3:// scrubbing
-
-**Files changed:**
-- tests/e2e/full-corpus-search.spec.ts (new)
-
-**Learnings:**
-- Intercept API responses with page.waitForResponse() for content validation
-
----

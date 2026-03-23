@@ -1,280 +1,359 @@
 {
-  "project": "Full Corpus Semantic Search (Phase 2)",
-  "branchName": "ralph/full-corpus-search",
-  "description": "Extend semantic search to 1.3M+ S3 videos using existing cobry captions + embeddings. Add lead-specific sample curation workflow.",
+  "project": "Claru Landing",
+  "branchName": "ralph/unified-clip-architecture",
+  "description": "Unified Clip Architecture — single clips table, dataset_clips join table, one search mode, structured enrichment columns. Staging DB first.",
   "userStories": [
     {
-      "id": "US-201",
-      "title": "Formalize video_index table migration + match function",
-      "description": "As a developer, I need the video_index table formalized as a migration and the match_video_index RPC function created.",
+      "id": "US-001",
+      "title": "Create clips table DDL on staging",
+      "description": "As a developer, I need the clips table created on staging with all structured columns.",
       "acceptanceCriteria": [
-        "Migration creates video_index: id uuid PK, s3_bucket text NOT NULL, s3_key text NOT NULL, dataset_id uuid nullable FK, caption_text text, embedding extensions.vector(768), enrichment_source text, indexed_at timestamptz",
-        "Unique constraint on (s3_bucket, s3_key)",
-        "match_video_index(query_embedding vector(768), match_count int, filter_bucket text DEFAULT NULL, match_threshold float DEFAULT 0.40) returns (id, s3_bucket, s3_key, caption_text, similarity, enrichment_source)",
-        "Function uses cosine distance, filters embedding IS NOT NULL and similarity >= threshold",
-        "Function marked SECURITY DEFINER to bypass RLS",
-        "No HNSW index yet (deferred to US-205b)",
-        "TypeScript type VideoIndexRecord in src/types/data-catalog.ts",
+        "Create clips table with: id (uuid PK), s3_bucket (text NOT NULL), s3_key (text NOT NULL), mime_type, filename, UNIQUE(s3_bucket, s3_key)",
+        "Add annotation columns: ann_metadata (jsonb), ann_annotation_key (text), ann_specs_key (text)",
+        "Add technical columns: tech_file_size_bytes (bigint), tech_duration_seconds (numeric), tech_resolution_width (int), tech_resolution_height (int), tech_fps (numeric), tech_codec (text), tech_bit_depth (int)",
+        "Add AI columns: ai_caption (text), ai_agent_context (jsonb), ai_enrichment_source (text), ai_enrichment_json (jsonb)",
+        "Add derived fields: caption_text (text), embedding vector(768), caption_rebuilt_at (timestamptz)",
+        "Add timestamps: created_at, updated_at with auto-update trigger",
+        "Create HNSW index on embedding column",
+        "Create GIN index on ann_metadata",
+        "Create btree index on s3_bucket",
+        "Enable RLS with service-role-only policy",
+        "Apply via Supabase MCP on staging DB (kpjcbemvwxffibiohmvi)",
+        "Verify table exists with correct columns",
         "Typecheck passes"
       ],
       "priority": 1,
       "passes": true,
-      "notes": "Table already exists from PoC — formalize + add match function. Use Supabase MCP for migration."
+      "notes": "Use HNSW not IVFFlat. Service role bypasses RLS. Ref: PRD canonical schema section."
     },
     {
-      "id": "US-202",
-      "title": "Cobry caption loader — Python script for mv-abaka + mv-artlist",
-      "description": "As a developer, I need a Python script that reads cobry caption parquets and bulk-loads them into video_index with 768-dim embeddings.",
+      "id": "US-002",
+      "title": "Create dataset_clips join table on staging",
+      "description": "As a developer, I need the dataset_clips join table on staging.",
       "acceptanceCriteria": [
-        "scripts/load_cobry_captions.py — standalone Python (no TS wrapper)",
-        "Uses pyarrow read_row_group() streaming — never loads entire parquet into memory",
-        "Calls OpenAI via openai Python SDK with dimensions=768",
-        "Upserts to Supabase via httpx POST to PostgREST with service-role key",
-        "Checkpoint file at scripts/.cobry_checkpoint.json for crash recovery",
-        "Extracts clip_storage_key → s3_key, text_short + text → caption_text",
-        "Strips s3://bucket/ prefix from keys",
-        "Flags: --bucket, --delivery, --limit, --dry-run via argparse",
-        "Uses boto3 paginator for S3 listing",
-        "Idempotent — upsert on (s3_bucket, s3_key) conflict = skip",
-        "Temp files deleted in finally block after processing each parquet",
-        "Runtime check: Python 3.10+, pyarrow, openai, httpx, boto3 — exit with clear error if missing",
-        "Summary log: Inserted X / skipped Y / failed Z"
+        "Create dataset_clips: id (uuid PK), dataset_id (FK datasets), clip_id (FK clips), lead_id (FK leads nullable), added_by (text), note (text), created_at (timestamptz)",
+        "CREATE UNIQUE INDEX idx_dataset_clips_unique ON dataset_clips (dataset_id, clip_id, COALESCE(lead_id, '00000000-0000-0000-0000-000000000000'))",
+        "Enable RLS with service-role-only policy",
+        "Apply via Supabase MCP on staging",
+        "Typecheck passes"
       ],
       "priority": 2,
-      "passes": true,
-      "notes": "This is the big one — ~800k abaka + ~200k artlist. PoC TS script exists at scripts/load-cobry-captions.ts for reference."
+      "passes": false,
+      "notes": "Expression-based unique INDEX, not UNIQUE constraint."
     },
     {
-      "id": "US-203",
-      "title": "Troveo metadata loader",
-      "description": "As a developer, I need a script that reads troveo per-video metadata JSONs and loads them into video_index.",
+      "id": "US-003",
+      "title": "Create match_clips RPC on staging",
+      "description": "As a developer, I need the unified vector search RPC.",
       "acceptanceCriteria": [
-        "scripts/load-troveo-metadata.ts created",
-        "Reads embedding parquets to get storage_key + meta_key mappings",
-        "Fetches metadata JSON per video, constructs caption from technical fields",
-        "Generates 768-dim OpenAI embedding from caption text",
-        "Upserts into video_index with enrichment_source = 'troveo_metadata'",
-        "Flags: --limit, --dry-run. Idempotent",
+        "Create match_clips(query_embedding vector(768), match_count int, filter_dataset_id uuid, filter_bucket text, match_threshold float)",
+        "Returns: id, s3_bucket, s3_key, ai_caption, caption_text, similarity, ai_enrichment_source, ai_agent_context, mime_type, tech_resolution_width, tech_resolution_height, tech_fps, tech_duration_seconds, tech_codec, ann_metadata",
+        "JOIN dataset_clips when filter_dataset_id provided",
+        "SECURITY DEFINER, SET search_path TO public, extensions",
+        "Apply via Supabase MCP on staging",
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": true,
-      "notes": "~112k videos. Troveo metadata is technical only — captions will be sparse."
-    },
-    {
-      "id": "US-204",
-      "title": "Annotation platform loader",
-      "description": "As a developer, I need a script that reads annotation JSONs from completed tasks and loads into video_index.",
-      "acceptanceCriteria": [
-        "scripts/load-annotation-platform.ts created",
-        "Lists video_capture/completed/ and video-capture-activities/completed/ folders",
-        "Reads annotation JSON, extracts generalData fields, constructs caption",
-        "Generates 768-dim OpenAI embedding",
-        "Upserts with enrichment_source = 'annotation_json'",
-        "Maps dataset_id to Egocentric Activity Capture where path matches",
-        "Flags: --limit, --dry-run. Idempotent",
-        "Typecheck passes"
-      ],
-      "priority": 4,
-      "passes": true,
-      "notes": "~220k annotation folders"
-    },
-    {
-      "id": "US-204b",
-      "title": "ML-datasets caption loader",
-      "description": "As a developer, I need a script to load captions from moonvalley-ml-datasets sources.",
-      "acceptanceCriteria": [
-        "scripts/load-ml-dataset-captions.ts created",
-        "Handles ShareGPT4Video JSONs (extract video[0].content)",
-        "Handles backup-caption-parquets movie_clips and tv_clips parquets",
-        "Generates 768-dim OpenAI embedding from caption text",
-        "Upserts with enrichment_source = 'ml_dataset_caption'",
-        "Flag: --source to select format, --limit, --dry-run. Idempotent",
-        "Typecheck passes"
-      ],
-      "priority": 5,
-      "passes": true,
-      "notes": "~100k estimated across ShareGPT4Video + movie/TV clips"
-    },
-    {
-      "id": "US-205",
-      "title": "Gemini Vision for mv-xtr-external uncaptioned videos",
-      "description": "As a developer, I need Gemini enrichment for the ~1,257 videos with no metadata.",
-      "acceptanceCriteria": [
-        "scripts/enrich-xtr-gemini.ts created — reuses Phase 1 Gemini client",
-        "Lists video files in mv-xtr-external (asteria/, david_darg/, paul_trillo/)",
-        "For each: signed URL → Gemini 2.5 Flash → caption text → 768-dim embedding",
-        "Upserts with enrichment_source = 'gemini_vision'",
-        "p-limit max 5, exponential backoff on 429",
-        "Flags: --limit, --dry-run. Idempotent",
-        "Typecheck passes"
-      ],
-      "priority": 6,
-      "passes": true,
-      "notes": "~1,257 videos, ~$0.03 total"
-    },
-    {
-      "id": "US-205b",
-      "title": "Build HNSW index on video_index after bulk loading",
-      "description": "As a developer, I need the HNSW vector index built after all data is loaded.",
-      "acceptanceCriteria": [
-        "Run CREATE INDEX CONCURRENTLY on video_index using hnsw vector_cosine_ops — outside transaction",
-        "Set hnsw.ef_search = 100 in match_video_index function",
-        "Document: 1.3M rows x 768 dims = ~4-6 GB index memory",
-        "Verify queries return in < 500ms after build"
-      ],
-      "priority": 7,
-      "passes": true,
-      "notes": "Must run AFTER all loader scripts complete"
-    },
-    {
-      "id": "US-206a",
-      "title": "Lead custom samples — table + RLS policies",
-      "description": "As a developer, I need the lead_custom_samples table with RLS for portal access.",
-      "acceptanceCriteria": [
-        "Migration: lead_custom_samples with lead_id FK CASCADE, video_index_id FK SET NULL, dataset_sample_id FK SET NULL, s3_bucket, s3_key (denormalized), added_by, note, added_at",
-        "RLS on lead_custom_samples: EXISTS(leads WHERE lead_id match AND supabase_user_id = auth.uid())",
-        "RLS on video_index: EXISTS through lead_custom_samples + leads + auth.uid()",
-        "video_index RLS enabled",
-        "Typecheck passes"
-      ],
-      "priority": 8,
-      "passes": true,
-      "notes": "ON DELETE SET NULL preserves curation if index row deleted"
-    },
-    {
-      "id": "US-206b",
-      "title": "Lead custom samples — admin API routes",
-      "description": "As a developer, I need API endpoints to add, list, bulk-add, and remove custom samples.",
-      "acceptanceCriteria": [
-        "POST /api/admin/leads/[id]/custom-samples — single add, validates UUID, service-role client",
-        "POST /api/admin/leads/[id]/custom-samples/bulk — bulk add in one transaction, returns { inserted, skipped }",
-        "GET /api/admin/leads/[id]/custom-samples — list with signed URLs",
-        "DELETE /api/admin/leads/[id]/custom-samples/[sampleId] — remove",
-        "All routes require verifyAdminToken(), validate [id] as z.string().uuid()",
-        "Denormalizes s3_bucket + s3_key from video_index at insert time",
-        "Typecheck passes"
-      ],
-      "priority": 9,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
-      "id": "US-207a",
-      "title": "Add to Lead — single-add combobox on result cards",
-      "description": "As an admin, I want to add a single search result to a lead via searchable combobox.",
+      "id": "US-004",
+      "title": "Migrate video_index to clips on staging",
+      "description": "As a developer, I need 47k video_index rows migrated into clips.",
       "acceptanceCriteria": [
-        "Each result card has Add to Lead button → searchable combobox with type-ahead",
-        "Fetches leads where status = 'approved'",
-        "On open: checks existing assignments, greyed leads with checkmark",
-        "After selecting: note input + Confirm button (note optional)",
-        "Success: checkmark + 'Added to [name]'. Error: inline error with retry",
+        "Create scripts/migrate-video-index-to-clips.py",
+        "Map: s3_bucket, s3_key, caption_text -> ai_caption AND caption_text, enrichment_source -> ai_enrichment_source, embedding -> embedding, indexed_at -> created_at",
+        "Set caption_rebuilt_at = NOW() for rows with valid embeddings",
+        "INSERT ON CONFLICT DO NOTHING",
+        "Batch 500 rows, 0.1s throttle",
+        "Idempotent",
+        "Validate: clips count matches video_index count",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Migrate dataset_samples to clips + dataset_clips on staging",
+      "description": "As a developer, I need 714 dataset_samples merged into clips with re-embedding and relationships preserved.",
+      "acceptanceCriteria": [
+        "Create scripts/migrate-dataset-samples-to-clips.py",
+        "Upsert into clips matching on s3_bucket + s3_object_key -> s3_key",
+        "Map: enrichment_json -> ai_enrichment_json, agent_context -> ai_agent_context, metadata_json -> ann_metadata, s3_annotation_key -> ann_annotation_key, s3_specs_key -> ann_specs_key, tech fields",
+        "Re-embed at 768 dims for rows needing embeddings (631 of 714)",
+        "Create dataset_clips rows preserving dataset_id + lead_id",
+        "Deduplicate: GROUP BY s3 key -> one clips row + multiple dataset_clips",
+        "Skip 20 rows with NULL s3_object_key (log them)",
+        "Idempotent",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "Uses OpenAI API. ~$0.50 cost."
+    },
+    {
+      "id": "US-006",
+      "title": "Add Clip and DatasetClip TypeScript types",
+      "description": "As a developer, I need types matching the new schema.",
+      "acceptanceCriteria": [
+        "Add Clip interface to src/types/data-catalog.ts matching canonical schema",
+        "Add DatasetClip interface",
+        "Add ClipSearchResult interface (no source discriminator)",
+        "Add field mapping comments in code",
+        "Mark DatasetSample, VideoIndexRecord, LeadCustomSample as @deprecated",
+        "DO NOT change generateEmbedding() default — add explicit 768 to new call sites",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "Embedding default changes AFTER US-007 and US-015."
+    },
+    {
+      "id": "US-007",
+      "title": "Rewrite search API for clips",
+      "description": "As a developer, the search API must query clips via match_clips.",
+      "acceptanceCriteria": [
+        "Rewrite src/app/api/admin/catalog/search/route.ts to use match_clips only",
+        "Remove 3-mode logic — single code path",
+        "Use generateEmbedding(query, 768) explicitly",
+        "Browse mode: clips JOIN dataset_clips when dataset filter set",
+        "Return ClipSearchResult shape",
+        "Lead assignment: single dataset_clips query (collapse two queries into one)",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Rewrite admin search UI — remove mode toggle",
+      "description": "As an admin, one unified search across all clips.",
+      "acceptanceCriteria": [
+        "Remove mode toggle from CatalogSearchClient.tsx",
+        "Update server component: bucket list and clip count from clips table",
+        "ResultCard renders ClipSearchResult",
+        "Update AddToLeadButton: videoIndexId/datasetSampleId -> clipId",
+        "Remove all source: catalog | full_corpus logic",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Add admin search filters and structured detail modal",
+      "description": "As an admin, structured detail modal tabs and new filters.",
+      "acceptanceCriteria": [
+        "ResultDetailModal: structured sections for Annotation, AI enrichment, Technical",
+        "Add resolution filter dropdown (All / 720p+ / 1080p+ / 4K)",
+        "Add Has AI description toggle",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Rewrite bulk actions for dataset_clips",
+      "description": "As an admin, adding clips to datasets inserts dataset_clips rows.",
+      "acceptanceCriteria": [
+        "Bulk bar: Add to Dataset + Create New Dataset tabs",
+        "Rewrite POST /api/admin/catalog/custom for dataset_clips inserts",
+        "Remove all data-copy logic from bulk actions",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 10,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
-      "id": "US-207b",
-      "title": "Add to Lead — bulk-add with checkboxes + floating action bar",
-      "description": "As an admin, I want to select multiple results and add them all to a lead at once.",
+      "id": "US-011",
+      "title": "Rewrite portal dataset detail for clips",
+      "description": "As a lead, see clip data from unified table.",
       "acceptanceCriteria": [
-        "Checkbox on each result card",
-        "1+ selected: floating bar at bottom '[N] selected — Add to Lead [combobox] [note] [Confirm]'",
-        "Bulk confirm calls POST /api/admin/leads/[id]/custom-samples/bulk",
-        "After add: checkboxes cleared, bar hidden, toast '[N] samples added to [lead name]'",
+        "Query clips via dataset_clips JOIN",
+        "Field renames: s3_object_key -> s3_key, remove media_url/storage_path fallback",
+        "Lead filter with DISTINCT ON (clip_id) to prevent duplicates",
+        "Update GalleryCard field names",
+        "Deep-link ?clip= param",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 11,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
-      "id": "US-208",
-      "title": "Portal 'Curated for You' section",
-      "description": "As a lead, I want custom samples picked for me shown in the portal catalog.",
+      "id": "US-012",
+      "title": "Add clip detail modal tabs",
+      "description": "As a user, structured tabs: Annotation | AI | Technical.",
       "acceptanceCriteria": [
-        "Portal catalog queries lead_custom_samples (user client, RLS) then video_index details (service-role)",
-        "Section between header and CatalogBrowser, heading 'Curated for You'",
-        "Horizontal scrollable row, max 6 visible",
-        "Card: 16:9 thumbnail, caption_text 2-line truncation, bucket badge, admin note",
-        "Cards with no dataset_id are not clickable",
-        "Signed URLs generated server-side",
-        "Hidden entirely if no custom samples",
+        "3 tabs: Annotation, AI Enrichment, Technical",
+        "Annotation tab: live S3 fetch via ann_annotation_key",
+        "AI tab: ai_caption, ai_agent_context fields",
+        "Technical tab: resolution, fps, duration, codec",
+        "Hidden from portal: ai_enrichment_source, internal IDs",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 12,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
-      "id": "US-209",
-      "title": "MCP tool: search_full_catalog + updated build_lead_brief",
-      "description": "As a Claude agent, I need MCP tools for full corpus search.",
+      "id": "US-013",
+      "title": "Rewrite portal catalog index for dataset_clips",
+      "description": "As a lead, catalog browser uses dataset_clips.",
       "acceptanceCriteria": [
-        "Register search_full_catalog: { query, limit?, s3_bucket?, match_threshold? }",
-        "Embeds query → match_video_index RPC → signed URLs (600s TTL)",
-        "Output: { id, s3_bucket, s3_key, caption_text, similarity, enrichment_source, signed_url }",
-        "scrubS3Urls on caption_text only — signed_url preserved via PRESERVED_KEYS",
-        "build_lead_brief includes full_corpus results labelled source: 'full_corpus'",
-        "Typecheck passes"
-      ],
-      "priority": 13,
-      "passes": true,
-      "notes": "600s TTL for MCP signed URLs (not 3600s)"
-    },
-    {
-      "id": "US-210a",
-      "title": "Admin search: UnifiedSearchResult type + API mode param",
-      "description": "As a developer, I need the search API to support catalog/full_corpus/both modes.",
-      "acceptanceCriteria": [
-        "UnifiedSearchResult discriminated union: source 'catalog' | 'full_corpus', shared description field",
-        "POST /api/admin/catalog/search accepts mode: catalog | full_corpus | both (default: catalog)",
-        "full_corpus calls match_video_index, both calls both RPCs and merges by similarity",
-        "Typecheck passes"
-      ],
-      "priority": 14,
-      "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-210b",
-      "title": "Admin search UI: full corpus toggle + bucket filter + URL params",
-      "description": "As an admin, I want to toggle search modes with URL state persistence.",
-      "acceptanceCriteria": [
-        "Segmented toggle: Catalog Samples | Full Corpus | Both",
-        "Toggle auto-re-executes current query",
-        "Full Corpus: dataset filter replaced with bucket filter",
-        "URL params: ?q=, ?dataset=, ?bucket=, ?mode=",
-        "Full corpus cards: FULL CORPUS badge, bucket name, caption in description slot, enrichment_source tag, copy copies video_index.id",
-        "Full Corpus disabled if video_index empty",
+        "Sample counts from dataset_clips",
+        "Curated samples: dataset_clips WHERE lead_id = current_lead (replaces lead_custom_samples query)",
+        "Enrich curated from clips table",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
-      "priority": 15,
-      "passes": true,
+      "priority": 13,
+      "passes": false,
       "notes": ""
     },
     {
-      "id": "US-211",
-      "title": "Playwright E2E + UAT for full corpus + lead curation",
-      "description": "As QA, full end-to-end testing of Phase 2.",
+      "id": "US-014",
+      "title": "Update S3 annotation API for clips",
+      "description": "As a developer, annotation fetch works with clips table.",
       "acceptanceCriteria": [
-        "tests/e2e/full-corpus-search.spec.ts created",
-        "Test: search full corpus → FULL CORPUS badges → add to lead → portal Curated for You",
-        "Test: bulk select 3 → bulk add → verify count",
-        "Test: MCP search_full_catalog returns valid response",
-        "No s3:// strings in any response",
-        "UAT: admin portal UI only",
+        "Look up clip by ID from clips table using admin client",
+        "Use ann_annotation_key for S3 fetch",
+        "Cache to clips.ann_metadata (not dataset_samples.metadata_json)",
+        "Apply scrubbing",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Update MCP search tools",
+      "description": "As an MCP agent, unified search_clips tool.",
+      "acceptanceCriteria": [
+        "Replace search_catalog + search_full_catalog with search_clips",
+        "build_lead_brief: collapse TWO embedding+RPC calls into ONE",
+        "Update get_dataset_overview, download_clips, get_corpus_stats for clips",
+        "Test via curl",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Update MCP catalog management tools",
+      "description": "As an MCP agent, catalog tools use dataset_clips.",
+      "acceptanceCriteria": [
+        "create_custom_catalog: dataset + dataset_clips inserts",
+        "add_clips_to_catalog: dataset_clips inserts only",
+        "remove_clips_from_catalog: delete dataset_clips (not clips)",
+        "list_lead_catalogs via dataset_clips",
+        "update_dataset: total_samples from dataset_clips count",
+        "Test via curl",
         "Typecheck passes"
       ],
       "priority": 16,
-      "passes": true,
-      "notes": "Requires loader scripts to have populated video_index first"
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Update loader scripts for clips",
+      "description": "As a developer, loaders write to their own clips columns.",
+      "acceptanceCriteria": [
+        "load-annotation-metadata.py: writes ann_*, tech_* on clips, sets caption_rebuilt_at = NULL",
+        "load_cobry_captions.py: writes ai_caption, ai_enrichment_source on clips, sets caption_rebuilt_at = NULL",
+        "re-enrich-annotation-frames.py: writes ai_caption, ai_enrichment_source on clips, sets caption_rebuilt_at = NULL",
+        "Each writes ONLY its own columns",
+        "All use INSERT ON CONFLICT DO NOTHING",
+        "Typecheck passes"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": "Loaders no longer embed. Rebuild script handles that."
+    },
+    {
+      "id": "US-018",
+      "title": "Create caption rebuild script",
+      "description": "As a developer, derives caption_text + embedding from all sources.",
+      "acceptanceCriteria": [
+        "Create scripts/rebuild-clip-captions.py",
+        "Select clips WHERE caption_rebuilt_at IS NULL",
+        "Build caption_text from: ann_metadata + tech specs + ai_caption",
+        "Handle varying ann_metadata shapes",
+        "Generate 768-dim embedding",
+        "Update caption_text, embedding, caption_rebuilt_at",
+        "Batch 100, idempotent",
+        "Typecheck passes"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-019",
+      "title": "Update admin catalog detail pages",
+      "description": "As an admin, catalog detail reads from clips via dataset_clips.",
+      "acceptanceCriteria": [
+        "Admin catalog [id] page queries clips via dataset_clips",
+        "SamplesList renders clip data",
+        "SamplePreviewModal shows structured tabs",
+        "Lead-specific clips show badge",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-020",
+      "title": "Drop legacy tables",
+      "description": "As a developer, remove old tables after staging validation.",
+      "acceptanceCriteria": [
+        "All surfaces confirmed working on staging",
+        "Drop dataset_samples, video_index, lead_custom_samples tables",
+        "Drop match_samples, match_video_index RPCs",
+        "Remove deprecated TypeScript types",
+        "Typecheck passes"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": "Only after FULL staging validation."
+    },
+    {
+      "id": "US-021",
+      "title": "Replicate migration to production",
+      "description": "As a developer, apply validated migration to prod.",
+      "acceptanceCriteria": [
+        "Switch to prod Supabase credentials",
+        "Apply DDL (clips, dataset_clips, match_clips, indexes)",
+        "Run video_index -> clips migration (145k rows)",
+        "Run dataset_samples -> clips + dataset_clips (714 rows)",
+        "Run caption rebuild",
+        "Validate search, portal, MCP on prod",
+        "Deploy to Vercel (push to main)",
+        "Drop legacy tables after 24h soak",
+        "Typecheck passes"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": "Final story. Only after all staging stories pass."
     }
   ]
 }
