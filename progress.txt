@@ -27,3 +27,18 @@ Goal: Unknown
 - vector extension v0.8.0 is available on staging
 - Staging DB has 145k rows in video_index and 714 in dataset_samples (migration targets)
 
+## 2026-03-23 - US-002: Create dataset_clips join table on staging
+
+**What I did:**
+- Created `dataset_clips` join table on staging via Supabase MCP
+- 7 columns: id, dataset_id (FK datasets), clip_id (FK clips), lead_id (FK leads nullable), added_by, note, created_at
+- Expression-based unique index: `(dataset_id, clip_id, COALESCE(lead_id, '00000000-...'))`
+- CASCADE delete on dataset/clip FKs, SET NULL on lead FK
+- RLS enabled with service-role-only policy
+
+**Files changed:**
+- supabase/migrations/010_create_dataset_clips_table.sql (new)
+
+**Learnings:**
+- Expression-based unique index works correctly with COALESCE for nullable columns
+
