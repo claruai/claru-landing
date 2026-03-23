@@ -172,8 +172,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 10,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Bulk bar simplified to 2 tabs. API accepts clip_ids array. AddToLeadButton uses clipId prop."
     },
     {
       "id": "US-011",
@@ -189,8 +189,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 11,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Queries dataset_clips with clips(*) join. Dedup by clip_id in JS. GalleryCard accepts ClipLike union type. Legacy ?sample= still works."
     },
     {
       "id": "US-012",
@@ -206,8 +206,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 12,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "ClipDetailModal replaces SampleDetailModal. New DataPanelRegistry entries: ai_enrichment (Bot icon), technical (Cpu icon). Legacy SampleDetailModal re-exported for backward compat."
     },
     {
       "id": "US-013",
@@ -221,8 +221,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 13,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Curated samples now query dataset_clips WHERE lead_id + JOIN clips for ai_caption, s3_bucket, s3_key. No more lead_custom_samples or video_index queries."
     },
     {
       "id": "US-014",
@@ -236,8 +236,8 @@
         "Typecheck passes"
       ],
       "priority": 14,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Removed legacy dataset_samples path. Uses admin client for clips lookup. fetchAnnotationJson now accepts bucketOverride."
     },
     {
       "id": "US-015",

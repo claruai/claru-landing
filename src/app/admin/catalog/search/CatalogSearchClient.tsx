@@ -15,35 +15,30 @@ interface Dataset {
   name: string;
 }
 
-type SearchMode = "catalog" | "full_corpus" | "both";
-
 interface AssignedLead {
   lead_id: string;
   lead_name: string;
   lead_company: string;
 }
 
-/** Unified result from the search API (discriminated by source) */
-interface UnifiedResult {
-  source: "catalog" | "full_corpus";
+interface ClipResult {
   id: string;
+  s3_bucket: string;
+  s3_key: string;
+  ai_caption: string | null;
+  caption_text: string | null;
   similarity: number;
-  description: string | null;
+  ai_enrichment_source: string | null;
+  ai_agent_context: Record<string, unknown> | null;
+  mime_type: string | null;
+  tech_resolution_width: number | null;
+  tech_resolution_height: number | null;
+  tech_fps: number | null;
+  tech_duration_seconds: number | null;
+  tech_codec: string | null;
+  ann_metadata: Record<string, unknown> | null;
   signed_url: string | null;
   assigned_leads?: AssignedLead[];
-  // catalog
-  dataset_id?: string;
-  dataset_name?: string;
-  environments?: string[];
-  activities?: string[];
-  objects?: string[];
-  camera_perspective?: string | null;
-  mime_type?: string;
-  // full_corpus
-  s3_bucket?: string;
-  s3_key?: string;
-  caption_text?: string | null;
-  enrichment_source?: string | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -68,27 +63,24 @@ const BROWSE_PAGE_SIZE = 48;
 
 export default function CatalogSearchClient({
   datasets,
-  buckets: _buckets,
-  videoIndexCount,
+  buckets,
+  clipCount,
 }: {
   datasets: Dataset[];
-  buckets?: string[];
-  videoIndexCount?: number;
+  buckets: string[];
+  clipCount: number;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   // Init from URL params
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
-  const [mode, setMode] = useState<SearchMode>(
-    (searchParams.get("mode") as SearchMode) || "catalog",
-  );
   const [datasetFilter, setDatasetFilter] = useState(searchParams.get("dataset") ?? "");
   const [bucketFilter, setBucketFilter] = useState(searchParams.get("bucket") ?? "");
   const [subcategoryFilter, setSubcategoryFilter] = useState(searchParams.get("subcategory") ?? "");
   const [subcategories, setSubcategories] = useState<Array<{ name: string; count: number }>>([]);
-  const [results, setResults] = useState<UnifiedResult[] | null>(null);
-  const [detailResult, setDetailResult] = useState<UnifiedResult | null>(null);
+  const [results, setResults] = useState<ClipResult[] | null>(null);
+  const [detailResult, setDetailResult] = useState<ClipResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -97,7 +89,8 @@ export default function CatalogSearchClient({
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [hasMore, setHasMore] = useState(false);
 
-  const fullCorpusDisabled = (videoIndexCount ?? 0) === 0;
+  // clipCount used for future display if needed
+  void clipCount;
 
   // Load subcategories when dataset filter changes
   useEffect(() => {
@@ -126,10 +119,9 @@ export default function CatalogSearchClient({
 
   // Sync URL params
   const updateUrl = useCallback(
-    (q: string, m: SearchMode, ds: string, bk: string) => {
+    (q: string, ds: string, bk: string) => {
       const params = new URLSearchParams();
       if (q) params.set("q", q);
-      if (m !== "catalog") params.set("mode", m);
       if (ds) params.set("dataset", ds);
       if (bk) params.set("bucket", bk);
       const qs = params.toString();
@@ -144,10 +136,9 @@ export default function CatalogSearchClient({
   );
 
   const runSearch = useCallback(
-    async (searchQuery: string, searchMode?: SearchMode, opts?: { append?: boolean; searchOffset?: number; overrideLimit?: number }) => {
+    async (searchQuery: string, opts?: { append?: boolean; searchOffset?: number; overrideLimit?: number }) => {
       // Allow empty query when a dataset or bucket filter is set (browse mode)
       if (!searchQuery.trim() && !datasetFilter && !bucketFilter) return;
-      const m = searchMode ?? mode;
       const browsing = !searchQuery.trim();
       const pageSize = opts?.overrideLimit ?? (browsing ? BROWSE_PAGE_SIZE : SEARCH_PAGE_SIZE);
       const requestOffset = opts?.searchOffset ?? 0;
@@ -170,9 +161,8 @@ export default function CatalogSearchClient({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             query: searchQuery,
-            mode: m,
-            dataset_id: m === "catalog" || m === "both" ? datasetFilter || undefined : undefined,
-            s3_bucket: m === "full_corpus" || m === "both" ? bucketFilter || undefined : undefined,
+            dataset_id: datasetFilter || undefined,
+            s3_bucket: bucketFilter || undefined,
             subcategory: subcategoryFilter || undefined,
             limit: pageSize,
             offset: requestOffset,
@@ -185,7 +175,7 @@ export default function CatalogSearchClient({
         }
 
         const data = await res.json();
-        const newResults: UnifiedResult[] = data.results ?? [];
+        const newResults: ClipResult[] = data.results ?? [];
 
         if (browsing) {
           // Browse mode: replace results, track total
@@ -217,7 +207,7 @@ export default function CatalogSearchClient({
         setLoadingMore(false);
       }
     },
-    [mode, datasetFilter, bucketFilter, subcategoryFilter],
+    [datasetFilter, bucketFilter, subcategoryFilter],
   );
 
   // Auto-run search from URL params on mount
@@ -232,22 +222,15 @@ export default function CatalogSearchClient({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setOffset(0);
-    updateUrl(query, mode, datasetFilter, bucketFilter);
+    updateUrl(query, datasetFilter, bucketFilter);
     runSearch(query);
   };
 
   const handleExampleClick = (example: string) => {
     setQuery(example);
     setOffset(0);
-    updateUrl(example, mode, datasetFilter, bucketFilter);
+    updateUrl(example, datasetFilter, bucketFilter);
     runSearch(example);
-  };
-
-  const handleModeChange = (newMode: SearchMode) => {
-    setMode(newMode);
-    setOffset(0);
-    updateUrl(query, newMode, datasetFilter, bucketFilter);
-    if (query.trim() || datasetFilter || bucketFilter) runSearch(query, newMode);
   };
 
   // Load more (search mode) — request total needed count since semantic
@@ -255,7 +238,7 @@ export default function CatalogSearchClient({
   const handleLoadMore = () => {
     if (!results || loadingMore) return;
     const totalNeeded = results.length + SEARCH_PAGE_SIZE;
-    runSearch(query, mode, { append: true, searchOffset: 0, overrideLimit: totalNeeded });
+    runSearch(query, { append: true, searchOffset: 0, overrideLimit: totalNeeded });
   };
 
   // Browse pagination
@@ -264,7 +247,7 @@ export default function CatalogSearchClient({
       ? offset + BROWSE_PAGE_SIZE
       : Math.max(0, offset - BROWSE_PAGE_SIZE);
     setOffset(newOffset);
-    runSearch(query, mode, { searchOffset: newOffset });
+    runSearch(query, { searchOffset: newOffset });
   };
 
   // Reset offset when filters change
@@ -312,29 +295,6 @@ export default function CatalogSearchClient({
       </header>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {/* Mode toggle */}
-        <div className="flex flex-wrap items-center gap-1 mb-4">
-          {(["catalog", "full_corpus", "both"] as const).map((m) => (
-            <button
-              key={m}
-              onClick={() => handleModeChange(m)}
-              disabled={m !== "catalog" && fullCorpusDisabled}
-              className={`px-3 py-2 sm:py-1.5 text-xs font-mono rounded-md border transition-colors ${
-                mode === m
-                  ? "bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] border-[var(--accent-primary)]/30"
-                  : "bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-subtle)] hover:text-[var(--text-secondary)] hover:border-[var(--text-muted)]"
-              } ${m !== "catalog" && fullCorpusDisabled ? "opacity-40 cursor-not-allowed" : ""}`}
-            >
-              {m === "catalog" ? "Catalog Samples" : m === "full_corpus" ? "Full Corpus" : "Both"}
-            </button>
-          ))}
-          {fullCorpusDisabled && (
-            <span className="text-[10px] font-mono text-[var(--text-muted)] ml-2">
-              (video_index empty)
-            </span>
-          )}
-        </div>
-
         {/* Search form */}
         <form onSubmit={handleSubmit} className="space-y-3">
           {/* Search input + submit button */}
@@ -345,7 +305,7 @@ export default function CatalogSearchClient({
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={mode === "full_corpus" ? "Search full video corpus..." : "Semantic search across samples..."}
+                placeholder="Search across all clips..."
                 className="w-full pl-10 pr-4 py-3 sm:py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150"
               />
             </div>
@@ -363,21 +323,19 @@ export default function CatalogSearchClient({
           </div>
           {/* Filters row — wraps on mobile */}
           <div className="flex flex-wrap gap-2 sm:gap-3">
-            {/* Dataset filter (catalog/both mode) */}
-            {(mode === "catalog" || mode === "both") && (
-              <select
-                value={datasetFilter}
-                onChange={(e) => setDatasetFilter(e.target.value)}
-                className="flex-1 min-w-0 sm:flex-none sm:min-w-[180px] px-3 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150"
-              >
-                <option value="">all datasets</option>
-                {datasets.map((ds) => (
-                  <option key={ds.id} value={ds.id}>
-                    {ds.name}
-                  </option>
-                ))}
-              </select>
-            )}
+            {/* Dataset filter */}
+            <select
+              value={datasetFilter}
+              onChange={(e) => setDatasetFilter(e.target.value)}
+              className="flex-1 min-w-0 sm:flex-none sm:min-w-[180px] px-3 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150"
+            >
+              <option value="">all datasets</option>
+              {datasets.map((ds) => (
+                <option key={ds.id} value={ds.id}>
+                  {ds.name}
+                </option>
+              ))}
+            </select>
             {/* Subcategory filter (level 2 — appears when a dataset is selected) */}
             {datasetFilter && subcategories.length > 0 && (
               <select
@@ -393,16 +351,19 @@ export default function CatalogSearchClient({
                 ))}
               </select>
             )}
-            {/* Bucket filter (full_corpus/both mode, no dataset selected) */}
-            {(mode === "full_corpus" || mode === "both") && !datasetFilter && (
-              <input
-                type="text"
-                value={bucketFilter}
-                onChange={(e) => setBucketFilter(e.target.value)}
-                placeholder="s3 bucket filter..."
-                className="flex-1 min-w-0 sm:flex-none sm:w-48 px-3 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150"
-              />
-            )}
+            {/* Bucket filter */}
+            <select
+              value={bucketFilter}
+              onChange={(e) => setBucketFilter(e.target.value)}
+              className="flex-1 min-w-0 sm:flex-none sm:min-w-[180px] px-3 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150"
+            >
+              <option value="">all buckets</option>
+              {buckets.map((bk) => (
+                <option key={bk} value={bk}>
+                  {bk}
+                </option>
+              ))}
+            </select>
           </div>
         </form>
 
@@ -569,19 +530,21 @@ function ResultCard({
   onToggleSelect,
   onOpen,
 }: {
-  result: UnifiedResult;
+  result: ClipResult;
   isSelected: boolean;
   onToggleSelect: (id: string) => void;
   onOpen: () => void;
 }) {
   const similarityPct = Math.round(result.similarity * 100);
-  const isFC = result.source === "full_corpus";
-  const isVideo = isFC
-    ? result.s3_key?.match(/\.(mp4|webm|mov)$/i)
-    : result.mime_type?.startsWith("video/");
-  const [copied, setCopied] = useState<"id" | "url" | "portal" | null>(null);
+  const isVideo = result.mime_type?.startsWith("video/") || result.s3_key?.match(/\.(mp4|webm|mov)$/i);
+  const description = result.ai_caption || result.caption_text;
+  const agentCtx = result.ai_agent_context as Record<string, unknown> | null;
+  const environments = Array.isArray(agentCtx?.environments) ? (agentCtx.environments as string[]) : [];
+  const activities = Array.isArray(agentCtx?.activities) ? (agentCtx.activities as string[]) : [];
+  const objects = Array.isArray(agentCtx?.objects) ? (agentCtx.objects as string[]) : [];
+  const [copied, setCopied] = useState<"id" | "url" | null>(null);
 
-  const copyToClipboard = useCallback(async (text: string, type: "id" | "url" | "portal") => {
+  const copyToClipboard = useCallback(async (text: string, type: "id" | "url") => {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(type);
@@ -632,7 +595,7 @@ function ResultCard({
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={result.signed_url}
-              alt={result.description ?? "Sample"}
+              alt={description ?? "Sample"}
               className="w-full h-full object-cover"
             />
           )
@@ -650,36 +613,25 @@ function ResultCard({
       {/* Content */}
       <div className="p-3 space-y-2">
         <div className="flex items-center justify-between gap-2">
-          {isFC ? (
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="flex-shrink-0 px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30 uppercase tracking-wider">
-                full corpus
-              </span>
-              <span className="text-[10px] font-mono text-[var(--text-muted)] truncate">
-                {result.s3_bucket}
-              </span>
-            </div>
-          ) : (
-            <span className="text-xs font-mono text-[var(--text-muted)] truncate">
-              {result.dataset_name}
-            </span>
-          )}
+          <span className="text-[10px] font-mono text-[var(--text-muted)] truncate">
+            {result.s3_bucket}
+          </span>
         </div>
 
-        {result.description ? (
+        {description ? (
           <p className="text-sm text-[var(--text-secondary)] line-clamp-2">
-            {result.description}
+            {description}
           </p>
         ) : (
           <p className="text-sm text-[var(--text-muted)] italic">
-            {isFC ? "No caption" : "Not yet enriched"}
+            No caption
           </p>
         )}
 
-        {/* Tags — catalog only */}
-        {!isFC && ((result.environments?.length ?? 0) > 0 || (result.activities?.length ?? 0) > 0) && (
+        {/* Tags from ai_agent_context */}
+        {(environments.length > 0 || activities.length > 0 || objects.length > 0) && (
           <div className="flex flex-wrap gap-1">
-            {(result.environments ?? []).slice(0, 2).map((env) => (
+            {environments.slice(0, 2).map((env) => (
               <span
                 key={env}
                 className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]"
@@ -687,7 +639,7 @@ function ResultCard({
                 {env}
               </span>
             ))}
-            {(result.activities ?? []).slice(0, 2).map((act) => (
+            {activities.slice(0, 2).map((act) => (
               <span
                 key={act}
                 className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-blue-500/10 text-blue-400"
@@ -695,14 +647,22 @@ function ResultCard({
                 {act}
               </span>
             ))}
+            {objects.slice(0, 2).map((obj) => (
+              <span
+                key={obj}
+                className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-amber-500/10 text-amber-400"
+              >
+                {obj}
+              </span>
+            ))}
           </div>
         )}
 
-        {/* Full corpus: enrichment_source tag */}
-        {isFC && result.enrichment_source && (
+        {/* Enrichment source tag */}
+        {result.ai_enrichment_source && (
           <div className="flex flex-wrap gap-1">
             <span className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-purple-500/10 text-purple-400">
-              {result.enrichment_source}
+              {result.ai_enrichment_source}
             </span>
           </div>
         )}
@@ -747,23 +707,9 @@ function ResultCard({
               open
             </a>
           )}
-          {!isFC && result.dataset_id && (
-            <button
-              onClick={() => copyToClipboard(
-                `${window.location.origin}/portal/catalog/${result.dataset_id}?sample=${result.id}`,
-                "portal"
-              )}
-              className="flex items-center gap-1 min-h-[44px] sm:min-h-0 px-1.5 py-1 text-[11px] sm:text-[10px] font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] active:text-[var(--accent-primary)] transition-colors"
-              title="Copy portal link for lead"
-            >
-              {copied === "portal" ? <Check className="w-3.5 h-3.5 sm:w-2.5 sm:h-2.5 flex-shrink-0" /> : <Link2 className="w-3.5 h-3.5 sm:w-2.5 sm:h-2.5 flex-shrink-0" />}
-              {copied === "portal" ? "copied" : "lead link"}
-            </button>
-          )}
           <div className="ml-auto">
             <AddToLeadButton
-              videoIndexId={isFC ? result.id : undefined}
-              datasetSampleId={!isFC ? result.id : undefined}
+              clipId={result.id}
               compact
             />
           </div>
@@ -788,18 +734,26 @@ interface DatasetOption {
   name: string;
 }
 
-type BulkMode = "add_to_lead" | "create_catalog" | "add_to_catalog";
+type BulkMode = "add_to_dataset" | "create_dataset";
 
+/**
+ * Floating bulk action bar -- simplified for Unified Clip Architecture (US-010).
+ *
+ * Two tabs only:
+ *   "Add to Dataset"     -- pick existing dataset + optional lead, inserts dataset_clips rows
+ *   "Create New Dataset" -- name + lead, creates dataset then inserts dataset_clips rows
+ *
+ * All selected IDs are clip IDs from the clips table. No data copying.
+ */
 function BulkActionBar({
   selectedIds,
-  results,
   onClear,
 }: {
   selectedIds: Set<string>;
-  results: UnifiedResult[];
+  results: ClipResult[];
   onClear: () => void;
 }) {
-  const [bulkMode, setBulkMode] = useState<BulkMode>("add_to_lead");
+  const [bulkMode, setBulkMode] = useState<BulkMode>("add_to_dataset");
   const [leads, setLeads] = useState<LeadOption[]>([]);
   const [leadsLoading, setLeadsLoading] = useState(false);
   const [selectedLead, setSelectedLead] = useState<LeadOption | null>(null);
@@ -859,99 +813,17 @@ function BulkActionBar({
       l.company.toLowerCase().includes(leadSearch.toLowerCase()),
   );
 
-  const handleConfirm = async () => {
-    if (!selectedLead) return;
-    setSubmitting(true);
-    setError(null);
-
-    try {
-      const items = Array.from(selectedIds).map((id) => {
-        const r = results.find((res) => res.id === id);
-        if (r?.source === "full_corpus") return { video_index_id: id };
-        return { dataset_sample_id: id };
-      });
-
-      const res = await fetch(
-        `/api/admin/leads/${selectedLead.id}/custom-samples/bulk`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ items, note: note || undefined }),
-        },
-      );
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Bulk add failed");
-      }
-
-      const { inserted } = await res.json();
-      setToast(`${inserted} sample${inserted !== 1 ? "s" : ""} added to ${selectedLead.name}`);
-      onClear();
-      setSelectedLead(null);
-      setNote("");
-      setTimeout(() => setToast(null), 4000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Bulk add failed");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleCreateCatalog = async () => {
-    if (!selectedLead || !catalogName.trim()) return;
-    setSubmitting(true);
-    setError(null);
-
-    try {
-      const items = Array.from(selectedIds).map((id) => {
-        const r = results.find((res) => res.id === id);
-        if (r?.source === "full_corpus") return { video_index_id: id };
-        return { dataset_sample_id: id };
-      });
-
-      const res = await fetch("/api/admin/catalog/custom", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: catalogName.trim(),
-          lead_id: selectedLead.id,
-          items,
-          note: note || undefined,
-        }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to create catalog");
-      }
-
-      const data = await res.json();
-      const fullUrl = `${window.location.origin}${data.portal_url}`;
-      setPortalLink(fullUrl);
-      setToast(`Created "${data.dataset.name}" with ${data.samples_added} samples`);
-      onClear();
-      setSelectedLead(null);
-      setCatalogName("");
-      setNote("");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create catalog");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleAddToCatalog = async () => {
+  /**
+   * Add clips to an existing dataset via dataset_clips inserts.
+   * Uses POST /api/admin/catalog/custom with dataset_id + clip_ids.
+   */
+  const handleAddToDataset = async () => {
     if (!selectedCatalog || !selectedLead) return;
     setSubmitting(true);
     setError(null);
 
     try {
-      const items = Array.from(selectedIds).map((id) => {
-        const r = results.find((res) => res.id === id);
-        if (r?.source === "full_corpus") return { video_index_id: id };
-        return { dataset_sample_id: id };
-      });
+      const clip_ids = Array.from(selectedIds);
 
       const res = await fetch("/api/admin/catalog/custom", {
         method: "POST",
@@ -960,24 +832,68 @@ function BulkActionBar({
           name: selectedCatalog.name,
           lead_id: selectedLead.id,
           dataset_id: selectedCatalog.id,
-          items,
+          clip_ids,
           note: note || undefined,
         }),
       });
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Failed to add to catalog");
+        throw new Error(data.error || "Failed to add to dataset");
       }
 
       const data = await res.json();
-      setToast(`Added ${data.samples_added} clips to "${selectedCatalog.name}"`);
+      setToast(`Added ${data.clips_added ?? data.samples_added} clips to "${selectedCatalog.name}"`);
       onClear();
       setSelectedLead(null);
       setSelectedCatalog(null);
       setNote("");
+      setTimeout(() => setToast(null), 4000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to add to catalog");
+      setError(err instanceof Error ? err.message : "Failed to add to dataset");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  /**
+   * Create a new dataset and add clips via dataset_clips inserts.
+   * Uses POST /api/admin/catalog/custom without dataset_id.
+   */
+  const handleCreateDataset = async () => {
+    if (!selectedLead || !catalogName.trim()) return;
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const clip_ids = Array.from(selectedIds);
+
+      const res = await fetch("/api/admin/catalog/custom", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: catalogName.trim(),
+          lead_id: selectedLead.id,
+          clip_ids,
+          note: note || undefined,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to create dataset");
+      }
+
+      const data = await res.json();
+      const fullUrl = `${window.location.origin}${data.portal_url}`;
+      setPortalLink(fullUrl);
+      setToast(`Created "${data.dataset.name}" with ${data.clips_added ?? data.samples_added} clips`);
+      onClear();
+      setSelectedLead(null);
+      setCatalogName("");
+      setNote("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create dataset");
     } finally {
       setSubmitting(false);
     }
@@ -1014,43 +930,31 @@ function BulkActionBar({
   return (
     <div className="fixed bottom-0 sm:bottom-6 left-0 sm:left-1/2 sm:-translate-x-1/2 z-50 w-full sm:max-w-4xl sm:px-4">
       <div className="rounded-t-xl sm:rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-2xl">
-        {/* Mode toggle tabs */}
+        {/* Mode toggle tabs -- two tabs: Add to Dataset / Create New Dataset */}
         <div className="flex border-b border-[var(--border-subtle)] overflow-x-auto">
           <button
-            onClick={() => setBulkMode("add_to_lead")}
+            onClick={() => setBulkMode("add_to_dataset")}
             className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 text-xs font-mono transition-colors whitespace-nowrap flex-1 sm:flex-none justify-center sm:justify-start ${
-              bulkMode === "add_to_lead"
+              bulkMode === "add_to_dataset"
                 ? "text-[var(--accent-primary)] border-b-2 border-[var(--accent-primary)]"
                 : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
             }`}
           >
-            <UserPlus className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
-            <span className="hidden sm:inline">Add to Existing</span>
-            <span className="sm:hidden">Existing</span>
+            <FolderPlus className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
+            <span className="hidden sm:inline">Add to Dataset</span>
+            <span className="sm:hidden">Add</span>
           </button>
           <button
-            onClick={() => setBulkMode("create_catalog")}
+            onClick={() => setBulkMode("create_dataset")}
             className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 text-xs font-mono transition-colors whitespace-nowrap flex-1 sm:flex-none justify-center sm:justify-start ${
-              bulkMode === "create_catalog"
+              bulkMode === "create_dataset"
                 ? "text-purple-400 border-b-2 border-purple-400"
                 : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
             }`}
           >
             <FolderPlus className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
-            <span className="hidden sm:inline">Create New</span>
+            <span className="hidden sm:inline">Create New Dataset</span>
             <span className="sm:hidden">New</span>
-          </button>
-          <button
-            onClick={() => setBulkMode("add_to_catalog")}
-            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 text-xs font-mono transition-colors whitespace-nowrap flex-1 sm:flex-none justify-center sm:justify-start ${
-              bulkMode === "add_to_catalog"
-                ? "text-blue-400 border-b-2 border-blue-400"
-                : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
-            }`}
-          >
-            <FolderPlus className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
-            <span className="hidden sm:inline">Add to Catalog</span>
-            <span className="sm:hidden">Catalog</span>
           </button>
         </div>
 
@@ -1070,8 +974,8 @@ function BulkActionBar({
             <span className="hidden sm:inline text-[var(--text-muted)]">—</span>
           </div>
 
-          {/* Catalog picker (add_to_catalog mode) */}
-          {bulkMode === "add_to_catalog" && (
+          {/* Dataset picker (add_to_dataset mode) */}
+          {bulkMode === "add_to_dataset" && (
             <div className="relative" ref={catalogDropdownRef}>
               <button
                 onClick={() => setCatalogDropdownOpen(!catalogDropdownOpen)}
@@ -1081,7 +985,7 @@ function BulkActionBar({
                 {selectedCatalog ? (
                   <span className="truncate">{selectedCatalog.name}</span>
                 ) : (
-                  <span className="text-[var(--text-muted)]">Select catalog...</span>
+                  <span className="text-[var(--text-muted)]">Select dataset...</span>
                 )}
                 <ChevronDown className="w-3 h-3 ml-auto flex-shrink-0" />
               </button>
@@ -1093,7 +997,7 @@ function BulkActionBar({
                       type="text"
                       value={catalogSearch}
                       onChange={(e) => setCatalogSearch(e.target.value)}
-                      placeholder="Search catalogs..."
+                      placeholder="Search datasets..."
                       autoFocus
                       className="w-full px-2 py-2 sm:py-1.5 text-xs font-mono bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-400"
                     />
@@ -1105,7 +1009,7 @@ function BulkActionBar({
                       </div>
                     ) : filteredCatalogs.length === 0 ? (
                       <div className="p-3 text-xs font-mono text-[var(--text-muted)] text-center">
-                        No matching catalogs
+                        No matching datasets
                       </div>
                     ) : (
                       filteredCatalogs.map((cat) => (
@@ -1127,13 +1031,13 @@ function BulkActionBar({
             </div>
           )}
 
-          {/* Catalog name input (create mode only) */}
-          {bulkMode === "create_catalog" && (
+          {/* Dataset name input (create mode only) */}
+          {bulkMode === "create_dataset" && (
             <input
               type="text"
               value={catalogName}
               onChange={(e) => setCatalogName(e.target.value)}
-              placeholder="Catalog name..."
+              placeholder="Dataset name..."
               className="w-full sm:w-48 flex-shrink-0 px-2 py-2.5 sm:py-1.5 text-xs font-mono bg-[var(--bg-primary)] border border-purple-500/30 rounded-md text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-purple-400"
             />
           )}
@@ -1207,34 +1111,28 @@ function BulkActionBar({
           <div className="flex items-center gap-2">
           <button
             onClick={
-              bulkMode === "create_catalog"
-                ? handleCreateCatalog
-                : bulkMode === "add_to_catalog"
-                  ? handleAddToCatalog
-                  : handleConfirm
+              bulkMode === "create_dataset"
+                ? handleCreateDataset
+                : handleAddToDataset
             }
             disabled={
               !selectedLead ||
               submitting ||
-              (bulkMode === "create_catalog" && !catalogName.trim()) ||
-              (bulkMode === "add_to_catalog" && !selectedCatalog)
+              (bulkMode === "create_dataset" && !catalogName.trim()) ||
+              (bulkMode === "add_to_dataset" && !selectedCatalog)
             }
             className={`flex-1 sm:flex-none px-4 py-2.5 sm:py-1.5 text-xs font-mono rounded-md hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity whitespace-nowrap ${
-              bulkMode === "create_catalog"
+              bulkMode === "create_dataset"
                 ? "bg-purple-500 text-white"
-                : bulkMode === "add_to_catalog"
-                  ? "bg-blue-500 text-white"
-                  : "bg-[var(--accent-primary)] text-[var(--bg-primary)]"
+                : "bg-[var(--accent-primary)] text-[var(--bg-primary)]"
             }`}
           >
             {submitting ? (
               <Loader2 className="w-3 h-3 animate-spin mx-auto" />
-            ) : bulkMode === "create_catalog" ? (
-              "Create Catalog"
-            ) : bulkMode === "add_to_catalog" ? (
-              "Add to Catalog"
+            ) : bulkMode === "create_dataset" ? (
+              "Create Dataset"
             ) : (
-              "Confirm"
+              "Add to Dataset"
             )}
           </button>
 
@@ -1271,16 +1169,13 @@ function ResultDetailModal({
   hasPrev,
   hasNext,
 }: {
-  result: UnifiedResult;
+  result: ClipResult;
   onClose: () => void;
   onNavigate: (dir: "prev" | "next") => void;
   hasPrev: boolean;
   hasNext: boolean;
 }) {
-  const isFC = result.source === "full_corpus";
-  const isVideo = isFC
-    ? result.s3_key?.match(/\.(mp4|webm|mov)$/i)
-    : result.mime_type?.startsWith("video/");
+  const isVideo = result.mime_type?.startsWith("video/") || result.s3_key?.match(/\.(mp4|webm|mov)$/i);
   const similarityPct = Math.round(result.similarity * 100);
 
   useEffect(() => {
@@ -1297,18 +1192,36 @@ function ResultDetailModal({
     };
   }, [onClose, onNavigate, hasPrev, hasNext]);
 
+  const descriptionText = result.ai_caption || result.caption_text;
   const fields: Array<{ key: string; value: string | string[] }> = [];
-  if (result.description) fields.push({ key: "description", value: result.description });
-  if (result.dataset_name) fields.push({ key: "dataset", value: result.dataset_name });
-  if (isFC && result.s3_bucket) fields.push({ key: "bucket", value: result.s3_bucket });
-  if (isFC && result.enrichment_source) fields.push({ key: "source", value: result.enrichment_source });
-  if (result.environments && result.environments.length > 0) fields.push({ key: "environments", value: result.environments });
-  if (result.activities && result.activities.length > 0) fields.push({ key: "activities", value: result.activities });
-  if (result.objects && result.objects.length > 0) fields.push({ key: "objects", value: result.objects });
-  if (result.camera_perspective) fields.push({ key: "camera", value: result.camera_perspective });
+  if (descriptionText) fields.push({ key: "description", value: descriptionText });
+  if (result.ai_caption && result.caption_text && result.ai_caption !== result.caption_text) {
+    fields.push({ key: "caption_text", value: result.caption_text });
+  }
+  fields.push({ key: "bucket", value: result.s3_bucket });
+  fields.push({ key: "s3_key", value: result.s3_key });
+  if (result.ai_enrichment_source) fields.push({ key: "enrichment_source", value: result.ai_enrichment_source });
+  // Extract structured fields from ai_agent_context if available
+  const ctx = result.ai_agent_context as Record<string, unknown> | null;
+  if (ctx) {
+    const envs = ctx.environments as string[] | undefined;
+    const acts = ctx.activities as string[] | undefined;
+    const objs = ctx.objects as string[] | undefined;
+    const cam = ctx.camera_perspective as string | undefined;
+    if (envs && envs.length > 0) fields.push({ key: "environments", value: envs });
+    if (acts && acts.length > 0) fields.push({ key: "activities", value: acts });
+    if (objs && objs.length > 0) fields.push({ key: "objects", value: objs });
+    if (cam) fields.push({ key: "camera", value: cam });
+  }
+  if (result.mime_type) fields.push({ key: "mime_type", value: result.mime_type });
+  if (result.tech_resolution_width && result.tech_resolution_height) {
+    fields.push({ key: "resolution", value: `${result.tech_resolution_width}x${result.tech_resolution_height}` });
+  }
+  if (result.tech_fps) fields.push({ key: "fps", value: `${result.tech_fps}` });
+  if (result.tech_duration_seconds) fields.push({ key: "duration", value: `${result.tech_duration_seconds}s` });
+  if (result.tech_codec) fields.push({ key: "codec", value: result.tech_codec });
   fields.push({ key: "similarity", value: `${similarityPct}%` });
   fields.push({ key: "id", value: result.id });
-  if (isFC && result.s3_key) fields.push({ key: "s3_key", value: result.s3_key });
 
   return (
     <div
@@ -1354,9 +1267,6 @@ function ResultDetailModal({
         <div className="lg:w-[40%] flex flex-col min-h-0 flex-1 border-t lg:border-t-0 lg:border-l border-[var(--border-subtle)]">
           <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]/50 flex-shrink-0">
             <span className="font-mono text-xs text-[var(--accent-primary)] tracking-wider">{"// DETAILS"}</span>
-            {isFC && (
-              <span className="px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30 uppercase">full corpus</span>
-            )}
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -1397,9 +1307,7 @@ function ResultDetailModal({
             </div>
             {/* Desktop keyboard hints */}
             <span className="hidden sm:inline font-mono text-[10px] text-[var(--text-muted)]">esc close &middot; &larr;&rarr; navigate</span>
-            {!isFC && result.dataset_id && (
-              <CopyPortalLinkButton datasetId={result.dataset_id} sampleId={result.id} />
-            )}
+            {/* Portal link removed -- clips are unified and not scoped to a single dataset */}
           </div>
         </div>
       </div>
@@ -1407,29 +1315,4 @@ function ResultDetailModal({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Copy Portal Link Button (reusable for modal footer)
-// ---------------------------------------------------------------------------
-
-function CopyPortalLinkButton({ datasetId, sampleId }: { datasetId: string; sampleId: string }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = async () => {
-    const url = `${window.location.origin}/portal/catalog/${datasetId}?sample=${sampleId}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch { /* clipboard unavailable */ }
-  };
-
-  return (
-    <button
-      onClick={handleCopy}
-      className="flex items-center gap-1.5 px-3 py-2 sm:px-2 sm:py-1 text-[11px] sm:text-[10px] font-mono rounded bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/20 active:bg-[var(--accent-primary)]/30 transition-colors"
-    >
-      {copied ? <Check className="w-3.5 h-3.5 sm:w-3 sm:h-3" /> : <Link2 className="w-3.5 h-3.5 sm:w-3 sm:h-3" />}
-      {copied ? "copied!" : "copy lead link"}
-    </button>
-  );
-}
+// CopyPortalLinkButton removed in US-010 -- clips are unified, not scoped to a single dataset.

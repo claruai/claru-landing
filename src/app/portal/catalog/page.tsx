@@ -180,17 +180,11 @@ async function getCatalogData() {
     }
   }
 
-  // Fetch curated custom samples (skip for admin preview)
-  const { data: customSamples } = isAdminPreview
-    ? { data: null }
-    : await adminClient
-        .from("lead_custom_samples")
-        .select("id, video_index_id, dataset_sample_id, s3_bucket, s3_key, note, added_at")
-        .eq("lead_id", leadId)
-        .order("added_at", { ascending: false })
-        .limit(20);
-
-  // Enrich with video_index details and signed URLs
+  // -------------------------------------------------------------------------
+  // Fetch curated clips (skip for admin preview)
+  // Unified clip architecture: query dataset_clips WHERE lead_id = current lead
+  // and enrich from the clips table instead of video_index.
+  // -------------------------------------------------------------------------
   interface CuratedSample {
     id: string;
     caption_text: string | null;
@@ -203,36 +197,43 @@ async function getCatalogData() {
 
   const curatedSamples: CuratedSample[] = [];
 
-  for (const cs of customSamples ?? []) {
-    let caption_text: string | null = null;
-    let dataset_id: string | null = null;
+  if (!isAdminPreview) {
+    const { data: curatedClipRows } = await adminClient
+      .from("dataset_clips")
+      .select("id, dataset_id, clip_id, note, created_at, clips(s3_bucket, s3_key, ai_caption)")
+      .eq("lead_id", leadId)
+      .order("created_at", { ascending: false })
+      .limit(20);
 
-    if (cs.video_index_id) {
-      const { data: vi } = await adminClient
-        .from("video_index")
-        .select("caption_text, dataset_id, s3_bucket, s3_key")
-        .eq("id", cs.video_index_id)
-        .single();
-      if (vi) {
-        caption_text = vi.caption_text;
-        dataset_id = vi.dataset_id;
+    for (const row of curatedClipRows ?? []) {
+      const clip = row.clips as unknown as {
+        s3_bucket: string | null;
+        s3_key: string | null;
+        ai_caption: string | null;
+      } | null;
+
+      const s3_bucket = clip?.s3_bucket ?? null;
+      const s3_key = clip?.s3_key ?? null;
+
+      let signed_url: string | null = null;
+      if (s3_key) {
+        signed_url = await getS3SignedUrl(
+          s3_key,
+          3600,
+          s3_bucket && s3_bucket !== "moonvalley-annotation-platform" ? s3_bucket : undefined
+        );
       }
-    }
 
-    let signed_url: string | null = null;
-    if (cs.s3_key) {
-      signed_url = await getS3SignedUrl(cs.s3_key, 3600, cs.s3_bucket || undefined);
+      curatedSamples.push({
+        id: row.id,
+        caption_text: clip?.ai_caption ?? null,
+        s3_bucket,
+        s3_key,
+        dataset_id: row.dataset_id,
+        note: row.note ?? null,
+        signed_url,
+      });
     }
-
-    curatedSamples.push({
-      id: cs.id,
-      caption_text,
-      s3_bucket: cs.s3_bucket,
-      s3_key: cs.s3_key,
-      dataset_id,
-      note: cs.note,
-      signed_url,
-    });
   }
 
   return { datasets, categories, otherDatasets, curatedSamples, isAdminPreview };
