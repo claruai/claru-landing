@@ -42,3 +42,20 @@ Goal: Unknown
 **Learnings:**
 - Expression-based unique index works correctly with COALESCE for nullable columns
 
+## 2026-03-23 - US-003: Create match_clips RPC on staging
+
+**What I did:**
+- Created `match_clips` RPC function (SECURITY DEFINER, search_path = public, extensions)
+- Returns 15 fields from clips table + computed similarity
+- LEFT JOINs dataset_clips only when filter_dataset_id is provided
+- GROUP BY c.id to deduplicate when joining
+- Sets hnsw.ef_search = 100 for quality
+- Verified with zero-vector test query (0 rows, no errors)
+
+**Files changed:**
+- supabase/migrations/011_create_match_clips_rpc.sql (new)
+
+**Learnings:**
+- Casting `::vector(768)` must wrap the full concatenated string, not just the suffix
+- LEFT JOIN + conditional WHERE is the pattern for optional dataset filtering
+
