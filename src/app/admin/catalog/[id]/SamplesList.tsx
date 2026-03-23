@@ -13,7 +13,7 @@ import {
   List,
   LayoutGrid,
 } from "lucide-react";
-import type { DatasetSample } from "@/types/data-catalog";
+import type { Clip } from "@/types/data-catalog";
 import SampleEditPanel from "./SampleEditPanel";
 import BatchEditModal from "./BatchEditModal";
 import SamplesGrid from "./SamplesGrid";
@@ -23,13 +23,30 @@ import SamplePreviewModal from "./SamplePreviewModal";
 // Types
 // ---------------------------------------------------------------------------
 
+/**
+ * AdminClip: a Clip record enriched with dataset_clips join metadata.
+ * The API GET endpoint flattens these onto the clip object.
+ */
+export interface AdminClip extends Clip {
+  /** The dataset_clips row ID (not the clip ID). */
+  dataset_clip_id: string;
+  /** Non-null when the clip is assigned to a specific lead. */
+  lead_id: string | null;
+  /** Who added this clip to the dataset. */
+  added_by: string | null;
+  /** Optional note from dataset_clips. */
+  note: string | null;
+  /** Presigned media URL injected by the API. */
+  media_url?: string;
+}
+
 interface SamplesListProps {
   datasetId: string;
   refreshKey: number;
 }
 
 interface PaginatedResponse {
-  samples: DatasetSample[];
+  samples: AdminClip[];
   total: number;
   page: number;
   per_page: number;
@@ -44,7 +61,7 @@ const PER_PAGE = 50;
 // ---------------------------------------------------------------------------
 
 export default function SamplesList({ datasetId, refreshKey }: SamplesListProps) {
-  const [samples, setSamples] = useState<DatasetSample[]>([]);
+  const [samples, setSamples] = useState<AdminClip[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -56,7 +73,7 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   // Edit panel
-  const [editingSample, setEditingSample] = useState<DatasetSample | null>(null);
+  const [editingSample, setEditingSample] = useState<AdminClip | null>(null);
 
   // Batch edit modal
   const [showBatchEdit, setShowBatchEdit] = useState(false);
@@ -93,7 +110,7 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
         const res = await fetch(
           `/api/admin/catalog/${datasetId}/samples?page=${p}&per_page=${PER_PAGE}`
         );
-        if (!res.ok) throw new Error("Failed to fetch samples");
+        if (!res.ok) throw new Error("Failed to fetch clips");
         const data: PaginatedResponse = await res.json();
         setSamples(data.samples);
         setTotal(data.total);
@@ -102,7 +119,7 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
         setFormatIssueCounts(data.formatIssueCounts ?? {});
       } catch (err) {
         setSamples([]);
-        setError(err instanceof Error ? err.message : "Failed to load samples");
+        setError(err instanceof Error ? err.message : "Failed to load clips");
       } finally {
         setLoading(false);
       }
@@ -200,12 +217,12 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
   // -----------------------------------------------------------------------
 
   const truncate = (str: string | null | undefined, len: number) => {
-    if (!str) return "—";
-    return str.length > len ? str.slice(0, len) + "…" : str;
+    if (!str) return "\u2014";
+    return str.length > len ? str.slice(0, len) + "\u2026" : str;
   };
 
   const metadataPreview = (meta: Record<string, unknown> | null) => {
-    if (!meta) return "—";
+    if (!meta) return "\u2014";
     const entries = Object.entries(meta).slice(0, 2);
     if (entries.length === 0) return "{}";
     return entries.map(([k, v]) => `${k}: ${JSON.stringify(v)}`).join(", ");
@@ -236,7 +253,7 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
     return (
       <div className="text-center py-12">
         <p className="text-sm font-mono text-[var(--text-muted)]">
-          No samples yet. Add samples individually or import from CSV.
+          No clips yet. Add clips individually or import from CSV.
         </p>
       </div>
     );
@@ -251,7 +268,7 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
       {/* Header with count and view toggle */}
       <div className="flex items-center justify-between">
         <h4 className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider">
-          Samples ({total})
+          Clips ({total})
         </h4>
         <div className="flex items-center gap-2">
           {loading && <Loader2 className="w-4 h-4 animate-spin text-[var(--text-muted)]" />}
@@ -314,12 +331,12 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
               className="flex items-center gap-1 rounded-md border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-mono text-[var(--error)] hover:border-[var(--error)] transition-colors"
             >
               <Trash2 className="w-3 h-3" />
-              Delete Selected
+              Remove Selected
             </button>
           ) : (
             <div className="flex items-center gap-2">
               <span className="text-xs font-mono text-[var(--error)]">
-                Delete {selectedIds.size} samples?
+                Remove {selectedIds.size} clips from dataset?
               </span>
               <button
                 onClick={handleBatchDelete}
@@ -354,7 +371,7 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
                     className="rounded border-[var(--border-subtle)] bg-[var(--bg-secondary)] accent-[var(--accent-primary)]"
                   />
                 </th>
-                <th className="px-3 py-2 text-left text-[var(--text-muted)]">S3 Object Key</th>
+                <th className="px-3 py-2 text-left text-[var(--text-muted)]">S3 Key</th>
                 <th className="px-3 py-2 text-center text-[var(--text-muted)] w-12">Ann.</th>
                 <th className="px-3 py-2 text-center text-[var(--text-muted)] w-12">Specs</th>
                 <th className="px-3 py-2 text-left text-[var(--text-muted)]">Metadata</th>
@@ -385,7 +402,7 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
                     <td className="px-3 py-2 text-[var(--text-primary)] max-w-[300px]">
                       <div className="flex items-center gap-2">
                         <span className="truncate">
-                          {truncate(sample.s3_object_key ?? sample.filename, 60)}
+                          {truncate(sample.s3_key ?? sample.filename, 60)}
                         </span>
                         {sample.lead_id && (
                           <span className="inline-flex items-center shrink-0 px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-purple-500/20 text-purple-400 border border-purple-500/30">
@@ -395,21 +412,21 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
                       </div>
                     </td>
                     <td className="px-3 py-2 text-center">
-                      {sample.s3_annotation_key ? (
+                      {sample.ann_annotation_key ? (
                         <Check className="w-3 h-3 mx-auto text-[var(--accent-primary)]" />
                       ) : (
                         <Minus className="w-3 h-3 mx-auto text-[var(--text-muted)]" />
                       )}
                     </td>
                     <td className="px-3 py-2 text-center">
-                      {sample.s3_specs_key ? (
+                      {sample.ann_specs_key ? (
                         <Check className="w-3 h-3 mx-auto text-[var(--accent-primary)]" />
                       ) : (
                         <Minus className="w-3 h-3 mx-auto text-[var(--text-muted)]" />
                       )}
                     </td>
                     <td className="px-3 py-2 text-[var(--text-secondary)] max-w-[200px] truncate">
-                      {metadataPreview(sample.metadata_json)}
+                      {metadataPreview(sample.ann_metadata)}
                     </td>
                     <td className="px-3 py-2 text-center">
                       {issueCount > 0 ? (
@@ -418,7 +435,7 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
                           {issueCount}
                         </span>
                       ) : (
-                        <span className="text-[var(--text-muted)]">—</span>
+                        <span className="text-[var(--text-muted)]">{"\u2014"}</span>
                       )}
                     </td>
                     <td className="px-3 py-2 text-center" onClick={(e) => e.stopPropagation()}>

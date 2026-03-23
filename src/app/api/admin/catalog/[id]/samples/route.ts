@@ -8,7 +8,11 @@ import { getS3SignedUrl } from "@/lib/s3/presigner";
 /**
  * GET /api/admin/catalog/[id]/samples
  *
- * Lists all samples for a dataset, ordered by creation date.
+ * Lists all clips for a dataset via dataset_clips JOIN clips,
+ * ordered by creation date descending.
+ *
+ * Unified Clip Architecture (US-019): queries dataset_clips + clips
+ * instead of legacy dataset_samples.
  */
 export async function GET(
   request: NextRequest,
@@ -31,9 +35,13 @@ export async function GET(
   const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
   const perPage = Math.max(1, Math.min(200, parseInt(perPageParam ?? "50", 10) || 50));
 
+  // Query dataset_clips JOIN clips for this dataset
   let query = supabase
-    .from("dataset_samples")
-    .select("*", paginated ? { count: "exact" } : {})
+    .from("dataset_clips")
+    .select(
+      "id, dataset_id, clip_id, lead_id, added_by, note, created_at, clips(*)",
+      paginated ? { count: "exact" } : {}
+    )
     .eq("dataset_id", id)
     .order("created_at", { ascending: false });
 
@@ -43,25 +51,40 @@ export async function GET(
     query = query.range(from, to);
   }
 
-  const { data: samples, error, count } = await query;
+  const { data: datasetClips, error, count } = await query;
 
   if (error) {
     console.error("[GET /api/admin/catalog/[id]/samples]", error);
     return NextResponse.json(
-      { error: "Failed to fetch samples" },
+      { error: "Failed to fetch clips" },
       { status: 500 }
     );
   }
 
-  // Fetch format issue counts per sample for admin badge display
-  const sampleIds = (samples ?? []).map((s: { id: string }) => s.id);
+  // Flatten: merge clip data with dataset_clip metadata (lead_id, added_by, note)
+  const rows = (datasetClips ?? []) as Array<Record<string, unknown>>;
+  const samples: Array<Record<string, unknown>> = rows
+    .filter((dc) => dc.clips != null)
+    .map((dc) => {
+      const clip = dc.clips as Record<string, unknown>;
+      return {
+        ...clip,
+        dataset_clip_id: dc.id,
+        lead_id: dc.lead_id,
+        added_by: dc.added_by,
+        note: dc.note,
+      };
+    });
+
+  // Fetch format issue counts per clip for admin badge display
+  const clipIds = samples.map((s) => s.id as string);
   let formatIssueCounts: Record<string, number> = {};
 
-  if (sampleIds.length > 0) {
+  if (clipIds.length > 0) {
     const { data: issues } = await supabase
       .from("format_issues")
       .select("sample_id")
-      .in("sample_id", sampleIds);
+      .in("sample_id", clipIds);
 
     if (issues) {
       formatIssueCounts = issues.reduce<Record<string, number>>((acc, row: { sample_id: string }) => {
@@ -71,36 +94,21 @@ export async function GET(
     }
   }
 
-  // Fetch dataset's s3_bucket for multi-bucket support
-  const { data: datasetRow } = await supabase
-    .from("datasets")
-    .select("s3_bucket")
-    .eq("id", id)
-    .single();
-  const bucketOverride = datasetRow?.s3_bucket && datasetRow.s3_bucket !== "moonvalley-annotation-platform"
-    ? datasetRow.s3_bucket
-    : undefined;
-
-  // Presign URLs so admin thumbnails and video previews work
+  // Presign URLs using clip's own s3_bucket + s3_key
   const samplesWithUrls = await Promise.all(
-    (samples ?? []).map(async (sample: Record<string, unknown>) => {
-      // Priority 1: S3 object key
-      if (typeof sample.s3_object_key === "string" && sample.s3_object_key) {
-        const signedUrl = await getS3SignedUrl(sample.s3_object_key, 3600, bucketOverride);
+    samples.map(async (clip) => {
+      const s3Key = clip.s3_key as string | null;
+      const s3Bucket = clip.s3_bucket as string | null;
+      if (s3Key) {
+        const bucketOverride = s3Bucket && s3Bucket !== "moonvalley-annotation-platform"
+          ? s3Bucket
+          : undefined;
+        const signedUrl = await getS3SignedUrl(s3Key, 3600, bucketOverride);
         if (signedUrl) {
-          return { ...sample, media_url: signedUrl };
+          return { ...clip, media_url: signedUrl };
         }
       }
-      // Priority 2: Supabase Storage path
-      if (typeof sample.storage_path === "string" && sample.storage_path) {
-        const { data: storageData } = await supabase.storage
-          .from("dataset-samples")
-          .createSignedUrl(sample.storage_path, 3600);
-        if (storageData?.signedUrl) {
-          return { ...sample, media_url: storageData.signedUrl };
-        }
-      }
-      return sample;
+      return clip;
     })
   );
 
@@ -117,7 +125,7 @@ export async function GET(
     });
   }
 
-  // Backward compatible: return all samples without pagination metadata
+  // Backward compatible: return all clips without pagination metadata
   return NextResponse.json({
     samples: samplesWithUrls,
     formatIssueCounts,

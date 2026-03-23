@@ -325,7 +325,7 @@ export default function AdminCatalogTable({
                         ? "text-[var(--accent-primary)]"
                         : "text-[var(--text-muted)]"
                     }`}>
-                      ({sampleCounts[dataset.id] ?? 0} samples)
+                      ({sampleCounts[dataset.id] ?? 0} clips)
                     </span>
                   </td>
 

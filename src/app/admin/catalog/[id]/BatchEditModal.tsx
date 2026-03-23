@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { X, Loader2, AlertCircle } from "lucide-react";
-import type { DatasetSample } from "@/types/data-catalog";
+import type { AdminClip } from "./SamplesList";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 interface BatchEditModalProps {
-  selectedSamples: DatasetSample[];
+  selectedSamples: AdminClip[];
   datasetId: string;
   onSave: () => void;
   onClose: () => void;
@@ -22,6 +22,9 @@ interface FieldState {
 
 // ---------------------------------------------------------------------------
 // Component
+//
+// US-019: Updated to use clip-native field names (s3_key, ann_annotation_key,
+// ann_specs_key, ann_metadata, ai_enrichment_json).
 // ---------------------------------------------------------------------------
 
 export default function BatchEditModal({
@@ -31,11 +34,11 @@ export default function BatchEditModal({
   onClose,
 }: BatchEditModalProps) {
   const [fields, setFields] = useState<Record<string, FieldState>>({
-    s3_object_key: { enabled: false, value: "" },
-    s3_annotation_key: { enabled: false, value: "" },
-    s3_specs_key: { enabled: false, value: "" },
-    metadata_json: { enabled: false, value: "{}" },
-    media_url: { enabled: false, value: "" },
+    s3_key: { enabled: false, value: "" },
+    ann_annotation_key: { enabled: false, value: "" },
+    ann_specs_key: { enabled: false, value: "" },
+    ann_metadata: { enabled: false, value: "{}" },
+    ai_enrichment_json: { enabled: false, value: "{}" },
   });
 
   const [applying, setApplying] = useState(false);
@@ -78,12 +81,22 @@ export default function BatchEditModal({
   const handleApply = useCallback(async () => {
     setError(null);
 
-    // Validate metadata_json if enabled
-    if (fields.metadata_json.enabled) {
+    // Validate ann_metadata if enabled
+    if (fields.ann_metadata.enabled) {
       try {
-        JSON.parse(fields.metadata_json.value);
+        JSON.parse(fields.ann_metadata.value);
       } catch {
-        setError("Metadata JSON is invalid");
+        setError("Annotation Metadata JSON is invalid");
+        return;
+      }
+    }
+
+    // Validate ai_enrichment_json if enabled
+    if (fields.ai_enrichment_json.enabled) {
+      try {
+        JSON.parse(fields.ai_enrichment_json.value);
+      } catch {
+        setError("AI Enrichment JSON is invalid");
         return;
       }
     }
@@ -91,7 +104,7 @@ export default function BatchEditModal({
     const updates: Record<string, unknown> = {};
     for (const [key, field] of Object.entries(fields)) {
       if (field.enabled) {
-        updates[key] = key === "metadata_json" ? field.value : field.value;
+        updates[key] = field.value;
       }
     }
 
@@ -115,7 +128,7 @@ export default function BatchEditModal({
       const result = await res.json();
       if (result.errors && result.errors.length > 0) {
         const failedIds = result.errors.map((e: { id: string }) => e.id);
-        setError(`Failed for ${failedIds.length} sample(s): ${result.errors[0].message}`);
+        setError(`Failed for ${failedIds.length} clip(s): ${result.errors[0].message}`);
         return;
       }
 
@@ -135,11 +148,11 @@ export default function BatchEditModal({
     "w-full rounded-md bg-[var(--bg-secondary)] border border-[var(--border-subtle)] px-3 py-2 text-sm font-mono text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors disabled:opacity-40";
 
   const fieldDefs = [
-    { key: "s3_object_key", label: "S3 Object Key", type: "text" as const },
-    { key: "s3_annotation_key", label: "S3 Annotation Key", type: "text" as const },
-    { key: "s3_specs_key", label: "S3 Specs Key", type: "text" as const },
-    { key: "media_url", label: "Media URL", type: "text" as const },
-    { key: "metadata_json", label: "Metadata JSON", type: "textarea" as const },
+    { key: "s3_key", label: "S3 Key", type: "text" as const },
+    { key: "ann_annotation_key", label: "Annotation Key", type: "text" as const },
+    { key: "ann_specs_key", label: "Specs Key", type: "text" as const },
+    { key: "ann_metadata", label: "Annotation Metadata (JSON)", type: "textarea" as const },
+    { key: "ai_enrichment_json", label: "AI Enrichment JSON", type: "textarea" as const },
   ];
 
   // -----------------------------------------------------------------------
@@ -160,7 +173,7 @@ export default function BatchEditModal({
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-subtle)]">
             <h3 className="text-sm font-mono font-semibold text-[var(--text-primary)] uppercase tracking-wider">
-              Edit {selectedSamples.length} samples
+              Edit {selectedSamples.length} clips
             </h3>
             <button
               onClick={onClose}

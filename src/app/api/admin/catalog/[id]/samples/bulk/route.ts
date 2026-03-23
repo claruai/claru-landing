@@ -334,13 +334,15 @@ export async function PATCH(
     );
   }
 
+  // Clip-native allowed fields (US-019)
   const allowedFields = [
-    "s3_object_key",
-    "s3_annotation_key",
-    "s3_specs_key",
-    "metadata_json",
-    "enrichment_json",
-    "media_url",
+    "s3_key",
+    "ann_annotation_key",
+    "ann_specs_key",
+    "ann_metadata",
+    "ai_enrichment_json",
+    "ai_caption",
+    "ai_agent_context",
   ];
 
   const updates: Record<string, unknown> = {};
@@ -358,28 +360,28 @@ export async function PATCH(
     );
   }
 
-  // Validate metadata_json is valid JSON if provided
-  if ("metadata_json" in updates && updates.metadata_json != null) {
-    if (typeof updates.metadata_json === "string") {
+  // Validate ann_metadata is valid JSON if provided
+  if ("ann_metadata" in updates && updates.ann_metadata != null) {
+    if (typeof updates.ann_metadata === "string") {
       try {
-        JSON.parse(updates.metadata_json);
+        JSON.parse(updates.ann_metadata);
       } catch {
         return NextResponse.json(
-          { error: "metadata_json must be valid JSON" },
+          { error: "ann_metadata must be valid JSON" },
           { status: 400 }
         );
       }
     }
   }
 
-  // Validate enrichment_json is valid JSON if provided
-  if ("enrichment_json" in updates && updates.enrichment_json != null) {
-    if (typeof updates.enrichment_json === "string") {
+  // Validate ai_enrichment_json is valid JSON if provided
+  if ("ai_enrichment_json" in updates && updates.ai_enrichment_json != null) {
+    if (typeof updates.ai_enrichment_json === "string") {
       try {
-        JSON.parse(updates.enrichment_json);
+        JSON.parse(updates.ai_enrichment_json);
       } catch {
         return NextResponse.json(
-          { error: "enrichment_json must be valid JSON" },
+          { error: "ai_enrichment_json must be valid JSON" },
           { status: 400 }
         );
       }
@@ -388,27 +390,27 @@ export async function PATCH(
 
   const supabase = createSupabaseAdminClient();
 
-  // Verify all sample_ids belong to this dataset
+  // sampleIds are clip IDs -- verify they belong to this dataset via dataset_clips
   const { data: existing, error: fetchError } = await supabase
-    .from("dataset_samples")
-    .select("id")
+    .from("dataset_clips")
+    .select("clip_id")
     .eq("dataset_id", datasetId)
-    .in("id", sampleIds);
+    .in("clip_id", sampleIds);
 
   if (fetchError) {
     console.error("[PATCH /api/admin/catalog/[id]/samples/bulk] fetch error", fetchError);
     return NextResponse.json(
-      { error: "Failed to verify samples" },
+      { error: "Failed to verify clips" },
       { status: 500 }
     );
   }
 
-  const existingIds = new Set((existing ?? []).map((s) => s.id));
+  const existingIds = new Set((existing ?? []).map((s) => s.clip_id));
   const errors: { id: string; message: string }[] = [];
 
   for (const id of sampleIds) {
     if (!existingIds.has(id)) {
-      errors.push({ id, message: "Sample not found in this dataset" });
+      errors.push({ id, message: "Clip not found in this dataset" });
     }
   }
 
@@ -417,9 +419,8 @@ export async function PATCH(
   let updated = 0;
   if (validIds.length > 0) {
     const { count, error: updateError } = await supabase
-      .from("dataset_samples")
+      .from("clips")
       .update(updates)
-      .eq("dataset_id", datasetId)
       .in("id", validIds);
 
     if (updateError) {

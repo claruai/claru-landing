@@ -2,20 +2,23 @@
 
 import { useCallback, useMemo } from "react";
 import { Pencil } from "lucide-react";
-import type { DatasetSample } from "@/types/data-catalog";
-import { SampleDetailModal } from "@/app/portal/catalog/[id]/SampleDetailModal";
+import type { AdminClip } from "./SamplesList";
+import { ClipDetailModal } from "@/app/portal/catalog/[id]/ClipDetailModal";
 
 // ---------------------------------------------------------------------------
-// SamplePreviewModal -- Admin wrapper around portal SampleDetailModal
-// Mirrors the client view with an "Edit" escape hatch for admin workflows.
+// SamplePreviewModal -- Admin wrapper around ClipDetailModal
+// Shows clip data with structured tabs (Annotation | AI Enrichment | Technical)
+// plus an "Edit" escape hatch for admin workflows.
+//
+// US-019: Updated to pass Clip objects directly to ClipDetailModal.
 // ---------------------------------------------------------------------------
 
 interface SamplePreviewModalProps {
-  samples: DatasetSample[];
+  samples: AdminClip[];
   selectedIndex: number;
   onClose: () => void;
   onNavigate: (index: number) => void;
-  onEdit: (sample: DatasetSample) => void;
+  onEdit: (sample: AdminClip) => void;
 }
 
 export default function SamplePreviewModal({
@@ -25,10 +28,10 @@ export default function SamplePreviewModal({
   onNavigate,
   onEdit,
 }: SamplePreviewModalProps) {
-  const samplesWithUrls = useMemo(
+  const items = useMemo(
     () =>
       samples.map((s) => ({
-        sample: s,
+        clip: s,
         signedUrl: s.media_url ?? "",
       })),
     [samples]
@@ -41,8 +44,8 @@ export default function SamplePreviewModal({
 
   return (
     <div className="relative">
-      <SampleDetailModal
-        samples={samplesWithUrls}
+      <ClipDetailModal
+        items={items}
         selectedIndex={selectedIndex}
         onClose={onClose}
         onNavigate={onNavigate}

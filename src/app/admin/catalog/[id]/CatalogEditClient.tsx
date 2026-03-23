@@ -6,7 +6,7 @@ import { Loader2, Save, Trash2, UserPlus, Check, X } from "lucide-react";
 import AddSampleForm from "./AddSampleForm";
 import BulkCsvUploader from "./BulkCsvUploader";
 import SamplesList from "./SamplesList";
-import type { Dataset, DatasetCategory, DatasetSample, DatasetType } from "@/types/data-catalog";
+import type { Dataset, DatasetCategory, DatasetType } from "@/types/data-catalog";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -50,7 +50,8 @@ export default function CatalogEditClient({
   const [samplesRefreshKey, setSamplesRefreshKey] = useState(0);
 
   // When a sample is added or import completes, switch to Samples tab and refresh
-  const handleSampleAdded = useCallback((_sample: DatasetSample) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleSampleAdded = useCallback((_sample?: unknown) => {
     setSamplesRefreshKey((k) => k + 1);
     setActiveTab("samples");
   }, []);
