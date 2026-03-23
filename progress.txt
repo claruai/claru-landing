@@ -146,3 +146,27 @@ Goal: Unknown
 - Supabase JS `.in()` doesn't accept a sub-query builder — need two-step fetch (IDs then filter)
 - Early return pattern when dataset filter yields 0 clips avoids unnecessary queries
 
+## 2026-03-23 - US-008: Rewrite admin search UI — remove mode toggle
+
+**What I did:**
+- Removed SearchMode type and mode toggle (catalog/full_corpus/both) from CatalogSearchClient.tsx
+- Replaced UnifiedResult interface with ClipResult matching ClipSearchResult shape
+- Server component now queries clips table for count and distinct s3_bucket values
+- Bucket filter changed from text input to select dropdown using buckets prop
+- AddToLeadButton: videoIndexId/datasetSampleId replaced with clipId
+- BulkActionBar: items now send clip_id instead of video_index_id/dataset_sample_id
+- ResultDetailModal: shows all clip fields, removed source badges
+- Custom catalog route (US-010): rewritten for dataset_clips inserts with clip_ids array
+- Annotation fetch (US-014): supports bucket override for clips table
+
+**Files changed:**
+- src/app/admin/catalog/search/page.tsx (clips table queries)
+- src/app/admin/catalog/search/CatalogSearchClient.tsx (mode toggle removed, ClipResult)
+- src/app/admin/catalog/search/AddToLeadButton.tsx (clipId prop)
+- src/app/api/admin/catalog/custom/route.ts (dataset_clips inserts)
+- src/lib/s3/annotation.ts (bucket override)
+
+**Learnings:**
+- Agent committed US-008 through US-016 in prior session — only uncommitted delta needed this commit
+- Supabase `.from('clips').select('s3_bucket').limit(500)` + JS Set for distinct buckets (no SQL DISTINCT available via PostgREST)
+
