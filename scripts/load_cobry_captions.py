@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """
-Load cobry caption parquets from S3 into video_index with 768-dim embeddings.
+Load cobry caption parquets from S3 into the unified clips table.
+
+Writes ONLY ai_caption, ai_enrichment_source, and ai_enrichment_json columns.
+Does NOT generate embeddings — sets caption_rebuilt_at = NULL to flag for rebuild.
 
 Usage:
   python3 scripts/load_cobry_captions.py --bucket mv-abaka-external --delivery delivery1 [--limit 100] [--dry-run]
 
-Requires: Python 3.10+, pyarrow, openai, httpx, boto3
-Env vars: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, OPENAI_API_KEY, AWS_REGION (optional)
+Requires: Python 3.10+, pyarrow, httpx, boto3
+Env vars: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, AWS_REGION (optional)
 """
 
 from __future__ import annotations
@@ -36,10 +39,6 @@ try:
 except ImportError:
     _MISSING.append("pyarrow")
 try:
-    import openai  # noqa: F401
-except ImportError:
-    _MISSING.append("openai")
-try:
     import httpx  # noqa: F401
 except ImportError:
     _MISSING.append("httpx")
@@ -58,7 +57,6 @@ if _MISSING:
 # ---------------------------------------------------------------------------
 
 import pyarrow.parquet as pq
-from openai import OpenAI
 import httpx
 import boto3
 
@@ -68,7 +66,6 @@ import boto3
 
 SUPABASE_URL = os.environ.get("NEXT_PUBLIC_SUPABASE_URL", "")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
 
 def _checkpoint_path(bucket: str) -> Path:
@@ -92,38 +89,24 @@ def save_checkpoint(state: dict) -> None:
     CHECKPOINT_PATH.write_text(json.dumps(state, indent=2))
 
 
-def embed_batch(client: OpenAI, texts: list[str]) -> list[list[float] | None]:
-    """Embed a batch of texts using OpenAI text-embedding-3-small at 768 dims."""
-    results: list[list[float] | None] = [None] * len(texts)
-    # OpenAI batch endpoint supports up to 2048 inputs but we keep batches small
-    try:
-        resp = client.embeddings.create(
-            model="text-embedding-3-small",
-            input=texts,
-            dimensions=768,
-        )
-        for item in resp.data:
-            results[item.index] = item.embedding
-    except Exception as exc:
-        print(f"  [warn] embedding batch failed: {exc}", file=sys.stderr)
-    return results
-
-
 def upsert_rows(
-    http: httpx.Client,
+    http_client: httpx.Client,
     supabase_url: str,
     supabase_key: str,
     rows: list[dict],
 ) -> tuple[int, int]:
-    """Upsert rows via PostgREST. Returns (inserted, skipped)."""
-    url = f"{supabase_url}/rest/v1/video_index"
+    """Insert rows into clips via PostgREST with ON CONFLICT DO NOTHING.
+
+    Returns (inserted, skipped).
+    """
+    url = f"{supabase_url}/rest/v1/clips"
     headers = {
         "apikey": supabase_key,
         "Authorization": f"Bearer {supabase_key}",
         "Content-Type": "application/json",
         "Prefer": "resolution=ignore-duplicates,return=minimal",
     }
-    resp = http.post(
+    resp = http_client.post(
         url,
         headers=headers,
         json=rows,
@@ -155,6 +138,21 @@ def extract_caption(row_dict: dict, idx: int) -> str:
     return caption[:1000]
 
 
+def extract_enrichment_json(row_dict: dict, idx: int) -> dict:
+    """Extract all cobry text fields into ai_enrichment_json.
+
+    Preserves text_background, text_foreground, text_middleground, text_short
+    for use by the caption rebuild script.
+    """
+    enrichment = {}
+    for field in ("text_background", "text_foreground", "text_middleground", "text_short", "text"):
+        if field in row_dict:
+            val = row_dict[field][idx]
+            if val is not None:
+                enrichment[field] = str(val)
+    return enrichment
+
+
 def extract_s3_key(row_dict: dict, idx: int) -> str:
     """Extract s3_key from clip_storage_key, stripping s3://bucket/ prefix."""
     key = ""
@@ -177,7 +175,7 @@ def extract_s3_key(row_dict: dict, idx: int) -> str:
 # ---------------------------------------------------------------------------
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Load cobry captions into video_index")
+    parser = argparse.ArgumentParser(description="Load cobry captions into clips table")
     parser.add_argument("--bucket", default="mv-abaka-external", help="S3 bucket name")
     parser.add_argument("--delivery", default="delivery1", help="Delivery folder name")
     parser.add_argument("--limit", type=int, default=None, help="Max rows to process")
@@ -187,9 +185,6 @@ def main() -> None:
     if not args.dry_run:
         if not SUPABASE_URL or not SUPABASE_KEY:
             print("ERROR: Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY", file=sys.stderr)
-            sys.exit(1)
-        if not OPENAI_API_KEY:
-            print("ERROR: Missing OPENAI_API_KEY", file=sys.stderr)
             sys.exit(1)
 
     # Use bucket-specific checkpoint file
@@ -222,7 +217,6 @@ def main() -> None:
     print(f"[load-cobry] Found {len(parquet_keys)} caption parquet files")
     print(f"[load-cobry] Already completed: {len(completed_parquets)} parquets from checkpoint")
 
-    oai = OpenAI(api_key=OPENAI_API_KEY) if not args.dry_run else None
     http = httpx.Client() if not args.dry_run else None
 
     try:
@@ -244,7 +238,7 @@ def main() -> None:
                 print(f"[load-cobry] Downloading {pq_key}...")
                 s3.download_file(args.bucket, pq_key, tmp_file)
 
-                # Read parquet using row groups (streaming — never load entire file)
+                # Read parquet using row groups (streaming -- never load entire file)
                 pq_file = pq.ParquetFile(tmp_file)
                 num_row_groups = pq_file.metadata.num_row_groups
                 print(f"  {num_row_groups} row group(s), {pq_file.metadata.num_rows} total rows")
@@ -254,51 +248,39 @@ def main() -> None:
                     row_dict = table.to_pydict()
                     num_rows = table.num_rows
 
-                    # Process in batches of 10 (reduced from 20 to avoid PostgREST statement timeouts)
-                    batch_size = 10
+                    # Process in batches of 100
+                    batch_size = 100
                     for batch_start in range(0, num_rows, batch_size):
                         if args.limit and total_inserted >= args.limit:
                             break
 
                         batch_end = min(batch_start + batch_size, num_rows)
-                        batch_texts: list[str] = []
-                        batch_keys: list[str] = []
+                        rows_to_insert: list[dict] = []
 
                         for i in range(batch_start, batch_end):
                             s3_key = extract_s3_key(row_dict, i)
                             caption = extract_caption(row_dict, i)
-                            if s3_key and caption:
-                                batch_keys.append(s3_key)
-                                batch_texts.append(caption)
-
-                        if not batch_keys:
-                            continue
-
-                        if args.dry_run:
-                            for k, t in zip(batch_keys, batch_texts):
-                                print(f"  [dry-run] {k[:60]} → \"{t[:80]}...\"")
-                            total_inserted += len(batch_keys)
-                            continue
-
-                        # Generate embeddings
-                        assert oai is not None
-                        embeddings = embed_batch(oai, batch_texts)
-
-                        # Build upsert rows (only those with successful embeddings)
-                        rows_to_insert: list[dict] = []
-                        for j, (key, text, emb) in enumerate(zip(batch_keys, batch_texts, embeddings)):
-                            if emb is None:
-                                total_failed += 1
+                            enrichment = extract_enrichment_json(row_dict, i)
+                            if not s3_key or not caption:
                                 continue
+
+                            # Write ONLY ai_* columns -- our column group
                             rows_to_insert.append({
                                 "s3_bucket": args.bucket,
-                                "s3_key": key,
-                                "caption_text": text,
-                                "embedding": json.dumps(emb),
-                                "enrichment_source": "cobry_caption",
+                                "s3_key": s3_key,
+                                "ai_caption": caption,
+                                "ai_enrichment_source": "cobry_caption",
+                                "ai_enrichment_json": json.dumps(enrichment),
+                                "caption_rebuilt_at": None,  # Flag for rebuild
                             })
 
                         if not rows_to_insert:
+                            continue
+
+                        if args.dry_run:
+                            for r in rows_to_insert[:3]:
+                                print(f"  [dry-run] {r['s3_key'][:60]} -> \"{r['ai_caption'][:80]}...\"")
+                            total_inserted += len(rows_to_insert)
                             continue
 
                         # Upsert with retry (statement timeouts are transient)
@@ -311,15 +293,13 @@ def main() -> None:
                                 break
                             except Exception as exc:
                                 if attempt < 2 and "57014" in str(exc):
-                                    import time
                                     time.sleep(2 * (attempt + 1))
                                     continue
                                 print(f"  [error] upsert failed after {attempt+1} attempts: {exc}", file=sys.stderr)
                                 total_failed += len(rows_to_insert)
 
-                        # Throttle: 1 second between batches to avoid DB IO exhaustion
-                        import time as _time
-                        _time.sleep(1)
+                        # Throttle: brief pause between batches
+                        time.sleep(0.1)
 
                         # Progress every 200 rows
                         if total_inserted % 200 < batch_size:

@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 """
-Re-enrich annotation-platform video_index entries by:
+Re-enrich annotation-platform clips by:
 1. Downloading each video from S3
 2. Extracting one keyframe via ffmpeg
 3. Sending the frame to Gemini Flash Vision for a scene description
-4. Re-embedding with OpenAI and updating the row
+4. Writing ai_caption and ai_enrichment_source to the clips table
+
+Does NOT generate embeddings -- sets caption_rebuilt_at = NULL to flag for rebuild.
 
 Usage:
   python3 scripts/re-enrich-annotation-frames.py [--limit 100] [--dry-run] [--concurrency 3]
 
-Requires: Python 3.10+, boto3, openai, google-genai, Pillow
+Requires: Python 3.10+, boto3, google-genai, httpx
 Also requires: ffmpeg binary on PATH
 """
 
@@ -20,11 +22,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 # Check deps
 try:
     import boto3
-    from openai import OpenAI
     from google import genai
     import httpx
 except ImportError as e:
-    print(f"Missing dependency: {e}. Install: pip3 install boto3 openai google-genai httpx")
+    print(f"Missing dependency: {e}. Install: pip3 install boto3 google-genai httpx")
     sys.exit(1)
 
 # Check ffmpeg
@@ -35,16 +36,14 @@ if subprocess.run(["which", "ffmpeg"], capture_output=True).returncode != 0:
 # Env
 SUPABASE_URL = os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
-OPENAI_KEY = os.environ.get("OPENAI_API_KEY")
 GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
 
-if not all([SUPABASE_URL, SUPABASE_KEY, OPENAI_KEY, GEMINI_KEY]):
+if not all([SUPABASE_URL, SUPABASE_KEY, GEMINI_KEY]):
     print("Missing env vars. Source .env.local first.")
     sys.exit(1)
 
 # Clients
 s3 = boto3.client("s3", region_name=os.environ.get("AWS_REGION", "us-east-1"))
-oai = OpenAI()
 gclient = genai.Client(api_key=GEMINI_KEY)
 http = httpx.Client(timeout=30)
 
@@ -90,7 +89,11 @@ def extract_frame(video_path: str, output_path: str) -> bool:
 
 
 def process_video(row: dict) -> dict:
-    """Download video, extract frame, caption with Gemini, embed, update DB."""
+    """Download video, extract frame, caption with Gemini, update clips table.
+
+    Writes ONLY ai_caption and ai_enrichment_source columns.
+    Does NOT generate embeddings -- sets caption_rebuilt_at = NULL for rebuild.
+    """
     vid = row["id"]
     s3_key = row["s3_key"]
     fname = s3_key.split("/")[-1]
@@ -132,24 +135,21 @@ def process_video(row: dict) -> dict:
             # Clean up Gemini file
             try:
                 gclient.files.delete(name=uploaded.name)
-            except:
+            except Exception:
                 pass
 
-            # Embed
-            emb_text = f"{ctx.get('scene_summary', '')}. Environments: {', '.join(ctx.get('environments', []))}. Activities: {', '.join(ctx.get('activities', []))}"
-            emb_resp = oai.embeddings.create(model="text-embedding-3-small", input=emb_text, dimensions=768)
-            embedding = emb_resp.data[0].embedding
-
-            # Update video_index
+            # Build the ai_caption from Gemini's structured output
             caption = ctx.get("scene_summary", "")
+
+            # Update clips table -- ONLY ai_* columns (our column group)
             update_body = {
-                "caption_text": caption,
-                "embedding": json.dumps(embedding),
-                "enrichment_source": "gemini_frame",
+                "ai_caption": caption,
+                "ai_enrichment_source": "gemini_frame",
+                "caption_rebuilt_at": None,  # Flag for rebuild
             }
 
             resp = http.patch(
-                f"{SUPABASE_URL}/rest/v1/video_index?id=eq.{vid}",
+                f"{SUPABASE_URL}/rest/v1/clips?id=eq.{vid}",
                 headers={
                     "apikey": SUPABASE_KEY,
                     "Authorization": f"Bearer {SUPABASE_KEY}",
@@ -168,11 +168,11 @@ def process_video(row: dict) -> dict:
 def main():
     print(f"[worker-{args.worker_id}] bucket={BUCKET} limit={args.limit or 'all'} dry_run={args.dry_run} concurrency={args.concurrency} key_gt={args.key_gt} key_lte={args.key_lte}")
 
-    # Fetch video_index entries that still have sparse captions
+    # Fetch clips entries that still have sparse captions (annotation_json source, no Gemini enrichment)
     params = {
-        "select": "id,s3_key,caption_text",
+        "select": "id,s3_key,ai_caption",
         "s3_bucket": f"eq.{BUCKET}",
-        "enrichment_source": "eq.annotation_json",
+        "ai_enrichment_source": "eq.annotation_json_structured",
         "order": "s3_key.asc",
     }
     if args.key_gt:
@@ -180,7 +180,6 @@ def main():
     if args.key_lte:
         if "s3_key" in params:
             # Can't do both gt and lte in one param with PostgREST simple syntax
-            # Use 'and' filter
             params.pop("s3_key")
             params["and"] = f"(s3_key.gt.{args.key_gt},s3_key.lte.{args.key_lte})"
         else:
@@ -191,7 +190,7 @@ def main():
         params["limit"] = "20000"
 
     resp = http.get(
-        f"{SUPABASE_URL}/rest/v1/video_index",
+        f"{SUPABASE_URL}/rest/v1/clips",
         headers={
             "apikey": SUPABASE_KEY,
             "Authorization": f"Bearer {SUPABASE_KEY}",
@@ -203,8 +202,9 @@ def main():
 
     if args.dry_run:
         for r in rows[:5]:
-            print(f"  [dry-run] {r['id'][:8]} | {r['s3_key'][-40:]} | caption: {r['caption_text'][:50]}")
-        print(f"  ... and {len(rows) - 5} more")
+            print(f"  [dry-run] {r['id'][:8]} | {r['s3_key'][-40:]} | caption: {(r.get('ai_caption') or '')[:50]}")
+        if len(rows) > 5:
+            print(f"  ... and {len(rows) - 5} more")
         return
 
     ok = 0
@@ -216,10 +216,10 @@ def main():
             result = future.result()
             if result["status"] == "ok":
                 ok += 1
-                print(f"  [{result['id'][:8]}] ✓ ({result['size_mb']}MB) {result['caption']}")
+                print(f"  [{result['id'][:8]}] ok ({result['size_mb']}MB) {result['caption']}")
             else:
                 failed += 1
-                print(f"  [{result['id'][:8]}] ✗ {result.get('error', result['status'])}")
+                print(f"  [{result['id'][:8]}] FAIL {result.get('error', result['status'])}")
 
             if (ok + failed) % 50 == 0:
                 print(f"  [progress] {ok} ok / {failed} failed / {len(rows)} total")

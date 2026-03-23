@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """
-Load annotation-data.json metadata from moonvalley-annotation-platform S3 bucket.
+Load annotation-data.json metadata from moonvalley-annotation-platform S3 bucket
+into the unified clips table.
 
 For each video folder:
 1. Read annotation-data.json to extract structured metadata
-2. Combine with existing Gemini caption (if any) for richer embeddings
-3. Upsert to video_index with combined caption + embedding
+2. Write ann_metadata (jsonb), ann_annotation_key, tech_* columns on clips
+3. Set caption_rebuilt_at = NULL to flag for rebuild
+
+Does NOT generate embeddings — that is the rebuild script's job.
 
 Handles two prefixes:
   - video_capture/completed/          (16.4k — already indexed, backfill metadata)
@@ -30,10 +33,6 @@ try:
     import httpx
 except ImportError:
     _MISSING.append("httpx")
-try:
-    from openai import OpenAI
-except ImportError:
-    _MISSING.append("openai")
 
 if _MISSING:
     print(f"Missing: {', '.join(_MISSING)}. pip install {' '.join(_MISSING)}", file=sys.stderr)
@@ -41,10 +40,9 @@ if _MISSING:
 
 SUPABASE_URL = os.environ.get("NEXT_PUBLIC_SUPABASE_URL", "")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 BUCKET = "moonvalley-annotation-platform"
 
-if not SUPABASE_URL or not SUPABASE_KEY or not OPENAI_API_KEY:
+if not SUPABASE_URL or not SUPABASE_KEY:
     print("Missing env vars. Source .env.local first.", file=sys.stderr)
     sys.exit(1)
 
@@ -56,7 +54,6 @@ parser.add_argument("--batch-size", type=int, default=50)
 args = parser.parse_args()
 
 s3 = boto3.client("s3", region_name="us-east-1")
-oai = OpenAI(api_key=OPENAI_API_KEY)
 http = httpx.Client(timeout=60)
 
 
@@ -80,8 +77,22 @@ def find_video_key(folder_prefix: str) -> str | None:
     return None
 
 
+def find_annotation_key(folder_prefix: str) -> str | None:
+    """Find the annotation-data.json key for storing as ann_annotation_key."""
+    key = folder_prefix + "annotation-data.json"
+    try:
+        s3.head_object(Bucket=BUCKET, Key=key)
+        return key
+    except Exception:
+        return None
+
+
 def extract_structured_fields(annotation: dict) -> dict:
-    """Extract structured metadata from annotation JSON."""
+    """Extract structured metadata from annotation JSON.
+
+    Returns a dict with both annotation and technical fields extracted
+    from the annotation-data.json file.
+    """
     fields = {}
 
     # generalData has the richest info
@@ -120,142 +131,79 @@ def extract_structured_fields(annotation: dict) -> dict:
                     fields["duration"] = track.get("Duration")
                 fields["codec"] = track.get("Format")
                 fields["bit_depth"] = track.get("BitDepth")
-                fields["color_space"] = track.get("ColorSpace")
-                fields["bit_rate"] = track.get("BitRate")
 
     return fields
 
 
-def build_caption(fields: dict, existing_caption: str | None = None) -> str:
-    """Build a rich caption combining annotation metadata + existing Gemini description.
+def build_ann_metadata(fields: dict, annotation: dict) -> dict:
+    """Build the ann_metadata JSONB value from extracted fields and raw annotation."""
+    metadata = {}
 
-    Designed to produce an embedding-friendly text that captures everything
-    a researcher or data engineer would search for.
-    """
-    parts = []
-
-    # Semantic content: what is happening
+    # Category information
     cat = fields.get("main_category") or fields.get("category")
     if cat:
-        parts.append(f"Category: {cat}.")
+        metadata["category"] = cat
 
     subcat = fields.get("subcategory_action") or fields.get("subcategory")
     if subcat:
-        parts.append(f"Action: {subcat}.")
+        metadata["subcategory"] = subcat
 
     activities = fields.get("activities", [])
     if activities:
-        parts.append(f"Activities: {', '.join(activities)}.")
+        metadata["activities"] = activities
 
-    # Capture methodology
-    proj_type = fields.get("project_type")
-    proj_tag = fields.get("project_tag")
-    if proj_type:
-        label = proj_type.replace("_", " ").title()
-        parts.append(f"Capture type: {label}.")
-    if proj_tag:
-        parts.append(f"Dataset: {proj_tag}.")
+    # Project info
+    if fields.get("project_type"):
+        metadata["project_type"] = fields["project_type"]
+    if fields.get("project_tag"):
+        metadata["project_tag"] = fields["project_tag"]
 
-    # Technical specifications — searchable by resolution, fps, duration, codec
-    specs = []
-    w, h = fields.get("width"), fields.get("height")
-    if w and h:
-        specs.append(f"{w}x{h}")
-        # Add human-readable resolution label
-        if int(h) >= 2160:
-            specs.append("4K UHD")
-        elif int(h) >= 1080:
-            specs.append("1080p Full HD")
-        elif int(h) >= 720:
-            specs.append("720p HD")
+    # Store raw generalData if present
+    gd = annotation.get("generalData")
+    if gd:
+        metadata["generalData"] = gd
 
-    fps = fields.get("fps")
-    if fps:
-        specs.append(f"{fps}fps")
+    # Quality info (troveo-style annotations)
+    quality = annotation.get("quality")
+    if quality:
+        metadata["quality"] = quality
 
-    codec = fields.get("codec")
-    if codec:
-        specs.append(codec)
-
-    duration = fields.get("duration")
-    if duration:
-        dur_s = float(duration)
-        if dur_s >= 60:
-            specs.append(f"{dur_s / 60:.1f}min")
-        else:
-            specs.append(f"{dur_s:.0f}s")
-
-    file_size = fields.get("file_size")
-    if file_size:
-        mb = int(file_size) / (1024 * 1024)
-        if mb >= 1024:
-            specs.append(f"{mb / 1024:.1f}GB")
-        else:
-            specs.append(f"{mb:.0f}MB")
-
-    if specs:
-        parts.append(f"Technical: {', '.join(specs)}.")
-
-    # Existing Gemini scene description (skip sparse annotation-only captions)
-    if existing_caption and not existing_caption.startswith("Subcategory:") and not existing_caption.startswith("Category:"):
-        parts.append(f"Scene: {existing_caption}")
-
-    return " ".join(parts)
+    return metadata
 
 
-def embed_batch(texts: list[str]) -> list[list[float] | None]:
-    """Embed texts at 768 dimensions."""
-    results: list[list[float] | None] = [None] * len(texts)
+def safe_int(val) -> int | None:
+    """Safely convert a value to int, returning None on failure."""
+    if val is None:
+        return None
     try:
-        resp = oai.embeddings.create(
-            model="text-embedding-3-small",
-            input=texts,
-            dimensions=768,
-        )
-        for item in resp.data:
-            results[item.index] = item.embedding
-    except Exception as e:
-        print(f"  [warn] embedding failed: {e}", file=sys.stderr)
-    return results
+        return int(str(val).replace(",", "").replace(" ", ""))
+    except (ValueError, TypeError):
+        return None
+
+
+def safe_numeric(val) -> float | None:
+    """Safely convert a value to float, returning None on failure."""
+    if val is None:
+        return None
+    try:
+        return float(str(val).replace(",", "").replace(" ", ""))
+    except (ValueError, TypeError):
+        return None
 
 
 def upsert_rows(rows: list[dict]) -> int:
-    """Upsert to video_index via PostgREST."""
-    url = f"{SUPABASE_URL}/rest/v1/video_index"
+    """Insert into clips via PostgREST with ON CONFLICT DO NOTHING."""
+    url = f"{SUPABASE_URL}/rest/v1/clips"
     headers = {
         "apikey": SUPABASE_KEY,
         "Authorization": f"Bearer {SUPABASE_KEY}",
         "Content-Type": "application/json",
-        "Prefer": "resolution=ignore-duplicates,return=minimal",  # DO NOTHING — no bloat
+        "Prefer": "resolution=ignore-duplicates,return=minimal",
     }
     resp = http.post(url, headers=headers, json=rows, params={"on_conflict": "s3_bucket,s3_key"})
     if resp.status_code in (200, 201):
         return len(rows)
     raise RuntimeError(f"PostgREST error {resp.status_code}: {resp.text[:200]}")
-
-
-def get_existing_captions(s3_keys: list[str]) -> dict[str, str]:
-    """Fetch existing caption_text for s3_keys from video_index."""
-    url = f"{SUPABASE_URL}/rest/v1/video_index"
-    headers = {
-        "apikey": SUPABASE_KEY,
-        "Authorization": f"Bearer {SUPABASE_KEY}",
-    }
-    result = {}
-    # Batch in groups of 50
-    for i in range(0, len(s3_keys), 50):
-        batch = s3_keys[i:i + 50]
-        key_filter = ",".join(batch)
-        resp = http.get(url, headers=headers, params={
-            "select": "s3_key,caption_text",
-            "s3_bucket": f"eq.{BUCKET}",
-            "s3_key": f"in.({key_filter})",
-        })
-        if resp.status_code == 200:
-            for row in resp.json():
-                if row.get("caption_text"):
-                    result[row["s3_key"]] = row["caption_text"]
-    return result
 
 
 def process_prefix(prefix: str):
@@ -295,9 +243,14 @@ def process_prefix(prefix: str):
         # Extract structured fields
         fields = extract_structured_fields(annotation)
 
+        # Find annotation key
+        ann_key = folder + "annotation-data.json"
+
         batch.append({
             "video_key": video_key,
             "fields": fields,
+            "annotation": annotation,
+            "ann_key": ann_key,
             "folder": folder,
         })
 
@@ -320,40 +273,47 @@ def process_prefix(prefix: str):
 
 
 def flush_batch(batch: list[dict]) -> tuple[int, int]:
-    """Process and upsert a batch."""
+    """Process and upsert a batch to clips table.
+
+    Writes ONLY annotation and technical columns. Does NOT generate embeddings.
+    Sets caption_rebuilt_at = NULL to flag rows for caption + embedding rebuild.
+    """
     if args.dry_run:
         for item in batch[:3]:
             f = item["fields"]
             print(f"  [dry-run] {item['video_key'][-50:]}")
             print(f"    cat={f.get('main_category')} sub={f.get('subcategory_action')} acts={f.get('activities', [])}")
+            print(f"    tech: {f.get('width')}x{f.get('height')} {f.get('fps')}fps {f.get('codec')}")
         return len(batch), 0
 
-    # Fetch existing captions for these keys (to merge with Gemini descriptions)
-    video_keys = [b["video_key"] for b in batch]
-    existing = get_existing_captions(video_keys)
-
-    # Build combined captions
-    captions = []
-    for item in batch:
-        existing_caption = existing.get(item["video_key"])
-        caption = build_caption(item["fields"], existing_caption)
-        captions.append(caption)
-
-    # Embed
-    embeddings = embed_batch(captions)
-
-    # Build upsert rows
+    # Build rows for clips table — ONLY ann_* and tech_* columns
     rows = []
-    for item, caption, emb in zip(batch, captions, embeddings):
-        if not emb:
-            continue
-        rows.append({
+    for item in batch:
+        fields = item["fields"]
+        annotation = item["annotation"]
+
+        row = {
+            # Identity
             "s3_bucket": BUCKET,
             "s3_key": item["video_key"],
-            "caption_text": caption,
-            "embedding": json.dumps(emb),
-            "enrichment_source": "annotation_json_structured",
-        })
+
+            # Annotation columns (our column group)
+            "ann_metadata": json.dumps(build_ann_metadata(fields, annotation)),
+            "ann_annotation_key": item["ann_key"],
+
+            # Technical columns (our column group)
+            "tech_resolution_width": safe_int(fields.get("width")),
+            "tech_resolution_height": safe_int(fields.get("height")),
+            "tech_fps": safe_numeric(fields.get("fps")),
+            "tech_duration_seconds": safe_numeric(fields.get("duration")),
+            "tech_codec": fields.get("codec"),
+            "tech_file_size_bytes": safe_int(fields.get("file_size")),
+            "tech_bit_depth": safe_int(fields.get("bit_depth")),
+
+            # Flag for caption + embedding rebuild
+            "caption_rebuilt_at": None,
+        }
+        rows.append(row)
 
     if not rows:
         return 0, len(batch)
@@ -378,7 +338,7 @@ def main():
     else:
         prefixes = [args.prefix]
 
-    print(f"Annotation metadata loader | prefixes={[p for p in prefixes]} batch_size={args.batch_size} limit={args.limit} dry_run={args.dry_run}")
+    print(f"Annotation metadata loader (clips table) | prefixes={[p for p in prefixes]} batch_size={args.batch_size} limit={args.limit} dry_run={args.dry_run}")
 
     for prefix in prefixes:
         process_prefix(prefix)
