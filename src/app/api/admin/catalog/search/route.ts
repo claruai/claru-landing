@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
         match_count: limit,
         filter_dataset_id: dataset_id ?? null,
         filter_bucket: s3_bucket ?? null,
-        match_threshold: (dataset_id || s3_bucket) ? 0.15 : 0.3,
+        match_threshold: 0.3,
       });
 
       if (error) {
