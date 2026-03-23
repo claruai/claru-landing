@@ -79,21 +79,32 @@ Goal: Unknown
 ## 2026-03-23 - US-005: Migrate dataset_samples to clips + dataset_clips
 
 **What I did:**
-- Created `scripts/migrate-dataset-samples-to-clips.py`
-- Fetches 714 rows, skips 20 with NULL s3_object_key (logs them)
-- Deduplicates by (s3_bucket, s3_object_key): 588 unique clips → one clips row each
-- Re-embeds all caption text at 768 dims via OpenAI (existing were 1536-dim)
-- Upserts clips with ON CONFLICT DO NOTHING
-- Looks up clip IDs then inserts dataset_clips preserving dataset_id + lead_id
-- Idempotent, supports --dry-run and --limit
+- Fixed and ran `scripts/migrate-dataset-samples-to-clips.py` against staging DB
+- Applied schema prerequisites first: clips table (009), dataset_clips table (010), match_clips RPC (011)
+- Fetches 714 rows, skips 20 with NULL s3_object_key (logged with IDs/filenames)
+- Deduplicates by (s3_bucket, s3_object_key): 588 unique clips -> one clips row each
+- Re-embeds 112 clips at 768 dims via OpenAI text-embedding-3-small (those with agent_context.scene_summary)
+- Maps fields per canonical schema: enrichment_json -> ai_enrichment_json, agent_context -> ai_agent_context, metadata_json -> ann_metadata, s3_annotation_key -> ann_annotation_key, s3_specs_key -> ann_specs_key, tech fields
+- Creates 694 dataset_clips rows preserving dataset_id + lead_id relationships (405 lead-specific)
+- Idempotent: re-run produces 0 new inserts, all duplicates skipped
+
+**Validation results:**
+- clips: 588 rows (matches 588 unique S3 keys)
+- dataset_clips: 694 rows (matches 694 valid dataset_samples)
+- clips with embedding: 112 (768-dim)
+- dataset_clips with lead_id: 405 (matches source)
+- Distinct datasets: 67 (matches source)
+- Idempotent re-run: 0 new inserts, all skipped as expected
 
 **Files changed:**
-- scripts/migrate-dataset-samples-to-clips.py (new)
+- scripts/migrate-dataset-samples-to-clips.py (fixed: caption builder, PostgREST batch key consistency, dataset_clips single-row inserts)
 
 **Learnings:**
-- All 83 existing embeddings in dataset_samples are 1536-dim — ALL need re-embedding at 768
-- 588 distinct s3_object_keys from 694 valid rows = ~15% duplication (same clip in multiple datasets)
-- Caption text built from agent_context.caption + enrichment_json.description/visual_description
+- PostgREST PGRST102 "All object keys must match": all JSON objects in a batch POST must have identical keys. Must include all fields (with null) even for optional ones like embedding.
+- PostgREST `resolution=ignore-duplicates` does NOT work with expression-based unique indexes (COALESCE). Only works with actual UNIQUE constraints. Workaround: single-row inserts with 409 handling for dataset_clips.
+- Caption text correctly built from agent_context.scene_summary (not .caption) plus environments, activities, objects, camera_perspective — matching agentContextToEmbeddingText() from openai.ts.
+- 112 of 588 unique clips have embeddable text (from agent_context); remaining 476 have no caption text and will need the caption rebuild script (US-018) to derive captions from ann_metadata.
+- Supabase MCP execute_sql runs as `postgres` role which is blocked by service_role-only RLS on clips/dataset_clips. Validation must use PostgREST REST API with service role key, not SQL editor.
 
 ## 2026-03-23 - US-006: Add Clip and DatasetClip TypeScript types
 

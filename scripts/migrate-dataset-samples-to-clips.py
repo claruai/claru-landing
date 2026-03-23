@@ -104,18 +104,35 @@ def fetch_all_samples(http: httpx.Client) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 def build_caption_text(sample: dict) -> str:
-    """Build caption text from agent_context and enrichment_json."""
+    """Build caption text from agent_context and enrichment_json.
+
+    Matches the agentContextToEmbeddingText() pattern from src/lib/embeddings/openai.ts:
+    scene_summary + environments + activities + objects + camera_perspective.
+    Also includes enrichment_json.description/visual_description as fallback.
+    """
     parts: list[str] = []
+
     ac = sample.get("agent_context") or {}
-    if isinstance(ac, dict) and ac.get("caption"):
-        parts.append(str(ac["caption"]))
+    if isinstance(ac, dict):
+        if ac.get("scene_summary"):
+            parts.append(str(ac["scene_summary"]))
+        if ac.get("environments") and isinstance(ac["environments"], list):
+            parts.append(f"Environments: {', '.join(str(e) for e in ac['environments'])}")
+        if ac.get("activities") and isinstance(ac["activities"], list):
+            parts.append(f"Activities: {', '.join(str(a) for a in ac['activities'])}")
+        if ac.get("objects") and isinstance(ac["objects"], list):
+            parts.append(f"Objects: {', '.join(str(o) for o in ac['objects'])}")
+        if ac.get("camera_perspective"):
+            parts.append(f"Camera: {ac['camera_perspective']}")
+
     ej = sample.get("enrichment_json") or {}
     if isinstance(ej, dict):
         if ej.get("description"):
             parts.append(str(ej["description"]))
         if ej.get("visual_description"):
             parts.append(str(ej["visual_description"]))
-    return " ".join(parts).strip() if parts else ""
+
+    return ". ".join(parts).strip() if parts else ""
 
 
 def embed_texts(client: OpenAI, texts: list[str]) -> list[list[float] | None]:
@@ -179,59 +196,77 @@ def upsert_clips(
 
 
 def lookup_clip_ids(http: httpx.Client, keys: list[tuple[str, str]]) -> dict[tuple[str, str], str]:
-    """Look up clip IDs by (s3_bucket, s3_key). Returns mapping."""
+    """Look up clip IDs by (s3_bucket, s3_key). Returns mapping.
+
+    Uses per-bucket batched queries to avoid URL length limits from long OR filters.
+    """
     result: dict[tuple[str, str], str] = {}
-    # Fetch all clips with matching keys
-    for i in range(0, len(keys), 200):
-        batch_keys = keys[i:i + 200]
-        # Build OR filter
-        or_parts = []
-        for bucket, key in batch_keys:
-            or_parts.append(f"and(s3_bucket.eq.{bucket},s3_key.eq.{key})")
-        or_filter = ",".join(or_parts)
-        headers = make_headers()
-        resp = http.get(
-            f"{SUPABASE_URL}/rest/v1/clips",
-            headers=headers,
-            params={
-                "select": "id,s3_bucket,s3_key",
-                "or": f"({or_filter})",
-                "limit": "1000",
-            },
-            timeout=60,
-        )
-        if resp.status_code == 200:
-            for row in resp.json():
-                result[(row["s3_bucket"], row["s3_key"])] = row["id"]
-        else:
-            print(f"  [warn] clip lookup error {resp.status_code}: {resp.text}", file=sys.stderr)
+
+    # Group keys by bucket for simpler queries
+    by_bucket: dict[str, list[str]] = {}
+    for bucket, key in keys:
+        by_bucket.setdefault(bucket, []).append(key)
+
+    for bucket, s3_keys in by_bucket.items():
+        # Fetch in batches using s3_key.in.() filter
+        for i in range(0, len(s3_keys), 100):
+            batch_keys = s3_keys[i:i + 100]
+            headers = make_headers()
+            # Use IN filter per bucket — avoids complex OR and URL length issues
+            in_list = ",".join(f'"{k}"' for k in batch_keys)
+            resp = http.get(
+                f"{SUPABASE_URL}/rest/v1/clips",
+                headers=headers,
+                params={
+                    "select": "id,s3_bucket,s3_key",
+                    "s3_bucket": f"eq.{bucket}",
+                    "s3_key": f"in.({in_list})",
+                    "limit": "1000",
+                },
+                timeout=60,
+            )
+            if resp.status_code == 200:
+                for row in resp.json():
+                    result[(row["s3_bucket"], row["s3_key"])] = row["id"]
+            else:
+                print(f"  [warn] clip lookup error {resp.status_code}: {resp.text}", file=sys.stderr)
     return result
 
 
 def insert_dataset_clips(
     http: httpx.Client, rows: list[dict], dry_run: bool = False
 ) -> int:
-    """Insert dataset_clips rows. Returns count inserted."""
+    """Insert dataset_clips rows one at a time. Returns count inserted.
+
+    Uses single-row inserts because PostgREST's resolution=ignore-duplicates
+    does not work with expression-based unique indexes (COALESCE).
+    A batch 409 rejects the entire batch; single-row inserts skip only the dup.
+    694 rows is small enough that single-row inserts are fine performance-wise.
+    """
     if dry_run:
         print(f"  [dry-run] Would insert {len(rows)} dataset_clips")
         return len(rows)
 
     inserted = 0
-    for i in range(0, len(rows), UPSERT_BATCH_SIZE):
-        batch = rows[i:i + UPSERT_BATCH_SIZE]
+    skipped_dup = 0
+    for row in rows:
         headers = make_headers()
-        headers["Prefer"] = "resolution=ignore-duplicates,return=minimal"
+        headers["Prefer"] = "return=minimal"
         resp = http.post(
             f"{SUPABASE_URL}/rest/v1/dataset_clips",
             headers=headers,
-            json=batch,
-            timeout=60,
+            json=row,
+            timeout=30,
         )
-        if resp.status_code not in (200, 201):
-            print(f"  [warn] dataset_clips insert error {resp.status_code}: {resp.text}", file=sys.stderr)
+        if resp.status_code in (200, 201):
+            inserted += 1
+        elif resp.status_code == 409:
+            skipped_dup += 1
         else:
-            inserted += len(batch)
-        time.sleep(0.1)
+            print(f"  [warn] dataset_clips insert error {resp.status_code}: {resp.text}", file=sys.stderr)
+
+    if skipped_dup:
+        print(f"  Skipped {skipped_dup} duplicate dataset_clips (idempotent)")
     return inserted
 
 
@@ -337,10 +372,11 @@ def main() -> None:
             "tech_resolution_height": clip["tech_resolution_height"],
             "tech_fps": float(clip["tech_fps"]) if clip["tech_fps"] else None,
             "caption_text": clip["_caption_text"] or None,
+            # PostgREST requires all objects in a batch to have the same keys.
+            # Always include embedding and caption_rebuilt_at, using None when absent.
+            "embedding": embeddings[i] if embeddings[i] else None,
+            "caption_rebuilt_at": now_ts if embeddings[i] else None,
         }
-        if embeddings[i]:
-            row["embedding"] = embeddings[i]
-            row["caption_rebuilt_at"] = now_ts
         clips_to_upsert.append(row)
 
     # Step 4: Upsert clips
@@ -367,10 +403,9 @@ def main() -> None:
         row = {
             "dataset_id": dc["dataset_id"],
             "clip_id": clip_id or "00000000-0000-0000-0000-000000000000",
-            "added_by": dc.get("added_by"),
+            "lead_id": dc.get("lead_id"),  # None -> NULL in DB
+            "added_by": dc.get("added_by") or "migration",
         }
-        if dc.get("lead_id"):
-            row["lead_id"] = dc["lead_id"]
         dc_to_insert.append(row)
 
     if missing_clips:
