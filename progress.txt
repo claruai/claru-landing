@@ -76,3 +76,22 @@ Goal: Unknown
 - PostgREST doesn't support SQL functions like `now()` as values — use Python datetime ISO format instead
 - PostgREST range pagination: `Range: offset-end` header with `Prefer: count=exact`
 
+## 2026-03-23 - US-005: Migrate dataset_samples to clips + dataset_clips
+
+**What I did:**
+- Created `scripts/migrate-dataset-samples-to-clips.py`
+- Fetches 714 rows, skips 20 with NULL s3_object_key (logs them)
+- Deduplicates by (s3_bucket, s3_object_key): 588 unique clips → one clips row each
+- Re-embeds all caption text at 768 dims via OpenAI (existing were 1536-dim)
+- Upserts clips with ON CONFLICT DO NOTHING
+- Looks up clip IDs then inserts dataset_clips preserving dataset_id + lead_id
+- Idempotent, supports --dry-run and --limit
+
+**Files changed:**
+- scripts/migrate-dataset-samples-to-clips.py (new)
+
+**Learnings:**
+- All 83 existing embeddings in dataset_samples are 1536-dim — ALL need re-embedding at 768
+- 588 distinct s3_object_keys from 694 valid rows = ~15% duplication (same clip in multiple datasets)
+- Caption text built from agent_context.caption + enrichment_json.description/visual_description
+
