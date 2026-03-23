@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import type { DatasetSample } from "@/types/data-catalog";
+import type { DatasetSample, Clip } from "@/types/data-catalog";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -29,11 +29,44 @@ function formatDurationOverlay(seconds: number): string {
 }
 
 // ---------------------------------------------------------------------------
+// ClipLike -- Structural interface for GalleryCard (works with Clip or DatasetSample)
+// ---------------------------------------------------------------------------
+
+/**
+ * Minimal shape that GalleryCard reads from. Compatible with both legacy
+ * DatasetSample and the unified Clip type. Callers pass whichever they have.
+ */
+export interface ClipLike {
+  id: string;
+  mime_type: string | null;
+  filename: string | null;
+  /** Legacy metadata (DatasetSample) — maps to ann_metadata on Clip */
+  metadata_json?: Record<string, unknown> | null;
+  /** Clip-native annotation metadata */
+  ann_metadata?: Record<string, unknown> | null;
+  /** Legacy duration (DatasetSample) */
+  duration_seconds?: number | null;
+  /** Clip-native duration */
+  tech_duration_seconds?: number | null;
+}
+
+/** Helper: extract the metadata record from a ClipLike, preferring ann_metadata. */
+function getMetadata(item: ClipLike): Record<string, unknown> {
+  return (item.ann_metadata ?? item.metadata_json ?? {}) as Record<string, unknown>;
+}
+
+/** Helper: extract duration from a ClipLike, preferring tech_duration_seconds. */
+function getDuration(item: ClipLike): number | null {
+  return item.tech_duration_seconds ?? item.duration_seconds ?? null;
+}
+
+// ---------------------------------------------------------------------------
 // GalleryCard -- Shared card with lazy-loaded media & hover preview
 // ---------------------------------------------------------------------------
 
 export interface GalleryCardProps {
-  sample: DatasetSample;
+  /** Accepts Clip, DatasetSample, or anything satisfying ClipLike. */
+  sample: ClipLike | DatasetSample | Clip;
   signedUrl: string;
   index: number;
   onSelect: (index: number) => void;
@@ -53,17 +86,18 @@ export function GalleryCard({
   const [isInView, setIsInView] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  const isVideo = isVideoUrl(signedUrl, sample.mime_type);
-  const isImage = isImageUrl(signedUrl, sample.mime_type);
+  const mimeType = sample.mime_type ?? "";
+  const isVideo = isVideoUrl(signedUrl, mimeType);
+  const isImage = isImageUrl(signedUrl, mimeType);
 
-  // Extract metadata overlays
-  const metadata = sample.metadata_json ?? {};
+  // Extract metadata overlays — works with both legacy and clip shapes
+  const metadata = getMetadata(sample);
   const subcategory =
     typeof metadata.subcategory === "string" ? metadata.subcategory : null;
   const durationSeconds =
     typeof metadata.duration_seconds === "number"
       ? metadata.duration_seconds
-      : sample.duration_seconds;
+      : getDuration(sample);
 
   // -------------------------------------------------------------------------
   // IntersectionObserver -- lazy-load video src when card enters viewport

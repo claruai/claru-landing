@@ -6,9 +6,8 @@ import { ArrowLeft, Clock, MapPin, Database, Film, Shield } from "lucide-react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { verifyAdminToken } from "@/lib/admin-auth";
-import { getSignedUrl } from "@/lib/supabase/storage";
 import { getS3SignedUrl } from "@/lib/s3/presigner";
-import type { Dataset, DatasetCategory, DatasetSample } from "@/types/data-catalog";
+import type { Dataset, DatasetCategory, Clip } from "@/types/data-catalog";
 
 import { SampleGallery } from "./SampleGallery";
 import { scrubS3Urls } from "@/lib/scrub-s3-urls";
@@ -16,14 +15,14 @@ import { scrubS3Urls } from "@/lib/scrub-s3-urls";
 // =============================================================================
 // Dataset Detail Page (Server Component)
 // Route: /portal/catalog/[id]
-// Fetches dataset + samples via Supabase server client (RLS enforced).
+// Fetches dataset + clips via dataset_clips JOIN clips (unified clip architecture).
 // Admin preview: admin-token cookie bypasses RLS, ?as_lead= impersonates a lead.
-// Samples are rendered by the SampleGallery client component (US-007).
+// Clips are rendered by the SampleGallery client component.
 // =============================================================================
 
 interface DatasetDetailPageProps {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ sample?: string; as_lead?: string }>;
+  searchParams: Promise<{ clip?: string; sample?: string; as_lead?: string }>;
 }
 
 // ---------------------------------------------------------------------------
@@ -44,6 +43,8 @@ const PORTAL_HIDDEN_KEYS = new Set([
   "rejectionCount", "rejectedAt", "isTestTemplate", "annotationIndex",
   "source_bucket", "source_torage_key", "source_url", "delivery", "tranche",
   "annotationCost", "reviewCost", "projectGuideLink", "slackChannel",
+  // Hide internal AI fields from portal clients
+  "ai_enrichment_source",
 ]);
 
 /** Recursively strip hidden keys from a value. */
@@ -100,7 +101,10 @@ export default async function DatasetDetailPage({
   searchParams,
 }: DatasetDetailPageProps) {
   const { id } = await params;
-  const { sample: initialSampleId, as_lead: asLeadId } = await searchParams;
+  const { clip: initialClipId, sample: legacySampleId, as_lead: asLeadId } = await searchParams;
+
+  // Support both ?clip= and legacy ?sample= deep-link params
+  const deepLinkId = initialClipId ?? legacySampleId;
 
   // Detect admin preview mode
   const cookieStore = await cookies();
@@ -130,7 +134,7 @@ export default async function DatasetDetailPage({
     .eq("id", dataset.category_id)
     .single<DatasetCategory>();
 
-  // Determine lead_id for sample filtering
+  // Determine lead_id for clip filtering
   let leadId: string | undefined;
   let impersonatedLeadName: string | null = null;
 
@@ -146,10 +150,10 @@ export default async function DatasetDetailPage({
       ? `${impersonatedLead.name} (${impersonatedLead.company})`
       : null;
   } else if (isAdminPreview) {
-    // Admin without impersonation — show all samples
+    // Admin without impersonation -- show all clips
     leadId = undefined;
   } else {
-    // Normal portal user — resolve lead from Supabase session
+    // Normal portal user -- resolve lead from Supabase session
     const { data: { user } } = await supabase.auth.getUser();
     const { data: leadRow } = user ? await supabase
       .from("leads")
@@ -159,64 +163,72 @@ export default async function DatasetDetailPage({
     leadId = leadRow?.id;
   }
 
-  // Fetch samples
-  // Admin (no impersonation): show ALL samples
-  // Admin (impersonating): show base + that lead's samples
-  // Normal user: show base + their samples
-  let samplesQuery = supabase
-    .from("dataset_samples")
-    .select("*")
+  // -------------------------------------------------------------------------
+  // Fetch clips via dataset_clips JOIN clips
+  // -------------------------------------------------------------------------
+  // Admin (no impersonation): show ALL clips for this dataset
+  // Admin (impersonating): show base clips + that lead's clips
+  // Normal user: show base clips + their clips
+  //
+  // We query dataset_clips with a nested select on clips(*) to get the
+  // joined clip data. Lead filtering uses the dataset_clips.lead_id column.
+  // Deduplication by clip_id prevents duplicates when a clip has both a
+  // base entry (lead_id IS NULL) and a lead-specific entry.
+  // -------------------------------------------------------------------------
+
+  let clipsQuery = supabase
+    .from("dataset_clips")
+    .select("clip_id, lead_id, clips(*)")
     .eq("dataset_id", id)
     .order("created_at", { ascending: true });
 
   if (isAdminPreview && !asLeadId) {
-    // Admin sees everything — no lead filter
+    // Admin sees everything -- no lead filter
   } else {
-    samplesQuery = samplesQuery.or(
+    clipsQuery = clipsQuery.or(
       leadId ? `lead_id.is.null,lead_id.eq.${leadId}` : "lead_id.is.null"
     );
   }
 
-  const { data: samples } = await samplesQuery.returns<DatasetSample[]>();
+  const { data: datasetClipRows } = await clipsQuery;
 
-  const samplesList = samples ?? [];
+  // Deduplicate by clip_id (prefer lead-specific entry over base entry)
+  const clipMap = new Map<string, Clip>();
+  for (const row of datasetClipRows ?? []) {
+    const clip = row.clips as unknown as Clip | null;
+    if (!clip) continue;
+    // If we already have this clip and the current row is lead-specific, replace
+    if (!clipMap.has(clip.id) || row.lead_id) {
+      clipMap.set(clip.id, clip);
+    }
+  }
+  const clipsList = Array.from(clipMap.values());
 
-  // Generate signed URLs for each sample. Resolution order:
-  // 1. s3_object_key  -> AWS S3 presigned URL (primary for new uploads)
-  // 2. media_url      -> direct URL (legacy / external hosting)
-  // 3. storage_path   -> Supabase Storage signed URL (legacy)
-  // 4. fallback       -> empty string (no preview available)
-  // Bucket priority: sample-level s3_bucket > dataset-level s3_bucket > default
-  const datasetBucket = dataset.s3_bucket && dataset.s3_bucket !== "moonvalley-annotation-platform"
-    ? dataset.s3_bucket
-    : undefined;
-
+  // -------------------------------------------------------------------------
+  // Generate signed URLs for each clip using s3_bucket + s3_key
+  // -------------------------------------------------------------------------
   const signedUrls = await Promise.all(
-    samplesList.map((sample) => {
-      const sampleBucket = sample.s3_bucket;
-      const bucket = (sampleBucket && sampleBucket !== "moonvalley-annotation-platform")
-        ? sampleBucket
-        : datasetBucket;
-
-      return sample.s3_object_key
-        ? getS3SignedUrl(sample.s3_object_key, 3600, bucket)
-        : sample.media_url
-          ? Promise.resolve(sample.media_url)
-          : sample.storage_path
-            ? getSignedUrl(sample.storage_path)
-            : Promise.resolve("");
+    clipsList.map((clip) => {
+      if (!clip.s3_key) return Promise.resolve("");
+      // Use clip's own s3_bucket; fall back to dataset bucket
+      const bucket = clip.s3_bucket && clip.s3_bucket !== "moonvalley-annotation-platform"
+        ? clip.s3_bucket
+        : dataset.s3_bucket && dataset.s3_bucket !== "moonvalley-annotation-platform"
+          ? dataset.s3_bucket
+          : undefined;
+      return getS3SignedUrl(clip.s3_key, 3600, bucket);
     })
   );
 
-  // Pair samples with their resolved URLs for the client component.
-  // Coerce null signed URLs to empty string so the gallery can handle
-  // the "no preview" state without nullable types.
-  // Also scrub any s3:// paths from metadata_json before sending to client.
-  const samplesWithUrls = samplesList.map((sample, i) => ({
-    sample: {
-      ...sample,
-      metadata_json: (scrubS3Urls(stripHiddenKeys(sample.metadata_json)) ?? {}) as Record<string, unknown>,
-    },
+  // Pair clips with their resolved URLs for the client component.
+  // Scrub S3 paths from ann_metadata before sending to portal clients.
+  const clipsWithUrls = clipsList.map((clip, i) => ({
+    clip: {
+      ...clip,
+      ann_metadata: (scrubS3Urls(stripHiddenKeys(clip.ann_metadata)) ?? {}) as Record<string, unknown>,
+      // Strip ai_enrichment_source from portal view
+      ai_enrichment_source: null,
+    } as Clip,
     signedUrl: signedUrls[i] ?? "",
   }));
 
@@ -234,7 +246,7 @@ export default async function DatasetDetailPage({
               </span>
             ) : (
               <span className="text-amber-400/70">
-                Showing all samples (no lead filter)
+                Showing all clips (no lead filter)
               </span>
             )}
             <Link
@@ -338,18 +350,18 @@ export default async function DatasetDetailPage({
         )}
 
         {/* ---------------------------------------------------------------- */}
-        {/* Samples Gallery (US-007)                                         */}
+        {/* Clips Gallery                                                    */}
         {/* ---------------------------------------------------------------- */}
         <div>
           <div className="flex items-center justify-between mb-6">
             <SectionHeader>{"// SAMPLES"}</SectionHeader>
             <span className="font-mono text-xs text-[var(--text-muted)]">
-              {samplesList.length}{" "}
-              {samplesList.length === 1 ? "sample" : "samples"} loaded
+              {clipsList.length}{" "}
+              {clipsList.length === 1 ? "clip" : "clips"} loaded
             </span>
           </div>
 
-          {samplesList.length === 0 ? (
+          {clipsList.length === 0 ? (
             <div className="rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] p-12 text-center">
               <Film className="w-10 h-10 text-[var(--text-muted)] mx-auto mb-3" />
               <p className="font-mono text-sm text-[var(--text-muted)]">
@@ -357,7 +369,7 @@ export default async function DatasetDetailPage({
               </p>
             </div>
           ) : (
-            <SampleGallery samplesWithUrls={samplesWithUrls} initialSampleId={initialSampleId} />
+            <SampleGallery clipsWithUrls={clipsWithUrls} initialClipId={deepLinkId} />
           )}
         </div>
       </div>
