@@ -277,8 +277,8 @@ export default function CatalogSearchClient({
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
       {/* Header */}
-      <header className="border-b border-[var(--border-subtle)] px-6 py-4 flex items-center justify-between">
-        <h1 className="text-lg font-mono font-semibold tracking-tight">
+      <header className="border-b border-[var(--border-subtle)] px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 sm:justify-between">
+        <h1 className="text-base sm:text-lg font-mono font-semibold tracking-tight">
           <Link
             href="/admin/dashboard"
             className="hover:text-[var(--accent-primary)] transition-colors duration-150"
@@ -295,7 +295,7 @@ export default function CatalogSearchClient({
           <span className="text-[var(--text-muted)]">/</span>
           <span className="text-[var(--text-primary)]">search</span>
         </h1>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           <Link
             href="/admin/catalog/enrichment"
             className="px-3 py-1.5 text-xs font-mono rounded-md bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/20 transition-colors duration-150"
@@ -311,15 +311,15 @@ export default function CatalogSearchClient({
         </div>
       </header>
 
-      <div className="max-w-5xl mx-auto px-6 py-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Mode toggle */}
-        <div className="flex items-center gap-1 mb-4">
+        <div className="flex flex-wrap items-center gap-1 mb-4">
           {(["catalog", "full_corpus", "both"] as const).map((m) => (
             <button
               key={m}
               onClick={() => handleModeChange(m)}
               disabled={m !== "catalog" && fullCorpusDisabled}
-              className={`px-3 py-1.5 text-xs font-mono rounded-md border transition-colors ${
+              className={`px-3 py-2 sm:py-1.5 text-xs font-mono rounded-md border transition-colors ${
                 mode === m
                   ? "bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] border-[var(--accent-primary)]/30"
                   : "bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-subtle)] hover:text-[var(--text-secondary)] hover:border-[var(--text-muted)]"
@@ -336,8 +336,9 @@ export default function CatalogSearchClient({
         </div>
 
         {/* Search form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex gap-3">
+        <form onSubmit={handleSubmit} className="space-y-3">
+          {/* Search input + submit button */}
+          <div className="flex gap-2 sm:gap-3">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)]" />
               <input
@@ -345,15 +346,29 @@ export default function CatalogSearchClient({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={mode === "full_corpus" ? "Search full video corpus..." : "Semantic search across samples..."}
-                className="w-full pl-10 pr-4 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150"
+                className="w-full pl-10 pr-4 py-3 sm:py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150"
               />
             </div>
+            <button
+              type="submit"
+              disabled={loading || (!query.trim() && !datasetFilter && !bucketFilter)}
+              className="px-5 py-3 sm:py-2.5 text-sm font-mono rounded-md bg-[var(--accent-primary)] text-[var(--bg-primary)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity duration-150 flex-shrink-0"
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "search"
+              )}
+            </button>
+          </div>
+          {/* Filters row — wraps on mobile */}
+          <div className="flex flex-wrap gap-2 sm:gap-3">
             {/* Dataset filter (catalog/both mode) */}
             {(mode === "catalog" || mode === "both") && (
               <select
                 value={datasetFilter}
                 onChange={(e) => setDatasetFilter(e.target.value)}
-                className="px-3 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150"
+                className="flex-1 min-w-0 sm:flex-none sm:min-w-[180px] px-3 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150"
               >
                 <option value="">all datasets</option>
                 {datasets.map((ds) => (
@@ -368,7 +383,7 @@ export default function CatalogSearchClient({
               <select
                 value={subcategoryFilter}
                 onChange={(e) => setSubcategoryFilter(e.target.value)}
-                className="px-3 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150"
+                className="flex-1 min-w-0 sm:flex-none sm:min-w-[180px] px-3 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150"
               >
                 <option value="">all categories</option>
                 {subcategories.map((sc) => (
@@ -385,20 +400,9 @@ export default function CatalogSearchClient({
                 value={bucketFilter}
                 onChange={(e) => setBucketFilter(e.target.value)}
                 placeholder="s3 bucket filter..."
-                className="px-3 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150 w-48"
+                className="flex-1 min-w-0 sm:flex-none sm:w-48 px-3 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-md font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors duration-150"
               />
             )}
-            <button
-              type="submit"
-              disabled={loading || (!query.trim() && !datasetFilter && !bucketFilter)}
-              className="px-5 py-2.5 text-sm font-mono rounded-md bg-[var(--accent-primary)] text-[var(--bg-primary)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity duration-150"
-            >
-              {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                "search"
-              )}
-            </button>
           </div>
         </form>
 
@@ -464,7 +468,7 @@ export default function CatalogSearchClient({
                 ? `showing ${(offset + 1).toLocaleString()}\u2013${(offset + results.length).toLocaleString()} of ${totalCount.toLocaleString()}`
                 : `${results.length} result${results.length !== 1 ? "s" : ""}${results.length >= SEARCH_MAX_RESULTS ? " (max)" : ""}`}
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {results.map((r) => (
                 <ResultCard
                   key={r.id}
@@ -522,6 +526,9 @@ export default function CatalogSearchClient({
             )}
           </div>
         )}
+
+        {/* Spacer for floating bulk action bar on mobile */}
+        {selected.size > 0 && results && <div className="h-48 sm:h-24" />}
 
         {/* Floating bulk action bar */}
         {selected.size > 0 && results && (
@@ -590,20 +597,20 @@ function ResultCard({
     }`} onClick={onOpen}>
       {/* Thumbnail */}
       <div className="aspect-video bg-[var(--bg-primary)] relative overflow-hidden">
-        {/* Checkbox */}
-        <label className="absolute top-2 left-2 z-10 cursor-pointer" onClick={(e) => e.stopPropagation()}>
+        {/* Checkbox — label padding creates 44px+ touch target around the visual checkbox */}
+        <label className="absolute top-0 left-0 z-10 cursor-pointer p-2 sm:p-2" onClick={(e) => e.stopPropagation()}>
           <input
             type="checkbox"
             checked={isSelected}
             onChange={() => onToggleSelect(result.id)}
             className="sr-only peer"
           />
-          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+          <div className={`w-6 h-6 sm:w-5 sm:h-5 rounded border-2 flex items-center justify-center transition-colors ${
             isSelected
               ? "bg-[var(--accent-primary)] border-[var(--accent-primary)]"
               : "bg-black/40 border-white/40 hover:border-white/70"
           }`}>
-            {isSelected && <Check className="w-3 h-3 text-[var(--bg-primary)]" />}
+            {isSelected && <Check className="w-3.5 h-3.5 sm:w-3 sm:h-3 text-[var(--bg-primary)]" />}
           </div>
         </label>
         {result.signed_url ? (
@@ -719,13 +726,13 @@ function ResultCard({
 
         {/* Copy links + Add to Lead — stop propagation so clicks don't open modal */}
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-        <div className="flex items-center gap-2 pt-2 border-t border-[var(--border-subtle)]" onClick={(e) => e.stopPropagation()}>
+        <div className="flex flex-wrap items-center gap-1 sm:gap-2 pt-2 border-t border-[var(--border-subtle)]" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => copyToClipboard(result.id, "id")}
-            className="flex items-center gap-1 text-[10px] font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors"
+            className="flex items-center gap-1 min-h-[44px] sm:min-h-0 px-1.5 py-1 text-[11px] sm:text-[10px] font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] active:text-[var(--accent-primary)] transition-colors"
             title={`ID: ${result.id}`}
           >
-            {copied === "id" ? <Check className="w-2.5 h-2.5" /> : <Copy className="w-2.5 h-2.5" />}
+            {copied === "id" ? <Check className="w-3.5 h-3.5 sm:w-2.5 sm:h-2.5 flex-shrink-0" /> : <Copy className="w-3.5 h-3.5 sm:w-2.5 sm:h-2.5 flex-shrink-0" />}
             {copied === "id" ? "copied" : result.id.slice(0, 8)}
           </button>
           {result.signed_url && (
@@ -733,10 +740,10 @@ function ResultCard({
               href={result.signed_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 text-[10px] font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors"
+              className="flex items-center gap-1 min-h-[44px] sm:min-h-0 px-1.5 py-1 text-[11px] sm:text-[10px] font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] active:text-[var(--accent-primary)] transition-colors"
               title="Open media in new tab"
             >
-              <ExternalLink className="w-2.5 h-2.5" />
+              <ExternalLink className="w-3.5 h-3.5 sm:w-2.5 sm:h-2.5 flex-shrink-0" />
               open
             </a>
           )}
@@ -746,10 +753,10 @@ function ResultCard({
                 `${window.location.origin}/portal/catalog/${result.dataset_id}?sample=${result.id}`,
                 "portal"
               )}
-              className="flex items-center gap-1 text-[10px] font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors"
+              className="flex items-center gap-1 min-h-[44px] sm:min-h-0 px-1.5 py-1 text-[11px] sm:text-[10px] font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] active:text-[var(--accent-primary)] transition-colors"
               title="Copy portal link for lead"
             >
-              {copied === "portal" ? <Check className="w-2.5 h-2.5" /> : <Link2 className="w-2.5 h-2.5" />}
+              {copied === "portal" ? <Check className="w-3.5 h-3.5 sm:w-2.5 sm:h-2.5 flex-shrink-0" /> : <Link2 className="w-3.5 h-3.5 sm:w-2.5 sm:h-2.5 flex-shrink-0" />}
               {copied === "portal" ? "copied" : "lead link"}
             </button>
           )}
@@ -983,9 +990,9 @@ function BulkActionBar({
   // Toast + portal link
   if (toast) {
     return (
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-lg bg-[var(--accent-primary)] text-[var(--bg-primary)] font-mono text-sm shadow-xl flex items-center gap-3">
+      <div className="fixed bottom-4 sm:bottom-6 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:w-auto z-50 px-4 sm:px-6 py-3 rounded-lg bg-[var(--accent-primary)] text-[var(--bg-primary)] font-mono text-sm shadow-xl flex items-center gap-3">
         <Check className="w-4 h-4 flex-shrink-0" />
-        <span>{toast}</span>
+        <span className="truncate">{toast}</span>
         {portalLink && (
           <button
             onClick={async () => {
@@ -994,7 +1001,7 @@ function BulkActionBar({
               setPortalLink(null);
               setTimeout(() => setToast(null), 2000);
             }}
-            className="flex items-center gap-1 px-2 py-1 rounded bg-[var(--bg-primary)]/20 text-[var(--bg-primary)] hover:bg-[var(--bg-primary)]/30 text-xs whitespace-nowrap"
+            className="flex items-center gap-1 px-2 py-1.5 rounded bg-[var(--bg-primary)]/20 text-[var(--bg-primary)] hover:bg-[var(--bg-primary)]/30 text-xs whitespace-nowrap flex-shrink-0"
           >
             <Link2 className="w-3 h-3" />
             copy portal link
@@ -1005,71 +1012,82 @@ function BulkActionBar({
   }
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-4xl px-4">
-      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-2xl">
+    <div className="fixed bottom-0 sm:bottom-6 left-0 sm:left-1/2 sm:-translate-x-1/2 z-50 w-full sm:max-w-4xl sm:px-4">
+      <div className="rounded-t-xl sm:rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-2xl">
         {/* Mode toggle tabs */}
-        <div className="flex border-b border-[var(--border-subtle)]">
+        <div className="flex border-b border-[var(--border-subtle)] overflow-x-auto">
           <button
             onClick={() => setBulkMode("add_to_lead")}
-            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-mono transition-colors ${
+            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 text-xs font-mono transition-colors whitespace-nowrap flex-1 sm:flex-none justify-center sm:justify-start ${
               bulkMode === "add_to_lead"
                 ? "text-[var(--accent-primary)] border-b-2 border-[var(--accent-primary)]"
                 : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
             }`}
           >
-            <UserPlus className="w-3 h-3" />
-            Add to Existing
+            <UserPlus className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
+            <span className="hidden sm:inline">Add to Existing</span>
+            <span className="sm:hidden">Existing</span>
           </button>
           <button
             onClick={() => setBulkMode("create_catalog")}
-            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-mono transition-colors ${
+            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 text-xs font-mono transition-colors whitespace-nowrap flex-1 sm:flex-none justify-center sm:justify-start ${
               bulkMode === "create_catalog"
                 ? "text-purple-400 border-b-2 border-purple-400"
                 : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
             }`}
           >
-            <FolderPlus className="w-3 h-3" />
-            Create New
+            <FolderPlus className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
+            <span className="hidden sm:inline">Create New</span>
+            <span className="sm:hidden">New</span>
           </button>
           <button
             onClick={() => setBulkMode("add_to_catalog")}
-            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-mono transition-colors ${
+            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 text-xs font-mono transition-colors whitespace-nowrap flex-1 sm:flex-none justify-center sm:justify-start ${
               bulkMode === "add_to_catalog"
                 ? "text-blue-400 border-b-2 border-blue-400"
                 : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
             }`}
           >
-            <FolderPlus className="w-3 h-3" />
-            Add to Catalog
+            <FolderPlus className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
+            <span className="hidden sm:inline">Add to Catalog</span>
+            <span className="sm:hidden">Catalog</span>
           </button>
         </div>
 
-        <div className="px-4 py-3 flex items-center gap-3">
-          {/* Count */}
-          <span className="text-sm font-mono text-[var(--text-primary)] whitespace-nowrap">
-            {selectedIds.size} selected
-          </span>
-
-          <span className="text-[var(--text-muted)]">—</span>
+        <div className="px-3 sm:px-4 py-3 space-y-2 sm:space-y-0 sm:flex sm:items-center sm:gap-3">
+          {/* Top row on mobile: count + clear; inline on desktop */}
+          <div className="flex items-center justify-between sm:justify-start sm:gap-3">
+            <span className="text-sm font-mono text-[var(--text-primary)] whitespace-nowrap">
+              {selectedIds.size} selected
+            </span>
+            <button
+              onClick={onClear}
+              className="sm:hidden p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+              title="Clear selection"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <span className="hidden sm:inline text-[var(--text-muted)]">—</span>
+          </div>
 
           {/* Catalog picker (add_to_catalog mode) */}
           {bulkMode === "add_to_catalog" && (
-            <div className="relative flex-shrink-0" ref={catalogDropdownRef}>
+            <div className="relative" ref={catalogDropdownRef}>
               <button
                 onClick={() => setCatalogDropdownOpen(!catalogDropdownOpen)}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-md bg-[var(--bg-primary)] border border-blue-500/30 text-[var(--text-secondary)] hover:border-blue-400 transition-colors min-w-[200px]"
+                className="flex items-center gap-1.5 w-full sm:w-auto px-3 py-2.5 sm:py-1.5 text-xs font-mono rounded-md bg-[var(--bg-primary)] border border-blue-500/30 text-[var(--text-secondary)] hover:border-blue-400 transition-colors sm:min-w-[200px]"
               >
-                <FolderPlus className="w-3 h-3" />
+                <FolderPlus className="w-3 h-3 flex-shrink-0" />
                 {selectedCatalog ? (
                   <span className="truncate">{selectedCatalog.name}</span>
                 ) : (
                   <span className="text-[var(--text-muted)]">Select catalog...</span>
                 )}
-                <ChevronDown className="w-3 h-3 ml-auto" />
+                <ChevronDown className="w-3 h-3 ml-auto flex-shrink-0" />
               </button>
 
               {catalogDropdownOpen && (
-                <div className="absolute bottom-full mb-1 left-0 w-80 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-xl">
+                <div className="absolute bottom-full mb-1 left-0 right-0 sm:right-auto sm:w-80 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-xl">
                   <div className="p-2 border-b border-[var(--border-subtle)]">
                     <input
                       type="text"
@@ -1077,7 +1095,7 @@ function BulkActionBar({
                       onChange={(e) => setCatalogSearch(e.target.value)}
                       placeholder="Search catalogs..."
                       autoFocus
-                      className="w-full px-2 py-1.5 text-xs font-mono bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-400"
+                      className="w-full px-2 py-2 sm:py-1.5 text-xs font-mono bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-400"
                     />
                   </div>
                   <div className="max-h-48 overflow-y-auto">
@@ -1097,7 +1115,7 @@ function BulkActionBar({
                             setSelectedCatalog(cat);
                             setCatalogDropdownOpen(false);
                           }}
-                          className="w-full px-3 py-2 text-left text-xs font-mono text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] hover:text-blue-400 border-b border-[var(--border-subtle)] last:border-0 transition-colors"
+                          className="w-full px-3 py-2.5 sm:py-2 text-left text-xs font-mono text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] hover:text-blue-400 border-b border-[var(--border-subtle)] last:border-0 transition-colors"
                         >
                           {cat.name}
                         </button>
@@ -1116,27 +1134,27 @@ function BulkActionBar({
               value={catalogName}
               onChange={(e) => setCatalogName(e.target.value)}
               placeholder="Catalog name..."
-              className="w-48 flex-shrink-0 px-2 py-1.5 text-xs font-mono bg-[var(--bg-primary)] border border-purple-500/30 rounded-md text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-purple-400"
+              className="w-full sm:w-48 flex-shrink-0 px-2 py-2.5 sm:py-1.5 text-xs font-mono bg-[var(--bg-primary)] border border-purple-500/30 rounded-md text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-purple-400"
             />
           )}
 
           {/* Lead combobox */}
-          <div className="relative flex-shrink-0" ref={dropdownRef}>
+          <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-md bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)] transition-colors min-w-[160px]"
+              className="flex items-center gap-1.5 w-full sm:w-auto px-3 py-2.5 sm:py-1.5 text-xs font-mono rounded-md bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)] transition-colors sm:min-w-[160px]"
             >
-              <UserPlus className="w-3 h-3" />
+              <UserPlus className="w-3 h-3 flex-shrink-0" />
               {selectedLead ? (
                 <span className="truncate">{selectedLead.name}</span>
               ) : (
                 <span className="text-[var(--text-muted)]">Select lead...</span>
               )}
-              <ChevronDown className="w-3 h-3 ml-auto" />
+              <ChevronDown className="w-3 h-3 ml-auto flex-shrink-0" />
             </button>
 
             {dropdownOpen && (
-              <div className="absolute bottom-full mb-1 left-0 w-64 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-xl">
+              <div className="absolute bottom-full mb-1 left-0 right-0 sm:right-auto sm:w-64 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-xl">
                 <div className="p-2 border-b border-[var(--border-subtle)]">
                   <input
                     type="text"
@@ -1144,7 +1162,7 @@ function BulkActionBar({
                     onChange={(e) => setLeadSearch(e.target.value)}
                     placeholder="Search leads..."
                     autoFocus
-                    className="w-full px-2 py-1.5 text-xs font-mono bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)]"
+                    className="w-full px-2 py-2 sm:py-1.5 text-xs font-mono bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)]"
                   />
                 </div>
                 <div className="max-h-40 overflow-y-auto">
@@ -1164,7 +1182,7 @@ function BulkActionBar({
                           setSelectedLead(lead);
                           setDropdownOpen(false);
                         }}
-                        className="w-full px-3 py-2 text-left text-xs font-mono text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] hover:text-[var(--accent-primary)] border-b border-[var(--border-subtle)] last:border-0 transition-colors"
+                        className="w-full px-3 py-2.5 sm:py-2 text-left text-xs font-mono text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] hover:text-[var(--accent-primary)] border-b border-[var(--border-subtle)] last:border-0 transition-colors"
                       >
                         <span className="text-[var(--text-primary)]">{lead.name}</span>
                         <span className="text-[var(--text-muted)] ml-1">({lead.company})</span>
@@ -1182,10 +1200,11 @@ function BulkActionBar({
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Note (optional)"
-            className="flex-1 min-w-0 px-2 py-1.5 text-xs font-mono bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded-md text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)]"
+            className="w-full sm:flex-1 sm:min-w-0 px-2 py-2.5 sm:py-1.5 text-xs font-mono bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded-md text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)]"
           />
 
-          {/* Confirm */}
+          {/* Action row: Confirm + Clear (desktop) */}
+          <div className="flex items-center gap-2">
           <button
             onClick={
               bulkMode === "create_catalog"
@@ -1200,7 +1219,7 @@ function BulkActionBar({
               (bulkMode === "create_catalog" && !catalogName.trim()) ||
               (bulkMode === "add_to_catalog" && !selectedCatalog)
             }
-            className={`px-4 py-1.5 text-xs font-mono rounded-md hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity whitespace-nowrap ${
+            className={`flex-1 sm:flex-none px-4 py-2.5 sm:py-1.5 text-xs font-mono rounded-md hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity whitespace-nowrap ${
               bulkMode === "create_catalog"
                 ? "bg-purple-500 text-white"
                 : bulkMode === "add_to_catalog"
@@ -1209,7 +1228,7 @@ function BulkActionBar({
             }`}
           >
             {submitting ? (
-              <Loader2 className="w-3 h-3 animate-spin" />
+              <Loader2 className="w-3 h-3 animate-spin mx-auto" />
             ) : bulkMode === "create_catalog" ? (
               "Create Catalog"
             ) : bulkMode === "add_to_catalog" ? (
@@ -1219,20 +1238,21 @@ function BulkActionBar({
             )}
           </button>
 
-          {/* Clear */}
+          {/* Clear — desktop only (mobile clear is in the top row) */}
           <button
             onClick={onClear}
-            className="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+            className="hidden sm:block p-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
             title="Clear selection"
           >
             <X className="w-4 h-4" />
           </button>
+          </div>
 
           {/* Error */}
           {error && (
-            <span className="text-[10px] font-mono text-red-400 whitespace-nowrap">
+            <p className="text-[11px] sm:text-[10px] font-mono text-red-400">
               {error}
-            </span>
+            </p>
           )}
         </div>
       </div>
@@ -1292,35 +1312,38 @@ function ResultDetailModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 lg:p-8"
+      className="fixed inset-0 z-50 flex items-center justify-center sm:p-4 md:p-6 lg:p-8"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
 
-      <button onClick={onClose} className="absolute top-4 right-4 z-[60] w-10 h-10 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)]/80 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
+      {/* Close button */}
+      <button onClick={onClose} className="absolute top-3 right-3 sm:top-4 sm:right-4 z-[60] w-11 h-11 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)]/80 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
         <X className="w-5 h-5" />
       </button>
 
+      {/* Navigation: prev/next — positioned outside the modal on desktop, inside bottom bar on mobile */}
       {hasPrev && (
-        <button onClick={() => onNavigate("prev")} className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-[60] w-10 h-10 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)]/80 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
+        <button onClick={() => onNavigate("prev")} className="hidden sm:flex absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-[60] w-10 h-10 rounded-full items-center justify-center bg-[var(--bg-tertiary)]/80 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
           <ChevronLeft className="w-5 h-5" />
         </button>
       )}
       {hasNext && (
-        <button onClick={() => onNavigate("next")} className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-[60] w-10 h-10 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)]/80 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
+        <button onClick={() => onNavigate("next")} className="hidden sm:flex absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-[60] w-10 h-10 rounded-full items-center justify-center bg-[var(--bg-tertiary)]/80 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
           <ChevronRight className="w-5 h-5" />
         </button>
       )}
 
-      <div className="relative z-[55] flex flex-col lg:flex-row w-full max-w-6xl max-h-[90vh] rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-2xl shadow-black/50">
+      {/* Modal panel — full screen on mobile, max-w-6xl with border radius on larger screens */}
+      <div className="relative z-[55] flex flex-col lg:flex-row w-full h-full sm:h-auto sm:max-w-6xl sm:max-h-[90vh] sm:rounded-xl overflow-hidden sm:border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-2xl shadow-black/50">
         {/* Left: Media */}
-        <div className="lg:w-[60%] flex-shrink-0 bg-[var(--bg-primary)] flex items-center justify-center min-h-[240px]">
+        <div className="lg:w-[60%] flex-shrink-0 bg-[var(--bg-primary)] flex items-center justify-center min-h-[200px] sm:min-h-[240px]">
           {result.signed_url ? (
             isVideo ? (
-              <video key={result.id} src={result.signed_url} controls autoPlay muted playsInline className="w-full h-full max-h-[50vh] lg:max-h-[90vh] object-contain" style={{ colorScheme: "dark" }} />
+              <video key={result.id} src={result.signed_url} controls autoPlay muted playsInline className="w-full h-full max-h-[40vh] sm:max-h-[50vh] lg:max-h-[90vh] object-contain" style={{ colorScheme: "dark" }} />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={result.signed_url} alt="Sample" className="w-full h-full max-h-[50vh] lg:max-h-[90vh] object-contain" />
+              <img src={result.signed_url} alt="Sample" className="w-full h-full max-h-[40vh] sm:max-h-[50vh] lg:max-h-[90vh] object-contain" />
             )
           ) : (
             <span className="font-mono text-sm text-[var(--text-muted)]">No preview</span>
@@ -1328,7 +1351,7 @@ function ResultDetailModal({
         </div>
 
         {/* Right: Data panel */}
-        <div className="lg:w-[40%] flex flex-col min-h-0 border-t lg:border-t-0 lg:border-l border-[var(--border-subtle)]">
+        <div className="lg:w-[40%] flex flex-col min-h-0 flex-1 border-t lg:border-t-0 lg:border-l border-[var(--border-subtle)]">
           <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]/50 flex-shrink-0">
             <span className="font-mono text-xs text-[var(--accent-primary)] tracking-wider">{"// DETAILS"}</span>
             {isFC && (
@@ -1339,22 +1362,41 @@ function ResultDetailModal({
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {fields.map(({ key, value }) => (
               <div key={key}>
-                <span className="text-[10px] font-mono text-[var(--accent-primary)] uppercase tracking-wider">{key}</span>
+                <span className="text-[11px] sm:text-[10px] font-mono text-[var(--accent-primary)] uppercase tracking-wider">{key}</span>
                 {Array.isArray(value) ? (
                   <div className="flex flex-wrap gap-1 mt-1">
                     {value.map((v) => (
-                      <span key={v} className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)]">{v}</span>
+                      <span key={v} className="px-2 py-1 sm:px-1.5 sm:py-0.5 text-[11px] sm:text-[10px] font-mono rounded bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)]">{v}</span>
                     ))}
                   </div>
                 ) : (
-                  <p className="font-mono text-xs text-[var(--text-secondary)] mt-0.5 break-all">{value}</p>
+                  <p className="font-mono text-sm sm:text-xs text-[var(--text-secondary)] mt-0.5 break-all">{value}</p>
                 )}
               </div>
             ))}
           </div>
 
-          <div className="px-4 py-2.5 border-t border-[var(--border-subtle)] bg-[var(--bg-primary)]/30 flex-shrink-0 flex items-center justify-between">
-            <span className="font-mono text-[10px] text-[var(--text-muted)]">esc close &middot; &larr;&rarr; navigate</span>
+          {/* Footer: nav on mobile, keyboard hints on desktop */}
+          <div className="px-4 py-3 sm:py-2.5 border-t border-[var(--border-subtle)] bg-[var(--bg-primary)]/30 flex-shrink-0 flex items-center justify-between gap-2">
+            {/* Mobile prev/next buttons */}
+            <div className="flex items-center gap-2 sm:hidden">
+              <button
+                onClick={() => onNavigate("prev")}
+                disabled={!hasPrev}
+                className="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => onNavigate("next")}
+                disabled={!hasNext}
+                className="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+            {/* Desktop keyboard hints */}
+            <span className="hidden sm:inline font-mono text-[10px] text-[var(--text-muted)]">esc close &middot; &larr;&rarr; navigate</span>
             {!isFC && result.dataset_id && (
               <CopyPortalLinkButton datasetId={result.dataset_id} sampleId={result.id} />
             )}
@@ -1384,9 +1426,9 @@ function CopyPortalLinkButton({ datasetId, sampleId }: { datasetId: string; samp
   return (
     <button
       onClick={handleCopy}
-      className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-mono rounded bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/20 transition-colors"
+      className="flex items-center gap-1.5 px-3 py-2 sm:px-2 sm:py-1 text-[11px] sm:text-[10px] font-mono rounded bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/20 active:bg-[var(--accent-primary)]/30 transition-colors"
     >
-      {copied ? <Check className="w-3 h-3" /> : <Link2 className="w-3 h-3" />}
+      {copied ? <Check className="w-3.5 h-3.5 sm:w-3 sm:h-3" /> : <Link2 className="w-3.5 h-3.5 sm:w-3 sm:h-3" />}
       {copied ? "copied!" : "copy lead link"}
     </button>
   );

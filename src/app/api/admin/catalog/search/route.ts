@@ -121,6 +121,7 @@ export async function POST(request: NextRequest) {
           query_embedding: queryEmbedding,
           match_count: limit,
           filter_dataset_id: dataset_id ?? null,
+          match_threshold: dataset_id ? 0.1 : 0.3,
         });
 
       if (error) {
@@ -247,9 +248,9 @@ export async function POST(request: NextRequest) {
           "match_video_index",
           {
             query_embedding: queryEmbedding768,
-            match_count: limit,
+            match_count: corpusPrefixes ? limit * 3 : limit,  // over-fetch when post-filtering by prefix
             filter_bucket: corpusBucket,
-            match_threshold: 0.4,
+            match_threshold: dataset_id ? 0.15 : 0.3,
           },
         );
 
