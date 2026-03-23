@@ -43,7 +43,7 @@ The following docs were generated before this PRD and are referenced by user sto
 - [ ] Add annotation columns: ann_metadata (jsonb), ann_annotation_key (text), ann_specs_key (text)
 - [ ] Add technical columns: tech_file_size_bytes (bigint), tech_duration_seconds (numeric), tech_resolution_width (int), tech_resolution_height (int), tech_fps (numeric), tech_codec (text), tech_bit_depth (int)
 - [ ] Add AI columns: ai_caption (text), ai_agent_context (jsonb), ai_enrichment_source (text), ai_enrichment_json (jsonb)
-- [ ] Add embedding column: vector(768), plus IVFFlat index
+- [ ] Add embedding column: vector(768), plus HNSW index (not IVFFlat — HNSW works on empty tables and handles incremental inserts)
 - [ ] Add timestamps: created_at, updated_at with auto-update trigger
 - [ ] Create `dataset_clips` table: id, dataset_id (FK), clip_id (FK), lead_id (FK nullable), added_by, note, created_at, UNIQUE(dataset_id, clip_id, COALESCE(lead_id, '00000000-...'))
 - [ ] Create `match_clips` RPC function replacing both match_samples and match_video_index
@@ -603,6 +603,7 @@ clips (
   ai_enrichment_json JSONB,        -- raw enrichment blob (cobry multi-layer, troveo clip_annotations)
 
   -- Derived search fields (rebuilt by caption rebuild script)
+  caption_text TEXT,               -- combined from all sources for embedding (NOT the same as ai_caption)
   embedding vector(768),           -- from caption_text via text-embedding-3-small
   caption_rebuilt_at TIMESTAMPTZ,  -- NULL = needs rebuild
 
@@ -619,8 +620,9 @@ dataset_clips (
   added_by TEXT,
   note TEXT,
   created_at TIMESTAMPTZ DEFAULT now(),
-  -- Allow same clip for different leads in same dataset:
-  UNIQUE(dataset_id, clip_id, COALESCE(lead_id, '00000000-0000-0000-0000-000000000000'))
+  -- NOTE: Can't use COALESCE in a UNIQUE constraint. Use expression index:
+  -- CREATE UNIQUE INDEX idx_dataset_clips_unique
+  --   ON dataset_clips (dataset_id, clip_id, COALESCE(lead_id, '00000000-0000-0000-0000-000000000000'))
 )
 ```
 
@@ -629,13 +631,20 @@ dataset_clips (
 Issues caught by Codex review and how they're resolved:
 
 1. **Schema column names inconsistent across docs** — Canonical schema above is the authority. Design/plan docs use different names but implementation follows the canonical schema.
-2. **dataset_clips UNIQUE constraint blocks lead-specific rows** — Fixed: uses `COALESCE(lead_id, sentinel_uuid)` in unique constraint.
+2. **dataset_clips UNIQUE constraint blocks lead-specific rows** — Fixed: uses expression-based unique INDEX with `COALESCE(lead_id, sentinel_uuid)` (can't use COALESCE in a UNIQUE constraint per Postgres — must be an index).
 3. **Design says ON CONFLICT DO UPDATE, PRD says DO NOTHING** — `DO NOTHING` is correct per bloat prevention rule. Design doc is overridden.
 4. **Loaders writing caption_text directly vs source columns only** — Loaders write ONLY their own columns + set `caption_rebuilt_at = NULL`. Rebuild script derives `caption_text` + `embedding`. Plan is overridden by PRD.
 5. **Live S3 fetch vs DB-stored ann_raw** — Hybrid approach: `ann_metadata` in DB for search/cards, `ann_annotation_key` stored so portal can live-fetch from S3 for detail modal. No `ann_raw` column.
 6. **RLS strategy** — Clips table uses service role access (admin client), NOT per-user RLS. Matches existing portal pattern. Requirements doc is overridden.
 7. **No rollback script** — Acceptable risk since staging-first validates everything. Old tables preserved until US-016 confirms all surfaces work.
-8. **match_clips RPC return shape** — Must include: id, s3_bucket, s3_key, ai_caption, similarity, ai_enrichment_source, ai_agent_context, mime_type, tech_resolution_width, tech_resolution_height, tech_fps, tech_duration_seconds, tech_codec, ann_metadata.
+8. **match_clips RPC return shape** — Must include: id, s3_bucket, s3_key, ai_caption, caption_text, similarity, ai_enrichment_source, ai_agent_context, mime_type, tech_resolution_width, tech_resolution_height, tech_fps, tech_duration_seconds, tech_codec, ann_metadata.
+9. **COALESCE in UNIQUE constraint** — Postgres requires expression-based unique INDEX, not a UNIQUE constraint, when using COALESCE. Schema updated.
+10. **Use HNSW not IVFFlat** — HNSW is Supabase-recommended default. Works on empty tables, handles incremental inserts, no re-tuning. Prod already uses HNSW.
+11. **caption_text vs ai_caption** — `ai_caption` stores the AI-generated scene description. `caption_text` is the DERIVED combined field (annotation + tech + AI) used for embedding. Both needed.
+12. **20 dataset_samples have NULL s3_object_key** — Migration must log and skip these. They likely have only media_url (external hosting).
+13. **dataset_samples has no UNIQUE on S3 keys** — Multiple rows can point to same file. Migration must deduplicate: GROUP BY (s3_bucket, s3_object_key) → one clips row + multiple dataset_clips rows.
+14. **631 of 714 dataset_samples lack embeddings** — US-003 re-embedding scope is larger than initially expected. Budget ~$0.50 for 631 embedding calls.
+15. **GIN index on ann_metadata** — Add for `@>` containment queries on JSONB (category filtering).
 
 ## Open Questions
 
