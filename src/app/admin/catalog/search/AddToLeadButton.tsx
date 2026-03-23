@@ -15,10 +15,8 @@ interface LeadOption {
 }
 
 interface AddToLeadButtonProps {
-  /** video_index ID (full corpus results) */
-  videoIndexId?: string;
-  /** dataset_samples ID (catalog results) */
-  datasetSampleId?: string;
+  /** Unified clip ID from the clips table */
+  clipId: string;
   /** Compact style for inline use */
   compact?: boolean;
 }
@@ -28,8 +26,7 @@ interface AddToLeadButtonProps {
 // ---------------------------------------------------------------------------
 
 export default function AddToLeadButton({
-  videoIndexId,
-  datasetSampleId,
+  clipId,
   compact = false,
 }: AddToLeadButtonProps) {
   const [open, setOpen] = useState(false);
@@ -65,7 +62,7 @@ export default function AddToLeadButton({
       if (!res.ok) throw new Error("Failed to fetch leads");
       const { leads: approvedLeads } = await res.json();
 
-      // Check existing assignments for this sample
+      // Check existing assignments for this clip via dataset_clips
       const leadsWithAssignment = await Promise.all(
         approvedLeads.map(async (lead: LeadOption) => {
           try {
@@ -75,9 +72,8 @@ export default function AddToLeadButton({
             if (!csRes.ok) return { ...lead, already_assigned: false };
             const { samples } = await csRes.json();
             const assigned = samples.some(
-              (s: { video_index_id: string | null; dataset_sample_id: string | null }) =>
-                (videoIndexId && s.video_index_id === videoIndexId) ||
-                (datasetSampleId && s.dataset_sample_id === datasetSampleId)
+              (s: { clip_id?: string; video_index_id?: string | null; dataset_sample_id?: string | null }) =>
+                s.clip_id === clipId
             );
             return { ...lead, already_assigned: assigned };
           } catch {
@@ -92,7 +88,7 @@ export default function AddToLeadButton({
     } finally {
       setLoading(false);
     }
-  }, [videoIndexId, datasetSampleId]);
+  }, [clipId]);
 
   const handleOpen = () => {
     if (success) return;
@@ -119,8 +115,7 @@ export default function AddToLeadButton({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            video_index_id: videoIndexId,
-            dataset_sample_id: datasetSampleId,
+            clip_id: clipId,
             note: note || undefined,
           }),
         }

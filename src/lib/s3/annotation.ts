@@ -7,10 +7,12 @@ import { getS3SignedUrl } from "./presigner";
  * content with a 10-second timeout, and parses the response as JSON.
  *
  * @param objectKey - The full S3 object key (e.g. "datasets/abc/annotation-data.json")
+ * @param bucketOverride - Optional bucket name; when provided, overrides the default S3_BUCKET_NAME
  * @returns The parsed JSON object, or null if any step fails
  */
 export async function fetchAnnotationJson(
-  objectKey: string
+  objectKey: string,
+  bucketOverride?: string
 ): Promise<Record<string, unknown> | null> {
   // Strip s3://bucket-name/ prefix if present — some keys are stored as full S3 URIs
   let cleanKey = objectKey;
@@ -19,7 +21,7 @@ export async function fetchAnnotationJson(
     cleanKey = s3UriMatch[1];
   }
 
-  const url = await getS3SignedUrl(cleanKey);
+  const url = await getS3SignedUrl(cleanKey, undefined, bucketOverride);
 
   if (!url) {
     console.warn(

@@ -6,26 +6,26 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 // =============================================================================
 // POST /api/admin/catalog/custom
 //
-// Creates a custom curated catalog for a specific lead.
+// Unified Clip Architecture (US-010):
+// Creates or updates a dataset by inserting dataset_clips rows.
+// NO data copying — clips already live in the clips table.
+//
 // Steps:
-//   1. Create a new dataset (source_type=curated, category=Custom Curations)
-//   2. Insert selected clips as lead-specific samples
-//   3. Grant lead access to the new dataset
-//   4. Return the new dataset + portal link
+//   1. Use existing dataset or create a new one (source_type=curated)
+//   2. Insert dataset_clips rows linking clip IDs to the dataset
+//   3. Update dataset sample count from dataset_clips
+//   4. Grant lead access to the dataset
+//   5. Return dataset + portal link
 // =============================================================================
 
 const CUSTOM_CURATIONS_CATEGORY_ID = "46cf5324-f3e3-484f-9cb3-7b1dffff0094";
-
-const itemSchema = z.object({
-  video_index_id: z.string().uuid().optional(),
-  dataset_sample_id: z.string().uuid().optional(),
-});
 
 const requestSchema = z.object({
   name: z.string().min(1, "Name is required").max(200),
   lead_id: z.string().uuid("Invalid lead ID"),
   dataset_id: z.string().uuid().optional().describe("If provided, add clips to this existing dataset instead of creating a new one"),
-  items: z.array(itemSchema).min(1, "At least one item is required"),
+  /** Clip IDs from the clips table */
+  clip_ids: z.array(z.string().uuid()).min(1, "At least one clip is required"),
   note: z.string().optional(),
 });
 
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { name, lead_id, dataset_id: existingDatasetId, items, note } = parsed.data;
+  const { name, lead_id, dataset_id: existingDatasetId, clip_ids, note } = parsed.data;
   const supabase = createSupabaseAdminClient();
 
   // Verify lead exists
@@ -114,84 +114,40 @@ export async function POST(request: NextRequest) {
     dataset = created;
   }
 
-  // 2. Process each item — resolve S3 info and insert as lead-specific samples
-  const mimeMap: Record<string, string> = {
-    mp4: "video/mp4", mov: "video/quicktime", webm: "video/webm",
-    jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png",
-  };
+  // 2. Insert dataset_clips rows — no data copying, just join table inserts
+  const datasetClipRows = clip_ids.map((clip_id) => ({
+    dataset_id: dataset.id,
+    clip_id,
+    lead_id,
+    added_by: "admin",
+    note: note ?? null,
+  }));
 
+  // Insert in batches to avoid hitting Supabase row limits
   let inserted = 0;
+  const BATCH_SIZE = 100;
 
-  for (const item of items) {
-    if (item.video_index_id) {
-      // Full corpus clip → look up video_index, create dataset_samples row
-      const { data: vi } = await supabase
-        .from("video_index")
-        .select("s3_bucket, s3_key, caption_text, enrichment_source")
-        .eq("id", item.video_index_id)
-        .single();
+  for (let i = 0; i < datasetClipRows.length; i += BATCH_SIZE) {
+    const batch = datasetClipRows.slice(i, i + BATCH_SIZE);
+    const { data: insertedRows, error: insErr } = await supabase
+      .from("dataset_clips")
+      .upsert(batch, {
+        onConflict: "dataset_id,clip_id,lead_id",
+        ignoreDuplicates: true,
+      })
+      .select("id");
 
-      if (!vi) continue;
-
-      const ext = vi.s3_key.split(".").pop()?.toLowerCase();
-      const mimeType = (ext && mimeMap[ext]) || "video/mp4";
-
-      const { error: insErr } = await supabase
-        .from("dataset_samples")
-        .insert({
-          dataset_id: dataset.id,
-          lead_id,
-          s3_object_key: vi.s3_key,
-          s3_bucket: vi.s3_bucket,
-          filename: vi.s3_key.split("/").pop() || "sample",
-          mime_type: mimeType,
-          file_size_bytes: 0,
-          metadata_json: {
-            caption: vi.caption_text,
-            source: vi.enrichment_source,
-            note,
-          },
-          added_by: "admin",
-          source_video_index_id: item.video_index_id,
-        });
-
-      if (!insErr) inserted++;
-    } else if (item.dataset_sample_id) {
-      // Existing catalog sample → copy its S3 info into the new dataset
-      const { data: existing } = await supabase
-        .from("dataset_samples")
-        .select("s3_object_key, s3_bucket, filename, mime_type, file_size_bytes, metadata_json, agent_context")
-        .eq("id", item.dataset_sample_id)
-        .single();
-
-      if (!existing) continue;
-
-      const { error: insErr } = await supabase
-        .from("dataset_samples")
-        .insert({
-          dataset_id: dataset.id,
-          lead_id,
-          s3_object_key: existing.s3_object_key,
-          s3_bucket: existing.s3_bucket,
-          filename: existing.filename,
-          mime_type: existing.mime_type,
-          file_size_bytes: existing.file_size_bytes,
-          metadata_json: {
-            ...(existing.metadata_json as Record<string, unknown>),
-            note,
-            source_sample_id: item.dataset_sample_id,
-          },
-          agent_context: existing.agent_context,
-          added_by: "admin",
-        });
-
-      if (!insErr) inserted++;
+    if (insErr) {
+      console.error("[POST /api/admin/catalog/custom] insert dataset_clips batch", insErr);
+      // Continue with remaining batches
+    } else {
+      inserted += insertedRows?.length ?? 0;
     }
   }
 
-  // 3. Update dataset sample count (use actual count for existing datasets)
+  // 3. Update dataset sample count from dataset_clips
   const { count: totalCount } = await supabase
-    .from("dataset_samples")
+    .from("dataset_clips")
     .select("id", { count: "exact", head: true })
     .eq("dataset_id", dataset.id);
 
@@ -208,12 +164,13 @@ export async function POST(request: NextRequest) {
       { onConflict: "lead_id,dataset_id" }
     );
 
-  // 5. Generate signed URLs for the first sample (for the portal link preview)
   const portalUrl = `/portal/catalog/${dataset.id}`;
 
   return NextResponse.json(
     {
       dataset: { id: dataset.id, name: dataset.name, slug: dataset.slug },
+      clips_added: inserted,
+      // Keep backward-compatible alias
       samples_added: inserted,
       portal_url: portalUrl,
       lead: { id: lead.id, name: lead.name, company: lead.company },
