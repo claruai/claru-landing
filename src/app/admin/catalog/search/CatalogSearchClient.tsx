@@ -151,7 +151,7 @@ export default function CatalogSearchClient({
     router.replace(`/admin/catalog/search${qs ? `?${qs}` : ""}`, { scroll: false });
   }, [router]);
 
-  const isBrowseMode = useCallback((q: string) => !q.trim() && (!!datasetFilter || !!bucketFilter), [datasetFilter, bucketFilter]);
+  const isBrowseMode = useCallback((q: string) => !q.trim(), []);
 
   const runSearch = useCallback(async (searchQuery: string, opts?: { append?: boolean; searchOffset?: number; overrideLimit?: number }) => {
     const browsing = !searchQuery.trim();
