@@ -116,3 +116,22 @@ Goal: Unknown
 - Legacy types must stay until call sites are migrated (US-007 through US-016); removing them now would break the build
 - The design doc proposed different column names (e.g. `ann_category`, `tech_width`) than the actual migration used (`ann_metadata`, `tech_resolution_width`); always match the real DDL, not the design doc
 
+## 2026-03-23 - US-007: Rewrite search API for clips
+
+**What I did:**
+- Rewrote search/route.ts to use match_clips RPC only (370→165 lines)
+- Removed SearchMode type and 3-mode logic (catalog/full_corpus/both)
+- Single code path: browse mode (direct clips query) or semantic mode (match_clips RPC)
+- Uses generateEmbedding(query, 768) explicitly
+- Browse mode: fetches clip IDs from dataset_clips when dataset filter set
+- Returns ClipSearchResult shape
+- Lead assignment: single dataset_clips query instead of two separate queries
+- Removed import of AgentContext (no longer needed)
+
+**Files changed:**
+- src/app/api/admin/catalog/search/route.ts (rewritten)
+
+**Learnings:**
+- Supabase JS `.in()` doesn't accept a sub-query builder — need two-step fetch (IDs then filter)
+- Early return pattern when dataset filter yields 0 clips avoids unnecessary queries
+

@@ -5,19 +5,15 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { generateEmbedding } from "@/lib/embeddings/openai";
 import { getS3SignedUrl } from "@/lib/s3/presigner";
 import { scrubS3Urls } from "@/lib/scrub-s3-urls";
-import type { AgentContext } from "@/lib/enrichment/types";
-
-type SearchMode = "catalog" | "full_corpus" | "both";
+import type { ClipSearchResult } from "@/types/data-catalog";
 
 /**
  * POST /api/admin/catalog/search
  *
- * Semantic search. Supports three modes:
- *  - catalog (default): searches dataset_samples via match_samples
- *  - full_corpus: searches video_index via match_video_index
- *  - both: searches both and merges by similarity
+ * Unified semantic search over the clips table via match_clips RPC.
+ * Single code path — no mode toggle.
  *
- * Body: { query, dataset_id?, s3_bucket?, subcategory?, limit?, offset?, mode? }
+ * Body: { query, dataset_id?, s3_bucket?, subcategory?, limit?, offset? }
  *
  * In browse mode (no query), returns `total_count` for pagination.
  */
@@ -35,10 +31,6 @@ export async function POST(request: NextRequest) {
   const subcategory = body.subcategory as string | undefined;
   const limit = Math.min(Math.max(body.limit ?? 20, 1), 100);
   const offset = Math.max(body.offset ?? 0, 0);
-  const mode: SearchMode =
-    body.mode === "full_corpus" || body.mode === "both"
-      ? body.mode
-      : "catalog";
 
   const isBrowseMode = !query || !query.trim();
   if (isBrowseMode && !dataset_id && !s3_bucket) {
@@ -48,310 +40,143 @@ export async function POST(request: NextRequest) {
   const supabase = createSupabaseAdminClient();
 
   try {
-    const results: Array<{
-      source: "catalog" | "full_corpus";
-      id: string;
-      similarity: number;
-      description: string | null;
-      signed_url: string | null;
-      // catalog-specific
-      dataset_id?: string;
-      dataset_name?: string;
-      environments?: string[];
-      activities?: string[];
-      objects?: string[];
-      camera_perspective?: string | null;
-      mime_type?: string;
-      // full_corpus-specific
-      s3_bucket?: string;
-      s3_key?: string;
-      caption_text?: string | null;
-      enrichment_source?: string | null;
-    }> = [];
-
+    let results: ClipSearchResult[] = [];
     let total_count: number | null = null;
 
-    // --- Catalog search (1536-dim) ---
-    if (mode === "catalog" || mode === "both") {
-      if (isBrowseMode && dataset_id) {
-        // Browse mode: return samples from the dataset without vector search
-        let browseQuery = supabase
-          .from("dataset_samples")
-          .select("id, dataset_id, s3_object_key, mime_type, agent_context, datasets(name)", { count: "exact" })
-          .eq("dataset_id", dataset_id)
-          .is("lead_id", null);
-
-        // Subcategory filter via agent_context->>'scene_summary' ILIKE
-        if (subcategory) {
-          browseQuery = browseQuery.ilike("agent_context->>scene_summary", `%${subcategory}%`);
-        }
-
-        browseQuery = browseQuery.range(offset, offset + limit - 1);
-
-        const { data: browseSamples, error, count } = await browseQuery;
-        if (count !== null && count !== undefined) total_count = count;
-
-        if (!error && browseSamples) {
-          for (const s of browseSamples) {
-            const ds = (s as Record<string, unknown>).datasets as { name: string } | null;
-            const ctx = s.agent_context as Record<string, unknown> | null;
-            let signed_url: string | null = null;
-            if (s.s3_object_key) {
-              signed_url = await getS3SignedUrl(s.s3_object_key, 3600);
-            }
-            results.push({
-              source: "catalog",
-              id: s.id,
-              similarity: 1,
-              description: (ctx?.scene_summary as string) ?? null,
-              signed_url,
-              dataset_id: s.dataset_id,
-              dataset_name: ds?.name ?? undefined,
-              environments: (ctx?.environments as string[]) ?? [],
-              activities: (ctx?.activities as string[]) ?? [],
-              objects: (ctx?.objects as string[]) ?? [],
-              camera_perspective: (ctx?.camera_perspective as string) ?? null,
-              mime_type: s.mime_type,
-            });
-          }
-        }
-      } else if (!isBrowseMode) {
-        const queryEmbedding = await generateEmbedding(query);
-        const { data: matches, error } = await supabase.rpc("match_samples", {
-          query_embedding: queryEmbedding,
-          match_count: limit,
-          filter_dataset_id: dataset_id ?? null,
-          match_threshold: dataset_id ? 0.1 : 0.3,
-        });
-
-      if (error) {
-        console.error("[search/catalog]", error);
-      } else if (matches) {
-        for (const match of matches as Array<{
-          sample_id: string;
-          dataset_id: string;
-          dataset_name: string;
-          similarity: number;
-          agent_context: AgentContext | null;
-          s3_object_key: string | null;
-          mime_type: string;
-        }>) {
-          let signed_url: string | null = null;
-          if (match.s3_object_key) {
-            signed_url = await getS3SignedUrl(match.s3_object_key, 3600);
-          }
-          const ctx = match.agent_context;
-          results.push({
-            source: "catalog",
-            id: match.sample_id,
-            similarity: Math.round(match.similarity * 1000) / 1000,
-            description: ctx?.scene_summary ?? null,
-            signed_url,
-            dataset_id: match.dataset_id,
-            dataset_name: match.dataset_name,
-            environments: ctx?.environments ?? [],
-            activities: ctx?.activities ?? [],
-            objects: ctx?.objects ?? [],
-            camera_perspective: ctx?.camera_perspective ?? null,
-            mime_type: match.mime_type,
-          });
-        }
-      }
-      } // close else-if !isBrowseMode
-    }
-
-    // --- Full corpus search (768-dim) ---
-    if (mode === "full_corpus" || mode === "both") {
-      // When a dataset is selected, look up its prefix routes to scope the full corpus search
-      let corpusBucket: string | null = s3_bucket ?? null;
-      let corpusPrefixes: string[] | null = null;
-
-      if (dataset_id) {
-        const { data: routes } = await supabase
-          .from("dataset_prefix_routes")
-          .select("s3_bucket, key_prefix")
-          .eq("dataset_id", dataset_id);
-
-        if (routes && routes.length > 0) {
-          // Use the bucket from the routes (they all share the same bucket for a dataset)
-          corpusBucket = routes[0].s3_bucket;
-          corpusPrefixes = routes.map((r) => r.key_prefix).filter(Boolean);
-        }
-      }
-
-      let filteredMatches: Array<Record<string, unknown>> = [];
-
-      if (isBrowseMode) {
-        // Browse mode: return corpus entries from matching bucket/prefixes
-        if (corpusPrefixes && corpusPrefixes.length > 0) {
-          // Use SQL LIKE filter on the first (longest) prefix to push filtering to the DB
-          // Most datasets have one primary prefix (e.g. "video_capture/")
-          const primaryPrefix = corpusPrefixes.sort((a, b) => a.length - b.length)[0];
-
-          let browseQuery = supabase
-            .from("video_index")
-            .select("id, s3_bucket, s3_key, caption_text, enrichment_source", { count: "exact" })
-            .like("s3_key", `${primaryPrefix}%`)
-            .order("indexed_at", { ascending: false });
-
-          if (corpusBucket) browseQuery = browseQuery.eq("s3_bucket", corpusBucket);
-          if (subcategory) browseQuery = browseQuery.ilike("caption_text", `%${subcategory}%`);
-
-          browseQuery = browseQuery.range(offset, offset + limit - 1);
-
-          const { data: browseData, count } = await browseQuery;
-          if (count !== null && count !== undefined) total_count = count;
-
-          // If multiple prefixes, also fetch for the other prefixes and merge
-          // (rare — most datasets map to one prefix)
-          let allResults = browseData ?? [];
-          if (corpusPrefixes.length > 1) {
-            for (const prefix of corpusPrefixes.slice(1)) {
-              const { data: extraData } = await supabase
-                .from("video_index")
-                .select("id, s3_bucket, s3_key, caption_text, enrichment_source")
-                .like("s3_key", `${prefix}%`)
-                .eq("s3_bucket", corpusBucket!)
-                .order("indexed_at", { ascending: false })
-                .range(offset, offset + limit - 1);
-              if (extraData) allResults = [...allResults, ...extraData];
-            }
-          }
-
-          filteredMatches = allResults.map((m) => ({
-            ...m,
-            similarity: 1,
-          }));
-        } else {
-          // No prefix filtering needed: use SQL range + count
-          let browseQuery = supabase
-            .from("video_index")
-            .select("id, s3_bucket, s3_key, caption_text, enrichment_source", { count: "exact" })
-            .order("indexed_at", { ascending: false });
-
-          if (corpusBucket) browseQuery = browseQuery.eq("s3_bucket", corpusBucket);
-          if (subcategory) browseQuery = browseQuery.ilike("caption_text", `%${subcategory}%`);
-
-          browseQuery = browseQuery.range(offset, offset + limit - 1);
-
-          const { data: browseData, count } = await browseQuery;
-          if (count !== null && count !== undefined) total_count = count;
-
-          filteredMatches = (browseData ?? []).map((m) => ({
-            ...m,
-            similarity: 1,
-          }));
-        }
-      } else {
-        const queryEmbedding768 = await generateEmbedding(query, 768);
-        const { data: matches, error } = await supabase.rpc(
-          "match_video_index",
-          {
-            query_embedding: queryEmbedding768,
-            match_count: corpusPrefixes ? limit * 3 : limit,  // over-fetch when post-filtering by prefix
-            filter_bucket: corpusBucket,
-            match_threshold: dataset_id ? 0.15 : 0.3,
-          },
+    if (isBrowseMode) {
+      // Browse mode: direct query on clips, JOIN dataset_clips when dataset filter set
+      let browseQuery = supabase
+        .from("clips")
+        .select(
+          "id, s3_bucket, s3_key, ai_caption, caption_text, ai_enrichment_source, ai_agent_context, mime_type, tech_resolution_width, tech_resolution_height, tech_fps, tech_duration_seconds, tech_codec, ann_metadata",
+          { count: "exact" },
         );
 
-        if (error) {
-          console.error("[search/full_corpus]", error);
+      if (dataset_id) {
+        // Fetch clip IDs from dataset_clips, then filter
+        const { data: dcRows } = await supabase
+          .from("dataset_clips")
+          .select("clip_id")
+          .eq("dataset_id", dataset_id)
+          .is("lead_id", null);
+        const clipIdsForDataset = (dcRows ?? []).map((r) => r.clip_id);
+        if (clipIdsForDataset.length === 0) {
+          return NextResponse.json(scrubS3Urls({ results: [], total_count: 0 }));
         }
-
-        filteredMatches = (matches ?? []) as Array<Record<string, unknown>>;
-
-        // Post-filter by prefix when a dataset is selected
-        if (corpusPrefixes && corpusPrefixes.length > 0) {
-          filteredMatches = filteredMatches.filter(
-            (m) => corpusPrefixes!.some((prefix) => (m.s3_key as string).startsWith(prefix))
-          );
-        }
-
-        // Post-filter by subcategory
-        if (subcategory) {
-          filteredMatches = filteredMatches.filter(
-            (m) => ((m.caption_text as string) ?? "").toLowerCase().includes(subcategory.toLowerCase())
-          );
-        }
+        browseQuery = browseQuery.in("id", clipIdsForDataset);
       }
 
-      if (filteredMatches.length > 0) {
-        for (const match of filteredMatches as Array<{
-          id: string;
-          s3_bucket: string;
-          s3_key: string;
-          caption_text: string | null;
-          similarity: number;
-          enrichment_source: string | null;
-        }>) {
-          const signed_url = await getS3SignedUrl(
-            match.s3_key,
-            600,
-            match.s3_bucket,
+      if (s3_bucket) {
+        browseQuery = browseQuery.eq("s3_bucket", s3_bucket);
+      }
+
+      if (subcategory) {
+        browseQuery = browseQuery.ilike("caption_text", `%${subcategory}%`);
+      }
+
+      browseQuery = browseQuery
+        .order("created_at", { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      const { data: browseData, error, count } = await browseQuery;
+      if (count !== null && count !== undefined) total_count = count;
+
+      if (error) {
+        console.error("[search/browse]", error);
+      } else if (browseData) {
+        results = browseData.map((c) => ({
+          id: c.id,
+          s3_bucket: c.s3_bucket,
+          s3_key: c.s3_key,
+          ai_caption: c.ai_caption,
+          caption_text: c.caption_text,
+          similarity: 1,
+          ai_enrichment_source: c.ai_enrichment_source,
+          ai_agent_context: c.ai_agent_context as Record<string, unknown> | null,
+          mime_type: c.mime_type,
+          tech_resolution_width: c.tech_resolution_width,
+          tech_resolution_height: c.tech_resolution_height,
+          tech_fps: c.tech_fps,
+          tech_duration_seconds: c.tech_duration_seconds,
+          tech_codec: c.tech_codec,
+          ann_metadata: c.ann_metadata as Record<string, unknown> | null,
+          signed_url: null,
+        }));
+      }
+    } else {
+      // Semantic search via match_clips RPC
+      const queryEmbedding = await generateEmbedding(query, 768);
+      const { data: matches, error } = await supabase.rpc("match_clips", {
+        query_embedding: queryEmbedding,
+        match_count: limit,
+        filter_dataset_id: dataset_id ?? null,
+        filter_bucket: s3_bucket ?? null,
+        match_threshold: (dataset_id || s3_bucket) ? 0.15 : 0.3,
+      });
+
+      if (error) {
+        console.error("[search/semantic]", error);
+      } else if (matches) {
+        let filtered = matches as Array<Record<string, unknown>>;
+
+        // Post-filter by subcategory if set
+        if (subcategory) {
+          filtered = filtered.filter(
+            (m) => ((m.caption_text as string) ?? "").toLowerCase().includes(subcategory.toLowerCase()),
           );
-          results.push({
-            source: "full_corpus",
-            id: match.id,
-            similarity: Math.round(match.similarity * 1000) / 1000,
-            description: match.caption_text,
-            signed_url,
-            s3_bucket: match.s3_bucket,
-            s3_key: match.s3_key,
-            caption_text: match.caption_text,
-            enrichment_source: match.enrichment_source,
+        }
+
+        results = filtered.map((m) => ({
+          id: m.id as string,
+          s3_bucket: m.s3_bucket as string,
+          s3_key: m.s3_key as string,
+          ai_caption: m.ai_caption as string | null,
+          caption_text: m.caption_text as string | null,
+          similarity: Math.round((m.similarity as number) * 1000) / 1000,
+          ai_enrichment_source: m.ai_enrichment_source as string | null,
+          ai_agent_context: m.ai_agent_context as Record<string, unknown> | null,
+          mime_type: m.mime_type as string | null,
+          tech_resolution_width: m.tech_resolution_width as number | null,
+          tech_resolution_height: m.tech_resolution_height as number | null,
+          tech_fps: m.tech_fps as number | null,
+          tech_duration_seconds: m.tech_duration_seconds as number | null,
+          tech_codec: m.tech_codec as string | null,
+          ann_metadata: m.ann_metadata as Record<string, unknown> | null,
+          signed_url: null,
+        }));
+      }
+    }
+
+    // Sign S3 URLs
+    for (const r of results) {
+      r.signed_url = await getS3SignedUrl(r.s3_key, 600, r.s3_bucket);
+    }
+
+    // Lead assignment: single dataset_clips query
+    const clipIds = results.map((r) => r.id);
+    const leadAssignments: Record<string, Array<{ lead_id: string; lead_name: string; lead_company: string }>> = {};
+
+    if (clipIds.length > 0) {
+      const { data: dcLeads } = await supabase
+        .from("dataset_clips")
+        .select("clip_id, lead_id, leads(name, company)")
+        .in("clip_id", clipIds)
+        .not("lead_id", "is", null);
+
+      for (const row of dcLeads ?? []) {
+        const lead = (row as Record<string, unknown>).leads as { name: string; company: string } | null;
+        if (row.lead_id && lead) {
+          if (!leadAssignments[row.clip_id]) leadAssignments[row.clip_id] = [];
+          leadAssignments[row.clip_id].push({
+            lead_id: row.lead_id,
+            lead_name: lead.name,
+            lead_company: lead.company,
           });
         }
       }
     }
 
-    // Merge by similarity when mode=both
-    if (mode === "both") {
-      results.sort((a, b) => b.similarity - a.similarity);
-      results.splice(limit);
-    }
-
-    // Look up which results have been added to leads
-    // For catalog results: check dataset_samples with lead_id set matching the s3_object_key
-    // For full corpus results: check dataset_samples with source_video_index_id matching the id
-    const catalogIds = results.filter(r => r.source === "catalog").map(r => r.id);
-    const corpusIds = results.filter(r => r.source === "full_corpus").map(r => r.id);
-
-    const leadAssignments: Record<string, Array<{ lead_id: string; lead_name: string; lead_company: string }>> = {};
-
-    if (catalogIds.length > 0) {
-      // Catalog samples that are lead-specific themselves, or have lead-specific copies with same s3 key
-      const { data: catLeads } = await supabase
-        .from("dataset_samples")
-        .select("id, lead_id, leads(name, company)")
-        .in("id", catalogIds)
-        .not("lead_id", "is", null);
-      for (const row of catLeads ?? []) {
-        const lead = (row as Record<string, unknown>).leads as { name: string; company: string } | null;
-        if (row.lead_id && lead) {
-          if (!leadAssignments[row.id]) leadAssignments[row.id] = [];
-          leadAssignments[row.id].push({ lead_id: row.lead_id, lead_name: lead.name, lead_company: lead.company });
-        }
-      }
-    }
-
-    if (corpusIds.length > 0) {
-      const { data: corpusLeads } = await supabase
-        .from("dataset_samples")
-        .select("source_video_index_id, lead_id, leads(name, company)")
-        .in("source_video_index_id", corpusIds)
-        .not("lead_id", "is", null);
-      for (const row of corpusLeads ?? []) {
-        const viId = row.source_video_index_id as string;
-        const lead = (row as Record<string, unknown>).leads as { name: string; company: string } | null;
-        if (viId && row.lead_id && lead) {
-          if (!leadAssignments[viId]) leadAssignments[viId] = [];
-          leadAssignments[viId].push({ lead_id: row.lead_id, lead_name: lead.name, lead_company: lead.company });
-        }
-      }
-    }
-
-    // Attach lead assignments to results
-    const enrichedResults = results.map(r => ({
+    const enrichedResults = results.map((r) => ({
       ...r,
       assigned_leads: leadAssignments[r.id] ?? [],
     }));
