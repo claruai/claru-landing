@@ -68,6 +68,8 @@ The following docs were generated before this PRD and are referenced by user sto
 **Acceptance Criteria:**
 - [ ] Create migration script `scripts/migrate-video-index-to-clips.py`
 - [ ] Map: s3_bucket, s3_key, caption_text → ai_caption, enrichment_source → ai_enrichment_source, embedding → embedding, indexed_at → created_at
+- [ ] Also copy caption_text → caption_text (derived field, already valid for video_index rows)
+- [ ] Set `caption_rebuilt_at = NOW()` for rows with valid embeddings (prevents rebuild script from reprocessing 145k rows unnecessarily)
 - [ ] Use INSERT ON CONFLICT DO NOTHING (no bloat)
 - [ ] Process in batches of 500 with 0.1s throttle
 - [ ] Validate: clips row count matches video_index count on staging
@@ -114,12 +116,13 @@ The following docs were generated before this PRD and are referenced by user sto
 - Plan: `tasks/docs/unified-clip-architecture-plan.md` (sections: Phase 2)
 
 **Acceptance Criteria:**
-- [ ] Add `Clip` interface matching clips table schema
+- [ ] Add `Clip` interface matching clips table canonical schema (all ann_*, tech_*, ai_* columns)
 - [ ] Add `DatasetClip` interface matching dataset_clips schema
 - [ ] Add `ClipSearchResult` interface (unified, no more catalog vs full_corpus discrimination)
+- [ ] Add field mapping table as code comments: `s3_object_key → s3_key`, `metadata_json → ann_metadata`, `agent_context → ai_agent_context`, `enrichment_json → ai_enrichment_json`, `duration_seconds → tech_duration_seconds`, etc.
 - [ ] Mark `DatasetSample`, `VideoIndexRecord`, `LeadCustomSample` as `@deprecated`
 - [ ] Remove `CatalogSearchResult` / `FullCorpusSearchResult` / `UnifiedSearchResult` discriminated union
-- [ ] Update `generateEmbedding()` default to 768 dims
+- [ ] **DO NOT change `generateEmbedding()` default to 768 yet** — this must happen AFTER US-005 and US-010 migrate all call sites to match_clips. Instead, add explicit `768` parameter to all new call sites.
 - [ ] Typecheck passes with no errors
 - [ ] **Code Review:** Run code-reviewer agent
 
@@ -143,6 +146,7 @@ The following docs were generated before this PRD and are referenced by user sto
 - [ ] Return ClipSearchResult shape (unified, no more source discrimination)
 - [ ] Include structured fields in response: ann_metadata, ai_agent_context, tech_* fields
 - [ ] Subcategory filtering uses ann_metadata fields instead of caption_text ILIKE
+- [ ] Lead assignment lookup: collapse current two-query pattern (one for catalog IDs, one for source_video_index_id) into single `dataset_clips WHERE clip_id IN (...) AND lead_id IS NOT NULL` query
 - [ ] Typecheck passes
 - [ ] **Unit Tests:** Test search with/without dataset filter, test browse mode pagination, test empty results
 - [ ] **Code Review:** Run code-reviewer agent
@@ -161,6 +165,7 @@ The following docs were generated before this PRD and are referenced by user sto
 
 **Acceptance Criteria:**
 - [ ] Remove the Catalog Samples / Full Corpus / Both mode toggle from CatalogSearchClient.tsx
+- [ ] Update search page server component to derive bucket list and clip count from `clips` table (currently from `video_index` — will crash after drop)
 - [ ] Single search input + dataset filter + subcategory filter
 - [ ] Add resolution filter dropdown (All / 720p+ / 1080p+ / 4K)
 - [ ] Add "Has AI description" toggle filter
@@ -168,6 +173,7 @@ The following docs were generated before this PRD and are referenced by user sto
 - [ ] ResultCard shows: thumbnail, ai_caption excerpt, category/activity tags from ann_metadata, resolution badge from tech_*, similarity %
 - [ ] ResultDetailModal shows structured tabs or sections instead of flat field list
 - [ ] Remove all `source: "catalog" | "full_corpus"` logic
+- [ ] Update AddToLeadButton: replace `videoIndexId`/`datasetSampleId` props with single `clipId` prop
 - [ ] Typecheck passes
 - [ ] Verify in browser using Playwright MCP
 - [ ] **Unit Tests:** Test filter state management, test result card rendering with all field combinations
@@ -210,10 +216,13 @@ The following docs were generated before this PRD and are referenced by user sto
 
 **Acceptance Criteria:**
 - [ ] Portal dataset detail page queries clips via dataset_clips join instead of dataset_samples
-- [ ] Lead filtering: show clips where dataset_clips.lead_id IS NULL OR = current lead
+- [ ] Field rename: `s3_object_key` → `s3_key`, `duration_seconds` → `tech_duration_seconds`, `metadata_json` → `ann_metadata`
+- [ ] Remove `media_url` and `storage_path` fallback chain in URL resolution — all clips use `s3_bucket` + `s3_key` for presigning
+- [ ] Lead filtering: show clips where dataset_clips.lead_id IS NULL OR = current lead, **deduplicate by clip_id** (use `SELECT DISTINCT ON (clip_id)`) to prevent duplicates when clip has both base + lead-specific entries
 - [ ] SampleGallery receives clips data (with signed URLs from s3_bucket + s3_key)
+- [ ] Update GalleryCard: `sample.metadata_json` → `clip.ann_metadata`, `sample.duration_seconds` → `clip.tech_duration_seconds`
 - [ ] Clip detail modal shows structured tabs: Annotation | AI Enrichment | Technical
-- [ ] Annotation tab: live-fetches annotation-data.json from S3 (existing pattern), renders category/subcategory/activities
+- [ ] Annotation tab: live-fetches annotation-data.json from S3 via `ann_annotation_key` (existing pattern), renders category/subcategory/activities
 - [ ] AI Enrichment tab: shows ai_caption, ai_agent_context (scene_summary, environments, activities, objects)
 - [ ] Technical tab: shows resolution, fps, duration, codec, file size, aspect ratio
 - [ ] Hidden from client: ai_enrichment_source, project_tag, project_type, internal IDs
@@ -235,10 +244,12 @@ The following docs were generated before this PRD and are referenced by user sto
 **Acceptance Criteria:**
 - [ ] Portal catalog page queries datasets via lead_dataset_access (unchanged)
 - [ ] Sample counts derived from dataset_clips instead of dataset_samples
+- [ ] **Rewrite `lead_custom_samples` query** on catalog list page → use `dataset_clips WHERE lead_id = current_lead` to show curated samples section (currently queries `lead_custom_samples` table which will be dropped)
+- [ ] Curated samples section enriches from `clips` table instead of `video_index`
 - [ ] Admin preview mode shows all published datasets (unchanged behavior)
 - [ ] Typecheck passes
 - [ ] Verify in browser
-- [ ] **Unit Tests:** Test dataset count derivation
+- [ ] **Unit Tests:** Test dataset count derivation, test curated samples rendering
 - [ ] **Code Review:** Run code-reviewer agent
 
 **Recommended agents/skills:** `nextjs-expert`, `code-reviewer`
@@ -257,7 +268,7 @@ The following docs were generated before this PRD and are referenced by user sto
 - [ ] Replace `search_catalog` + `search_full_catalog` with single `search_clips` tool
 - [ ] search_clips accepts: query, limit, dataset_id (optional), s3_bucket (optional), match_threshold
 - [ ] Returns unified ClipSearchResult with structured fields (ann_metadata, ai_caption, tech_*)
-- [ ] Update `build_lead_brief` to use search_clips
+- [ ] Update `build_lead_brief` to use search_clips — **NOTE:** currently makes TWO separate embedding calls (1536-dim for match_samples + 768-dim for match_video_index) and TWO RPC calls. Collapse into ONE 768-dim embedding + ONE match_clips call
 - [ ] Update `get_dataset_overview` to query clips via dataset_clips
 - [ ] Update `download_clips` to query clips table only
 - [ ] Update `get_corpus_stats` to aggregate clips table
@@ -365,11 +376,13 @@ The following docs were generated before this PRD and are referenced by user sto
 
 **Acceptance Criteria:**
 - [ ] Update `src/app/api/portal/s3-annotation/route.ts` to look up clip by ID from clips table
+- [ ] **Switch to admin client** for clips lookup (service role bypasses RLS — session client would be blocked since clips has no per-user SELECT policy)
 - [ ] Use clip's ann_annotation_key to fetch annotation-data.json from S3
 - [ ] Use clip's s3_bucket for the correct bucket
+- [ ] **Annotation caching**: current code caches to `dataset_samples.metadata_json` — update to cache into `clips.ann_metadata` instead. Background write uses admin client.
 - [ ] Apply same scrubbing (scrubS3Urls, stripSensitiveFields) as before
 - [ ] Typecheck passes
-- [ ] **Unit Tests:** Test annotation fetch with valid and missing annotation keys
+- [ ] **Unit Tests:** Test annotation fetch with valid and missing annotation keys, test caching writes to clips.ann_metadata
 - [ ] **Code Review:** Run code-reviewer agent
 
 **Recommended agents/skills:** `nextjs-expert`, `code-reviewer`
