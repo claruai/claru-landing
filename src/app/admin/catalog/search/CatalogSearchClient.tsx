@@ -464,8 +464,8 @@ function BulkActionBar({ selectedIds, results: _results, onClear }: { selectedId
   const handleCreateCatalog = async () => {
     if (!selectedLead || !catalogName.trim()) return; setSubmitting(true); setError(null);
     try {
-      const items = Array.from(selectedIds).map((id) => ({ clip_id: id }));
-      const res = await fetch("/api/admin/catalog/custom", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: catalogName.trim(), lead_id: selectedLead.id, items, note: note || undefined }) });
+      const clip_ids = Array.from(selectedIds);
+      const res = await fetch("/api/admin/catalog/custom", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: catalogName.trim(), lead_id: selectedLead.id, clip_ids, note: note || undefined }) });
       if (!res.ok) { const data = await res.json(); throw new Error(data.error || "Failed to create catalog"); }
       const data = await res.json(); setPortalLink(`${window.location.origin}${data.portal_url}`);
       setToast(`Created "${data.dataset.name}" with ${data.samples_added} clips`); onClear(); setSelectedLead(null); setCatalogName(""); setNote("");
@@ -475,8 +475,8 @@ function BulkActionBar({ selectedIds, results: _results, onClear }: { selectedId
   const handleAddToCatalog = async () => {
     if (!selectedCatalog || !selectedLead) return; setSubmitting(true); setError(null);
     try {
-      const items = Array.from(selectedIds).map((id) => ({ clip_id: id }));
-      const res = await fetch("/api/admin/catalog/custom", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: selectedCatalog.name, lead_id: selectedLead.id, dataset_id: selectedCatalog.id, items, note: note || undefined }) });
+      const clip_ids = Array.from(selectedIds);
+      const res = await fetch("/api/admin/catalog/custom", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: selectedCatalog.name, lead_id: selectedLead.id, dataset_id: selectedCatalog.id, clip_ids, note: note || undefined }) });
       if (!res.ok) { const data = await res.json(); throw new Error(data.error || "Failed to add to catalog"); }
       const data = await res.json(); setToast(`Added ${data.samples_added} clips to "${selectedCatalog.name}"`); onClear(); setSelectedLead(null); setSelectedCatalog(null); setNote("");
     } catch (err) { setError(err instanceof Error ? err.message : "Failed to add to catalog"); } finally { setSubmitting(false); }
