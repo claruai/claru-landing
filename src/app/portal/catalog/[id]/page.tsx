@@ -178,15 +178,18 @@ export default async function DatasetDetailPage({
 
   let clipsQuery = supabase
     .from("dataset_clips")
-    .select("clip_id, lead_id, clips(*)")
+    .select("clip_id, lead_id, is_showcase, clips(*)")
     .eq("dataset_id", id)
     .order("created_at", { ascending: true });
 
   if (isAdminPreview && !asLeadId) {
-    // Admin sees everything -- no lead filter
+    // Admin sees everything -- no filter
   } else {
+    // Leads see: showcase clips + their lead-specific clips
     clipsQuery = clipsQuery.or(
-      leadId ? `lead_id.is.null,lead_id.eq.${leadId}` : "lead_id.is.null"
+      leadId
+        ? `is_showcase.eq.true,lead_id.eq.${leadId}`
+        : "is_showcase.eq.true"
     );
   }
 

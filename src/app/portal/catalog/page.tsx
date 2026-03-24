@@ -280,11 +280,6 @@ export default async function PortalCatalogPage() {
         </p>
       </section>
 
-      {/* Curated for You — hidden if no custom samples */}
-      {curatedSamples.length > 0 && (
-        <CuratedForYou samples={curatedSamples} />
-      )}
-
       {/* Client-side browsing UI (search, filter, grid) */}
       <Suspense>
         <CatalogBrowser

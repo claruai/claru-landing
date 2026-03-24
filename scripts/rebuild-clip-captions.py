@@ -284,7 +284,8 @@ def embed_batch(client: OpenAI, texts: list[str]) -> list[list[float] | None]:
 # ---------------------------------------------------------------------------
 
 def fetch_clips_needing_rebuild(
-    http_client: httpx.Client, limit: int, offset: int = 0
+    http_client: httpx.Client, limit: int, offset: int = 0,
+    key_start: str | None = None, key_end: str | None = None,
 ) -> list[dict]:
     """Fetch clips where caption_rebuilt_at IS NULL.
 
@@ -295,22 +296,28 @@ def fetch_clips_needing_rebuild(
     headers["Range"] = f"{offset}-{offset + limit - 1}"
     headers["Prefer"] = "count=exact"
 
-    resp = http_client.get(
-        url,
-        headers=headers,
-        params={
-            "select": (
-                "id,s3_bucket,s3_key,"
-                "ann_metadata,"
-                "tech_resolution_width,tech_resolution_height,tech_fps,"
-                "tech_duration_seconds,tech_codec,tech_file_size_bytes,"
-                "ai_caption,ai_enrichment_source"
-            ),
-            "caption_rebuilt_at": "is.null",
-            "order": "created_at.asc",
-        },
-        timeout=60,
-    )
+    params = {
+        "select": (
+            "id,s3_bucket,s3_key,"
+            "ann_metadata,"
+            "tech_resolution_width,tech_resolution_height,tech_fps,"
+            "tech_duration_seconds,tech_codec,tech_file_size_bytes,"
+            "ai_caption,ai_enrichment_source"
+        ),
+        "caption_rebuilt_at": "is.null",
+        "order": "created_at.asc",
+    }
+    # Key range filtering for parallel workers
+    if key_start:
+        params["s3_key"] = f"gte.{key_start}"
+    if key_end:
+        if "s3_key" in params:
+            params.pop("s3_key")
+            params["and"] = f"(s3_key.gte.{key_start},s3_key.lt.{key_end})"
+        else:
+            params["s3_key"] = f"lt.{key_end}"
+
+    resp = http_client.get(url, headers=headers, params=params, timeout=60)
     if resp.status_code in (200, 206):
         return resp.json()
     raise RuntimeError(f"Fetch error {resp.status_code}: {resp.text[:200]}")
@@ -348,9 +355,15 @@ def main() -> None:
     parser.add_argument("--limit", type=int, default=0, help="Max clips to process (0 = all)")
     parser.add_argument("--batch-size", type=int, default=100, help="Batch size for fetching and embedding")
     parser.add_argument("--dry-run", action="store_true", help="Show what would be done without writing")
+    parser.add_argument("--key-start", type=str, default=None, help="Only process clips with s3_key >= this value")
+    parser.add_argument("--key-end", type=str, default=None, help="Only process clips with s3_key < this value")
+    parser.add_argument("--worker-id", type=str, default="0", help="Worker ID for logging")
     args = parser.parse_args()
 
-    print(f"[rebuild-captions] limit={args.limit or 'all'} batch_size={args.batch_size} dry_run={args.dry_run}")
+    key_range = ""
+    if args.key_start or args.key_end:
+        key_range = f" key_range=[{args.key_start or '...'}-{args.key_end or '...'})"
+    print(f"[W{args.worker_id}] limit={args.limit or 'all'} batch={args.batch_size}{key_range}")
 
     oai = OpenAI(api_key=OPENAI_API_KEY)
     http_client = httpx.Client()
@@ -372,7 +385,10 @@ def main() -> None:
                 fetch_limit = min(fetch_limit, args.limit - total_rebuilt)
 
             # Fetch batch of clips needing rebuild
-            clips = fetch_clips_needing_rebuild(http_client, fetch_limit, offset=0)
+            clips = fetch_clips_needing_rebuild(
+                http_client, fetch_limit, offset=0,
+                key_start=args.key_start, key_end=args.key_end,
+            )
             if not clips:
                 print("[rebuild-captions] No more clips needing rebuild.")
                 break

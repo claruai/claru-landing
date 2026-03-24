@@ -51,6 +51,9 @@ parser.add_argument("--prefix", default="all", help="'video_capture', 'video-cap
 parser.add_argument("--limit", type=int, default=None)
 parser.add_argument("--dry-run", action="store_true")
 parser.add_argument("--batch-size", type=int, default=50)
+parser.add_argument("--key-start", type=str, default=None, help="Only process folders >= this UUID prefix (e.g. '4')")
+parser.add_argument("--key-end", type=str, default=None, help="Only process folders < this UUID prefix (e.g. '8')")
+parser.add_argument("--worker-id", type=str, default="0", help="Worker ID for logging")
 args = parser.parse_args()
 
 s3 = boto3.client("s3", region_name="us-east-1")
@@ -216,7 +219,23 @@ def process_prefix(prefix: str):
         for cp in page.get("CommonPrefixes", []):
             folders.append(cp["Prefix"])
 
-    print(f"Found {len(folders)} folders")
+    print(f"Found {len(folders)} total folders")
+
+    # Filter by key range (for parallel workers)
+    if args.key_start or args.key_end:
+        original = len(folders)
+        filtered = []
+        for f in folders:
+            # Extract UUID part: prefix/UUID/
+            parts = f.rstrip("/").split("/")
+            uuid_part = parts[-1] if parts else ""
+            if args.key_start and uuid_part < args.key_start:
+                continue
+            if args.key_end and uuid_part >= args.key_end:
+                continue
+            filtered.append(f)
+        folders = filtered
+        print(f"[W{args.worker_id}] Key range [{args.key_start or '...'} - {args.key_end or '...'}): {len(folders)} of {original} folders")
 
     if args.limit:
         folders = folders[:args.limit]
@@ -261,7 +280,7 @@ def process_prefix(prefix: str):
             batch = []
 
             if (i + 1) % 200 == 0:
-                print(f"  [progress] {i + 1}/{len(folders)} folders | {total_ok} ok, {total_skip} skip, {total_fail} fail")
+                print(f"  [W{args.worker_id}] {i + 1}/{len(folders)} folders | {total_ok} ok, {total_skip} skip, {total_fail} fail")
 
     # Flush remaining
     if batch:

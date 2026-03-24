@@ -192,6 +192,7 @@ export interface DatasetClip {
   dataset_id: string;
   clip_id: string;
   lead_id: string | null;
+  is_showcase: boolean;
   added_by: string | null;
   note: string | null;
   created_at: string;
