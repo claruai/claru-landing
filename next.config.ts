@@ -27,6 +27,12 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.claru.ai" }],
+        destination: "https://claru.ai/:path*",
+        permanent: true,
+      },
+      {
         source: "/work-with-us",
         destination: "/for-annotators",
         permanent: true,
