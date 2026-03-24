@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
+import { usePostHog } from "posthog-js/react";
 import { Suspense } from "react";
 
 // ---------------------------------------------------------------------------
@@ -23,6 +24,7 @@ function getSupabaseBrowserClient() {
 function PortalLoginForm() {
   const searchParams = useSearchParams();
   const reason = searchParams.get("reason");
+  const posthog = usePostHog();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -49,6 +51,11 @@ function PortalLoginForm() {
         setErrorMessage("Invalid email or password. Please try again.");
         return;
       }
+
+      // Track login event before redirect
+      posthog?.capture("portal_login", {
+        email: email.trim().toLowerCase(),
+      });
 
       // Redirect to portal on success — middleware handles the rest
       window.location.href = "/portal";
