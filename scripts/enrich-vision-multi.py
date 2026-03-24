@@ -142,19 +142,43 @@ PROVIDERS = [
 # ---------------------------------------------------------------------------
 
 def get_clips_needing_enrichment(limit: int | None = None) -> list[dict]:
-    """Fetch clips without ai_caption from annotation-platform bucket."""
-    params = {
+    """Fetch clips needing vision enrichment from annotation-platform bucket.
+
+    Includes: clips with NULL ai_caption AND clips with label-only captions
+    (starting with 'Category:' but no 'Scene:' — sparse annotation labels).
+    """
+    headers = {
+        "apikey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}",
+    }
+    lim = str(limit or 1000)
+
+    # First: clips with NULL ai_caption
+    resp1 = http.get(f"{SUPABASE_URL}/rest/v1/clips", headers=headers, params={
         "select": "id,s3_bucket,s3_key",
         "s3_bucket": f"eq.{BUCKET}",
         "ai_caption": "is.null",
         "order": "s3_key.asc",
-        "limit": str(limit or 10000),
-    }
-    resp = http.get(f"{SUPABASE_URL}/rest/v1/clips", headers={
-        "apikey": SUPABASE_KEY,
-        "Authorization": f"Bearer {SUPABASE_KEY}",
-    }, params=params)
-    return resp.json() if resp.status_code == 200 else []
+        "limit": lim,
+    })
+    null_clips = resp1.json() if resp1.status_code == 200 else []
+
+    if len(null_clips) >= int(lim):
+        return null_clips
+
+    # Then: clips with label-only captions (Category:... without Scene:)
+    remaining = int(lim) - len(null_clips)
+    resp2 = http.get(f"{SUPABASE_URL}/rest/v1/clips", headers=headers, params={
+        "select": "id,s3_bucket,s3_key",
+        "s3_bucket": f"eq.{BUCKET}",
+        "ai_caption": "like.Category:%",
+        "ai_enrichment_source": "is.null",  # not yet enriched by vision
+        "order": "s3_key.asc",
+        "limit": str(remaining),
+    })
+    label_clips = resp2.json() if resp2.status_code == 200 else []
+
+    return null_clips + label_clips
 
 
 def extract_frames(s3_key: str, count: int = 3) -> list[str]:

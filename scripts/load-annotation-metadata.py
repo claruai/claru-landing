@@ -317,7 +317,7 @@ def flush_batch(batch: list[dict]) -> tuple[int, int]:
             "s3_key": item["video_key"],
 
             # Annotation columns (our column group)
-            "ann_metadata": json.dumps(build_ann_metadata(fields, annotation)),
+            "ann_metadata": build_ann_metadata(fields, annotation),
             "ann_annotation_key": item["ann_key"],
 
             # Technical columns (our column group)

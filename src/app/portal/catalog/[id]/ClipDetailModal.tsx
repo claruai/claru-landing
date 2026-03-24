@@ -151,7 +151,12 @@ export function ClipDetailModal({
   const itemId = clip?.id ?? sample?.id ?? "";
   const annAnnotationKey = clip?.ann_annotation_key ?? sample?.s3_annotation_key ?? null;
   const annSpecsKey = clip?.ann_specs_key ?? sample?.s3_specs_key ?? null;
-  const annMetadata = (clip?.ann_metadata ?? sample?.metadata_json ?? {}) as Record<string, unknown>;
+  // ann_metadata may be a JSONB object or double-serialized string
+  let rawAnn = clip?.ann_metadata ?? sample?.metadata_json ?? {};
+  if (typeof rawAnn === "string") {
+    try { rawAnn = JSON.parse(rawAnn); } catch { rawAnn = {}; }
+  }
+  const annMetadata = (rawAnn ?? {}) as Record<string, unknown>;
 
   const renderer = getRendererForMime(mimeType);
   const rendererComponent = renderer?.component ?? null;

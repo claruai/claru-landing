@@ -270,7 +270,7 @@ def main() -> None:
                                 "s3_key": s3_key,
                                 "ai_caption": caption,
                                 "ai_enrichment_source": "cobry_caption",
-                                "ai_enrichment_json": json.dumps(enrichment),
+                                "ai_enrichment_json": enrichment,  # dict, not json.dumps (PostgREST handles JSONB)
                                 "caption_rebuilt_at": None,  # Flag for rebuild
                             })
 
