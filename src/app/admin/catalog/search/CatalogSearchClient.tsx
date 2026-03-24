@@ -393,7 +393,7 @@ function ResultCard({ result, isSelected, onToggleSelect, onOpen }: { result: En
         {result.assigned_leads && result.assigned_leads.length > 0 && (
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-[10px] font-mono text-[var(--text-muted)]">Added to:</span>
-            {result.assigned_leads.map((l) => <a key={l.lead_id} href={`/admin/leads/${l.lead_id}`} className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-mono rounded bg-amber-500/15 text-amber-400 border border-amber-500/25 hover:border-amber-500/50 transition-colors">{l.lead_name}<span className="text-amber-400/60">({l.lead_company})</span></a>)}
+            {result.assigned_leads.filter((l, i, arr) => arr.findIndex((x) => x.lead_id === l.lead_id) === i).map((l) => <a key={l.lead_id} href={`/admin/leads/${l.lead_id}`} className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-mono rounded bg-amber-500/15 text-amber-400 border border-amber-500/25 hover:border-amber-500/50 transition-colors">{l.lead_name}<span className="text-amber-400/60">({l.lead_company})</span></a>)}
           </div>
         )}
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}

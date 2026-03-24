@@ -7,24 +7,16 @@ export const dynamic = "force-dynamic";
 export default async function CatalogSearchPage() {
   const supabase = createSupabaseAdminClient();
 
-  const [{ data: datasets }, { count: clipCount }, { data: bucketRows }] =
+  const [{ data: datasets }, { count: clipCount }] =
     await Promise.all([
       supabase.from("datasets").select("id, name").order("name"),
       supabase
         .from("clips")
-        .select("id", { count: "exact", head: true }),
-      supabase
-        .from("clips")
-        .select("s3_bucket")
-        .limit(500),
+        .select("id", { count: "estimated", head: true }),
     ]);
 
-  // Derive distinct bucket list from clips table
-  const bucketSet = new Set<string>();
-  for (const row of bucketRows ?? []) {
-    if (row.s3_bucket) bucketSet.add(row.s3_bucket);
-  }
-  const buckets = Array.from(bucketSet).sort();
+  // Known buckets — avoids expensive DISTINCT query on 1M+ rows
+  const buckets = ["moonvalley-annotation-platform", "mv-abaka-external", "mv-artlist-external"];
 
   return (
     <Suspense>

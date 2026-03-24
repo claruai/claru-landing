@@ -44,11 +44,13 @@ export async function POST(request: NextRequest) {
 
     if (isBrowseMode) {
       // Browse mode: direct query on clips, JOIN dataset_clips when dataset filter set
+      // Use estimated count when unfiltered (exact count on 1M+ rows causes statement timeout)
+      const hasFilters = !!(dataset_id || s3_bucket || subcategory || min_resolution_height || has_ai_caption);
       let browseQuery = supabase
         .from("clips")
         .select(
           "id, s3_bucket, s3_key, ai_caption, caption_text, ai_enrichment_source, ai_agent_context, mime_type, tech_resolution_width, tech_resolution_height, tech_fps, tech_duration_seconds, tech_codec, ann_metadata",
-          { count: "exact" },
+          { count: hasFilters ? "exact" : "estimated" },
         );
 
       if (dataset_id) {
@@ -82,7 +84,7 @@ export async function POST(request: NextRequest) {
       }
 
       browseQuery = browseQuery
-        .order("created_at", { ascending: false })
+        .order("id", { ascending: false })
         .range(offset, offset + limit - 1);
 
       const { data: browseData, error, count } = await browseQuery;
@@ -166,9 +168,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Sign S3 URLs
-    for (const r of results) {
-      r.signed_url = await getS3SignedUrl(r.s3_key, 600, r.s3_bucket);
+    // Sign S3 URLs in parallel
+    const signedUrls = await Promise.all(
+      results.map((r) => getS3SignedUrl(r.s3_key, 600, r.s3_bucket)),
+    );
+    for (let i = 0; i < results.length; i++) {
+      results[i].signed_url = signedUrls[i];
     }
 
     // Lead assignment: single dataset_clips query
