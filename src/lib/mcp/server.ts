@@ -743,8 +743,9 @@ function registerCreateCustomCatalog(server: McpServer) {
       lead_id: z.string().uuid().describe("Lead UUID to assign this catalog to"),
       clip_ids: z.array(z.string().uuid()).min(1).describe("Clip IDs from search_clips results"),
       note: z.string().optional().describe("Optional note about why these clips were selected"),
+      is_showcase: z.boolean().default(false).describe("If true, clips are visible to ALL leads with dataset access (base showcase). If false (default), only visible to the specified lead."),
     },
-    async ({ name, lead_id, clip_ids, note }) => {
+    async ({ name, lead_id, clip_ids, note, is_showcase }) => {
       const supabase = createSupabaseAdminClient();
 
       // Verify lead exists
@@ -810,7 +811,8 @@ function registerCreateCustomCatalog(server: McpServer) {
       const dcRows = [...validIds].map((clipId) => ({
         dataset_id: dataset.id,
         clip_id: clipId,
-        lead_id,
+        lead_id: is_showcase ? null : lead_id,
+        is_showcase,
         added_by: "mcp_agent",
         note: note ?? null,
       }));
@@ -987,9 +989,10 @@ function registerAddClipsToCatalog(server: McpServer) {
       dataset_id: z.string().uuid().describe("Dataset UUID to add clips to"),
       clip_ids: z.array(z.string().uuid()).min(1).describe("Clip IDs to add to this dataset"),
       lead_id: z.string().uuid().optional().describe("Optional: Lead UUID (makes clips lead-specific)"),
+      is_showcase: z.boolean().default(false).describe("If true, clips become base showcase visible to ALL leads with access. If false, only the specified lead sees them."),
       note: z.string().optional().describe("Optional note"),
     },
-    async ({ dataset_id, clip_ids, lead_id, note }) => {
+    async ({ dataset_id, clip_ids, lead_id, is_showcase, note }) => {
       const supabase = createSupabaseAdminClient();
 
       // Verify dataset exists
@@ -1017,7 +1020,8 @@ function registerAddClipsToCatalog(server: McpServer) {
       const dcRows = [...validIds].map((clipId) => ({
         dataset_id,
         clip_id: clipId,
-        lead_id: lead_id ?? null,
+        lead_id: is_showcase ? null : (lead_id ?? null),
+        is_showcase,
         added_by: "mcp_agent",
         note: note ?? null,
       }));
@@ -1629,8 +1633,17 @@ function registerCreateLeadAuthUser(server: McpServer) {
     async ({ lead_id, password: customPassword }) => {
       const supabase = createSupabaseAdminClient();
 
-      // Generate a temp password if not provided
-      const tempPassword = customPassword ?? `Claru-${crypto.randomUUID().slice(0, 8)}`;
+      // Generate a temp password if not provided — use firstname!123 convention
+      let tempPassword = customPassword;
+      if (!tempPassword) {
+        const { data: leadForName } = await supabase
+          .from("leads")
+          .select("name")
+          .eq("id", lead_id)
+          .single();
+        const firstName = (leadForName?.name ?? "user").split(" ")[0].toLowerCase();
+        tempPassword = `${firstName}!123`;
+      }
 
       // Fetch lead
       const { data: lead, error: fetchErr } = await supabase
@@ -1673,9 +1686,10 @@ function registerCreateLeadAuthUser(server: McpServer) {
 
           if (existing) {
             supabaseUserId = existing.id;
-            // Update password on existing user
+            // Update password and confirm email on existing user
             await supabase.auth.admin.updateUserById(existing.id, {
               password: tempPassword,
+              email_confirm: true,
             });
             passwordSet = true;
           } else {
@@ -1697,9 +1711,10 @@ function registerCreateLeadAuthUser(server: McpServer) {
           .update({ supabase_user_id: supabaseUserId })
           .eq("id", lead_id);
       } else {
-        // Auth user already exists — update password
+        // Auth user already exists — update password and ensure email confirmed
         await supabase.auth.admin.updateUserById(supabaseUserId, {
           password: tempPassword,
+          email_confirm: true,
         });
         passwordSet = true;
       }

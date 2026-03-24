@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import Link from "next/link";
@@ -22,7 +23,7 @@ import { scrubS3Urls } from "@/lib/scrub-s3-urls";
 
 interface DatasetDetailPageProps {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ clip?: string; sample?: string; as_lead?: string }>;
+  searchParams: Promise<{ clip?: string; sample?: string; as_lead?: string; admin_preview?: string }>;
 }
 
 // ---------------------------------------------------------------------------
@@ -41,7 +42,7 @@ const PORTAL_HIDDEN_KEYS = new Set([
   "userId", "reviewerId", "payoutId", "amount", "paymentStatus",
   "paymentDate", "cost", "browserMetadata", "rejectionReason",
   "rejectionCount", "rejectedAt", "isTestTemplate", "annotationIndex",
-  "source_bucket", "source_torage_key", "source_url", "delivery", "tranche",
+  "source_bucket", "source_storage_key", "source_url", "delivery", "tranche",
   "annotationCost", "reviewCost", "projectGuideLink", "slackChannel",
   // Hide internal AI fields from portal clients
   "ai_enrichment_source",
@@ -106,12 +107,14 @@ export default async function DatasetDetailPage({
   // Support both ?clip= and legacy ?sample= deep-link params
   const deepLinkId = initialClipId ?? legacySampleId;
 
-  // Detect admin preview mode
+  // Detect admin preview mode — must match middleware logic:
+  // requires BOTH valid admin-token AND ?admin_preview=true param
   const cookieStore = await cookies();
   const adminToken = cookieStore.get("admin-token")?.value;
-  const isAdminPreview = adminToken ? await verifyAdminToken(adminToken) : false;
+  const hasPreviewParam = (await searchParams).admin_preview === "true";
+  const isAdminPreview = hasPreviewParam && adminToken ? await verifyAdminToken(adminToken) : false;
 
-  // Use admin client (bypasses RLS) when admin, otherwise session client
+  // Use admin client (bypasses RLS) when admin preview, otherwise session client
   const supabase = isAdminPreview
     ? createSupabaseAdminClient()
     : await createSupabaseServerClient();

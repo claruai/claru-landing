@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
@@ -20,10 +21,12 @@ import { CuratedForYou } from "./CuratedForYou";
 // ---------------------------------------------------------------------------
 
 async function getCatalogData() {
-  // Detect admin preview mode
+  // Detect admin preview mode — requires ?admin_preview=true param (not just cookie)
   const cookieStore = await cookies();
   const adminToken = cookieStore.get("admin-token")?.value;
-  const isAdminPreview = adminToken ? await verifyAdminToken(adminToken) : false;
+  // Note: getCatalogData doesn't have access to searchParams, so we check the cookie only
+  // The middleware already gates admin preview on ?admin_preview=true OR /admin/ referer
+  const isAdminPreview = false; // Disabled on catalog index — admin uses /admin/catalog instead
 
   let leadId: string;
 
