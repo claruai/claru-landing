@@ -170,3 +170,37 @@ LenisProvider (Smooth Scroll Context)
     ├── FinalCTA (Contact Form)
     └── Footer
 ```
+
+---
+
+## Working Rules (Non-Negotiable)
+
+### 1. Leverage available tools
+Before starting any task, check what agents, skills, and MCPs are available. Use specialized agents (frontend-expert, nextjs-expert, supabase-expert, code-reviewer, web-research-specialist) for their domains. Use MCP tools (Playwright for browser testing, context7 for package docs, Codex for code review). Don't do everything manually when a tool exists.
+
+### 2. End-user UAT testing only
+Test as a real user would — through the browser, with real credentials, following real flows. No admin shortcuts, no direct DB queries to verify behavior, no service role workarounds. If a user can't do it, the test isn't valid. Use Playwright MCP for automated UAT.
+
+### 3. Read the docs before debugging
+When debugging package issues, use context7 MCP to read up-to-date documentation. Use web search to find if others have solved the same issue (GitHub issues, Stack Overflow, forums). Don't guess at API contracts. Use `npx opensrc <gh_repo>` to download the code for any open source package so you can see how it works.
+
+### 4. Parallelize aggressively
+When multiple independent tasks exist, launch background agents in parallel. Don't serialize work that can run concurrently. Examples: multiple extractor migrations, independent UI components, research + implementation.
+
+### 5. Comprehensive testing
+Always set up: Vitest unit tests for core logic, integration tests for cross-module behavior, smoke tests for service health and schema validation, pipeline verification tests for end-to-end data flow, Playwright E2E tests for user-facing flows.
+
+### 6. Seed data for testing
+Maintain seed scripts (`scripts/seed-uat.ts`) with realistic test data that covers all UI states. Ask for API keys upfront. Seed data should be idempotent (running twice doesn't create duplicates).
+
+### 7. Never bypass failures
+Do NOT work around broken things by triggering manually or making direct DB queries. Understand WHY it failed, read the code path, check logs/DB/service health, fix the root cause, verify through normal user flow, add a regression test.
+
+### 8. Agent architecture
+Massive system prompts are bad news. Build parent-agent/sub-agent architecture (multi-agent orchestration). If the agent SDK doesn't support this, research the best architecture for the goal.
+
+### 9. Pipeline Development
+When building any AI pipeline or workflow: build it yourself first as an AI agent with Bash access and all available tools/agents/skills/MCPs. As each phase works, document how it would work deployed in production standalone (web app, mac app, etc).
+
+### 10. Remote git branches
+**NEVER push to remote without explicit human approval.** Free to do local git operations as needed. Always test via Playwright/browser verification BEFORE asking to push.
