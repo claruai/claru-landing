@@ -133,7 +133,20 @@ export function ClipDetailModal({
   const { clip, sample, signedUrl } = current;
 
   // Resolve fields from clip or legacy sample
-  const mimeType = clip?.mime_type ?? sample?.mime_type ?? "";
+  // Infer mime_type from s3_key extension if not stored
+  const storedMime = clip?.mime_type ?? sample?.mime_type ?? "";
+  const s3Key = clip?.s3_key ?? sample?.s3_object_key ?? "";
+  const inferredMime = !storedMime && s3Key
+    ? (() => {
+        const ext = s3Key.split(".").pop()?.toLowerCase();
+        const map: Record<string, string> = {
+          mp4: "video/mp4", mov: "video/quicktime", webm: "video/webm",
+          jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png",
+        };
+        return (ext && map[ext]) || "video/mp4"; // default to video
+      })()
+    : storedMime;
+  const mimeType = inferredMime;
   const filename = clip?.filename ?? sample?.filename ?? "download";
   const itemId = clip?.id ?? sample?.id ?? "";
   const annAnnotationKey = clip?.ann_annotation_key ?? sample?.s3_annotation_key ?? null;
@@ -179,8 +192,13 @@ export function ClipDetailModal({
           }
         }
       }
-      if (clip.ai_enrichment_json && typeof clip.ai_enrichment_json === "object") {
-        const ej = clip.ai_enrichment_json as Record<string, unknown>;
+      // ai_enrichment_json may be a JSONB object OR a double-serialized JSON string
+      let enrichJson = clip.ai_enrichment_json;
+      if (typeof enrichJson === "string") {
+        try { enrichJson = JSON.parse(enrichJson); } catch { enrichJson = null; }
+      }
+      if (enrichJson && typeof enrichJson === "object") {
+        const ej = enrichJson as Record<string, unknown>;
         for (const [k, v] of Object.entries(ej)) {
           if (!(k in aiData) && v !== null && v !== undefined) {
             aiData[k] = v;
