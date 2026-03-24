@@ -123,18 +123,29 @@ export async function POST(request: NextRequest) {
     note: note ?? null,
   }));
 
-  // Insert in batches to avoid hitting Supabase row limits
+  // Insert in batches to avoid hitting Supabase row limits.
+  // Uses plain insert (not upsert) because dataset_clips has no unique
+  // constraint on (dataset_id, clip_id, lead_id). Duplicates are skipped
+  // by filtering out clip_ids that already have rows.
   let inserted = 0;
   const BATCH_SIZE = 100;
 
-  for (let i = 0; i < datasetClipRows.length; i += BATCH_SIZE) {
-    const batch = datasetClipRows.slice(i, i + BATCH_SIZE);
+  // Pre-check: which clip_ids already exist for this dataset+lead?
+  const { data: existingRows } = await supabase
+    .from("dataset_clips")
+    .select("clip_id")
+    .eq("dataset_id", dataset.id)
+    .eq("lead_id", lead_id)
+    .in("clip_id", clip_ids);
+
+  const existingClipIds = new Set((existingRows ?? []).map((r) => r.clip_id));
+  const newRows = datasetClipRows.filter((r) => !existingClipIds.has(r.clip_id));
+
+  for (let i = 0; i < newRows.length; i += BATCH_SIZE) {
+    const batch = newRows.slice(i, i + BATCH_SIZE);
     const { data: insertedRows, error: insErr } = await supabase
       .from("dataset_clips")
-      .upsert(batch, {
-        onConflict: "dataset_id,clip_id,lead_id",
-        ignoreDuplicates: true,
-      })
+      .insert(batch)
       .select("id");
 
     if (insErr) {
