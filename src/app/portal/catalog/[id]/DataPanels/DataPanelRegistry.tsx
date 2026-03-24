@@ -70,7 +70,7 @@ function AIEnrichmentPanel({ data }: DataPanelProps) {
       {caption && (
         <div>
           <span className="block text-[10px] font-mono text-[var(--accent-primary)] uppercase tracking-wider mb-1.5">
-            AI Caption
+            Caption
           </span>
           <p className="font-mono text-xs text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap">
             {caption}
@@ -212,7 +212,7 @@ export const PANEL_REGISTRY: Record<string, PanelRegistryEntry> = {
   },
   ai_enrichment: {
     component: AIEnrichmentPanel,
-    label: "AI Enrichment",
+    label: "Enrichment",
     icon: Bot,
   },
   technical: {
