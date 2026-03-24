@@ -27,6 +27,7 @@ export const metadata: Metadata = {
     images: [{ url: ogImageUrl("Remote AI Annotation Jobs", { category: "job" }), width: 1200, height: 630 }],
   },
   alternates: {
+    canonical: "/jobs",
     types: {
       "application/rss+xml": [
         { url: "/jobs/feed.xml", title: "Claru AI Jobs" },
