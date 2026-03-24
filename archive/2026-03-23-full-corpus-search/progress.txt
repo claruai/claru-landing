@@ -1,0 +1,3 @@
+# Ralph Progress — Unified Clip Architecture
+# Started: 2026-03-23
+# Branch: ralph/unified-clip-architecture

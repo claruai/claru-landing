@@ -1,0 +1,167 @@
+{
+  "project": "Reka Data Catalog Expansion",
+  "branchName": "ralph/reka-data-catalog-expansion",
+  "description": "Expand dataset catalog with source_type/modality columns, 6 new categories, 8 synthetic datasets, 5 curated datasets, source badges on public cards, and admin form updates.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Add source_type and modality columns to datasets table",
+      "description": "As a developer, I need source_type and modality columns on the datasets table to classify datasets by provenance and data modality.",
+      "acceptanceCriteria": [
+        "Create Supabase migration via MCP (mcp__supabase-db__apply_migration) adding: source_type TEXT NOT NULL DEFAULT 'collected', modality TEXT (nullable)",
+        "Add CHECK constraint on source_type: source_type IN ('collected', 'synthetic', 'curated')",
+        "No CHECK constraint on modality (keep flexible)",
+        "Existing rows automatically get source_type = 'collected' from DEFAULT",
+        "Verify migration applied: SELECT column_name FROM information_schema.columns WHERE table_name = 'datasets' AND column_name IN ('source_type', 'modality') — returns 2 rows",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Use mcp__supabase-db__apply_migration to run the migration. The migration SQL is: ALTER TABLE datasets ADD COLUMN source_type TEXT NOT NULL DEFAULT 'collected' CHECK (source_type IN ('collected', 'synthetic', 'curated')); ALTER TABLE datasets ADD COLUMN modality TEXT; Then verify with mcp__supabase-db__execute_sql."
+    },
+    {
+      "id": "US-002",
+      "title": "Backfill existing datasets with modality and create new categories",
+      "description": "As a developer, I need to set modality on all existing datasets and create 6 new categories for expanded data domains.",
+      "acceptanceCriteria": [
+        "Run SQL to set modality on all 15 existing datasets: video_text for all video/evaluation datasets, image_text for Object & Face Identity Matching + AI Image Generation Evaluation + Product Image Annotation, mixed for Content Safety & Policy Review",
+        "Insert 6 new categories into dataset_categories: Multimodal Instruction Tuning (slug: multimodal-instruction-tuning, display_order: 9), Speech & Audio (slug: speech-audio, display_order: 10), Code & Math Reasoning (slug: code-math-reasoning, display_order: 11), Document Understanding (slug: document-understanding, display_order: 12), Video Understanding (slug: video-understanding, display_order: 13), Large-Scale Pretraining (slug: large-scale-pretraining, display_order: 14)",
+        "Verify: SELECT name, source_type, modality FROM datasets WHERE modality IS NULL — returns 0 rows",
+        "Verify: SELECT count(*) FROM dataset_categories — returns 15 (9 old + 6 new)",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Use mcp__supabase-db__execute_sql for all SQL. Modality mapping: Egocentric Activity Capture → video_text, Traffic & Transportation → video_text, Workplace Activities → video_text, Cinematic Action Footage → video_text, Henri Halle → video_text, Game Environment Capture → video_text, all Video Evaluation datasets → video_text, Object & Face Identity → image_text, AI Image Generation Eval → image_text, Product Image Annotation → image_text, Content Safety → mixed."
+    },
+    {
+      "id": "US-003",
+      "title": "Seed Tier 1 synthetic datasets (batch 1 of 2)",
+      "description": "As a developer, I need to create the first 4 proprietary synthetic dataset entries.",
+      "acceptanceCriteria": [
+        "Insert 4 datasets with source_type='synthetic', is_published=true. For each, look up the category_id by querying dataset_categories by slug first.",
+        "1) Multimodal Image Chat: category=multimodal-instruction-tuning, modality=image_text, total_samples=997000, type=instruction, slug=multimodal-image-chat, description='Multi-turn conversational data pairing images with instruction-following dialogues. Covers chart interpretation, financial documents, and general visual reasoning across multiple generation rounds.', annotation_types=['multi_turn_chat','instruction_following','visual_reasoning']",
+        "2) Multimodal Video Chat: category=multimodal-instruction-tuning, modality=video_text, total_samples=440000, type=instruction, slug=multimodal-video-chat, description='Multi-turn video conversation data for training models to reason about temporal sequences, actions, and events in video content.', annotation_types=['multi_turn_chat','video_reasoning','temporal_understanding']",
+        "3) Financial & Chart Reasoning: category=document-understanding, modality=image_text, total_samples=325000, type=instruction, slug=financial-chart-reasoning, description='Structured conversations around financial documents, data tables, and chart visualizations. Designed for training models to extract, interpret, and reason about quantitative visual data.', annotation_types=['chart_reasoning','table_extraction','financial_analysis']",
+        "4) Code Instruction Tuning: category=code-math-reasoning, modality=text_only, total_samples=3600000, type=instruction, slug=code-instruction-tuning, description='High-quality instruction-following data for code generation, comprehension, SQL queries, and programming tasks across multiple languages and difficulty levels.', annotation_types=['code_generation','code_comprehension','sql','instruction_following']",
+        "All 4 have total_duration_hours=0, is_published=true, source_type='synthetic'",
+        "Verify: SELECT name, source_type FROM datasets WHERE source_type='synthetic' — returns 4 rows",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "Use mcp__supabase-db__execute_sql. First query category IDs: SELECT id, slug FROM dataset_categories WHERE slug IN ('multimodal-instruction-tuning','document-understanding','code-math-reasoning'). Then INSERT with those IDs."
+    },
+    {
+      "id": "US-004",
+      "title": "Seed Tier 1 synthetic datasets (batch 2 of 2)",
+      "description": "As a developer, I need to create the remaining 4 proprietary synthetic dataset entries.",
+      "acceptanceCriteria": [
+        "Insert 4 more datasets with source_type='synthetic', is_published=true.",
+        "5) Math Visual Reasoning: category=code-math-reasoning, modality=image_text, total_samples=1700000, type=instruction, slug=math-visual-reasoning, description='Visual mathematics problems paired with step-by-step reasoning. Includes OCR-focused variants for extracting and solving equations from images of handwritten and printed mathematical content.', annotation_types=['math_reasoning','ocr','equation_solving']",
+        "6) Speech-to-Speech Training: category=speech-audio, modality=audio_audio, total_samples=3300000, type=generation, slug=speech-to-speech-training, description='Paired audio-to-audio training data for speech generation and voice synthesis models. Derived from long-form spoken content with diverse speaker characteristics.', annotation_types=['speech_synthesis','voice_conversion']",
+        "7) Text-to-Speech Training: category=speech-audio, modality=audio_text, total_samples=6500000, type=generation, slug=text-to-speech-training, description='Large-scale text-audio paired data for training text-to-speech and speech understanding models. Covers diverse reading styles, pacing, and content domains.', annotation_types=['text_to_speech','speech_understanding']",
+        "8) Synthetic OCR & Rendered Text: category=document-understanding, modality=image_text, total_samples=20000000, type=annotation, slug=synthetic-ocr-rendered-text, description='Millions of synthetically rendered text images with character-level and line-level annotations. Includes diverse fonts, rotations, lighting conditions, and background textures for robust OCR training.', annotation_types=['ocr','text_detection','character_recognition']",
+        "All 4 have total_duration_hours=0, is_published=true, source_type='synthetic'",
+        "Verify: SELECT name, source_type FROM datasets WHERE source_type='synthetic' — returns 8 rows total",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "Use mcp__supabase-db__execute_sql. Query category IDs first: SELECT id, slug FROM dataset_categories WHERE slug IN ('code-math-reasoning','speech-audio','document-understanding')."
+    },
+    {
+      "id": "US-005",
+      "title": "Seed Tier 2 curated datasets",
+      "description": "As a developer, I need to create the 5 curated open-source dataset entries.",
+      "acceptanceCriteria": [
+        "Insert 5 datasets with source_type='curated', is_published=true.",
+        "1) Video Captioning & QA Collection: category=video-understanding, modality=video_text, total_samples=70000000, type=captioning, slug=video-captioning-qa-collection, description='Comprehensive video-text collection spanning captioning, question answering, and temporal reasoning tasks across diverse video domains including instructional content, movies, and real-world activities.', annotation_types=['video_captioning','video_qa','temporal_reasoning'], tags=['source:PANDA-70M','source:ActivityNet','source:MSRVTT','source:MSVD','source:FunQA','source:CinePile','source:FineVideo']",
+        "2) Document & PDF Intelligence: category=document-understanding, modality=multiple_images_text, total_samples=25000000, type=annotation, slug=document-pdf-intelligence, description='Training-ready document understanding data covering PDF parsing, table extraction, infographic interpretation, and multi-page document reasoning. Processed into distributed-training-ready shards.', annotation_types=['document_parsing','table_extraction','pdf_ocr','infographic_qa'], tags=['source:CCPDF','source:PlotQA','source:ChartLlama','source:infographics-VQA','source:TAT-DQA']",
+        "3) Audio Understanding Collection: category=speech-audio, modality=audio_text, total_samples=2600000, type=captioning, slug=audio-understanding-collection, description='Curated audio-text pairs spanning environmental sound classification, music understanding, and speech captioning. Quality-filtered and formatted for multimodal model training.', annotation_types=['audio_captioning','sound_classification','music_understanding'], tags=['source:VGGSound','source:AudioCaps','source:Freesound','source:RAVDESS','source:MusicQA']",
+        "4) Interleaved Multimodal Documents: category=large-scale-pretraining, modality=multiple_images_text, total_samples=140000000, type=pretraining, slug=interleaved-multimodal-documents, description='Web-scale interleaved image-text documents preserving natural reading order. Designed for pretraining models that understand documents with mixed visual and textual content.', annotation_types=['interleaved_pretraining','document_understanding'], tags=['source:OBELICS','source:MINT-1T','source:MMC4']",
+        "5) Image-Text Pretraining Shards: category=large-scale-pretraining, modality=image_text, total_samples=500000000, type=pretraining, slug=image-text-pretraining-shards, description='Billions of image-text pairs processed into training-ready webdataset shards. Quality-filtered, deduplicated, and validated for large-scale multimodal pretraining pipelines.', annotation_types=['image_text_pretraining','contrastive_learning'], tags=['source:DataComp','source:COYO-700M','source:CC3M','source:CC12M','source:CapsFusion']",
+        "All 5 have total_duration_hours=0, is_published=true, source_type='curated'",
+        "Verify: SELECT name, source_type FROM datasets WHERE source_type='curated' — returns 5 rows",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "Use mcp__supabase-db__execute_sql. Query category IDs first: SELECT id, slug FROM dataset_categories WHERE slug IN ('video-understanding','document-understanding','speech-audio','large-scale-pretraining'). The tags array stores source dataset names for internal reference — these won't show on the public page."
+    },
+    {
+      "id": "US-006",
+      "title": "Update PublicDataset type and public API",
+      "description": "As a developer, I need the public API to return source_type and modality so the frontend can display badges.",
+      "acceptanceCriteria": [
+        "Add source_type (string) and modality (string | null) to PublicDataset interface in src/types/data-catalog.ts",
+        "Update src/app/api/public/datasets/route.ts to include source_type and modality in the SELECT query string",
+        "Update the response mapping to include source_type and modality in the returned object",
+        "Verify: hit /api/public/datasets — every object has source_type and modality fields",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "Read src/app/api/public/datasets/route.ts for the current SELECT and mapping. The select string needs source_type and modality added. The mapping object needs both new fields added. Read src/types/data-catalog.ts for the PublicDataset interface."
+    },
+    {
+      "id": "US-007",
+      "title": "Add source_type badge to PublicDatasetCard",
+      "description": "As a visitor, I want to see whether a dataset is synthetic or curated so I understand its provenance.",
+      "acceptanceCriteria": [
+        "Update src/app/components/catalog/PublicDatasetCard.tsx to show a source_type badge",
+        "Badge placement: between the category label and the dataset name",
+        "Badge logic: source_type==='collected' → no badge, source_type==='synthetic' → pill 'SYNTHETIC', source_type==='curated' → pill 'CURATED · TRAINING-READY'",
+        "Badge styling: font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border border-[var(--accent-primary)]/20 text-[var(--accent-primary)]/70 bg-[var(--accent-primary)]/5 w-fit mb-1",
+        "Badge should not significantly increase card height — keep it compact (single line)",
+        "Cards with source_type='collected' look identical to before (no visual change)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill — check that synthetic datasets show SYNTHETIC pill, curated show CURATED pill, collected show no pill"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "Read src/app/components/catalog/PublicDatasetCard.tsx for current card layout. The badge goes after the category <span> and before the <h3> name. Only render the badge div when source_type !== 'collected'. The PublicDataset type now has source_type from US-006."
+    },
+    {
+      "id": "US-008",
+      "title": "Update admin DatasetForm with source_type and modality",
+      "description": "As an admin, I need to set source_type and modality when creating or editing datasets.",
+      "acceptanceCriteria": [
+        "Read src/app/admin/catalog/DatasetForm.tsx to understand existing form structure",
+        "Add source_type dropdown: options 'collected' (default), 'synthetic', 'curated'. Label: 'Source Type'. Styled like existing form selects.",
+        "Add modality dropdown: options (empty/null), 'image_text', 'video_text', 'audio_text', 'text_only', 'audio_audio', 'multiple_images_text', 'audio_video_text', 'mixed'. Label: 'Modality'. Optional field.",
+        "Place both fields after the existing type field in the form layout",
+        "Both fields populate from existing dataset data when editing",
+        "Both fields save correctly on create (POST /api/admin/catalog) and update (PATCH /api/admin/catalog/[id])",
+        "Update the admin API routes to accept and persist source_type and modality if not already handled — read src/app/api/admin/catalog/route.ts (POST) and src/app/api/admin/catalog/[id]/route.ts (PATCH) to check",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": "Read src/app/admin/catalog/DatasetForm.tsx for form structure. Read src/app/api/admin/catalog/route.ts POST handler and src/app/api/admin/catalog/[id]/route.ts PATCH handler to see which fields they accept. The PATCH handler likely builds an updateFields object — add source_type and modality to it. The POST handler may need similar updates."
+    },
+    {
+      "id": "US-009",
+      "title": "Playwright MCP visual verification",
+      "description": "As QA, I need to verify the expanded catalog renders correctly with new datasets and badges.",
+      "acceptanceCriteria": [
+        "Navigate to localhost:3005/data-catalog",
+        "Scroll to BROWSE THE CATALOG section, take screenshot",
+        "Verify new category pills appear: Multimodal Instruction Tuning, Speech & Audio, Code & Math Reasoning, Document Understanding, Video Understanding, Large-Scale Pretraining",
+        "Click 'Multimodal Instruction Tuning' pill — verify 2 cards (Image Chat + Video Chat) with SYNTHETIC badge",
+        "Click 'Speech & Audio' pill — verify 3 cards",
+        "Click 'Large-Scale Pretraining' pill — verify 2 cards with CURATED · TRAINING-READY badge",
+        "Click 'All' pill — scroll through all datasets, verify lazy loading works",
+        "Verify collected datasets (e.g. Egocentric Activity Capture) show NO badge",
+        "Click Request Access on a synthetic dataset — verify Calendly modal opens",
+        "Resize to mobile (375px) — verify badges don't break layout, take screenshot",
+        "Check browser console for errors",
+        "Document any issues found and fix critical blockers"
+      ],
+      "priority": 9,
+      "passes": true,
+      "notes": "Dev server on port 3005. Use Playwright MCP tools. The public API uses anon key (createClient without cookies) so all published datasets should be visible. There should be 25 total published datasets: 12 existing collected + 8 synthetic + 5 curated."
+    }
+  ]
+}

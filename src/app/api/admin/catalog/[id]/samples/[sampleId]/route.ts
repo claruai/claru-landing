@@ -2,13 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifyAdminToken } from "@/lib/admin-auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { deleteFile } from "@/lib/supabase/storage";
 
 /**
  * PATCH /api/admin/catalog/[id]/samples/[sampleId]
  *
- * Partially updates a sample record.
- * Accepts: s3_object_key, s3_annotation_key, s3_specs_key, metadata_json, media_url
+ * Partially updates a clip record in the clips table.
+ * Unified Clip Architecture (US-019): edits clips directly, not dataset_samples.
+ *
+ * Accepts clip-native field names:
+ *   s3_key, ann_annotation_key, ann_specs_key, ann_metadata,
+ *   ai_enrichment_json, ai_caption, ai_agent_context,
+ *   tech_duration_seconds, tech_resolution_width, tech_resolution_height,
+ *   tech_fps, tech_codec, tech_bit_depth, tech_file_size_bytes
  */
 export async function PATCH(
   request: NextRequest,
@@ -20,7 +25,7 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id: datasetId, sampleId } = await params;
+  const { id: datasetId, sampleId: clipId } = await params;
 
   let body: Record<string, unknown>;
   try {
@@ -30,12 +35,20 @@ export async function PATCH(
   }
 
   const allowedFields = [
-    "s3_object_key",
-    "s3_annotation_key",
-    "s3_specs_key",
-    "metadata_json",
-    "enrichment_json",
-    "media_url",
+    "s3_key",
+    "ann_annotation_key",
+    "ann_specs_key",
+    "ann_metadata",
+    "ai_enrichment_json",
+    "ai_caption",
+    "ai_agent_context",
+    "tech_duration_seconds",
+    "tech_resolution_width",
+    "tech_resolution_height",
+    "tech_fps",
+    "tech_codec",
+    "tech_bit_depth",
+    "tech_file_size_bytes",
   ];
 
   const updates: Record<string, unknown> = {};
@@ -52,14 +65,28 @@ export async function PATCH(
     );
   }
 
-  // Validate metadata_json is valid JSON if provided
-  if ("metadata_json" in updates && updates.metadata_json != null) {
-    if (typeof updates.metadata_json === "string") {
+  // Validate ann_metadata is valid JSON if provided as string
+  if ("ann_metadata" in updates && updates.ann_metadata != null) {
+    if (typeof updates.ann_metadata === "string") {
       try {
-        JSON.parse(updates.metadata_json);
+        updates.ann_metadata = JSON.parse(updates.ann_metadata);
       } catch {
         return NextResponse.json(
-          { error: "metadata_json must be valid JSON" },
+          { error: "ann_metadata must be valid JSON" },
+          { status: 400 }
+        );
+      }
+    }
+  }
+
+  // Validate ai_enrichment_json is valid JSON if provided as string
+  if ("ai_enrichment_json" in updates && updates.ai_enrichment_json != null) {
+    if (typeof updates.ai_enrichment_json === "string") {
+      try {
+        updates.ai_enrichment_json = JSON.parse(updates.ai_enrichment_json);
+      } catch {
+        return NextResponse.json(
+          { error: "ai_enrichment_json must be valid JSON" },
           { status: 400 }
         );
       }
@@ -68,30 +95,30 @@ export async function PATCH(
 
   const supabase = createSupabaseAdminClient();
 
-  // Verify sample exists and belongs to this dataset
+  // Verify clip is linked to this dataset via dataset_clips
   const { data: existing, error: fetchError } = await supabase
-    .from("dataset_samples")
+    .from("dataset_clips")
     .select("id")
-    .eq("id", sampleId)
+    .eq("clip_id", clipId)
     .eq("dataset_id", datasetId)
+    .limit(1)
     .single();
 
   if (fetchError || !existing) {
-    return NextResponse.json({ error: "Sample not found" }, { status: 404 });
+    return NextResponse.json({ error: "Clip not found in this dataset" }, { status: 404 });
   }
 
   const { data: updated, error: updateError } = await supabase
-    .from("dataset_samples")
+    .from("clips")
     .update(updates)
-    .eq("id", sampleId)
-    .eq("dataset_id", datasetId)
+    .eq("id", clipId)
     .select()
     .single();
 
   if (updateError) {
     console.error("[PATCH /api/admin/catalog/[id]/samples/[sampleId]]", updateError);
     return NextResponse.json(
-      { error: "Failed to update sample" },
+      { error: "Failed to update clip" },
       { status: 500 }
     );
   }
@@ -102,9 +129,10 @@ export async function PATCH(
 /**
  * DELETE /api/admin/catalog/[id]/samples/[sampleId]
  *
- * Deletes a sample record from the database.
- * - If the sample has a storage_path, also removes the file from Supabase Storage.
- * - If the sample only has a media_url (no storage_path), just deletes the DB record.
+ * Removes a clip's association with a dataset by deleting the dataset_clips row.
+ * Does NOT delete the clip itself (it may be referenced by other datasets).
+ *
+ * Unified Clip Architecture (US-019): deletes dataset_clips row, not dataset_samples.
  */
 export async function DELETE(
   _request: NextRequest,
@@ -116,44 +144,26 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id: datasetId, sampleId } = await params;
+  const { id: datasetId, sampleId: clipId } = await params;
   const supabase = createSupabaseAdminClient();
 
-  // Fetch the sample to check whether it has a storage_path
-  const { data: sample, error: fetchError } = await supabase
-    .from("dataset_samples")
-    .select("storage_path")
-    .eq("id", sampleId)
-    .eq("dataset_id", datasetId)
-    .single();
-
-  if (fetchError || !sample) {
-    return NextResponse.json({ error: "Sample not found" }, { status: 404 });
-  }
-
-  // Only attempt storage deletion when the sample has a storage_path
-  if (sample.storage_path) {
-    const storageDeleted = await deleteFile(sample.storage_path);
-    if (!storageDeleted) {
-      console.warn(
-        `[DELETE sample] Storage delete failed for path: ${sample.storage_path} -- proceeding with DB delete`
-      );
-    }
-  }
-
-  // Delete the DB record
-  const { error: deleteError } = await supabase
-    .from("dataset_samples")
-    .delete()
-    .eq("id", sampleId)
+  // Delete the dataset_clips row linking this clip to the dataset
+  const { error: deleteError, count } = await supabase
+    .from("dataset_clips")
+    .delete({ count: "exact" })
+    .eq("clip_id", clipId)
     .eq("dataset_id", datasetId);
 
   if (deleteError) {
     console.error("[DELETE /api/admin/catalog/[id]/samples/[sampleId]]", deleteError);
     return NextResponse.json(
-      { error: "Failed to delete sample" },
+      { error: "Failed to remove clip from dataset" },
       { status: 500 }
     );
+  }
+
+  if (count === 0) {
+    return NextResponse.json({ error: "Clip not found in this dataset" }, { status: 404 });
   }
 
   return NextResponse.json({ success: true });

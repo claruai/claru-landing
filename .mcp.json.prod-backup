@@ -1,0 +1,69 @@
+{
+  "mcpServers": {
+    "attio": {
+      "type": "http",
+      "url": "https://mcp.attio.com/mcp"
+    },
+    "resend": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "resend-mcp"],
+      "env": {
+        "RESEND_API_KEY": "re_XWEJZ2Sg_JtNSa7tMko8zVKnjCgKvFxq5"
+      }
+    },
+    "supabase-db": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--project-ref=usmgbihcevnvrkyvrlju"
+      ],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "sbp_5282d6ddae9c3570e172cb0ff53caf133d2d473a"
+      }
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest", "--browser", "chromium"]
+    },
+    "web-to-mcp": {
+      "type": "http",
+      "url": "https://web-to-mcp.com/mcp/0fee7f05-69bb-48ed-921d-98122f154701/"
+    },
+    "google-workspace": {
+      "command": "/Users/johnthomas/.local/bin/google-workspace-worker",
+      "args": [],
+      "env": {}
+    },
+    "posthog": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote@latest",
+        "https://mcp.posthog.com/sse",
+        "--header",
+        "Authorization:${POSTHOG_AUTH_HEADER}"
+      ],
+      "env": {
+        "POSTHOG_AUTH_HEADER": "Bearer phx_e5xa4PPFmZgmqbfzPVpK7LAQqYhXw1vdAJSvOdBmOJ2Jon7"
+      }
+    },
+    "gsc": {
+      "command": "/Users/johnthomas/.config/gsc-mcp/mcp-gsc/.venv/bin/python",
+      "args": ["/Users/johnthomas/.config/gsc-mcp/mcp-gsc/gsc_server.py"],
+      "env": {
+        "GSC_OAUTH_CLIENT_SECRETS_FILE": "/Users/johnthomas/.config/gsc-mcp/client_secrets.json",
+        "GSC_DATA_STATE": "all"
+      }
+    },
+    "codex-cli": {
+      "command": "codex",
+      "args": ["mcp-server"],
+      "env": {
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}"
+      }
+    }
+  }
+}

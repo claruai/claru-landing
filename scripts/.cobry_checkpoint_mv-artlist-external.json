@@ -1,0 +1,27 @@
+{
+  "completed_parquets": [
+    "silver/cobry/deliveries/videos/delivery10_p1/captions/part-00000-000000000000.parquet",
+    "silver/cobry/deliveries/videos/delivery6_p1/captions/part-00000-000000000000.parquet",
+    "silver/cobry/deliveries/videos/delivery6_p1/captions/part-00001-000000000000.parquet",
+    "silver/cobry/deliveries/videos/delivery6_p1/captions/part-00002-000000000000.parquet",
+    "silver/cobry/deliveries/videos/delivery6_p1/captions/part-00003-000000000000.parquet",
+    "silver/cobry/deliveries/videos/delivery7_p1/captions/part-00000-000000000000.parquet",
+    "silver/cobry/deliveries/videos/delivery7_p1/captions/part-00001-000000000000.parquet",
+    "silver/cobry/deliveries/videos/delivery7_p1/captions/part-00002-000000000000.parquet",
+    "silver/cobry/deliveries/videos/delivery8_p1/captions/part-00000-000000000000.parquet",
+    "silver/cobry/deliveries/videos/delivery8_p1/captions/part-00001-000000000000.parquet",
+    "silver/cobry/deliveries/videos/delivery8_p1/captions/part-00002-000000000000.parquet",
+    "silver/cobry/deliveries/videos/delivery9_p1/captions/part-00000-000000000000.parquet",
+    "silver/cobry/deliveries/videos/delivery9_p1/captions/part-00001-000000000000.parquet",
+    "silver/cobry/deliveries/videos/delivery9_p1/captions/part-00002-000000000000.parquet",
+    "silver/cobry/deliveries/videos/delivery10_p1/captions/part-00001-000000000000.parquet",
+    "silver/cobry/deliveries/videos/delivery10_p1/captions/part-00002-000000000000.parquet",
+    "silver/cobry/deliveries/videos/delivery11_p1/captions/part-00000-000000000000.parquet",
+    "silver/cobry/deliveries/videos/delivery11_p1/captions/part-00001-000000000000.parquet",
+    "silver/cobry/deliveries/videos/delivery11_p1/captions/part-00002-000000000000.parquet",
+    "silver/cobry/deliveries/videos/delivery12_p1/captions/part-00000-000000000000.parquet"
+  ],
+  "total_inserted": 756267,
+  "total_skipped": 0,
+  "total_failed": 100
+}

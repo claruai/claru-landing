@@ -1,0 +1,369 @@
+#!/usr/bin/env python3
+"""
+Load annotation-data.json metadata from moonvalley-annotation-platform S3 bucket
+into the unified clips table.
+
+For each video folder:
+1. Read annotation-data.json to extract structured metadata
+2. Write ann_metadata (jsonb), ann_annotation_key, tech_* columns on clips
+3. Set caption_rebuilt_at = NULL to flag for rebuild
+
+Does NOT generate embeddings — that is the rebuild script's job.
+
+Handles two prefixes:
+  - video_capture/completed/          (16.4k — already indexed, backfill metadata)
+  - video-capture-activities/completed/ (11.7k — new, index from scratch)
+
+Usage:
+  python3 scripts/load-annotation-metadata.py [--prefix video_capture] [--limit 100] [--dry-run]
+"""
+
+import argparse
+import json
+import os
+import sys
+import time
+
+_MISSING = []
+try:
+    import boto3
+except ImportError:
+    _MISSING.append("boto3")
+try:
+    import httpx
+except ImportError:
+    _MISSING.append("httpx")
+
+if _MISSING:
+    print(f"Missing: {', '.join(_MISSING)}. pip install {' '.join(_MISSING)}", file=sys.stderr)
+    sys.exit(1)
+
+SUPABASE_URL = os.environ.get("NEXT_PUBLIC_SUPABASE_URL", "")
+SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
+BUCKET = "moonvalley-annotation-platform"
+
+if not SUPABASE_URL or not SUPABASE_KEY:
+    print("Missing env vars. Source .env.local first.", file=sys.stderr)
+    sys.exit(1)
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--prefix", default="all", help="'video_capture', 'video-capture-activities', or 'all'")
+parser.add_argument("--limit", type=int, default=None)
+parser.add_argument("--dry-run", action="store_true")
+parser.add_argument("--batch-size", type=int, default=50)
+parser.add_argument("--key-start", type=str, default=None, help="Only process folders >= this UUID prefix (e.g. '4')")
+parser.add_argument("--key-end", type=str, default=None, help="Only process folders < this UUID prefix (e.g. '8')")
+parser.add_argument("--worker-id", type=str, default="0", help="Worker ID for logging")
+args = parser.parse_args()
+
+s3 = boto3.client("s3", region_name="us-east-1")
+http = httpx.Client(timeout=60)
+
+
+def read_annotation_json(folder_prefix: str) -> dict | None:
+    """Read annotation-data.json from an S3 folder."""
+    key = folder_prefix + "annotation-data.json"
+    try:
+        obj = s3.get_object(Bucket=BUCKET, Key=key)
+        return json.loads(obj["Body"].read())
+    except Exception:
+        return None
+
+
+def find_video_key(folder_prefix: str) -> str | None:
+    """Find the video file in a folder."""
+    resp = s3.list_objects_v2(Bucket=BUCKET, Prefix=folder_prefix, MaxKeys=20)
+    for obj in resp.get("Contents", []):
+        k = obj["Key"].lower()
+        if k.endswith((".mp4", ".mov", ".webm")):
+            return obj["Key"]
+    return None
+
+
+def find_annotation_key(folder_prefix: str) -> str | None:
+    """Find the annotation-data.json key for storing as ann_annotation_key."""
+    key = folder_prefix + "annotation-data.json"
+    try:
+        s3.head_object(Bucket=BUCKET, Key=key)
+        return key
+    except Exception:
+        return None
+
+
+def extract_structured_fields(annotation: dict) -> dict:
+    """Extract structured metadata from annotation JSON.
+
+    Returns a dict with both annotation and technical fields extracted
+    from the annotation-data.json file.
+    """
+    fields = {}
+
+    # generalData has the richest info
+    gd = annotation.get("generalData", {})
+    if isinstance(gd, dict):
+        fields["main_category"] = gd.get("mainCategory") or gd.get("flow") or None
+        fields["activities"] = gd.get("activities", [])
+        fields["subcategory_action"] = gd.get("subcategory") or None
+
+    # Top-level fields
+    fields["category"] = annotation.get("category") or None
+    fields["subcategory"] = annotation.get("subcategory") or None
+
+    # Project info
+    project = annotation.get("project", {})
+    if isinstance(project, dict):
+        fields["project_tag"] = project.get("tag") or None
+        fields["project_type"] = project.get("type") or None
+
+    # File metadata (resolution, duration, fps)
+    files = annotation.get("files", [])
+    if files and isinstance(files, list):
+        f = files[0]
+        attrs = f.get("attributes") or {}
+        media = attrs.get("media") or {}
+        tracks = media.get("track", [])
+        for track in tracks:
+            if track.get("@type") == "General":
+                fields["file_size"] = track.get("FileSize")
+                fields["duration"] = track.get("Duration")
+            if track.get("@type") == "Video":
+                fields["width"] = track.get("Width")
+                fields["height"] = track.get("Height")
+                fields["fps"] = track.get("FrameRate")
+                if not fields.get("duration"):
+                    fields["duration"] = track.get("Duration")
+                fields["codec"] = track.get("Format")
+                fields["bit_depth"] = track.get("BitDepth")
+
+    return fields
+
+
+def build_ann_metadata(fields: dict, annotation: dict) -> dict:
+    """Build the ann_metadata JSONB value from extracted fields and raw annotation."""
+    metadata = {}
+
+    # Category information
+    cat = fields.get("main_category") or fields.get("category")
+    if cat:
+        metadata["category"] = cat
+
+    subcat = fields.get("subcategory_action") or fields.get("subcategory")
+    if subcat:
+        metadata["subcategory"] = subcat
+
+    activities = fields.get("activities", [])
+    if activities:
+        metadata["activities"] = activities
+
+    # Project info
+    if fields.get("project_type"):
+        metadata["project_type"] = fields["project_type"]
+    if fields.get("project_tag"):
+        metadata["project_tag"] = fields["project_tag"]
+
+    # Store raw generalData if present
+    gd = annotation.get("generalData")
+    if gd:
+        metadata["generalData"] = gd
+
+    # Quality info (troveo-style annotations)
+    quality = annotation.get("quality")
+    if quality:
+        metadata["quality"] = quality
+
+    return metadata
+
+
+def safe_int(val) -> int | None:
+    """Safely convert a value to int, returning None on failure."""
+    if val is None:
+        return None
+    try:
+        return int(str(val).replace(",", "").replace(" ", ""))
+    except (ValueError, TypeError):
+        return None
+
+
+def safe_numeric(val) -> float | None:
+    """Safely convert a value to float, returning None on failure."""
+    if val is None:
+        return None
+    try:
+        return float(str(val).replace(",", "").replace(" ", ""))
+    except (ValueError, TypeError):
+        return None
+
+
+def upsert_rows(rows: list[dict]) -> int:
+    """Insert into clips via PostgREST with ON CONFLICT DO NOTHING."""
+    url = f"{SUPABASE_URL}/rest/v1/clips"
+    headers = {
+        "apikey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}",
+        "Content-Type": "application/json",
+        "Prefer": "resolution=ignore-duplicates,return=minimal",
+    }
+    resp = http.post(url, headers=headers, json=rows, params={"on_conflict": "s3_bucket,s3_key"})
+    if resp.status_code in (200, 201):
+        return len(rows)
+    raise RuntimeError(f"PostgREST error {resp.status_code}: {resp.text[:200]}")
+
+
+def process_prefix(prefix: str):
+    """Process all folders under a prefix."""
+    print(f"\n=== Processing {prefix} ===")
+
+    paginator = s3.get_paginator("list_objects_v2")
+    folders = []
+    for page in paginator.paginate(Bucket=BUCKET, Prefix=prefix, Delimiter="/"):
+        for cp in page.get("CommonPrefixes", []):
+            folders.append(cp["Prefix"])
+
+    print(f"Found {len(folders)} total folders")
+
+    # Filter by key range (for parallel workers)
+    if args.key_start or args.key_end:
+        original = len(folders)
+        filtered = []
+        for f in folders:
+            # Extract UUID part: prefix/UUID/
+            parts = f.rstrip("/").split("/")
+            uuid_part = parts[-1] if parts else ""
+            if args.key_start and uuid_part < args.key_start:
+                continue
+            if args.key_end and uuid_part >= args.key_end:
+                continue
+            filtered.append(f)
+        folders = filtered
+        print(f"[W{args.worker_id}] Key range [{args.key_start or '...'} - {args.key_end or '...'}): {len(folders)} of {original} folders")
+
+    if args.limit:
+        folders = folders[:args.limit]
+        print(f"Limited to {len(folders)}")
+
+    batch = []
+    total_ok = 0
+    total_skip = 0
+    total_fail = 0
+
+    for i, folder in enumerate(folders):
+        # Read annotation JSON
+        annotation = read_annotation_json(folder)
+        if not annotation:
+            total_skip += 1
+            continue
+
+        # Find video file
+        video_key = find_video_key(folder)
+        if not video_key:
+            total_skip += 1
+            continue
+
+        # Extract structured fields
+        fields = extract_structured_fields(annotation)
+
+        # Find annotation key
+        ann_key = folder + "annotation-data.json"
+
+        batch.append({
+            "video_key": video_key,
+            "fields": fields,
+            "annotation": annotation,
+            "ann_key": ann_key,
+            "folder": folder,
+        })
+
+        if len(batch) >= args.batch_size:
+            ok, fail = flush_batch(batch)
+            total_ok += ok
+            total_fail += fail
+            batch = []
+
+            if (i + 1) % 200 == 0:
+                print(f"  [W{args.worker_id}] {i + 1}/{len(folders)} folders | {total_ok} ok, {total_skip} skip, {total_fail} fail")
+
+    # Flush remaining
+    if batch:
+        ok, fail = flush_batch(batch)
+        total_ok += ok
+        total_fail += fail
+
+    print(f"\n=== {prefix} done: {total_ok} ok, {total_skip} skip, {total_fail} fail ===")
+
+
+def flush_batch(batch: list[dict]) -> tuple[int, int]:
+    """Process and upsert a batch to clips table.
+
+    Writes ONLY annotation and technical columns. Does NOT generate embeddings.
+    Sets caption_rebuilt_at = NULL to flag rows for caption + embedding rebuild.
+    """
+    if args.dry_run:
+        for item in batch[:3]:
+            f = item["fields"]
+            print(f"  [dry-run] {item['video_key'][-50:]}")
+            print(f"    cat={f.get('main_category')} sub={f.get('subcategory_action')} acts={f.get('activities', [])}")
+            print(f"    tech: {f.get('width')}x{f.get('height')} {f.get('fps')}fps {f.get('codec')}")
+        return len(batch), 0
+
+    # Build rows for clips table — ONLY ann_* and tech_* columns
+    rows = []
+    for item in batch:
+        fields = item["fields"]
+        annotation = item["annotation"]
+
+        row = {
+            # Identity
+            "s3_bucket": BUCKET,
+            "s3_key": item["video_key"],
+
+            # Annotation columns (our column group)
+            "ann_metadata": build_ann_metadata(fields, annotation),
+            "ann_annotation_key": item["ann_key"],
+
+            # Technical columns (our column group)
+            "tech_resolution_width": safe_int(fields.get("width")),
+            "tech_resolution_height": safe_int(fields.get("height")),
+            "tech_fps": safe_numeric(fields.get("fps")),
+            "tech_duration_seconds": safe_numeric(fields.get("duration")),
+            "tech_codec": fields.get("codec"),
+            "tech_file_size_bytes": safe_int(fields.get("file_size")),
+            "tech_bit_depth": safe_int(fields.get("bit_depth")),
+
+            # Flag for caption + embedding rebuild
+            "caption_rebuilt_at": None,
+        }
+        rows.append(row)
+
+    if not rows:
+        return 0, len(batch)
+
+    try:
+        upserted = upsert_rows(rows)
+        time.sleep(0.1)  # Brief throttle
+        return upserted, 0
+    except Exception as e:
+        print(f"  [error] upsert: {e}", file=sys.stderr)
+        return 0, len(rows)
+
+
+def main():
+    prefixes = []
+    if args.prefix == "all":
+        prefixes = ["video_capture/completed/", "video-capture-activities/completed/"]
+    elif args.prefix == "video_capture":
+        prefixes = ["video_capture/completed/"]
+    elif args.prefix == "video-capture-activities":
+        prefixes = ["video-capture-activities/completed/"]
+    else:
+        prefixes = [args.prefix]
+
+    print(f"Annotation metadata loader (clips table) | prefixes={[p for p in prefixes]} batch_size={args.batch_size} limit={args.limit} dry_run={args.dry_run}")
+
+    for prefix in prefixes:
+        process_prefix(prefix)
+
+    print("\nAll done!")
+
+
+if __name__ == "__main__":
+    main()

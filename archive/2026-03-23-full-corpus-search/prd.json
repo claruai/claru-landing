@@ -1,0 +1,359 @@
+{
+  "project": "Claru Landing",
+  "branchName": "ralph/unified-clip-architecture",
+  "description": "Unified Clip Architecture — single clips table, dataset_clips join table, one search mode, structured enrichment columns. Staging DB first.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create clips table DDL on staging",
+      "description": "As a developer, I need the clips table created on staging with all structured columns.",
+      "acceptanceCriteria": [
+        "Create clips table with: id (uuid PK), s3_bucket (text NOT NULL), s3_key (text NOT NULL), mime_type, filename, UNIQUE(s3_bucket, s3_key)",
+        "Add annotation columns: ann_metadata (jsonb), ann_annotation_key (text), ann_specs_key (text)",
+        "Add technical columns: tech_file_size_bytes (bigint), tech_duration_seconds (numeric), tech_resolution_width (int), tech_resolution_height (int), tech_fps (numeric), tech_codec (text), tech_bit_depth (int)",
+        "Add AI columns: ai_caption (text), ai_agent_context (jsonb), ai_enrichment_source (text), ai_enrichment_json (jsonb)",
+        "Add derived fields: caption_text (text), embedding vector(768), caption_rebuilt_at (timestamptz)",
+        "Add timestamps: created_at, updated_at with auto-update trigger",
+        "Create HNSW index on embedding column",
+        "Create GIN index on ann_metadata",
+        "Create btree index on s3_bucket",
+        "Enable RLS with service-role-only policy",
+        "Apply via Supabase MCP on staging DB (kpjcbemvwxffibiohmvi)",
+        "Verify table exists with correct columns",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "Use HNSW not IVFFlat. Service role bypasses RLS. Ref: PRD canonical schema section."
+    },
+    {
+      "id": "US-002",
+      "title": "Create dataset_clips join table on staging",
+      "description": "As a developer, I need the dataset_clips join table on staging.",
+      "acceptanceCriteria": [
+        "Create dataset_clips: id (uuid PK), dataset_id (FK datasets), clip_id (FK clips), lead_id (FK leads nullable), added_by (text), note (text), created_at (timestamptz)",
+        "CREATE UNIQUE INDEX idx_dataset_clips_unique ON dataset_clips (dataset_id, clip_id, COALESCE(lead_id, '00000000-0000-0000-0000-000000000000'))",
+        "Enable RLS with service-role-only policy",
+        "Apply via Supabase MCP on staging",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Expression-based unique INDEX, not UNIQUE constraint."
+    },
+    {
+      "id": "US-003",
+      "title": "Create match_clips RPC on staging",
+      "description": "As a developer, I need the unified vector search RPC.",
+      "acceptanceCriteria": [
+        "Create match_clips(query_embedding vector(768), match_count int, filter_dataset_id uuid, filter_bucket text, match_threshold float)",
+        "Returns: id, s3_bucket, s3_key, ai_caption, caption_text, similarity, ai_enrichment_source, ai_agent_context, mime_type, tech_resolution_width, tech_resolution_height, tech_fps, tech_duration_seconds, tech_codec, ann_metadata",
+        "JOIN dataset_clips when filter_dataset_id provided",
+        "SECURITY DEFINER, SET search_path TO public, extensions",
+        "Apply via Supabase MCP on staging",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Migrate video_index to clips on staging",
+      "description": "As a developer, I need 47k video_index rows migrated into clips.",
+      "acceptanceCriteria": [
+        "Create scripts/migrate-video-index-to-clips.py",
+        "Map: s3_bucket, s3_key, caption_text -> ai_caption AND caption_text, enrichment_source -> ai_enrichment_source, embedding -> embedding, indexed_at -> created_at",
+        "Set caption_rebuilt_at = NOW() for rows with valid embeddings",
+        "INSERT ON CONFLICT DO NOTHING",
+        "Batch 500 rows, 0.1s throttle",
+        "Idempotent",
+        "Validate: clips count matches video_index count",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Migrate dataset_samples to clips + dataset_clips on staging",
+      "description": "As a developer, I need 714 dataset_samples merged into clips with re-embedding and relationships preserved.",
+      "acceptanceCriteria": [
+        "Create scripts/migrate-dataset-samples-to-clips.py",
+        "Upsert into clips matching on s3_bucket + s3_object_key -> s3_key",
+        "Map: enrichment_json -> ai_enrichment_json, agent_context -> ai_agent_context, metadata_json -> ann_metadata, s3_annotation_key -> ann_annotation_key, s3_specs_key -> ann_specs_key, tech fields",
+        "Re-embed at 768 dims for rows needing embeddings (631 of 714)",
+        "Create dataset_clips rows preserving dataset_id + lead_id",
+        "Deduplicate: GROUP BY s3 key -> one clips row + multiple dataset_clips",
+        "Skip 20 rows with NULL s3_object_key (log them)",
+        "Idempotent",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "Uses OpenAI API. ~$0.50 cost."
+    },
+    {
+      "id": "US-006",
+      "title": "Add Clip and DatasetClip TypeScript types",
+      "description": "As a developer, I need types matching the new schema.",
+      "acceptanceCriteria": [
+        "Add Clip interface to src/types/data-catalog.ts matching canonical schema",
+        "Add DatasetClip interface",
+        "Add ClipSearchResult interface (no source discriminator)",
+        "Add field mapping comments in code",
+        "Mark DatasetSample, VideoIndexRecord, LeadCustomSample as @deprecated",
+        "DO NOT change generateEmbedding() default — add explicit 768 to new call sites",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "Embedding default changes AFTER US-007 and US-015."
+    },
+    {
+      "id": "US-007",
+      "title": "Rewrite search API for clips",
+      "description": "As a developer, the search API must query clips via match_clips.",
+      "acceptanceCriteria": [
+        "Rewrite src/app/api/admin/catalog/search/route.ts to use match_clips only",
+        "Remove 3-mode logic — single code path",
+        "Use generateEmbedding(query, 768) explicitly",
+        "Browse mode: clips JOIN dataset_clips when dataset filter set",
+        "Return ClipSearchResult shape",
+        "Lead assignment: single dataset_clips query (collapse two queries into one)",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Rewrite admin search UI — remove mode toggle",
+      "description": "As an admin, one unified search across all clips.",
+      "acceptanceCriteria": [
+        "Remove mode toggle from CatalogSearchClient.tsx",
+        "Update server component: bucket list and clip count from clips table",
+        "ResultCard renders ClipSearchResult",
+        "Update AddToLeadButton: videoIndexId/datasetSampleId -> clipId",
+        "Remove all source: catalog | full_corpus logic",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Add admin search filters and structured detail modal",
+      "description": "As an admin, structured detail modal tabs and new filters.",
+      "acceptanceCriteria": [
+        "ResultDetailModal: structured sections for Annotation, AI enrichment, Technical",
+        "Add resolution filter dropdown (All / 720p+ / 1080p+ / 4K)",
+        "Add Has AI description toggle",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Rewrite bulk actions for dataset_clips",
+      "description": "As an admin, adding clips to datasets inserts dataset_clips rows.",
+      "acceptanceCriteria": [
+        "Bulk bar: Add to Dataset + Create New Dataset tabs",
+        "Rewrite POST /api/admin/catalog/custom for dataset_clips inserts",
+        "Remove all data-copy logic from bulk actions",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Rewrite portal dataset detail for clips",
+      "description": "As a lead, see clip data from unified table.",
+      "acceptanceCriteria": [
+        "Query clips via dataset_clips JOIN",
+        "Field renames: s3_object_key -> s3_key, remove media_url/storage_path fallback",
+        "Lead filter with DISTINCT ON (clip_id) to prevent duplicates",
+        "Update GalleryCard field names",
+        "Deep-link ?clip= param",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Add clip detail modal tabs",
+      "description": "As a user, structured tabs: Annotation | AI | Technical.",
+      "acceptanceCriteria": [
+        "3 tabs: Annotation, AI Enrichment, Technical",
+        "Annotation tab: live S3 fetch via ann_annotation_key",
+        "AI tab: ai_caption, ai_agent_context fields",
+        "Technical tab: resolution, fps, duration, codec",
+        "Hidden from portal: ai_enrichment_source, internal IDs",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Rewrite portal catalog index for dataset_clips",
+      "description": "As a lead, catalog browser uses dataset_clips.",
+      "acceptanceCriteria": [
+        "Sample counts from dataset_clips",
+        "Curated samples: dataset_clips WHERE lead_id = current_lead (replaces lead_custom_samples query)",
+        "Enrich curated from clips table",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Update S3 annotation API for clips",
+      "description": "As a developer, annotation fetch works with clips table.",
+      "acceptanceCriteria": [
+        "Look up clip by ID from clips table using admin client",
+        "Use ann_annotation_key for S3 fetch",
+        "Cache to clips.ann_metadata (not dataset_samples.metadata_json)",
+        "Apply scrubbing",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Update MCP search tools",
+      "description": "As an MCP agent, unified search_clips tool.",
+      "acceptanceCriteria": [
+        "Replace search_catalog + search_full_catalog with search_clips",
+        "build_lead_brief: collapse TWO embedding+RPC calls into ONE",
+        "Update get_dataset_overview, download_clips, get_corpus_stats for clips",
+        "Test via curl",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Update MCP catalog management tools",
+      "description": "As an MCP agent, catalog tools use dataset_clips.",
+      "acceptanceCriteria": [
+        "create_custom_catalog: dataset + dataset_clips inserts",
+        "add_clips_to_catalog: dataset_clips inserts only",
+        "remove_clips_from_catalog: delete dataset_clips (not clips)",
+        "list_lead_catalogs via dataset_clips",
+        "update_dataset: total_samples from dataset_clips count",
+        "Test via curl",
+        "Typecheck passes"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Update loader scripts for clips",
+      "description": "As a developer, loaders write to their own clips columns.",
+      "acceptanceCriteria": [
+        "load-annotation-metadata.py: writes ann_*, tech_* on clips, sets caption_rebuilt_at = NULL",
+        "load_cobry_captions.py: writes ai_caption, ai_enrichment_source on clips, sets caption_rebuilt_at = NULL",
+        "re-enrich-annotation-frames.py: writes ai_caption, ai_enrichment_source on clips, sets caption_rebuilt_at = NULL",
+        "Each writes ONLY its own columns",
+        "All use INSERT ON CONFLICT DO NOTHING",
+        "Typecheck passes"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": "Loaders no longer embed. Rebuild script handles that."
+    },
+    {
+      "id": "US-018",
+      "title": "Create caption rebuild script",
+      "description": "As a developer, derives caption_text + embedding from all sources.",
+      "acceptanceCriteria": [
+        "Create scripts/rebuild-clip-captions.py",
+        "Select clips WHERE caption_rebuilt_at IS NULL",
+        "Build caption_text from: ann_metadata + tech specs + ai_caption",
+        "Handle varying ann_metadata shapes",
+        "Generate 768-dim embedding",
+        "Update caption_text, embedding, caption_rebuilt_at",
+        "Batch 100, idempotent",
+        "Typecheck passes"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-019",
+      "title": "Update admin catalog detail pages",
+      "description": "As an admin, catalog detail reads from clips via dataset_clips.",
+      "acceptanceCriteria": [
+        "Admin catalog [id] page queries clips via dataset_clips",
+        "SamplesList renders clip data",
+        "SamplePreviewModal shows structured tabs",
+        "Lead-specific clips show badge",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-020",
+      "title": "Drop legacy tables",
+      "description": "As a developer, remove old tables after staging validation.",
+      "acceptanceCriteria": [
+        "All surfaces confirmed working on staging",
+        "Drop dataset_samples, video_index, lead_custom_samples tables",
+        "Drop match_samples, match_video_index RPCs",
+        "Remove deprecated TypeScript types",
+        "Typecheck passes"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": "Only after FULL staging validation."
+    },
+    {
+      "id": "US-021",
+      "title": "Replicate migration to production",
+      "description": "As a developer, apply validated migration to prod.",
+      "acceptanceCriteria": [
+        "Switch to prod Supabase credentials",
+        "Apply DDL (clips, dataset_clips, match_clips, indexes)",
+        "Run video_index -> clips migration (145k rows)",
+        "Run dataset_samples -> clips + dataset_clips (714 rows)",
+        "Run caption rebuild",
+        "Validate search, portal, MCP on prod",
+        "Deploy to Vercel (push to main)",
+        "Drop legacy tables after 24h soak",
+        "Typecheck passes"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": "Final story. Only after all staging stories pass."
+    }
+  ]
+}

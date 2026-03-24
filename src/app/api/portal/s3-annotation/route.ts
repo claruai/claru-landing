@@ -3,20 +3,21 @@ import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { fetchAnnotationJson } from "@/lib/s3/annotation";
+import { scrubS3Urls } from "@/lib/scrub-s3-urls";
 
 // =============================================================================
 // POST /api/portal/s3-annotation
 //
-// Fetches an annotation JSON from an S3 object key (URL). When a sampleId is
-// provided, the handler first checks whether the annotation has already been
-// cached in the sample's `metadata_json` (via a `_cached_at` timestamp). If
-// the cache is fresh and the `objectKey` matches the sample's stored
-// `s3_annotation_key`, the cached value is returned immediately without an S3
-// round-trip.
+// Unified Clip Architecture (US-014):
+// Fetches annotation JSON from S3 for a clip. Looks up the clip by ID from the
+// clips table using the admin client (service role bypasses RLS -- the clips
+// table has no per-user SELECT policy).
 //
-// After a successful S3 fetch the annotation data is written back to the
-// sample's `metadata_json` in a fire-and-forget background write so that
-// subsequent requests are served from cache.
+// Uses the clip's ann_annotation_key for S3 fetch path and s3_bucket for the
+// correct bucket.
+//
+// Caching: writes annotation data to clips.ann_metadata (not the old
+// dataset_samples.metadata_json). Background write uses admin client.
 //
 // Auth: Supabase session required (enforced by middleware + getUser check).
 // =============================================================================
@@ -28,7 +29,9 @@ import { fetchAnnotationJson } from "@/lib/s3/annotation";
 const requestSchema = z.object({
   /** The S3 object key / URL to fetch the annotation JSON from. */
   objectKey: z.string().min(1, "objectKey is required"),
-  /** Optional sample ID — when provided, enables Supabase cache lookup. */
+  /** Clip ID -- enables cache lookup from clips.ann_metadata and correct bucket. */
+  clipId: z.string().uuid().optional(),
+  /** @deprecated Use clipId. Treated as a clip ID for backward compatibility. */
   sampleId: z.string().uuid().optional(),
 });
 
@@ -36,11 +39,11 @@ const requestSchema = z.object({
 // Helpers
 // ---------------------------------------------------------------------------
 
-
 const SENSITIVE_KEYS = new Set([
   "userId", "reviewerId", "payoutId", "amount", "paymentStatus",
   "paymentDate", "cost", "browserMetadata", "rejectionReason",
   "rejectionCount", "rejectedAt", "isTestTemplate", "annotationIndex",
+  "source_bucket", "source_torage_key", "source_url", "delivery", "tranche",
 ]);
 const SENSITIVE_PROJECT_KEYS = new Set([
   "annotationCost", "annotationCostType", "reviewCost", "isCompleted",
@@ -48,9 +51,14 @@ const SENSITIVE_PROJECT_KEYS = new Set([
   "templateData", "configuration",
 ]);
 
-function stripSensitiveFields(data: Record<string, unknown>): Record<string, unknown> {
+function stripSensitiveFields(data: unknown): unknown {
+  if (data === null || data === undefined) return data;
+  if (Array.isArray(data)) return data.map(stripSensitiveFields);
+  if (typeof data !== "object") return data;
+
+  const obj = data as Record<string, unknown>;
   const cleaned: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(data)) {
+  for (const [key, value] of Object.entries(obj)) {
     if (SENSITIVE_KEYS.has(key)) continue;
     if (key === "project" && value && typeof value === "object") {
       const project: Record<string, unknown> = {};
@@ -58,6 +66,8 @@ function stripSensitiveFields(data: Record<string, unknown>): Record<string, unk
         if (!SENSITIVE_PROJECT_KEYS.has(pk)) project[pk] = pv;
       }
       cleaned[key] = project;
+    } else if (value && typeof value === "object") {
+      cleaned[key] = stripSensitiveFields(value);
     } else {
       cleaned[key] = value;
     }
@@ -67,10 +77,10 @@ function stripSensitiveFields(data: Record<string, unknown>): Record<string, unk
 
 /**
  * Fire-and-forget: merge annotation data + `_cached_at` timestamp into the
- * sample's `metadata_json` column using the admin client (bypasses RLS).
+ * clip's `ann_metadata` column using the admin client (bypasses RLS).
  */
 function cacheAnnotationInBackground(
-  sampleId: string,
+  clipId: string,
   existingMetadata: Record<string, unknown>,
   annotationData: Record<string, unknown>
 ): void {
@@ -82,16 +92,16 @@ function cacheAnnotationInBackground(
     _cached_at: new Date().toISOString(),
   };
 
-  // Fire-and-forget — we intentionally do NOT await this promise so the
+  // Fire-and-forget -- we intentionally do NOT await this promise so the
   // response is returned to the client immediately.
   void adminClient
-    .from("dataset_samples")
-    .update({ metadata_json: mergedMetadata })
-    .eq("id", sampleId)
+    .from("clips")
+    .update({ ann_metadata: mergedMetadata })
+    .eq("id", clipId)
     .then(({ error }) => {
       if (error) {
         console.error(
-          "[s3-annotation] Background cache write failed:",
+          "[s3-annotation] Background cache write to clips.ann_metadata failed:",
           error.message
         );
       }
@@ -129,34 +139,50 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { objectKey, sampleId } = parsed.data;
+  const { objectKey, clipId, sampleId } = parsed.data;
+  // Prefer clipId; fall back to sampleId for backward compatibility
+  // (sampleId is now treated as a clip ID since clips replaced dataset_samples)
+  const lookupId = clipId ?? sampleId;
 
-  // 3. Cache check — if sampleId is provided, look up the sample's metadata
-  if (sampleId) {
-    const { data: sample, error: sampleError } = await supabase
-      .from("dataset_samples")
-      .select("metadata_json, s3_annotation_key")
-      .eq("id", sampleId)
+  // Use admin client for clips lookup (service role bypasses RLS --
+  // the clips table has no per-user SELECT policy)
+  const adminClient = createSupabaseAdminClient();
+
+  // 3. Cache check -- look up clip by ID from clips table
+  let clipBucket: string | null = null;
+
+  if (lookupId) {
+    const { data: clip, error: clipError } = await adminClient
+      .from("clips")
+      .select("ann_metadata, ann_annotation_key, s3_bucket")
+      .eq("id", lookupId)
       .single();
 
-    if (!sampleError && sample) {
-      const metadata = (sample.metadata_json ?? {}) as Record<string, unknown>;
-      const storedKey = sample.s3_annotation_key as string | null;
+    if (!clipError && clip) {
+      clipBucket = clip.s3_bucket;
+      const metadata = (clip.ann_metadata ?? {}) as Record<string, unknown>;
+      const storedKey = clip.ann_annotation_key as string | null;
       const cachedAt = metadata._cached_at;
 
       // Cache is valid only if:
       // - `_cached_at` exists (annotation was previously cached)
-      // - The requested objectKey matches the stored s3_annotation_key
+      // - The requested objectKey matches the stored ann_annotation_key
       //   (if the key changed, the cache is stale)
       if (cachedAt && storedKey === objectKey) {
-        return NextResponse.json({ annotation: stripSensitiveFields(metadata), cached: true });
+        return NextResponse.json({
+          annotation: scrubS3Urls(stripSensitiveFields(metadata) as Record<string, unknown>),
+          cached: true,
+        });
       }
     }
-    // If sample not found or cache miss, fall through to S3 fetch
+    // If clip not found or cache miss, fall through to S3 fetch
   }
 
-  // 4. Fetch annotation JSON from S3
-  const annotationData = await fetchAnnotationJson(objectKey);
+  // 4. Fetch annotation JSON from S3, using the clip's s3_bucket for the correct bucket
+  const annotationData = await fetchAnnotationJson(
+    objectKey,
+    clipBucket ?? undefined
+  );
 
   if (!annotationData) {
     return NextResponse.json(
@@ -165,23 +191,25 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // 5. Background cache write — non-blocking
-  if (sampleId) {
-    // Re-fetch the current metadata so we merge correctly (the sample query
-    // above may have failed or the metadata may have been read before).
-    const { data: currentSample } = await supabase
-      .from("dataset_samples")
-      .select("metadata_json")
-      .eq("id", sampleId)
+  // 5. Background cache write to clips.ann_metadata -- non-blocking
+  if (lookupId) {
+    // Re-fetch current ann_metadata so we merge correctly
+    const { data: currentClip } = await adminClient
+      .from("clips")
+      .select("ann_metadata")
+      .eq("id", lookupId)
       .single();
 
     const existingMetadata = (
-      currentSample?.metadata_json ?? {}
+      currentClip?.ann_metadata ?? {}
     ) as Record<string, unknown>;
 
-    cacheAnnotationInBackground(sampleId, existingMetadata, annotationData);
+    cacheAnnotationInBackground(lookupId, existingMetadata, annotationData);
   }
 
   // 6. Strip sensitive fields (costs, PII) before returning to leads
-  return NextResponse.json({ annotation: stripSensitiveFields(annotationData), cached: false });
+  return NextResponse.json({
+    annotation: scrubS3Urls(stripSensitiveFields(annotationData) as Record<string, unknown>),
+    cached: false,
+  });
 }

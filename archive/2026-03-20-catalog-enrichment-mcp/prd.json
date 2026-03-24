@@ -1,0 +1,280 @@
+{
+  "project": "Full Corpus Semantic Search (Phase 2)",
+  "branchName": "ralph/full-corpus-search",
+  "description": "Extend semantic search to 1.3M+ S3 videos using existing cobry captions + embeddings. Add lead-specific sample curation workflow.",
+  "userStories": [
+    {
+      "id": "US-201",
+      "title": "Formalize video_index table migration + match function",
+      "description": "As a developer, I need the video_index table formalized as a migration and the match_video_index RPC function created.",
+      "acceptanceCriteria": [
+        "Migration creates video_index: id uuid PK, s3_bucket text NOT NULL, s3_key text NOT NULL, dataset_id uuid nullable FK, caption_text text, embedding extensions.vector(768), enrichment_source text, indexed_at timestamptz",
+        "Unique constraint on (s3_bucket, s3_key)",
+        "match_video_index(query_embedding vector(768), match_count int, filter_bucket text DEFAULT NULL, match_threshold float DEFAULT 0.40) returns (id, s3_bucket, s3_key, caption_text, similarity, enrichment_source)",
+        "Function uses cosine distance, filters embedding IS NOT NULL and similarity >= threshold",
+        "Function marked SECURITY DEFINER to bypass RLS",
+        "No HNSW index yet (deferred to US-205b)",
+        "TypeScript type VideoIndexRecord in src/types/data-catalog.ts",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "Table already exists from PoC — formalize + add match function. Use Supabase MCP for migration."
+    },
+    {
+      "id": "US-202",
+      "title": "Cobry caption loader — Python script for mv-abaka + mv-artlist",
+      "description": "As a developer, I need a Python script that reads cobry caption parquets and bulk-loads them into video_index with 768-dim embeddings.",
+      "acceptanceCriteria": [
+        "scripts/load_cobry_captions.py — standalone Python (no TS wrapper)",
+        "Uses pyarrow read_row_group() streaming — never loads entire parquet into memory",
+        "Calls OpenAI via openai Python SDK with dimensions=768",
+        "Upserts to Supabase via httpx POST to PostgREST with service-role key",
+        "Checkpoint file at scripts/.cobry_checkpoint.json for crash recovery",
+        "Extracts clip_storage_key → s3_key, text_short + text → caption_text",
+        "Strips s3://bucket/ prefix from keys",
+        "Flags: --bucket, --delivery, --limit, --dry-run via argparse",
+        "Uses boto3 paginator for S3 listing",
+        "Idempotent — upsert on (s3_bucket, s3_key) conflict = skip",
+        "Temp files deleted in finally block after processing each parquet",
+        "Runtime check: Python 3.10+, pyarrow, openai, httpx, boto3 — exit with clear error if missing",
+        "Summary log: Inserted X / skipped Y / failed Z"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "This is the big one — ~800k abaka + ~200k artlist. PoC TS script exists at scripts/load-cobry-captions.ts for reference."
+    },
+    {
+      "id": "US-203",
+      "title": "Troveo metadata loader",
+      "description": "As a developer, I need a script that reads troveo per-video metadata JSONs and loads them into video_index.",
+      "acceptanceCriteria": [
+        "scripts/load-troveo-metadata.ts created",
+        "Reads embedding parquets to get storage_key + meta_key mappings",
+        "Fetches metadata JSON per video, constructs caption from technical fields",
+        "Generates 768-dim OpenAI embedding from caption text",
+        "Upserts into video_index with enrichment_source = 'troveo_metadata'",
+        "Flags: --limit, --dry-run. Idempotent",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "~112k videos. Troveo metadata is technical only — captions will be sparse."
+    },
+    {
+      "id": "US-204",
+      "title": "Annotation platform loader",
+      "description": "As a developer, I need a script that reads annotation JSONs from completed tasks and loads into video_index.",
+      "acceptanceCriteria": [
+        "scripts/load-annotation-platform.ts created",
+        "Lists video_capture/completed/ and video-capture-activities/completed/ folders",
+        "Reads annotation JSON, extracts generalData fields, constructs caption",
+        "Generates 768-dim OpenAI embedding",
+        "Upserts with enrichment_source = 'annotation_json'",
+        "Maps dataset_id to Egocentric Activity Capture where path matches",
+        "Flags: --limit, --dry-run. Idempotent",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": "~220k annotation folders"
+    },
+    {
+      "id": "US-204b",
+      "title": "ML-datasets caption loader",
+      "description": "As a developer, I need a script to load captions from moonvalley-ml-datasets sources.",
+      "acceptanceCriteria": [
+        "scripts/load-ml-dataset-captions.ts created",
+        "Handles ShareGPT4Video JSONs (extract video[0].content)",
+        "Handles backup-caption-parquets movie_clips and tv_clips parquets",
+        "Generates 768-dim OpenAI embedding from caption text",
+        "Upserts with enrichment_source = 'ml_dataset_caption'",
+        "Flag: --source to select format, --limit, --dry-run. Idempotent",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "~100k estimated across ShareGPT4Video + movie/TV clips"
+    },
+    {
+      "id": "US-205",
+      "title": "Gemini Vision for mv-xtr-external uncaptioned videos",
+      "description": "As a developer, I need Gemini enrichment for the ~1,257 videos with no metadata.",
+      "acceptanceCriteria": [
+        "scripts/enrich-xtr-gemini.ts created — reuses Phase 1 Gemini client",
+        "Lists video files in mv-xtr-external (asteria/, david_darg/, paul_trillo/)",
+        "For each: signed URL → Gemini 2.5 Flash → caption text → 768-dim embedding",
+        "Upserts with enrichment_source = 'gemini_vision'",
+        "p-limit max 5, exponential backoff on 429",
+        "Flags: --limit, --dry-run. Idempotent",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "~1,257 videos, ~$0.03 total"
+    },
+    {
+      "id": "US-205b",
+      "title": "Build HNSW index on video_index after bulk loading",
+      "description": "As a developer, I need the HNSW vector index built after all data is loaded.",
+      "acceptanceCriteria": [
+        "Run CREATE INDEX CONCURRENTLY on video_index using hnsw vector_cosine_ops — outside transaction",
+        "Set hnsw.ef_search = 100 in match_video_index function",
+        "Document: 1.3M rows x 768 dims = ~4-6 GB index memory",
+        "Verify queries return in < 500ms after build"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": "Must run AFTER all loader scripts complete"
+    },
+    {
+      "id": "US-206a",
+      "title": "Lead custom samples — table + RLS policies",
+      "description": "As a developer, I need the lead_custom_samples table with RLS for portal access.",
+      "acceptanceCriteria": [
+        "Migration: lead_custom_samples with lead_id FK CASCADE, video_index_id FK SET NULL, dataset_sample_id FK SET NULL, s3_bucket, s3_key (denormalized), added_by, note, added_at",
+        "RLS on lead_custom_samples: EXISTS(leads WHERE lead_id match AND supabase_user_id = auth.uid())",
+        "RLS on video_index: EXISTS through lead_custom_samples + leads + auth.uid()",
+        "video_index RLS enabled",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": "ON DELETE SET NULL preserves curation if index row deleted"
+    },
+    {
+      "id": "US-206b",
+      "title": "Lead custom samples — admin API routes",
+      "description": "As a developer, I need API endpoints to add, list, bulk-add, and remove custom samples.",
+      "acceptanceCriteria": [
+        "POST /api/admin/leads/[id]/custom-samples — single add, validates UUID, service-role client",
+        "POST /api/admin/leads/[id]/custom-samples/bulk — bulk add in one transaction, returns { inserted, skipped }",
+        "GET /api/admin/leads/[id]/custom-samples — list with signed URLs",
+        "DELETE /api/admin/leads/[id]/custom-samples/[sampleId] — remove",
+        "All routes require verifyAdminToken(), validate [id] as z.string().uuid()",
+        "Denormalizes s3_bucket + s3_key from video_index at insert time",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-207a",
+      "title": "Add to Lead — single-add combobox on result cards",
+      "description": "As an admin, I want to add a single search result to a lead via searchable combobox.",
+      "acceptanceCriteria": [
+        "Each result card has Add to Lead button → searchable combobox with type-ahead",
+        "Fetches leads where status = 'approved'",
+        "On open: checks existing assignments, greyed leads with checkmark",
+        "After selecting: note input + Confirm button (note optional)",
+        "Success: checkmark + 'Added to [name]'. Error: inline error with retry",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-207b",
+      "title": "Add to Lead — bulk-add with checkboxes + floating action bar",
+      "description": "As an admin, I want to select multiple results and add them all to a lead at once.",
+      "acceptanceCriteria": [
+        "Checkbox on each result card",
+        "1+ selected: floating bar at bottom '[N] selected — Add to Lead [combobox] [note] [Confirm]'",
+        "Bulk confirm calls POST /api/admin/leads/[id]/custom-samples/bulk",
+        "After add: checkboxes cleared, bar hidden, toast '[N] samples added to [lead name]'",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-208",
+      "title": "Portal 'Curated for You' section",
+      "description": "As a lead, I want custom samples picked for me shown in the portal catalog.",
+      "acceptanceCriteria": [
+        "Portal catalog queries lead_custom_samples (user client, RLS) then video_index details (service-role)",
+        "Section between header and CatalogBrowser, heading 'Curated for You'",
+        "Horizontal scrollable row, max 6 visible",
+        "Card: 16:9 thumbnail, caption_text 2-line truncation, bucket badge, admin note",
+        "Cards with no dataset_id are not clickable",
+        "Signed URLs generated server-side",
+        "Hidden entirely if no custom samples",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-209",
+      "title": "MCP tool: search_full_catalog + updated build_lead_brief",
+      "description": "As a Claude agent, I need MCP tools for full corpus search.",
+      "acceptanceCriteria": [
+        "Register search_full_catalog: { query, limit?, s3_bucket?, match_threshold? }",
+        "Embeds query → match_video_index RPC → signed URLs (600s TTL)",
+        "Output: { id, s3_bucket, s3_key, caption_text, similarity, enrichment_source, signed_url }",
+        "scrubS3Urls on caption_text only — signed_url preserved via PRESERVED_KEYS",
+        "build_lead_brief includes full_corpus results labelled source: 'full_corpus'",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": "600s TTL for MCP signed URLs (not 3600s)"
+    },
+    {
+      "id": "US-210a",
+      "title": "Admin search: UnifiedSearchResult type + API mode param",
+      "description": "As a developer, I need the search API to support catalog/full_corpus/both modes.",
+      "acceptanceCriteria": [
+        "UnifiedSearchResult discriminated union: source 'catalog' | 'full_corpus', shared description field",
+        "POST /api/admin/catalog/search accepts mode: catalog | full_corpus | both (default: catalog)",
+        "full_corpus calls match_video_index, both calls both RPCs and merges by similarity",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-210b",
+      "title": "Admin search UI: full corpus toggle + bucket filter + URL params",
+      "description": "As an admin, I want to toggle search modes with URL state persistence.",
+      "acceptanceCriteria": [
+        "Segmented toggle: Catalog Samples | Full Corpus | Both",
+        "Toggle auto-re-executes current query",
+        "Full Corpus: dataset filter replaced with bucket filter",
+        "URL params: ?q=, ?dataset=, ?bucket=, ?mode=",
+        "Full corpus cards: FULL CORPUS badge, bucket name, caption in description slot, enrichment_source tag, copy copies video_index.id",
+        "Full Corpus disabled if video_index empty",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-211",
+      "title": "Playwright E2E + UAT for full corpus + lead curation",
+      "description": "As QA, full end-to-end testing of Phase 2.",
+      "acceptanceCriteria": [
+        "tests/e2e/full-corpus-search.spec.ts created",
+        "Test: search full corpus → FULL CORPUS badges → add to lead → portal Curated for You",
+        "Test: bulk select 3 → bulk add → verify count",
+        "Test: MCP search_full_catalog returns valid response",
+        "No s3:// strings in any response",
+        "UAT: admin portal UI only",
+        "Typecheck passes"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": "Requires loader scripts to have populated video_index first"
+    }
+  ]
+}

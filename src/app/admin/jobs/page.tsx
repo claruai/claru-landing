@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { getAllJobs } from "@/lib/jobs";
 import AdminJobsTable from "../components/AdminJobsTable";
 import AdminJobsHeader from "../components/AdminJobsHeader";

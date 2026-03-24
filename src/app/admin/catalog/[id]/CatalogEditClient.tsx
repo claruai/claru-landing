@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Save, Trash2 } from "lucide-react";
+import { Loader2, Save, Trash2, UserPlus, Check, X } from "lucide-react";
 import AddSampleForm from "./AddSampleForm";
 import BulkCsvUploader from "./BulkCsvUploader";
 import SamplesList from "./SamplesList";
-import type { Dataset, DatasetCategory, DatasetSample, DatasetType } from "@/types/data-catalog";
+import type { Dataset, DatasetCategory, DatasetType } from "@/types/data-catalog";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -50,7 +50,8 @@ export default function CatalogEditClient({
   const [samplesRefreshKey, setSamplesRefreshKey] = useState(0);
 
   // When a sample is added or import completes, switch to Samples tab and refresh
-  const handleSampleAdded = useCallback((_sample: DatasetSample) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleSampleAdded = useCallback((_sample?: unknown) => {
     setSamplesRefreshKey((k) => k + 1);
     setActiveTab("samples");
   }, []);
@@ -362,6 +363,11 @@ export default function CatalogEditClient({
       </section>
 
       {/* ----------------------------------------------------------------- */}
+      {/* Assign to Leads                                                   */}
+      {/* ----------------------------------------------------------------- */}
+      <AssignToLeads datasetId={dataset.id} />
+
+      {/* ----------------------------------------------------------------- */}
       {/* Samples Section — Tabbed Interface                                */}
       {/* ----------------------------------------------------------------- */}
       <section>
@@ -449,5 +455,181 @@ function Field({
         className="w-full rounded-md bg-[var(--bg-secondary)] border border-[var(--border-subtle)] px-3 py-2 text-sm font-mono text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors"
       />
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Assign to Leads
+// ---------------------------------------------------------------------------
+
+interface LeadGrant {
+  lead_id: string;
+  lead_name: string;
+  lead_company: string;
+  granted_at: string;
+}
+
+function AssignToLeads({ datasetId }: { datasetId: string }) {
+  const [grants, setGrants] = useState<LeadGrant[]>([]);
+  const [allLeads, setAllLeads] = useState<Array<{ id: string; name: string; company: string }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [adding, setAdding] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      try {
+        // Fetch current grants for this dataset
+        const gRes = await fetch(`/api/admin/catalog/${datasetId}/leads`);
+        if (gRes.ok) {
+          const data = await gRes.json();
+          setGrants(data.grants ?? []);
+        }
+        // Fetch all approved leads
+        const lRes = await fetch("/api/admin/leads?status=approved");
+        if (lRes.ok) {
+          const data = await lRes.json();
+          setAllLeads(data.leads ?? []);
+        }
+      } catch { /* ignore */ }
+      setLoading(false);
+    }
+    load();
+  }, [datasetId]);
+
+  const grantedIds = new Set(grants.map((g) => g.lead_id));
+
+  const filteredLeads = allLeads.filter(
+    (l) =>
+      !grantedIds.has(l.id) &&
+      (l.name.toLowerCase().includes(search.toLowerCase()) ||
+        l.company.toLowerCase().includes(search.toLowerCase()))
+  );
+
+  const handleGrant = async (leadId: string) => {
+    setAdding(true);
+    try {
+      // Add this single dataset to the lead's access (without touching other grants)
+      const res = await fetch(`/api/admin/catalog/${datasetId}/leads`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lead_id: leadId }),
+      });
+      if (res.ok) {
+        const lead = allLeads.find((l) => l.id === leadId);
+        setGrants((prev) => [
+          ...prev,
+          {
+            lead_id: leadId,
+            lead_name: lead?.name ?? "Unknown",
+            lead_company: lead?.company ?? "",
+            granted_at: new Date().toISOString(),
+          },
+        ]);
+        setShowAdd(false);
+        setSearch("");
+      }
+    } catch { /* ignore */ }
+    setAdding(false);
+  };
+
+  const handleRevoke = async (leadId: string) => {
+    try {
+      await fetch(`/api/admin/catalog/${datasetId}/leads/${leadId}`, {
+        method: "DELETE",
+      });
+      setGrants((prev) => prev.filter((g) => g.lead_id !== leadId));
+    } catch { /* ignore */ }
+  };
+
+  return (
+    <section className="border-t border-[var(--border-subtle)] pt-6 pb-2">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider">
+          Lead Access ({grants.length})
+        </h3>
+        <button
+          onClick={() => setShowAdd(!showAdd)}
+          className="flex items-center gap-1 text-xs font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors"
+        >
+          <UserPlus className="w-3 h-3" />
+          {showAdd ? "cancel" : "[assign to lead]"}
+        </button>
+      </div>
+
+      {/* Add lead dropdown */}
+      {showAdd && (
+        <div className="mb-4 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-3 space-y-2">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search leads..."
+            autoFocus
+            className="w-full px-2 py-1.5 text-xs font-mono bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)]"
+          />
+          <div className="max-h-32 overflow-y-auto space-y-1">
+            {filteredLeads.length === 0 ? (
+              <p className="text-xs font-mono text-[var(--text-muted)] py-2 text-center">
+                {search ? "No matching leads" : "All leads already have access"}
+              </p>
+            ) : (
+              filteredLeads.map((lead) => (
+                <button
+                  key={lead.id}
+                  onClick={() => handleGrant(lead.id)}
+                  disabled={adding}
+                  className="w-full flex items-center justify-between px-2 py-1.5 text-xs font-mono rounded hover:bg-[var(--bg-primary)] text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors disabled:opacity-50"
+                >
+                  <span>
+                    {lead.name}{" "}
+                    <span className="text-[var(--text-muted)]">({lead.company})</span>
+                  </span>
+                  <UserPlus className="w-3 h-3" />
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Current grants */}
+      {loading ? (
+        <div className="flex items-center gap-2 py-3">
+          <Loader2 className="w-3 h-3 animate-spin text-[var(--text-muted)]" />
+          <span className="text-xs font-mono text-[var(--text-muted)]">Loading...</span>
+        </div>
+      ) : grants.length === 0 ? (
+        <p className="text-xs font-mono text-[var(--text-muted)] py-2">
+          No leads have access to this dataset.
+        </p>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          {grants.map((g) => (
+            <div
+              key={g.lead_id}
+              className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-xs font-mono"
+            >
+              <a
+                href={`/admin/leads/${g.lead_id}`}
+                className="text-[var(--text-primary)] hover:text-[var(--accent-primary)] transition-colors"
+              >
+                {g.lead_name}
+              </a>
+              <span className="text-[var(--text-muted)]">({g.lead_company})</span>
+              <button
+                onClick={() => handleRevoke(g.lead_id)}
+                className="text-[var(--text-muted)] hover:text-[var(--error)] transition-colors ml-1"
+                title="Revoke access"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }

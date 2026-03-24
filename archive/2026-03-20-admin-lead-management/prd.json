@@ -1,0 +1,413 @@
+{
+  "project": "Catalog Semantic Enrichment & MCP Server",
+  "branchName": "ralph/catalog-enrichment-mcp",
+  "description": "Semantic enrichment pipeline + pgvector embeddings + MCP server for AI agent catalog search + admin search/enrichment UI",
+  "userStories": [
+    {
+      "id": "US-000",
+      "title": "Create .env.example with all required environment variables",
+      "description": "As a developer, I need a .env.example file committed to the repo that documents every environment variable required by the enrichment and MCP features.",
+      "acceptanceCriteria": [
+        "Create .env.example at project root with all required variables: OPENAI_API_KEY, GEMINI_API_KEY, ADMIN_MCP_TOKEN, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION",
+        "Comments note which deployment targets need each variable (Vercel, Supabase Edge Functions, local scripts)",
+        ".env.example is NOT gitignored (must be committed)",
+        ".env.local remains gitignored (no change)",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-001",
+      "title": "Enable pgvector and add DB columns to dataset_samples",
+      "description": "As a developer, I need the vector extension enabled and agent_context + embedding columns added to dataset_samples.",
+      "acceptanceCriteria": [
+        "Run SQL: create extension if not exists vector with schema extensions",
+        "Add column: agent_context jsonb (nullable)",
+        "Add column: embedding extensions.vector(1536) (nullable)",
+        "Create HNSW index on embedding column using vector_cosine_ops",
+        "Migration is idempotent — running twice does not error",
+        "Update TypeScript types in src/types/data-catalog.ts to include agent_context and embedding fields",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Use Supabase MCP to run migration. Read tasks/docs/catalog-enrichment-design.md sections: Database Schema"
+    },
+    {
+      "id": "US-002",
+      "title": "Extract scrubS3Urls into shared lib with expanded matching",
+      "description": "As a developer, I need scrubS3Urls() as a shared utility that catches all S3 reference variants.",
+      "acceptanceCriteria": [
+        "Create src/lib/scrub-s3-urls.ts exporting scrubS3Urls(value: unknown): unknown",
+        "Handles s3://bucket/path, s3%3A%2F%2F (URL-encoded), arn:aws:s3:::bucket/path (ARN), presigned AWS URLs with X-Amz-Signature",
+        "Replacement is surgical: only matching portion replaced with [S3_REDACTED]",
+        "Update /api/portal/s3-annotation/route.ts to import from shared lib",
+        "Update portal/catalog/[id]/page.tsx to import from shared lib",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "OpenAI embeddings wrapper + agentContextToEmbeddingText utility",
+      "description": "As a developer, I need a typed utility to generate embeddings and convert agent_context to embedding input text.",
+      "acceptanceCriteria": [
+        "Create src/lib/embeddings/openai.ts exporting generateEmbedding(text: string): Promise<number[]>",
+        "Uses text-embedding-3-small model, returns 1536-dimension vector",
+        "Throws typed error if OPENAI_API_KEY is not set",
+        "Also exports agentContextToEmbeddingText() that concatenates scene_summary + environments + activities + objects + camera_perspective",
+        "Handles missing/empty fields gracefully",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": "Use context7 MCP to check OpenAI SDK docs if needed"
+    },
+    {
+      "id": "US-004",
+      "title": "Create match_samples Postgres RPC function",
+      "description": "As a developer, I need a Postgres function for cosine similarity search over sample embeddings.",
+      "acceptanceCriteria": [
+        "SQL migration creates match_samples(query_embedding extensions.vector(1536), match_count int, dataset_id uuid default null)",
+        "Returns table(sample_id uuid, dataset_id uuid, dataset_name text, similarity float, agent_context jsonb, s3_object_key text, mime_type text)",
+        "Joins datasets table for dataset_name",
+        "Optional dataset_id filter",
+        "Excludes rows where embedding IS NULL",
+        "Results ordered by cosine similarity descending",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "Use Supabase MCP to apply migration"
+    },
+    {
+      "id": "US-005a",
+      "title": "Field-mapping library: variant detection + Egocentric mapper",
+      "description": "As a developer, I need the field-mapping library that detects enrichment variants and maps Egocentric data.",
+      "acceptanceCriteria": [
+        "Create src/lib/enrichment/field-mapper.ts with detectVariant() function",
+        "Detects: Egocentric (has environment_label), Food/Lifestyle (has captions.detailed), Generic (fallback)",
+        "mapEgocentric(): scene_summary = task_description + ' ' + environment_description; environments from environment_label; activities from task; hands -> objects; camera_perspective = egocentric_first_person",
+        "Returns AgentContext with zero-value defaults for missing fields",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "Read tasks/docs/catalog-enrichment-design.md sections: Field Mapping Strategy"
+    },
+    {
+      "id": "US-005b",
+      "title": "Field-mapping: Food/Lifestyle + Generic mappers + CLI script",
+      "description": "As a developer, I need remaining mappers and the runnable CLI script.",
+      "acceptanceCriteria": [
+        "mapFoodLifestyle(): scene_summary from captions.detailed; activities from captions.activities; objects from captions.objects",
+        "mapGeneric(): tries scene_analysis then captions.detailed then description",
+        "Create scripts/map-enrichment-to-agent-context.ts",
+        "Only processes samples where agent_context IS NULL (idempotent)",
+        "Supports --dry-run, --dataset-id, --limit flags",
+        "Summary log: Mapped X / skipped Y / failed Z",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Gemini enrichment batch script",
+      "description": "As a developer, I need a script that calls Gemini Vision on unenriched samples.",
+      "acceptanceCriteria": [
+        "Create scripts/enrich-samples-gemini.ts using gemini-2.0-flash",
+        "For each sample where agent_context IS NULL: generates signed URL, sends to Gemini with open-ended prompt",
+        "Parses response into AgentContext, preserves extra fields",
+        "Scrubs S3 URLs from response before DB write",
+        "p-limit concurrency: max 5 concurrent, exponential backoff on 429 (1s initial, 3 retries, 2x)",
+        "Supports --dry-run, --dataset-id, --limit flags",
+        "Per-sample error handling — failures logged, batch continues",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": "Use context7 MCP for @google/generative-ai SDK docs"
+    },
+    {
+      "id": "US-007a",
+      "title": "Embedding sync: Postgres trigger + Vercel cron route",
+      "description": "As a developer, I need a trigger that clears stale embeddings and a cron route.",
+      "acceptanceCriteria": [
+        "SQL: BEFORE UPDATE trigger sets embedding = NULL when agent_context changes",
+        "Create src/app/api/cron/embed-samples/route.ts — invokes Edge Function, validates CRON_SECRET",
+        "Update vercel.json with cron entry every 60 seconds",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007b",
+      "title": "Embedding sync: Supabase Edge Function embed-samples",
+      "description": "As a developer, I need the Edge Function that polls and generates embeddings.",
+      "acceptanceCriteria": [
+        "Create supabase/functions/embed-samples/index.ts (Deno)",
+        "Polls: SELECT id, agent_context FROM dataset_samples WHERE agent_context IS NOT NULL AND embedding IS NULL LIMIT 10",
+        "Calls agentContextToEmbeddingText() then OpenAI, writes embedding column",
+        "Auth: validates service role key only",
+        "Per-sample error handling",
+        "Deploy via supabase functions deploy embed-samples",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Backfill embeddings for existing agent_context",
+      "description": "As a developer, I need a one-time backfill script for embeddings.",
+      "acceptanceCriteria": [
+        "Create scripts/backfill-embeddings.ts",
+        "Queries agent_context IS NOT NULL AND embedding IS NULL",
+        "Uses generateEmbedding(agentContextToEmbeddingText(ctx)) in batches of 20",
+        "Idempotent, summary log",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009a",
+      "title": "MCP server: spike StreamableHTTPServerTransport on Vercel",
+      "description": "As a developer, I need to verify the MCP SDK works in serverless.",
+      "acceptanceCriteria": [
+        "Create minimal src/app/api/mcp/route.ts with StreamableHTTPServerTransport",
+        "Register one test tool (echo) via mcpServer.tool()",
+        "Verify POST handles JSON-RPC tools/call and GET returns tool list",
+        "Document serverless compatibility findings in code comment",
+        "If incompatible, fall back to SSEServerTransport or manual JSON-RPC",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": "Use context7 MCP for @modelcontextprotocol/sdk docs"
+    },
+    {
+      "id": "US-009b",
+      "title": "MCP server: auth + rate limiting",
+      "description": "As a developer, I need bearer token auth and rate limiting on the MCP endpoint.",
+      "acceptanceCriteria": [
+        "Auth: Bearer token from ADMIN_MCP_TOKEN, 401 on mismatch",
+        "Token comparison via crypto.timingSafeEqual",
+        "Rate limiting: 100/min, 1000/hr per IP, 429 with Retry-After",
+        "In-memory rate limit store",
+        "Create src/lib/mcp/server.ts exporting McpServer instance",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "MCP tool: search_catalog",
+      "description": "As a Claude agent, I want search_catalog for semantic sample search.",
+      "acceptanceCriteria": [
+        "Register search_catalog: { query, limit? (default 10, max 50), dataset_id? }",
+        "Embeds query, calls match_samples RPC, fetches signed URLs",
+        "Output: sample_id, dataset_id, dataset_name, similarity, scene_summary, environments, activities, objects, camera_perspective, signed_url, mime_type",
+        "S3 URLs scrubbed, signed URLs 1-hour expiry",
+        "Empty: { results: [], message: 'No samples found matching query' }",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "MCP tool: get_dataset_overview",
+      "description": "As a Claude agent, I want a complete dataset summary.",
+      "acceptanceCriteria": [
+        "Register get_dataset_overview: { dataset_id }",
+        "Returns name, description, category, subcategory, total_samples, total_duration_hours, annotation_types",
+        "Aggregates: top 5 environments, top 5 activities, camera perspectives, embedding counts",
+        "Up to 3 representative sample signed URLs (quality_notes ordering)",
+        "404 if dataset not found, S3 URLs scrubbed",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "MCP tool: build_lead_brief",
+      "description": "As a Claude agent, I want raw structured data for lead outbound messaging.",
+      "acceptanceCriteria": [
+        "Register build_lead_brief: { company_description, use_case, limit? (default 5) }",
+        "Calls search_catalog internally with concatenated input",
+        "Groups by dataset: dataset_name, total_samples, annotation_types, matched_sample_count, representative_signed_urls, aggregated_environments, aggregated_activities",
+        "Raw data only — no marketing copy",
+        "Typecheck passes"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Admin catalog search API route",
+      "description": "As an admin, I need a backend API for semantic search.",
+      "acceptanceCriteria": [
+        "Create POST /api/admin/catalog/search",
+        "Body: { query, dataset_id?, limit? (default 20) }",
+        "Auth via verifyAdminToken(), 401 on failure",
+        "Embeds query, calls match_samples, returns results with signed URLs",
+        "Empty: { results: [], message: 'No samples found matching query' }",
+        "Typecheck passes"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014a",
+      "title": "Admin search UI: page scaffold + search input",
+      "description": "As an admin, I want the search page structure with input and filters.",
+      "acceptanceCriteria": [
+        "Create /admin/catalog/search page within admin layout",
+        "Add [search catalog] link in admin catalog header",
+        "Add [enrichment status] bracket-link to enrichment page",
+        "Dataset filter dropdown, Search button",
+        "Idle state: clickable example queries that auto-execute",
+        "Admin terminal aesthetic",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014d",
+      "title": "Admin search UI: result cards + states",
+      "description": "As an admin, I want search results as cards with all states handled.",
+      "acceptanceCriteria": [
+        "Result card: thumbnail (video preload=none), dataset name, similarity %, scene_summary, env/activity tags",
+        "Null agent_context: 'Not yet enriched' placeholder",
+        "Loading: skeleton cards",
+        "Empty: 'No samples found. Try a broader query.'",
+        "Error: dismissible message",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014b-db",
+      "title": "Admin enrichment: enrichment_jobs table",
+      "description": "As a developer, I need the enrichment_jobs table for job tracking.",
+      "acceptanceCriteria": [
+        "Migration creates enrichment_jobs: id uuid PK, status text, action text, dataset_id uuid?, processed int, total int, failed int, error_log jsonb, started_at, completed_at",
+        "Status CHECK constraint: pending/running/completed/failed",
+        "Action CHECK: map_existing/gemini_enrich",
+        "Idempotent migration",
+        "Typecheck passes"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014b-api",
+      "title": "Admin enrichment: management API routes",
+      "description": "As a developer, I need enrichment trigger and status endpoints.",
+      "acceptanceCriteria": [
+        "POST /api/admin/catalog/enrichment/run: creates job row, invokes Edge Function, returns job_id",
+        "Dry run: synchronous response with would_process count and sample list",
+        "Single-job enforcement: atomic INSERT WHERE NOT EXISTS running — 409 if busy",
+        "GET /api/admin/catalog/enrichment/status: dataset_samples aggregation counts",
+        "GET /api/admin/catalog/enrichment/job/[id]: job row + log with ?log_offset=N",
+        "All routes require verifyAdminToken()",
+        "Typecheck passes"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014b-ef",
+      "title": "Admin enrichment: run-enrichment Edge Function",
+      "description": "As a developer, I need the Edge Function that performs enrichment work.",
+      "acceptanceCriteria": [
+        "Create supabase/functions/run-enrichment/index.ts",
+        "Accepts job_id, action, dataset_id, limit",
+        "map_existing: same logic as field-mapping script",
+        "gemini_enrich: same logic as Gemini script",
+        "Updates enrichment_jobs row: processed, failed, error_log, status transitions",
+        "Deploy via supabase functions deploy run-enrichment",
+        "Typecheck passes"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014c",
+      "title": "Admin enrichment management UI",
+      "description": "As an admin, I want an enrichment dashboard to trigger and monitor jobs.",
+      "acceptanceCriteria": [
+        "Page at /admin/catalog/enrichment",
+        "Cross-navigation: [search catalog] link",
+        "Status overview with progress bar, per-dataset table with Map Existing / Gemini Enrich dropdown per row",
+        "Global action buttons + dry run checkbox",
+        "Job progress: polls every 3s, progress bar + terminal log",
+        "Buttons disabled during active job",
+        "Terminal states stop polling",
+        "Admin terminal aesthetic",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 23,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Playwright E2E test for search flow",
+      "description": "As QA, I need an E2E test for admin search.",
+      "acceptanceCriteria": [
+        "Create tests/e2e/catalog-search.spec.ts",
+        "Log in, navigate to /admin/catalog/search, search, assert results with similarity scores",
+        "Assert cards show dataset name + scene_summary + media",
+        "Typecheck passes"
+      ],
+      "priority": 24,
+      "passes": false,
+      "notes": "Requires populated agent_context + embeddings"
+    },
+    {
+      "id": "US-016",
+      "title": "Playwright MCP UAT: full feature verification",
+      "description": "As QA, full UAT via Playwright MCP.",
+      "acceptanceCriteria": [
+        "Verify agent_context + embeddings populated for 5+ samples",
+        "Admin search: 2 queries with different results",
+        "Admin enrichment: verify status overview counts",
+        "MCP endpoint: POST /api/mcp search_catalog tool call returns valid response",
+        "No s3:// strings in any response",
+        "Typecheck passes"
+      ],
+      "priority": 25,
+      "passes": false,
+      "notes": "UAT: admin portal UI only, no direct DB access"
+    }
+  ]
+}

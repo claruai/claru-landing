@@ -4,6 +4,40 @@ import { verifyAdminToken } from "@/lib/admin-auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 /**
+ * GET /api/admin/leads
+ * Lists leads, optionally filtered by status.
+ * Query params: ?status=approved
+ */
+export async function GET(request: NextRequest) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("admin-token");
+  if (!token?.value || !(await verifyAdminToken(token.value))) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const status = request.nextUrl.searchParams.get("status");
+  const supabase = createSupabaseAdminClient();
+
+  let query = supabase
+    .from("leads")
+    .select("id, name, company, email, status")
+    .order("name");
+
+  if (status) {
+    query = query.eq("status", status);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("[GET /api/admin/leads]", error);
+    return NextResponse.json({ error: "Failed to fetch leads" }, { status: 500 });
+  }
+
+  return NextResponse.json({ leads: data ?? [] });
+}
+
+/**
  * Generate a temp password from the lead's first name: firstname!123
  */
 function generateTempPassword(name: string): string {

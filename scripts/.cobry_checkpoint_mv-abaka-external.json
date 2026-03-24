@@ -1,0 +1,8 @@
+{
+  "completed_parquets": [
+    "silver/cobry/deliveries/videos/delivery1/captions/partition_000000000000.parquet"
+  ],
+  "total_inserted": 10000,
+  "total_skipped": 0,
+  "total_failed": 0
+}

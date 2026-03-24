@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import LeadDetailClient from "@/app/admin/components/LeadDetailClient";
@@ -42,6 +43,13 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
     .eq("is_published", true)
     .order("name");
 
+  // Fetch custom samples added specifically for this lead
+  const { data: customSamples } = await supabase
+    .from("dataset_samples")
+    .select("*, datasets(name)")
+    .eq("lead_id", id)
+    .order("created_at", { ascending: false });
+
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -61,6 +69,7 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
         initialLead={lead}
         initialGrants={grants ?? []}
         allDatasets={allDatasets ?? []}
+        initialCustomSamples={customSamples ?? []}
       />
     </div>
   );

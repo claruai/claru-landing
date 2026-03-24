@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { X, Save, Trash2, Loader2, AlertCircle, Code } from "lucide-react";
-import type { DatasetSample } from "@/types/data-catalog";
+import type { AdminClip } from "./SamplesList";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 interface SampleEditPanelProps {
-  sample: DatasetSample;
+  sample: AdminClip;
   datasetId: string;
   onSave: () => void;
   onClose: () => void;
@@ -18,6 +18,10 @@ interface SampleEditPanelProps {
 
 // ---------------------------------------------------------------------------
 // Component
+//
+// US-019: Updated to edit clip-native fields (s3_key, ann_annotation_key,
+// ann_specs_key, ann_metadata, ai_enrichment_json) instead of legacy
+// dataset_samples fields.
 // ---------------------------------------------------------------------------
 
 export default function SampleEditPanel({
@@ -27,16 +31,16 @@ export default function SampleEditPanel({
   onClose,
   onDelete,
 }: SampleEditPanelProps) {
-  const [s3ObjectKey, setS3ObjectKey] = useState(sample.s3_object_key ?? "");
-  const [s3AnnotationKey, setS3AnnotationKey] = useState(sample.s3_annotation_key ?? "");
-  const [s3SpecsKey, setS3SpecsKey] = useState(sample.s3_specs_key ?? "");
-  const [metadataJson, setMetadataJson] = useState(
-    JSON.stringify(sample.metadata_json ?? {}, null, 2)
+  const [s3Key, setS3Key] = useState(sample.s3_key ?? "");
+  const [annAnnotationKey, setAnnAnnotationKey] = useState(sample.ann_annotation_key ?? "");
+  const [annSpecsKey, setAnnSpecsKey] = useState(sample.ann_specs_key ?? "");
+  const [annMetadata, setAnnMetadata] = useState(
+    JSON.stringify(sample.ann_metadata ?? {}, null, 2)
   );
-  const [enrichmentJson, setEnrichmentJson] = useState(
-    JSON.stringify(sample.enrichment_json ?? {}, null, 2)
+  const [aiEnrichmentJson, setAiEnrichmentJson] = useState(
+    JSON.stringify(sample.ai_enrichment_json ?? {}, null, 2)
   );
-  const [mediaUrl, setMediaUrl] = useState(sample.media_url ?? "");
+  const [aiCaption, setAiCaption] = useState(sample.ai_caption ?? "");
 
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -60,29 +64,29 @@ export default function SampleEditPanel({
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [s3ObjectKey, s3AnnotationKey, s3SpecsKey, metadataJson, enrichmentJson, mediaUrl]);
+  }, [s3Key, annAnnotationKey, annSpecsKey, annMetadata, aiEnrichmentJson, aiCaption]);
 
   // -----------------------------------------------------------------------
   // Format JSON
   // -----------------------------------------------------------------------
 
-  const formatJson = useCallback(() => {
+  const formatAnnMetadata = useCallback(() => {
     try {
-      const parsed = JSON.parse(metadataJson);
-      setMetadataJson(JSON.stringify(parsed, null, 2));
+      const parsed = JSON.parse(annMetadata);
+      setAnnMetadata(JSON.stringify(parsed, null, 2));
     } catch {
       // leave as-is if invalid
     }
-  }, [metadataJson]);
+  }, [annMetadata]);
 
-  const formatEnrichmentJson = useCallback(() => {
+  const formatAiEnrichmentJson = useCallback(() => {
     try {
-      const parsed = JSON.parse(enrichmentJson);
-      setEnrichmentJson(JSON.stringify(parsed, null, 2));
+      const parsed = JSON.parse(aiEnrichmentJson);
+      setAiEnrichmentJson(JSON.stringify(parsed, null, 2));
     } catch {
       // leave as-is if invalid
     }
-  }, [enrichmentJson]);
+  }, [aiEnrichmentJson]);
 
   // -----------------------------------------------------------------------
   // Save
@@ -92,47 +96,47 @@ export default function SampleEditPanel({
     setError(null);
 
     // Validate JSON
-    if (metadataJson.trim()) {
+    if (annMetadata.trim()) {
       try {
-        JSON.parse(metadataJson);
+        JSON.parse(annMetadata);
       } catch {
-        setError("Metadata JSON is invalid");
+        setError("Annotation Metadata JSON is invalid");
         return;
       }
     }
 
-    if (enrichmentJson.trim()) {
+    if (aiEnrichmentJson.trim()) {
       try {
-        JSON.parse(enrichmentJson);
+        JSON.parse(aiEnrichmentJson);
       } catch {
-        setError("Enrichment JSON is invalid");
+        setError("AI Enrichment JSON is invalid");
         return;
       }
     }
 
-    // Build updates — only send changed fields
+    // Build updates -- only send changed fields
     const updates: Record<string, unknown> = {};
-    if (s3ObjectKey !== (sample.s3_object_key ?? "")) {
-      updates.s3_object_key = s3ObjectKey || null;
+    if (s3Key !== (sample.s3_key ?? "")) {
+      updates.s3_key = s3Key || null;
     }
-    if (s3AnnotationKey !== (sample.s3_annotation_key ?? "")) {
-      updates.s3_annotation_key = s3AnnotationKey || null;
+    if (annAnnotationKey !== (sample.ann_annotation_key ?? "")) {
+      updates.ann_annotation_key = annAnnotationKey || null;
     }
-    if (s3SpecsKey !== (sample.s3_specs_key ?? "")) {
-      updates.s3_specs_key = s3SpecsKey || null;
+    if (annSpecsKey !== (sample.ann_specs_key ?? "")) {
+      updates.ann_specs_key = annSpecsKey || null;
     }
-    if (mediaUrl !== (sample.media_url ?? "")) {
-      updates.media_url = mediaUrl || null;
-    }
-
-    const originalJson = JSON.stringify(sample.metadata_json ?? {}, null, 2);
-    if (metadataJson.trim() !== originalJson) {
-      updates.metadata_json = metadataJson.trim() || "{}";
+    if (aiCaption !== (sample.ai_caption ?? "")) {
+      updates.ai_caption = aiCaption || null;
     }
 
-    const originalEnrichment = JSON.stringify(sample.enrichment_json ?? {}, null, 2);
-    if (enrichmentJson.trim() !== originalEnrichment) {
-      updates.enrichment_json = enrichmentJson.trim() || "{}";
+    const originalAnnMetadata = JSON.stringify(sample.ann_metadata ?? {}, null, 2);
+    if (annMetadata.trim() !== originalAnnMetadata) {
+      updates.ann_metadata = annMetadata.trim() || "{}";
+    }
+
+    const originalAiEnrichment = JSON.stringify(sample.ai_enrichment_json ?? {}, null, 2);
+    if (aiEnrichmentJson.trim() !== originalAiEnrichment) {
+      updates.ai_enrichment_json = aiEnrichmentJson.trim() || "{}";
     }
 
     if (Object.keys(updates).length === 0) {
@@ -165,12 +169,12 @@ export default function SampleEditPanel({
   }, [
     sample,
     datasetId,
-    s3ObjectKey,
-    s3AnnotationKey,
-    s3SpecsKey,
-    metadataJson,
-    enrichmentJson,
-    mediaUrl,
+    s3Key,
+    annAnnotationKey,
+    annSpecsKey,
+    annMetadata,
+    aiEnrichmentJson,
+    aiCaption,
     onSave,
     onClose,
   ]);
@@ -226,7 +230,7 @@ export default function SampleEditPanel({
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-subtle)]">
           <h3 className="text-sm font-mono font-semibold text-[var(--text-primary)] uppercase tracking-wider">
-            Edit Sample
+            Edit Clip
           </h3>
           <button
             onClick={onClose}
@@ -238,67 +242,88 @@ export default function SampleEditPanel({
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-          {/* S3 Object Key */}
+          {/* Lead-specific indicator */}
+          {sample.lead_id && (
+            <div className="rounded-md border border-purple-500/30 bg-purple-500/10 px-4 py-3 space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                  LEAD-SPECIFIC
+                </span>
+                <span className="text-xs font-mono text-purple-400">
+                  Custom clip added for a lead
+                </span>
+              </div>
+              <div className="text-xs font-mono text-[var(--text-muted)] space-y-0.5">
+                <p>Lead ID: <span className="text-[var(--text-secondary)]">{sample.lead_id}</span></p>
+                {sample.added_by && (
+                  <p>Added by: <span className="text-[var(--text-secondary)]">{sample.added_by}</span></p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* S3 Key */}
           <div>
             <label className="block text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
-              S3 Object Key
+              S3 Key
             </label>
             <input
               type="text"
-              value={s3ObjectKey}
-              onChange={(e) => setS3ObjectKey(e.target.value)}
+              value={s3Key}
+              onChange={(e) => setS3Key(e.target.value)}
               className={inputBase}
             />
           </div>
 
-          {/* S3 Annotation Key */}
+          {/* Annotation Key */}
           <div>
             <label className="block text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
-              S3 Annotation Key
+              Annotation Key
             </label>
             <input
               type="text"
-              value={s3AnnotationKey}
-              onChange={(e) => setS3AnnotationKey(e.target.value)}
+              value={annAnnotationKey}
+              onChange={(e) => setAnnAnnotationKey(e.target.value)}
               className={inputBase}
             />
           </div>
 
-          {/* S3 Specs Key */}
+          {/* Specs Key */}
           <div>
             <label className="block text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
-              S3 Specs Key
+              Specs Key
             </label>
             <input
               type="text"
-              value={s3SpecsKey}
-              onChange={(e) => setS3SpecsKey(e.target.value)}
+              value={annSpecsKey}
+              onChange={(e) => setAnnSpecsKey(e.target.value)}
               className={inputBase}
             />
           </div>
 
-          {/* Media URL */}
+          {/* AI Caption */}
           <div>
             <label className="block text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
-              Media URL
+              AI Caption
             </label>
-            <input
-              type="text"
-              value={mediaUrl}
-              onChange={(e) => setMediaUrl(e.target.value)}
-              className={inputBase}
+            <textarea
+              value={aiCaption}
+              onChange={(e) => setAiCaption(e.target.value)}
+              rows={3}
+              spellCheck={false}
+              className={`${inputBase} resize-y`}
             />
           </div>
 
-          {/* Metadata JSON */}
+          {/* Annotation Metadata JSON */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider">
-                Metadata JSON
+                Annotation Metadata
               </label>
               <button
                 type="button"
-                onClick={formatJson}
+                onClick={formatAnnMetadata}
                 className="flex items-center gap-1 text-xs font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors"
               >
                 <Code className="w-3 h-3" />
@@ -306,8 +331,8 @@ export default function SampleEditPanel({
               </button>
             </div>
             <textarea
-              value={metadataJson}
-              onChange={(e) => setMetadataJson(e.target.value)}
+              value={annMetadata}
+              onChange={(e) => setAnnMetadata(e.target.value)}
               rows={8}
               spellCheck={false}
               className={`${inputBase} resize-y`}
@@ -315,15 +340,15 @@ export default function SampleEditPanel({
             />
           </div>
 
-          {/* Enrichment JSON */}
+          {/* AI Enrichment JSON */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider">
-                Enrichment JSON
+                AI Enrichment JSON
               </label>
               <button
                 type="button"
-                onClick={formatEnrichmentJson}
+                onClick={formatAiEnrichmentJson}
                 className="flex items-center gap-1 text-xs font-mono text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors"
               >
                 <Code className="w-3 h-3" />
@@ -331,8 +356,8 @@ export default function SampleEditPanel({
               </button>
             </div>
             <textarea
-              value={enrichmentJson}
-              onChange={(e) => setEnrichmentJson(e.target.value)}
+              value={aiEnrichmentJson}
+              onChange={(e) => setAiEnrichmentJson(e.target.value)}
               rows={8}
               spellCheck={false}
               className={`${inputBase} resize-y`}
@@ -381,12 +406,12 @@ export default function SampleEditPanel({
                 className="flex items-center gap-2 text-xs font-mono text-[var(--error)] hover:opacity-80 transition-opacity"
               >
                 <Trash2 className="w-3 h-3" />
-                Delete Sample
+                Remove from Dataset
               </button>
             ) : (
               <div className="space-y-2">
                 <p className="text-xs font-mono text-[var(--error)]">
-                  Are you sure? This cannot be undone.
+                  Remove this clip from the dataset? The clip itself is preserved.
                 </p>
                 <div className="flex items-center gap-2">
                   <button

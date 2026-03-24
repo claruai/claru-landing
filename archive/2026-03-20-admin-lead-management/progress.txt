@@ -1,0 +1,5 @@
+# Catalog Semantic Enrichment & MCP Server - Progress
+
+Started: 2026-03-20
+Branch: ralph/catalog-enrichment-mcp
+

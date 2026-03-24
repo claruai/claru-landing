@@ -18,6 +18,7 @@ interface DatasetWithCategory extends Dataset {
 interface AdminCatalogTableProps {
   datasets: DatasetWithCategory[];
   categories: DatasetCategory[];
+  sampleCounts?: Record<string, number>;
 }
 
 /* ------------------------------------------------------------------ */
@@ -70,6 +71,7 @@ function publishedBadge(isPublished: boolean) {
 export default function AdminCatalogTable({
   datasets,
   categories,
+  sampleCounts = {},
 }: AdminCatalogTableProps) {
   /* ----- state ---------------------------------------------------- */
   const [search, setSearch] = useState("");
@@ -312,9 +314,19 @@ export default function AdminCatalogTable({
                     {dataset.subcategory || "\u2014"}
                   </td>
 
-                  {/* Dataset Size */}
-                  <td className="px-4 py-3 text-[var(--text-secondary)] tabular-nums">
-                    {dataset.total_samples.toLocaleString()}
+                  {/* Dataset Size + actual sample count */}
+                  <td className="px-4 py-3 tabular-nums">
+                    <span className="text-[var(--text-secondary)]">
+                      {dataset.total_samples.toLocaleString()}
+                    </span>
+                    {" "}
+                    <span className={`text-[10px] font-mono ${
+                      (sampleCounts[dataset.id] ?? 0) > 0
+                        ? "text-[var(--accent-primary)]"
+                        : "text-[var(--text-muted)]"
+                    }`}>
+                      ({sampleCounts[dataset.id] ?? 0} clips)
+                    </span>
                   </td>
 
                   {/* Published badge */}
