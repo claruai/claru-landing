@@ -11,9 +11,8 @@ import { APP_URLS } from "../../lib/constants";
 const navLinks = [
   { href: "/data", label: "Training Data" },
   { href: "/labeling", label: "Expert Labeling" },
-  { href: "/solutions", label: "Solutions" },
   { href: "/case-studies", label: "Case Studies" },
-  { href: "/data-catalog", label: "Data Catalog" },
+  { href: "/for-annotators", label: "For Annotators" },
 ];
 
 export default function Header({ opaque = false }: { opaque?: boolean }) {
