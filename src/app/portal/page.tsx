@@ -10,6 +10,7 @@ import {
 import { createClient } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { OtherDatasets } from "./catalog/OtherDatasets";
+import { PortalIdentify } from "../components/portal/PortalIdentify";
 import type {
   Lead,
   Dataset,
@@ -151,6 +152,15 @@ export default async function PortalDashboardPage() {
 
   return (
     <div className="mx-auto max-w-[var(--container-max)] px-[var(--container-padding)] py-12">
+      {/* PostHog identify — ties anonymous session to this lead */}
+      <PortalIdentify
+        email={lead.email}
+        name={lead.name}
+        company={lead.company}
+        leadStatus={lead.status}
+        datasetsCount={totalDatasets}
+      />
+
       {/* Welcome */}
       <section className="mb-12">
         <p className="text-xs font-mono uppercase tracking-wider text-[var(--text-muted)] mb-2">

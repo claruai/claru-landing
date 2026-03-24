@@ -1,6 +1,7 @@
 "use server";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getPostHogServer } from "@/lib/posthog-server";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -112,6 +113,18 @@ export async function submitCustomRequest(
       message: "Something went wrong. Please try again.",
     };
   }
+
+  // Track server-side (distinctId = email to match client-side identify)
+  const ph = getPostHogServer();
+  ph?.capture({
+    distinctId: user.email ?? user.id,
+    event: "custom_request_submitted",
+    properties: {
+      lead_id: lead.id,
+      modality: modality || null,
+      description_length: description.trim().length,
+    },
+  });
 
   return {
     status: "success",

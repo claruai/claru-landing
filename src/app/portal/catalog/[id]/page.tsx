@@ -11,6 +11,7 @@ import { getS3SignedUrl } from "@/lib/s3/presigner";
 import type { Dataset, DatasetCategory, Clip } from "@/types/data-catalog";
 
 import { SampleGallery } from "./SampleGallery";
+import { DatasetViewTracker } from "@/app/components/portal/DatasetViewTracker";
 import { scrubS3Urls } from "@/lib/scrub-s3-urls";
 
 // =============================================================================
@@ -240,6 +241,15 @@ export default async function DatasetDetailPage({
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
+      {/* PostHog: track dataset view (portal users only, not admin preview) */}
+      {!isAdminPreview && (
+        <DatasetViewTracker
+          datasetId={dataset.id}
+          datasetName={dataset.name}
+          datasetType={dataset.type}
+        />
+      )}
+
       {/* Admin preview banner */}
       {isAdminPreview && (
         <div className="bg-amber-500/10 border-b border-amber-500/30 px-4 py-2">
@@ -375,7 +385,7 @@ export default async function DatasetDetailPage({
               </p>
             </div>
           ) : (
-            <SampleGallery clipsWithUrls={clipsWithUrls} initialClipId={deepLinkId} />
+            <SampleGallery clipsWithUrls={clipsWithUrls} initialClipId={deepLinkId} datasetId={dataset.id} />
           )}
         </div>
       </div>

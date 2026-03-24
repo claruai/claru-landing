@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { usePostHog } from "posthog-js/react";
 import type { DatasetSample, Clip } from "@/types/data-catalog";
 import type { ClipLike } from "@/app/components/catalog/GalleryCard";
 import { GalleryCard } from "@/app/components/catalog/GalleryCard";
@@ -44,6 +45,8 @@ interface SampleGalleryProps {
   initialClipId?: string;
   /** @deprecated Use initialClipId. */
   initialSampleId?: string;
+  /** Dataset ID for analytics tracking. */
+  datasetId?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -70,7 +73,9 @@ export function SampleGallery({
   annotationEndpoint,
   initialClipId,
   initialSampleId,
+  datasetId,
 }: SampleGalleryProps) {
+  const posthog = usePostHog();
   // Build unified item list
   const items: GalleryItem[] = clipsWithUrls
     ? clipsWithUrls.map(({ clip, signedUrl }) => ({
@@ -98,7 +103,14 @@ export function SampleGallery({
 
   const handleSelect = useCallback((index: number) => {
     setSelectedIndex(index);
-  }, []);
+    const item = items[index];
+    if (item) {
+      posthog?.capture("sample_opened", {
+        clip_id: item.id,
+        ...(datasetId ? { dataset_id: datasetId } : {}),
+      });
+    }
+  }, [items, posthog, datasetId]);
 
   const handleClose = useCallback(() => {
     setSelectedIndex(null);
