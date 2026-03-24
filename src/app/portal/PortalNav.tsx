@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
+import { usePostHog } from "posthog-js/react";
 import { LogOut, FolderOpen, Home, Sun, Moon } from "lucide-react";
 import { useTheme } from "next-themes";
 
@@ -30,9 +31,12 @@ export function PortalNav() {
   // Don't render the nav chrome on the login page
   if (pathname === "/portal/login") return null;
 
+  const posthog = usePostHog();
+
   async function handleSignOut() {
     const supabase = getSupabaseBrowserClient();
     await supabase.auth.signOut();
+    posthog?.reset();
     router.replace("/portal/login");
   }
 
