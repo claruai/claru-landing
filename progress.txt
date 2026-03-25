@@ -41,3 +41,20 @@ Goal: Unknown
 - useDeviceCapability hook already exists at src/app/hooks/ with prefersReducedMotion — V2 hook is simpler standalone version
 - ImageMagick (magick convert) available on macOS for generating placeholder WebP images
 
+## 2026-03-25 - US-002: Hero section with video background and text scramble
+
+**What I did:**
+- Built full HeroV2 with video background, poster fallback, dark gradient overlay
+- Integrated shaders/react DotGrid at low opacity over video for terminal aesthetic
+- Created useTextScramble hook for per-character scramble reveal animation
+- Added headline, subheadline, stats bar, trust signal, and dual CTAs
+- All text animations respect prefers-reduced-motion (instant display, poster-only bg)
+
+**Files changed:**
+- src/app/v2/components/sections/HeroV2.tsx (full implementation)
+
+**Learnings:**
+- shaders/react DotGrid must be dynamically imported with ssr:false — it uses WebGL
+- The existing TextScramble component (V1) uses dangerouslySetInnerHTML — V2 version uses plain text state to avoid XSS risk
+- Video sources point to poster.webp as placeholder — will need real .webm/.mp4 videos later
+
