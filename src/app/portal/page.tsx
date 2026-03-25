@@ -86,7 +86,7 @@ async function getPortalData() {
   let viewableSamples = 0;
   if (grantedDatasetIds.length > 0) {
     const { count } = await supabase
-      .from("dataset_samples")
+      .from("dataset_clips")
       .select("id", { count: "exact", head: true })
       .in("dataset_id", grantedDatasetIds);
     viewableSamples = count ?? 0;
