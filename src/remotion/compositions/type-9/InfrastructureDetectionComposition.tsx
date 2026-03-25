@@ -2,6 +2,7 @@
 import React from "react";
 import {
   AbsoluteFill,
+  Img,
   OffthreadVideo,
   interpolate,
   staticFile,
@@ -87,24 +88,28 @@ function MapPanel({ frame, enterFrame }: { frame: number; enterFrame: number }) 
         Live Detection Map
       </div>
 
-      {/* Map area */}
+      {/* Map area — real Bellwood map */}
       <div
         style={{
           flex: 1,
-          backgroundColor: "rgba(20, 20, 18, 0.8)",
           borderRadius: 8,
           border: "1px solid rgba(146, 176, 144, 0.15)",
           position: "relative",
           overflow: "hidden",
         }}
       >
-        {/* Grid lines */}
-        {[25, 50, 75].map((pct) => (
-          <React.Fragment key={pct}>
-            <div style={{ position: "absolute", left: `${pct}%`, top: 0, bottom: 0, width: 1, backgroundColor: "rgba(146, 176, 144, 0.06)" }} />
-            <div style={{ position: "absolute", top: `${pct}%`, left: 0, right: 0, height: 1, backgroundColor: "rgba(146, 176, 144, 0.06)" }} />
-          </React.Fragment>
-        ))}
+        {/* Real map background */}
+        <Img
+          src={staticFile("remotion-assets/bellwood/map-dark.png")}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            opacity: 0.85,
+          }}
+        />
 
         {/* Route lines connecting points */}
         <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -122,17 +127,18 @@ function MapPanel({ frame, enterFrame }: { frame: number; enterFrame: number }) 
             const cy = y1 + (y2 - y1) * pointProgress;
 
             return (
-              <line
-                key={i}
-                x1={x1}
-                y1={y1}
-                x2={cx}
-                y2={cy}
-                stroke="#92B090"
-                strokeWidth={0.8}
-                strokeLinecap="round"
-                opacity={0.7}
-              />
+              <React.Fragment key={i}>
+                {/* Glow line */}
+                <line
+                  x1={x1} y1={y1} x2={cx} y2={cy}
+                  stroke="#92B090" strokeWidth={2.5} strokeLinecap="round" opacity={0.25}
+                />
+                {/* Main route line */}
+                <line
+                  x1={x1} y1={y1} x2={cx} y2={cy}
+                  stroke="#92B090" strokeWidth={1.2} strokeLinecap="round" opacity={0.9}
+                />
+              </React.Fragment>
             );
           })}
         </svg>
@@ -162,24 +168,40 @@ function MapPanel({ frame, enterFrame }: { frame: number; enterFrame: number }) 
               <div
                 style={{
                   position: "absolute",
-                  width: 16,
-                  height: 16,
+                  width: 22,
+                  height: 22,
                   borderRadius: "50%",
-                  border: "1px solid #92B090",
+                  border: "2px solid #92B090",
                   transform: `translate(-50%, -50%) scale(${pulseScale})`,
-                  opacity: 0.3,
+                  opacity: 0.4,
                   left: "50%",
                   top: "50%",
+                }}
+              />
+              {/* Outer glow */}
+              <div
+                style={{
+                  position: "absolute",
+                  width: 14,
+                  height: 14,
+                  borderRadius: "50%",
+                  backgroundColor: i === 0 ? "#FF8C42" : "#92B090",
+                  opacity: 0.15,
+                  transform: "translate(-50%, -50%)",
+                  left: "50%",
+                  top: "50%",
+                  filter: "blur(4px)",
                 }}
               />
               {/* Dot */}
               <div
                 style={{
-                  width: 6,
-                  height: 6,
+                  width: 8,
+                  height: 8,
                   borderRadius: "50%",
                   backgroundColor: i === 0 ? "#FF8C42" : "#92B090",
-                  boxShadow: `0 0 6px ${i === 0 ? "#FF8C42" : "#92B090"}66`,
+                  boxShadow: `0 0 8px ${i === 0 ? "#FF8C42" : "#92B090"}88`,
+                  border: "1px solid rgba(255,255,255,0.3)",
                 }}
               />
               {/* Label */}
