@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { getS3SignedUrl } from "@/lib/s3/presigner";
-import type { DatasetSample } from "@/types/data-catalog";
+import type { Clip } from "@/types/data-catalog";
 import { DataPreviewClient } from "./DataPreviewClient";
 
 // ---------------------------------------------------------------------------
@@ -8,7 +8,13 @@ import { DataPreviewClient } from "./DataPreviewClient";
 // ---------------------------------------------------------------------------
 
 interface DataPreviewProps {
-  /** Sample IDs from the dataset_samples table */
+  /**
+   * Clip IDs from the clips table.
+   *
+   * BREAKING CHANGE (US-006 migration): These must be clips.id UUIDs, NOT
+   * legacy dataset_samples.id values. All callers (content pages) need their
+   * hardcoded UUIDs remapped to the corresponding clip IDs.
+   */
   sampleIds: string[];
   /** Section heading */
   heading?: string;
@@ -28,7 +34,7 @@ function getSupabase() {
 }
 
 // ---------------------------------------------------------------------------
-// Server component — fetches samples + signs URLs, passes to client
+// Server component — fetches clips + signs URLs, passes to client
 // ---------------------------------------------------------------------------
 
 export default async function DataPreview({
@@ -40,44 +46,44 @@ export default async function DataPreview({
 
   const supabase = getSupabase();
 
-  const { data: samples } = await supabase
-    .from("dataset_samples")
+  const { data: clips } = await supabase
+    .from("clips")
     .select("*")
     .in("id", sampleIds)
-    .not("s3_object_key", "is", null);
+    .not("s3_key", "is", null);
 
-  if (!samples || samples.length === 0) return null;
+  if (!clips || clips.length === 0) return null;
 
   // Pre-sign all video URLs in parallel
-  const enrichedSamples = (
+  const enrichedClips = (
     await Promise.all(
-      samples.map(async (sample) => {
-        const videoUrl = await getS3SignedUrl(sample.s3_object_key!, 3600);
+      clips.map(async (clip) => {
+        const videoUrl = await getS3SignedUrl(clip.s3_key!, 3600);
         if (!videoUrl) return null;
 
         // Also sign annotation JSON if available
         let annotationUrl: string | null = null;
-        if (sample.s3_annotation_key) {
-          annotationUrl = await getS3SignedUrl(sample.s3_annotation_key, 3600);
+        if (clip.ann_annotation_key) {
+          annotationUrl = await getS3SignedUrl(clip.ann_annotation_key, 3600);
         }
 
         return {
-          sample: sample as DatasetSample,
+          clip: clip as Clip,
           videoUrl,
           annotationUrl,
         };
       })
     )
   ).filter(
-    (v): v is { sample: DatasetSample; videoUrl: string; annotationUrl: string | null } =>
+    (v): v is { clip: Clip; videoUrl: string; annotationUrl: string | null } =>
       v !== null
   );
 
-  if (enrichedSamples.length === 0) return null;
+  if (enrichedClips.length === 0) return null;
 
   return (
     <DataPreviewClient
-      samples={enrichedSamples}
+      samples={enrichedClips}
       heading={heading}
       subheading={subheading}
     />

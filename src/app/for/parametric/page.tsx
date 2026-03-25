@@ -15,12 +15,12 @@ const DATASET_IDS = [
   "a1e380ff-d244-412e-b907-a8c9c4d59248", // Multimodal Video Chat (440K)
 ];
 
-// Garment & textile handling video samples
+// Garment & textile handling video samples (clips table UUIDs)
 const VIDEO_SAMPLE_IDS = [
-  "44979405-f0a2-4bc9-9d3a-898e63ebfed8", // Fold Clothes
-  "aa0fc7ad-e307-4cb2-bd79-99de411bcb4e", // Loading clothes, folding clothes
-  "f13002bd-7fc2-4186-9ba3-660765dc7848", // Folding Clothes
-  "3740caa3-d14e-4a43-a7c3-2d90c1604bfa", // Hang Clothes
+  "b4dee803-c226-4e0b-9291-7ff3843f83dc", // Fold Clothes
+  "f0593ef3-c9e4-4f5b-8b6d-9b4d851c3a32", // Loading clothes, folding clothes
+  "119341c8-0479-40a4-986c-f079b625ffc6", // Folding Clothes
+  "ed9b4ba5-8285-4a29-9111-e6d516a7b9a4", // Hang Clothes
 ];
 
 export default function ParametricPage() {

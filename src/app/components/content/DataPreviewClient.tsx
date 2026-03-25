@@ -2,20 +2,20 @@
 
 import { useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
-import type { DatasetSample } from "@/types/data-catalog";
+import type { Clip } from "@/types/data-catalog";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-interface EnrichedSample {
-  sample: DatasetSample;
+interface EnrichedClip {
+  clip: Clip;
   videoUrl: string;
   annotationUrl: string | null;
 }
 
 interface DataPreviewClientProps {
-  samples: EnrichedSample[];
+  samples: EnrichedClip[];
   heading: string;
   subheading: string;
 }
@@ -24,9 +24,9 @@ interface DataPreviewClientProps {
 // Metadata panel — terminal-style JSON rendering
 // ---------------------------------------------------------------------------
 
-function MetadataPanel({ sample }: { sample: DatasetSample }) {
-  const meta = sample.metadata_json ?? {};
-  const enrichment = sample.enrichment_json ?? {};
+function MetadataPanel({ clip }: { clip: Clip }) {
+  const meta = (clip.ann_metadata ?? {}) as Record<string, unknown>;
+  const enrichment = (clip.ai_enrichment_json ?? {}) as Record<string, unknown>;
 
   // Build a CURATED display object — only high-value fields, no internal noise
   const displayData: Record<string, unknown> = {};
@@ -62,9 +62,9 @@ function MetadataPanel({ sample }: { sample: DatasetSample }) {
       duration: specs.duration_s ? `${specs.duration_s}s` : undefined,
       format: specs.aspect_ratio,
     };
-  } else if (sample.duration_seconds) {
+  } else if (clip.tech_duration_seconds) {
     displayData.capture_specs = {
-      duration: `${sample.duration_seconds}s`,
+      duration: `${clip.tech_duration_seconds}s`,
     };
   }
 
@@ -121,12 +121,12 @@ function MetadataPanel({ sample }: { sample: DatasetSample }) {
 // Video card with metadata panel
 // ---------------------------------------------------------------------------
 
-function SampleCard({ data }: { data: EnrichedSample }) {
+function SampleCard({ data }: { data: EnrichedClip }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const { sample, videoUrl } = data;
+  const { clip, videoUrl } = data;
 
-  const meta = sample.metadata_json ?? {};
-  const enrichment = sample.enrichment_json ?? {};
+  const meta = (clip.ann_metadata ?? {}) as Record<string, unknown>;
+  const enrichment = (clip.ai_enrichment_json ?? {}) as Record<string, unknown>;
   const subcategory =
     (meta.subcategory as string) ?? (enrichment.task as string) ?? "Sample";
 
@@ -186,7 +186,7 @@ function SampleCard({ data }: { data: EnrichedSample }) {
 
       {/* Metadata panel */}
       <div className="h-[300px] lg:h-auto">
-        <MetadataPanel sample={sample} />
+        <MetadataPanel clip={clip} />
       </div>
     </motion.div>
   );
@@ -223,7 +223,7 @@ export function DataPreviewClient({
         {/* Sample cards */}
         <div className="space-y-6">
           {visibleSamples.map((data) => (
-            <SampleCard key={data.sample.id} data={data} />
+            <SampleCard key={data.clip.id} data={data} />
           ))}
         </div>
 

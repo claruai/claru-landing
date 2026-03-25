@@ -1,6 +1,6 @@
 "use client";
 
-import type { DatasetSample } from "@/types/data-catalog";
+import type { Clip } from "@/types/data-catalog";
 import { SampleGallery } from "@/app/portal/catalog/[id]/SampleGallery";
 
 // ---------------------------------------------------------------------------
@@ -8,8 +8,8 @@ import { SampleGallery } from "@/app/portal/catalog/[id]/SampleGallery";
 // ---------------------------------------------------------------------------
 
 interface VideoShowcaseClientProps {
-  samplesWithUrls: Array<{
-    sample: DatasetSample;
+  clipsWithUrls: Array<{
+    clip: Clip;
     signedUrl: string;
   }>;
   heading: string;
@@ -21,7 +21,7 @@ interface VideoShowcaseClientProps {
 // ---------------------------------------------------------------------------
 
 export function VideoShowcaseClient({
-  samplesWithUrls,
+  clipsWithUrls,
   heading,
   subheading,
 }: VideoShowcaseClientProps) {
@@ -58,7 +58,7 @@ export function VideoShowcaseClient({
         </div>
 
         <SampleGallery
-          samplesWithUrls={samplesWithUrls}
+          clipsWithUrls={clipsWithUrls}
           annotationEndpoint="/api/public/s3-annotation"
         />
       </div>
