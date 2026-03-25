@@ -509,12 +509,13 @@ export default function TermsOfService() {
                 connection with them or their subject matter or formation
                 (including non-contractual disputes or claims) shall be governed
                 by and construed in accordance with the laws of the State of
-                Delaware, United States, without regard to its conflict of law
-                provisions.
+                California, United States, without regard to its conflict of
+                law provisions.
               </p>
               <p className="text-[var(--text-secondary)] leading-relaxed">
                 You agree to submit to the exclusive jurisdiction of the state
-                and federal courts located in Delaware for the resolution of any
+                and federal courts located in Santa Clara County, California
+                for the resolution of any
                 disputes arising out of or relating to these Terms or the
                 Services, subject to the arbitration provisions below.
               </p>
@@ -548,7 +549,8 @@ export default function TermsOfService() {
                 controversy, or claim arising out of or relating to these Terms
                 shall be resolved by binding arbitration administered in
                 accordance with the rules of the American Arbitration
-                Association. The arbitration shall be conducted in Delaware, and
+                Association. The arbitration shall be conducted in Santa Clara
+                County, California, and
                 judgment on the arbitration award may be entered in any court
                 having jurisdiction thereof.
               </p>

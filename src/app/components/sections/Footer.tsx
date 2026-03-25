@@ -17,6 +17,7 @@ const legalLinks = [
   { href: "/prohibited-use", label: "Prohibited Use Policy" },
   { href: "/privacy", label: "Privacy Policy" },
   { href: "/job-applicant-privacy", label: "Job Applicant Privacy Policy" },
+  { href: "/msa", label: "Annotator Services Agreement" },
 ];
 
 const currentYear = new Date().getFullYear();
