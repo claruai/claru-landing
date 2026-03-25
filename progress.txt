@@ -58,3 +58,35 @@ Goal: Unknown
 - The existing TextScramble component (V1) uses dangerouslySetInnerHTML — V2 version uses plain text state to avoid XSS risk
 - Video sources point to poster.webp as placeholder — will need real .webm/.mp4 videos later
 
+## 2026-03-25 - US-003 through US-014: All remaining sections
+
+**What I did:**
+- US-003: DataGap with GSAP ScrollTrigger pin, CRTScreen shader, split layout
+- US-004: ThreeModes 3-column cards with Framer Motion stagger
+- US-005: CatalogShowcase with GSAP stacked pinned cards, CountUp
+- US-006: EnrichmentPipeline with range slider, pipeline nodes, AnimatePresence
+- US-007: CollectionNetwork with COBE globe, arcs, floating labels, environment grid
+- US-008: GameCapture with 4-sec animated toggle, 2x2 enrichment grid
+- US-009: WhyClaru comparison table with animated SVG checkmarks
+- US-010: SocialProofV2 metrics + horizontal scroll testimonials
+- US-011: FinalCTAV2 with reused V1 ContactForm
+- US-012: /catalog page with email gate, expand/collapse, EmailCaptureModal
+- US-013: Responsive audit and fixes (DataGap mobile guard, flex-col stacking)
+- US-014: V2 layout with metadata, OG image, JSON-LD, robots noindex
+
+**Key files created:**
+- src/app/v2/layout.tsx (SEO metadata)
+- src/app/v2/V2Content.tsx (section composition)
+- src/app/v2/components/sections/* (10 full implementations)
+- src/app/catalog/page.tsx + layout.tsx
+- public/images/og-v2.webp
+
+**Learnings:**
+- COBE v2 removed onRender callback — use globe.update() in RAF loop instead
+- COBE v2 has native arc support (from/to with arcColor, arcWidth, arcHeight)
+- GSAP ScrollTrigger pin must be guarded on mobile (check window.innerWidth)
+- Framer Motion whileInView + viewport: { once: true } is cleaner than IntersectionObserver for simple animations
+- AnimatePresence mode="wait" for toggle animations (GameCapture, EnrichmentPipeline)
+- useSyncExternalStore is the lint-clean way to read media queries in React
+- next/dynamic with ssr:false is the lint-clean way to do hydration guards (vs useState+useEffect)
+
