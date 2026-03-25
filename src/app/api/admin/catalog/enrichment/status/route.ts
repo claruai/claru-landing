@@ -6,7 +6,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 /**
  * GET /api/admin/catalog/enrichment/status
  *
- * Returns aggregation counts for enrichment status across dataset_samples.
+ * Returns aggregation counts for enrichment status across clips.
  */
 export async function GET() {
   const cookieStore = await cookies();
@@ -29,33 +29,33 @@ export async function GET() {
 
   // Get counts for each enrichment state
   const { count: totalSamples } = await supabase
-    .from("dataset_samples")
+    .from("clips")
     .select("id", { count: "exact", head: true });
 
   const { count: withContext } = await supabase
-    .from("dataset_samples")
+    .from("clips")
     .select("id", { count: "exact", head: true })
-    .not("agent_context", "is", null);
+    .not("ai_agent_context", "is", null);
 
   const { count: withEmbedding } = await supabase
-    .from("dataset_samples")
+    .from("clips")
     .select("id", { count: "exact", head: true })
     .not("embedding", "is", null);
 
   const { count: withEnrichmentJson } = await supabase
-    .from("dataset_samples")
+    .from("clips")
     .select("id", { count: "exact", head: true })
-    .not("enrichment_json", "eq", "{}");
+    .not("ai_enrichment_json", "eq", "{}");
 
   const { count: needsContext } = await supabase
-    .from("dataset_samples")
+    .from("clips")
     .select("id", { count: "exact", head: true })
-    .is("agent_context", null);
+    .is("ai_agent_context", null);
 
   const { count: needsEmbedding } = await supabase
-    .from("dataset_samples")
+    .from("clips")
     .select("id", { count: "exact", head: true })
-    .not("agent_context", "is", null)
+    .not("ai_agent_context", "is", null)
     .is("embedding", null);
 
   return NextResponse.json({
