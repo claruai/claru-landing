@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description:
     "Master Services Agreement for annotators and service providers on the Claru AI platform by Reka AI, Inc. (d/b/a Claru AI).",
   alternates: {
-    canonical: "/msa",
+    canonical: "/annotator-agreement",
   },
   openGraph: {
     title: "Master Services Agreement - Claru",
