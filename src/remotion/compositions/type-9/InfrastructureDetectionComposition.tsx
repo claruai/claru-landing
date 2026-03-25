@@ -2,7 +2,9 @@
 import React from "react";
 import {
   AbsoluteFill,
+  Img,
   interpolate,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
@@ -40,6 +42,7 @@ interface Scene {
   location: string;
   timestamp: string;
   speed: string;
+  frameImage: string;
   detections: Detection[];
 }
 
@@ -49,6 +52,7 @@ const SCENES: Scene[] = [
     location: "25th Ave & St. Charles Rd",
     timestamp: "07:39:12",
     speed: "31 MPH",
+    frameImage: "remotion-assets/bellwood/frame-1.jpg",
     detections: [
       { label: "cracked road surface", bbox: [0.0, 0.57, 1.0, 0.7] },
       { label: "cracked road surface", bbox: [0.25, 0.48, 0.75, 0.57] },
@@ -61,6 +65,7 @@ const SCENES: Scene[] = [
     location: "Mannheim Rd & Washington Blvd",
     timestamp: "07:43:05",
     speed: "28 MPH",
+    frameImage: "remotion-assets/bellwood/frame-2.jpg",
     detections: [
       { label: "cracked road surface", bbox: [0.0, 0.68, 0.4, 0.8] },
       { label: "cracked road surface", bbox: [0.45, 0.6, 0.7, 0.7] },
@@ -75,6 +80,7 @@ const SCENES: Scene[] = [
     location: "Bellwood Ave & Adams St",
     timestamp: "07:44:23",
     speed: "11 MPH",
+    frameImage: "remotion-assets/bellwood/frame-3.jpg",
     detections: [
       { label: "faded lane marking", bbox: [0.0, 0.59, 0.3, 0.64] },
       { label: "faded lane marking", bbox: [0.35, 0.58, 0.65, 0.63] },
@@ -89,6 +95,7 @@ const SCENES: Scene[] = [
     location: "Eastern Ave & Bohland Ave",
     timestamp: "07:48:51",
     speed: "22 MPH",
+    frameImage: "remotion-assets/bellwood/frame-4.jpg",
     detections: [
       { label: "broken sidewalk", bbox: [0.0, 0.55, 0.15, 0.7] },
       { label: "litter or debris", bbox: [0.8, 0.6, 0.95, 0.72] },
@@ -101,6 +108,7 @@ const SCENES: Scene[] = [
     location: "25th Ave & Fillmore St",
     timestamp: "21:12:37",
     speed: "18 MPH",
+    frameImage: "remotion-assets/bellwood/frame-5.jpg",
     detections: [
       { label: "faded lane marking", bbox: [0.3, 0.55, 0.7, 0.6] },
       { label: "cracked road surface", bbox: [0.1, 0.6, 0.9, 0.75] },
@@ -258,42 +266,25 @@ export default function InfrastructureDetectionComposition({
         overflow: "hidden",
       }}
     >
-      {/* Simulated dashcam frame background */}
-      <div
+      {/* Real dashcam frame as background */}
+      <Img
+        src={staticFile(scene.frameImage)}
         style={{
           position: "absolute",
           inset: 0,
-          background: isNight
-            ? `linear-gradient(180deg, #0a0a12 0%, #0f0f18 40%, #151520 60%, #1a1a28 100%)`
-            : `linear-gradient(180deg, hsl(${200 + bgHue}, 10%, 65%) 0%, hsl(${200 + bgHue}, 8%, 55%) 35%, hsl(${30 + bgHue}, 6%, 45%) 55%, hsl(${20 + bgHue}, 8%, 35%) 100%)`,
-          opacity: sceneOpacity * 0.85,
-        }}
-      />
-
-      {/* Road surface simulation */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: "45%",
-          background: isNight
-            ? "linear-gradient(180deg, #1a1a24 0%, #252530 50%, #2a2a35 100%)"
-            : `linear-gradient(180deg, hsl(${20 + bgHue}, 5%, 38%) 0%, hsl(${15 + bgHue}, 4%, 32%) 50%, hsl(${10 + bgHue}, 3%, 28%) 100%)`,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
           opacity: sceneOpacity,
         }}
       />
 
-      {/* Horizon line */}
+      {/* Slight dark overlay for readability of HUD elements */}
       <div
         style={{
           position: "absolute",
-          top: "48%",
-          left: 0,
-          right: 0,
-          height: 1,
-          backgroundColor: isNight ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.08)",
+          inset: 0,
+          background: "linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.05) 30%, rgba(0,0,0,0.05) 70%, rgba(0,0,0,0.4) 100%)",
           opacity: sceneOpacity,
         }}
       />
