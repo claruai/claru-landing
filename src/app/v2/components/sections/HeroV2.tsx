@@ -2,23 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 
-const ShaderCanvas = dynamic(
-  () => import("shaders/react").then((mod) => {
-    const { Shader, DotGrid } = mod;
-    const ShaderDotGrid = () => (
-      <Shader>
-        <DotGrid />
-      </Shader>
-    );
-    ShaderDotGrid.displayName = "ShaderDotGrid";
-    return ShaderDotGrid;
-  }),
-  { ssr: false }
-);
+// ---------------------------------------------------------------------------
+// Text-scramble hook (unchanged)
+// ---------------------------------------------------------------------------
 
 const SCRAMBLE_CHARS = "!<>-_\\/[]{}=+*^?#________";
 
@@ -40,7 +29,9 @@ function useTextScramble(text: string, delay = 0, duration = 1200) {
       const queue = chars.map((char, i) => ({
         to: char,
         start: Math.round((i / chars.length) * (totalFrames - waveWidth)),
-        end: Math.round((i / chars.length) * (totalFrames - waveWidth)) + waveWidth,
+        end:
+          Math.round((i / chars.length) * (totalFrames - waveWidth)) +
+          waveWidth,
         current: char,
       }));
 
@@ -64,7 +55,10 @@ function useTextScramble(text: string, delay = 0, duration = 1200) {
             output += q.to;
           } else if (frame >= q.start) {
             if (Math.random() < 0.2) {
-              q.current = SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+              q.current =
+                SCRAMBLE_CHARS[
+                  Math.floor(Math.random() * SCRAMBLE_CHARS.length)
+                ];
             }
             output += q.current;
           } else {
@@ -94,6 +88,165 @@ function useTextScramble(text: string, delay = 0, duration = 1200) {
   return display;
 }
 
+// ---------------------------------------------------------------------------
+// Mosaic tile configuration
+// ---------------------------------------------------------------------------
+
+type TileOverlay = "none" | "depth" | "segmentation" | "bbox";
+
+interface MosaicTile {
+  /** Video file index (01-24) */
+  videoIndex: number;
+  /** Label text shown in corner */
+  label: string;
+  /** Badge background color */
+  badgeColor: string;
+  /** Badge text color */
+  badgeTextColor: string;
+  /** Overlay type for annotation simulation */
+  overlay: TileOverlay;
+}
+
+// 12 tiles: desktop shows all 12 (4x3), tablet shows 9 (3x3), mobile shows 6 (2x3)
+const MOSAIC_TILES: MosaicTile[] = [
+  // Row 1
+  { videoIndex: 1,  label: "EGOCENTRIC",   badgeColor: "#92B090",                badgeTextColor: "#0a0908", overlay: "none" },
+  { videoIndex: 5,  label: "DEPTH MAP",    badgeColor: "#4A9EDE",                badgeTextColor: "#ffffff", overlay: "depth" },
+  { videoIndex: 9,  label: "RAW",          badgeColor: "rgba(255,255,255,0.40)", badgeTextColor: "#0a0908", overlay: "none" },
+  { videoIndex: 13, label: "SEGMENTATION", badgeColor: "#9E6ADE",                badgeTextColor: "#ffffff", overlay: "segmentation" },
+  // Row 2
+  { videoIndex: 2,  label: "BBOX",         badgeColor: "#DE8A4A",                badgeTextColor: "#ffffff", overlay: "bbox" },
+  { videoIndex: 6,  label: "GAME ENV",     badgeColor: "#92B090",                badgeTextColor: "#0a0908", overlay: "none" },
+  { videoIndex: 10, label: "DEPTH MAP",    badgeColor: "#4A9EDE",                badgeTextColor: "#ffffff", overlay: "depth" },
+  { videoIndex: 14, label: "RAW",          badgeColor: "rgba(255,255,255,0.40)", badgeTextColor: "#0a0908", overlay: "none" },
+  // Row 3
+  { videoIndex: 3,  label: "SEGMENTATION", badgeColor: "#9E6ADE",                badgeTextColor: "#ffffff", overlay: "segmentation" },
+  { videoIndex: 7,  label: "RAW",          badgeColor: "rgba(255,255,255,0.40)", badgeTextColor: "#0a0908", overlay: "none" },
+  { videoIndex: 11, label: "BBOX",         badgeColor: "#DE8A4A",                badgeTextColor: "#ffffff", overlay: "bbox" },
+  { videoIndex: 15, label: "EGOCENTRIC",   badgeColor: "#92B090",                badgeTextColor: "#0a0908", overlay: "none" },
+];
+
+function videoSrc(index: number): string {
+  return `/videos/mosaic/mosaic-${String(index).padStart(2, "0")}.mp4`;
+}
+
+// ---------------------------------------------------------------------------
+// Bounding-box overlay (CSS-only rectangles)
+// ---------------------------------------------------------------------------
+
+function BBoxOverlay() {
+  return (
+    <div className="pointer-events-none absolute inset-0">
+      <div className="absolute inset-0 bg-[#DE8A4A]/10" />
+      <div className="absolute left-[12%] top-[18%] h-[40%] w-[35%] rounded-sm border-2 border-[#DE8A4A]/70" />
+      <div className="absolute bottom-[15%] right-[10%] h-[30%] w-[28%] rounded-sm border-2 border-[#DE8A4A]/70" />
+      <div className="absolute left-[55%] top-[10%] h-[25%] w-[22%] rounded-sm border border-[#DE8A4A]/40" />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Single mosaic tile component
+// ---------------------------------------------------------------------------
+
+interface MosaicVideoTileProps {
+  tile: MosaicTile;
+  staggerDelay: number;
+  reducedMotion: boolean;
+}
+
+function MosaicVideoTile({
+  tile,
+  staggerDelay,
+  reducedMotion,
+}: MosaicVideoTileProps) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    const video = videoRef.current;
+    if (!video) return;
+
+    const timeout = setTimeout(() => {
+      video.play().catch(() => {
+        // Autoplay may be blocked — degrade silently to poster frame
+      });
+    }, staggerDelay);
+
+    return () => clearTimeout(timeout);
+  }, [staggerDelay, reducedMotion]);
+
+  return (
+    <div className="relative h-full w-full overflow-hidden bg-[#0a0908]">
+      {/* Video element */}
+      <video
+        ref={videoRef}
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        className="block h-full w-full object-cover"
+      >
+        <source src={videoSrc(tile.videoIndex)} type="video/mp4" />
+      </video>
+
+      {/* Overlay tints */}
+      {tile.overlay === "depth" && (
+        <div className="pointer-events-none absolute inset-0 bg-[#4A9EDE]/30 mix-blend-multiply" />
+      )}
+      {tile.overlay === "segmentation" && (
+        <div className="pointer-events-none absolute inset-0 bg-[#9E6ADE]/20 mix-blend-multiply" />
+      )}
+      {tile.overlay === "bbox" && <BBoxOverlay />}
+
+      {/* Label badge */}
+      <span
+        className="absolute bottom-1.5 left-1.5 rounded px-1.5 py-0.5 font-mono text-[9px] font-semibold uppercase leading-none tracking-wider md:bottom-2 md:left-2 md:text-[10px]"
+        style={{
+          backgroundColor: tile.badgeColor,
+          color: tile.badgeTextColor,
+        }}
+      >
+        {tile.label}
+      </span>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Mosaic grid CSS (injected once)
+// ---------------------------------------------------------------------------
+
+const MOSAIC_GRID_STYLES = `
+  .hero-mosaic-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 1px;
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+  }
+  @media (min-width: 768px) {
+    .hero-mosaic-grid {
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+    }
+  }
+  @media (min-width: 1024px) {
+    .hero-mosaic-grid {
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+    }
+  }
+`;
+
+// ---------------------------------------------------------------------------
+// Hero component
+// ---------------------------------------------------------------------------
+
 export default function HeroV2() {
   const reducedMotion = useReducedMotion();
   const headline = useTextScramble(
@@ -102,47 +255,55 @@ export default function HeroV2() {
     1400
   );
 
+  // Stable stagger delays: each tile gets 0-2000ms random offset
+  const staggerDelays = useRef<number[]>(
+    MOSAIC_TILES.map(() => Math.random() * 2000)
+  );
+
   return (
     <section
       id="hero"
       className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0a0908]"
     >
-      {/* Video background */}
-      {!reducedMotion ? (
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster="/images/hero-poster.webp"
-          className="absolute inset-0 h-full w-full object-cover"
-        >
-          <source
-            src="/videos/hero-desktop.mp4"
-            type="video/mp4"
-          />
-        </video>
-      ) : (
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url(/images/hero-poster.webp)" }}
-        />
-      )}
+      {/* Injected grid styles */}
+      <style dangerouslySetInnerHTML={{ __html: MOSAIC_GRID_STYLES }} />
 
-      {/* Dark gradient overlay - stronger for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0908]/90 via-[#0a0908]/60 to-[#0a0908]/80" />
+      {/* ----------------------------------------------------------------- */}
+      {/* Mosaic video grid background                                      */}
+      {/* ----------------------------------------------------------------- */}
+      <div className="hero-mosaic-grid">
+        {MOSAIC_TILES.map((tile, i) => {
+          // Mobile: show first 6 (2x3)
+          // Tablet: show first 9 (3x3)
+          // Desktop: show all 12 (4x3)
+          let visibilityClass = "";
+          if (i >= 9) {
+            visibilityClass = "hidden lg:block";
+          } else if (i >= 6) {
+            visibilityClass = "hidden md:block";
+          }
 
-      {/* DotGrid shader overlay */}
-      {!reducedMotion && (
-        <div className="pointer-events-none absolute inset-0 opacity-15">
-          <ShaderCanvas />
-        </div>
-      )}
+          return (
+            <div key={tile.videoIndex} className={`${visibilityClass} min-h-0`}>
+              <MosaicVideoTile
+                tile={tile}
+                staggerDelay={staggerDelays.current[i]}
+                reducedMotion={reducedMotion}
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Dark gradient overlay - heavier for mosaic busy background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0908]/90 via-[#0a0908]/70 to-[#0a0908]/90" />
 
       {/* Bottom gradient fade into next section */}
       <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[var(--bg-primary)] to-transparent" />
 
-      {/* Content */}
+      {/* ----------------------------------------------------------------- */}
+      {/* Content                                                           */}
+      {/* ----------------------------------------------------------------- */}
       <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
         {/* Eyebrow label */}
         <motion.span
@@ -154,7 +315,7 @@ export default function HeroV2() {
           Curated for Frontier AI
         </motion.span>
 
-        {/* Headline — MASSIVE */}
+        {/* Headline */}
         <h1
           className="font-sans font-bold leading-[1.02] tracking-[-0.04em] text-white"
           style={{ fontSize: "clamp(42px, 8vw, 96px)" }}
@@ -168,10 +329,15 @@ export default function HeroV2() {
           className="mx-auto mt-8 max-w-2xl text-base leading-relaxed text-white/60 md:text-lg lg:text-xl"
           initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          transition={{
+            delay: 1.2,
+            duration: 0.8,
+            ease: [0.16, 1, 0.3, 1],
+          }}
         >
-          3.7M+ human annotations across real-world video, game environments, and
-          custom captures. Built for teams training robotics and embodied AI models.
+          3.7M+ human annotations across real-world video, game environments,
+          and custom captures. Built for teams training robotics and embodied AI
+          models.
         </motion.p>
 
         {/* Stats bar */}
@@ -179,7 +345,11 @@ export default function HeroV2() {
           className="mx-auto mt-12 flex flex-wrap items-center justify-center gap-x-10 gap-y-3"
           initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.5, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          transition={{
+            delay: 1.5,
+            duration: 0.8,
+            ease: [0.16, 1, 0.3, 1],
+          }}
         >
           {[
             { value: "3.7M+", label: "human annotations" },
@@ -217,7 +387,11 @@ export default function HeroV2() {
           className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
           initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 2.0, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          transition={{
+            delay: 2.0,
+            duration: 0.8,
+            ease: [0.16, 1, 0.3, 1],
+          }}
         >
           <Link
             href="/catalog"
@@ -244,7 +418,11 @@ export default function HeroV2() {
           <motion.div
             className="flex h-9 w-5 items-start justify-center rounded-full border border-white/15 p-1.5"
             animate={reducedMotion ? {} : { y: [0, 6, 0] }}
-            transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+            transition={{
+              repeat: Infinity,
+              duration: 2.5,
+              ease: "easeInOut",
+            }}
           >
             <div className="h-1.5 w-1 rounded-full bg-white/30" />
           </motion.div>

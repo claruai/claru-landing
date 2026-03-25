@@ -1,15 +1,73 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { motion } from "framer-motion";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 
+/* ------------------------------------------------------------------ */
+/*  Marker data — 10 global collection hubs with poster thumbnails    */
+/* ------------------------------------------------------------------ */
 const markerData = [
-  { lat: 20.5937, lng: 78.9629, label: "Egocentric Video" },
-  { lat: 37.7749, lng: -122.4194, label: "Game Capture" },
-  { lat: 50.4501, lng: 30.5234, label: "Warehouse Data" },
-  { lat: 13.7563, lng: 100.5018, label: "Traffic Data" },
-  { lat: -15.7975, lng: -47.8919, label: "Workplace" },
+  {
+    lat: 37.7749,
+    lng: -122.4194,
+    city: "San Francisco",
+    image: "/images/datasets/game-environment.webp",
+  },
+  {
+    lat: 19.076,
+    lng: 72.8777,
+    city: "Mumbai",
+    image: "/images/datasets/egocentric-activity.webp",
+  },
+  {
+    lat: 10.8231,
+    lng: 106.6297,
+    city: "Ho Chi Minh",
+    image: "/images/environments/warehouses.webp",
+  },
+  {
+    lat: -23.5505,
+    lng: -46.6333,
+    city: "S\u00e3o Paulo",
+    image: "/images/datasets/video-quality.webp",
+  },
+  {
+    lat: 50.4501,
+    lng: 30.5234,
+    city: "Kyiv",
+    image: "/images/environments/kitchens.webp",
+  },
+  {
+    lat: 6.5244,
+    lng: 3.3792,
+    city: "Lagos",
+    image: "/images/datasets/object-identity.webp",
+  },
+  {
+    lat: 14.5995,
+    lng: 120.9842,
+    city: "Manila",
+    image: "/images/hero-poster.webp",
+  },
+  {
+    lat: 13.7563,
+    lng: 100.5018,
+    city: "Bangkok",
+    image: "/images/datasets/traffic.webp",
+  },
+  {
+    lat: 51.5074,
+    lng: -0.1278,
+    city: "London",
+    image: "/images/environments/offices.webp",
+  },
+  {
+    lat: 19.4326,
+    lng: -99.1332,
+    city: "Mexico City",
+    image: "/images/environments/retail.webp",
+  },
 ];
 
 const sfHub: [number, number] = [37.7749, -122.4194];
@@ -24,6 +82,9 @@ const environments = [
   { name: "Retail", desc: "Shopping & commerce" },
 ];
 
+/* ------------------------------------------------------------------ */
+/*  Lat/Lng -> screen-space projection (matches COBE camera)          */
+/* ------------------------------------------------------------------ */
 function latLngToScreen(
   lat: number,
   lng: number,
@@ -32,7 +93,7 @@ function latLngToScreen(
   size: number,
   offsetX: number,
   offsetY: number
-): { x: number; y: number; visible: boolean } {
+): { x: number; y: number; visible: boolean; depth: number } {
   const latRad = (lat * Math.PI) / 180;
   const lngRad = (lng * Math.PI) / 180;
 
@@ -49,27 +110,45 @@ function latLngToScreen(
   const ry = y * cosTheta - (-x * sinPhi + z * cosPhi) * sinTheta;
   const rz = y * sinTheta + (-x * sinPhi + z * cosPhi) * cosTheta;
 
-  const visible = rz > -0.1;
+  // visible when facing camera; depth used for opacity falloff
+  const visible = rz > 0.05;
   const halfSize = size / 2;
 
   return {
     x: offsetX + rx * halfSize,
     y: offsetY - ry * halfSize,
     visible,
+    depth: rz,
   };
 }
 
+/* ------------------------------------------------------------------ */
+/*  Thumbnail card size                                                */
+/* ------------------------------------------------------------------ */
+const THUMB_SIZE = 56;
+const THUMB_SIZE_MOBILE = 44;
+
+/* ------------------------------------------------------------------ */
+/*  Component                                                          */
+/* ------------------------------------------------------------------ */
 export default function CollectionNetwork() {
   const reducedMotion = useReducedMotion();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const phiRef = useRef(0);
   const rafRef = useRef<number>(0);
-  const [labelPositions, setLabelPositions] = useState<
-    Array<{ x: number; y: number; visible: boolean; label: string }>
-  >([]);
   const [hasWebGL, setHasWebGL] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+
+  // Refs for each thumbnail DOM element — avoids React re-renders per frame
+  const thumbRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const setThumbRef = useCallback(
+    (index: number) => (el: HTMLDivElement | null) => {
+      thumbRefs.current[index] = el;
+    },
+    []
+  );
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
@@ -91,8 +170,10 @@ export default function CollectionNetwork() {
     }
 
     let destroyed = false;
-    let globe: { update: (state: Record<string, unknown>) => void; destroy: () => void } | null =
-      null;
+    let globe: {
+      update: (state: Record<string, unknown>) => void;
+      destroy: () => void;
+    } | null = null;
 
     import("cobe").then((COBE) => {
       if (destroyed || !canvasRef.current) return;
@@ -118,7 +199,7 @@ export default function CollectionNetwork() {
           size: 0.06,
         })),
         arcs: markerData
-          .filter((m) => m.label !== "Game Capture")
+          .filter((m) => m.city !== "San Francisco")
           .map((m) => ({
             from: [m.lat, m.lng] as [number, number],
             to: sfHub,
@@ -129,6 +210,9 @@ export default function CollectionNetwork() {
         devicePixelRatio: 2,
       });
 
+      /* -------------------------------------------------------------- */
+      /*  Animation loop — direct DOM updates, no React state           */
+      /* -------------------------------------------------------------- */
       const animate = () => {
         if (destroyed || !globe) return;
 
@@ -146,7 +230,14 @@ export default function CollectionNetwork() {
           const offsetY =
             canvasRect.top - containerRect.top + canvasRect.height / 2;
 
-          const positions = markerData.map((m) => {
+          const thumbSize = isMobile ? THUMB_SIZE_MOBILE : THUMB_SIZE;
+          const halfThumb = thumbSize / 2;
+
+          for (let i = 0; i < markerData.length; i++) {
+            const el = thumbRefs.current[i];
+            if (!el) continue;
+
+            const m = markerData[i];
             const pos = latLngToScreen(
               m.lat,
               m.lng,
@@ -156,10 +247,17 @@ export default function CollectionNetwork() {
               offsetX,
               offsetY
             );
-            return { ...pos, label: m.label };
-          });
 
-          setLabelPositions(positions);
+            // Smooth opacity based on depth (rz). Fully visible when facing
+            // camera (depth ~1), starts fading around 0.3, hidden at 0.
+            const opacity = pos.visible
+              ? Math.min(1, Math.max(0, (pos.depth - 0.05) / 0.35)) * 0.95
+              : 0;
+
+            el.style.transform = `translate(${pos.x - halfThumb}px, ${pos.y - thumbSize - 16}px)`;
+            el.style.opacity = String(opacity);
+            el.style.pointerEvents = opacity > 0.3 ? "auto" : "none";
+          }
         }
 
         rafRef.current = requestAnimationFrame(animate);
@@ -175,6 +273,9 @@ export default function CollectionNetwork() {
     };
   }, [reducedMotion, isMobile]);
 
+  /* ---------------------------------------------------------------- */
+  /*  Environment grid (shared between fallback and main render)      */
+  /* ---------------------------------------------------------------- */
   const envGrid = (
     <div className="mx-auto mt-14 grid max-w-3xl grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
       {environments.map((env, i) => (
@@ -183,10 +284,14 @@ export default function CollectionNetwork() {
           initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: i * 0.06, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          transition={{
+            delay: i * 0.06,
+            duration: 0.5,
+            ease: [0.16, 1, 0.3, 1],
+          }}
           className="group flex flex-col items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-5 transition-all duration-400 hover:border-[var(--accent-primary)]/20 hover:bg-[var(--bg-card-hover)] hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
         >
-          <span className="font-mono text-xs font-medium text-white/60 group-hover:text-[var(--accent-primary)] transition-colors duration-300">
+          <span className="font-mono text-xs font-medium text-white/60 transition-colors duration-300 group-hover:text-[var(--accent-primary)]">
             {env.name}
           </span>
           <span className="font-mono text-[10px] text-white/25">
@@ -197,10 +302,15 @@ export default function CollectionNetwork() {
     </div>
   );
 
-  // No-WebGL or reduced motion fallback
+  /* ---------------------------------------------------------------- */
+  /*  No-WebGL or reduced motion fallback                             */
+  /* ---------------------------------------------------------------- */
   if (!hasWebGL || reducedMotion) {
     return (
-      <section id="collection" className="relative bg-[var(--bg-primary)] py-32 md:py-40">
+      <section
+        id="collection"
+        className="relative bg-[var(--bg-primary)] py-32 md:py-40"
+      >
         <div className="container mx-auto px-6">
           <div className="mb-16">
             <div className="v2-section-label mb-6">
@@ -217,7 +327,7 @@ export default function CollectionNetwork() {
           <div className="mx-auto flex max-w-lg items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-12">
             <div className="text-center">
               <p className="mb-1 font-mono text-2xl font-bold text-[var(--accent-primary)]">
-                5
+                10
               </p>
               <p className="mb-4 font-mono text-xs text-white/40">
                 collection hubs worldwide
@@ -225,10 +335,10 @@ export default function CollectionNetwork() {
               <div className="flex flex-wrap justify-center gap-2">
                 {markerData.map((m) => (
                   <span
-                    key={m.label}
+                    key={m.city}
                     className="rounded-full border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-3 py-1 font-mono text-xs text-white/50"
                   >
-                    {m.label}
+                    {m.city}
                   </span>
                 ))}
               </div>
@@ -245,8 +355,16 @@ export default function CollectionNetwork() {
     );
   }
 
+  /* ---------------------------------------------------------------- */
+  /*  Main render with globe + thumbnail overlays                     */
+  /* ---------------------------------------------------------------- */
+  const thumbSize = isMobile ? THUMB_SIZE_MOBILE : THUMB_SIZE;
+
   return (
-    <section id="collection" className="relative bg-[var(--bg-primary)] py-32 md:py-40">
+    <section
+      id="collection"
+      className="relative bg-[var(--bg-primary)] py-32 md:py-40"
+    >
       <div className="container mx-auto px-6">
         <motion.div
           className="mb-16"
@@ -268,19 +386,20 @@ export default function CollectionNetwork() {
 
         <div
           ref={containerRef}
-          className="relative mx-auto"
+          className="relative mx-auto overflow-visible"
           style={{
             width: isMobile ? 340 : 600,
             height: isMobile ? 340 : 600,
           }}
         >
-          {/* Larger radial glow behind globe */}
+          {/* Radial glow behind globe */}
           <div
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full blur-[80px]"
             style={{
               width: isMobile ? 280 : 450,
               height: isMobile ? 280 : 450,
-              background: "radial-gradient(circle, rgba(146,176,144,0.08) 0%, rgba(146,176,144,0.03) 50%, transparent 70%)",
+              background:
+                "radial-gradient(circle, rgba(146,176,144,0.08) 0%, rgba(146,176,144,0.03) 50%, transparent 70%)",
             }}
           />
 
@@ -293,25 +412,87 @@ export default function CollectionNetwork() {
             }}
           />
 
-          {labelPositions.map((pos) => (
+          {/* -------------------------------------------------------- */}
+          {/*  Thumbnail cards — positioned via direct DOM in rAF loop */}
+          {/* -------------------------------------------------------- */}
+          {markerData.map((marker, i) => (
             <div
-              key={pos.label}
-              className="pointer-events-none absolute font-mono text-[11px] transition-opacity duration-300"
+              key={marker.city}
+              ref={setThumbRef(i)}
+              className="pointer-events-none absolute left-0 top-0 will-change-transform"
               style={{
-                left: pos.x,
-                top: pos.y,
-                transform: "translate(-50%, -150%)",
-                opacity: pos.visible ? 0.85 : 0,
-                padding: "3px 8px",
-                borderRadius: 6,
-                background: "rgba(10, 9, 8, 0.7)",
-                border: "1px solid rgba(146, 176, 144, 0.15)",
-                backdropFilter: "blur(8px)",
-                color: "var(--accent-primary)",
+                opacity: 0,
+                transition: "opacity 0.25s ease-out",
               }}
             >
-              <span className="mr-1.5 inline-block h-1 w-1 rounded-full bg-[var(--accent-primary)]" />
-              {pos.label}
+              {/* Thumbnail container */}
+              <div
+                className="relative overflow-hidden"
+                style={{
+                  width: thumbSize,
+                  height: thumbSize,
+                  borderRadius: 8,
+                  border: "1px solid rgba(146, 176, 144, 0.3)",
+                  boxShadow:
+                    "0 0 12px rgba(146, 176, 144, 0.12), 0 2px 8px rgba(0, 0, 0, 0.4)",
+                  background: "rgba(10, 9, 8, 0.8)",
+                }}
+              >
+                {/* Poster frame image */}
+                <img
+                  src={marker.image}
+                  alt={`${marker.city} collection`}
+                  loading="eager"
+                  decoding="async"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    display: "block",
+                  }}
+                />
+
+                {/* Pulsing "active capture" dot */}
+                <span
+                  className="absolute"
+                  style={{
+                    top: 4,
+                    right: 4,
+                    width: 7,
+                    height: 7,
+                    borderRadius: "50%",
+                    background: "var(--accent-primary)",
+                    boxShadow: "0 0 6px rgba(146, 176, 144, 0.6)",
+                    animation: "collection-pulse 2s ease-in-out infinite",
+                    animationDelay: `${i * 0.2}s`,
+                  }}
+                />
+
+                {/* Subtle scanline overlay for that data-collection feel */}
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px)",
+                    pointerEvents: "none",
+                  }}
+                />
+              </div>
+
+              {/* City label */}
+              <p
+                className="mt-1 text-center font-mono"
+                style={{
+                  fontSize: isMobile ? 8 : 10,
+                  color: "var(--accent-primary)",
+                  opacity: 0.7,
+                  lineHeight: 1.2,
+                  textShadow: "0 1px 4px rgba(0,0,0,0.8)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {marker.city}
+              </p>
             </div>
           ))}
         </div>
@@ -323,12 +504,24 @@ export default function CollectionNetwork() {
           viewport={{ once: true }}
           transition={{ delay: 0.2, duration: 0.6 }}
         >
-          Suburban kitchens. Factory floors. City streets.
-          Not lab environments — real ones.
+          Suburban kitchens. Factory floors. City streets. Not lab environments
+          — real ones.
         </motion.p>
 
         {envGrid}
       </div>
+
+      {/* Pulsing dot keyframe animation — plain <style> for reliability */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            @keyframes collection-pulse {
+              0%, 100% { opacity: 1; transform: scale(1); }
+              50% { opacity: 0.4; transform: scale(0.7); }
+            }
+          `,
+        }}
+      />
     </section>
   );
 }

@@ -2,13 +2,10 @@
 
 import LenisProvider from "../components/providers/LenisProvider";
 import HeroV2 from "./components/sections/HeroV2";
-import DataGap from "./components/sections/DataGap";
 import ThreeModes from "./components/sections/ThreeModes";
 import CatalogShowcase from "./components/sections/CatalogShowcase";
 import EnrichmentPipeline from "./components/sections/EnrichmentPipeline";
 import CollectionNetwork from "./components/sections/CollectionNetwork";
-import GameCapture from "./components/sections/GameCapture";
-import WhyClaru from "./components/sections/WhyClaru";
 import SocialProofV2 from "./components/sections/SocialProofV2";
 import FinalCTAV2 from "./components/sections/FinalCTAV2";
 
@@ -23,19 +20,13 @@ export default function V2Content() {
         <main>
           <HeroV2 />
           <SectionDivider />
-          <DataGap />
-          <SectionDivider />
-          <ThreeModes />
-          <SectionDivider />
           <CatalogShowcase />
           <SectionDivider />
           <EnrichmentPipeline />
           <SectionDivider />
+          <ThreeModes />
+          <SectionDivider />
           <CollectionNetwork />
-          <SectionDivider />
-          <GameCapture />
-          <SectionDivider />
-          <WhyClaru />
           <SectionDivider />
           <SocialProofV2 />
           <SectionDivider />

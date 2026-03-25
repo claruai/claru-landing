@@ -1,12 +1,12 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { datasets } from "../../data/datasets";
+import { datasets, type Dataset } from "../../data/datasets";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 
 if (typeof window !== "undefined") {
@@ -72,6 +72,83 @@ const modalityColors: Record<string, string> = {
   "quality-scores": "#92B090",
   trajectories: "#DE8A4A",
 };
+
+function VideoThumbnail({ dataset }: { dataset: Dataset }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleIntersection = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const video = videoRef.current;
+      if (!video) return;
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      });
+    },
+    []
+  );
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const observer = new IntersectionObserver(handleIntersection, {
+      threshold: 0.3,
+    });
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [handleIntersection]);
+
+  const isGameEnv = dataset.id === "game-environment";
+
+  return (
+    <div ref={containerRef} className="relative h-56 lg:h-full">
+      {dataset.video ? (
+        <video
+          ref={videoRef}
+          src={dataset.video}
+          poster={dataset.poster}
+          muted
+          autoPlay
+          loop
+          playsInline
+          preload="none"
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+        />
+      ) : (
+        <img
+          src={dataset.poster}
+          alt={dataset.name}
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+          loading="lazy"
+        />
+      )}
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#121110]/70 opacity-0 transition-opacity duration-500 group-hover:opacity-100 lg:block hidden" />
+      {/* Status badge */}
+      {dataset.status === "coming_soon" && (
+        <div className="absolute left-3 top-3 rounded-full border border-white/10 bg-black/70 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-white/50 backdrop-blur-md">
+          Coming Soon
+        </div>
+      )}
+      {dataset.status === "available" && (
+        <div className="absolute left-3 top-3 rounded-full border border-[var(--accent-primary)]/20 bg-black/70 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[var(--accent-primary)] backdrop-blur-md">
+          <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-[var(--accent-primary)] shadow-[0_0_6px_rgba(146,176,144,0.5)]" />
+          Available
+        </div>
+      )}
+      {/* Unique to Claru badge for Game Environment */}
+      {isGameEnv && (
+        <div className="absolute right-3 top-3 rounded-full border border-[var(--accent-primary)]/30 bg-black/80 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[var(--accent-primary)] backdrop-blur-md">
+          Unique to Claru
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function CatalogShowcase() {
   const reducedMotion = useReducedMotion();
@@ -159,28 +236,7 @@ export default function CatalogShowcase() {
             >
               {/* Thumbnail */}
               <div className="relative shrink-0 overflow-hidden lg:w-80">
-                <div className="relative h-56 lg:h-full">
-                  <img
-                    src={dataset.poster}
-                    alt={dataset.name}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                    loading="lazy"
-                  />
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#121110]/70 opacity-0 transition-opacity duration-500 group-hover:opacity-100 lg:block hidden" />
-                </div>
-                {/* Status badge */}
-                {dataset.status === "coming_soon" && (
-                  <div className="absolute left-3 top-3 rounded-full border border-white/10 bg-black/70 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-white/50 backdrop-blur-md">
-                    Coming Soon
-                  </div>
-                )}
-                {dataset.status === "available" && (
-                  <div className="absolute left-3 top-3 rounded-full border border-[var(--accent-primary)]/20 bg-black/70 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[var(--accent-primary)] backdrop-blur-md">
-                    <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-[var(--accent-primary)] shadow-[0_0_6px_rgba(146,176,144,0.5)]" />
-                    Available
-                  </div>
-                )}
+                <VideoThumbnail dataset={dataset} />
               </div>
 
               {/* Info */}
