@@ -52,7 +52,7 @@ const legalDocs = [
     updated: "January 2025",
   },
   {
-    href: "/msa",
+    href: "/annotator-agreement",
     title: "Annotator Services Agreement",
     description:
       "Master services agreement for annotators and service providers on the Claru AI platform.",
