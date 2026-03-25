@@ -1,12 +1,55 @@
+// @ts-nocheck - Experimental component with incomplete type definitions from shaders/react
 "use client";
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 
 // ---------------------------------------------------------------------------
-// Text-scramble hook (unchanged)
+// Dynamic imports (SSR-disabled)
+// ---------------------------------------------------------------------------
+
+const ContainedMatrixRain = dynamic(
+  () => import("../effects/ContainedMatrixRain"),
+  { ssr: false }
+);
+
+const ShaderOverlay = dynamic(
+  () =>
+    import("shaders/react").then((mod) => {
+      const { Shader, CRTScreen, FilmGrain } = mod;
+      const Overlay = () => (
+        <Shader
+          style={{
+            mixBlendMode: "overlay" as const,
+            opacity: 0.15,
+            width: "100%",
+            height: "100%",
+          }}
+        >
+          <CRTScreen
+            scanlineIntensity={0.2}
+            scanlineFrequency={200}
+            curvature={0}
+            brightness={1.5}
+            contrast={1}
+            pixelSize={2000}
+          />
+          <FilmGrain />
+        </Shader>
+      );
+      Overlay.displayName = "ShaderOverlay";
+      return Overlay;
+    }),
+  { ssr: false }
+);
+
+// ---------------------------------------------------------------------------
+// Text-scramble hook
 // ---------------------------------------------------------------------------
 
 const SCRAMBLE_CHARS = "!<>-_\\/[]{}=+*^?#________";
@@ -103,24 +146,24 @@ interface MosaicTile {
   badgeColor: string;
   /** Badge text color */
   badgeTextColor: string;
-  /** Overlay type — "bbox" adds CSS rectangles, "none" is clean */
+  /** Overlay type -- "bbox" adds CSS rectangles, "none" is clean */
   overlay: TileOverlay;
 }
 
 // 12 tiles: desktop shows all 12 (4x3), tablet shows 9 (3x3), mobile shows 6 (2x3)
 // Mix: 3 raw egocentric, 2 bbox, 2 depth, 1 segmentation, 1 game, 1 driving, 1 teleop, 1 raw other
 const MOSAIC_TILES: MosaicTile[] = [
-  // Row 1 — lead with variety
+  // Row 1 -- lead with variety
   { videoFile: "mosaic-01.mp4",          label: "EGOCENTRIC",   badgeColor: "#92B090",                badgeTextColor: "#0a0908", overlay: "none" },
   { videoFile: "annotated-depth-01.mp4", label: "DEPTH MAP",    badgeColor: "#4A9EDE",                badgeTextColor: "#ffffff", overlay: "none" },
   { videoFile: "mosaic-driving.mp4",     label: "DRIVING",      badgeColor: "rgba(255,255,255,0.40)", badgeTextColor: "#0a0908", overlay: "none" },
   { videoFile: "annotated-seg-01.mp4",   label: "SEGMENTATION", badgeColor: "#9E6ADE",                badgeTextColor: "#ffffff", overlay: "none" },
-  // Row 2 — annotated + diverse sources
+  // Row 2 -- annotated + diverse sources
   { videoFile: "annotated-bbox-01.mp4",  label: "BBOX",         badgeColor: "#DE8A4A",                badgeTextColor: "#ffffff", overlay: "none" },
   { videoFile: "mosaic-game-env.mp4",    label: "GAME ENV",     badgeColor: "#92B090",                badgeTextColor: "#0a0908", overlay: "none" },
   { videoFile: "annotated-depth-02.mp4", label: "DEPTH MAP",    badgeColor: "#4A9EDE",                badgeTextColor: "#ffffff", overlay: "none" },
   { videoFile: "mosaic-20.mp4",          label: "RAW",          badgeColor: "rgba(255,255,255,0.40)", badgeTextColor: "#0a0908", overlay: "none" },
-  // Row 3 — more variety
+  // Row 3 -- more variety
   { videoFile: "mosaic-12.mp4",          label: "EGOCENTRIC",   badgeColor: "#92B090",                badgeTextColor: "#0a0908", overlay: "none" },
   { videoFile: "mosaic-teleop.mp4",      label: "TELEOP",       badgeColor: "#92B090",                badgeTextColor: "#0a0908", overlay: "none" },
   { videoFile: "annotated-bbox-02.mp4",  label: "BBOX",         badgeColor: "#DE8A4A",                badgeTextColor: "#ffffff", overlay: "none" },
@@ -129,6 +172,28 @@ const MOSAIC_TILES: MosaicTile[] = [
 
 function videoSrc(file: string): string {
   return `/videos/mosaic/${file}`;
+}
+
+// ---------------------------------------------------------------------------
+// Calculate tile brightness based on distance from grid center
+// Center tiles = 1.0, edge tiles = 0.4-0.6
+// ---------------------------------------------------------------------------
+
+function getTileBrightness(index: number, totalCols: number, totalRows: number): number {
+  const col = index % totalCols;
+  const row = Math.floor(index / totalCols);
+
+  // Normalize to 0-1 range
+  const nx = totalCols > 1 ? col / (totalCols - 1) : 0.5;
+  const ny = totalRows > 1 ? row / (totalRows - 1) : 0.5;
+
+  // Distance from center (0-1)
+  const dx = nx - 0.5;
+  const dy = ny - 0.5;
+  const dist = Math.sqrt(dx * dx + dy * dy) / 0.707; // normalize max diagonal to 1
+
+  // Center = 1.0, edges = 0.4
+  return 1.0 - dist * 0.6;
 }
 
 // ---------------------------------------------------------------------------
@@ -154,12 +219,14 @@ interface MosaicVideoTileProps {
   tile: MosaicTile;
   staggerDelay: number;
   reducedMotion: boolean;
+  brightness: number;
 }
 
 function MosaicVideoTile({
   tile,
   staggerDelay,
   reducedMotion,
+  brightness,
 }: MosaicVideoTileProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -170,7 +237,7 @@ function MosaicVideoTile({
 
     const timeout = setTimeout(() => {
       video.play().catch(() => {
-        // Autoplay may be blocked — degrade silently to poster frame
+        // Autoplay may be blocked -- degrade silently to poster frame
       });
     }, staggerDelay);
 
@@ -178,7 +245,10 @@ function MosaicVideoTile({
   }, [staggerDelay, reducedMotion]);
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-[#0a0908]">
+    <div
+      className="relative h-full w-full overflow-hidden bg-[#0a0908]"
+      style={{ opacity: brightness }}
+    >
       {/* Video element */}
       <video
         ref={videoRef}
@@ -213,25 +283,23 @@ function MosaicVideoTile({
 // ---------------------------------------------------------------------------
 
 const MOSAIC_GRID_STYLES = `
-  .hero-mosaic-grid {
+  .hero-mosaic-grid-v2 {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(3, 1fr);
     gap: 1px;
-    position: absolute;
-    inset: 0;
-    height: 100%;
     width: 100%;
-    background: rgba(255,255,255,0.06);
+    height: 100%;
+    background: rgba(146, 176, 144, 0.1);
   }
   @media (min-width: 768px) {
-    .hero-mosaic-grid {
+    .hero-mosaic-grid-v2 {
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(3, 1fr);
     }
   }
   @media (min-width: 1024px) {
-    .hero-mosaic-grid {
+    .hero-mosaic-grid-v2 {
       grid-template-columns: repeat(4, 1fr);
       grid-template-rows: repeat(3, 1fr);
     }
@@ -239,11 +307,39 @@ const MOSAIC_GRID_STYLES = `
 `;
 
 // ---------------------------------------------------------------------------
+// Determine grid dimensions for brightness calculation
+// ---------------------------------------------------------------------------
+
+function useGridDimensions(): { cols: number; rows: number } {
+  const [dims, setDims] = useState({ cols: 4, rows: 3 });
+
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      if (w >= 1024) {
+        setDims({ cols: 4, rows: 3 });
+      } else if (w >= 768) {
+        setDims({ cols: 3, rows: 3 });
+      } else {
+        setDims({ cols: 2, rows: 3 });
+      }
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  return dims;
+}
+
+// ---------------------------------------------------------------------------
 // Hero component
 // ---------------------------------------------------------------------------
 
 export default function HeroV2() {
   const reducedMotion = useReducedMotion();
+  const gridContainerRef = useRef<HTMLDivElement>(null);
+  const gridDims = useGridDimensions();
   const headline = useTextScramble(
     "The training data catalog for physical AI.",
     300,
@@ -255,6 +351,22 @@ export default function HeroV2() {
     MOSAIC_TILES.map(() => Math.random() * 2000)
   );
 
+  // GSAP floating animation on the grid container
+  useGSAP(
+    () => {
+      if (reducedMotion || !gridContainerRef.current) return;
+
+      gsap.to(gridContainerRef.current, {
+        y: 8,
+        duration: 6,
+        ease: "sine.inOut",
+        yoyo: true,
+        repeat: -1,
+      });
+    },
+    { dependencies: [reducedMotion] }
+  );
+
   return (
     <section
       id="hero"
@@ -263,43 +375,139 @@ export default function HeroV2() {
       {/* Injected grid styles */}
       <style dangerouslySetInnerHTML={{ __html: MOSAIC_GRID_STYLES }} />
 
-      {/* ----------------------------------------------------------------- */}
-      {/* Mosaic video grid background                                      */}
-      {/* ----------------------------------------------------------------- */}
-      <div className="hero-mosaic-grid">
-        {MOSAIC_TILES.map((tile, i) => {
-          // Mobile: show first 6 (2x3)
-          // Tablet: show first 9 (3x3)
-          // Desktop: show all 12 (4x3)
-          let visibilityClass = "";
-          if (i >= 9) {
-            visibilityClass = "hidden lg:block";
-          } else if (i >= 6) {
-            visibilityClass = "hidden md:block";
-          }
+      {/* ================================================================= */}
+      {/* Layer 1: ASCII / Matrix Rain background (behind everything)       */}
+      {/* ================================================================= */}
+      {!reducedMotion && (
+        <div className="absolute inset-0" style={{ zIndex: 0 }}>
+          <ContainedMatrixRain density={0.3} speed={0.8} opacity={0.4} />
+        </div>
+      )}
 
-          return (
-            <div key={tile.videoFile} className={`${visibilityClass} min-h-0`}>
-              <MosaicVideoTile
-                tile={tile}
-                staggerDelay={staggerDelays.current[i]}
-                reducedMotion={reducedMotion}
-              />
+      {/* ================================================================= */}
+      {/* Layer 2: Contained mosaic grid (centered, ~60-65% viewport width) */}
+      {/* ================================================================= */}
+      <div
+        className="absolute inset-0 flex items-center justify-center"
+        style={{ zIndex: 1, perspective: "1000px" }}
+      >
+        {/* Sage green glow behind the grid */}
+        <div
+          className="absolute"
+          style={{
+            width: "70%",
+            height: "65%",
+            background:
+              "radial-gradient(ellipse at center, rgba(146, 176, 144, 0.06) 0%, transparent 70%)",
+            filter: "blur(40px)",
+          }}
+        />
+
+        {/* The floating grid container */}
+        <div
+          ref={gridContainerRef}
+          className="relative"
+          style={{
+            width: "clamp(320px, 62vw, 1100px)",
+            height: "clamp(240px, 42vh, 520px)",
+            transform: reducedMotion ? "none" : "rotateX(2deg)",
+            boxShadow: "0 0 120px 40px rgba(146, 176, 144, 0.06)",
+          }}
+        >
+          {/* Radial fade mask on the grid */}
+          <div
+            className="h-full w-full overflow-hidden rounded-sm"
+            style={{
+              maskImage:
+                "radial-gradient(ellipse 70% 80% at center, black 30%, transparent 75%)",
+              WebkitMaskImage:
+                "radial-gradient(ellipse 70% 80% at center, black 30%, transparent 75%)",
+            }}
+          >
+            {/* Mosaic video grid */}
+            <div className="hero-mosaic-grid-v2">
+              {MOSAIC_TILES.map((tile, i) => {
+                // Mobile: show first 6 (2x3)
+                // Tablet: show first 9 (3x3)
+                // Desktop: show all 12 (4x3)
+                let visibilityClass = "";
+                if (i >= 9) {
+                  visibilityClass = "hidden lg:block";
+                } else if (i >= 6) {
+                  visibilityClass = "hidden md:block";
+                }
+
+                const brightness = getTileBrightness(
+                  i,
+                  gridDims.cols,
+                  gridDims.rows
+                );
+
+                return (
+                  <div
+                    key={tile.videoFile}
+                    className={`${visibilityClass} min-h-0`}
+                  >
+                    <MosaicVideoTile
+                      tile={tile}
+                      staggerDelay={staggerDelays.current[i]}
+                      reducedMotion={reducedMotion}
+                      brightness={brightness}
+                    />
+                  </div>
+                );
+              })}
             </div>
-          );
-        })}
+          </div>
+
+          {/* CRT/Scanline shader overlay on top of the grid */}
+          {!reducedMotion && (
+            <div className="pointer-events-none absolute inset-0">
+              <ShaderOverlay />
+            </div>
+          )}
+        </div>
+
+        {/* Floor reflection glow below the grid */}
+        <div
+          className="absolute"
+          style={{
+            bottom: "8%",
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "80%",
+            height: "128px",
+            background:
+              "radial-gradient(ellipse at center, rgba(146, 176, 144, 0.08) 0%, transparent 70%)",
+          }}
+        />
       </div>
 
-      {/* Dark gradient overlay - heavier for mosaic busy background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0908]/90 via-[#0a0908]/70 to-[#0a0908]/90" />
+      {/* ================================================================= */}
+      {/* Layer 3: Dark gradient overlay for text readability                */}
+      {/* ================================================================= */}
+      <div
+        className="absolute inset-0"
+        style={{
+          zIndex: 2,
+          background:
+            "linear-gradient(to bottom, rgba(10,9,8,0.92) 0%, rgba(10,9,8,0.50) 35%, rgba(10,9,8,0.40) 50%, rgba(10,9,8,0.55) 65%, rgba(10,9,8,0.90) 100%)",
+        }}
+      />
 
       {/* Bottom gradient fade into next section */}
-      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[var(--bg-primary)] to-transparent" />
+      <div
+        className="pointer-events-none absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[var(--bg-primary)] to-transparent"
+        style={{ zIndex: 3 }}
+      />
 
-      {/* ----------------------------------------------------------------- */}
-      {/* Content                                                           */}
-      {/* ----------------------------------------------------------------- */}
-      <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
+      {/* ================================================================= */}
+      {/* Layer 4: Text content overlaid on top of everything               */}
+      {/* ================================================================= */}
+      <div
+        className="relative mx-auto max-w-5xl px-6 text-center"
+        style={{ zIndex: 10 }}
+      >
         {/* Eyebrow label */}
         <motion.span
           className="mb-8 inline-block font-mono text-[11px] uppercase tracking-[0.35em] text-[var(--accent-primary)]"
