@@ -72,7 +72,7 @@ export default function AddToLeadButton({
             if (!csRes.ok) return { ...lead, already_assigned: false };
             const { samples } = await csRes.json();
             const assigned = samples.some(
-              (s: { clip_id?: string; video_index_id?: string | null; dataset_sample_id?: string | null }) =>
+              (s: { clip_id?: string }) =>
                 s.clip_id === clipId
             );
             return { ...lead, already_assigned: assigned };

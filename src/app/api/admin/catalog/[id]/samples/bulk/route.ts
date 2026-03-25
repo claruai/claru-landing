@@ -356,7 +356,7 @@ export async function POST(
       }
     }
 
-    inserted += clipRows.length;
+    inserted += datasetClipRows.length;
   }
 
   return NextResponse.json({ inserted, skipped, errors }, { status: 201 });

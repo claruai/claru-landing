@@ -431,6 +431,17 @@ async function upsertClip(
     .single();
 
   if (error) {
+    // Handle race condition: another request may have inserted the same clip
+    // between our SELECT and INSERT (unique constraint on s3_bucket + s3_key)
+    if (error.code === "23505") {
+      const { data: raceWinner } = await supabase
+        .from("clips")
+        .select("id")
+        .eq("s3_bucket", s3Bucket)
+        .eq("s3_key", s3Key)
+        .maybeSingle();
+      if (raceWinner) return raceWinner.id;
+    }
     console.error("[upsertClip] insert error", error);
     return null;
   }
