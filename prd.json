@@ -280,7 +280,7 @@
         "Verify in browser using dev-browser skill at mobile viewport"
       ],
       "priority": 13,
-      "passes": false,
+      "passes": true,
       "notes": "Run AFTER all section stories."
     },
     {
