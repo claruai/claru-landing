@@ -1,8 +1,17 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
+
+const stageImages: Record<string, string> = {
+  raw: "/images/slider/raw.webp",
+  depth: "/images/slider/depth.png",
+  pose: "/images/slider/pose.png",
+  seg: "/images/slider/seg.png",
+  all: "/images/slider/all.webp",
+};
 
 const pipelineStages = [
   { id: "raw", label: "RAW", range: [0, 20] },
@@ -187,48 +196,58 @@ export default function EnrichmentPipeline() {
               </AnimatePresence>
             </div>
 
-            {/* Content area with subtle gradient */}
-            <div className="relative aspect-video" style={{ background: "radial-gradient(ellipse at center, rgba(146,176,144,0.02) 0%, transparent 70%)" }}>
+            {/* Content area — real enrichment images */}
+            <div className="relative aspect-video bg-[#0a0908]">
               {!isLoaded && (
                 <div className="absolute inset-0 animate-pulse bg-[var(--bg-secondary)]" />
               )}
 
+              {/* Base raw frame — always visible underneath */}
+              <Image
+                src="/images/slider/raw.webp"
+                alt="Raw video frame — person dicing carrots on a cutting board"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 768px"
+                priority
+              />
+
+              {/* Overlay image for non-raw stages */}
               <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeStage}
-                  initial={reducedMotion ? {} : { opacity: 0, scale: 0.96 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={reducedMotion ? {} : { opacity: 0, scale: 1.02 }}
-                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute inset-0 flex flex-col items-center justify-center"
-                >
-                  {/* Large icon/letter */}
-                  <div
-                    className="mb-5 flex h-24 w-24 items-center justify-center rounded-2xl border transition-all duration-500"
-                    style={{
-                      borderColor: `${stageColors[activeStage]}25`,
-                      backgroundColor: `${stageColors[activeStage]}06`,
-                      boxShadow: `0 0 40px ${stageColors[activeStage]}08`,
-                    }}
+                {activeStage !== "raw" && (
+                  <motion.div
+                    key={activeStage}
+                    initial={reducedMotion ? {} : { opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={reducedMotion ? {} : { opacity: 0 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute inset-0"
                   >
-                    <span
-                      className="text-5xl font-bold"
-                      style={{ color: stageColors[activeStage] }}
-                    >
-                      {pipelineStages.find((s) => s.id === activeStage)?.label.charAt(0)}
-                    </span>
-                  </div>
+                    <Image
+                      src={stageImages[activeStage]}
+                      alt={stageDescriptions[activeStage]}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 768px"
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Stage label overlay */}
+              <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between px-4 pb-3">
+                <div className="flex items-center gap-2 rounded-md bg-black/60 px-3 py-1.5 backdrop-blur-sm">
                   <span
-                    className="mb-2 font-mono text-sm font-semibold tracking-[0.15em]"
+                    className="font-mono text-[11px] font-semibold tracking-[0.12em]"
                     style={{ color: stageColors[activeStage] }}
                   >
                     {pipelineStages.find((s) => s.id === activeStage)?.label}
                   </span>
-                  <span className="max-w-md text-center font-mono text-[11px] leading-relaxed text-white/25">
-                    {stageDescriptions[activeStage]}
-                  </span>
-                </motion.div>
-              </AnimatePresence>
+                </div>
+                <span className="rounded-md bg-black/60 px-3 py-1.5 font-mono text-[10px] leading-relaxed text-white/40 backdrop-blur-sm">
+                  {stageDescriptions[activeStage]}
+                </span>
+              </div>
             </div>
           </div>
 

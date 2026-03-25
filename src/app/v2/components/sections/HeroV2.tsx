@@ -92,42 +92,43 @@ function useTextScramble(text: string, delay = 0, duration = 1200) {
 // Mosaic tile configuration
 // ---------------------------------------------------------------------------
 
-type TileOverlay = "none" | "depth" | "segmentation" | "bbox";
+type TileOverlay = "none" | "bbox";
 
 interface MosaicTile {
-  /** Video file index (01-24) */
-  videoIndex: number;
+  /** Video filename (relative to /videos/mosaic/) */
+  videoFile: string;
   /** Label text shown in corner */
   label: string;
   /** Badge background color */
   badgeColor: string;
   /** Badge text color */
   badgeTextColor: string;
-  /** Overlay type for annotation simulation */
+  /** Overlay type — "bbox" adds CSS rectangles, "none" is clean */
   overlay: TileOverlay;
 }
 
 // 12 tiles: desktop shows all 12 (4x3), tablet shows 9 (3x3), mobile shows 6 (2x3)
+// Mix: 3 raw egocentric, 2 bbox, 2 depth, 1 segmentation, 1 game, 1 driving, 1 teleop, 1 raw other
 const MOSAIC_TILES: MosaicTile[] = [
-  // Row 1
-  { videoIndex: 1,  label: "EGOCENTRIC",   badgeColor: "#92B090",                badgeTextColor: "#0a0908", overlay: "none" },
-  { videoIndex: 5,  label: "DEPTH MAP",    badgeColor: "#4A9EDE",                badgeTextColor: "#ffffff", overlay: "depth" },
-  { videoIndex: 9,  label: "RAW",          badgeColor: "rgba(255,255,255,0.40)", badgeTextColor: "#0a0908", overlay: "none" },
-  { videoIndex: 13, label: "SEGMENTATION", badgeColor: "#9E6ADE",                badgeTextColor: "#ffffff", overlay: "segmentation" },
-  // Row 2
-  { videoIndex: 2,  label: "BBOX",         badgeColor: "#DE8A4A",                badgeTextColor: "#ffffff", overlay: "bbox" },
-  { videoIndex: 6,  label: "GAME ENV",     badgeColor: "#92B090",                badgeTextColor: "#0a0908", overlay: "none" },
-  { videoIndex: 10, label: "DEPTH MAP",    badgeColor: "#4A9EDE",                badgeTextColor: "#ffffff", overlay: "depth" },
-  { videoIndex: 14, label: "RAW",          badgeColor: "rgba(255,255,255,0.40)", badgeTextColor: "#0a0908", overlay: "none" },
-  // Row 3
-  { videoIndex: 3,  label: "SEGMENTATION", badgeColor: "#9E6ADE",                badgeTextColor: "#ffffff", overlay: "segmentation" },
-  { videoIndex: 7,  label: "RAW",          badgeColor: "rgba(255,255,255,0.40)", badgeTextColor: "#0a0908", overlay: "none" },
-  { videoIndex: 11, label: "BBOX",         badgeColor: "#DE8A4A",                badgeTextColor: "#ffffff", overlay: "bbox" },
-  { videoIndex: 15, label: "EGOCENTRIC",   badgeColor: "#92B090",                badgeTextColor: "#0a0908", overlay: "none" },
+  // Row 1 — lead with variety
+  { videoFile: "mosaic-01.mp4",          label: "EGOCENTRIC",   badgeColor: "#92B090",                badgeTextColor: "#0a0908", overlay: "none" },
+  { videoFile: "annotated-depth-01.mp4", label: "DEPTH MAP",    badgeColor: "#4A9EDE",                badgeTextColor: "#ffffff", overlay: "none" },
+  { videoFile: "mosaic-driving.mp4",     label: "DRIVING",      badgeColor: "rgba(255,255,255,0.40)", badgeTextColor: "#0a0908", overlay: "none" },
+  { videoFile: "annotated-seg-01.mp4",   label: "SEGMENTATION", badgeColor: "#9E6ADE",                badgeTextColor: "#ffffff", overlay: "none" },
+  // Row 2 — annotated + diverse sources
+  { videoFile: "annotated-bbox-01.mp4",  label: "BBOX",         badgeColor: "#DE8A4A",                badgeTextColor: "#ffffff", overlay: "none" },
+  { videoFile: "mosaic-game-env.mp4",    label: "GAME ENV",     badgeColor: "#92B090",                badgeTextColor: "#0a0908", overlay: "none" },
+  { videoFile: "annotated-depth-02.mp4", label: "DEPTH MAP",    badgeColor: "#4A9EDE",                badgeTextColor: "#ffffff", overlay: "none" },
+  { videoFile: "mosaic-20.mp4",          label: "RAW",          badgeColor: "rgba(255,255,255,0.40)", badgeTextColor: "#0a0908", overlay: "none" },
+  // Row 3 — more variety
+  { videoFile: "mosaic-12.mp4",          label: "EGOCENTRIC",   badgeColor: "#92B090",                badgeTextColor: "#0a0908", overlay: "none" },
+  { videoFile: "mosaic-teleop.mp4",      label: "TELEOP",       badgeColor: "#92B090",                badgeTextColor: "#0a0908", overlay: "none" },
+  { videoFile: "annotated-bbox-02.mp4",  label: "BBOX",         badgeColor: "#DE8A4A",                badgeTextColor: "#ffffff", overlay: "none" },
+  { videoFile: "mosaic-24.mp4",          label: "EGOCENTRIC",   badgeColor: "#92B090",                badgeTextColor: "#0a0908", overlay: "none" },
 ];
 
-function videoSrc(index: number): string {
-  return `/videos/mosaic/mosaic-${String(index).padStart(2, "0")}.mp4`;
+function videoSrc(file: string): string {
+  return `/videos/mosaic/${file}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -187,16 +188,10 @@ function MosaicVideoTile({
         preload="metadata"
         className="block h-full w-full object-cover"
       >
-        <source src={videoSrc(tile.videoIndex)} type="video/mp4" />
+        <source src={videoSrc(tile.videoFile)} type="video/mp4" />
       </video>
 
-      {/* Overlay tints */}
-      {tile.overlay === "depth" && (
-        <div className="pointer-events-none absolute inset-0 bg-[#4A9EDE]/30 mix-blend-multiply" />
-      )}
-      {tile.overlay === "segmentation" && (
-        <div className="pointer-events-none absolute inset-0 bg-[#9E6ADE]/20 mix-blend-multiply" />
-      )}
+      {/* CSS bbox overlay (only used when overlay === "bbox") */}
       {tile.overlay === "bbox" && <BBoxOverlay />}
 
       {/* Label badge */}
@@ -284,7 +279,7 @@ export default function HeroV2() {
           }
 
           return (
-            <div key={tile.videoIndex} className={`${visibilityClass} min-h-0`}>
+            <div key={tile.videoFile} className={`${visibilityClass} min-h-0`}>
               <MosaicVideoTile
                 tile={tile}
                 staggerDelay={staggerDelays.current[i]}
