@@ -3,16 +3,16 @@ import Header from "../components/layout/Header";
 import Footer from "../components/sections/Footer";
 
 export const metadata: Metadata = {
-  title: "Master Services Agreement - Claru",
+  title: "Annotator Master Services Agreement - Claru",
   description:
-    "Master Services Agreement for annotators and service providers on the Claru AI platform by Reka AI, Inc. (d/b/a Claru AI).",
+    "Annotator Master Services Agreement for annotators and service providers on the Claru AI platform by Reka AI, Inc. (d/b/a Claru AI).",
   alternates: {
     canonical: "/annotator-agreement",
   },
   openGraph: {
-    title: "Master Services Agreement - Claru",
+    title: "Annotator Master Services Agreement - Claru",
     description:
-      "Master Services Agreement for annotators and service providers on the Claru AI platform.",
+      "Annotator Master Services Agreement for annotators and service providers on the Claru AI platform.",
     type: "website",
   },
 };
@@ -27,7 +27,7 @@ export default function MasterServicesAgreement() {
         <div className="container">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-4xl font-bold mb-4">
-            Master Services Agreement
+            Annotator Master Services Agreement
           </h1>
           <p className="text-[var(--text-tertiary)] font-mono text-sm mb-2">
             Reka AI, Inc. (d/b/a Claru AI)
@@ -51,7 +51,7 @@ export default function MasterServicesAgreement() {
             {/* Preamble */}
             <section>
               <p className="text-[var(--text-secondary)] leading-relaxed">
-                This Master Services Agreement (&ldquo;Agreement&rdquo;) is
+                This Annotator Master Services Agreement (&ldquo;Agreement&rdquo;) is
                 entered into as of the date you click &ldquo;I Accept&rdquo; or
                 first access any of Customer&apos;s platforms, whichever occurs
                 first (&ldquo;Effective Date&rdquo;), by and between Reka AI
