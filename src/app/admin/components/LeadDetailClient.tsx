@@ -4,7 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import LeadStatusBadge from "@/app/components/ui/LeadStatusBadge";
-import type { Lead, LeadStatus, Dataset, LeadDatasetAccess, DatasetSample } from "@/types/data-catalog";
+import type { Lead, LeadStatus, Dataset, LeadDatasetAccess } from "@/types/data-catalog";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -18,8 +18,20 @@ interface GrantWithDataset extends LeadDatasetAccess {
   datasets: DatasetWithCategory | null;
 }
 
-interface CustomSampleWithDataset extends DatasetSample {
+/** Flattened clip + dataset_clip data for custom samples display. */
+interface CustomSampleWithDataset {
+  id: string;
+  dataset_id: string;
+  dataset_clip_id: string;
+  lead_id: string | null;
+  added_by: string | null;
+  note: string | null;
+  created_at: string;
+  filename: string | null;
+  s3_object_key: string | null;
+  s3_key: string | null;
   datasets?: { name: string } | null;
+  [key: string]: unknown;
 }
 
 interface LeadDetailClientProps {
@@ -1000,7 +1012,7 @@ export default function LeadDetailClient({
                       </td>
                       <td
                         className="px-4 py-2 text-[var(--text-muted)] max-w-[250px] truncate"
-                        title={sample.s3_object_key ?? sample.filename}
+                        title={sample.s3_object_key ?? sample.filename ?? undefined}
                       >
                         {keyDisplay}
                       </td>
