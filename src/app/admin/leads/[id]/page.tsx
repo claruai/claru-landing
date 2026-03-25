@@ -43,12 +43,38 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
     .eq("is_published", true)
     .order("name");
 
-  // Fetch custom samples added specifically for this lead
-  const { data: customSamples } = await supabase
-    .from("dataset_samples")
-    .select("*, datasets(name)")
+  // Fetch custom samples added specifically for this lead (via dataset_clips + clips)
+  const { data: customSamplesRaw } = await supabase
+    .from("dataset_clips")
+    .select("*, clips(*), datasets(name)")
     .eq("lead_id", id)
     .order("created_at", { ascending: false });
+
+  // Flatten: merge clip data with dataset_clip metadata for the UI
+  const customSamples = (customSamplesRaw ?? [])
+    .filter((dc: Record<string, unknown>) => dc.clips != null)
+    .map((dc: Record<string, unknown>) => {
+      const clip = dc.clips as Record<string, unknown>;
+      return {
+        // Spread clip fields as the base (id, s3_key, filename, etc.)
+        ...clip,
+        // Map clip fields to legacy names the UI expects
+        s3_object_key: clip.s3_key as string | null,
+        // Overlay dataset_clip metadata
+        dataset_id: dc.dataset_id as string,
+        dataset_clip_id: dc.id as string,
+        lead_id: dc.lead_id as string | null,
+        added_by: dc.added_by as string | null,
+        note: dc.note as string | null,
+        created_at: dc.created_at as string,
+        // Ensure required clip fields are typed
+        id: clip.id as string,
+        filename: clip.filename as string | null,
+        s3_key: clip.s3_key as string | null,
+        // Nested dataset relation
+        datasets: dc.datasets as { name: string } | null,
+      };
+    });
 
   return (
     <div className="min-h-screen">

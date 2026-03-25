@@ -171,19 +171,25 @@ export async function POST(
 
   // ---- Duplicate detection (optional) ----
   const supabase = createSupabaseAdminClient();
+  const DEFAULT_BUCKET = "moonvalley-annotation-platform";
   let skipped = 0;
   let itemsToInsert = validItems;
 
   if (body.skip_duplicates) {
-    // Fetch all existing s3_object_keys for this dataset in one query
+    // Fetch all existing s3_keys for clips already linked to this dataset
+    // via dataset_clips JOIN clips
     const { data: existingRows } = await supabase
-      .from("dataset_samples")
-      .select("s3_object_key")
-      .eq("dataset_id", datasetId)
-      .not("s3_object_key", "is", null);
+      .from("dataset_clips")
+      .select("clips(s3_key)")
+      .eq("dataset_id", datasetId);
 
     const existingKeys = new Set(
-      (existingRows ?? []).map((r) => r.s3_object_key).filter(Boolean)
+      (existingRows ?? [])
+        .map((r) => {
+          const clip = r.clips as unknown as { s3_key: string } | null;
+          return clip?.s3_key;
+        })
+        .filter(Boolean)
     );
 
     itemsToInsert = [];
@@ -197,44 +203,42 @@ export async function POST(
     }
   }
 
-  // ---- Batch insert in chunks ----
+  // ---- Batch insert into clips + dataset_clips in chunks ----
   let inserted = 0;
 
   for (let offset = 0; offset < itemsToInsert.length; offset += CHUNK_SIZE) {
     const chunk = itemsToInsert.slice(offset, offset + CHUNK_SIZE);
 
-    // Step 1: Build rows with enrichment tech extraction
-    const rows = chunk.map(({ item }) => {
+    // Step 1: Build clip rows with enrichment tech extraction
+    const clipRows = chunk.map(({ item }) => {
       const techFields = extractTechMetadata(item.enrichment_json);
 
       return {
-        dataset_id: datasetId,
+        s3_bucket: DEFAULT_BUCKET,
+        s3_key: item.s3_object_key ?? item.media_url,
         filename: item.media_url.split("/").pop()?.split("?")[0] || "sample",
-        media_url: item.media_url,
-        storage_path: null,
         mime_type: resolveMimeType(item),
-        file_size_bytes: 0,
-        metadata_json: item.metadata_json ?? {},
-        enrichment_json: item.enrichment_json ?? {},
-        s3_object_key: item.s3_object_key ?? null,
-        s3_annotation_key: item.s3_annotation_key ?? null,
-        s3_specs_key: item.s3_specs_key ?? null,
-        duration_seconds: techFields.duration_seconds,
-        resolution_width: techFields.resolution_width,
-        resolution_height: techFields.resolution_height,
-        fps: techFields.fps,
+        ann_annotation_key: item.s3_annotation_key ?? null,
+        ann_specs_key: item.s3_specs_key ?? null,
+        ann_metadata: item.metadata_json ?? {},
+        ai_enrichment_json: item.enrichment_json ?? {},
+        tech_file_size_bytes: 0,
+        tech_duration_seconds: techFields.duration_seconds,
+        tech_resolution_width: techFields.resolution_width,
+        tech_resolution_height: techFields.resolution_height,
+        tech_fps: techFields.fps,
       };
     });
 
-    // Step 2: For rows still missing tech fields + having s3_annotation_key,
+    // Step 2: For rows still missing tech fields + having ann_annotation_key,
     // fetch annotation JSON from S3 and extract MediaInfo data
-    const needsS3Fetch = rows.filter(
+    const needsS3Fetch = clipRows.filter(
       (r) =>
-        r.s3_annotation_key &&
-        (r.duration_seconds == null ||
-          r.resolution_width == null ||
-          r.resolution_height == null ||
-          r.fps == null)
+        r.ann_annotation_key &&
+        (r.tech_duration_seconds == null ||
+          r.tech_resolution_width == null ||
+          r.tech_resolution_height == null ||
+          r.tech_fps == null)
     );
 
     if (needsS3Fetch.length > 0) {
@@ -243,7 +247,7 @@ export async function POST(
       for (let i = 0; i < needsS3Fetch.length; i += S3_CONCURRENCY) {
         const batch = needsS3Fetch.slice(i, i + S3_CONCURRENCY);
         const results = await Promise.allSettled(
-          batch.map((row) => fetchS3AnnotationTechMetadata(row.s3_annotation_key!))
+          batch.map((row) => fetchS3AnnotationTechMetadata(row.ann_annotation_key!))
         );
 
         for (let j = 0; j < batch.length; j++) {
@@ -253,35 +257,106 @@ export async function POST(
           const row = batch[j];
           const s3Tech = result.value;
           // Only fill fields not already populated by enrichment extraction
-          if (row.duration_seconds == null && s3Tech.duration_seconds != null) {
-            row.duration_seconds = s3Tech.duration_seconds;
+          if (row.tech_duration_seconds == null && s3Tech.duration_seconds != null) {
+            row.tech_duration_seconds = s3Tech.duration_seconds;
           }
-          if (row.resolution_width == null && s3Tech.resolution_width != null) {
-            row.resolution_width = s3Tech.resolution_width;
+          if (row.tech_resolution_width == null && s3Tech.resolution_width != null) {
+            row.tech_resolution_width = s3Tech.resolution_width;
           }
-          if (row.resolution_height == null && s3Tech.resolution_height != null) {
-            row.resolution_height = s3Tech.resolution_height;
+          if (row.tech_resolution_height == null && s3Tech.resolution_height != null) {
+            row.tech_resolution_height = s3Tech.resolution_height;
           }
-          if (row.fps == null && s3Tech.fps != null) {
-            row.fps = s3Tech.fps;
+          if (row.tech_fps == null && s3Tech.fps != null) {
+            row.tech_fps = s3Tech.fps;
           }
         }
       }
     }
 
-    const { data, error } = await supabase
-      .from("dataset_samples")
-      .insert(rows)
-      .select("id");
+    // Step 3: Upsert clips — check which already exist by (s3_bucket, s3_key)
+    const s3Keys = clipRows.map((r) => r.s3_key);
+    const { data: existingClips } = await supabase
+      .from("clips")
+      .select("id, s3_key")
+      .eq("s3_bucket", DEFAULT_BUCKET)
+      .in("s3_key", s3Keys);
 
-    if (error) {
-      console.error("[POST /api/admin/catalog/[id]/samples/bulk] chunk error", error);
-      for (const entry of chunk) {
-        errors.push({ index: entry.index, error: error.message });
+    const existingByKey = new Map(
+      (existingClips ?? []).map((c) => [c.s3_key, c.id])
+    );
+
+    // Separate into clips that need inserting vs already existing
+    const newClipRows = clipRows.filter((r) => !existingByKey.has(r.s3_key));
+    const clipIdByKey = new Map(existingByKey);
+
+    if (newClipRows.length > 0) {
+      const { data: insertedClips, error: clipError } = await supabase
+        .from("clips")
+        .insert(newClipRows)
+        .select("id, s3_key");
+
+      if (clipError) {
+        console.error("[POST /api/admin/catalog/[id]/samples/bulk] clip insert error", clipError);
+        for (const entry of chunk) {
+          errors.push({ index: entry.index, error: clipError.message });
+        }
+        continue; // Skip to next chunk
       }
-    } else {
-      inserted += data?.length ?? rows.length;
+
+      for (const clip of insertedClips ?? []) {
+        clipIdByKey.set(clip.s3_key, clip.id);
+      }
     }
+
+    // Step 4: Check which dataset_clips links already exist for this dataset
+    const allClipIds = clipRows
+      .map((r) => clipIdByKey.get(r.s3_key))
+      .filter(Boolean) as string[];
+
+    const { data: existingLinks } = await supabase
+      .from("dataset_clips")
+      .select("clip_id")
+      .eq("dataset_id", datasetId)
+      .in("clip_id", allClipIds);
+
+    const alreadyLinked = new Set(
+      (existingLinks ?? []).map((l) => l.clip_id)
+    );
+
+    // Build dataset_clips rows only for clips not already linked
+    const datasetClipRows = clipRows
+      .map((r) => {
+        const clipId = clipIdByKey.get(r.s3_key);
+        if (!clipId || alreadyLinked.has(clipId)) return null;
+        return {
+          dataset_id: datasetId,
+          clip_id: clipId,
+          is_showcase: true,
+          added_by: "admin",
+        };
+      })
+      .filter(Boolean) as Array<{
+        dataset_id: string;
+        clip_id: string;
+        is_showcase: boolean;
+        added_by: string;
+      }>;
+
+    if (datasetClipRows.length > 0) {
+      const { error: linkError } = await supabase
+        .from("dataset_clips")
+        .insert(datasetClipRows);
+
+      if (linkError) {
+        console.error("[POST /api/admin/catalog/[id]/samples/bulk] link error", linkError);
+        for (const entry of chunk) {
+          errors.push({ index: entry.index, error: linkError.message });
+        }
+        continue;
+      }
+    }
+
+    inserted += datasetClipRows.length;
   }
 
   return NextResponse.json({ inserted, skipped, errors }, { status: 201 });

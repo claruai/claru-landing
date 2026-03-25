@@ -78,7 +78,7 @@ async function getPortalData() {
       return sum + (ds?.total_samples ?? 0);
     }, 0);
 
-  // Count actual viewable samples (rows in dataset_samples for granted datasets)
+  // Count actual viewable clips (rows in dataset_clips for granted datasets)
   const grantedDatasetIds = (accessGrants ?? [])
     .map((g) => (g.datasets as unknown as Dataset | null)?.id)
     .filter(Boolean) as string[];
@@ -86,7 +86,7 @@ async function getPortalData() {
   let viewableSamples = 0;
   if (grantedDatasetIds.length > 0) {
     const { count } = await supabase
-      .from("dataset_samples")
+      .from("dataset_clips")
       .select("id", { count: "exact", head: true })
       .in("dataset_id", grantedDatasetIds);
     viewableSamples = count ?? 0;
