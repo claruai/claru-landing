@@ -743,3 +743,32 @@ h1, h2, h3, h4, h5, h6 {
   scrollbar-width: none;
 }
 
+/* ============================================
+   MARQUEE SCROLL ANIMATIONS
+   ============================================ */
+
+@keyframes marquee-scroll-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes marquee-scroll-right {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
+.animate-marquee-scroll-left {
+  animation: marquee-scroll-left 50s linear infinite;
+}
+
+.animate-marquee-scroll-right {
+  animation: marquee-scroll-right 50s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-scroll-left,
+  .animate-marquee-scroll-right {
+    animation: none;
+  }
+}
+

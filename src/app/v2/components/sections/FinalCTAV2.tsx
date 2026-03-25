@@ -34,24 +34,24 @@ export default function FinalCTAV2() {
             </span>
           </h2>
           <p className="mt-6 text-base text-white/40 md:text-lg">
-            Browse now or tell us what&apos;s missing.
+            Tell us what you&apos;re training. We&apos;ll scope the dataset.
           </p>
 
           {/* CTAs */}
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Link
-              href="/catalog"
-              className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-[var(--accent-primary)] px-10 py-4 text-[15px] font-semibold text-[#0a0908] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_40px_var(--accent-glow-strong)]"
-            >
-              <span className="relative z-10">Browse Catalog</span>
-              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-            </Link>
             <a
               href="#contact"
+              className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-[var(--accent-primary)] px-10 py-4 text-[15px] font-semibold text-[#0a0908] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_40px_var(--accent-glow-strong)]"
+            >
+              <span className="relative z-10">Talk to Our Team</span>
+              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+            </a>
+            <Link
+              href="/catalog"
               className="inline-flex items-center justify-center rounded-full border border-white/12 px-10 py-4 text-[15px] font-medium text-white/70 transition-all duration-300 hover:border-[var(--accent-primary)]/30 hover:bg-white/[0.03] hover:text-white"
             >
-              Request Custom
-            </a>
+              See the Catalog
+            </Link>
           </div>
         </motion.div>
 

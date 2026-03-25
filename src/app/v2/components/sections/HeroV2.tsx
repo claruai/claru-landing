@@ -18,6 +18,8 @@ const ContainedMatrixRain = dynamic(
   { ssr: false }
 );
 
+const VideoWall3D = dynamic(() => import("../ui/VideoWall3D"), { ssr: false });
+
 const ShaderOverlay = dynamic(
   () =>
     import("shaders/react").then((mod) => {
@@ -132,42 +134,43 @@ function useTextScramble(text: string, delay = 0, duration = 1200) {
 }
 
 // ---------------------------------------------------------------------------
-// Mosaic tile configuration
+// Mobile detection hook (< 768px = mobile, skip R3F)
+// ---------------------------------------------------------------------------
+
+function useIsMobile(): boolean {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  return isMobile;
+}
+
+// ---------------------------------------------------------------------------
+// Mosaic tile configuration (mobile fallback)
 // ---------------------------------------------------------------------------
 
 type TileOverlay = "none" | "bbox";
 
 interface MosaicTile {
-  /** Video filename (relative to /videos/mosaic/) */
   videoFile: string;
-  /** Label text shown in corner */
   label: string;
-  /** Badge background color */
   badgeColor: string;
-  /** Badge text color */
   badgeTextColor: string;
-  /** Overlay type -- "bbox" adds CSS rectangles, "none" is clean */
   overlay: TileOverlay;
 }
 
-// 12 tiles: desktop shows all 12 (4x3), tablet shows 9 (3x3), mobile shows 6 (2x3)
-// Mix: 3 raw egocentric, 2 bbox, 2 depth, 1 segmentation, 1 game, 1 driving, 1 teleop, 1 raw other
 const MOSAIC_TILES: MosaicTile[] = [
-  // Row 1 -- lead with variety
   { videoFile: "mosaic-01.mp4",          label: "EGOCENTRIC",   badgeColor: "#92B090",                badgeTextColor: "#0a0908", overlay: "none" },
   { videoFile: "annotated-depth-01.mp4", label: "DEPTH MAP",    badgeColor: "#4A9EDE",                badgeTextColor: "#ffffff", overlay: "none" },
   { videoFile: "mosaic-driving.mp4",     label: "DRIVING",      badgeColor: "rgba(255,255,255,0.40)", badgeTextColor: "#0a0908", overlay: "none" },
   { videoFile: "annotated-seg-01.mp4",   label: "SEGMENTATION", badgeColor: "#9E6ADE",                badgeTextColor: "#ffffff", overlay: "none" },
-  // Row 2 -- annotated + diverse sources
   { videoFile: "annotated-bbox-01.mp4",  label: "BBOX",         badgeColor: "#DE8A4A",                badgeTextColor: "#ffffff", overlay: "none" },
   { videoFile: "mosaic-game-env.mp4",    label: "GAME ENV",     badgeColor: "#92B090",                badgeTextColor: "#0a0908", overlay: "none" },
-  { videoFile: "annotated-depth-02.mp4", label: "DEPTH MAP",    badgeColor: "#4A9EDE",                badgeTextColor: "#ffffff", overlay: "none" },
-  { videoFile: "mosaic-20.mp4",          label: "RAW",          badgeColor: "rgba(255,255,255,0.40)", badgeTextColor: "#0a0908", overlay: "none" },
-  // Row 3 -- more variety
-  { videoFile: "mosaic-12.mp4",          label: "EGOCENTRIC",   badgeColor: "#92B090",                badgeTextColor: "#0a0908", overlay: "none" },
-  { videoFile: "mosaic-teleop.mp4",      label: "TELEOP",       badgeColor: "#92B090",                badgeTextColor: "#0a0908", overlay: "none" },
-  { videoFile: "annotated-bbox-02.mp4",  label: "BBOX",         badgeColor: "#DE8A4A",                badgeTextColor: "#ffffff", overlay: "none" },
-  { videoFile: "mosaic-24.mp4",          label: "EGOCENTRIC",   badgeColor: "#92B090",                badgeTextColor: "#0a0908", overlay: "none" },
 ];
 
 function videoSrc(file: string): string {
@@ -176,28 +179,21 @@ function videoSrc(file: string): string {
 
 // ---------------------------------------------------------------------------
 // Calculate tile brightness based on distance from grid center
-// Center tiles = 1.0, edge tiles = 0.4-0.6
 // ---------------------------------------------------------------------------
 
 function getTileBrightness(index: number, totalCols: number, totalRows: number): number {
   const col = index % totalCols;
   const row = Math.floor(index / totalCols);
-
-  // Normalize to 0-1 range
   const nx = totalCols > 1 ? col / (totalCols - 1) : 0.5;
   const ny = totalRows > 1 ? row / (totalRows - 1) : 0.5;
-
-  // Distance from center (0-1)
   const dx = nx - 0.5;
   const dy = ny - 0.5;
-  const dist = Math.sqrt(dx * dx + dy * dy) / 0.707; // normalize max diagonal to 1
-
-  // Center = 1.0, edges = 0.4
+  const dist = Math.sqrt(dx * dx + dy * dy) / 0.707;
   return 1.0 - dist * 0.6;
 }
 
 // ---------------------------------------------------------------------------
-// Bounding-box overlay (CSS-only rectangles)
+// Bounding-box overlay (CSS-only)
 // ---------------------------------------------------------------------------
 
 function BBoxOverlay() {
@@ -212,7 +208,7 @@ function BBoxOverlay() {
 }
 
 // ---------------------------------------------------------------------------
-// Single mosaic tile component
+// Single mosaic tile component (mobile fallback)
 // ---------------------------------------------------------------------------
 
 interface MosaicVideoTileProps {
@@ -236,9 +232,7 @@ function MosaicVideoTile({
     if (!video) return;
 
     const timeout = setTimeout(() => {
-      video.play().catch(() => {
-        // Autoplay may be blocked -- degrade silently to poster frame
-      });
+      video.play().catch(() => {});
     }, staggerDelay);
 
     return () => clearTimeout(timeout);
@@ -249,7 +243,6 @@ function MosaicVideoTile({
       className="relative h-full w-full overflow-hidden bg-[#0a0908]"
       style={{ opacity: brightness }}
     >
-      {/* Video element */}
       <video
         ref={videoRef}
         muted
@@ -260,11 +253,7 @@ function MosaicVideoTile({
       >
         <source src={videoSrc(tile.videoFile)} type="video/mp4" />
       </video>
-
-      {/* CSS bbox overlay (only used when overlay === "bbox") */}
       {tile.overlay === "bbox" && <BBoxOverlay />}
-
-      {/* Label badge */}
       <span
         className="absolute bottom-1.5 left-1.5 rounded px-1.5 py-0.5 font-mono text-[9px] font-semibold uppercase leading-none tracking-wider md:bottom-2 md:left-2 md:text-[10px]"
         style={{
@@ -279,7 +268,7 @@ function MosaicVideoTile({
 }
 
 // ---------------------------------------------------------------------------
-// Mosaic grid CSS (injected once)
+// Mosaic grid CSS (mobile fallback only)
 // ---------------------------------------------------------------------------
 
 const MOSAIC_GRID_STYLES = `
@@ -292,45 +281,7 @@ const MOSAIC_GRID_STYLES = `
     height: 100%;
     background: rgba(146, 176, 144, 0.1);
   }
-  @media (min-width: 768px) {
-    .hero-mosaic-grid-v2 {
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(3, 1fr);
-    }
-  }
-  @media (min-width: 1024px) {
-    .hero-mosaic-grid-v2 {
-      grid-template-columns: repeat(4, 1fr);
-      grid-template-rows: repeat(3, 1fr);
-    }
-  }
 `;
-
-// ---------------------------------------------------------------------------
-// Determine grid dimensions for brightness calculation
-// ---------------------------------------------------------------------------
-
-function useGridDimensions(): { cols: number; rows: number } {
-  const [dims, setDims] = useState({ cols: 4, rows: 3 });
-
-  useEffect(() => {
-    const update = () => {
-      const w = window.innerWidth;
-      if (w >= 1024) {
-        setDims({ cols: 4, rows: 3 });
-      } else if (w >= 768) {
-        setDims({ cols: 3, rows: 3 });
-      } else {
-        setDims({ cols: 2, rows: 3 });
-      }
-    };
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
-
-  return dims;
-}
 
 // ---------------------------------------------------------------------------
 // Hero component
@@ -338,23 +289,26 @@ function useGridDimensions(): { cols: number; rows: number } {
 
 export default function HeroV2() {
   const reducedMotion = useReducedMotion();
+  const isMobile = useIsMobile();
   const gridContainerRef = useRef<HTMLDivElement>(null);
-  const gridDims = useGridDimensions();
   const headline = useTextScramble(
     "The training data catalog for physical AI.",
     300,
     1400
   );
 
-  // Stable stagger delays: each tile gets 0-2000ms random offset
+  // Whether to show the R3F 3D wall (desktop + motion OK)
+  const show3D = !isMobile && !reducedMotion;
+
+  // Stable stagger delays for mobile fallback tiles
   const staggerDelays = useRef<number[]>(
     MOSAIC_TILES.map(() => Math.random() * 2000)
   );
 
-  // GSAP floating animation on the grid container
+  // GSAP floating animation on the mobile grid container
   useGSAP(
     () => {
-      if (reducedMotion || !gridContainerRef.current) return;
+      if (reducedMotion || show3D || !gridContainerRef.current) return;
 
       gsap.to(gridContainerRef.current, {
         y: 8,
@@ -364,7 +318,7 @@ export default function HeroV2() {
         repeat: -1,
       });
     },
-    { dependencies: [reducedMotion] }
+    { dependencies: [reducedMotion, show3D] }
   );
 
   return (
@@ -372,8 +326,10 @@ export default function HeroV2() {
       id="hero"
       className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0a0908]"
     >
-      {/* Injected grid styles */}
-      <style dangerouslySetInnerHTML={{ __html: MOSAIC_GRID_STYLES }} />
+      {/* Injected grid styles (mobile fallback) */}
+      {!show3D && (
+        <style dangerouslySetInnerHTML={{ __html: MOSAIC_GRID_STYLES }} />
+      )}
 
       {/* ================================================================= */}
       {/* Layer 1: ASCII / Matrix Rain background (behind everything)       */}
@@ -385,13 +341,13 @@ export default function HeroV2() {
       )}
 
       {/* ================================================================= */}
-      {/* Layer 2: Contained mosaic grid (centered, ~60-65% viewport width) */}
+      {/* Layer 2: Video wall -- 3D (desktop) or CSS grid (mobile)          */}
       {/* ================================================================= */}
       <div
         className="absolute inset-0 flex items-center justify-center"
-        style={{ zIndex: 1, perspective: "1000px" }}
+        style={{ zIndex: 1, perspective: show3D ? undefined : "1000px" }}
       >
-        {/* Sage green glow behind the grid */}
+        {/* Sage green glow behind the grid/canvas */}
         <div
           className="absolute"
           style={{
@@ -403,72 +359,66 @@ export default function HeroV2() {
           }}
         />
 
-        {/* The floating grid container */}
-        <div
-          ref={gridContainerRef}
-          className="relative"
-          style={{
-            width: "clamp(320px, 62vw, 1100px)",
-            height: "clamp(240px, 42vh, 520px)",
-            transform: reducedMotion ? "none" : "rotateX(2deg)",
-            boxShadow: "0 0 120px 40px rgba(146, 176, 144, 0.06)",
-          }}
-        >
-          {/* Radial fade mask on the grid */}
+        {show3D ? (
+          /* ---- R3F 3D Video Wall (desktop) ---- */
           <div
-            className="h-full w-full overflow-hidden rounded-sm"
+            className="absolute inset-0"
             style={{
               maskImage:
-                "radial-gradient(ellipse 70% 80% at center, black 30%, transparent 75%)",
+                "radial-gradient(ellipse 65% 75% at center, black 25%, transparent 72%)",
               WebkitMaskImage:
-                "radial-gradient(ellipse 70% 80% at center, black 30%, transparent 75%)",
+                "radial-gradient(ellipse 65% 75% at center, black 25%, transparent 72%)",
             }}
           >
-            {/* Mosaic video grid */}
-            <div className="hero-mosaic-grid-v2">
-              {MOSAIC_TILES.map((tile, i) => {
-                // Mobile: show first 6 (2x3)
-                // Tablet: show first 9 (3x3)
-                // Desktop: show all 12 (4x3)
-                let visibilityClass = "";
-                if (i >= 9) {
-                  visibilityClass = "hidden lg:block";
-                } else if (i >= 6) {
-                  visibilityClass = "hidden md:block";
-                }
-
-                const brightness = getTileBrightness(
-                  i,
-                  gridDims.cols,
-                  gridDims.rows
-                );
-
-                return (
-                  <div
-                    key={tile.videoFile}
-                    className={`${visibilityClass} min-h-0`}
-                  >
-                    <MosaicVideoTile
-                      tile={tile}
-                      staggerDelay={staggerDelays.current[i]}
-                      reducedMotion={reducedMotion}
-                      brightness={brightness}
-                    />
-                  </div>
-                );
-              })}
-            </div>
+            <VideoWall3D />
           </div>
-
-          {/* CRT/Scanline shader overlay on top of the grid */}
-          {!reducedMotion && (
-            <div className="pointer-events-none absolute inset-0">
-              <ShaderOverlay />
+        ) : (
+          /* ---- CSS Grid Mosaic (mobile / reduced-motion fallback) ---- */
+          <div
+            ref={gridContainerRef}
+            className="relative"
+            style={{
+              width: "clamp(320px, 62vw, 1100px)",
+              height: "clamp(240px, 42vh, 520px)",
+              transform: reducedMotion ? "none" : "rotateX(2deg)",
+              boxShadow: "0 0 120px 40px rgba(146, 176, 144, 0.06)",
+            }}
+          >
+            <div
+              className="h-full w-full overflow-hidden rounded-sm"
+              style={{
+                maskImage:
+                  "radial-gradient(ellipse 70% 80% at center, black 30%, transparent 75%)",
+                WebkitMaskImage:
+                  "radial-gradient(ellipse 70% 80% at center, black 30%, transparent 75%)",
+              }}
+            >
+              <div className="hero-mosaic-grid-v2">
+                {MOSAIC_TILES.map((tile, i) => {
+                  const brightness = getTileBrightness(i, 2, 3);
+                  return (
+                    <div key={tile.videoFile} className="min-h-0">
+                      <MosaicVideoTile
+                        tile={tile}
+                        staggerDelay={staggerDelays.current[i]}
+                        reducedMotion={reducedMotion}
+                        brightness={brightness}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          )}
-        </div>
 
-        {/* Floor reflection glow below the grid */}
+            {!reducedMotion && (
+              <div className="pointer-events-none absolute inset-0">
+                <ShaderOverlay />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Floor reflection glow below */}
         <div
           className="absolute"
           style={{
@@ -596,19 +546,19 @@ export default function HeroV2() {
             ease: [0.16, 1, 0.3, 1],
           }}
         >
-          <Link
-            href="/catalog"
-            className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-[var(--accent-primary)] px-10 py-4 text-[15px] font-semibold text-[#0a0908] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_40px_var(--accent-glow-strong)]"
-          >
-            <span className="relative z-10">Browse the Catalog</span>
-            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-          </Link>
           <a
             href="#contact"
+            className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-[var(--accent-primary)] px-10 py-4 text-[15px] font-semibold text-[#0a0908] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_40px_var(--accent-glow-strong)]"
+          >
+            <span className="relative z-10">Book a Call</span>
+            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+          </a>
+          <Link
+            href="/catalog"
             className="inline-flex items-center justify-center rounded-full border border-white/12 px-10 py-4 text-[15px] font-medium text-white/70 backdrop-blur-sm transition-all duration-300 hover:border-[var(--accent-primary)]/30 hover:bg-white/[0.03] hover:text-white"
           >
-            Request Custom Collection
-          </a>
+            Explore the Catalog
+          </Link>
         </motion.div>
 
         {/* Scroll indicator */}

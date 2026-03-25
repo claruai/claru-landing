@@ -1,86 +1,402 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useRef } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { useGSAP } from "@gsap/react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { motion } from "framer-motion";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 
-const stageImages: Record<string, string> = {
-  raw: "/images/slider/raw.webp",
-  depth: "/images/slider/depth.png",
-  pose: "/images/slider/pose.png",
-  seg: "/images/slider/seg.png",
-  all: "/images/slider/all.webp",
-};
-
-const pipelineStages = [
-  { id: "raw", label: "RAW", range: [0, 20] },
-  { id: "depth", label: "DEPTH", range: [20, 40] },
-  { id: "pose", label: "POSE", range: [40, 60] },
-  { id: "seg", label: "SEGMENTATION", range: [60, 80] },
-  { id: "all", label: "ALL + CAPTION", range: [80, 100] },
-] as const;
-
-const stageColors: Record<string, string> = {
-  raw: "#e8e8e8",
-  depth: "#4A9EDE",
-  pose: "#DE8A4A",
-  seg: "#9E6ADE",
-  all: "var(--accent-primary)",
-};
-
-const stageDescriptions: Record<string, string> = {
-  raw: "Input video frame — unprocessed source footage",
-  depth: "MiDaS v3.1 depth estimation — per-pixel distance map",
-  pose: "MediaPipe Holistic — 33 body + 21 hand landmarks per frame",
-  seg: "SAM 2 segmentation — instance-level masks with tracking",
-  all: "Combined enrichment layers + auto-generated captions",
-};
-
-function getActiveStage(value: number) {
-  for (const stage of pipelineStages) {
-    if (value >= stage.range[0] && value < stage.range[1]) return stage.id;
-  }
-  return "all";
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
 }
 
-export default function EnrichmentPipeline() {
-  const reducedMotion = useReducedMotion();
-  const [sliderValue, setSliderValue] = useState(reducedMotion ? 100 : 0);
-  const [isLoaded] = useState(true);
-  const sliderRef = useRef<HTMLInputElement>(null);
+/* -------------------------------------------------------------------------- */
+/*  Data                                                                      */
+/* -------------------------------------------------------------------------- */
 
-  const activeStage = getActiveStage(sliderValue);
+interface PipelineStep {
+  id: string;
+  label: string;
+  comment: string;
+  description: string;
+  color: string;
+}
 
-  const handleSliderChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSliderValue(Number(e.target.value));
-    },
-    []
+const steps: PipelineStep[] = [
+  {
+    id: "raw",
+    label: "RAW CAPTURE",
+    comment: "// RAW CAPTURE",
+    description: "Every clip starts as raw footage.",
+    color: "#e8e8e8",
+  },
+  {
+    id: "depth",
+    label: "DEPTH",
+    comment: "// DEPTH",
+    description: "We add per-pixel depth estimation.",
+    color: "#4A9EDE",
+  },
+  {
+    id: "pose",
+    label: "POSE",
+    comment: "// POSE",
+    description: "Hand and body pose tracking on every frame.",
+    color: "#DE8A4A",
+  },
+  {
+    id: "seg",
+    label: "SEGMENTATION",
+    comment: "// SEGMENTATION",
+    description: "Instance segmentation identifies every object.",
+    color: "#9E6ADE",
+  },
+  {
+    id: "all",
+    label: "ENRICHED",
+    comment: "// ENRICHED",
+    description: "Rich metadata and annotation on every clip in your dataset.",
+    color: "var(--accent-primary)",
+  },
+];
+
+/* -------------------------------------------------------------------------- */
+/*  Metadata panel content                                                    */
+/* -------------------------------------------------------------------------- */
+
+function MetadataPanel({ className }: { className?: string }) {
+  return (
+    <div
+      className={`rounded-xl border border-white/[0.08] bg-[#121110] p-4 font-mono text-xs ${className ?? ""}`}
+    >
+      <div className="mb-2 text-[var(--accent-primary)]">// METADATA</div>
+      <div className="space-y-1 text-white/60">
+        <div>clip_id: ego-kitchen-0847</div>
+        <div>timestamp: 2026-03-15T14:23:07Z</div>
+        <div>camera: GoPro Hero 12 @ 4K/60fps</div>
+        <div>sensor_data: IMU + depth_sensor</div>
+        <div>annotations: depth, pose, segmentation</div>
+        <div>annotator_agreement: 97.3%</div>
+      </div>
+    </div>
   );
+}
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      const step = 5;
-      if (e.key === "ArrowRight" || e.key === "ArrowUp") {
-        setSliderValue((v) => Math.min(100, v + step));
-      } else if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
-        setSliderValue((v) => Math.max(0, v - step));
-      }
+/* -------------------------------------------------------------------------- */
+/*  Mobile fallback (vertical stack)                                          */
+/* -------------------------------------------------------------------------- */
+
+function MobileFallback() {
+  const reducedMotion = useReducedMotion();
+
+  const mobileSteps = [
+    { step: steps[0], src: "/images/slider/raw.webp" },
+    { step: steps[1], src: "/images/slider/depth.png" },
+    { step: steps[2], src: "/images/slider/pose.png" },
+    { step: steps[3], src: "/images/slider/seg.png" },
+    { step: steps[4], src: "/images/slider/all.webp" },
+  ];
+
+  return (
+    <div className="space-y-16">
+      {mobileSteps.map(({ step, src }, i) => (
+        <motion.div
+          key={step.id}
+          initial={reducedMotion ? {} : { opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{
+            duration: 0.6,
+            delay: 0.1,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+        >
+          {/* Step label */}
+          <div className="mb-3 flex items-center gap-3">
+            <span
+              className="font-mono text-[11px] font-semibold tracking-[0.15em]"
+              style={{ color: step.color }}
+            >
+              {step.comment}
+            </span>
+            <div className="flex items-center gap-1.5">
+              {Array.from({ length: 5 }).map((_, di) => (
+                <div
+                  key={di}
+                  className="h-1.5 w-1.5 rounded-full"
+                  style={{
+                    backgroundColor:
+                      di <= i
+                        ? steps[di].color
+                        : "rgba(255,255,255,0.12)",
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Frame viewer */}
+          <div className="v2-scanline relative overflow-hidden rounded-2xl border border-white/[0.06]">
+            {/* Terminal chrome */}
+            <div
+              className="flex items-center justify-between border-b border-white/[0.06] px-4 py-2.5"
+              style={{
+                background:
+                  "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)",
+              }}
+            >
+              <div className="flex items-center gap-1.5">
+                <div className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]/80" />
+                <div className="h-2.5 w-2.5 rounded-full bg-[#febc2e]/80" />
+                <div className="h-2.5 w-2.5 rounded-full bg-[#28c840]/80" />
+              </div>
+              <span
+                className="font-mono text-[10px] font-medium"
+                style={{ color: step.color }}
+              >
+                {step.label}
+              </span>
+            </div>
+
+            <div className="relative aspect-video bg-[#0a0908]">
+              <Image
+                src={src}
+                alt={step.description}
+                fill
+                className="object-cover"
+                sizes="100vw"
+              />
+            </div>
+          </div>
+
+          {/* Description */}
+          <p className="mt-4 text-sm leading-relaxed text-white/70">
+            {step.description}
+          </p>
+
+          {/* Metadata panel on last step */}
+          {i === mobileSteps.length - 1 && (
+            <MetadataPanel className="mt-4" />
+          )}
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Reduced-motion fallback (static final frame)                              */
+/* -------------------------------------------------------------------------- */
+
+function ReducedMotionFallback() {
+  return (
+    <div className="mx-auto max-w-4xl">
+      <div className="v2-scanline relative overflow-hidden rounded-2xl border border-white/[0.06] shadow-[0_8px_40px_rgba(0,0,0,0.5)]">
+        {/* Terminal chrome */}
+        <div
+          className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)",
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <div className="h-3 w-3 rounded-full bg-[#ff5f57]/80" />
+            <div className="h-3 w-3 rounded-full bg-[#febc2e]/80" />
+            <div className="h-3 w-3 rounded-full bg-[#28c840]/80" />
+          </div>
+          <span className="font-mono text-[11px] tracking-wider text-white/25">
+            enrichment-pipeline v2.4.1
+          </span>
+          <span className="font-mono text-[11px] font-medium text-[var(--accent-primary)]">
+            ENRICHED
+          </span>
+        </div>
+
+        <div className="relative aspect-video bg-[#0a0908]">
+          <Image
+            src="/images/slider/all.webp"
+            alt="Fully enriched video frame with depth, pose, and segmentation layers"
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 800px"
+            priority
+          />
+        </div>
+      </div>
+
+      <p className="mt-6 text-center text-sm text-white/60">
+        Rich metadata and annotation on every clip in your dataset.
+      </p>
+      <MetadataPanel className="mx-auto mt-4 max-w-sm" />
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Desktop scroll-driven component                                           */
+/* -------------------------------------------------------------------------- */
+
+function DesktopScrollStory() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  // Layer refs
+  const depthRef = useRef<HTMLDivElement>(null);
+  const poseRef = useRef<HTMLDivElement>(null);
+  const segRef = useRef<HTMLDivElement>(null);
+  const allRef = useRef<HTMLDivElement>(null);
+  const metaRef = useRef<HTMLDivElement>(null);
+
+  // Text refs
+  const commentRef = useRef<HTMLSpanElement>(null);
+  const descriptionRef = useRef<HTMLParagraphElement>(null);
+
+  // Progress dot refs
+  const dot0Ref = useRef<HTMLDivElement>(null);
+  const dot1Ref = useRef<HTMLDivElement>(null);
+  const dot2Ref = useRef<HTMLDivElement>(null);
+  const dot3Ref = useRef<HTMLDivElement>(null);
+  const dot4Ref = useRef<HTMLDivElement>(null);
+
+  // Terminal label ref
+  const termLabelRef = useRef<HTMLSpanElement>(null);
+
+  useGSAP(
+    () => {
+      if (!sectionRef.current) return;
+
+      const dotRefs = [dot0Ref, dot1Ref, dot2Ref, dot3Ref, dot4Ref];
+
+      // Helper to update text content
+      const setText = (stepIndex: number) => {
+        if (commentRef.current) {
+          commentRef.current.textContent = steps[stepIndex].comment;
+          commentRef.current.style.color = steps[stepIndex].color;
+        }
+        if (descriptionRef.current) {
+          descriptionRef.current.textContent = steps[stepIndex].description;
+        }
+        if (termLabelRef.current) {
+          termLabelRef.current.textContent = steps[stepIndex].label;
+          termLabelRef.current.style.color = steps[stepIndex].color;
+        }
+      };
+
+      // Helper to update dots
+      const setActiveDot = (activeIndex: number) => {
+        dotRefs.forEach((ref, i) => {
+          if (ref.current) {
+            const isActive = i === activeIndex;
+            const isPast = i <= activeIndex;
+            ref.current.style.backgroundColor = isPast
+              ? steps[i].color
+              : "rgba(255,255,255,0.12)";
+            ref.current.style.boxShadow = isActive
+              ? `0 0 8px ${steps[i].color}`
+              : "none";
+            ref.current.style.transform = isActive
+              ? "scale(1.4)"
+              : "scale(1)";
+          }
+        });
+      };
+
+      // Main pinned timeline
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top top",
+          end: "+=400%",
+          pin: true,
+          scrub: 1,
+          anticipatePin: 1,
+        },
+      });
+
+      // ---- Step 1: Raw (starting state) ----
+      // Text and dots are set to step 0 by default
+      // Hold for a beat so user sees the raw frame
+      tl.to({}, { duration: 0.5 });
+
+      // ---- Transition to Step 2: Depth ----
+      tl.call(() => {
+        setText(1);
+        setActiveDot(1);
+      });
+      tl.fromTo(
+        depthRef.current,
+        { opacity: 0, x: 40 },
+        { opacity: 0.65, x: 0, duration: 1, ease: "power2.out" },
+        "<"
+      );
+      // Hold at depth
+      tl.to({}, { duration: 0.4 });
+
+      // ---- Transition to Step 3: Pose ----
+      tl.call(() => {
+        setText(2);
+        setActiveDot(2);
+      });
+      tl.fromTo(
+        poseRef.current,
+        { opacity: 0, scale: 0.97 },
+        { opacity: 1, scale: 1, duration: 1, ease: "power2.out" },
+        "<"
+      );
+      // Hold at pose
+      tl.to({}, { duration: 0.4 });
+
+      // ---- Transition to Step 4: Segmentation ----
+      tl.call(() => {
+        setText(3);
+        setActiveDot(3);
+      });
+      tl.fromTo(
+        segRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
+        "<"
+      );
+      // Hold at segmentation
+      tl.to({}, { duration: 0.4 });
+
+      // ---- Transition to Step 5: All Enriched ----
+      tl.call(() => {
+        setText(4);
+        setActiveDot(4);
+      });
+      // Crossfade: fade out individual layers, fade in combined
+      tl.to(
+        [depthRef.current, poseRef.current, segRef.current],
+        { opacity: 0, duration: 0.6, ease: "power2.inOut" },
+        "<"
+      );
+      tl.fromTo(
+        allRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.8, ease: "power2.out" },
+        "<0.2"
+      );
+      // Slide in metadata panel
+      tl.fromTo(
+        metaRef.current,
+        { x: 60, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.8, ease: "power2.out" },
+        "<0.3"
+      );
+      // Hold at complete
+      tl.to({}, { duration: 0.6 });
     },
-    []
+    { scope: sectionRef }
   );
 
   return (
-    <section id="enrichment" className="relative bg-[var(--bg-primary)] py-32 md:py-40">
-      <div className="container mx-auto px-6">
-        <motion.div
-          className="mb-16"
-          initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        >
+    <div ref={sectionRef} className="relative min-h-screen">
+      <div className="flex min-h-screen flex-col items-center justify-center px-6 py-20">
+        {/* Section header */}
+        <div className="mb-10 w-full max-w-4xl">
           <div className="v2-section-label mb-6">
             <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-[var(--accent-primary)]">
               {"// ANNOTATION & ENRICHMENT"}
@@ -90,216 +406,234 @@ export default function EnrichmentPipeline() {
             Every clip gets depth, pose, and segmentation.{" "}
             <span className="text-white/40">Automatically.</span>
           </h2>
-        </motion.div>
+        </div>
 
-        {/* Pipeline nodes */}
-        <motion.div
-          className="mb-14 flex flex-wrap items-center justify-center gap-2 md:gap-0"
-          initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        >
-          {pipelineStages.map((stage, i) => {
-            const isActive = activeStage === stage.id;
-            const isPast = sliderValue >= stage.range[0];
-            return (
-              <div key={stage.id} className="flex items-center">
-                <button
-                  onClick={() => setSliderValue(stage.range[0])}
-                  className={`relative rounded-xl border px-5 py-3 font-mono text-xs transition-all duration-400 ${
-                    isActive
-                      ? "border-current bg-current/10 shadow-[0_0_24px_currentColor_/_0.12]"
-                      : isPast
-                        ? "border-[var(--border-medium)] bg-[var(--bg-card)] text-white/60 hover:bg-[var(--bg-card-hover)]"
-                        : "border-[var(--border-subtle)] bg-[var(--bg-card)] text-white/25 hover:text-white/40"
-                  }`}
-                  style={isActive ? { color: stageColors[activeStage] } : undefined}
-                >
-                  {isActive && (
-                    <span className="mr-1.5 inline-block animate-pulse">
-                      ▶
-                    </span>
-                  )}
-                  {stage.label}
-                  {isActive && (
-                    <span
-                      className="ml-2 animate-pulse text-[10px] opacity-60"
-                    >
-                      [PROCESSING...]
-                    </span>
-                  )}
-                </button>
-                {/* Connection line with gradient */}
-                {i < pipelineStages.length - 1 && (
-                  <div className="mx-1.5 hidden md:block">
-                    <svg className="h-[2px] w-12" viewBox="0 0 48 2">
-                      <line
-                        x1="0"
-                        y1="1"
-                        x2="48"
-                        y2="1"
-                        stroke={
-                          sliderValue >= pipelineStages[i + 1].range[0]
-                            ? stageColors[pipelineStages[i + 1].id] || "var(--accent-primary)"
-                            : "var(--border-subtle)"
-                        }
-                        strokeWidth="2"
-                        strokeDasharray="4 3"
-                        className="transition-all duration-400"
-                        style={{
-                          strokeDashoffset:
-                            sliderValue >= pipelineStages[i + 1].range[0]
-                              ? 0
-                              : 28,
-                          transition: "stroke-dashoffset 0.5s ease, stroke 0.4s ease",
-                        }}
-                      />
-                    </svg>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </motion.div>
-
-        {/* Video frame — premium terminal style */}
-        <motion.div
-          className="mx-auto max-w-3xl"
-          initial={reducedMotion ? {} : { opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <div className="v2-scanline relative overflow-hidden rounded-2xl border border-[var(--border-subtle)] shadow-[0_8px_40px_rgba(0,0,0,0.5)]" style={{ background: "linear-gradient(165deg, #121110 0%, #0e0d0c 100%)" }}>
-            {/* Terminal header */}
-            <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)" }}>
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-[#ff5f57]/80" />
-                <div className="h-3 w-3 rounded-full bg-[#febc2e]/80" />
-                <div className="h-3 w-3 rounded-full bg-[#28c840]/80" />
-              </div>
-              <span className="font-mono text-[11px] tracking-wider text-white/25">
-                enrichment-pipeline v2.4.1
+        {/* Main content area */}
+        <div className="flex w-full max-w-4xl items-start gap-6">
+          {/* Frame viewer */}
+          <div className="flex-1">
+            {/* Step comment label above frame */}
+            <div className="mb-3 flex items-center justify-between">
+              <span
+                ref={commentRef}
+                className="font-mono text-[11px] font-semibold tracking-[0.15em]"
+                style={{ color: steps[0].color }}
+              >
+                {steps[0].comment}
               </span>
-              <AnimatePresence mode="wait">
-                <motion.span
-                  key={activeStage}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="font-mono text-[11px] font-medium"
-                  style={{ color: stageColors[activeStage] }}
-                >
-                  {pipelineStages.find((s) => s.id === activeStage)?.label}
-                </motion.span>
-              </AnimatePresence>
+
+              {/* Progress dots */}
+              <div className="flex items-center gap-2">
+                {steps.map((step, i) => (
+                  <div
+                    key={step.id}
+                    ref={
+                      i === 0
+                        ? dot0Ref
+                        : i === 1
+                          ? dot1Ref
+                          : i === 2
+                            ? dot2Ref
+                            : i === 3
+                              ? dot3Ref
+                              : dot4Ref
+                    }
+                    className="h-2 w-2 rounded-full transition-[box-shadow] duration-300"
+                    style={{
+                      backgroundColor:
+                        i === 0 ? step.color : "rgba(255,255,255,0.12)",
+                      boxShadow:
+                        i === 0 ? `0 0 8px ${step.color}` : "none",
+                      transform: i === 0 ? "scale(1.4)" : "scale(1)",
+                    }}
+                  />
+                ))}
+              </div>
             </div>
 
-            {/* Content area — real enrichment images */}
-            <div className="relative aspect-video bg-[#0a0908]">
-              {!isLoaded && (
-                <div className="absolute inset-0 animate-pulse bg-[var(--bg-secondary)]" />
-              )}
-
-              {/* Base raw frame — always visible underneath */}
-              <Image
-                src="/images/slider/raw.webp"
-                alt="Raw video frame — person dicing carrots on a cutting board"
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 768px"
-                priority
-              />
-
-              {/* Overlay image for non-raw stages */}
-              <AnimatePresence mode="wait">
-                {activeStage !== "raw" && (
-                  <motion.div
-                    key={activeStage}
-                    initial={reducedMotion ? {} : { opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={reducedMotion ? {} : { opacity: 0 }}
-                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                    className="absolute inset-0"
-                  >
-                    <Image
-                      src={stageImages[activeStage]}
-                      alt={stageDescriptions[activeStage]}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 768px"
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Stage label overlay */}
-              <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between px-4 pb-3">
-                <div className="flex items-center gap-2 rounded-md bg-black/60 px-3 py-1.5 backdrop-blur-sm">
-                  <span
-                    className="font-mono text-[11px] font-semibold tracking-[0.12em]"
-                    style={{ color: stageColors[activeStage] }}
-                  >
-                    {pipelineStages.find((s) => s.id === activeStage)?.label}
-                  </span>
+            {/* Terminal frame */}
+            <div
+              className="v2-scanline relative overflow-hidden rounded-2xl border border-white/[0.06] shadow-[0_8px_40px_rgba(0,0,0,0.5)]"
+              style={{
+                background:
+                  "linear-gradient(165deg, #121110 0%, #0e0d0c 100%)",
+              }}
+            >
+              {/* Terminal chrome header */}
+              <div
+                className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3"
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)",
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full bg-[#ff5f57]/80" />
+                  <div className="h-3 w-3 rounded-full bg-[#febc2e]/80" />
+                  <div className="h-3 w-3 rounded-full bg-[#28c840]/80" />
                 </div>
-                <span className="rounded-md bg-black/60 px-3 py-1.5 font-mono text-[10px] leading-relaxed text-white/40 backdrop-blur-sm">
-                  {stageDescriptions[activeStage]}
+                <span className="font-mono text-[11px] tracking-wider text-white/25">
+                  enrichment-pipeline v2.4.1
+                </span>
+                <span
+                  ref={termLabelRef}
+                  className="font-mono text-[11px] font-medium"
+                  style={{ color: steps[0].color }}
+                >
+                  {steps[0].label}
                 </span>
               </div>
-            </div>
-          </div>
 
-          {/* Slider */}
-          <div className="mt-10 px-2">
-            <div className="relative py-4" style={{ minHeight: "64px" }}>
-              <input
-                ref={sliderRef}
-                type="range"
-                min={0}
-                max={100}
-                step={1}
-                value={sliderValue}
-                onChange={handleSliderChange}
-                onKeyDown={handleKeyDown}
-                aria-label="Enrichment pipeline progress"
-                aria-valuetext={`${pipelineStages.find((s) => s.id === activeStage)?.label} stage`}
-                className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
-                style={{ touchAction: "none" }}
-              />
-              {/* Visual track */}
-              <div className="pointer-events-none relative h-1.5 rounded-full bg-white/[0.06]">
-                {/* Color segments */}
-                <div
-                  className="h-full rounded-full transition-all duration-200"
-                  style={{
-                    width: `${sliderValue}%`,
-                    background: `linear-gradient(90deg, #e8e8e8 0%, #4A9EDE 25%, #DE8A4A 50%, #9E6ADE 75%, var(--accent-primary) 100%)`,
-                  }}
+              {/* Image viewport with stacked layers */}
+              <div className="relative aspect-video bg-[#0a0908]">
+                {/* Layer 0: Raw (always visible) */}
+                <Image
+                  src="/images/slider/raw.webp"
+                  alt="Raw video frame - person dicing carrots on a cutting board"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 800px"
+                  priority
                 />
-                {/* Thumb */}
+
+                {/* Layer 1: Depth */}
                 <div
-                  className="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 bg-[var(--bg-primary)] transition-all duration-200"
-                  style={{
-                    left: `${sliderValue}%`,
-                    borderColor: stageColors[activeStage],
-                    boxShadow: `0 0 16px ${stageColors[activeStage]}30`,
-                  }}
-                />
+                  ref={depthRef}
+                  className="absolute inset-0"
+                  style={{ opacity: 0 }}
+                >
+                  <Image
+                    src="/images/slider/depth.png"
+                    alt="Depth estimation overlay - per-pixel distance map"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 800px"
+                  />
+                </div>
+
+                {/* Layer 2: Pose */}
+                <div
+                  ref={poseRef}
+                  className="absolute inset-0"
+                  style={{ opacity: 0 }}
+                >
+                  <Image
+                    src="/images/slider/pose.png"
+                    alt="Pose detection overlay - skeleton joints and connections"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 800px"
+                  />
+                </div>
+
+                {/* Layer 3: Segmentation */}
+                <div
+                  ref={segRef}
+                  className="absolute inset-0"
+                  style={{ opacity: 0 }}
+                >
+                  <Image
+                    src="/images/slider/seg.png"
+                    alt="Instance segmentation overlay - colored object masks"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 800px"
+                  />
+                </div>
+
+                {/* Layer 4: All combined (for final step crossfade) */}
+                <div
+                  ref={allRef}
+                  className="absolute inset-0"
+                  style={{ opacity: 0 }}
+                >
+                  <Image
+                    src="/images/slider/all.webp"
+                    alt="Fully enriched frame with all annotation layers combined"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 800px"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="flex justify-between font-mono text-[10px] uppercase tracking-[0.15em] text-white/20">
-              <span>Raw</span>
-              <span style={{ color: sliderValue >= 20 ? "#4A9EDE" : undefined, opacity: sliderValue >= 20 ? 0.7 : 1 }}>Depth</span>
-              <span style={{ color: sliderValue >= 40 ? "#DE8A4A" : undefined, opacity: sliderValue >= 40 ? 0.7 : 1 }}>Pose</span>
-              <span style={{ color: sliderValue >= 60 ? "#9E6ADE" : undefined, opacity: sliderValue >= 60 ? 0.7 : 1 }}>Seg</span>
-              <span style={{ color: sliderValue >= 80 ? "var(--accent-primary)" : undefined, opacity: sliderValue >= 80 ? 0.7 : 1 }}>All</span>
+            {/* Description text below frame */}
+            <p
+              ref={descriptionRef}
+              className="mt-5 text-base leading-relaxed text-white/70"
+            >
+              {steps[0].description}
+            </p>
+          </div>
+
+          {/* Metadata panel (slides in on step 5) */}
+          <div
+            ref={metaRef}
+            className="w-64 shrink-0 pt-10"
+            style={{ opacity: 0 }}
+          >
+            <MetadataPanel />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Main export                                                               */
+/* -------------------------------------------------------------------------- */
+
+export default function EnrichmentPipeline() {
+  const reducedMotion = useReducedMotion();
+
+  return (
+    <section id="enrichment" className="relative bg-[var(--bg-primary)]">
+      {/* Reduced motion: static final frame, no scroll animation */}
+      {reducedMotion ? (
+        <div className="py-32 md:py-40">
+          <div className="container mx-auto px-6">
+            <div className="mb-10">
+              <div className="v2-section-label mb-6">
+                <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-[var(--accent-primary)]">
+                  {"// ANNOTATION & ENRICHMENT"}
+                </span>
+              </div>
+              <h2 className="max-w-lg text-3xl font-bold leading-[1.1] tracking-[-0.02em] text-white md:text-4xl lg:text-[42px]">
+                Every clip gets depth, pose, and segmentation.{" "}
+                <span className="text-white/40">Automatically.</span>
+              </h2>
+            </div>
+            <ReducedMotionFallback />
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Desktop: scroll-driven pinned parallax */}
+          <div className="hidden md:block">
+            <DesktopScrollStory />
+          </div>
+
+          {/* Mobile: vertical stack with scroll-triggered fade-in */}
+          <div className="block py-32 md:hidden">
+            <div className="container mx-auto px-6">
+              <div className="mb-12">
+                <div className="v2-section-label mb-6">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-[var(--accent-primary)]">
+                    {"// ANNOTATION & ENRICHMENT"}
+                  </span>
+                </div>
+                <h2 className="max-w-lg text-3xl font-bold leading-[1.1] tracking-[-0.02em] text-white md:text-4xl">
+                  Every clip gets depth, pose, and segmentation.{" "}
+                  <span className="text-white/40">Automatically.</span>
+                </h2>
+              </div>
+              <MobileFallback />
             </div>
           </div>
-        </motion.div>
-      </div>
+        </>
+      )}
     </section>
   );
 }

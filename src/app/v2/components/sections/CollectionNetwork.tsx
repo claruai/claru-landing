@@ -5,68 +5,116 @@ import { motion } from "framer-motion";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 
 /* ------------------------------------------------------------------ */
-/*  Marker data — 10 global collection hubs with poster thumbnails    */
+/*  Marker data — 18 global collection hubs with live video clips     */
 /* ------------------------------------------------------------------ */
 const markerData = [
   {
     lat: 37.7749,
     lng: -122.4194,
     city: "San Francisco",
-    image: "/images/datasets/game-environment.webp",
+    videoSrc: "/videos/globe/point-01.mp4",
   },
   {
     lat: 19.076,
     lng: 72.8777,
     city: "Mumbai",
-    image: "/images/datasets/egocentric-activity.webp",
+    videoSrc: "/videos/globe/point-14.mp4",
   },
   {
     lat: 10.8231,
     lng: 106.6297,
     city: "Ho Chi Minh",
-    image: "/images/environments/warehouses.webp",
+    videoSrc: "/videos/globe/point-03.mp4",
   },
   {
     lat: -23.5505,
     lng: -46.6333,
     city: "S\u00e3o Paulo",
-    image: "/images/datasets/video-quality.webp",
+    videoSrc: "/videos/globe/point-04.mp4",
   },
   {
     lat: 50.4501,
     lng: 30.5234,
     city: "Kyiv",
-    image: "/images/environments/kitchens.webp",
+    videoSrc: "/videos/globe/point-09.mp4",
   },
   {
     lat: 6.5244,
     lng: 3.3792,
     city: "Lagos",
-    image: "/images/datasets/object-identity.webp",
+    videoSrc: "/videos/globe/point-06.mp4",
   },
   {
     lat: 14.5995,
     lng: 120.9842,
     city: "Manila",
-    image: "/images/hero-poster.webp",
+    videoSrc: "/videos/globe/point-07.mp4",
   },
   {
     lat: 13.7563,
     lng: 100.5018,
     city: "Bangkok",
-    image: "/images/datasets/traffic.webp",
+    videoSrc: "/videos/globe/point-08.mp4",
   },
   {
     lat: 51.5074,
     lng: -0.1278,
     city: "London",
-    image: "/images/environments/offices.webp",
+    videoSrc: "/videos/globe/point-05.mp4",
   },
   {
     lat: 19.4326,
     lng: -99.1332,
     city: "Mexico City",
-    image: "/images/environments/retail.webp",
+    videoSrc: "/videos/globe/point-10.mp4",
+  },
+  {
+    lat: -6.2088,
+    lng: 106.8456,
+    city: "Jakarta",
+    videoSrc: "/videos/globe/point-11.mp4",
+  },
+  {
+    lat: -1.2921,
+    lng: 36.8219,
+    city: "Nairobi",
+    videoSrc: "/videos/globe/point-12.mp4",
+  },
+  {
+    lat: 30.0444,
+    lng: 31.2357,
+    city: "Cairo",
+    videoSrc: "/videos/globe/point-13.mp4",
+  },
+  {
+    lat: 23.8103,
+    lng: 90.4125,
+    city: "Dhaka",
+    videoSrc: "/videos/globe/point-02.mp4",
+  },
+  {
+    lat: -12.0464,
+    lng: -77.0428,
+    city: "Lima",
+    videoSrc: "/videos/globe/point-15.mp4",
+  },
+  {
+    lat: 4.711,
+    lng: -74.0721,
+    city: "Bogot\u00e1",
+    videoSrc: "/videos/globe/point-16.mp4",
+  },
+  {
+    lat: 24.8607,
+    lng: 67.0011,
+    city: "Karachi",
+    videoSrc: "/videos/globe/point-17.mp4",
+  },
+  {
+    lat: 5.6037,
+    lng: -0.187,
+    city: "Accra",
+    videoSrc: "/videos/globe/point-18.mp4",
   },
 ];
 
@@ -189,7 +237,7 @@ export default function CollectionNetwork() {
         theta: 0.3,
         dark: 1,
         diffuse: 1.2,
-        mapSamples: isMobile ? 8000 : 16000,
+        mapSamples: isMobile ? 8000 : 20000,
         mapBrightness: 6,
         baseColor: [0.05, 0.05, 0.04],
         markerColor: sageRGB,
@@ -327,7 +375,7 @@ export default function CollectionNetwork() {
           <div className="mx-auto flex max-w-lg items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-12">
             <div className="text-center">
               <p className="mb-1 font-mono text-2xl font-bold text-[var(--accent-primary)]">
-                10
+                18
               </p>
               <p className="mb-4 font-mono text-xs text-white/40">
                 collection hubs worldwide
@@ -438,12 +486,13 @@ export default function CollectionNetwork() {
                   background: "rgba(10, 9, 8, 0.8)",
                 }}
               >
-                {/* Poster frame image */}
-                <img
-                  src={marker.image}
-                  alt={`${marker.city} collection`}
-                  loading="eager"
-                  decoding="async"
+                {/* Live video clip */}
+                <video
+                  src={marker.videoSrc}
+                  muted
+                  autoPlay
+                  loop
+                  playsInline
                   style={{
                     width: "100%",
                     height: "100%",
