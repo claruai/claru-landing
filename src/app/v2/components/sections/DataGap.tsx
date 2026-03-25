@@ -38,7 +38,7 @@ export default function DataGap() {
 
   useGSAP(
     () => {
-      if (reducedMotion || !sectionRef.current) return;
+      if (reducedMotion || !sectionRef.current || window.innerWidth < 768) return;
 
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -155,9 +155,9 @@ export default function DataGap() {
           {"// THE DATA GAP"}
         </span>
 
-        <div className="flex gap-8">
+        <div className="flex flex-col gap-8 md:flex-row">
           {/* Left half: degraded sources */}
-          <div ref={leftRef} className="w-1/2 shrink-0">
+          <div ref={leftRef} className="w-full shrink-0 md:w-1/2">
             <div className="grid grid-cols-2 gap-3">
               {degradedSources.map((item) => (
                 <div
@@ -193,7 +193,7 @@ export default function DataGap() {
           </div>
 
           {/* Right half: enriched views */}
-          <div ref={rightRef} className="w-1/2 shrink-0">
+          <div ref={rightRef} className="w-full shrink-0 md:w-1/2">
             <div className="grid grid-cols-2 gap-3">
               {enrichmentViews.map((view) => (
                 <div
