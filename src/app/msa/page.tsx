@@ -5,7 +5,7 @@ import Footer from "../components/sections/Footer";
 export const metadata: Metadata = {
   title: "Master Services Agreement - Claru",
   description:
-    "Master Services Agreement for annotators and service providers on the Claru AI platform by Reka AI Inc. (d/b/a Claru AI).",
+    "Master Services Agreement for annotators and service providers on the Claru AI platform by Reka AI, Inc. (d/b/a Claru AI).",
   alternates: {
     canonical: "/msa",
   },
@@ -30,7 +30,7 @@ export default function MasterServicesAgreement() {
             Master Services Agreement
           </h1>
           <p className="text-[var(--text-tertiary)] font-mono text-sm mb-2">
-            Reka AI Inc. (d/b/a Claru AI)
+            Reka AI, Inc. (d/b/a Claru AI)
           </p>
           <p className="text-[var(--text-tertiary)] font-mono text-sm mb-12">
             Effective upon acceptance
