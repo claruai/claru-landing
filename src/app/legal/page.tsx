@@ -6,14 +6,14 @@ import { FileText, Shield, Lock, Users, Briefcase } from "lucide-react";
 export const metadata: Metadata = {
   title: "Legal - Claru",
   description:
-    "Legal agreements, policies, and terms for Claru by Reka AI, Inc. (d/b/a Claru AI).",
+    "Legal agreements, policies, and terms for Claru AI.",
   alternates: {
     canonical: "/legal",
   },
   openGraph: {
     title: "Legal - Claru",
     description:
-      "Legal agreements, policies, and terms for Claru by Reka AI, Inc. (d/b/a Claru AI).",
+      "Legal agreements, policies, and terms for Claru AI.",
     type: "website",
   },
 };

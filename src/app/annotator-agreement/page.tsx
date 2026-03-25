@@ -843,9 +843,9 @@ export default function MasterServicesAgreement() {
                 means.
               </p>
               <p className="text-[var(--text-secondary)] leading-relaxed mb-4">
-                Sections 2.2, 2.3, 2.4, 4, 5, 6, 7, 9 and 10 of this
-                Agreement, and this Section 8.5, shall survive any expiration or
-                termination of this Agreement. Termination of this Agreement by
+                Sections 2.2, 2.3, 2.4, 4, 5, 6, 7, 9, 10, 11, 12, and 13
+                of this Agreement, and this Section 8.5, shall survive any
+                expiration or termination of this Agreement. Termination of this Agreement by
                 either party shall not act as a waiver of any breach of this
                 Agreement and shall not act as a release of either party from
                 any liability for breach of such party&apos;s obligations under
@@ -1209,19 +1209,19 @@ export default function MasterServicesAgreement() {
               </p>
 
               <h3 className="text-lg font-semibold text-[var(--accent-primary)] mb-3 mt-8">
-                11.14 Non-Competition and Non-Solicitation
+                11.14 Non-Solicitation
               </h3>
               <p className="text-[var(--text-secondary)] leading-relaxed">
                 During the term of this Agreement and for twelve (12) months
                 thereafter, Provider shall not, directly or indirectly: (a)
-                provide similar annotation, labeling, or data processing
-                services to any competitor of Customer; (b) develop or assist in
-                developing any competing annotation or AI training platform; (c)
                 solicit or attempt to solicit any customer or client of Customer
-                for whom Provider performed Services; or (d) encourage any other
-                Provider to reduce or cease their work with Customer. Provider
-                acknowledges that this restriction is reasonable given their
-                access to Customer&apos;s proprietary methods and data.
+                for whom Provider performed Services; or (b) encourage any other
+                Provider to reduce or cease their work with Customer. For the
+                avoidance of doubt, nothing in this Section restricts Provider
+                from performing annotation, labeling, or data processing
+                services for any other party, provided that Provider complies
+                with all confidentiality and non-use obligations under Section 4
+                of this Agreement.
               </p>
             </section>
 
@@ -1346,6 +1346,227 @@ export default function MasterServicesAgreement() {
                 essential for platform security and quality control. Customer
                 may terminate Provider&apos;s access based on suspicious
                 patterns or anomalies detected through such monitoring.
+              </p>
+            </section>
+
+            {/* Section 13: Data Rights, Personal Information, and End-Client Protection */}
+            <section>
+              <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4 font-mono">
+                13. Data Rights, Personal Information, and End-Client Protection
+              </h2>
+
+              <h3 className="text-lg font-semibold text-[var(--accent-primary)] mb-3">
+                13.1 Broad License to Provider-Submitted Content
+              </h3>
+              <p className="text-[var(--text-secondary)] leading-relaxed mb-4">
+                In addition to the assignment of Work Product under Section 5,
+                Provider hereby grants to Customer a perpetual, irrevocable,
+                worldwide, fully paid-up, royalty-free, transferable,
+                sublicensable (through multiple tiers) license to use,
+                reproduce, modify, adapt, publish, distribute, display, perform,
+                create derivative works from, and otherwise exploit in any
+                manner and for any purpose whatsoever, all content, data,
+                materials, feedback, suggestions, ideas, communications, and
+                information of any kind that Provider submits, uploads,
+                transmits, or otherwise makes available through the platform or
+                in connection with this Agreement
+                (&ldquo;Provider-Submitted Content&rdquo;). This license
+                survives any expiration or termination of this Agreement.
+              </p>
+              <p className="text-[var(--text-secondary)] leading-relaxed">
+                Provider acknowledges and agrees that Customer may sublicense
+                Provider-Submitted Content to Customer&apos;s clients, partners,
+                affiliates, and other third parties without restriction, notice,
+                or additional compensation to Provider. Provider waives any
+                right to inspect or approve the use of Provider-Submitted
+                Content by Customer or any sublicensee. This license is in
+                addition to, and does not limit, the assignment of Work Product
+                under Section 5. To the extent any Provider-Submitted Content
+                constitutes Work Product, the assignment under Section 5 shall
+                control.
+              </p>
+
+              <h3 className="text-lg font-semibold text-[var(--accent-primary)] mb-3 mt-8">
+                13.2 Personal Information Consent and Processing
+              </h3>
+              <p className="text-[var(--text-secondary)] leading-relaxed mb-4">
+                By accepting this Agreement and using the platform, Provider
+                expressly consents to the collection, use, storage, processing,
+                transfer, and disclosure of Provider&apos;s personal information
+                by Customer for any purpose related to the platform, the
+                Services, Customer&apos;s business operations, or
+                Customer&apos;s obligations to its clients and partners.
+                &ldquo;Personal Information&rdquo; includes, without limitation:
+              </p>
+              <ul className="list-disc list-inside text-[var(--text-secondary)] space-y-2 ml-4 mb-4">
+                <li>
+                  Name, email address, phone number, mailing address, and other
+                  contact information
+                </li>
+                <li>
+                  Payment information, tax identification numbers, and banking
+                  details
+                </li>
+                <li>
+                  Government-issued identification documents provided during
+                  onboarding or verification
+                </li>
+                <li>
+                  Platform activity data, including work patterns, quality
+                  scores, response times, and performance metrics
+                </li>
+                <li>
+                  Device information, IP addresses, location data, browser type,
+                  and system configuration
+                </li>
+                <li>
+                  Keystroke patterns, screen recordings, and session data
+                  collected pursuant to Section 12.5
+                </li>
+                <li>
+                  Profile information, qualifications, certifications, and work
+                  history provided by Provider
+                </li>
+                <li>
+                  Communications, feedback, and correspondence through the
+                  platform or otherwise
+                </li>
+              </ul>
+              <p className="text-[var(--text-secondary)] leading-relaxed mb-4">
+                Customer may use Provider&apos;s Personal Information for
+                purposes including, without limitation: (a) platform operation,
+                administration, and improvement; (b) identity verification and
+                fraud prevention; (c) quality assurance and performance
+                evaluation; (d) compliance with legal, tax, and regulatory
+                obligations; (e) communications related to the platform and
+                Services; (f) aggregate analytics and reporting (including to
+                Customer&apos;s clients); (g) enforcement of this Agreement; and
+                (h) any other legitimate business purpose.
+              </p>
+              <p className="text-[var(--text-secondary)] leading-relaxed">
+                Customer may transfer, share, or disclose Provider&apos;s
+                Personal Information to Customer&apos;s affiliates, clients,
+                service providers, payment processors, legal advisors, and
+                regulatory authorities as Customer deems necessary or
+                appropriate. Provider acknowledges that such recipients may be
+                located in jurisdictions with different data protection laws
+                than Provider&apos;s jurisdiction of residence. Provider
+                consents to such international transfers. Where required by
+                applicable law, Customer will implement appropriate transfer
+                safeguards, such as standard contractual clauses approved by the
+                relevant authority.
+              </p>
+              <p className="text-[var(--text-secondary)] leading-relaxed mt-4">
+                Notwithstanding the foregoing, nothing in this Section 13 is
+                intended to limit or waive any rights that Provider may have
+                under applicable data protection laws that cannot be waived by
+                contract, including without limitation rights under the EU
+                General Data Protection Regulation (GDPR), the California
+                Consumer Privacy Act (CCPA), the Canadian Personal Information
+                Protection and Electronic Documents Act (PIPEDA), or similar
+                legislation. To the extent required by applicable law, Customer
+                will: (a) process Provider&apos;s Personal Information in
+                accordance with a lawful basis recognized under applicable law;
+                (b) respond to verifiable data subject requests regarding
+                access, correction, or deletion of Personal Information in
+                accordance with applicable law; and (c) notify Provider of any
+                breach of security affecting Provider&apos;s Personal
+                Information to the extent required by applicable law. Requests
+                may be submitted to{" "}
+                <a
+                  href="mailto:support@claru.ai"
+                  className="text-[var(--accent-primary)] hover:underline"
+                >
+                  support@claru.ai
+                </a>
+                . Customer&apos;s privacy policy, available at{" "}
+                <a
+                  href="/privacy"
+                  className="text-[var(--accent-primary)] hover:underline"
+                >
+                  claru.ai/privacy
+                </a>
+                , provides additional information about data processing
+                practices.
+              </p>
+
+              <h3 className="text-lg font-semibold text-[var(--accent-primary)] mb-3 mt-8">
+                13.3 Data Retention
+              </h3>
+              <p className="text-[var(--text-secondary)] leading-relaxed">
+                Customer may retain Provider&apos;s Personal Information and
+                Provider-Submitted Content for as long as necessary to fulfill
+                the purposes described in this Agreement, comply with legal
+                obligations, resolve disputes, and enforce this Agreement.
+                Customer may retain anonymized or aggregated data derived from
+                Provider&apos;s information indefinitely. Upon termination of
+                this Agreement, Customer is not obligated to delete
+                Provider&apos;s Personal Information or Provider-Submitted
+                Content except as required by applicable law.
+              </p>
+
+              <h3 className="text-lg font-semibold text-[var(--accent-primary)] mb-3 mt-8">
+                13.4 End-Client Data Protection
+              </h3>
+              <p className="text-[var(--text-secondary)] leading-relaxed mb-4">
+                Provider acknowledges that materials provided through the
+                platform may originate from or relate to Customer&apos;s
+                clients, partners, and licensees (&ldquo;End
+                Clients&rdquo;). Provider agrees that:
+              </p>
+              <ul className="list-disc list-inside text-[var(--text-secondary)] space-y-2 ml-4 mb-4">
+                <li>
+                  All obligations of confidentiality, non-disclosure, and
+                  restricted use under Section 4 apply with equal force to End
+                  Client data, materials, and information
+                </li>
+                <li>
+                  Provider shall not attempt to identify, contact, or solicit
+                  any End Client, whether directly or indirectly
+                </li>
+                <li>
+                  Provider shall not reverse engineer, de-anonymize, or attempt
+                  to determine the source, origin, or ownership of any data or
+                  materials provided through the platform
+                </li>
+                <li>
+                  Provider shall not retain, copy, download, or extract any End
+                  Client data or materials outside the platform except as
+                  expressly required to perform Services through the
+                  platform&apos;s designated tools
+                </li>
+                <li>
+                  Provider shall immediately notify Customer of any suspected or
+                  actual unauthorized access to, or disclosure of, End Client
+                  data or materials
+                </li>
+                <li>
+                  Any breach of this Section 13.4 constitutes a material breach
+                  of this Agreement permitting immediate termination without
+                  opportunity to cure
+                </li>
+              </ul>
+              <p className="text-[var(--text-secondary)] leading-relaxed">
+                Provider acknowledges that Customer&apos;s End Clients are
+                intended third-party beneficiaries of this Section 13.4 and may
+                enforce its terms directly against Provider.
+              </p>
+
+              <h3 className="text-lg font-semibold text-[var(--accent-primary)] mb-3 mt-8">
+                13.5 Waiver of Claims
+              </h3>
+              <p className="text-[var(--text-secondary)] leading-relaxed">
+                To the maximum extent permitted by applicable law, Provider
+                waives any claims, rights, or causes of action against
+                Customer, its affiliates, clients, or sublicensees arising from
+                or related to Customer&apos;s use, sublicensing, or disclosure
+                of Provider-Submitted Content in accordance with this Agreement.
+                This waiver does not apply to claims arising from
+                Customer&apos;s processing of Provider&apos;s Personal
+                Information in violation of applicable data protection laws.
+                Provider acknowledges that the compensation received under this
+                Agreement constitutes full and complete consideration for all
+                rights, licenses, consents, and waivers granted herein.
               </p>
             </section>
 
