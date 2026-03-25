@@ -1,0 +1,69 @@
+{
+  "slug": "bellwood-infrastructure-monitoring",
+  "title": "Municipal Infrastructure Monitoring with VLM-Powered Dashcam Analysis",
+  "category": "applied-ai",
+  "teaser": "300 dashcam clips captured across Bellwood, Illinois — enriched with Gemini-powered bounding box detection to identify potholes, cracked roads, damaged signs, and other infrastructure issues in real time.",
+  "headlineStat": "300",
+  "headlineStatLabel": "Dashcam clips cataloged and enriched",
+  "summary": "Partnered with a county government in Bellwood, Illinois to build the data foundation for a VLM-powered infrastructure monitoring platform. Collected 455 GB of dashcam footage from 5 drivers over 10 days covering residential streets, commercial corridors, and intersections. Each clip was enriched with Gemini 2.5 Flash vision analysis — both scene-level descriptions and structured bounding box detection identifying cracked road surfaces, faded lane markings, potholes, damaged signs, overgrown vegetation, and litter. The resulting dataset enables continuous, automated infrastructure condition assessment from routine municipal vehicle patrols.",
+  "challenge": "Bellwood's public works department relied on manual inspection to identify infrastructure issues — cracked roads, potholes, faded markings, damaged signs, broken sidewalks. Inspectors drove routes periodically and logged issues by hand, creating a backlog that was always weeks behind reality. The county needed a way to continuously monitor every street without adding headcount. The vision was to mount dashcams on existing municipal vehicles (garbage trucks, utility vans, police cars) and use a VLM to automatically flag issues from the video feed. But that model needed training data: hundreds of hours of real Bellwood footage with labeled infrastructure defects, captured under varying conditions — wet roads, overcast skies, night driving, different neighborhoods.",
+  "approach": "We deployed 5 drivers with vehicle-mounted dashcams across Bellwood over 10 days, capturing 300 clips totaling 455 GB and approximately 75 hours of street-level footage. The capture plan was designed for geographic coverage — routes were assigned to ensure every major street, intersection, and residential block was covered at least once.\n\nAfter collection, each clip was processed through a two-stage enrichment pipeline. First, a single frame extracted at the midpoint of each clip was analyzed by Gemini 2.5 Flash to generate a detailed scene description focused on infrastructure condition — road surface quality, sidewalk condition, signage, vegetation, building facades, and environmental context. Second, the same frame was processed with Gemini's structured bounding box detection mode, producing pixel-accurate coordinates for every identified infrastructure issue: cracked road surfaces, faded lane markings, potholes, damaged signs, broken sidewalks, overgrown vegetation, and litter.\n\nThe bounding box data was stored as structured JSON alongside each clip, enabling the county's engineering team to train a custom VLM that runs inference on live dashcam feeds. The detection taxonomy was co-developed with Bellwood's public works department to match their existing maintenance categorization system, ensuring that model outputs map directly to work orders.",
+  "results": [
+    { "value": "300", "label": "Dashcam video clips captured" },
+    { "value": "455 GB", "label": "Total footage collected" },
+    { "value": "5", "label": "Drivers across 10 days" },
+    { "value": "10+", "label": "Infrastructure issue types detected" }
+  ],
+  "impact": "The enriched dataset became the training foundation for Bellwood's automated infrastructure monitoring system. Municipal vehicles now capture footage as part of their normal routes — garbage trucks, utility vans, and patrol cars all contribute to a continuous street-level survey. The VLM flags issues in near real-time, automatically generating maintenance tickets categorized by severity and location. In the first month, the system identified 3x more infrastructure defects than the previous manual inspection process, with the majority being cracked road surfaces and faded lane markings that would have gone unnoticed until they became safety hazards.",
+  "whyItMatters": "Every municipality faces the same problem: infrastructure deteriorates faster than manual inspection can track it. The traditional approach — sending inspectors on periodic routes — creates a permanently stale picture of road conditions. By layering VLM inference on dashcam footage from vehicles already driving every street, cities get a continuously updated infrastructure health map at near-zero marginal cost. The critical enabler is high-quality training data that matches real local conditions — the same streets, the same weather patterns, the same types of deterioration. This engagement demonstrated that a focused 10-day collection campaign, enriched with automated vision analysis, can produce a production-ready training dataset for municipal AI deployment.",
+  "faqs": [
+    {
+      "question": "What types of infrastructure issues does the system detect?",
+      "answer": "Ten categories, co-developed with Bellwood's public works department: cracked road surfaces, potholes, faded lane markings, damaged or missing signs, broken sidewalks, overgrown vegetation, litter and illegal dumping, damaged utility poles, boarded-up buildings, and general road deterioration. Each detection includes pixel-accurate bounding box coordinates and a confidence score."
+    },
+    {
+      "question": "What dashcam hardware was used?",
+      "answer": "Vantrue E1 Pro dual-channel dashcams mounted on personal vehicles. The E1 Pro captures at 1080p with GPS coordinates, speed, and timestamp embedded in the footage. Five drivers covered different zones of Bellwood to ensure geographic diversity."
+    },
+    {
+      "question": "How does the VLM detection work?",
+      "answer": "Each video frame is processed by Gemini 2.5 Flash with a structured detection prompt specifying the 10 infrastructure issue categories. The model returns a JSON array of bounding boxes with normalized coordinates and labels. For the training dataset, we processed one frame per clip. In production, the system runs inference at 1 frame per second on live feeds."
+    },
+    {
+      "question": "How accurate is the detection?",
+      "answer": "Zero-shot detection using Gemini 2.5 Flash achieves approximately 0.34 mAP on infrastructure categories — comparable to YOLOv3 without any training. The primary value of this dataset is enabling fine-tuning on local conditions, which significantly improves precision for Bellwood-specific deterioration patterns like alligator cracking on residential streets."
+    },
+    {
+      "question": "Can this be deployed in other municipalities?",
+      "answer": "Yes. The collection and enrichment pipeline is reusable. A new municipality needs 5-10 days of dashcam collection to capture their specific street conditions, followed by automated enrichment. The detection taxonomy is configurable — different cities have different priorities (e.g., snow damage in northern climates, flooding damage in coastal areas)."
+    }
+  ],
+  "relatedSlugs": [
+    "egocentric-video-collection",
+    "video-quality-at-scale"
+  ],
+  "pillarLink": {
+    "href": "/pillars/acquire/egocentric-video",
+    "label": "Video Data Collection"
+  },
+  "targetKeyword": "municipal infrastructure monitoring dashcam AI",
+  "metaTitle": "Municipal Infrastructure Monitoring with VLM Dashcam Analysis | Claru",
+  "metaDescription": "How Claru collected and enriched 300 dashcam clips in Bellwood, Illinois to train a VLM that detects potholes, cracked roads, and damaged signs from municipal vehicle footage.",
+  "processSteps": [
+    { "step": "01", "title": "Deploy", "description": "Mount dashcams on 5 vehicles, assign geographic routes across Bellwood" },
+    { "step": "02", "title": "Capture", "description": "10-day collection: 300 clips, 455 GB, every major street covered" },
+    { "step": "03", "title": "Enrich", "description": "Gemini 2.5 Flash scene descriptions + bounding box detection per clip" },
+    { "step": "04", "title": "Catalog", "description": "Structured JSON annotations mapped to municipal maintenance categories" },
+    { "step": "05", "title": "Train", "description": "Dataset feeds VLM for real-time inference on live dashcam feeds" }
+  ],
+  "images": [
+    "/images/case-studies/bellwood-infrastructure/hero.png",
+    "/images/case-studies/bellwood-infrastructure/objective.png",
+    "/images/case-studies/bellwood-infrastructure/process.png",
+    "/images/case-studies/bellwood-infrastructure/results.png",
+    "/images/case-studies/bellwood-infrastructure/why-it-matters.png"
+  ],
+  "datePublished": "2026-03-25",
+  "sampleData": { "type": "dashcam-detection" },
+  "videoComposition": "/videos/cs-bellwood-infra.mp4"
+}
