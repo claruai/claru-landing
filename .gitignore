@@ -26,6 +26,10 @@
 .!*!._*
 .mcp.json
 
+# claude code local settings and skills
+.claude/settings.local.json
+.claude/skills/
+
 # playwright screenshots
 .playwright-mcp/
 

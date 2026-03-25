@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title:
     "Claru \u2014 The Training Data Catalog for Physical AI",
   description:
-    "Curated video datasets with depth, pose, and segmentation — built for robotics and embodied AI teams. 3.7M+ annotations across 25+ commercially licensed datasets. Download, load, train.",
+    "3.7M+ human annotations across real-world video, game environments, and custom captures. 25+ commercially licensed datasets built for robotics and embodied AI teams.",
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     siteName: "Claru",
     title: "Claru \u2014 The Training Data Catalog for Physical AI",
     description:
-      "Curated video datasets with depth, pose, and segmentation. 3.7M+ annotations across 25+ datasets for robotics and embodied AI.",
+      "3.7M+ human annotations across real-world video, game environments, and custom captures. 25+ licensed datasets for robotics and embodied AI.",
     images: [
       {
         url: "/images/og-v2.webp",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Claru \u2014 The Training Data Catalog for Physical AI",
     description:
-      "Curated video datasets with depth, pose, and segmentation. 3.7M+ annotations for robotics and embodied AI.",
+      "3.7M+ human annotations across real-world video and game environments. Built for robotics and embodied AI.",
     images: ["/images/og-v2.webp"],
   },
   alternates: {
@@ -47,7 +47,7 @@ const v2JsonLd = {
   legalName: "Reka AI Inc.",
   url: "https://claru.ai",
   description:
-    "The training data catalog for physical AI. Curated video datasets with depth, pose, and segmentation for robotics and embodied AI.",
+    "The training data catalog for physical AI. 3.7M+ human annotations across real-world video and game environments for robotics and embodied AI.",
   foundingDate: "2024",
   contactPoint: {
     "@type": "ContactPoint",

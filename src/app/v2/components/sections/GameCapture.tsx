@@ -5,10 +5,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 
 const views = [
-  { label: "RGB", color: "#e8e8e8" },
-  { label: "Depth", color: "#4A9EDE" },
-  { label: "Object IDs", color: "#9E6ADE" },
-  { label: "Physics State", color: "#DE8A4A" },
+  { label: "RGB", color: "#e8e8e8", desc: "Source frame" },
+  { label: "Depth", color: "#4A9EDE", desc: "Distance map" },
+  { label: "Object IDs", color: "#9E6ADE", desc: "Instance masks" },
+  { label: "Physics State", color: "#DE8A4A", desc: "Forces & velocity" },
 ];
 
 export default function GameCapture() {
@@ -26,113 +26,213 @@ export default function GameCapture() {
   return (
     <section
       id="game-capture"
-      className="relative overflow-hidden bg-[var(--bg-primary)] py-24"
+      className="relative overflow-hidden bg-[var(--bg-primary)] py-32 md:py-40"
     >
-      {/* Full-bleed dark bg with gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[var(--bg-secondary)] via-[var(--bg-primary)] to-[var(--bg-primary)]" />
+      {/* Subtle gradient band */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[var(--bg-secondary)]/30 via-transparent to-transparent" />
 
       <div className="container relative mx-auto px-6">
-        <span className="mb-8 block font-mono text-sm text-[var(--accent-primary)]">
-          {"// GAME CAPTURE"}
-        </span>
+        <motion.div
+          className="mb-16"
+          initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className="v2-section-label mb-6">
+            <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-[var(--accent-primary)]">
+              {"// GAME CAPTURE"}
+            </span>
+          </div>
+          <h2 className="max-w-lg text-3xl font-bold leading-[1.1] tracking-[-0.02em] text-white md:text-4xl lg:text-[42px]">
+            Pixel-perfect ground truth{" "}
+            <span className="text-white/40">from game engines.</span>
+          </h2>
+        </motion.div>
 
-        <div className="grid gap-8 lg:grid-cols-2">
-          {/* Left: game clip */}
-          <div className="relative overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)]">
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Left: game clip with toggle */}
+          <motion.div
+            className="v2-scanline group relative overflow-hidden !rounded-2xl border border-[var(--border-subtle)]"
+            style={{ background: "linear-gradient(165deg, #121110 0%, #0e0d0c 100%)" }}
+            initial={reducedMotion ? {} : { opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {/* Terminal bar */}
+            <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)" }}>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-[#ff5f57]" />
+                <div className="h-2 w-2 rounded-full bg-[#febc2e]" />
+                <div className="h-2 w-2 rounded-full bg-[#28c840]" />
+              </div>
+              <span className="font-mono text-[10px] text-white/30">
+                game-capture-viewer
+              </span>
+              <div className="flex items-center gap-1.5">
+                <div className={`h-1.5 w-1.5 rounded-full transition-colors duration-300 ${showAnnotated ? "bg-[var(--accent-primary)]" : "bg-white/20"}`} />
+                <span className="font-mono text-[10px] text-white/30">
+                  {showAnnotated ? "ENRICHED" : "RAW"}
+                </span>
+              </div>
+            </div>
+
             <div className="flex aspect-video items-center justify-center p-8">
               <AnimatePresence mode="wait">
                 {showAnnotated ? (
                   <motion.div
                     key="annotated"
-                    initial={reducedMotion ? {} : { opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={reducedMotion ? {} : { opacity: 0 }}
+                    initial={reducedMotion ? {} : { opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={reducedMotion ? {} : { opacity: 0, scale: 1.02 }}
                     transition={{ duration: 0.5 }}
                     className="text-center"
                   >
-                    <span className="font-mono text-sm text-[var(--accent-primary)]">
+                    <div className="mb-3 flex items-center justify-center gap-3">
+                      {["#4A9EDE", "#9E6ADE", "#DE8A4A"].map((color) => (
+                        <div
+                          key={color}
+                          className="h-2 w-8 rounded-full"
+                          style={{ backgroundColor: color, opacity: 0.6 }}
+                        />
+                      ))}
+                    </div>
+                    <span className="font-mono text-sm font-medium text-[var(--accent-primary)]">
                       ANNOTATED VIEW
                     </span>
-                    <div className="mt-2 font-mono text-xs text-white/40">
-                      Depth + Object IDs + Physics
+                    <div className="mt-2 font-mono text-[11px] text-white/30">
+                      Depth + Object IDs + Physics State
                     </div>
                   </motion.div>
                 ) : (
                   <motion.div
                     key="raw"
-                    initial={reducedMotion ? {} : { opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={reducedMotion ? {} : { opacity: 0 }}
+                    initial={reducedMotion ? {} : { opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={reducedMotion ? {} : { opacity: 0, scale: 1.02 }}
                     transition={{ duration: 0.5 }}
                     className="text-center"
                   >
-                    <span className="font-mono text-sm text-white/60">
+                    <span className="font-mono text-sm text-white/50">
                       RAW GAME FOOTAGE
                     </span>
+                    <div className="mt-2 font-mono text-[11px] text-white/20">
+                      No annotation required
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
-          </div>
+
+            {/* Progress indicator */}
+            <div className="absolute bottom-0 left-0 right-0 z-10 h-0.5 bg-white/[0.04]">
+              <motion.div
+                className="h-full bg-[var(--accent-primary)]/40"
+                key={showAnnotated ? "a" : "b"}
+                initial={{ width: "0%" }}
+                animate={{ width: "100%" }}
+                transition={{ duration: 4, ease: "linear" }}
+              />
+            </div>
+          </motion.div>
 
           {/* Right: 2x2 grid */}
-          <div className="grid grid-cols-2 gap-3">
-            {views.map((view) => (
-              <div
+          <div className="grid grid-cols-2 gap-4">
+            {views.map((view, i) => (
+              <motion.div
                 key={view.label}
-                className="flex aspect-video items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)]"
+                initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 + i * 0.08, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="group/card flex flex-col items-center justify-center rounded-2xl border transition-all duration-400 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)]"
+                style={{
+                  borderColor: `${view.color}12`,
+                  aspectRatio: "16/10",
+                  background: `linear-gradient(165deg, #121110 0%, ${view.color}04 100%)`,
+                }}
               >
-                <div className="text-center">
-                  <div
-                    className="mx-auto mb-2 h-12 w-24 rounded bg-[var(--bg-secondary)]"
-                    style={{ borderBottom: `2px solid ${view.color}` }}
-                  />
+                <div
+                  className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl border transition-all duration-400 group-hover/card:scale-110 group-hover/card:shadow-[0_0_20px_currentColor]"
+                  style={{
+                    borderColor: `${view.color}20`,
+                    backgroundColor: `${view.color}08`,
+                    color: `${view.color}15`,
+                  }}
+                >
                   <span
-                    className="font-mono text-xs font-medium"
+                    className="font-mono text-base font-bold"
                     style={{ color: view.color }}
                   >
-                    {view.label}
+                    {view.label.charAt(0)}
                   </span>
                 </div>
-              </div>
+                <span
+                  className="font-mono text-xs font-medium tracking-wide"
+                  style={{ color: view.color }}
+                >
+                  {view.label}
+                </span>
+                <span className="mt-1.5 font-mono text-[10px] text-white/20">
+                  {view.desc}
+                </span>
+              </motion.div>
             ))}
           </div>
         </div>
 
         {/* Copy */}
-        <div className="mt-10 max-w-2xl">
-          <p className="text-base text-white/80">
+        <motion.div
+          className="mt-14 max-w-2xl"
+          initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1, duration: 0.6 }}
+        >
+          <p className="text-[15px] leading-relaxed text-white/50">
             Game engines give us what cameras can&apos;t: pixel-perfect ground
-            truth. Every object has an identity. Every surface has depth. Every
-            frame has physics state — without a single human annotator.
+            truth. The engine exports per-object identity masks, per-pixel depth,
+            and per-frame physics state. Zero manual annotation required.
           </p>
 
           {/* Stats */}
-          <div className="mt-6 flex flex-wrap gap-6">
-            <div className="font-mono text-sm">
-              <span className="text-[var(--accent-primary)]">~66K</span>{" "}
-              <span className="text-white/60">clips</span>
+          <div className="mt-8 flex flex-wrap gap-10">
+            {[
+              { value: "~66K", label: "clips" },
+              { value: "Pixel-perfect", label: "ground truth" },
+              { value: "Zero", label: "annotation cost" },
+            ].map((stat) => (
+              <div key={stat.label}>
+                <span className="font-mono text-lg font-bold text-[var(--accent-primary)]">{stat.value}</span>
+                <span className="ml-2 font-mono text-xs text-white/35">{stat.label}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Unique differentiator callout */}
+        <motion.div
+          className="mt-12 overflow-hidden rounded-2xl border border-[var(--accent-primary)]/15 bg-[var(--accent-primary)]/[0.02]"
+          initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+        >
+          <div className="flex items-center gap-5 px-7 py-6">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--accent-primary)]/25 bg-[var(--accent-primary)]/8">
+              <span className="font-mono text-sm font-bold text-[var(--accent-primary)]">!</span>
             </div>
-            <div className="font-mono text-sm">
-              <span className="text-[var(--accent-primary)]">
-                Pixel-perfect
-              </span>{" "}
-              <span className="text-white/60">ground truth</span>
-            </div>
-            <div className="font-mono text-sm">
-              <span className="text-[var(--accent-primary)]">Zero</span>{" "}
-              <span className="text-white/60">annotation cost</span>
+            <div>
+              <p className="font-mono text-sm font-semibold text-[var(--accent-primary)]">
+                Unique to Claru
+              </p>
+              <p className="mt-1 text-sm text-white/35">
+                Game environment data with engine-level ground truth. We haven&apos;t seen this in another commercial catalog.
+              </p>
             </div>
           </div>
-        </div>
-
-        {/* Unique differentiator */}
-        <div className="mt-8 rounded-lg border border-[var(--accent-primary)]/30 bg-[var(--accent-primary)]/5 px-6 py-4">
-          <p className="font-mono text-sm text-[var(--accent-primary)]">
-            No competitor offers game environment training data. This is unique
-            to Claru.
-          </p>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

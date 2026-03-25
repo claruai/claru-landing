@@ -6,8 +6,17 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 
-const DotGrid = dynamic(
-  () => import("shaders/react").then((mod) => mod.DotGrid),
+const ShaderCanvas = dynamic(
+  () => import("shaders/react").then((mod) => {
+    const { Shader, DotGrid } = mod;
+    const ShaderDotGrid = () => (
+      <Shader>
+        <DotGrid />
+      </Shader>
+    );
+    ShaderDotGrid.displayName = "ShaderDotGrid";
+    return ShaderDotGrid;
+  }),
   { ssr: false }
 );
 
@@ -109,13 +118,8 @@ export default function HeroV2() {
           className="absolute inset-0 h-full w-full object-cover"
         >
           <source
-            src="/images/hero-poster.webp"
-            media="(max-width: 768px)"
-            type="video/webm"
-          />
-          <source
-            src="/images/hero-poster.webp"
-            type="video/webm"
+            src="/videos/hero-desktop.mp4"
+            type="video/mp4"
           />
         </video>
       ) : (
@@ -125,21 +129,35 @@ export default function HeroV2() {
         />
       )}
 
-      {/* Dark gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0908]/80 via-[#0a0908]/40 to-transparent" />
+      {/* Dark gradient overlay - stronger for text readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0908]/90 via-[#0a0908]/60 to-[#0a0908]/80" />
 
       {/* DotGrid shader overlay */}
       {!reducedMotion && (
         <div className="pointer-events-none absolute inset-0 opacity-15">
-          <DotGrid />
+          <ShaderCanvas />
         </div>
       )}
 
+      {/* Bottom gradient fade into next section */}
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[var(--bg-primary)] to-transparent" />
+
       {/* Content */}
       <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
-        {/* Headline */}
+        {/* Eyebrow label */}
+        <motion.span
+          className="mb-8 inline-block font-mono text-[11px] uppercase tracking-[0.35em] text-[var(--accent-primary)]"
+          initial={reducedMotion ? {} : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
+          Curated for Frontier AI
+        </motion.span>
+
+        {/* Headline — MASSIVE */}
         <h1
-          className="font-sans text-[40px] font-bold leading-tight text-white md:text-[72px]"
+          className="font-sans font-bold leading-[1.02] tracking-[-0.04em] text-white"
+          style={{ fontSize: "clamp(42px, 8vw, 96px)" }}
           aria-label="The training data catalog for physical AI."
         >
           {headline}
@@ -147,56 +165,89 @@ export default function HeroV2() {
 
         {/* Subheadline */}
         <motion.p
-          className="mx-auto mt-6 max-w-2xl text-base text-white/80 md:text-xl"
+          className="mx-auto mt-8 max-w-2xl text-base leading-relaxed text-white/60 md:text-lg lg:text-xl"
           initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
-          Curated video datasets with depth, pose, and segmentation — built for
-          robotics and embodied AI teams. Download, load, train.
+          3.7M+ human annotations across real-world video, game environments, and
+          custom captures. Built for teams training robotics and embodied AI models.
         </motion.p>
 
         {/* Stats bar */}
-        <motion.p
-          className="mx-auto mt-8 max-w-3xl font-mono text-sm text-[var(--accent-primary)]"
+        <motion.div
+          className="mx-auto mt-12 flex flex-wrap items-center justify-center gap-x-10 gap-y-3"
           initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.5, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
-          3.7M+ annotations across kitchens, warehouses, roads, and game
-          environments · 25+ licensed datasets · Depth + pose + segmentation on
-          every clip
-        </motion.p>
+          {[
+            { value: "3.7M+", label: "human annotations" },
+            { value: "25+", label: "licensed datasets" },
+            { value: "5+", label: "environments" },
+          ].map((stat, i) => (
+            <div key={stat.label} className="flex items-baseline gap-2.5">
+              {i > 0 && (
+                <span className="mr-3 hidden text-white/10 sm:inline">
+                  /
+                </span>
+              )}
+              <span className="font-mono text-lg font-bold text-[var(--accent-primary)] md:text-xl">
+                {stat.value}
+              </span>
+              <span className="font-mono text-xs tracking-wide text-white/35">
+                {stat.label}
+              </span>
+            </div>
+          ))}
+        </motion.div>
 
         {/* Trust signal */}
         <motion.p
-          className="mt-4 font-mono text-sm text-white/60"
+          className="mt-5 font-mono text-[11px] tracking-[0.15em] text-white/30"
           initial={reducedMotion ? {} : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.8, duration: 0.8 }}
         >
-          Commercially licensed. Not scraped. Not synthetic.
+          Commercially licensed. Human-captured. Provenance on every clip.
         </motion.p>
 
         {/* CTAs */}
         <motion.div
-          className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
+          className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
           initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 2.0, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
           <Link
             href="/catalog"
-            className="inline-flex items-center justify-center rounded-md bg-[var(--accent-primary)] px-8 py-3.5 font-medium text-[#0a0908] transition-all hover:brightness-110 hover:shadow-[0_0_20px_var(--accent-glow-strong)]"
+            className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-[var(--accent-primary)] px-10 py-4 text-[15px] font-semibold text-[#0a0908] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_40px_var(--accent-glow-strong)]"
           >
-            Browse the Catalog
+            <span className="relative z-10">Browse the Catalog</span>
+            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
           </Link>
           <a
             href="#contact"
-            className="inline-flex items-center justify-center rounded-md border border-white/20 px-8 py-3.5 font-medium text-white transition-all hover:border-white/40 hover:bg-white/5"
+            className="inline-flex items-center justify-center rounded-full border border-white/12 px-10 py-4 text-[15px] font-medium text-white/70 backdrop-blur-sm transition-all duration-300 hover:border-[var(--accent-primary)]/30 hover:bg-white/[0.03] hover:text-white"
           >
             Request Custom Collection
           </a>
+        </motion.div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          className="mt-20 flex justify-center"
+          initial={reducedMotion ? {} : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2.5, duration: 1 }}
+        >
+          <motion.div
+            className="flex h-9 w-5 items-start justify-center rounded-full border border-white/15 p-1.5"
+            animate={reducedMotion ? {} : { y: [0, 6, 0] }}
+            transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+          >
+            <div className="h-1.5 w-1 rounded-full bg-white/30" />
+          </motion.div>
         </motion.div>
       </div>
     </section>

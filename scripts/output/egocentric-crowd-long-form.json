@@ -1,0 +1,515 @@
+[
+  {
+    "filename": "11f92ca6-a559-4bb6-afd9-671b5014eb26.MP4",
+    "s3_object_key": "video-capture-activities/completed/0021cf8a-e43f-4acb-845e-6e80d237b676/11f92ca6-a559-4bb6-afd9-671b5014eb26.MP4",
+    "s3_annotation_key": "video-capture-activities/completed/0021cf8a-e43f-4acb-845e-6e80d237b676/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Long Form",
+      "category": "Body Movement",
+      "subcategory": "Walking",
+      "annotation_id": "0021cf8a-e43f-4acb-845e-6e80d237b676"
+    }
+  },
+  {
+    "filename": "625e8746-2d38-49aa-bb67-0dbe217ccbdb.MOV",
+    "s3_object_key": "video-capture-activities/completed/00864f6b-efb4-4f03-b2ff-0251db0dd087/625e8746-2d38-49aa-bb67-0dbe217ccbdb.MOV",
+    "s3_annotation_key": "video-capture-activities/completed/00864f6b-efb4-4f03-b2ff-0251db0dd087/annotation-data.json",
+    "mime_type": "video/quicktime",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Long Form",
+      "category": "Cleaning",
+      "subcategory": "Washing Dishes",
+      "annotation_id": "00864f6b-efb4-4f03-b2ff-0251db0dd087"
+    }
+  },
+  {
+    "filename": "6bb0bf19-5b8d-4a8d-ba68-c8695fb02930.MP4",
+    "s3_object_key": "video-capture-activities/completed/02d48efd-1fde-45f0-bd9c-c9b7a4e366fb/6bb0bf19-5b8d-4a8d-ba68-c8695fb02930.MP4",
+    "s3_annotation_key": "video-capture-activities/completed/02d48efd-1fde-45f0-bd9c-c9b7a4e366fb/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Long Form",
+      "category": "Cooking",
+      "subcategory": "Stirring Food & Cleaning Counter",
+      "annotation_id": "02d48efd-1fde-45f0-bd9c-c9b7a4e366fb",
+      "reka_vision_metadata": {
+        "domain": "kitchen_food_prep",
+        "task": "cooking_pork_stew",
+        "task_description": "The video documents a multi-step home cooking process involving boiling meat in a pressure cooker, preparing vegetables, and maintaining hygiene through hand washing.",
+        "technical_specs": {
+          "duration_s": 186,
+          "resolution_px": {
+            "width": 1920,
+            "height": 1080
+          },
+          "fps_estimate": 30,
+          "aspect_ratio": "16:9"
+        },
+        "environment_label": "indoor_home",
+        "environment_description": "A domestic kitchen featuring a gas stove, stainless steel sink, various cooking utensils, and food ingredients on the counter.",
+        "hands": {
+          "hands_visible": true,
+          "right_hand_pct": 40,
+          "left_hand_pct": 10,
+          "both_hands_pct": 30,
+          "no_hand_pct": 20,
+          "primary_hand": "both",
+          "active_manipulation": true,
+          "confidence": 0.95
+        }
+      },
+      "reka_vision_chunking": [
+        {
+          "start_s": 0,
+          "end_s": 35,
+          "label": "checking_meat_tenderness",
+          "objects": [
+            "pot",
+            "ladle",
+            "meat",
+            "broth",
+            "fork"
+          ],
+          "actions": [
+            "stir_liquid",
+            "check_texture",
+            "lift_object"
+          ],
+          "confidence": 0.9
+        },
+        {
+          "start_s": 35,
+          "end_s": 54,
+          "label": "managing_pressure_cooker",
+          "objects": [
+            "pressure_cooker",
+            "stove",
+            "lid"
+          ],
+          "actions": [
+            "tilt_pot",
+            "close_lid",
+            "reposition_object"
+          ],
+          "confidence": 0.85
+        },
+        {
+          "start_s": 54,
+          "end_s": 93,
+          "label": "igniting_stove",
+          "objects": [
+            "gas_stove",
+            "lighter",
+            "pot",
+            "knorr_seasoning_bag"
+          ],
+          "actions": [
+            "ignite_flame",
+            "place_object",
+            "boil_liquid"
+          ],
+          "confidence": 0.95
+        },
+        {
+          "start_s": 93,
+          "end_s": 125,
+          "label": "cleaning_and_sorting",
+          "objects": [
+            "sink",
+            "strainer",
+            "bottle",
+            "black_cloth"
+          ],
+          "actions": [
+            "dump_contents",
+            "wash_object",
+            "wipe_surface"
+          ],
+          "confidence": 0.8
+        },
+        {
+          "start_s": 125,
+          "end_s": 155,
+          "label": "food_prep_and_washing",
+          "objects": [
+            "green_beans",
+            "pot",
+            "colander",
+            "sink"
+          ],
+          "actions": [
+            "add_ingredient",
+            "rinse_vegetables",
+            "stir_food"
+          ],
+          "confidence": 0.9
+        },
+        {
+          "start_s": 155,
+          "end_s": 186,
+          "label": "hand_hygiene_and_final_prep",
+          "objects": [
+            "hands",
+            "faucet",
+            "soap",
+            "towel",
+            "luffa"
+          ],
+          "actions": [
+            "wash_hands",
+            "scrub_skin",
+            "dry_hands",
+            "tear_fabric"
+          ],
+          "confidence": 0.95
+        }
+      ]
+    }
+  },
+  {
+    "filename": "f9d64cef-0d9a-4fe3-af6b-79b35ecc70fb.MP4",
+    "s3_object_key": "video-capture-activities/completed/0190b652-073a-48f6-ae1a-2652a48a3dd8/f9d64cef-0d9a-4fe3-af6b-79b35ecc70fb.MP4",
+    "s3_annotation_key": "video-capture-activities/completed/0190b652-073a-48f6-ae1a-2652a48a3dd8/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Long Form",
+      "category": "Cleaning",
+      "subcategory": "Washing Dishes",
+      "annotation_id": "0190b652-073a-48f6-ae1a-2652a48a3dd8"
+    }
+  },
+  {
+    "filename": "57c659bb-b368-42bc-884e-9d809893de20.MOV",
+    "s3_object_key": "video-capture-activities/completed/03eb3dbd-42ef-4471-8961-01b38f3b2bdc/57c659bb-b368-42bc-884e-9d809893de20.MOV",
+    "s3_annotation_key": "video-capture-activities/completed/03eb3dbd-42ef-4471-8961-01b38f3b2bdc/annotation-data.json",
+    "mime_type": "video/quicktime",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Long Form",
+      "category": "Cooking",
+      "subcategory": "Peeling & Chopping Food",
+      "annotation_id": "03eb3dbd-42ef-4471-8961-01b38f3b2bdc"
+    }
+  },
+  {
+    "filename": "f0ea6ed5-2b2b-4ab7-8c49-85924e2820fd.MP4",
+    "s3_object_key": "video-capture-activities/completed/04b9f450-0681-4fe2-ac48-cb4eb3dedd3d/f0ea6ed5-2b2b-4ab7-8c49-85924e2820fd.MP4",
+    "s3_annotation_key": "video-capture-activities/completed/04b9f450-0681-4fe2-ac48-cb4eb3dedd3d/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Long Form",
+      "category": "Laundry",
+      "subcategory": "Folding Clothes",
+      "annotation_id": "04b9f450-0681-4fe2-ac48-cb4eb3dedd3d",
+      "reka_vision_metadata": {
+        "domain": "household_living",
+        "task": "folding_laundry",
+        "task_description": "A person systematically sorts and folds various items of clothing including t-shirts, pants, and linens on a flat surface to organize them for storage.",
+        "technical_specs": {
+          "duration_s": 452,
+          "resolution_px": {
+            "width": 1920,
+            "height": 1080
+          },
+          "fps_estimate": 30,
+          "aspect_ratio": "16:9"
+        },
+        "environment_label": "indoor_home",
+        "environment_description": "A dimly lit bedroom or laundry area featuring a bed with a green sheet and a flat table surface used for folding.",
+        "hands": {
+          "hands_visible": true,
+          "right_hand_pct": 10,
+          "left_hand_pct": 5,
+          "both_hands_pct": 80,
+          "no_hand_pct": 5,
+          "primary_hand": "both",
+          "active_manipulation": true,
+          "confidence": 0.95
+        }
+      },
+      "reka_vision_chunking": [
+        {
+          "start_s": 0,
+          "end_s": 15,
+          "label": "searching_clothes",
+          "objects": [
+            "clothes",
+            "bedsheet",
+            "skirt"
+          ],
+          "actions": [
+            "search_item",
+            "move_fabric"
+          ],
+          "confidence": 0.85
+        },
+        {
+          "start_s": 15,
+          "end_s": 45,
+          "label": "folding_white_garments",
+          "objects": [
+            "white_shirt",
+            "trousers",
+            "table"
+          ],
+          "actions": [
+            "organize_item",
+            "fold_fabric",
+            "stack_clothing"
+          ],
+          "confidence": 0.9
+        },
+        {
+          "start_s": 45,
+          "end_s": 60,
+          "label": "precision_folding_jacket",
+          "objects": [
+            "black_jacket",
+            "orange_stripes"
+          ],
+          "actions": [
+            "spread_fabric",
+            "fold_edges",
+            "mechanical_fold"
+          ],
+          "confidence": 0.95
+        },
+        {
+          "start_s": 60,
+          "end_s": 105,
+          "label": "sorting_dark_laundry",
+          "objects": [
+            "black_tshirt",
+            "black_pants",
+            "green_bed"
+          ],
+          "actions": [
+            "sort_item",
+            "smooth_fabric",
+            "reshape_garment"
+          ],
+          "confidence": 0.9
+        },
+        {
+          "start_s": 105,
+          "end_s": 150,
+          "label": "branding_and_trousers",
+          "objects": [
+            "logo_tshirt",
+            "blue_pants",
+            "gloves"
+          ],
+          "actions": [
+            "press_flat",
+            "align_creases",
+            "handle_item"
+          ],
+          "confidence": 0.88
+        },
+        {
+          "start_s": 150,
+          "end_s": 210,
+          "label": "linen_and_singlet_folding",
+          "objects": [
+            "white_sheet",
+            "white_singlet",
+            "suitcase"
+          ],
+          "actions": [
+            "measure_garment",
+            "fold_repeatedly",
+            "stack_laundry"
+          ],
+          "confidence": 0.85
+        },
+        {
+          "start_s": 210,
+          "end_s": 271,
+          "label": "batch_shirt_folding",
+          "objects": [
+            "white_tshirt",
+            "floral_shirt",
+            "table"
+          ],
+          "actions": [
+            "position_sleeves",
+            "smooth_wrinkles",
+            "stack_folded_items"
+          ],
+          "confidence": 0.95
+        },
+        {
+          "start_s": 271,
+          "end_s": 331,
+          "label": "methodical_organization",
+          "objects": [
+            "long_sleeve_shirt",
+            "fatboy_logo_shirt",
+            "green_surface"
+          ],
+          "actions": [
+            "fold_thirds",
+            "tidy_space",
+            "prepare_storage"
+          ],
+          "confidence": 0.92
+        },
+        {
+          "start_s": 331,
+          "end_s": 406,
+          "label": "patterned_clothing_processing",
+          "objects": [
+            "patterned_garment",
+            "socks",
+            "white_jersey"
+          ],
+          "actions": [
+            "turn_inside_out",
+            "straighten_creases",
+            "align_collar"
+          ],
+          "confidence": 0.9
+        },
+        {
+          "start_s": 406,
+          "end_s": 452,
+          "label": "final_packing_and_storage",
+          "objects": [
+            "striped_fabric",
+            "storage_box",
+            "shelves"
+          ],
+          "actions": [
+            "reduce_size",
+            "fit_into_container",
+            "finalize_folding"
+          ],
+          "confidence": 0.87
+        }
+      ]
+    }
+  },
+  {
+    "filename": "6cbd1cfb-aea5-4751-8691-f8bede621b41.MP4",
+    "s3_object_key": "video-capture-activities/completed/0661155b-c781-48b9-921b-ffe72a7d547e/6cbd1cfb-aea5-4751-8691-f8bede621b41.MP4",
+    "s3_annotation_key": "video-capture-activities/completed/0661155b-c781-48b9-921b-ffe72a7d547e/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Long Form",
+      "category": "Cleaning",
+      "subcategory": "Moping Floor",
+      "annotation_id": "0661155b-c781-48b9-921b-ffe72a7d547e"
+    }
+  },
+  {
+    "filename": "5a744c53-b713-4330-b419-fc55001896e0.MP4",
+    "s3_object_key": "video-capture-activities/completed/06c1fbc6-a26f-482f-b14f-20025d95bb26/5a744c53-b713-4330-b419-fc55001896e0.MP4",
+    "s3_annotation_key": "video-capture-activities/completed/06c1fbc6-a26f-482f-b14f-20025d95bb26/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Long Form",
+      "category": "Cooking",
+      "subcategory": "Peeling Food",
+      "annotation_id": "06c1fbc6-a26f-482f-b14f-20025d95bb26"
+    }
+  },
+  {
+    "filename": "e374824a-c160-41f8-9b18-bee27a1cdee5.MP4",
+    "s3_object_key": "video-capture-activities/completed/07f3517d-72c0-4614-9f98-306c5ffc13c2/e374824a-c160-41f8-9b18-bee27a1cdee5.MP4",
+    "s3_annotation_key": "video-capture-activities/completed/07f3517d-72c0-4614-9f98-306c5ffc13c2/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Long Form",
+      "category": "Cooking",
+      "subcategory": "Setting up table, moving dishes",
+      "annotation_id": "07f3517d-72c0-4614-9f98-306c5ffc13c2"
+    }
+  },
+  {
+    "filename": "375c198a-6127-421a-a1c0-ff5f5b413e82.MOV",
+    "s3_object_key": "video-capture-activities/completed/084217a1-940a-4245-b674-da1482ce410d/375c198a-6127-421a-a1c0-ff5f5b413e82.MOV",
+    "s3_annotation_key": "video-capture-activities/completed/084217a1-940a-4245-b674-da1482ce410d/annotation-data.json",
+    "mime_type": "video/quicktime",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Long Form",
+      "category": "Laundry",
+      "subcategory": "Loading clothes, folding clothes",
+      "annotation_id": "084217a1-940a-4245-b674-da1482ce410d"
+    }
+  },
+  {
+    "filename": "a233d8d8-1b04-4d53-9907-0219574a1800.MP4",
+    "s3_object_key": "video-capture-activities/completed/08600b4f-3266-4cc8-bd68-eea4d62e830d/a233d8d8-1b04-4d53-9907-0219574a1800.MP4",
+    "s3_annotation_key": "video-capture-activities/completed/08600b4f-3266-4cc8-bd68-eea4d62e830d/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Long Form",
+      "category": "Laundry",
+      "subcategory": "Folding Clothes",
+      "annotation_id": "08600b4f-3266-4cc8-bd68-eea4d62e830d"
+    }
+  },
+  {
+    "filename": "4eda40d1-f9f9-4ea2-b339-d4f7d945c95c.MOV",
+    "s3_object_key": "video-capture-activities/completed/08f78055-03f0-4e73-baae-975a92a47d6c/4eda40d1-f9f9-4ea2-b339-d4f7d945c95c.MOV",
+    "s3_annotation_key": "video-capture-activities/completed/08f78055-03f0-4e73-baae-975a92a47d6c/annotation-data.json",
+    "mime_type": "video/quicktime",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Long Form",
+      "category": "Cleaning",
+      "subcategory": "Moping Floor, Wiping Surface, Rearranging Furniture",
+      "annotation_id": "08f78055-03f0-4e73-baae-975a92a47d6c"
+    }
+  },
+  {
+    "filename": "bea83b40-62e1-480c-a0cc-f5733ba9a000.MOV",
+    "s3_object_key": "video-capture-activities/completed/1459f977-61a2-4eaa-9569-4a47e6e65ed0/bea83b40-62e1-480c-a0cc-f5733ba9a000.MOV",
+    "s3_annotation_key": "video-capture-activities/completed/1459f977-61a2-4eaa-9569-4a47e6e65ed0/annotation-data.json",
+    "mime_type": "video/quicktime",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Long Form",
+      "category": "Laundry",
+      "subcategory": "Loading Clothes",
+      "annotation_id": "1459f977-61a2-4eaa-9569-4a47e6e65ed0"
+    }
+  },
+  {
+    "filename": "8ac2a9c5-89a7-4a4e-a3f6-e5044ab7ff42.MP4",
+    "s3_object_key": "video-capture-activities/completed/14d74f93-8bab-4f9d-b824-5aceb1344d43/8ac2a9c5-89a7-4a4e-a3f6-e5044ab7ff42.MP4",
+    "s3_annotation_key": "video-capture-activities/completed/14d74f93-8bab-4f9d-b824-5aceb1344d43/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Long Form",
+      "category": "Laundry",
+      "subcategory": "Hang Clothes",
+      "annotation_id": "14d74f93-8bab-4f9d-b824-5aceb1344d43"
+    }
+  },
+  {
+    "filename": "93930d51-4aac-4ce2-bbfe-54ef2b955582.MOV",
+    "s3_object_key": "video-capture-activities/completed/056c9e25-8490-4a98-88cc-5b526a8adc87/93930d51-4aac-4ce2-bbfe-54ef2b955582.MOV",
+    "s3_annotation_key": "video-capture-activities/completed/056c9e25-8490-4a98-88cc-5b526a8adc87/annotation-data.json",
+    "mime_type": "video/quicktime",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Long Form",
+      "category": "Body Movement",
+      "subcategory": "Walking",
+      "annotation_id": "056c9e25-8490-4a98-88cc-5b526a8adc87"
+    }
+  }
+]

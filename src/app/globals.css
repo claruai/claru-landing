@@ -627,16 +627,119 @@ h1, h2, h3, h4, h5, h6 {
 
   /* V2 Dot grid */
   --v2-dot-size: 1px;
-  --v2-dot-gap: 24px;
+  --v2-dot-gap: 40px;
 }
 
-/* V2 page dot grid background */
+/* V2 page dot grid background — sage green at ~5% opacity */
 .v2-dot-grid {
   background-image: radial-gradient(
     circle,
-    var(--v2-neutral-3) var(--v2-dot-size),
+    rgba(146, 176, 144, 0.05) var(--v2-dot-size),
     transparent var(--v2-dot-size)
   );
   background-size: var(--v2-dot-gap) var(--v2-dot-gap);
+}
+
+/* V2 section divider — subtle gradient line */
+.v2-section-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.03) 15%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.03) 85%,
+    transparent 100%
+  );
+}
+
+/* V2 section label line — extends right after label text */
+.v2-section-label {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.v2-section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(146, 176, 144, 0.2) 0%,
+    transparent 100%
+  );
+}
+
+/* V2 scanline effect for terminal chrome */
+@keyframes v2-scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.v2-scanline::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(146, 176, 144, 0.015) 2px,
+    rgba(146, 176, 144, 0.015) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* V2 card premium styles */
+.v2-card {
+  background: linear-gradient(165deg, #121110 0%, #161614 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 2rem;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.v2-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 40%,
+    transparent 60%,
+    rgba(146, 176, 144, 0.06) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.v2-card:hover {
+  border-color: rgba(146, 176, 144, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(146, 176, 144, 0.05);
+  transform: translateY(-2px);
+}
+
+.v2-card:hover::before {
+  opacity: 1;
+}
+
+/* Hide scrollbar utility */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 

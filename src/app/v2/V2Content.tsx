@@ -12,20 +12,33 @@ import WhyClaru from "./components/sections/WhyClaru";
 import SocialProofV2 from "./components/sections/SocialProofV2";
 import FinalCTAV2 from "./components/sections/FinalCTAV2";
 
+function SectionDivider() {
+  return <div className="v2-section-divider" />;
+}
+
 export default function V2Content() {
   return (
     <LenisProvider>
       <div className="v2-dot-grid relative min-h-screen bg-[var(--bg-primary)] text-white">
         <main>
           <HeroV2 />
+          <SectionDivider />
           <DataGap />
+          <SectionDivider />
           <ThreeModes />
+          <SectionDivider />
           <CatalogShowcase />
+          <SectionDivider />
           <EnrichmentPipeline />
+          <SectionDivider />
           <CollectionNetwork />
+          <SectionDivider />
           <GameCapture />
+          <SectionDivider />
           <WhyClaru />
+          <SectionDivider />
           <SocialProofV2 />
+          <SectionDivider />
           <FinalCTAV2 />
         </main>
       </div>

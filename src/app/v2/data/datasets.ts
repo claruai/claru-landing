@@ -18,11 +18,12 @@ export const datasets: Dataset[] = [
     count: "~386K clips",
     countRaw: 386000,
     description:
-      "First-person video of daily activities in kitchens, offices, and workshops. Depth, pose, and segmentation on every clip.",
+      "First-person video of daily activities in kitchens, offices, and workshops. Expert human annotation on every clip.",
     modalities: ["depth", "pose", "segmentation"],
     environments: ["kitchens", "offices", "workshops"],
     status: "available",
     poster: "/images/datasets/egocentric-activity.webp",
+    video: "/videos/datasets/egocentric-activity-loop.mp4",
   },
   {
     id: "game-environment",
@@ -35,6 +36,7 @@ export const datasets: Dataset[] = [
     environments: ["game-studios"],
     status: "available",
     poster: "/images/datasets/game-environment.webp",
+    video: "/videos/datasets/game-environment-loop.mp4",
   },
   {
     id: "video-quality",
@@ -47,6 +49,7 @@ export const datasets: Dataset[] = [
     environments: ["varied"],
     status: "available",
     poster: "/images/datasets/video-quality.webp",
+    video: "/videos/datasets/video-quality-loop.mp4",
   },
   {
     id: "object-identity",
@@ -59,6 +62,7 @@ export const datasets: Dataset[] = [
     environments: ["kitchens", "warehouses", "retail"],
     status: "available",
     poster: "/images/datasets/object-identity.webp",
+    video: "/videos/datasets/object-identity-loop.mp4",
   },
   {
     id: "traffic",

@@ -16,12 +16,12 @@ const sfHub: [number, number] = [37.7749, -122.4194];
 const sageRGB: [number, number, number] = [146 / 255, 176 / 255, 144 / 255];
 
 const environments = [
-  { name: "Kitchens", icon: "🍳" },
-  { name: "Warehouses", icon: "📦" },
-  { name: "Roads", icon: "🛣️" },
-  { name: "Offices", icon: "🏢" },
-  { name: "Game Studios", icon: "🎮" },
-  { name: "Retail", icon: "🏪" },
+  { name: "Kitchens", desc: "Domestic prep & cooking" },
+  { name: "Warehouses", desc: "Industrial logistics" },
+  { name: "Roads", desc: "Traffic & driving" },
+  { name: "Offices", desc: "Workplace interaction" },
+  { name: "Game Worlds", desc: "Synthetic environments" },
+  { name: "Retail", desc: "Shopping & commerce" },
 ];
 
 function latLngToScreen(
@@ -97,7 +97,7 @@ export default function CollectionNetwork() {
     import("cobe").then((COBE) => {
       if (destroyed || !canvasRef.current) return;
 
-      const size = isMobile ? 300 : 500;
+      const size = isMobile ? 340 : 600;
       canvasRef.current.width = size * 2;
       canvasRef.current.height = size * 2;
 
@@ -129,14 +129,12 @@ export default function CollectionNetwork() {
         devicePixelRatio: 2,
       });
 
-      // Animation loop
       const animate = () => {
         if (destroyed || !globe) return;
 
         phiRef.current += 0.003;
         globe.update({ phi: phiRef.current });
 
-        // Update label positions
         const canvasEl = canvasRef.current;
         const containerEl = containerRef.current;
         if (canvasEl && containerEl) {
@@ -177,29 +175,58 @@ export default function CollectionNetwork() {
     };
   }, [reducedMotion, isMobile]);
 
+  const envGrid = (
+    <div className="mx-auto mt-14 grid max-w-3xl grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
+      {environments.map((env, i) => (
+        <motion.div
+          key={env.name}
+          initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: i * 0.06, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="group flex flex-col items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-5 transition-all duration-400 hover:border-[var(--accent-primary)]/20 hover:bg-[var(--bg-card-hover)] hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
+        >
+          <span className="font-mono text-xs font-medium text-white/60 group-hover:text-[var(--accent-primary)] transition-colors duration-300">
+            {env.name}
+          </span>
+          <span className="font-mono text-[10px] text-white/25">
+            {env.desc}
+          </span>
+        </motion.div>
+      ))}
+    </div>
+  );
+
   // No-WebGL or reduced motion fallback
   if (!hasWebGL || reducedMotion) {
     return (
-      <section
-        id="collection"
-        className="relative bg-[var(--bg-primary)] py-24"
-      >
+      <section id="collection" className="relative bg-[var(--bg-primary)] py-32 md:py-40">
         <div className="container mx-auto px-6">
-          <span className="mb-8 block font-mono text-sm text-[var(--accent-primary)]">
-            {"// GLOBAL COLLECTION"}
-          </span>
+          <div className="mb-16">
+            <div className="v2-section-label mb-6">
+              <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-[var(--accent-primary)]">
+                {"// GLOBAL COLLECTION"}
+              </span>
+            </div>
+            <h2 className="max-w-lg text-3xl font-bold leading-[1.1] tracking-[-0.02em] text-white md:text-4xl lg:text-[42px]">
+              We collect where your robots{" "}
+              <span className="text-white/40">will actually operate.</span>
+            </h2>
+          </div>
 
-          <div className="mx-auto flex max-w-lg items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-12">
+          <div className="mx-auto flex max-w-lg items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-12">
             <div className="text-center">
-              <div className="mb-4 text-4xl">🌍</div>
-              <p className="font-mono text-sm text-[var(--accent-primary)]">
-                5 collection hubs worldwide
+              <p className="mb-1 font-mono text-2xl font-bold text-[var(--accent-primary)]">
+                5
               </p>
-              <div className="mt-4 flex flex-wrap justify-center gap-2">
+              <p className="mb-4 font-mono text-xs text-white/40">
+                collection hubs worldwide
+              </p>
+              <div className="flex flex-wrap justify-center gap-2">
                 {markerData.map((m) => (
                   <span
                     key={m.label}
-                    className="rounded-full border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-3 py-1 font-mono text-xs text-white/60"
+                    className="rounded-full border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-3 py-1 font-mono text-xs text-white/50"
                   >
                     {m.label}
                   </span>
@@ -208,95 +235,99 @@ export default function CollectionNetwork() {
             </div>
           </div>
 
-          <p className="mx-auto mt-8 max-w-2xl text-center text-base text-white/80">
-            We collect where your robots will operate. Suburban kitchens.
-            Factory floors. City streets. Not lab environments — real ones.
+          <p className="mx-auto mt-10 max-w-2xl text-center text-sm leading-relaxed text-white/55">
+            Suburban kitchens. Factory floors. City streets.
           </p>
 
-          <div className="mx-auto mt-10 grid max-w-3xl grid-cols-3 gap-4 md:grid-cols-6">
-            {environments.map((env) => (
-              <div
-                key={env.name}
-                className="flex flex-col items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4"
-              >
-                <span className="text-2xl">{env.icon}</span>
-                <span className="font-mono text-xs text-white/60">
-                  {env.name}
-                </span>
-              </div>
-            ))}
-          </div>
+          {envGrid}
         </div>
       </section>
     );
   }
 
   return (
-    <section id="collection" className="relative bg-[var(--bg-primary)] py-24">
+    <section id="collection" className="relative bg-[var(--bg-primary)] py-32 md:py-40">
       <div className="container mx-auto px-6">
-        <span className="mb-8 block font-mono text-sm text-[var(--accent-primary)]">
-          {"// GLOBAL COLLECTION"}
-        </span>
+        <motion.div
+          className="mb-16"
+          initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className="v2-section-label mb-6">
+            <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-[var(--accent-primary)]">
+              {"// GLOBAL COLLECTION"}
+            </span>
+          </div>
+          <h2 className="max-w-lg text-3xl font-bold leading-[1.1] tracking-[-0.02em] text-white md:text-4xl lg:text-[42px]">
+            We collect where your robots{" "}
+            <span className="text-white/40">will actually operate.</span>
+          </h2>
+        </motion.div>
 
         <div
           ref={containerRef}
           className="relative mx-auto"
           style={{
-            width: isMobile ? 300 : 500,
-            height: isMobile ? 300 : 500,
+            width: isMobile ? 340 : 600,
+            height: isMobile ? 340 : 600,
           }}
         >
+          {/* Larger radial glow behind globe */}
+          <div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full blur-[80px]"
+            style={{
+              width: isMobile ? 280 : 450,
+              height: isMobile ? 280 : 450,
+              background: "radial-gradient(circle, rgba(146,176,144,0.08) 0%, rgba(146,176,144,0.03) 50%, transparent 70%)",
+            }}
+          />
+
           <canvas
             ref={canvasRef}
             className="h-full w-full"
             style={{
-              width: isMobile ? 300 : 500,
-              height: isMobile ? 300 : 500,
+              width: isMobile ? 340 : 600,
+              height: isMobile ? 340 : 600,
             }}
           />
 
           {labelPositions.map((pos) => (
             <div
               key={pos.label}
-              className="pointer-events-none absolute font-mono text-xs text-[var(--accent-primary)] transition-opacity duration-300"
+              className="pointer-events-none absolute font-mono text-[11px] transition-opacity duration-300"
               style={{
                 left: pos.x,
                 top: pos.y,
                 transform: "translate(-50%, -150%)",
-                opacity: pos.visible ? 0.9 : 0,
-                backdropFilter: "blur(4px)",
-                padding: "2px 6px",
-                borderRadius: 4,
-                background: "rgba(10, 9, 8, 0.6)",
+                opacity: pos.visible ? 0.85 : 0,
+                padding: "3px 8px",
+                borderRadius: 6,
+                background: "rgba(10, 9, 8, 0.7)",
+                border: "1px solid rgba(146, 176, 144, 0.15)",
+                backdropFilter: "blur(8px)",
+                color: "var(--accent-primary)",
               }}
             >
+              <span className="mr-1.5 inline-block h-1 w-1 rounded-full bg-[var(--accent-primary)]" />
               {pos.label}
             </div>
           ))}
         </div>
 
-        <p className="mx-auto mt-8 max-w-2xl text-center text-base text-white/80">
-          We collect where your robots will operate. Suburban kitchens.
-          Factory floors. City streets. Not lab environments — real ones.
-        </p>
+        <motion.p
+          className="mx-auto mt-12 max-w-2xl text-center text-[15px] leading-relaxed text-white/45"
+          initial={reducedMotion ? {} : { opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+        >
+          Suburban kitchens. Factory floors. City streets.
+          Not lab environments — real ones.
+        </motion.p>
 
-        <div className="mx-auto mt-10 grid max-w-3xl grid-cols-3 gap-4 md:grid-cols-6">
-          {environments.map((env, i) => (
-            <motion.div
-              key={env.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.05, duration: 0.5 }}
-              className="flex flex-col items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4"
-            >
-              <span className="text-2xl">{env.icon}</span>
-              <span className="font-mono text-xs text-white/60">
-                {env.name}
-              </span>
-            </motion.div>
-          ))}
-        </div>
+        {envGrid}
       </div>
     </section>
   );
