@@ -54,17 +54,85 @@ export async function POST(request: NextRequest) {
         );
 
       if (dataset_id) {
-        // Fetch clip IDs from dataset_clips, then filter
-        const { data: dcRows } = await supabase
+        // Use a subquery via dataset_clips to filter clips by dataset.
+        // Direct .in() with thousands of IDs exceeds URL length limits,
+        // so we use the !inner join approach instead.
+        const datasetQuery = supabase
           .from("dataset_clips")
-          .select("clip_id")
+          .select(
+            `clip_id, clips!inner(id, s3_bucket, s3_key, ai_caption, caption_text, ai_enrichment_source, ai_agent_context, mime_type, tech_resolution_width, tech_resolution_height, tech_fps, tech_duration_seconds, tech_codec, ann_metadata)`,
+            { count: "exact" },
+          )
           .eq("dataset_id", dataset_id)
-          .is("lead_id", null);
-        const clipIdsForDataset = (dcRows ?? []).map((r) => r.clip_id);
-        if (clipIdsForDataset.length === 0) {
+          .is("lead_id", null)
+          .order("created_at", { ascending: false })
+          .range(offset, offset + limit - 1);
+
+        const { data: joinData, error: joinErr, count: joinCount } = await datasetQuery;
+
+        if (joinErr) {
+          console.error("[search/browse-dataset]", joinErr);
           return NextResponse.json(scrubS3Urls({ results: [], total_count: 0 }));
         }
-        browseQuery = browseQuery.in("id", clipIdsForDataset);
+
+        // Flatten: extract the nested clips object
+        const flatResults = (joinData ?? []).map((row) => {
+          const clip = row.clips as unknown as Record<string, unknown>;
+          return {
+            id: clip.id as string,
+            s3_bucket: clip.s3_bucket as string,
+            s3_key: clip.s3_key as string,
+            ai_caption: clip.ai_caption as string | null,
+            caption_text: clip.caption_text as string | null,
+            similarity: 1,
+            ai_enrichment_source: clip.ai_enrichment_source as string | null,
+            ai_agent_context: clip.ai_agent_context as Record<string, unknown> | null,
+            mime_type: clip.mime_type as string | null,
+            tech_resolution_width: clip.tech_resolution_width as number | null,
+            tech_resolution_height: clip.tech_resolution_height as number | null,
+            tech_fps: clip.tech_fps as number | null,
+            tech_duration_seconds: clip.tech_duration_seconds as number | null,
+            tech_codec: clip.tech_codec as string | null,
+            ann_metadata: clip.ann_metadata as Record<string, unknown> | null,
+            signed_url: null as string | null,
+          };
+        });
+
+        // Sign URLs
+        const signedUrls = await Promise.all(
+          flatResults.map((r) => getS3SignedUrl(r.s3_key, 600, r.s3_bucket)),
+        );
+        for (let i = 0; i < flatResults.length; i++) {
+          flatResults[i].signed_url = signedUrls[i];
+        }
+
+        // Lead assignments
+        const clipIds = flatResults.map((r) => r.id);
+        const leadAssignments: Record<string, Array<{ lead_id: string; lead_name: string; lead_company: string }>> = {};
+        if (clipIds.length > 0) {
+          const { data: dcLeads } = await supabase
+            .from("dataset_clips")
+            .select("clip_id, lead_id, leads(name, company)")
+            .in("clip_id", clipIds)
+            .not("lead_id", "is", null);
+          for (const row of dcLeads ?? []) {
+            const lead = (row as Record<string, unknown>).leads as { name: string; company: string } | null;
+            if (row.lead_id && lead) {
+              if (!leadAssignments[row.clip_id]) leadAssignments[row.clip_id] = [];
+              leadAssignments[row.clip_id].push({ lead_id: row.lead_id, lead_name: lead.name, lead_company: lead.company });
+            }
+          }
+        }
+
+        const enrichedResults = flatResults.map((r) => ({
+          ...r,
+          assigned_leads: leadAssignments[r.id] ?? [],
+        }));
+
+        return NextResponse.json(scrubS3Urls({
+          results: enrichedResults,
+          total_count: joinCount ?? flatResults.length,
+        }));
       }
 
       if (s3_bucket) {
