@@ -19,9 +19,9 @@ const VIDEO_URLS = [
   "/videos/mosaic/annotated-seg-01.mp4", // segmentation
   "/videos/mosaic/mosaic-12.mp4", // varied egocentric
   "/videos/mosaic/annotated-bbox-02.mp4", // more bbox
-  "/videos/mosaic/annotated-depth-02.mp4", // more depth
+  "/videos/mosaic/kling-robot.mp4", // Kling-generated robot arm (was annotated-depth-02)
   "/videos/mosaic/mosaic-20.mp4", // varied
-  "/videos/mosaic/mosaic-24.mp4", // varied
+  "/videos/mosaic/kling-simlab.mp4", // Kling-generated sim lab (was mosaic-24)
 ];
 
 // ---------------------------------------------------------------------------
@@ -88,7 +88,134 @@ function buildTileConfigs(): TileConfig[] {
 }
 
 // ---------------------------------------------------------------------------
-// VideoPlane -- a single mesh with a video texture
+// ASCII Edge Decomposition Shader
+// ---------------------------------------------------------------------------
+
+/**
+ * Create a shared ASCII glyph atlas texture.
+ * Characters are arranged in a 16-column grid so the fragment shader can
+ * index into them by luminance value.
+ */
+function createASCIIAtlas(): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  const size = 256;
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+
+  // Black background
+  ctx.fillStyle = "#000000";
+  ctx.fillRect(0, 0, size, size);
+
+  // ASCII ramp from empty to dense -- 10 characters
+  const chars = " .:-=+*#%@";
+  const cellSize = size / 16;
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = `${cellSize * 0.8}px monospace`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  for (let i = 0; i < chars.length; i++) {
+    const col = i % 16;
+    const row = Math.floor(i / 16);
+    ctx.fillText(
+      chars[i],
+      col * cellSize + cellSize / 2,
+      row * cellSize + cellSize / 2
+    );
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.minFilter = THREE.NearestFilter;
+  texture.magFilter = THREE.NearestFilter;
+  texture.needsUpdate = true;
+  return texture;
+}
+
+// Vertex shader -- pass-through with UV coordinates
+const ASCII_VERTEX_SHADER = /* glsl */ `
+varying vec2 vUv;
+void main() {
+  vUv = uv;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+`;
+
+// Fragment shader -- renders video in center, dissolves to ASCII at edges
+const ASCII_FRAGMENT_SHADER = /* glsl */ `
+uniform sampler2D videoTex;
+uniform sampler2D asciiAtlas;
+uniform float time;
+uniform float edgeWidth;       // 0.18 = 18% of tile
+uniform float tileOpacity;     // per-tile opacity from distance falloff
+uniform vec3 accentColor;      // sage green
+
+varying vec2 vUv;
+
+// --- Noise helpers for organic edge boundary ---
+float hash(vec2 p) {
+  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+}
+
+float noise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  float a = hash(i);
+  float b = hash(i + vec2(1.0, 0.0));
+  float c = hash(i + vec2(0.0, 1.0));
+  float d = hash(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+}
+
+void main() {
+  // Sample video texture
+  vec4 videoColor = texture2D(videoTex, vUv);
+  float luminance = dot(videoColor.rgb, vec3(0.299, 0.587, 0.114));
+
+  // Distance from nearest edge (0 at border, 0.5 at center)
+  float dx = min(vUv.x, 1.0 - vUv.x);
+  float dy = min(vUv.y, 1.0 - vUv.y);
+  float edgeDist = min(dx, dy);
+
+  // Organic edge boundary: noise for randomness + sine for breathing
+  float breathe = sin(time * 0.5) * 0.02;
+  float noiseVal = noise(vUv * 20.0 + time * 0.3) * 0.04;
+  float edgeThreshold = edgeWidth + breathe + noiseVal;
+
+  // Transition factor: 0 = full ASCII, 1 = full video
+  float t = smoothstep(0.0, edgeThreshold, edgeDist);
+
+  if (t > 0.99) {
+    // Center zone -- pure video
+    gl_FragColor = vec4(videoColor.rgb, tileOpacity);
+  } else {
+    // Edge zone -- ASCII characters mapped by video luminance
+    float charIndex = floor(luminance * 9.0); // 10 chars in ramp, indices 0-9
+    float col = mod(charIndex, 16.0);
+    float row = floor(charIndex / 16.0);
+
+    // Map UV into a repeating ASCII character grid across the tile
+    vec2 cellUV = fract(vUv * 30.0); // ~30 characters across each axis
+    vec2 atlasUV = (vec2(col, row) + cellUV) / 16.0;
+    float ascii = texture2D(asciiAtlas, atlasUV).r;
+
+    // ASCII colored in sage green, opacity fades toward outer edge
+    float edgeOpacity = (1.0 - t) * 0.7; // max 70% opacity at very edge
+    vec3 asciiColor = accentColor * ascii;
+
+    // Blend video and ASCII based on transition factor
+    vec3 finalColor = mix(asciiColor, videoColor.rgb, t);
+    float finalAlpha = mix(edgeOpacity, 1.0, t) * tileOpacity;
+
+    gl_FragColor = vec4(finalColor, finalAlpha);
+  }
+}
+`;
+
+// ---------------------------------------------------------------------------
+// VideoPlane -- a single mesh with video texture + ASCII edge shader
 // ---------------------------------------------------------------------------
 
 interface VideoPlaneProps {
@@ -96,12 +223,23 @@ interface VideoPlaneProps {
   position: [number, number, number];
   rotation: [number, number, number];
   tileOpacity: number;
+  asciiAtlas: THREE.CanvasTexture;
 }
 
-function VideoPlane({ url, position, rotation, tileOpacity }: VideoPlaneProps) {
+/** Cached across all tiles -- once we know the shader compiles (or not), skip re-checking */
+let shaderCompileOk: boolean | null = null;
+
+function VideoPlane({
+  url,
+  position,
+  rotation,
+  tileOpacity,
+  asciiAtlas,
+}: VideoPlaneProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [texture, setTexture] = useState<THREE.VideoTexture | null>(null);
+  const [useFallback, setUseFallback] = useState(false);
 
   useEffect(() => {
     const video = document.createElement("video");
@@ -138,25 +276,84 @@ function VideoPlane({ url, position, rotation, tileOpacity }: VideoPlaneProps) {
     };
   }, [url]);
 
-  // Subtle per-tile floating animation
+  // Shader uniforms -- stable reference, values mutated in useFrame
+  const uniforms = useMemo(
+    () => ({
+      videoTex: { value: null as THREE.VideoTexture | null },
+      asciiAtlas: { value: asciiAtlas },
+      time: { value: 0 },
+      edgeWidth: { value: 0.18 },
+      tileOpacity: { value: tileOpacity },
+      accentColor: { value: new THREE.Color(0x92b090) },
+    }),
+    [asciiAtlas, tileOpacity]
+  );
+
+  // Subtle per-tile floating animation + shader time uniform update
   const floatOffset = useMemo(() => Math.random() * Math.PI * 2, []);
   useFrame(({ clock }) => {
     if (!meshRef.current) return;
     const t = clock.getElapsedTime();
     meshRef.current.position.y =
       position[1] + Math.sin(t * 0.4 + floatOffset) * 0.04;
+
+    if (!useFallback && shaderCompileOk !== false) {
+      const mat = meshRef.current.material as THREE.ShaderMaterial;
+      if (mat.uniforms) {
+        mat.uniforms.time.value = t;
+        if (texture) {
+          mat.uniforms.videoTex.value = texture;
+        }
+      }
+
+      // One-time shader compile validation on first render with texture
+      if (shaderCompileOk === null && texture) {
+        try {
+          // Access the compiled program -- if diagnostics say not runnable, fall back
+          const matAny = mat as unknown as Record<string, unknown>;
+          const program = matAny.program as
+            | { diagnostics?: { runnable: boolean } }
+            | undefined;
+          if (program?.diagnostics && !program.diagnostics.runnable) {
+            shaderCompileOk = false;
+            setUseFallback(true);
+          } else if (program) {
+            shaderCompileOk = true;
+          }
+        } catch {
+          shaderCompileOk = false;
+          setUseFallback(true);
+        }
+      }
+    }
   });
 
   if (!texture) return null;
 
+  // Fallback: plain meshBasicMaterial if shader compilation failed
+  if (useFallback || shaderCompileOk === false) {
+    return (
+      <mesh ref={meshRef} position={position} rotation={rotation}>
+        <planeGeometry args={[TILE_WIDTH, TILE_HEIGHT]} />
+        <meshBasicMaterial
+          map={texture}
+          toneMapped={false}
+          transparent
+          opacity={tileOpacity}
+        />
+      </mesh>
+    );
+  }
+
   return (
     <mesh ref={meshRef} position={position} rotation={rotation}>
       <planeGeometry args={[TILE_WIDTH, TILE_HEIGHT]} />
-      <meshBasicMaterial
-        map={texture}
-        toneMapped={false}
+      <shaderMaterial
+        uniforms={uniforms}
+        vertexShader={ASCII_VERTEX_SHADER}
+        fragmentShader={ASCII_FRAGMENT_SHADER}
         transparent
-        opacity={tileOpacity}
+        toneMapped={false}
       />
     </mesh>
   );
@@ -204,6 +401,8 @@ function MouseParallaxGroup({ children }: { children: React.ReactNode }) {
 
 function Scene() {
   const tileConfigs = useMemo(() => buildTileConfigs(), []);
+  // Create the ASCII atlas once and share across all tiles
+  const asciiAtlas = useMemo(() => createASCIIAtlas(), []);
 
   return (
     <>
@@ -218,6 +417,7 @@ function Scene() {
             position={cfg.position}
             rotation={cfg.rotation}
             tileOpacity={cfg.opacity}
+            asciiAtlas={asciiAtlas}
           />
         ))}
       </MouseParallaxGroup>

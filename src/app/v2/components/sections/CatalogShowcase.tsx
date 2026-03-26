@@ -26,8 +26,8 @@ const ROW_2_ITEMS: MarqueeItem[] = [
   { label: "SEGMENTATION", video: "/videos/mosaic/annotated-seg-01.mp4" },
   { label: "EGOCENTRIC", video: "/videos/mosaic/mosaic-24.mp4" },
   { label: "QUALITY", video: "/videos/datasets/video-quality-loop.mp4" },
-  { label: "BBOX", video: "/videos/mosaic/annotated-bbox-02.mp4" },
-  { label: "DEPTH MAP", video: "/videos/mosaic/annotated-depth-02.mp4" },
+  { label: "SAFETY", video: "/videos/marquee/safety-review-v2.mp4" },
+  { label: "CLASSIFY", video: "/videos/marquee/vid-classify.mp4" },
   { label: "EGOCENTRIC", video: "/videos/datasets/egocentric-activity-loop.mp4" },
 ];
 

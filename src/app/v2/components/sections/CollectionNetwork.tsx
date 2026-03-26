@@ -13,14 +13,14 @@ const markerData = [
     lng: -122.4194,
     city: "San Francisco",
     label: "Offices in San Francisco",
-    videoSrc: "/videos/globe/point-01.mp4",
+    videoSrc: "/videos/globe/g01-sf-kling.mp4",
   },
   {
     lat: 19.076,
     lng: 72.8777,
     city: "Mumbai",
     label: "Kitchens in Mumbai",
-    videoSrc: "/videos/globe/point-14.mp4",
+    videoSrc: "/videos/globe/g02-mumbai-kling.mp4",
   },
   {
     lat: 10.8231,
@@ -48,7 +48,7 @@ const markerData = [
     lng: 3.3792,
     city: "Lagos",
     label: "Retail in Lagos",
-    videoSrc: "/videos/globe/point-06.mp4",
+    videoSrc: "/videos/globe/g06-lagos-kling.mp4",
   },
   {
     lat: 14.5995,
@@ -62,7 +62,7 @@ const markerData = [
     lng: 100.5018,
     city: "Bangkok",
     label: "Roads in Bangkok",
-    videoSrc: "/videos/globe/point-08.mp4",
+    videoSrc: "/videos/globe/g08-bangkok-kling.mp4",
   },
   {
     lat: 51.5074,
@@ -104,7 +104,7 @@ const markerData = [
     lng: 90.4125,
     city: "Dhaka",
     label: "Retail in Dhaka",
-    videoSrc: "/videos/globe/point-02.mp4",
+    videoSrc: "/videos/globe/g14-dhaka-kling.mp4",
   },
   {
     lat: -12.0464,

@@ -29,6 +29,7 @@
     "@react-three/postprocessing": "^3.0.4",
     "@remotion/cli": "^4.0.436",
     "@remotion/player": "^4.0.436",
+    "@remotion/three": "^4.0.436",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.97.0",
     "clsx": "^2.1.1",

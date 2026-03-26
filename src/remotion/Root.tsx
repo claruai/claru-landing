@@ -9,6 +9,10 @@ import ClassificationPipelineComposition from "./compositions/type-5/Classificat
 import QualityRubricComposition from "./compositions/type-6/QualityRubricComposition";
 import SafetyShieldComposition from "./compositions/type-7/SafetyShieldComposition";
 import CinematicShowcaseComposition from "./compositions/type-8/CinematicShowcaseComposition";
+import PointCloudFlythrough from "./compositions/enrichment-viz/PointCloudFlythrough";
+import HandMeshShowcase from "./compositions/enrichment-viz/HandMeshShowcase";
+import TrellisReconstruction from "./compositions/enrichment-viz/TrellisReconstruction";
+import HumanFoldMesh from "./compositions/enrichment-viz/HumanFoldMesh";
 import manifest from "../../scripts/composition-manifest.json";
 
 // ---------------------------------------------------------------------------

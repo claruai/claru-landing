@@ -280,10 +280,11 @@ const heroTiles: VideoEntry[] = [
   },
   {
     ref: "H-10",
-    source: "annotation-grid.mp4",
-    videoPath: "/videos/mosaic/annotation-grid.mp4",
-    label: "ANNOTATION",
+    source: "kling-robot.mp4",
+    videoPath: "/videos/mosaic/kling-robot.mp4",
+    label: "ROBOTICS LAB",
     status: "EXISTS",
+    note: "Kling-generated robot arm clip, cropped from enrichment-viz/raw-robot.mp4",
   },
   {
     ref: "H-11",
@@ -385,10 +386,11 @@ const marqueeRow2: VideoEntry[] = [
   },
   {
     ref: "M2-03",
-    source: "safety-review.mp4",
-    videoPath: "/videos/marquee/safety-review.mp4",
+    source: "safety-review-v2.mp4",
+    videoPath: "/videos/marquee/safety-review-v2.mp4",
     label: "SAFETY",
     status: "EXISTS",
+    note: "Upgraded: cropped from sol-red-teaming.mp4 for stronger visuals",
   },
   {
     ref: "M2-04",
@@ -406,10 +408,11 @@ const marqueeRow2: VideoEntry[] = [
   },
   {
     ref: "M2-06",
-    source: "red-team.mp4",
-    videoPath: "/videos/marquee/red-team.mp4",
-    label: "RED TEAM",
+    source: "vid-classify.mp4",
+    videoPath: "/videos/marquee/vid-classify.mp4",
+    label: "CLASSIFY",
     status: "EXISTS",
+    note: "Upgraded: cropped from cs-vid-classify.mp4 showing video classification task",
   },
   {
     ref: "M2-07",
@@ -549,20 +552,20 @@ const viz3DAssets: Viz3DEntry[] = [
 // ---------------------------------------------------------------------------
 
 const globeEntries: GlobeEntry[] = [
-  { ref: "G-01", location: "San Francisco", label: "Lab in San Francisco", source: "g01-sf.mp4", videoPath: "/videos/globe/g01-sf.mp4", status: "EXISTS" },
-  { ref: "G-02", location: "Mumbai", label: "Kitchen in Mumbai", source: "g02-mumbai.mp4", videoPath: "/videos/globe/g02-mumbai.mp4", status: "EXISTS" },
+  { ref: "G-01", location: "San Francisco", label: "Lab in San Francisco", source: "g01-sf-kling.mp4", videoPath: "/videos/globe/g01-sf-kling.mp4", status: "EXISTS", note: "Kling-generated sim lab clip" },
+  { ref: "G-02", location: "Mumbai", label: "Kitchen in Mumbai", source: "g02-mumbai-kling.mp4", videoPath: "/videos/globe/g02-mumbai-kling.mp4", status: "EXISTS", note: "Kling-generated Indian kitchen clip" },
   { ref: "G-03", location: "Ho Chi Minh", label: "Road in Ho Chi Minh", source: "g03-hcmc.mp4", videoPath: "/videos/globe/g03-hcmc.mp4", status: "EXISTS" },
   { ref: "G-04", location: "Sao Paulo", label: "Electronics in S\u00e3o Paulo", source: "g04-saopaulo.mp4", videoPath: "/videos/globe/g04-saopaulo.mp4", status: "EXISTS" },
   { ref: "G-05", location: "Kyiv", label: "Kitchen in Kyiv", source: "g05-kyiv.mp4", videoPath: "/videos/globe/g05-kyiv.mp4", status: "EXISTS" },
-  { ref: "G-06", location: "Lagos", label: "Warehouse in Lagos", source: "g06-lagos.mp4", videoPath: "/videos/globe/g06-lagos.mp4", status: "EXISTS" },
+  { ref: "G-06", location: "Lagos", label: "Warehouse in Lagos", source: "g06-lagos-kling.mp4", videoPath: "/videos/globe/g06-lagos-kling.mp4", status: "EXISTS", note: "Kling-generated Lagos warehouse clip" },
   { ref: "G-07", location: "Manila", label: "Factory in Manila", source: "g07-manila.mp4", videoPath: "/videos/globe/g07-manila.mp4", status: "EXISTS" },
-  { ref: "G-08", location: "Bangkok", label: "Street in Bangkok", source: "g08-bangkok.mp4", videoPath: "/videos/globe/g08-bangkok.mp4", status: "EXISTS" },
+  { ref: "G-08", location: "Bangkok", label: "Street in Bangkok", source: "g08-bangkok-kling.mp4", videoPath: "/videos/globe/g08-bangkok-kling.mp4", status: "EXISTS", note: "Kling-generated Bangkok street clip" },
   { ref: "G-09", location: "London", label: "Office in London", source: "g09-london.mp4", videoPath: "/videos/globe/g09-london.mp4", status: "EXISTS" },
   { ref: "G-10", location: "Mexico City", label: "Home in Mexico City", source: "g10-mexico.mp4", videoPath: "/videos/globe/g10-mexico.mp4", status: "EXISTS" },
   { ref: "G-11", location: "Jakarta", label: "Caf\u00e9 in Jakarta", source: "g11-jakarta.mp4", videoPath: "/videos/globe/g11-jakarta.mp4", status: "EXISTS" },
   { ref: "G-12", location: "Nairobi", label: "Facility in Nairobi", source: "g12-nairobi.mp4", videoPath: "/videos/globe/g12-nairobi.mp4", status: "EXISTS" },
   { ref: "G-13", location: "Cairo", label: "Textile in Cairo", source: "g13-cairo.mp4", videoPath: "/videos/globe/g13-cairo.mp4", status: "EXISTS" },
-  { ref: "G-14", location: "Dhaka", label: "Kitchen in Dhaka", source: "g14-dhaka.mp4", videoPath: "/videos/globe/g14-dhaka.mp4", status: "EXISTS" },
+  { ref: "G-14", location: "Dhaka", label: "Kitchen in Dhaka", source: "g14-dhaka-kling.mp4", videoPath: "/videos/globe/g14-dhaka-kling.mp4", status: "EXISTS", note: "Kling-generated kitchen clip" },
   { ref: "G-15", location: "Lima", label: "Artisan in Lima", source: "g15-lima.mp4", videoPath: "/videos/globe/g15-lima.mp4", status: "EXISTS" },
   { ref: "G-16", location: "Bogota", label: "Office in Bogot\u00e1", source: "g16-bogota.mp4", videoPath: "/videos/globe/g16-bogota.mp4", status: "EXISTS" },
   { ref: "G-17", location: "Karachi", label: "Home in Karachi", source: "g17-karachi.mp4", videoPath: "/videos/globe/g17-karachi.mp4", status: "EXISTS" },
@@ -966,6 +969,187 @@ export default function V2ReviewPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* ================================================================ */}
+        {/* SECTION 7: KLING-GENERATED ENRICHMENT */}
+        {/* ================================================================ */}
+        <section>
+          <h2 className="text-xl font-bold mb-1" style={{ color: "#92B090" }}>
+            Section 7: Kling-Generated Enrichment
+          </h2>
+          <p className="text-neutral-500 text-sm mb-6">
+            Kling AI source clips and their FAL enrichment outputs (depth, pose,
+            segmentation). These source videos were used to generate hero tiles,
+            globe clips, and enrichment visualizations.
+          </p>
+          <div className="space-y-8">
+            {/* --- Robot Arm --- */}
+            <div className="border border-neutral-800 rounded-lg overflow-hidden bg-neutral-950 p-4">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="font-mono text-sm font-bold px-2 py-0.5 rounded" style={{ backgroundColor: "rgba(146,176,144,0.2)", color: "#92B090" }}>K-01</span>
+                <span className="text-white font-mono text-sm font-semibold">Robot Arm (raw-robot.mp4)</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-green-800 text-green-200">EXISTS</span>
+              </div>
+              <div className="grid grid-cols-4 gap-4">
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">SOURCE VIDEO</p>
+                  <VideoPlayer src="/videos/enrichment-viz/raw-robot.mp4" status="EXISTS" height={160} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">DEPTH MAP</p>
+                  <ImageCard src="/images/enrichment-viz/depth-robot.png" alt="Robot arm depth map" height={160} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">SEGMENTATION</p>
+                  <ImageCard src="/images/enrichment-viz/seg-robot.png" alt="Robot arm segmentation" height={160} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">HERO CROP</p>
+                  <VideoPlayer src="/videos/mosaic/kling-robot.mp4" status="EXISTS" height={160} />
+                </div>
+              </div>
+            </div>
+
+            {/* --- Sim Lab --- */}
+            <div className="border border-neutral-800 rounded-lg overflow-hidden bg-neutral-950 p-4">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="font-mono text-sm font-bold px-2 py-0.5 rounded" style={{ backgroundColor: "rgba(146,176,144,0.2)", color: "#92B090" }}>K-02</span>
+                <span className="text-white font-mono text-sm font-semibold">Sim Lab (raw-simlab.mp4)</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-green-800 text-green-200">EXISTS</span>
+              </div>
+              <div className="grid grid-cols-4 gap-4">
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">SOURCE VIDEO</p>
+                  <VideoPlayer src="/videos/enrichment-viz/raw-simlab.mp4" status="EXISTS" height={160} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">DEPTH MAP</p>
+                  <ImageCard src="/images/enrichment-viz/depth-simlab.png" alt="Sim lab depth map" height={160} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">HERO CROP</p>
+                  <VideoPlayer src="/videos/mosaic/kling-simlab.mp4" status="EXISTS" height={160} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">GLOBE CROP (G-01)</p>
+                  <VideoPlayer src="/videos/globe/g01-sf-kling.mp4" status="EXISTS" height={160} />
+                </div>
+              </div>
+            </div>
+
+            {/* --- Kitchen (Kling) --- */}
+            <div className="border border-neutral-800 rounded-lg overflow-hidden bg-neutral-950 p-4">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="font-mono text-sm font-bold px-2 py-0.5 rounded" style={{ backgroundColor: "rgba(146,176,144,0.2)", color: "#92B090" }}>K-03</span>
+                <span className="text-white font-mono text-sm font-semibold">Kitchen (raw-kitchen.mp4)</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-green-800 text-green-200">EXISTS</span>
+              </div>
+              <div className="grid grid-cols-4 gap-4">
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">SOURCE VIDEO</p>
+                  <VideoPlayer src="/videos/enrichment-viz/raw-kitchen.mp4" status="EXISTS" height={160} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">DEPTH MAP</p>
+                  <ImageCard src="/images/enrichment-viz/depth-kitchen-kling.png" alt="Kitchen depth map" height={160} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">POSE</p>
+                  <ImageCard src="/images/enrichment-viz/pose-kitchen-kling.png" alt="Kitchen pose estimation" height={160} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">GLOBE CROP (G-14)</p>
+                  <VideoPlayer src="/videos/globe/g14-dhaka-kling.mp4" status="EXISTS" height={160} />
+                </div>
+              </div>
+            </div>
+
+            {/* --- Warehouse --- */}
+            <div className="border border-neutral-800 rounded-lg overflow-hidden bg-neutral-950 p-4">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="font-mono text-sm font-bold px-2 py-0.5 rounded" style={{ backgroundColor: "rgba(146,176,144,0.2)", color: "#92B090" }}>K-04</span>
+                <span className="text-white font-mono text-sm font-semibold">Warehouse (raw-warehouse.mp4)</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-green-800 text-green-200">EXISTS</span>
+              </div>
+              <div className="grid grid-cols-4 gap-4">
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">SOURCE VIDEO</p>
+                  <VideoPlayer src="/videos/enrichment-viz/raw-warehouse.mp4" status="EXISTS" height={160} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">DEPTH MAP</p>
+                  <ImageCard src="/images/enrichment-viz/depth-warehouse.png" alt="Warehouse depth map" height={160} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">SEGMENTATION</p>
+                  <ImageCard src="/images/enrichment-viz/seg-warehouse.png" alt="Warehouse segmentation" height={160} />
+                </div>
+                <div className="flex items-center justify-center bg-neutral-900 rounded" style={{ height: 160 }}>
+                  <span className="text-neutral-600 font-mono text-[10px]">No derived crop</span>
+                </div>
+              </div>
+            </div>
+
+            {/* --- Human Fold --- */}
+            <div className="border border-neutral-800 rounded-lg overflow-hidden bg-neutral-950 p-4">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="font-mono text-sm font-bold px-2 py-0.5 rounded" style={{ backgroundColor: "rgba(146,176,144,0.2)", color: "#92B090" }}>K-05</span>
+                <span className="text-white font-mono text-sm font-semibold">Human Fold (human-fold.mp4)</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-green-800 text-green-200">EXISTS</span>
+              </div>
+              <div className="grid grid-cols-4 gap-4">
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">SOURCE VIDEO</p>
+                  <VideoPlayer src="/videos/enrichment-viz/human-fold.mp4" status="EXISTS" height={160} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">DEPTH MAP</p>
+                  <ImageCard src="/images/enrichment-viz/depth-human-fold.png" alt="Human fold depth map" height={160} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">POSE</p>
+                  <ImageCard src="/images/enrichment-viz/pose-human-fold.png" alt="Human fold pose estimation" height={160} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">3D VIZ</p>
+                  <ImageCard src="/images/enrichment-viz/viz-human-fold-3d.jpg" alt="Human fold 3D visualization" height={160} />
+                </div>
+              </div>
+            </div>
+
+            {/* --- Globe-specific Kling clips --- */}
+            <div className="border border-neutral-800 rounded-lg overflow-hidden bg-neutral-950 p-4">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="font-mono text-sm font-bold px-2 py-0.5 rounded" style={{ backgroundColor: "rgba(146,176,144,0.2)", color: "#92B090" }}>K-06..08</span>
+                <span className="text-white font-mono text-sm font-semibold">Globe-specific Kling clips (India, Lagos, Bangkok)</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-green-800 text-green-200">EXISTS</span>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">GLOBE-INDIA (G-02 Mumbai)</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <VideoPlayer src="/videos/enrichment-viz/globe-india.mp4" status="EXISTS" height={120} />
+                    <VideoPlayer src="/videos/globe/g02-mumbai-kling.mp4" status="EXISTS" height={120} />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">GLOBE-LAGOS (G-06 Lagos)</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <VideoPlayer src="/videos/enrichment-viz/globe-lagos.mp4" status="EXISTS" height={120} />
+                    <VideoPlayer src="/videos/globe/g06-lagos-kling.mp4" status="EXISTS" height={120} />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono text-neutral-400 mb-1">GLOBE-BANGKOK (G-08 Bangkok)</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <VideoPlayer src="/videos/enrichment-viz/globe-bangkok.mp4" status="EXISTS" height={120} />
+                    <VideoPlayer src="/videos/globe/g08-bangkok-kling.mp4" status="EXISTS" height={120} />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
