@@ -40,7 +40,7 @@ interface S3File {
 }
 
 function parseS3Line(line: string): S3File | null {
-  // Format: "2026-03-25 10:28:55 1136656384 20260304_131030_00001_N_A SAMANTHA FORTE 2026-03-04.MP4"
+  // Format: "2026-03-25 10:28:55 1136656384 20260304_131030_00001_N_A DRIVER_01 2026-03-04.MP4"
   const match = line.match(/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+(\d+)\s+(.+)$/);
   if (!match) return null;
   return {
@@ -52,8 +52,8 @@ function parseS3Line(line: string): S3File | null {
 // ---------------------------------------------------------------------------
 // Parse metadata from filename
 // Format examples:
-//   20260304_131030_00001_N_A SAMANTHA FORTE 2026-03-04.MP4
-//   20260305_171341_00042_N_A erika.MP4
+//   20260304_131030_00001_N_A DRIVER_01 2026-03-04.MP4
+//   20260305_171341_00042_N_A driver_04.MP4
 //   20260312_102634_00006_T_A.MP4
 // ---------------------------------------------------------------------------
 interface ClipMetadata {
@@ -73,8 +73,8 @@ function parseFilenameMetadata(filename: string): ClipMetadata {
   const sequence = seqMatch ? seqMatch[1] : "00000";
 
   // Extract driver name from the part after "N_A " or "T_A " and before the date or .MP4
-  // Pattern: ...00001_N_A SAMANTHA FORTE 2026-03-04.MP4
-  // Pattern: ...00042_N_A erika.MP4
+  // Pattern: ...00001_N_A DRIVER_01 2026-03-04.MP4
+  // Pattern: ...00042_N_A driver_04.MP4
   // Pattern: ...00006_T_A.MP4  (no driver name)
   let driver = "Unknown";
 
@@ -108,12 +108,12 @@ function parseFilenameMetadata(filename: string): ClipMetadata {
 // Showcase filenames (exact match)
 // ---------------------------------------------------------------------------
 const SHOWCASE_FILENAMES = [
-  "20260305_090516_00023_N_A sezim Kuseinova 2026-03-05.MP4",
-  "20260304_161714_00009_N_A Lisa Macias 2026-03-04.MP4",
-  "20260305_074341_00014_N_A sezim Kuseinova 2026-03-05.MP4",
-  "20260304_131030_00001_N_A SAMANTHA FORTE 2026-03-04.MP4",
-  "20260312_152344_00001_N_A erika.MP4",
-  "20260304_152326_00010_N_A Erika 2026-03-04.MP4",
+  "20260305_090516_00023_N_A DRIVER_03 2026-03-05.MP4",
+  "20260304_161714_00009_N_A DRIVER_02 2026-03-04.MP4",
+  "20260305_074341_00014_N_A DRIVER_03 2026-03-05.MP4",
+  "20260304_131030_00001_N_A DRIVER_01 2026-03-04.MP4",
+  "20260312_152344_00001_N_A driver_04.MP4",
+  "20260304_152326_00010_N_A DRIVER_04 2026-03-04.MP4",
 ];
 
 // ---------------------------------------------------------------------------
