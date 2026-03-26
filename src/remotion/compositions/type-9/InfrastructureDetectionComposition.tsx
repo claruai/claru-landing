@@ -344,9 +344,9 @@ export default function InfrastructureDetectionComposition({
 
   // Phase timing
   const PHASE1_END = 90;   // Grid
-  const PHASE2_END = 180;  // Zoom
-  const PHASE3_END = 480;  // Full video + map
-  const PHASE4_END = 600;  // Stats + fade
+  const PHASE2_END = 150;  // Zoom
+  const PHASE3_END = 400;  // Full video + map
+  const PHASE4_END = 500;  // Stats + fade
 
   const tileFiles = Array.from({ length: 9 }, (_, i) => staticFile(`remotion-assets/bellwood/tiles/t${i}.mp4`));
   const heroFile = staticFile("remotion-assets/bellwood/hero.mp4");

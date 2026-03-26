@@ -40,7 +40,7 @@ export const RemotionRoot: React.FC = () => {
         height={720}
       />
 
-      {/* 22 compositions registered from composition-manifest.json */}
+      {/* 23 compositions registered from composition-manifest.json */}
       {manifest.compositions.map((entry) => {
         const Component = TYPE_MAP[entry.type];
         if (!Component) return null;
