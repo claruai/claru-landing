@@ -42,6 +42,46 @@ export const RemotionRoot: React.FC = () => {
         height={720}
       />
 
+      {/* ----------------------------------------------------------------- */}
+      {/* Enrichment Viz — 3D asset compositions for the enrichment scroll  */}
+      {/* ----------------------------------------------------------------- */}
+      <Composition
+        id="enrichment-pointcloud-flythrough"
+        component={PointCloudFlythrough}
+        durationInFrames={150}
+        fps={30}
+        width={1280}
+        height={720}
+        defaultProps={{ compositionId: "enrichment-pointcloud-flythrough" }}
+      />
+      <Composition
+        id="enrichment-hand-mesh"
+        component={HandMeshShowcase}
+        durationInFrames={150}
+        fps={30}
+        width={1280}
+        height={720}
+        defaultProps={{ compositionId: "enrichment-hand-mesh" }}
+      />
+      <Composition
+        id="enrichment-trellis-reconstruction"
+        component={TrellisReconstruction}
+        durationInFrames={150}
+        fps={30}
+        width={1280}
+        height={720}
+        defaultProps={{ compositionId: "enrichment-trellis-reconstruction" }}
+      />
+      <Composition
+        id="enrichment-human-fold-mesh"
+        component={HumanFoldMesh}
+        durationInFrames={150}
+        fps={30}
+        width={1280}
+        height={720}
+        defaultProps={{ compositionId: "enrichment-human-fold-mesh" }}
+      />
+
       {/* 22 compositions registered from composition-manifest.json */}
       {manifest.compositions.map((entry) => {
         const Component = TYPE_MAP[entry.type];
