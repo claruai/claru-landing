@@ -26,14 +26,48 @@ const GRID_ROWS = 3;
 const TILE_W = 426;
 const TILE_H = 240;
 
-// Bellwood GPS points from dashcam HUD (for map route visualization)
+// Bellwood route following actual streets (right-angle turns at intersections)
+// Traces: 25th Ave north → St. Charles Rd east → Mannheim Rd south → Washington Blvd west → loop
 const ROUTE_POINTS = [
-  { lat: 41.8827, lng: -87.8747, label: "Residential" },
-  { lat: 41.8837, lng: -87.8832, label: "Commercial" },
-  { lat: 41.8864, lng: -87.8760, label: "School Zone" },
-  { lat: 41.9223, lng: -87.8704, label: "Main Road" },
-  { lat: 41.8877, lng: -87.8635, label: "Industrial" },
-  { lat: 41.8875, lng: -87.8907, label: "Dawn Patrol" },
+  // Start: 25th Ave heading north
+  { lat: 41.8790, lng: -87.8770, label: "" },
+  { lat: 41.8810, lng: -87.8770, label: "" },
+  { lat: 41.8827, lng: -87.8770, label: "25th Ave" },
+  // Turn east on Fillmore St
+  { lat: 41.8827, lng: -87.8750, label: "" },
+  { lat: 41.8827, lng: -87.8720, label: "" },
+  { lat: 41.8827, lng: -87.8690, label: "" },
+  // Turn north on Mannheim Rd
+  { lat: 41.8845, lng: -87.8690, label: "" },
+  { lat: 41.8860, lng: -87.8690, label: "Mannheim Rd" },
+  { lat: 41.8880, lng: -87.8690, label: "" },
+  // Turn east on St. Charles Rd
+  { lat: 41.8880, lng: -87.8670, label: "" },
+  { lat: 41.8880, lng: -87.8640, label: "" },
+  { lat: 41.8880, lng: -87.8610, label: "St. Charles Rd" },
+  // Turn south on Eastern Ave
+  { lat: 41.8865, lng: -87.8610, label: "" },
+  { lat: 41.8845, lng: -87.8610, label: "" },
+  { lat: 41.8827, lng: -87.8610, label: "Eastern Ave" },
+  // Turn west on Washington Blvd
+  { lat: 41.8827, lng: -87.8640, label: "" },
+  { lat: 41.8827, lng: -87.8670, label: "" },
+  { lat: 41.8827, lng: -87.8700, label: "Washington Blvd" },
+  // Second loop: north on 22nd Ave
+  { lat: 41.8850, lng: -87.8700, label: "" },
+  { lat: 41.8870, lng: -87.8700, label: "" },
+  { lat: 41.8890, lng: -87.8700, label: "" },
+  // East on Madison St
+  { lat: 41.8890, lng: -87.8680, label: "" },
+  { lat: 41.8890, lng: -87.8650, label: "Madison St" },
+  // South back down
+  { lat: 41.8870, lng: -87.8650, label: "" },
+  { lat: 41.8850, lng: -87.8650, label: "" },
+  { lat: 41.8830, lng: -87.8650, label: "" },
+  // West to close
+  { lat: 41.8830, lng: -87.8680, label: "" },
+  { lat: 41.8830, lng: -87.8720, label: "" },
+  { lat: 41.8830, lng: -87.8760, label: "" },
 ];
 
 // Issue detection stats (accumulated)
@@ -57,11 +91,11 @@ function MapPanel({ frame, enterFrame }: { frame: number; enterFrame: number }) 
   const secondIdx = Math.min(Math.floor(localFrame / 30), ISSUES_BY_SECOND.length - 1);
   const issueCount = ISSUES_BY_SECOND[Math.max(0, secondIdx)];
 
-  // Map bounds for Bellwood (simplified)
-  const mapMinLat = 41.875;
-  const mapMaxLat = 41.93;
-  const mapMinLng = -87.90;
-  const mapMaxLng = -87.85;
+  // Map bounds — tighter crop around the route area
+  const mapMinLat = 41.876;
+  const mapMaxLat = 41.895;
+  const mapMinLng = -87.885;
+  const mapMaxLng = -87.855;
 
   const toMapX = (lng: number) => ((lng - mapMinLng) / (mapMaxLng - mapMinLng)) * 100;
   const toMapY = (lat: number) => (1 - (lat - mapMinLat) / (mapMaxLat - mapMinLat)) * 100;
@@ -111,41 +145,60 @@ function MapPanel({ frame, enterFrame }: { frame: number; enterFrame: number }) 
           }}
         />
 
-        {/* Route lines connecting points */}
+        {/* Animated route polyline following streets */}
         <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} viewBox="0 0 100 100" preserveAspectRatio="none">
-          {ROUTE_POINTS.slice(0, -1).map((pt, i) => {
-            const next = ROUTE_POINTS[i + 1];
-            const pointProgress = interpolate(routeProgress, [i / ROUTE_POINTS.length, (i + 1) / ROUTE_POINTS.length], [0, 1], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-            });
-            const x1 = toMapX(pt.lng);
-            const y1 = toMapY(pt.lat);
-            const x2 = toMapX(next.lng);
-            const y2 = toMapY(next.lat);
-            const cx = x1 + (x2 - x1) * pointProgress;
-            const cy = y1 + (y2 - y1) * pointProgress;
+          {(() => {
+            // Build the full polyline path
+            const totalSegments = ROUTE_POINTS.length - 1;
+            const visibleSegments = Math.floor(routeProgress * totalSegments);
+            const partialProgress = (routeProgress * totalSegments) % 1;
 
-            return (
-              <React.Fragment key={i}>
-                {/* Glow line */}
-                <line
-                  x1={x1} y1={y1} x2={cx} y2={cy}
-                  stroke="#92B090" strokeWidth={2.5} strokeLinecap="round" opacity={0.25}
-                />
-                {/* Main route line */}
-                <line
-                  x1={x1} y1={y1} x2={cx} y2={cy}
-                  stroke="#92B090" strokeWidth={1.2} strokeLinecap="round" opacity={0.9}
-                />
-              </React.Fragment>
-            );
-          })}
+            const lines: React.ReactNode[] = [];
+
+            for (let i = 0; i <= visibleSegments && i < totalSegments; i++) {
+              const pt = ROUTE_POINTS[i];
+              const next = ROUTE_POINTS[i + 1];
+              const x1 = toMapX(pt.lng);
+              const y1 = toMapY(pt.lat);
+              const x2 = toMapX(next.lng);
+              const y2 = toMapY(next.lat);
+
+              // Full segment or partial (for the leading edge)
+              const segProgress = i < visibleSegments ? 1 : partialProgress;
+              const ex = x1 + (x2 - x1) * segProgress;
+              const ey = y1 + (y2 - y1) * segProgress;
+
+              lines.push(
+                <React.Fragment key={i}>
+                  <line x1={x1} y1={y1} x2={ex} y2={ey}
+                    stroke="#92B090" strokeWidth={3} strokeLinecap="round" opacity={0.2} />
+                  <line x1={x1} y1={y1} x2={ex} y2={ey}
+                    stroke="#92B090" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" opacity={0.85} />
+                </React.Fragment>
+              );
+            }
+
+            // Moving dot at the leading edge
+            if (visibleSegments < totalSegments) {
+              const pt = ROUTE_POINTS[visibleSegments];
+              const next = ROUTE_POINTS[visibleSegments + 1];
+              const x = toMapX(pt.lng) + (toMapX(next.lng) - toMapX(pt.lng)) * partialProgress;
+              const y = toMapY(pt.lat) + (toMapY(next.lat) - toMapY(pt.lat)) * partialProgress;
+              lines.push(
+                <circle key="dot" cx={x} cy={y} r={1.5} fill="#ffffff" opacity={0.9}>
+                  <animate attributeName="r" values="1.5;2.5;1.5" dur="1s" repeatCount="indefinite" />
+                </circle>
+              );
+            }
+
+            return lines;
+          })()}
         </svg>
 
-        {/* Route points with pulse animation */}
-        {ROUTE_POINTS.map((pt, i) => {
-          const pointVisible = routeProgress > i / ROUTE_POINTS.length;
+        {/* Named intersection pins only */}
+        {ROUTE_POINTS.filter(pt => pt.label).map((pt, i) => {
+          const ptIndex = ROUTE_POINTS.indexOf(pt);
+          const pointVisible = routeProgress > ptIndex / ROUTE_POINTS.length;
           if (!pointVisible) return null;
 
           const x = toMapX(pt.lng);
