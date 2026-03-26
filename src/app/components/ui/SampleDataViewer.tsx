@@ -2013,6 +2013,47 @@ function FashionAnnotationViewer() {
   );
 }
 
+/* ---------- Dashcam Detection ---------- */
+
+const DASHCAM_DETECTION_SAMPLE = {
+  clip_id: "a7f3e291-8c4d-4b1a-9e72-3d5f8a6b2c10",
+  s3_key: "bellwood-dashcam/20260305_074341_00014.MP4",
+  capture_date: "2026-03-05",
+  gps: { lat: 41.9223, lng: -87.8704, speed_mph: 31 },
+  frame_timestamp: "07:43:58",
+  detections: [
+    { label: "cracked_road_surface", confidence: 0.87, bbox: [518, 480, 615, 1440], severity: "moderate" },
+    { label: "faded_lane_marking", confidence: 0.79, bbox: [518, 921, 626, 998], severity: "low" },
+    { label: "faded_lane_marking", confidence: 0.82, bbox: [518, 1344, 626, 1440], severity: "low" },
+    { label: "overgrown_vegetation", confidence: 0.65, bbox: [350, 1500, 580, 1920], severity: "low" },
+  ],
+  scene_description: "Overcast residential street with moderate road surface deterioration. Two-lane road with faded center line markings. Utility poles along right side. Sparse winter vegetation.",
+  enrichment_source: "gemini_frame",
+  annotation_status: "human_verified",
+  work_order_mapping: {
+    department: "Public Works — Roads Division",
+    priority: "routine",
+    estimated_repair: "crack_seal_and_remark",
+  },
+};
+
+function DashcamDetectionViewer() {
+  const jsonStr = JSON.stringify(DASHCAM_DETECTION_SAMPLE, null, 2);
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between mb-2">
+        <span className="font-mono text-xs text-[var(--accent-primary)] uppercase tracking-wider">
+          {"// SAMPLE DETECTION RECORD"}
+        </span>
+        <CopyButton text={jsonStr} />
+      </div>
+      <pre className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] p-4 overflow-x-auto text-xs font-mono text-[var(--text-secondary)] leading-relaxed max-h-[400px] overflow-y-auto">
+        <code>{jsonStr}</code>
+      </pre>
+    </div>
+  );
+}
+
 export default function SampleDataViewer({ type, data }: SampleDataViewerProps) {
   return (
     <motion.div
@@ -2054,7 +2095,9 @@ export default function SampleDataViewer({ type, data }: SampleDataViewerProps) 
                                 ? "classification_pipeline.json"
                                 : type === "platform-screenshots"
                                   ? "platform_preview.png"
-                                  : "sample_clip.json"}
+                                  : type === "dashcam-detection"
+                                    ? "infrastructure_detection.json"
+                                    : "sample_clip.json"}
         </span>
       </div>
 
@@ -2074,6 +2117,7 @@ export default function SampleDataViewer({ type, data }: SampleDataViewerProps) 
         {type === "platform-screenshots" && data?.images && (
           <PlatformScreenshotsViewer images={data.images} />
         )}
+        {type === "dashcam-detection" && <DashcamDetectionViewer />}
       </div>
     </motion.div>
   );
