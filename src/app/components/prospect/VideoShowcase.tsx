@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { getS3SignedUrl } from "@/lib/s3/presigner";
-import type { DatasetSample } from "@/types/data-catalog";
+import type { Clip } from "@/types/data-catalog";
 import { VideoShowcaseClient } from "./VideoShowcaseClient";
 
 // ---------------------------------------------------------------------------
@@ -8,7 +8,13 @@ import { VideoShowcaseClient } from "./VideoShowcaseClient";
 // ---------------------------------------------------------------------------
 
 interface VideoShowcaseProps {
-  /** Sample IDs from the dataset_samples table */
+  /**
+   * Clip IDs from the clips table.
+   *
+   * BREAKING CHANGE (US-006 migration): These must be clips.id UUIDs, NOT
+   * legacy dataset_samples.id values. All callers (prospect pages, content
+   * pages) need their hardcoded UUIDs remapped to the corresponding clip IDs.
+   */
   sampleIds: string[];
   /** Optional heading override */
   heading?: string;
@@ -28,7 +34,7 @@ function getSupabase() {
 }
 
 // ---------------------------------------------------------------------------
-// Server component — fetches samples + signs URLs, passes to client
+// Server component — fetches clips + signs URLs, passes to client
 // ---------------------------------------------------------------------------
 
 export default async function VideoShowcase({
@@ -40,33 +46,33 @@ export default async function VideoShowcase({
 
   const supabase = getSupabase();
 
-  const { data: samples } = await supabase
-    .from("dataset_samples")
+  const { data: clips } = await supabase
+    .from("clips")
     .select("*")
     .in("id", sampleIds)
-    .not("s3_object_key", "is", null);
+    .not("s3_key", "is", null);
 
-  if (!samples || samples.length === 0) return null;
+  if (!clips || clips.length === 0) return null;
 
   // Pre-sign all URLs in parallel
-  const samplesWithUrls = (
+  const clipsWithUrls = (
     await Promise.all(
-      samples.map(async (sample) => {
-        const url = await getS3SignedUrl(sample.s3_object_key!, 3600);
+      clips.map(async (clip) => {
+        const url = await getS3SignedUrl(clip.s3_key!, 3600);
         if (!url) return null;
         return {
-          sample: sample as DatasetSample,
+          clip: clip as Clip,
           signedUrl: url,
         };
       })
     )
-  ).filter((v): v is { sample: DatasetSample; signedUrl: string } => v !== null);
+  ).filter((v): v is { clip: Clip; signedUrl: string } => v !== null);
 
-  if (samplesWithUrls.length === 0) return null;
+  if (clipsWithUrls.length === 0) return null;
 
   return (
     <VideoShowcaseClient
-      samplesWithUrls={samplesWithUrls}
+      clipsWithUrls={clipsWithUrls}
       heading={heading}
       subheading={subheading}
     />

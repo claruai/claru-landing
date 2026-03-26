@@ -15,12 +15,12 @@ const DATASET_IDS = [
   "a1e380ff-d244-412e-b907-a8c9c4d59248", // Multimodal Video Chat (440K)
 ];
 
-// Everyday physical task video samples
+// Everyday physical task video samples (clips table UUIDs)
 const VIDEO_SAMPLE_IDS = [
-  "44979405-f0a2-4bc9-9d3a-898e63ebfed8", // Fold Clothes
-  "3486e6a3-8f4c-488d-8893-020168ec0c90", // Pour Liquid
-  "632cf981-d66e-4023-a6ef-2fbaec23a111", // Pick Up Object
-  "2f842ae5-0548-4e39-8926-8b9442bc7d78", // Open Door
+  "b4dee803-c226-4e0b-9291-7ff3843f83dc", // Fold Clothes
+  "20438f6e-014e-41cb-a114-380ea618bb69", // Pour Liquid
+  "c7aaf5f5-3ec0-48f8-9b89-6c5c0c8f5400", // Pick Up Object
+  "deea2d6b-8393-41dd-8667-86e167a49cf4", // Open Door
 ];
 
 export default function GeneralIntuitionPage() {

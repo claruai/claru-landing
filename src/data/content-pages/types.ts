@@ -150,7 +150,8 @@ export interface ContentPageData {
 
   // -- Media Showcase --
 
-  /** Supabase dataset_samples UUIDs for VideoShowcase (S3 presigned videos). Empty = no showcase. */
+  /** Supabase clips UUIDs for VideoShowcase (S3 presigned videos). Empty = no showcase.
+   *  BREAKING CHANGE (US-006): Must be clips.id, not legacy dataset_samples.id. */
   sampleIds?: string[];
 
   /** Optional heading for the video showcase section */

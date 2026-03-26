@@ -6,8 +6,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getS3SignedUrl } from "@/lib/s3/presigner";
 
 const addSchema = z.object({
-  video_index_id: z.string().uuid().optional(),
-  dataset_sample_id: z.string().uuid().optional(),
+  clip_id: z.string().uuid(),
+  dataset_id: z.string().uuid().optional(),
   note: z.string().optional(),
 });
 
@@ -94,110 +94,91 @@ export async function POST(
     return NextResponse.json({ error: parsed.error.message }, { status: 400 });
   }
 
-  const { video_index_id, dataset_sample_id, note } = parsed.data;
+  const { clip_id, dataset_id: providedDatasetId, note } = parsed.data;
 
-  if (!video_index_id && !dataset_sample_id) {
+  const supabase = createSupabaseAdminClient();
+
+  // 1. Look up the clip
+  const { data: clip } = await supabase
+    .from("clips")
+    .select("id, s3_bucket, s3_key, mime_type, filename, ai_caption")
+    .eq("id", clip_id)
+    .single();
+
+  if (!clip) {
+    return NextResponse.json({ error: "Clip not found" }, { status: 404 });
+  }
+
+  // 2. Resolve dataset_id — use provided value, or find an existing dataset_clips row
+  let datasetId = providedDatasetId ?? null;
+  if (!datasetId) {
+    const { data: existingLink } = await supabase
+      .from("dataset_clips")
+      .select("dataset_id")
+      .eq("clip_id", clip_id)
+      .limit(1)
+      .single();
+
+    datasetId = existingLink?.dataset_id ?? null;
+  }
+
+  if (!datasetId) {
     return NextResponse.json(
-      { error: "Either video_index_id or dataset_sample_id is required" },
+      { error: "No dataset_id provided and clip has no existing dataset association" },
       { status: 400 }
     );
   }
 
-  const supabase = createSupabaseAdminClient();
+  // 3. Pre-check for duplicate dataset_clips row (same dataset + clip + lead)
+  const { data: existingRow } = await supabase
+    .from("dataset_clips")
+    .select("id")
+    .eq("dataset_id", datasetId)
+    .eq("clip_id", clip_id)
+    .eq("lead_id", id)
+    .maybeSingle();
 
-  if (video_index_id) {
-    // ------------------------------------------------------------------
-    // Adding a full-corpus clip → create a dataset_samples row with lead_id
-    // ------------------------------------------------------------------
-    const { data: vi } = await supabase
-      .from("video_index")
-      .select("s3_bucket, s3_key, caption_text, enrichment_source")
-      .eq("id", video_index_id)
-      .single();
+  if (existingRow) {
+    return NextResponse.json(
+      { error: "This clip is already added for this lead in this dataset" },
+      { status: 409 }
+    );
+  }
 
-    if (!vi) {
-      return NextResponse.json({ error: "Video not found" }, { status: 404 });
-    }
-
-    // Resolve which dataset this clip belongs to via prefix routing
-    const { data: routeResult } = await supabase.rpc("resolve_dataset_for_s3_key", {
-      p_bucket: vi.s3_bucket,
-      p_key: vi.s3_key,
+  // 4. Insert dataset_clips row (plain insert, not upsert)
+  const { error: insertError } = await supabase
+    .from("dataset_clips")
+    .insert({
+      dataset_id: datasetId,
+      clip_id,
+      lead_id: id,
+      added_by: "admin",
+      note: note ?? null,
     });
 
-    const datasetId = routeResult as string | null;
-    if (!datasetId) {
-      return NextResponse.json(
-        { error: `No dataset mapping found for ${vi.s3_bucket}/${vi.s3_key.split("/")[0]}` },
-        { status: 400 }
-      );
-    }
-
-    // Guess mime type from extension
-    const ext = vi.s3_key.split(".").pop()?.toLowerCase();
-    const mimeMap: Record<string, string> = {
-      mp4: "video/mp4", mov: "video/quicktime", webm: "video/webm",
-      jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png",
-    };
-    const mimeType = (ext && mimeMap[ext]) || "video/mp4";
-
-    // Insert as a lead-specific sample in the resolved dataset
-    const { data: sample, error } = await supabase
-      .from("dataset_samples")
-      .insert({
-        dataset_id: datasetId,
-        lead_id: id,
-        s3_object_key: vi.s3_key,
-        filename: vi.s3_key.split("/").pop() || "sample",
-        mime_type: mimeType,
-        file_size_bytes: 0,
-        metadata_json: { caption: vi.caption_text, source: vi.enrichment_source, note },
-        added_by: "admin",
-        source_video_index_id: video_index_id,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error("[POST custom-samples] insert dataset_samples", error);
-      return NextResponse.json({ error: "Insert failed" }, { status: 500 });
-    }
-
-    // Ensure the lead has access to this dataset
-    await supabase
-      .from("lead_dataset_access")
-      .upsert({ lead_id: id, dataset_id: datasetId }, { onConflict: "lead_id,dataset_id" });
-
-    return NextResponse.json({
-      sample,
-      dataset_id: datasetId,
-      message: "Added to dataset as lead-specific sample",
-    }, { status: 201 });
-
-  } else {
-    // ------------------------------------------------------------------
-    // Adding an existing catalog sample → just tag it for the lead
-    // (This is for cases where the sample already exists in dataset_samples
-    // but the lead doesn't have access to that dataset yet)
-    // ------------------------------------------------------------------
-    const { data: ds } = await supabase
-      .from("dataset_samples")
-      .select("dataset_id")
-      .eq("id", dataset_sample_id!)
-      .single();
-
-    if (!ds) {
-      return NextResponse.json({ error: "Sample not found" }, { status: 404 });
-    }
-
-    // Grant lead access to the dataset
-    await supabase
-      .from("lead_dataset_access")
-      .upsert({ lead_id: id, dataset_id: ds.dataset_id }, { onConflict: "lead_id,dataset_id" });
-
-    return NextResponse.json({
-      dataset_id: ds.dataset_id,
-      message: "Lead granted access to dataset containing this sample",
-    }, { status: 201 });
+  if (insertError) {
+    console.error("[POST custom-samples] insert dataset_clips", insertError);
+    return NextResponse.json({ error: "Insert failed" }, { status: 500 });
   }
+
+  // 5. Grant lead access to the dataset
+  await supabase
+    .from("lead_dataset_access")
+    .upsert({ lead_id: id, dataset_id: datasetId }, { onConflict: "lead_id,dataset_id" });
+
+  // 6. Generate signed URL for the response
+  let signed_url: string | null = null;
+  if (clip.s3_key) {
+    signed_url = await getS3SignedUrl(
+      clip.s3_key,
+      3600,
+      clip.s3_bucket || undefined
+    );
+  }
+
+  return NextResponse.json({
+    clip: { ...clip, signed_url },
+    dataset_id: datasetId,
+    message: "Clip added to dataset for lead",
+  }, { status: 201 });
 }

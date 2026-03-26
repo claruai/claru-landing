@@ -9,6 +9,7 @@ import ClassificationPipelineComposition from "./compositions/type-5/Classificat
 import QualityRubricComposition from "./compositions/type-6/QualityRubricComposition";
 import SafetyShieldComposition from "./compositions/type-7/SafetyShieldComposition";
 import CinematicShowcaseComposition from "./compositions/type-8/CinematicShowcaseComposition";
+import InfrastructureDetectionComposition from "./compositions/type-9/InfrastructureDetectionComposition";
 import manifest from "../../scripts/composition-manifest.json";
 
 // ---------------------------------------------------------------------------
@@ -23,6 +24,7 @@ const TYPE_MAP: Record<number, React.FC<{ compositionId: string }>> = {
   6: QualityRubricComposition,
   7: SafetyShieldComposition,
   8: CinematicShowcaseComposition,
+  9: InfrastructureDetectionComposition,
 };
 
 export const RemotionRoot: React.FC = () => {
@@ -38,7 +40,7 @@ export const RemotionRoot: React.FC = () => {
         height={720}
       />
 
-      {/* 22 compositions registered from composition-manifest.json */}
+      {/* 23 compositions registered from composition-manifest.json */}
       {manifest.compositions.map((entry) => {
         const Component = TYPE_MAP[entry.type];
         if (!Component) return null;

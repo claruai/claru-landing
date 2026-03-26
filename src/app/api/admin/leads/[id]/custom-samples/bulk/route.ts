@@ -7,8 +7,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 const bulkSchema = z.object({
   items: z.array(
     z.object({
-      video_index_id: z.string().uuid().optional(),
-      dataset_sample_id: z.string().uuid().optional(),
+      clip_id: z.string().uuid(),
     })
   ).min(1),
   note: z.string().optional(),
@@ -16,7 +15,10 @@ const bulkSchema = z.object({
 
 /**
  * POST /api/admin/leads/[id]/custom-samples/bulk
- * Bulk-adds custom samples to a lead in one transaction.
+ * Bulk-adds clips to a lead via dataset_clips rows.
+ *
+ * Unified Clip Architecture: inserts into dataset_clips join table
+ * instead of legacy lead_custom_samples / dataset_samples tables.
  */
 export async function POST(
   request: NextRequest,
@@ -49,89 +51,105 @@ export async function POST(
   const { items, note } = parsed.data;
   const supabase = createSupabaseAdminClient();
 
-  // Resolve s3_bucket + s3_key for each item
-  const rows: Array<{
+  const clipIds = items.map((i) => i.clip_id);
+
+  // 1. Batch-fetch clips to verify they exist
+  const { data: clips } = await supabase
+    .from("clips")
+    .select("id")
+    .in("id", clipIds);
+
+  const validClipIds = new Set((clips ?? []).map((c) => c.id));
+  const verifiedClipIds = clipIds.filter((cid) => validClipIds.has(cid));
+
+  if (verifiedClipIds.length === 0) {
+    return NextResponse.json({ error: "No valid clips found" }, { status: 404 });
+  }
+
+  // 2. Find existing dataset associations for these clips
+  const { data: existingLinks } = await supabase
+    .from("dataset_clips")
+    .select("clip_id, dataset_id")
+    .in("clip_id", verifiedClipIds);
+
+  // Map clip_id -> first dataset_id found
+  const clipDatasetMap = new Map<string, string>();
+  for (const link of existingLinks ?? []) {
+    if (!clipDatasetMap.has(link.clip_id)) {
+      clipDatasetMap.set(link.clip_id, link.dataset_id);
+    }
+  }
+
+  // 3. Pre-check for existing dataset_clips rows for this lead
+  //    to avoid inserting duplicates
+  const { data: existingLeadRows } = await supabase
+    .from("dataset_clips")
+    .select("clip_id, dataset_id")
+    .eq("lead_id", id)
+    .in("clip_id", verifiedClipIds);
+
+  const existingLeadClipKeys = new Set(
+    (existingLeadRows ?? []).map((r) => `${r.dataset_id}:${r.clip_id}`)
+  );
+
+  // 4. Build rows for insertion — skip clips without a dataset and duplicates
+  const newRows: Array<{
+    dataset_id: string;
+    clip_id: string;
     lead_id: string;
-    video_index_id: string | null;
-    dataset_sample_id: string | null;
-    s3_bucket: string | null;
-    s3_key: string | null;
     added_by: string;
     note: string | null;
   }> = [];
 
-  // Batch-fetch video_index records
-  const viIds = items
-    .map((i) => i.video_index_id)
-    .filter((v): v is string => !!v);
+  const datasetIdsToGrant = new Set<string>();
 
-  let viMap = new Map<string, { s3_bucket: string; s3_key: string }>();
-  if (viIds.length > 0) {
-    const { data: viRecords } = await supabase
-      .from("video_index")
-      .select("id, s3_bucket, s3_key")
-      .in("id", viIds);
-    for (const vi of viRecords ?? []) {
-      viMap.set(vi.id, { s3_bucket: vi.s3_bucket, s3_key: vi.s3_key });
-    }
-  }
+  for (const clipId of verifiedClipIds) {
+    const datasetId = clipDatasetMap.get(clipId);
+    if (!datasetId) continue; // skip clips with no dataset association
 
-  // Batch-fetch dataset_samples
-  const dsIds = items
-    .map((i) => i.dataset_sample_id)
-    .filter((v): v is string => !!v);
+    const key = `${datasetId}:${clipId}`;
+    if (existingLeadClipKeys.has(key)) continue; // skip duplicates
 
-  let dsMap = new Map<string, { s3_object_key: string | null }>();
-  if (dsIds.length > 0) {
-    const { data: dsRecords } = await supabase
-      .from("dataset_samples")
-      .select("id, s3_object_key")
-      .in("id", dsIds);
-    for (const ds of dsRecords ?? []) {
-      dsMap.set(ds.id, { s3_object_key: ds.s3_object_key });
-    }
-  }
-
-  for (const item of items) {
-    let s3_bucket: string | null = null;
-    let s3_key: string | null = null;
-
-    if (item.video_index_id) {
-      const vi = viMap.get(item.video_index_id);
-      if (vi) {
-        s3_bucket = vi.s3_bucket;
-        s3_key = vi.s3_key;
-      }
-    } else if (item.dataset_sample_id) {
-      const ds = dsMap.get(item.dataset_sample_id);
-      if (ds?.s3_object_key) {
-        s3_key = ds.s3_object_key;
-      }
-    }
-
-    rows.push({
+    newRows.push({
+      dataset_id: datasetId,
+      clip_id: clipId,
       lead_id: id,
-      video_index_id: item.video_index_id ?? null,
-      dataset_sample_id: item.dataset_sample_id ?? null,
-      s3_bucket,
-      s3_key,
       added_by: "admin",
       note: note ?? null,
     });
+    datasetIdsToGrant.add(datasetId);
   }
 
-  // Upsert — skip duplicates
-  const { data, error } = await supabase
-    .from("lead_custom_samples")
-    .insert(rows)
-    .select();
+  // 5. Insert in batches
+  let inserted = 0;
+  const BATCH_SIZE = 100;
 
-  if (error) {
-    console.error("[POST custom-samples/bulk]", error);
-    return NextResponse.json({ error: "Bulk insert failed" }, { status: 500 });
+  for (let i = 0; i < newRows.length; i += BATCH_SIZE) {
+    const batch = newRows.slice(i, i + BATCH_SIZE);
+    const { data: insertedRows, error: insErr } = await supabase
+      .from("dataset_clips")
+      .insert(batch)
+      .select("id");
+
+    if (insErr) {
+      console.error("[POST custom-samples/bulk] insert dataset_clips batch", insErr);
+      // Continue with remaining batches
+    } else {
+      inserted += insertedRows?.length ?? 0;
+    }
   }
 
-  const inserted = data?.length ?? 0;
+  // 6. Grant lead access to all relevant datasets
+  if (datasetIdsToGrant.size > 0) {
+    const accessRows = Array.from(datasetIdsToGrant).map((dataset_id) => ({
+      lead_id: id,
+      dataset_id,
+    }));
+    await supabase
+      .from("lead_dataset_access")
+      .upsert(accessRows, { onConflict: "lead_id,dataset_id" });
+  }
+
   const skipped = items.length - inserted;
 
   return NextResponse.json({ inserted, skipped }, { status: 201 });

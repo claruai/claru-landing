@@ -37,19 +37,24 @@ export async function POST(request: NextRequest) {
 
   // Dry run: return count of what would be processed
   if (dry_run) {
+    // When filtering by dataset_id, join through dataset_clips
+    const selectCols = dataset_id
+      ? "id, dataset_clips!inner(dataset_id)"
+      : "id";
+
     let query = supabase
-      .from("dataset_samples")
-      .select("id, dataset_id", { count: "exact", head: false })
-      .is("agent_context", null);
+      .from("clips")
+      .select(selectCols, { count: "exact", head: false })
+      .is("ai_agent_context", null);
 
     if (action === "map_existing") {
-      query = query.not("enrichment_json", "eq", "{}");
+      query = query.not("ai_enrichment_json", "eq", "{}");
     } else {
-      query = query.not("s3_object_key", "is", null);
+      query = query.not("s3_key", "is", null);
     }
 
     if (dataset_id) {
-      query = query.eq("dataset_id", dataset_id);
+      query = query.eq("dataset_clips.dataset_id", dataset_id);
     }
 
     if (limit) {
@@ -59,10 +64,11 @@ export async function POST(request: NextRequest) {
     }
 
     const { data, count } = await query;
+    const rows = (data ?? []) as unknown as { id: string }[];
     return NextResponse.json({
       dry_run: true,
-      would_process: count ?? data?.length ?? 0,
-      samples: (data ?? []).slice(0, 10).map((s) => s.id),
+      would_process: count ?? rows.length,
+      samples: rows.slice(0, 10).map((s) => s.id),
     });
   }
 
