@@ -4,8 +4,16 @@
 // ---------------------------------------------------------------------------
 
 import React, { useMemo } from "react";
-import { useCurrentFrame, useVideoConfig, interpolate, staticFile } from "remotion";
+import {
+  useCurrentFrame,
+  useVideoConfig,
+  interpolate,
+  staticFile,
+  delayRender,
+  continueRender,
+} from "remotion";
 import { ThreeCanvas } from "@remotion/three";
+import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import type { EnrichmentVizProps } from "./types";
 import { ENRICHMENT_BG } from "./types";
@@ -19,7 +27,6 @@ function parsePLYToGeometry(text: string): THREE.BufferGeometry {
   let vertexCount = 0;
   let headerEnd = 0;
 
-  // Parse header
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
     if (line.startsWith("element vertex")) {
@@ -31,11 +38,10 @@ function parsePLYToGeometry(text: string): THREE.BufferGeometry {
     }
   }
 
-  const positions = new Float32Array(vertexCount * 3);
-  const colors = new Float32Array(vertexCount * 3);
-
   // Compute center for centering
-  let cx = 0, cy = 0, cz = 0;
+  let cx = 0,
+    cy = 0,
+    cz = 0;
   const rawData: number[][] = [];
 
   for (let i = 0; i < vertexCount; i++) {
@@ -57,7 +63,6 @@ function parsePLYToGeometry(text: string): THREE.BufferGeometry {
   cy /= rawData.length;
   cz /= rawData.length;
 
-  // Find max extent for normalization
   let maxExtent = 0;
   for (const [x, y, z] of rawData) {
     maxExtent = Math.max(
@@ -68,6 +73,9 @@ function parsePLYToGeometry(text: string): THREE.BufferGeometry {
     );
   }
   const scale = maxExtent > 0 ? 2.0 / maxExtent : 1;
+
+  const positions = new Float32Array(rawData.length * 3);
+  const colors = new Float32Array(rawData.length * 3);
 
   for (let i = 0; i < rawData.length; i++) {
     const [x, y, z, r, g, b] = rawData[i];
@@ -86,18 +94,14 @@ function parsePLYToGeometry(text: string): THREE.BufferGeometry {
 }
 
 // ---------------------------------------------------------------------------
-// PointCloudScene — the actual Three.js scene rendered inside ThreeCanvas
+// CameraRig — imperatively moves the camera each frame
 // ---------------------------------------------------------------------------
 
-const PLY_URL = staticFile("/models/kitchen-pointcloud.ply");
-
-function PointCloudScene({ plyText }: { plyText: string }) {
+function CameraRig() {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
+  const { camera } = useThree();
 
-  const geometry = useMemo(() => parsePLYToGeometry(plyText), [plyText]);
-
-  // Camera orbit: full 360 rotation over the composition duration
   const angle = interpolate(frame, [0, durationInFrames], [0, Math.PI * 2]);
   const radius = interpolate(
     frame,
@@ -112,11 +116,27 @@ function PointCloudScene({ plyText }: { plyText: string }) {
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
   );
 
-  const cameraX = Math.sin(angle) * radius;
-  const cameraZ = Math.cos(angle) * radius;
-  const cameraY = elevation;
+  camera.position.set(
+    Math.sin(angle) * radius,
+    elevation,
+    Math.cos(angle) * radius
+  );
+  camera.lookAt(0, 0, 0);
 
-  // Slight point size pulse for visual interest
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// PointCloudScene
+// ---------------------------------------------------------------------------
+
+const PLY_URL = staticFile("/models/kitchen-pointcloud.ply");
+
+function PointCloudScene({ plyText }: { plyText: string }) {
+  const frame = useCurrentFrame();
+
+  const geometry = useMemo(() => parsePLYToGeometry(plyText), [plyText]);
+
   const pointSize = interpolate(
     Math.sin(frame * 0.05),
     [-1, 1],
@@ -125,14 +145,8 @@ function PointCloudScene({ plyText }: { plyText: string }) {
 
   return (
     <>
+      <CameraRig />
       <color attach="background" args={[ENRICHMENT_BG]} />
-      <perspectiveCamera
-        position={[cameraX, cameraY, cameraZ]}
-        fov={50}
-        makeDefault
-      />
-
-      {/* Subtle ambient light for atmosphere */}
       <ambientLight intensity={0.3} />
       <directionalLight position={[5, 5, 5]} intensity={0.5} />
 
@@ -147,7 +161,6 @@ function PointCloudScene({ plyText }: { plyText: string }) {
         />
       </points>
 
-      {/* Faint grid helper for spatial reference */}
       <gridHelper
         args={[6, 20, "#1a1a18", "#1a1a18"]}
         position={[0, -1.5, 0]}
@@ -157,41 +170,29 @@ function PointCloudScene({ plyText }: { plyText: string }) {
 }
 
 // ---------------------------------------------------------------------------
-// Main composition wrapper — fetches PLY text then renders
+// Main composition wrapper
 // ---------------------------------------------------------------------------
 
 const PointCloudFlythrough: React.FC<EnrichmentVizProps> = () => {
-  const { width, height } = useVideoConfig();
+  const { width, height, durationInFrames } = useVideoConfig();
   const frame = useCurrentFrame();
-  const { durationInFrames } = useVideoConfig();
 
-  // We need to load the PLY file. In Remotion, staticFile gives us a URL.
-  // We use delayRender to wait for the fetch.
   const [plyText, setPlyText] = React.useState<string | null>(null);
-  const [handle] = React.useState(() => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { delayRender } = require("remotion");
-    return delayRender("Loading PLY file");
-  });
+  const [handle] = React.useState(() => delayRender("Loading PLY file"));
 
   React.useEffect(() => {
     fetch(PLY_URL)
       .then((res) => res.text())
       .then((text) => {
         setPlyText(text);
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const { continueRender } = require("remotion");
         continueRender(handle);
       })
       .catch((err) => {
         console.error("Failed to load PLY:", err);
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const { continueRender } = require("remotion");
         continueRender(handle);
       });
   }, [handle]);
 
-  // Fade in/out
   const opacity = interpolate(
     frame,
     [0, 15, durationInFrames - 15, durationInFrames],
@@ -201,13 +202,7 @@ const PointCloudFlythrough: React.FC<EnrichmentVizProps> = () => {
 
   if (!plyText) {
     return (
-      <div
-        style={{
-          width,
-          height,
-          backgroundColor: ENRICHMENT_BG,
-        }}
-      />
+      <div style={{ width, height, backgroundColor: ENRICHMENT_BG }} />
     );
   }
 

@@ -12,7 +12,8 @@
     "remotion:extract": "tsx scripts/extract-annotations.ts",
     "remotion:enrich": "tsx scripts/gemini-enrich.ts",
     "remotion:render": "tsx scripts/render-all.ts",
-    "remotion:pipeline": "npm run remotion:extract && npm run remotion:enrich && npm run remotion:render"
+    "remotion:pipeline": "npm run remotion:extract && npm run remotion:enrich && npm run remotion:render",
+    "remotion:enrichment-viz": "tsx scripts/render-enrichment-viz.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.997.0",

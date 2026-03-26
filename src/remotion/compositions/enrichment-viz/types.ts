@@ -2,7 +2,7 @@
 // Enrichment Viz Compositions — shared types
 // ---------------------------------------------------------------------------
 
-export interface EnrichmentVizProps {
+export interface EnrichmentVizProps extends Record<string, unknown> {
   compositionId: string;
 }
 

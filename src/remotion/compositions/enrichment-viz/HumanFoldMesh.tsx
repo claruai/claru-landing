@@ -7,13 +7,42 @@
 import React, { Suspense, useRef, useMemo } from "react";
 import { useCurrentFrame, useVideoConfig, interpolate, staticFile } from "remotion";
 import { ThreeCanvas } from "@remotion/three";
+import { useThree } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import type { EnrichmentVizProps } from "./types";
 import { ENRICHMENT_BG, ENRICHMENT_ACCENT } from "./types";
 
 // ---------------------------------------------------------------------------
-// Model loader
+// CameraRig
+// ---------------------------------------------------------------------------
+
+function CameraRig() {
+  const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
+  const { camera } = useThree();
+
+  const camZ = interpolate(
+    frame,
+    [0, durationInFrames * 0.5, durationInFrames],
+    [4.5, 3.8, 4.5],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+  );
+  const camY = interpolate(
+    frame,
+    [0, durationInFrames * 0.5, durationInFrames],
+    [1.0, 1.5, 1.0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+  );
+
+  camera.position.set(0, camY, camZ);
+  camera.lookAt(0, 0, 0);
+
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// HumanModel
 // ---------------------------------------------------------------------------
 
 const MODEL_URL = staticFile("/models/human-fold-mesh.glb");
@@ -34,10 +63,9 @@ function HumanModel() {
     const size = new THREE.Vector3();
     box.getSize(size);
     const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = 2.8 / maxDim;
-    clone.scale.setScalar(scale);
+    const s = 2.8 / maxDim;
+    clone.scale.setScalar(s);
 
-    // Apply a subtle material enhancement
     clone.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
@@ -51,13 +79,8 @@ function HumanModel() {
     return clone;
   }, [scene]);
 
-  // Smooth orbit with slight vertical bob
   const rotY = interpolate(frame, [0, durationInFrames], [0, Math.PI * 1.8]);
-  const bob = interpolate(
-    Math.sin(frame * 0.025),
-    [-1, 1],
-    [-0.05, 0.05]
-  );
+  const bob = interpolate(Math.sin(frame * 0.025), [-1, 1], [-0.05, 0.05]);
 
   return (
     <group ref={groupRef} rotation={[0, rotY, 0]} position={[0, bob, 0]}>
@@ -71,30 +94,10 @@ function HumanModel() {
 // ---------------------------------------------------------------------------
 
 function HumanFoldScene() {
-  const frame = useCurrentFrame();
-  const { durationInFrames } = useVideoConfig();
-
-  const camZ = interpolate(
-    frame,
-    [0, durationInFrames * 0.5, durationInFrames],
-    [4.5, 3.8, 4.5],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
-  );
-  const camY = interpolate(
-    frame,
-    [0, durationInFrames * 0.5, durationInFrames],
-    [1.0, 1.5, 1.0],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
-  );
-
   return (
     <>
+      <CameraRig />
       <color attach="background" args={[ENRICHMENT_BG]} />
-      <perspectiveCamera
-        position={[0, camY, camZ]}
-        fov={45}
-        makeDefault
-      />
 
       <ambientLight intensity={0.25} />
       <directionalLight position={[4, 5, 3]} intensity={0.7} />
@@ -122,9 +125,8 @@ function HumanFoldScene() {
 // ---------------------------------------------------------------------------
 
 const HumanFoldMesh: React.FC<EnrichmentVizProps> = () => {
-  const { width, height } = useVideoConfig();
+  const { width, height, durationInFrames } = useVideoConfig();
   const frame = useCurrentFrame();
-  const { durationInFrames } = useVideoConfig();
 
   const opacity = interpolate(
     frame,
