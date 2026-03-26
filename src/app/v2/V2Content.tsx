@@ -20,9 +20,9 @@ export default function V2Content() {
         <main>
           <HeroV2 />
           <SectionDivider />
-          <CatalogShowcase />
-          <SectionDivider />
           <EnrichmentPipeline />
+          <SectionDivider />
+          <CatalogShowcase />
           <SectionDivider />
           <ThreeModes />
           <SectionDivider />

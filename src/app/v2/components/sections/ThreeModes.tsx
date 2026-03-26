@@ -9,7 +9,7 @@ const modes = [
   {
     icon: BookOpen,
     number: "01",
-    title: "Browse & Buy",
+    title: "Browse & License",
     bullets: [
       "Search 25+ curated datasets by modality, environment, or task",
       "Preview clips with expert annotations before purchasing",

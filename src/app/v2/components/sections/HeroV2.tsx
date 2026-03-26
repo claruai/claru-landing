@@ -546,13 +546,13 @@ export default function HeroV2() {
             ease: [0.16, 1, 0.3, 1],
           }}
         >
-          <a
-            href="#contact"
+          <Link
+            href="/api/booking-url"
             className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-[var(--accent-primary)] px-10 py-4 text-[15px] font-semibold text-[#0a0908] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_40px_var(--accent-glow-strong)]"
           >
             <span className="relative z-10">Book a Call</span>
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-          </a>
+          </Link>
           <Link
             href="/catalog"
             className="inline-flex items-center justify-center rounded-full border border-white/12 px-10 py-4 text-[15px] font-medium text-white/70 backdrop-blur-sm transition-all duration-300 hover:border-[var(--accent-primary)]/30 hover:bg-white/[0.03] hover:text-white"

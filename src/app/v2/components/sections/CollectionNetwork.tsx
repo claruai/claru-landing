@@ -12,108 +12,126 @@ const markerData = [
     lat: 37.7749,
     lng: -122.4194,
     city: "San Francisco",
+    label: "Offices in San Francisco",
     videoSrc: "/videos/globe/point-01.mp4",
   },
   {
     lat: 19.076,
     lng: 72.8777,
     city: "Mumbai",
+    label: "Kitchens in Mumbai",
     videoSrc: "/videos/globe/point-14.mp4",
   },
   {
     lat: 10.8231,
     lng: 106.6297,
     city: "Ho Chi Minh",
+    label: "Roads in Ho Chi Minh",
     videoSrc: "/videos/globe/point-03.mp4",
   },
   {
     lat: -23.5505,
     lng: -46.6333,
     city: "S\u00e3o Paulo",
+    label: "Warehouses in S\u00e3o Paulo",
     videoSrc: "/videos/globe/point-04.mp4",
   },
   {
     lat: 50.4501,
     lng: 30.5234,
     city: "Kyiv",
+    label: "Roads in Kyiv",
     videoSrc: "/videos/globe/point-09.mp4",
   },
   {
     lat: 6.5244,
     lng: 3.3792,
     city: "Lagos",
+    label: "Retail in Lagos",
     videoSrc: "/videos/globe/point-06.mp4",
   },
   {
     lat: 14.5995,
     lng: 120.9842,
     city: "Manila",
+    label: "Kitchens in Manila",
     videoSrc: "/videos/globe/point-07.mp4",
   },
   {
     lat: 13.7563,
     lng: 100.5018,
     city: "Bangkok",
+    label: "Roads in Bangkok",
     videoSrc: "/videos/globe/point-08.mp4",
   },
   {
     lat: 51.5074,
     lng: -0.1278,
     city: "London",
+    label: "Offices in London",
     videoSrc: "/videos/globe/point-05.mp4",
   },
   {
     lat: 19.4326,
     lng: -99.1332,
     city: "Mexico City",
+    label: "Retail in Mexico City",
     videoSrc: "/videos/globe/point-10.mp4",
   },
   {
     lat: -6.2088,
     lng: 106.8456,
     city: "Jakarta",
+    label: "Warehouses in Jakarta",
     videoSrc: "/videos/globe/point-11.mp4",
   },
   {
     lat: -1.2921,
     lng: 36.8219,
     city: "Nairobi",
+    label: "Kitchens in Nairobi",
     videoSrc: "/videos/globe/point-12.mp4",
   },
   {
     lat: 30.0444,
     lng: 31.2357,
     city: "Cairo",
+    label: "Roads in Cairo",
     videoSrc: "/videos/globe/point-13.mp4",
   },
   {
     lat: 23.8103,
     lng: 90.4125,
     city: "Dhaka",
+    label: "Retail in Dhaka",
     videoSrc: "/videos/globe/point-02.mp4",
   },
   {
     lat: -12.0464,
     lng: -77.0428,
     city: "Lima",
+    label: "Warehouses in Lima",
     videoSrc: "/videos/globe/point-15.mp4",
   },
   {
     lat: 4.711,
     lng: -74.0721,
     city: "Bogot\u00e1",
+    label: "Kitchens in Bogot\u00e1",
     videoSrc: "/videos/globe/point-16.mp4",
   },
   {
     lat: 24.8607,
     lng: 67.0011,
     city: "Karachi",
+    label: "Roads in Karachi",
     videoSrc: "/videos/globe/point-17.mp4",
   },
   {
     lat: 5.6037,
     lng: -0.187,
     city: "Accra",
+    label: "Retail in Accra",
     videoSrc: "/videos/globe/point-18.mp4",
   },
 ];
@@ -386,7 +404,7 @@ export default function CollectionNetwork() {
                     key={m.city}
                     className="rounded-full border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-3 py-1 font-mono text-xs text-white/50"
                   >
-                    {m.city}
+                    {m.label}
                   </span>
                 ))}
               </div>
@@ -528,7 +546,7 @@ export default function CollectionNetwork() {
                 />
               </div>
 
-              {/* City label */}
+              {/* Environment label */}
               <p
                 className="mt-1 text-center font-mono"
                 style={{
@@ -540,7 +558,7 @@ export default function CollectionNetwork() {
                   whiteSpace: "nowrap",
                 }}
               >
-                {marker.city}
+                {marker.label}
               </p>
             </div>
           ))}

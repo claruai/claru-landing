@@ -1,8 +1,8 @@
 "use client";
 
 import { Suspense, useMemo, useRef } from "react";
-import { Canvas, useLoader, useThree } from "@react-three/fiber";
-import { OrbitControls, useGLTF, Center, Environment } from "@react-three/drei";
+import { Canvas, useLoader } from "@react-three/fiber";
+import { OrbitControls, useGLTF } from "@react-three/drei";
 import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader.js";
 import * as THREE from "three";
 
@@ -99,7 +99,7 @@ function PointCloudScene({ url }: { url: string }) {
   return (
     <points ref={pointsRef} geometry={processedGeometry}>
       <pointsMaterial
-        size={0.015}
+        size={0.025}
         vertexColors={hasColors}
         color={hasColors ? undefined : "#92B090"}
         sizeAttenuation
@@ -144,7 +144,7 @@ export function PointCloudViewer({
           autoRotateSpeed={1.5}
         />
         {/* Subtle grid for spatial reference */}
-        <gridHelper args={[4, 20, "#2a2a28", "#1a1a18"]} position={[0, -1, 0]} />
+        <gridHelper args={[4, 20, "#444440", "#2a2a28"]} position={[0, -1, 0]} />
       </Canvas>
     </div>
   );
@@ -217,7 +217,7 @@ export function GLBViewer({
           autoRotate
           autoRotateSpeed={2}
         />
-        <gridHelper args={[4, 20, "#2a2a28", "#1a1a18"]} position={[0, -1.2, 0]} />
+        <gridHelper args={[4, 20, "#444440", "#2a2a28"]} position={[0, -1.2, 0]} />
       </Canvas>
     </div>
   );
