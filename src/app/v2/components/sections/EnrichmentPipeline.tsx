@@ -44,7 +44,7 @@ const CARDS: EnrichmentCard[] = [
     color: "#DE8A4A",
     media: {
       type: "video",
-      src: "/enrichment-assets/pose-video/sushi_hands_tracking.mp4",
+      src: "/enrichment-assets/pose-video/fold_clothes_hands.mp4",
     },
   },
   {
