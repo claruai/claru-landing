@@ -69,3 +69,17 @@ brand-kit.zip
 *.mov
 brand-kit/
 slide-deck-backgrounds/
+
+# Enrichment assets — only keep files referenced by V2 page
+public/enrichment-assets/*
+!public/enrichment-assets/depth-video/90b2c5b4_depth_only.mp4
+!public/enrichment-assets/pose-video/9d73d711_pose_web.mp4
+!public/enrichment-assets/segmentation/12b46dac_seg_overlay.mp4
+
+# HMR2 showcase — keep only final outputs
+public/images/hmr2-showcase/
+
+# Temp/working files
+tmp/
+scripts/fal-wham/.venv*/
+scripts/fal-hawor/
