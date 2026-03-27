@@ -221,7 +221,7 @@ const DIFFERENTIATORS = [
   {
     title: "Global Workforce, Central Management",
     description:
-      "2,000+ annotators across 14 countries, managed by a single dedicated project lead on our side. You get the geographic reach without the coordination overhead.",
+      "10,000+ annotators across 14 countries, managed by a single dedicated project lead on our side. You get the geographic reach without the coordination overhead.",
   },
 ];
 

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Video, ImageIcon, Layers, Bot } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import type { Dataset, DatasetCategory } from "@/types/data-catalog";
 
 // ---------------------------------------------------------------------------
@@ -22,14 +23,14 @@ interface DatasetCardProps {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const modalityIcons: Record<string, React.ElementType> = {
+const modalityIcons: Record<string, LucideIcon> = {
   short_form: Video,
   long_form: Video,
   cinematic: Video,
   game_capture: Layers,
 };
 
-function getModalityIcon(type: string): React.ElementType {
+function getModalityIcon(type: string): LucideIcon {
   return modalityIcons[type] ?? Video;
 }
 

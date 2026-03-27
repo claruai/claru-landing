@@ -10,30 +10,90 @@ import * as THREE from "three";
 // ---------------------------------------------------------------------------
 
 const VIDEO_URLS = [
-  "/videos/mosaic/mosaic-01.mp4", // egocentric cooking
-  "/videos/mosaic/annotated-bbox-01.mp4", // with bounding boxes
-  "/videos/mosaic/annotated-depth-01.mp4", // depth map colored
-  "/videos/mosaic/mosaic-game-env.mp4", // game env
-  "/videos/mosaic/mosaic-driving.mp4", // driving
-  "/videos/mosaic/mosaic-teleop.mp4", // teleop/robotics
-  "/videos/mosaic/annotated-seg-01.mp4", // segmentation
-  "/videos/mosaic/mosaic-12.mp4", // varied egocentric
-  "/videos/mosaic/annotated-bbox-02.mp4", // more bbox
-  "/videos/mosaic/kling-robot.mp4", // Kling-generated robot arm (was annotated-depth-02)
-  "/videos/mosaic/mosaic-20.mp4", // varied
-  "/videos/mosaic/kling-simlab.mp4", // Kling-generated sim lab (was mosaic-24)
+  // Row 0 (top)
+  "/videos/mosaic/mosaic-03.mp4",
+  "/videos/mosaic/annotated-depth-02.mp4",
+  "/videos/mosaic/mosaic-04.mp4",
+  "/videos/mosaic/mosaic-09.mp4",
+  "/videos/mosaic/annotated-sensor.mp4",
+  "/videos/mosaic/mosaic-16.mp4",
+  // Row 1
+  "/videos/mosaic/mosaic-05.mp4",
+  "/videos/mosaic/annotated-bbox-01.mp4",
+  "/videos/mosaic/mosaic-01.mp4",
+  "/videos/mosaic/mosaic-game-env.mp4",
+  "/videos/mosaic/annotated-seg-01.mp4",
+  "/videos/mosaic/mosaic-11.mp4",
+  // Row 2
+  "/videos/mosaic/mosaic-driving.mp4",
+  "/videos/mosaic/kling-robot.mp4",
+  "/videos/mosaic/annotated-depth-01.mp4",
+  "/videos/mosaic/mosaic-teleop.mp4",
+  "/videos/mosaic/mosaic-12.mp4",
+  "/videos/mosaic/robot-arm.mp4",
+  // Row 3 (bottom)
+  "/videos/mosaic/mosaic-17.mp4",
+  "/videos/mosaic/annotated-bbox-02.mp4",
+  "/videos/mosaic/kling-simlab.mp4",
+  "/videos/mosaic/mosaic-20.mp4",
+  "/videos/mosaic/vla-telemetry.mp4",
+  "/videos/mosaic/mosaic-15.mp4",
 ];
 
 // ---------------------------------------------------------------------------
-// Grid layout configuration
+// Dense 6x4 tile wall — tight gaps, variable sizes
 // ---------------------------------------------------------------------------
 
-const COLS = 4;
-const ROWS = 3;
-const TILE_WIDTH = 2.0;
-const TILE_HEIGHT = 1.2; // ~16:9 aspect
-const GAP_X = 2.3;
-const GAP_Y = 1.5;
+type TileSize = "sm" | "md" | "lg";
+
+interface TileLayout {
+  col: number;
+  row: number;
+  size: TileSize;
+}
+
+const COLS = 6;
+const ROWS = 4;
+
+const TILE_LAYOUTS: TileLayout[] = [
+  // Row 0: [SM] [SM] [MD] [SM] [SM] [SM]
+  { col: 0, row: 0, size: "sm" },
+  { col: 1, row: 0, size: "sm" },
+  { col: 2, row: 0, size: "md" },
+  { col: 3, row: 0, size: "sm" },
+  { col: 4, row: 0, size: "sm" },
+  { col: 5, row: 0, size: "sm" },
+  // Row 1: [SM] [MD] [LG] [LG] [MD] [SM]
+  { col: 0, row: 1, size: "sm" },
+  { col: 1, row: 1, size: "md" },
+  { col: 2, row: 1, size: "lg" },
+  { col: 3, row: 1, size: "lg" },
+  { col: 4, row: 1, size: "md" },
+  { col: 5, row: 1, size: "sm" },
+  // Row 2: [SM] [LG] [MD] [MD] [LG] [SM]
+  { col: 0, row: 2, size: "sm" },
+  { col: 1, row: 2, size: "lg" },
+  { col: 2, row: 2, size: "md" },
+  { col: 3, row: 2, size: "md" },
+  { col: 4, row: 2, size: "lg" },
+  { col: 5, row: 2, size: "sm" },
+  // Row 3: [SM] [SM] [MD] [SM] [SM] [SM]
+  { col: 0, row: 3, size: "sm" },
+  { col: 1, row: 3, size: "sm" },
+  { col: 2, row: 3, size: "md" },
+  { col: 3, row: 3, size: "sm" },
+  { col: 4, row: 3, size: "sm" },
+  { col: 5, row: 3, size: "sm" },
+];
+
+const TILE_DIMENSIONS: Record<TileSize, [number, number]> = {
+  sm: [1.1, 0.7],
+  md: [1.4, 0.9],
+  lg: [1.7, 1.1],
+};
+
+const GAP_X = 1.55;
+const GAP_Y = 1.15;
 
 // Pre-compute tile positions + variations with a stable seed
 interface TileConfig {
@@ -41,6 +101,10 @@ interface TileConfig {
   position: [number, number, number];
   rotation: [number, number, number];
   opacity: number;
+  width: number;
+  height: number;
+  edgeWidth: number; // dissolution width — more aggressive for outer tiles
+  size: TileSize;
 }
 
 function buildTileConfigs(): TileConfig[] {
@@ -56,39 +120,44 @@ function buildTileConfigs(): TileConfig[] {
     return (seed - 1) / 2147483646;
   };
 
-  for (let row = 0; row < ROWS; row++) {
-    for (let col = 0; col < COLS; col++) {
-      const idx = row * COLS + col;
-      if (idx >= VIDEO_URLS.length) break;
+  for (let i = 0; i < TILE_LAYOUTS.length; i++) {
+    if (i >= VIDEO_URLS.length) break;
 
-      const x = col * GAP_X - centerX;
-      const y = (ROWS - 1 - row) * GAP_Y - centerY; // flip Y so row 0 is top
-      const z = (rand() - 0.5) * 0.6; // +/- 0.3 depth variation
+    const layout = TILE_LAYOUTS[i];
+    const [w, h] = TILE_DIMENSIONS[layout.size];
 
-      const rotX = (rand() - 0.5) * 0.07; // +/- ~2 degrees
-      const rotY = (rand() - 0.5) * 0.07;
+    const x = layout.col * GAP_X - centerX;
+    const y = (ROWS - 1 - layout.row) * GAP_Y - centerY;
+    const z = (rand() - 0.5) * 1.2; // depth variation
 
-      // Distance from center for opacity falloff
-      const dx = x;
-      const dy = y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      const normalizedDist = maxDist > 0 ? dist / maxDist : 0;
-      const opacity = THREE.MathUtils.clamp(1.0 - normalizedDist * 0.55, 0.35, 1.0);
+    const rotX = (rand() - 0.5) * 0.08; // slight random tilt
+    const rotY = (rand() - 0.5) * 0.08;
 
-      configs.push({
-        url: VIDEO_URLS[idx],
-        position: [x, y, z],
-        rotation: [rotX, rotY, 0],
-        opacity,
-      });
-    }
+    // Distance from center for opacity falloff + edge dissolution
+    const dist = Math.sqrt(x * x + y * y);
+    const normalizedDist = maxDist > 0 ? dist / maxDist : 0;
+    const opacity = THREE.MathUtils.clamp(1.0 - normalizedDist * 0.6, 0.3, 1.0);
+
+    // Edge dissolution: center tiles show more video, outer tiles dissolve heavily
+    const edgeWidth = THREE.MathUtils.lerp(0.18, 0.42, normalizedDist);
+
+    configs.push({
+      url: VIDEO_URLS[i],
+      position: [x, y, z],
+      rotation: [rotX, rotY, 0],
+      opacity,
+      width: w,
+      height: h,
+      edgeWidth,
+      size: layout.size,
+    });
   }
 
   return configs;
 }
 
 // ---------------------------------------------------------------------------
-// ASCII Edge Decomposition Shader
+// ASCII Edge Decomposition Shader (enhanced)
 // ---------------------------------------------------------------------------
 
 /**
@@ -142,14 +211,16 @@ void main() {
 }
 `;
 
-// Fragment shader -- renders video in center, dissolves to ASCII at edges
+// Fragment shader -- renders video with sage green tint, dissolves to ASCII at edges
+// Enhanced: color tinting, stronger glow emission, distance-based dissolution
 const ASCII_FRAGMENT_SHADER = /* glsl */ `
 uniform sampler2D videoTex;
 uniform sampler2D asciiAtlas;
 uniform float time;
-uniform float edgeWidth;       // 0.18 = 18% of tile
+uniform float edgeWidth;       // per-tile dissolution width (distance-based)
 uniform float tileOpacity;     // per-tile opacity from distance falloff
 uniform vec3 accentColor;      // sage green
+uniform float colorTintStrength; // 0.0 - 1.0, how much sage green tint
 
 varying vec2 vUv;
 
@@ -169,48 +240,93 @@ float noise(vec2 p) {
   return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
 
+float fbm(vec2 p) {
+  float value = 0.0;
+  float amplitude = 0.5;
+  for (int i = 0; i < 4; i++) {
+    value += amplitude * noise(p);
+    p *= 2.0;
+    amplitude *= 0.5;
+  }
+  return value;
+}
+
+// Rounded rectangle SDF — returns 0 at rounded border, positive inside
+float roundedRectDist(vec2 uv, vec2 halfSize, float radius) {
+  vec2 d = abs(uv - 0.5) - halfSize + radius;
+  return min(max(d.x, d.y), 0.0) + length(max(d, 0.0)) - radius;
+}
+
 void main() {
   // Sample video texture
   vec4 videoColor = texture2D(videoTex, vUv);
   float luminance = dot(videoColor.rgb, vec3(0.299, 0.587, 0.114));
 
-  // Distance from nearest edge (0 at border, 0.5 at center)
-  float dx = min(vUv.x, 1.0 - vUv.x);
-  float dy = min(vUv.y, 1.0 - vUv.y);
-  float edgeDist = min(dx, dy);
+  // Apply sage green color tint to unify all tiles
+  vec3 tintedColor = mix(videoColor.rgb, videoColor.rgb * accentColor * 2.5, colorTintStrength);
+  tintedColor *= 1.15;
 
-  // Organic edge boundary: noise for randomness + sine for breathing
-  float breathe = sin(time * 0.5) * 0.02;
-  float noiseVal = noise(vUv * 20.0 + time * 0.3) * 0.04;
-  float edgeThreshold = edgeWidth + breathe + noiseVal;
+  // --- Rounded rectangle distance field ---
+  // The "clean video" zone is an inner rounded rect, much smaller than the tile
+  // cornerRadius controls how rounded the inner shape is (higher = more pill-like)
+  float cornerRadius = 0.12;
+  // Shrink the inner rect so there's a wide dissolution border
+  float innerShrink = edgeWidth * 1.2; // dissolution eats into the tile substantially
+  vec2 halfSize = vec2(0.5 - innerShrink, 0.5 - innerShrink);
+  float sdf = -roundedRectDist(vUv, halfSize, cornerRadius);
+  // sdf > 0 inside the rounded rect, < 0 outside
 
-  // Transition factor: 0 = full ASCII, 1 = full video
-  float t = smoothstep(0.0, edgeThreshold, edgeDist);
+  // Organic edge: FBM noise warps the boundary + breathing animation
+  float breathe = sin(time * 0.4) * 0.025;
+  float noiseVal = fbm(vUv * 10.0 + time * 0.15) * 0.08;
+  sdf += noiseVal + breathe;
 
-  if (t > 0.99) {
-    // Center zone -- pure video
-    gl_FragColor = vec4(videoColor.rgb, tileOpacity);
-  } else {
-    // Edge zone -- ASCII characters mapped by video luminance
-    float charIndex = floor(luminance * 9.0); // 10 chars in ramp, indices 0-9
-    float col = mod(charIndex, 16.0);
-    float row = floor(charIndex / 16.0);
+  // Horizontal glitch distortion lines
+  float glitchLine = step(0.97, sin(vUv.y * 180.0 + time * 2.5)) * 0.035;
+  sdf -= glitchLine;
 
-    // Map UV into a repeating ASCII character grid across the tile
-    vec2 cellUV = fract(vUv * 30.0); // ~30 characters across each axis
-    vec2 atlasUV = (vec2(col, row) + cellUV) / 16.0;
-    float ascii = texture2D(asciiAtlas, atlasUV).r;
+  // Transition: wide band from full-ASCII to full-video
+  // The dissolution zone spans from sdf = -0.06 (outer, all ASCII) to sdf = +0.06 (inner, all video)
+  float dissolveBand = 0.08;
+  float t = smoothstep(-dissolveBand, dissolveBand, sdf);
 
-    // ASCII colored in sage green, opacity fades toward outer edge
-    float edgeOpacity = (1.0 - t) * 0.7; // max 70% opacity at very edge
-    vec3 asciiColor = accentColor * ascii;
+  // --- ASCII rendering for the dissolution zone ---
+  float charIndex = floor(luminance * 9.0);
+  float col = mod(charIndex, 16.0);
+  float row = floor(charIndex / 16.0);
+  vec2 cellUV = fract(vUv * 30.0);
+  vec2 atlasUV = (vec2(col, row) + cellUV) / 16.0;
+  float ascii = texture2D(asciiAtlas, atlasUV).r;
 
-    // Blend video and ASCII based on transition factor
-    vec3 finalColor = mix(asciiColor, videoColor.rgb, t);
-    float finalAlpha = mix(edgeOpacity, 1.0, t) * tileOpacity;
+  // ASCII color with flowing brightness
+  float flowBrightness = 0.6 + 0.4 * sin(vUv.y * 12.0 - time * 1.2 + vUv.x * 6.0);
+  vec3 asciiColor = accentColor * ascii * flowBrightness;
 
-    gl_FragColor = vec4(finalColor, finalAlpha);
-  }
+  // ASCII glow halo
+  float asciiGlow = smoothstep(0.0, 0.5, ascii) * 0.25;
+  asciiColor += accentColor * asciiGlow;
+
+  // --- Compose final pixel ---
+  // Video center gets bloom-friendly glow boost
+  float glowBoost = smoothstep(0.4, 0.9, luminance) * 0.3;
+  vec3 videoFinal = tintedColor + accentColor * glowBoost;
+
+  // Blend: ASCII outside, video inside, smooth crossfade in between
+  vec3 finalColor = mix(asciiColor, videoFinal, t);
+
+  // Alpha: ASCII zone fades out toward tile edge, video zone is full opacity
+  float edgeAlpha = (1.0 - t) * 0.8;
+  float finalAlpha = mix(edgeAlpha, 1.0, t) * tileOpacity;
+
+  // Fade to zero at the very outer boundary of the tile
+  float outerFade = smoothstep(-0.2, -0.02, sdf - noiseVal);
+  finalAlpha *= outerFade;
+
+  // Scanline effect — stronger in dissolution zone
+  float scanline = sin(vUv.y * 350.0) * 0.5 + 0.5;
+  finalColor *= mix(0.85, 1.0, scanline * t + (1.0 - t) * 0.4);
+
+  gl_FragColor = vec4(finalColor, finalAlpha);
 }
 `;
 
@@ -223,6 +339,9 @@ interface VideoPlaneProps {
   position: [number, number, number];
   rotation: [number, number, number];
   tileOpacity: number;
+  width: number;
+  height: number;
+  edgeWidth: number;
   asciiAtlas: THREE.CanvasTexture;
 }
 
@@ -234,6 +353,9 @@ function VideoPlane({
   position,
   rotation,
   tileOpacity,
+  width,
+  height,
+  edgeWidth,
   asciiAtlas,
 }: VideoPlaneProps) {
   const meshRef = useRef<THREE.Mesh>(null);
@@ -282,11 +404,12 @@ function VideoPlane({
       videoTex: { value: null as THREE.VideoTexture | null },
       asciiAtlas: { value: asciiAtlas },
       time: { value: 0 },
-      edgeWidth: { value: 0.18 },
+      edgeWidth: { value: edgeWidth },
       tileOpacity: { value: tileOpacity },
       accentColor: { value: new THREE.Color(0x92b090) },
+      colorTintStrength: { value: 0.25 }, // 25% sage green tint on all tiles
     }),
-    [asciiAtlas, tileOpacity]
+    [asciiAtlas, tileOpacity, edgeWidth]
   );
 
   // Subtle per-tile floating animation + shader time uniform update
@@ -294,8 +417,12 @@ function VideoPlane({
   useFrame(({ clock }) => {
     if (!meshRef.current) return;
     const t = clock.getElapsedTime();
+    // Floating animation -- slightly more pronounced
     meshRef.current.position.y =
-      position[1] + Math.sin(t * 0.4 + floatOffset) * 0.04;
+      position[1] + Math.sin(t * 0.35 + floatOffset) * 0.06;
+    // Subtle z-breathing
+    meshRef.current.position.z =
+      position[2] + Math.sin(t * 0.2 + floatOffset * 0.7) * 0.04;
 
     if (!useFallback && shaderCompileOk !== false) {
       const mat = meshRef.current.material as THREE.ShaderMaterial;
@@ -309,7 +436,6 @@ function VideoPlane({
       // One-time shader compile validation on first render with texture
       if (shaderCompileOk === null && texture) {
         try {
-          // Access the compiled program -- if diagnostics say not runnable, fall back
           const matAny = mat as unknown as Record<string, unknown>;
           const program = matAny.program as
             | { diagnostics?: { runnable: boolean } }
@@ -334,7 +460,7 @@ function VideoPlane({
   if (useFallback || shaderCompileOk === false) {
     return (
       <mesh ref={meshRef} position={position} rotation={rotation}>
-        <planeGeometry args={[TILE_WIDTH, TILE_HEIGHT]} />
+        <planeGeometry args={[width, height]} />
         <meshBasicMaterial
           map={texture}
           toneMapped={false}
@@ -347,7 +473,7 @@ function VideoPlane({
 
   return (
     <mesh ref={meshRef} position={position} rotation={rotation}>
-      <planeGeometry args={[TILE_WIDTH, TILE_HEIGHT]} />
+      <planeGeometry args={[width, height]} />
       <shaderMaterial
         uniforms={uniforms}
         vertexShader={ASCII_VERTEX_SHADER}
@@ -356,6 +482,111 @@ function VideoPlane({
         toneMapped={false}
       />
     </mesh>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// FloorReflection -- mirror-like reflection plane below the grid
+// ---------------------------------------------------------------------------
+
+function FloorReflection({
+  tileConfigs,
+  asciiAtlas,
+}: {
+  tileConfigs: TileConfig[];
+  asciiAtlas: THREE.CanvasTexture;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+
+  // Only reflect the 8 center tiles to limit video element count
+  const centerTiles = tileConfigs.filter((_, i) => {
+    const layout = TILE_LAYOUTS[i];
+    return layout && layout.col >= 1 && layout.col <= 4 && layout.row >= 1 && layout.row <= 2;
+  });
+
+  return (
+    <group
+      ref={groupRef}
+      position={[0, -3.2, 0]}
+      scale={[1, -0.35, 1]}
+    >
+      {centerTiles.map((cfg, i) => (
+        <VideoPlane
+          key={`reflection-${i}`}
+          url={cfg.url}
+          position={cfg.position}
+          rotation={cfg.rotation}
+          tileOpacity={cfg.opacity * 0.12}
+          width={cfg.width}
+          height={cfg.height}
+          edgeWidth={cfg.edgeWidth + 0.18}
+          asciiAtlas={asciiAtlas}
+        />
+      ))}
+      <mesh position={[0, 0, 0.5]}>
+        <planeGeometry args={[20, 6]} />
+        <meshBasicMaterial
+          color={0x0a0908}
+          transparent
+          opacity={0.65}
+          depthWrite={false}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Atmospheric particles -- tiny sage-green dots floating in the scene
+// ---------------------------------------------------------------------------
+
+function AtmosphericParticles() {
+  const pointsRef = useRef<THREE.Points>(null);
+  const count = 200;
+
+  const [positions, opacities] = useMemo(() => {
+    const pos = new Float32Array(count * 3);
+    const opac = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 16;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 10;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 6;
+      opac[i] = Math.random() * 0.3 + 0.1;
+    }
+    return [pos, opac];
+  }, []);
+
+  useFrame(({ clock }) => {
+    if (!pointsRef.current) return;
+    const t = clock.getElapsedTime();
+    const posArray = pointsRef.current.geometry.attributes.position
+      .array as Float32Array;
+    for (let i = 0; i < count; i++) {
+      // Gentle drift
+      posArray[i * 3 + 1] += Math.sin(t * 0.2 + i * 0.5) * 0.001;
+      posArray[i * 3] += Math.cos(t * 0.15 + i * 0.3) * 0.0005;
+    }
+    pointsRef.current.geometry.attributes.position.needsUpdate = true;
+  });
+
+  return (
+    <points ref={pointsRef}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          args={[positions, 3]}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        color={0x92b090}
+        size={0.03}
+        transparent
+        opacity={0.4}
+        sizeAttenuation
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+      />
+    </points>
   );
 }
 
@@ -382,13 +613,13 @@ function MouseParallaxGroup({ children }: { children: React.ReactNode }) {
     if (!groupRef.current) return;
     groupRef.current.rotation.y = THREE.MathUtils.lerp(
       groupRef.current.rotation.y,
-      mouse.current.x * 0.05,
-      0.05
+      mouse.current.x * 0.06,
+      0.04
     );
     groupRef.current.rotation.x = THREE.MathUtils.lerp(
       groupRef.current.rotation.x,
-      mouse.current.y * -0.03,
-      0.05
+      mouse.current.y * -0.04,
+      0.04
     );
   });
 
@@ -409,7 +640,11 @@ function Scene() {
       {/* Ambient light so videos show true color */}
       <ambientLight intensity={1} />
 
+      {/* Atmospheric exponential fog for depth haze */}
+      <fogExp2 attach="fog" args={[0x0a0908, 0.06]} />
+
       <MouseParallaxGroup>
+        {/* Main tile grid */}
         {tileConfigs.map((cfg, i) => (
           <VideoPlane
             key={i}
@@ -417,17 +652,26 @@ function Scene() {
             position={cfg.position}
             rotation={cfg.rotation}
             tileOpacity={cfg.opacity}
+            width={cfg.width}
+            height={cfg.height}
+            edgeWidth={cfg.edgeWidth}
             asciiAtlas={asciiAtlas}
           />
         ))}
+
+        {/* Floor reflection below the grid */}
+        <FloorReflection tileConfigs={tileConfigs} asciiAtlas={asciiAtlas} />
+
+        {/* Atmospheric particles floating in the scene */}
+        <AtmosphericParticles />
       </MouseParallaxGroup>
 
-      {/* Post-processing: subtle bloom for glow */}
+      {/* Post-processing: aggressive bloom for glow halos */}
       <EffectComposer>
         <Bloom
-          intensity={0.3}
-          luminanceThreshold={0.6}
-          luminanceSmoothing={0.4}
+          intensity={0.8}
+          luminanceThreshold={0.3}
+          luminanceSmoothing={0.6}
           mipmapBlur
         />
       </EffectComposer>
@@ -469,7 +713,7 @@ export default function VideoWall3D() {
 
   return (
     <Canvas
-      camera={{ position: [0, 0, 8], fov: 50 }}
+      camera={{ position: [0, 0, 7.5], fov: 60 }}
       style={{
         position: "absolute",
         inset: 0,
@@ -482,8 +726,6 @@ export default function VideoWall3D() {
         powerPreference: "high-performance",
       }}
       dpr={[1, 1.5]}
-      // On-demand rendering capped by FPSLimiter -- but video textures
-      // need continuous updates, so we keep the default "always" frameloop
     >
       <FPSLimiter fps={30} />
       <Scene />

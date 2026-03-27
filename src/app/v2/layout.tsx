@@ -52,7 +52,7 @@ const v2JsonLd = {
   contactPoint: {
     "@type": "ContactPoint",
     contactType: "sales",
-    email: "team@claru.ai",
+    email: "contact@claru.ai",
     url: "https://claru.ai/v2#contact",
   },
   sameAs: [

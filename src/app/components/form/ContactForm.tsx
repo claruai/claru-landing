@@ -252,7 +252,7 @@ export default function ContactForm() {
         </motion.button>
 
         {/* Secondary contact option */}
-        <p className="text-sm text-[var(--text-muted)] font-mono">
+        <p className="text-sm text-[var(--text-muted)] font-mono text-center">
           Or email us directly at{" "}
           <a
             href="mailto:contact@claru.ai"

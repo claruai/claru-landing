@@ -131,7 +131,7 @@ const globalJsonLd = {
       contactPoint: {
         "@type": "ContactPoint",
         contactType: "sales",
-        email: "team@claru.ai",
+        email: "contact@claru.ai",
         url: "https://claru.ai/#contact",
       },
       sameAs: [

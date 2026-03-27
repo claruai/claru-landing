@@ -1,11 +1,10 @@
 "use client";
 
-import { useRef } from "react";
-import Image from "next/image";
-import { useGSAP } from "@gsap/react";
-import { gsap } from "gsap";
+import { useRef, useEffect, useCallback, useState } from "react";
+import { motion, useInView } from "framer-motion";
+import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { motion } from "framer-motion";
+import { useGSAP } from "@gsap/react";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 
 if (typeof window !== "undefined") {
@@ -13,173 +12,581 @@ if (typeof window !== "undefined") {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Data                                                                      */
+/*  Card data — 4 cards: captured → enriched → annotated → delivered          */
 /* -------------------------------------------------------------------------- */
 
-interface PipelineStep {
+interface EnrichmentCard {
   id: string;
   label: string;
-  comment: string;
+  tagline: string;
   description: string;
   color: string;
+  media: { type: "video"; src: string } | { type: "json" };
 }
 
-const steps: PipelineStep[] = [
+const CARDS: EnrichmentCard[] = [
   {
-    id: "raw",
-    label: "RAW CAPTURE",
-    comment: "// RAW CAPTURE",
-    description: "Every clip starts as raw footage.",
-    color: "#e8e8e8",
-  },
-  {
-    id: "depth",
-    label: "DEPTH",
-    comment: "// DEPTH",
-    description: "We add per-pixel depth estimation.",
+    id: "capture",
+    label: "CAPTURED",
+    tagline: "Licensed, real-world video — not synthetic, not scraped.",
+    description: "",
     color: "#4A9EDE",
+    media: {
+      type: "video",
+      src: "/enrichment-assets/depth-video/90b2c5b4_depth_only.mp4",
+    },
   },
   {
-    id: "pose",
-    label: "POSE",
-    comment: "// POSE",
-    description: "Hand and body pose tracking on every frame.",
-    color: "#DE8A4A",
-  },
-  {
-    id: "seg",
-    label: "SEGMENTATION",
-    comment: "// SEGMENTATION",
-    description: "Instance segmentation identifies every object.",
-    color: "#9E6ADE",
-  },
-  {
-    id: "all",
+    id: "enrich",
     label: "ENRICHED",
-    comment: "// ENRICHED",
-    description: "Rich metadata and annotation on every clip in your dataset.",
-    color: "var(--accent-primary)",
+    tagline: "Every clip ships with layers your model actually needs.",
+    description: "",
+    color: "#DE8A4A",
+    media: {
+      type: "video",
+      src: "/enrichment-assets/pose-video/9d73d711_pose_web.mp4",
+    },
+  },
+  {
+    id: "annotate",
+    label: "ANNOTATED",
+    tagline: "Expert humans label what machines miss — intent, context, edge cases.",
+    description: "",
+    color: "#9E6ADE",
+    media: {
+      type: "video",
+      src: "/enrichment-assets/segmentation/12b46dac_seg_overlay.mp4",
+    },
+  },
+  {
+    id: "deliver",
+    label: "DELIVERED",
+    tagline: "Your format. Your pipeline. Ready to train.",
+    description: "",
+    color: "#92B090",
+    media: { type: "json" },
   },
 ];
 
 /* -------------------------------------------------------------------------- */
-/*  Metadata panel content                                                    */
+/*  Lazy video                                                                 */
 /* -------------------------------------------------------------------------- */
 
-function MetadataPanel({ className }: { className?: string }) {
+function CardVideo({ src }: { src: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleIntersection = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const video = videoRef.current;
+      if (!video) return;
+      for (const entry of entries) {
+        if (entry.isIntersecting) video.play().catch(() => {});
+        else video.pause();
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(handleIntersection, {
+      threshold: 0.1,
+    });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [handleIntersection]);
+
+  return (
+    <div ref={containerRef} className="absolute inset-0">
+      <video
+        ref={videoRef}
+        src={src}
+        muted
+        loop
+        playsInline
+        preload="none"
+        className="h-full w-full object-cover"
+      />
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Rich JSON output panel — meaty structured data                             */
+/* -------------------------------------------------------------------------- */
+
+const JSON_LINES: { text: string; indent: number; color?: string }[] = [
+  { text: "{", indent: 0 },
+  { text: '"clip_id": "33c400a3-3538-4e72-b1b3-757d638ea778",', indent: 1 },
+  { text: '"created_at": "2026-03-18T09:14:22.847Z",', indent: 1 },
+  { text: '"source": {', indent: 1 },
+  { text: '"device": "GoPro HERO12 Black",', indent: 2 },
+  { text: '"resolution": [3840, 2160],', indent: 2 },
+  { text: '"fps": 59.94,', indent: 2 },
+  { text: '"codec": "hevc_main10",', indent: 2 },
+  { text: '"duration_s": 14.82,', indent: 2 },
+  { text: '"total_frames": 888', indent: 2 },
+  { text: "},", indent: 1 },
+  { text: "", indent: 0, color: "dim" },
+  { text: '"capture": {', indent: 1 },
+  { text: '"geo": [19.076, 72.878],', indent: 2 },
+  { text: '"location": "Mumbai, MH, India",', indent: 2 },
+  { text: '"environment": "residential_kitchen",', indent: 2 },
+  { text: '"lighting": "natural_overhead",', indent: 2 },
+  { text: '"collector": "CLR-MUM-0294",', indent: 2 },
+  { text: '"session": "sess-20260318-0847"', indent: 2 },
+  { text: "},", indent: 1 },
+  { text: "", indent: 0, color: "dim" },
+  { text: '"imu": {', indent: 1 },
+  { text: '"accel_hz": 200,', indent: 2 },
+  { text: '"gyro_hz": 200,', indent: 2 },
+  { text: '"gravity_aligned": true', indent: 2 },
+  { text: "},", indent: 1 },
+  { text: "", indent: 0, color: "dim" },
+  { text: '"enrichment": {', indent: 1 },
+  { text: '"depth": {', indent: 2 },
+  { text: '"model": "depth-anything-v2-large",', indent: 3 },
+  { text: '"format": "float16.npz",', indent: 3 },
+  { text: '"colormap": "turbo",', indent: 3 },
+  { text: '"temporal_consistent": true', indent: 3 },
+  { text: "},", indent: 2 },
+  { text: '"pose": {', indent: 2 },
+  { text: '"model": "vitpose-h-coco-wholebody",', indent: 3 },
+  { text: '"keypoints_per_frame": 133,', indent: 3 },
+  { text: '"hands": true,', indent: 3 },
+  { text: '"face": true,', indent: 3 },
+  { text: '"confidence_min": 0.65', indent: 3 },
+  { text: "},", indent: 2 },
+  { text: '"segmentation": {', indent: 2 },
+  { text: '"model": "sam-3-video",', indent: 3 },
+  { text: '"tracked_instances": 9,', indent: 3 },
+  { text: '"mask_format": "coco_rle",', indent: 3 },
+  { text: '"classes": ["hand", "knife", "board", "pot"]', indent: 3 },
+  { text: "},", indent: 2 },
+  { text: '"optical_flow": {', indent: 2 },
+  { text: '"model": "raft-large",', indent: 3 },
+  { text: '"pairs": 887,', indent: 3 },
+  { text: '"format": "flo"', indent: 3 },
+  { text: "},", indent: 2 },
+  { text: '"action": {', indent: 2 },
+  { text: '"model": "internvideo2-8b",', indent: 3 },
+  { text: '"primary": "chopping_vegetables",', indent: 3 },
+  { text: '"confidence": 0.94,', indent: 3 },
+  { text: '"temporal_segments": [', indent: 3 },
+  { text: '{ "t": [0.0, 4.2], "action": "reaching" },', indent: 4 },
+  { text: '{ "t": [4.2, 11.8], "action": "chopping" },', indent: 4 },
+  { text: '{ "t": [11.8, 14.8], "action": "transferring" }', indent: 4 },
+  { text: "]", indent: 3 },
+  { text: "}", indent: 2 },
+  { text: "},", indent: 1 },
+  { text: "", indent: 0, color: "dim" },
+  { text: '"mesh_3d": {', indent: 1 },
+  { text: '"hand_l": { "verts": 778, "faces": 1538, "format": "glb" },', indent: 2 },
+  { text: '"hand_r": { "verts": 778, "faces": 1538, "format": "glb" },', indent: 2 },
+  { text: '"coord_system": "camera_ego"', indent: 2 },
+  { text: "},", indent: 1 },
+  { text: "", indent: 0, color: "dim" },
+  { text: '"quality": {', indent: 1 },
+  { text: '"annotator_agreement": 0.973,', indent: 2 },
+  { text: '"blur_pct": 2.1,', indent: 2 },
+  { text: '"occlusion_pct": 7.8,', indent: 2 },
+  { text: '"status": "approved",', indent: 2 },
+  { text: '"reviewed_by": "CLR-QA-0041",', indent: 2 },
+  { text: '"reviewed_at": "2026-03-19T14:32:08Z"', indent: 2 },
+  { text: "},", indent: 1 },
+  { text: "", indent: 0, color: "dim" },
+  { text: '"license": "commercial_unrestricted",', indent: 1 },
+  { text: '"delivery": {', indent: 1 },
+  { text: '"s3": "s3://claru-delivery/ego-kitchen/33c400a3/",', indent: 2 },
+  { text: '"parquet_index": true,', indent: 2 },
+  { text: '"webdataset": true,', indent: 2 },
+  { text: '"huggingface_repo": "claru/ego-kitchen-v3"', indent: 2 },
+  { text: "}", indent: 1 },
+  { text: "}", indent: 0 },
+];
+
+function RichJsonPanel() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-40px" });
+  const [visibleLines, setVisibleLines] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    let i = 0;
+    const timer = setInterval(() => {
+      i++;
+      setVisibleLines(i);
+      if (i >= JSON_LINES.length) clearInterval(timer);
+    }, 60);
+    return () => clearInterval(timer);
+  }, [inView]);
+
   return (
     <div
-      className={`rounded-xl border border-white/[0.08] bg-[#121110] p-4 font-mono text-xs ${className ?? ""}`}
+      ref={ref}
+      className="absolute inset-0 flex items-center justify-center bg-[#080807] p-4 md:p-8"
     >
-      <div className="mb-2 text-[var(--accent-primary)]">// METADATA</div>
-      <div className="space-y-1 text-white/60">
-        <div>clip_id: ego-kitchen-0847</div>
-        <div>timestamp: 2026-03-15T14:23:07Z</div>
-        <div>camera: GoPro Hero 12 @ 4K/60fps</div>
-        <div>sensor_data: IMU + depth_sensor</div>
-        <div>annotations: depth, pose, segmentation</div>
-        <div>annotator_agreement: 97.3%</div>
+      {/* Subtle grid background */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(146,176,144,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(146,176,144,0.5) 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
+
+      <div className="relative w-full max-w-lg overflow-hidden">
+        {/* Terminal header bar */}
+        <div className="mb-3 flex items-center gap-2">
+          <div className="h-[7px] w-[7px] rounded-full bg-[#ff5f57]/50" />
+          <div className="h-[7px] w-[7px] rounded-full bg-[#febc2e]/50" />
+          <div className="h-[7px] w-[7px] rounded-full bg-[#28c840]/50" />
+          <span className="ml-2 font-mono text-[10px] text-white/20">
+            clip_metadata.json
+          </span>
+        </div>
+
+        <div className="font-mono text-[11px] leading-[1.7] md:text-xs">
+          {JSON_LINES.slice(0, visibleLines).map((line, i) => {
+            if (line.color === "dim" || !line.text) {
+              return <div key={i} className="h-2" />;
+            }
+
+            const pad = "  ".repeat(line.indent);
+            const highlighted = colorizeJsonLine(line.text);
+
+            return (
+              <div key={i} className="whitespace-pre">
+                <span style={{ color: "rgba(255,255,255,0.15)" }}>{pad}</span>
+                {highlighted}
+              </div>
+            );
+          })}
+          {visibleLines > 0 && visibleLines < JSON_LINES.length && (
+            <span
+              className="ml-1 inline-block h-3.5 w-1.5 align-middle"
+              style={{
+                background: "#92B090",
+                animation: "json-blink 0.7s step-end infinite",
+              }}
+            />
+          )}
+        </div>
+      </div>
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html:
+            "@keyframes json-blink { 0%,100%{opacity:1} 50%{opacity:0} }",
+        }}
+      />
+    </div>
+  );
+}
+
+function colorizeJsonLine(text: string): React.ReactNode {
+  // Simple inline colorizer
+  const parts: React.ReactNode[] = [];
+  let remaining = text;
+  let key = 0;
+
+  while (remaining.length > 0) {
+    // Match key: "..."
+    const keyMatch = remaining.match(/^("[\w_]+"):\s*/);
+    if (keyMatch) {
+      parts.push(
+        <span key={key++} style={{ color: "rgba(255,255,255,0.5)" }}>
+          {keyMatch[1]}
+        </span>
+      );
+      parts.push(
+        <span key={key++} style={{ color: "rgba(255,255,255,0.2)" }}>
+          :{" "}
+        </span>
+      );
+      remaining = remaining.slice(keyMatch[0].length);
+      continue;
+    }
+    // Match string value: "..."
+    const strMatch = remaining.match(/^"([^"]*)"(,?)/);
+    if (strMatch) {
+      parts.push(
+        <span key={key++} style={{ color: "#4ADE80" }}>
+          &quot;{strMatch[1]}&quot;
+        </span>
+      );
+      if (strMatch[2])
+        parts.push(
+          <span key={key++} style={{ color: "rgba(255,255,255,0.2)" }}>
+            ,
+          </span>
+        );
+      remaining = remaining.slice(strMatch[0].length);
+      continue;
+    }
+    // Match number
+    const numMatch = remaining.match(/^(\d+\.?\d*)(,?)/);
+    if (numMatch) {
+      parts.push(
+        <span key={key++} style={{ color: "#DE8A4A" }}>
+          {numMatch[1]}
+        </span>
+      );
+      if (numMatch[2])
+        parts.push(
+          <span key={key++} style={{ color: "rgba(255,255,255,0.2)" }}>
+            ,
+          </span>
+        );
+      remaining = remaining.slice(numMatch[0].length);
+      continue;
+    }
+    // Match boolean
+    const boolMatch = remaining.match(/^(true|false)(,?)/);
+    if (boolMatch) {
+      parts.push(
+        <span key={key++} style={{ color: "#4A9EDE" }}>
+          {boolMatch[1]}
+        </span>
+      );
+      if (boolMatch[2])
+        parts.push(
+          <span key={key++} style={{ color: "rgba(255,255,255,0.2)" }}>
+            ,
+          </span>
+        );
+      remaining = remaining.slice(boolMatch[0].length);
+      continue;
+    }
+    // Match array: [...]
+    const arrMatch = remaining.match(/^\[([^\]]*)\](,?)/);
+    if (arrMatch) {
+      parts.push(
+        <span key={key++} style={{ color: "#4ADEDE" }}>
+          [{arrMatch[1]}]
+        </span>
+      );
+      if (arrMatch[2])
+        parts.push(
+          <span key={key++} style={{ color: "rgba(255,255,255,0.2)" }}>
+            ,
+          </span>
+        );
+      remaining = remaining.slice(arrMatch[0].length);
+      continue;
+    }
+    // Braces and other chars
+    parts.push(
+      <span key={key++} style={{ color: "rgba(255,255,255,0.25)" }}>
+        {remaining[0]}
+      </span>
+    );
+    remaining = remaining.slice(1);
+  }
+
+  return <>{parts}</>;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Card media renderer                                                        */
+/* -------------------------------------------------------------------------- */
+
+function CardMedia({ card }: { card: EnrichmentCard }) {
+  if (card.media.type === "video") return <CardVideo src={card.media.src} />;
+  return <RichJsonPanel />;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Stacked card scroll — cards scale/rotate away revealing the next           */
+/* -------------------------------------------------------------------------- */
+
+function StickyCardStack({ reducedMotion }: { reducedMotion: boolean }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useGSAP(
+    () => {
+      if (reducedMotion) return;
+
+      const cards = cardRefs.current.filter(Boolean) as HTMLDivElement[];
+      const total = cards.length;
+      if (total === 0) return;
+
+      gsap.set(cards[0], { y: "0%", scale: 1, rotation: 0 });
+      for (let i = 1; i < total; i++) {
+        gsap.set(cards[i], { y: "100%", scale: 1, rotation: 0 });
+      }
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: ".enrichment-sticky-cards",
+          start: "top top",
+          end: `+=${window.innerHeight * (total - 1)}`,
+          pin: true,
+          scrub: 0.5,
+          pinSpacing: true,
+        },
+      });
+
+      for (let i = 0; i < total - 1; i++) {
+        tl.to(
+          cards[i],
+          { scale: 0.78, rotation: 3, duration: 1, ease: "none" },
+          i
+        );
+        tl.to(cards[i + 1], { y: "0%", duration: 1, ease: "none" }, i);
+      }
+
+      const ro = new ResizeObserver(() => ScrollTrigger.refresh());
+      if (containerRef.current) ro.observe(containerRef.current);
+
+      return () => {
+        ro.disconnect();
+        tl.kill();
+      };
+    },
+    { scope: containerRef, dependencies: [reducedMotion] }
+  );
+
+  return (
+    <div ref={containerRef} className="relative h-full w-full">
+      <div className="enrichment-sticky-cards relative flex h-[85vh] w-full items-center justify-center overflow-hidden">
+        <div className="relative h-[90%] w-full max-w-6xl overflow-hidden rounded-2xl mx-4 md:mx-8">
+          {CARDS.map((card, i) => (
+            <div
+              key={card.id}
+              ref={(el) => {
+                cardRefs.current[i] = el;
+              }}
+              className="absolute inset-0 overflow-hidden rounded-2xl"
+              style={{ willChange: "transform" }}
+            >
+              {/* Media background */}
+              <CardMedia card={card} />
+
+              {/* Dark overlay — makes narrative text the focus */}
+              {card.media.type === "video" && (
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "radial-gradient(ellipse at center, rgba(10,9,8,0.65) 0%, rgba(10,9,8,0.45) 50%, rgba(10,9,8,0.55) 100%)",
+                  }}
+                />
+              )}
+
+              {/* Top accent line */}
+              <div
+                className="absolute left-0 right-0 top-0 h-[2px]"
+                style={{
+                  background: `linear-gradient(90deg, transparent, ${card.color}, transparent)`,
+                  opacity: 0.7,
+                }}
+              />
+
+              {/* Top: terminal chrome */}
+              <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between px-5 py-3 md:px-8 md:py-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5">
+                    <div className="h-[7px] w-[7px] rounded-full bg-[#ff5f57]/60" />
+                    <div className="h-[7px] w-[7px] rounded-full bg-[#febc2e]/60" />
+                    <div className="h-[7px] w-[7px] rounded-full bg-[#28c840]/60" />
+                  </div>
+                  <span
+                    className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] md:text-[11px]"
+                    style={{ color: card.color }}
+                  >
+                    {`// ${card.label}`}
+                  </span>
+                </div>
+                <span className="font-mono text-[10px] text-white/20">
+                  {i + 1} / {CARDS.length}
+                </span>
+              </div>
+
+              {/* Center: narrative tagline — the main focus */}
+              <div className="absolute inset-0 z-10 flex items-center justify-center px-8">
+                <p
+                  className="max-w-lg text-center text-xl font-bold leading-snug tracking-[-0.02em] text-white md:text-2xl lg:text-[28px]"
+                  style={{ textShadow: "0 2px 20px rgba(10,9,8,0.95), 0 0 40px rgba(10,9,8,0.8)" }}
+                >
+                  {card.tagline}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Mobile fallback (vertical stack)                                          */
+/*  Mobile fallback                                                            */
 /* -------------------------------------------------------------------------- */
 
-function MobileFallback() {
-  const reducedMotion = useReducedMotion();
-
-  const mobileSteps = [
-    { step: steps[0], src: "/images/slider/raw.webp" },
-    { step: steps[1], src: "/images/slider/depth.png" },
-    { step: steps[2], src: "/images/slider/pose.png" },
-    { step: steps[3], src: "/images/slider/seg.png" },
-    { step: steps[4], src: "/images/slider/all.webp" },
-  ];
-
+function MobileStack({ reducedMotion }: { reducedMotion: boolean }) {
   return (
-    <div className="space-y-16">
-      {mobileSteps.map(({ step, src }, i) => (
+    <div className="flex flex-col gap-4 px-4">
+      {CARDS.map((card, i) => (
         <motion.div
-          key={step.id}
+          key={card.id}
+          className="relative overflow-hidden rounded-xl border border-white/[0.06]"
+          style={{
+            background: "linear-gradient(165deg, #121110 0%, #0e0d0c 100%)",
+            minHeight: card.media.type === "json" ? 320 : 240,
+          }}
           initial={reducedMotion ? {} : { opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
+          viewport={{ once: true, margin: "-40px" }}
           transition={{
+            delay: i * 0.1,
             duration: 0.6,
-            delay: 0.1,
             ease: [0.16, 1, 0.3, 1],
           }}
         >
-          {/* Step label */}
-          <div className="mb-3 flex items-center gap-3">
-            <span
-              className="font-mono text-[11px] font-semibold tracking-[0.15em]"
-              style={{ color: step.color }}
-            >
-              {step.comment}
-            </span>
-            <div className="flex items-center gap-1.5">
-              {Array.from({ length: 5 }).map((_, di) => (
-                <div
-                  key={di}
-                  className="h-1.5 w-1.5 rounded-full"
-                  style={{
-                    backgroundColor:
-                      di <= i
-                        ? steps[di].color
-                        : "rgba(255,255,255,0.12)",
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Frame viewer */}
-          <div className="v2-scanline relative overflow-hidden rounded-2xl border border-white/[0.06]">
-            {/* Terminal chrome */}
+          <CardMedia card={card} />
+          {card.media.type === "video" && (
             <div
-              className="flex items-center justify-between border-b border-white/[0.06] px-4 py-2.5"
+              className="absolute inset-0"
               style={{
                 background:
-                  "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)",
+                  "linear-gradient(180deg, rgba(10,9,8,0.5) 0%, rgba(10,9,8,0.05) 30%, rgba(10,9,8,0.05) 65%, rgba(10,9,8,0.7) 100%)",
               }}
-            >
-              <div className="flex items-center gap-1.5">
-                <div className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]/80" />
-                <div className="h-2.5 w-2.5 rounded-full bg-[#febc2e]/80" />
-                <div className="h-2.5 w-2.5 rounded-full bg-[#28c840]/80" />
+            />
+          )}
+          <div
+            className="absolute left-0 right-0 top-0 h-[2px] opacity-60"
+            style={{
+              background: `linear-gradient(90deg, transparent, ${card.color}, transparent)`,
+            }}
+          />
+          <div className="relative z-10 flex h-full min-h-[inherit] flex-col justify-between p-5">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                <div className="h-[6px] w-[6px] rounded-full bg-[#ff5f57]/50" />
+                <div className="h-[6px] w-[6px] rounded-full bg-[#febc2e]/50" />
+                <div className="h-[6px] w-[6px] rounded-full bg-[#28c840]/50" />
               </div>
               <span
-                className="font-mono text-[10px] font-medium"
-                style={{ color: step.color }}
+                className="font-mono text-[9px] font-semibold uppercase tracking-[0.15em]"
+                style={{ color: card.color }}
               >
-                {step.label}
+                {`// ${card.label}`}
               </span>
             </div>
-
-            <div className="relative aspect-video bg-[#0a0908]">
-              <Image
-                src={src}
-                alt={step.description}
-                fill
-                className="object-cover"
-                sizes="100vw"
-              />
+            <div>
+              <p className="mb-1 text-base font-bold text-white">
+                {card.tagline}
+              </p>
+              <p className="max-w-sm text-[12px] leading-relaxed text-white/50">
+                {card.description}
+              </p>
             </div>
           </div>
-
-          {/* Description */}
-          <p className="mt-4 text-sm leading-relaxed text-white/70">
-            {step.description}
-          </p>
-
-          {/* Metadata panel on last step */}
-          {i === mobileSteps.length - 1 && (
-            <MetadataPanel className="mt-4" />
-          )}
         </motion.div>
       ))}
     </div>
@@ -187,453 +594,49 @@ function MobileFallback() {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Reduced-motion fallback (static final frame)                              */
-/* -------------------------------------------------------------------------- */
-
-function ReducedMotionFallback() {
-  return (
-    <div className="mx-auto max-w-4xl">
-      <div className="v2-scanline relative overflow-hidden rounded-2xl border border-white/[0.06] shadow-[0_8px_40px_rgba(0,0,0,0.5)]">
-        {/* Terminal chrome */}
-        <div
-          className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)",
-          }}
-        >
-          <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-[#ff5f57]/80" />
-            <div className="h-3 w-3 rounded-full bg-[#febc2e]/80" />
-            <div className="h-3 w-3 rounded-full bg-[#28c840]/80" />
-          </div>
-          <span className="font-mono text-[11px] tracking-wider text-white/25">
-            enrichment-pipeline v2.4.1
-          </span>
-          <span className="font-mono text-[11px] font-medium text-[var(--accent-primary)]">
-            ENRICHED
-          </span>
-        </div>
-
-        <div className="relative aspect-video bg-[#0a0908]">
-          <Image
-            src="/images/slider/all.webp"
-            alt="Fully enriched video frame with depth, pose, and segmentation layers"
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 800px"
-            priority
-          />
-        </div>
-      </div>
-
-      <p className="mt-6 text-center text-sm text-white/60">
-        Rich metadata and annotation on every clip in your dataset.
-      </p>
-      <MetadataPanel className="mx-auto mt-4 max-w-sm" />
-    </div>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Desktop scroll-driven component                                           */
-/* -------------------------------------------------------------------------- */
-
-function DesktopScrollStory() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-
-  // Layer refs
-  const depthRef = useRef<HTMLDivElement>(null);
-  const poseRef = useRef<HTMLDivElement>(null);
-  const segRef = useRef<HTMLDivElement>(null);
-  const allRef = useRef<HTMLDivElement>(null);
-  const metaRef = useRef<HTMLDivElement>(null);
-
-  // Text refs
-  const commentRef = useRef<HTMLSpanElement>(null);
-  const descriptionRef = useRef<HTMLParagraphElement>(null);
-
-  // Progress dot refs
-  const dot0Ref = useRef<HTMLDivElement>(null);
-  const dot1Ref = useRef<HTMLDivElement>(null);
-  const dot2Ref = useRef<HTMLDivElement>(null);
-  const dot3Ref = useRef<HTMLDivElement>(null);
-  const dot4Ref = useRef<HTMLDivElement>(null);
-
-  // Terminal label ref
-  const termLabelRef = useRef<HTMLSpanElement>(null);
-
-  useGSAP(
-    () => {
-      if (!sectionRef.current) return;
-
-      const dotRefs = [dot0Ref, dot1Ref, dot2Ref, dot3Ref, dot4Ref];
-
-      // Helper to update text content
-      const setText = (stepIndex: number) => {
-        if (commentRef.current) {
-          commentRef.current.textContent = steps[stepIndex].comment;
-          commentRef.current.style.color = steps[stepIndex].color;
-        }
-        if (descriptionRef.current) {
-          descriptionRef.current.textContent = steps[stepIndex].description;
-        }
-        if (termLabelRef.current) {
-          termLabelRef.current.textContent = steps[stepIndex].label;
-          termLabelRef.current.style.color = steps[stepIndex].color;
-        }
-      };
-
-      // Helper to update dots
-      const setActiveDot = (activeIndex: number) => {
-        dotRefs.forEach((ref, i) => {
-          if (ref.current) {
-            const isActive = i === activeIndex;
-            const isPast = i <= activeIndex;
-            ref.current.style.backgroundColor = isPast
-              ? steps[i].color
-              : "rgba(255,255,255,0.12)";
-            ref.current.style.boxShadow = isActive
-              ? `0 0 8px ${steps[i].color}`
-              : "none";
-            ref.current.style.transform = isActive
-              ? "scale(1.4)"
-              : "scale(1)";
-          }
-        });
-      };
-
-      // Main pinned timeline
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top top",
-          end: "+=400%",
-          pin: true,
-          scrub: 1,
-          anticipatePin: 1,
-        },
-      });
-
-      // ---- Step 1: Raw (starting state) ----
-      // Text and dots are set to step 0 by default
-      // Hold for a beat so user sees the raw frame
-      tl.to({}, { duration: 0.5 });
-
-      // ---- Transition to Step 2: Depth ----
-      tl.call(() => {
-        setText(1);
-        setActiveDot(1);
-      });
-      tl.fromTo(
-        depthRef.current,
-        { opacity: 0, x: 40 },
-        { opacity: 0.65, x: 0, duration: 1, ease: "power2.out" },
-        "<"
-      );
-      // Hold at depth
-      tl.to({}, { duration: 0.4 });
-
-      // ---- Transition to Step 3: Pose ----
-      tl.call(() => {
-        setText(2);
-        setActiveDot(2);
-      });
-      tl.fromTo(
-        poseRef.current,
-        { opacity: 0, scale: 0.97 },
-        { opacity: 1, scale: 1, duration: 1, ease: "power2.out" },
-        "<"
-      );
-      // Hold at pose
-      tl.to({}, { duration: 0.4 });
-
-      // ---- Transition to Step 4: Segmentation ----
-      tl.call(() => {
-        setText(3);
-        setActiveDot(3);
-      });
-      tl.fromTo(
-        segRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
-        "<"
-      );
-      // Hold at segmentation
-      tl.to({}, { duration: 0.4 });
-
-      // ---- Transition to Step 5: All Enriched ----
-      tl.call(() => {
-        setText(4);
-        setActiveDot(4);
-      });
-      // Crossfade: fade out individual layers, fade in combined
-      tl.to(
-        [depthRef.current, poseRef.current, segRef.current],
-        { opacity: 0, duration: 0.6, ease: "power2.inOut" },
-        "<"
-      );
-      tl.fromTo(
-        allRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.8, ease: "power2.out" },
-        "<0.2"
-      );
-      // Slide in metadata panel
-      tl.fromTo(
-        metaRef.current,
-        { x: 60, opacity: 0 },
-        { x: 0, opacity: 1, duration: 0.8, ease: "power2.out" },
-        "<0.3"
-      );
-      // Hold at complete
-      tl.to({}, { duration: 0.6 });
-    },
-    { scope: sectionRef }
-  );
-
-  return (
-    <div ref={sectionRef} className="relative min-h-screen">
-      <div className="flex min-h-screen flex-col items-center justify-center px-6 py-20">
-        {/* Section header */}
-        <div className="mb-10 w-full max-w-4xl">
-          <div className="v2-section-label mb-6">
-            <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-[var(--accent-primary)]">
-              {"// ANNOTATION & ENRICHMENT"}
-            </span>
-          </div>
-          <h2 className="max-w-lg text-3xl font-bold leading-[1.1] tracking-[-0.02em] text-white md:text-4xl lg:text-[42px]">
-            Every clip gets depth, pose, and segmentation.{" "}
-            <span className="text-white/40">Automatically.</span>
-          </h2>
-        </div>
-
-        {/* Main content area */}
-        <div className="flex w-full max-w-4xl items-start gap-6">
-          {/* Frame viewer */}
-          <div className="flex-1">
-            {/* Step comment label above frame */}
-            <div className="mb-3 flex items-center justify-between">
-              <span
-                ref={commentRef}
-                className="font-mono text-[11px] font-semibold tracking-[0.15em]"
-                style={{ color: steps[0].color }}
-              >
-                {steps[0].comment}
-              </span>
-
-              {/* Progress dots */}
-              <div className="flex items-center gap-2">
-                {steps.map((step, i) => (
-                  <div
-                    key={step.id}
-                    ref={
-                      i === 0
-                        ? dot0Ref
-                        : i === 1
-                          ? dot1Ref
-                          : i === 2
-                            ? dot2Ref
-                            : i === 3
-                              ? dot3Ref
-                              : dot4Ref
-                    }
-                    className="h-2 w-2 rounded-full transition-[box-shadow] duration-300"
-                    style={{
-                      backgroundColor:
-                        i === 0 ? step.color : "rgba(255,255,255,0.12)",
-                      boxShadow:
-                        i === 0 ? `0 0 8px ${step.color}` : "none",
-                      transform: i === 0 ? "scale(1.4)" : "scale(1)",
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Terminal frame */}
-            <div
-              className="v2-scanline relative overflow-hidden rounded-2xl border border-white/[0.06] shadow-[0_8px_40px_rgba(0,0,0,0.5)]"
-              style={{
-                background:
-                  "linear-gradient(165deg, #121110 0%, #0e0d0c 100%)",
-              }}
-            >
-              {/* Terminal chrome header */}
-              <div
-                className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3"
-                style={{
-                  background:
-                    "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)",
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-[#ff5f57]/80" />
-                  <div className="h-3 w-3 rounded-full bg-[#febc2e]/80" />
-                  <div className="h-3 w-3 rounded-full bg-[#28c840]/80" />
-                </div>
-                <span className="font-mono text-[11px] tracking-wider text-white/25">
-                  enrichment-pipeline v2.4.1
-                </span>
-                <span
-                  ref={termLabelRef}
-                  className="font-mono text-[11px] font-medium"
-                  style={{ color: steps[0].color }}
-                >
-                  {steps[0].label}
-                </span>
-              </div>
-
-              {/* Image viewport with stacked layers */}
-              <div className="relative aspect-video bg-[#0a0908]">
-                {/* Layer 0: Raw (always visible) */}
-                <Image
-                  src="/images/slider/raw.webp"
-                  alt="Raw video frame - person dicing carrots on a cutting board"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 800px"
-                  priority
-                />
-
-                {/* Layer 1: Depth */}
-                <div
-                  ref={depthRef}
-                  className="absolute inset-0"
-                  style={{ opacity: 0 }}
-                >
-                  <Image
-                    src="/images/slider/depth.png"
-                    alt="Depth estimation overlay - per-pixel distance map"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 800px"
-                  />
-                </div>
-
-                {/* Layer 2: Pose */}
-                <div
-                  ref={poseRef}
-                  className="absolute inset-0"
-                  style={{ opacity: 0 }}
-                >
-                  <Image
-                    src="/images/slider/pose.png"
-                    alt="Pose detection overlay - skeleton joints and connections"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 800px"
-                  />
-                </div>
-
-                {/* Layer 3: Segmentation */}
-                <div
-                  ref={segRef}
-                  className="absolute inset-0"
-                  style={{ opacity: 0 }}
-                >
-                  <Image
-                    src="/images/slider/seg.png"
-                    alt="Instance segmentation overlay - colored object masks"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 800px"
-                  />
-                </div>
-
-                {/* Layer 4: All combined (for final step crossfade) */}
-                <div
-                  ref={allRef}
-                  className="absolute inset-0"
-                  style={{ opacity: 0 }}
-                >
-                  <Image
-                    src="/images/slider/all.webp"
-                    alt="Fully enriched frame with all annotation layers combined"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 800px"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Description text below frame */}
-            <p
-              ref={descriptionRef}
-              className="mt-5 text-base leading-relaxed text-white/70"
-            >
-              {steps[0].description}
-            </p>
-          </div>
-
-          {/* Metadata panel (slides in on step 5) */}
-          <div
-            ref={metaRef}
-            className="w-64 shrink-0 pt-10"
-            style={{ opacity: 0 }}
-          >
-            <MetadataPanel />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Main export                                                               */
+/*  Main component                                                             */
 /* -------------------------------------------------------------------------- */
 
 export default function EnrichmentPipeline() {
   const reducedMotion = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   return (
     <section id="enrichment" className="relative bg-[var(--bg-primary)]">
-      {/* Reduced motion: static final frame, no scroll animation */}
-      {reducedMotion ? (
-        <div className="py-32 md:py-40">
-          <div className="container mx-auto px-6">
-            <div className="mb-10">
-              <div className="v2-section-label mb-6">
-                <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-[var(--accent-primary)]">
-                  {"// ANNOTATION & ENRICHMENT"}
-                </span>
-              </div>
-              <h2 className="max-w-lg text-3xl font-bold leading-[1.1] tracking-[-0.02em] text-white md:text-4xl lg:text-[42px]">
-                Every clip gets depth, pose, and segmentation.{" "}
-                <span className="text-white/40">Automatically.</span>
-              </h2>
-            </div>
-            <ReducedMotionFallback />
-          </div>
-        </div>
-      ) : (
-        <>
-          {/* Desktop: scroll-driven pinned parallax */}
-          <div className="hidden md:block">
-            <DesktopScrollStory />
-          </div>
+      {/* Section header */}
+      <motion.div
+        className="container mx-auto px-6 pb-8 pt-24 md:pb-10 md:pt-32"
+        initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <span className="mb-4 inline-block font-mono text-[11px] uppercase tracking-[0.3em] text-[var(--accent-primary)]">
+          {"// THE PIPELINE"}
+        </span>
+        <h2 className="max-w-2xl text-2xl font-bold leading-[1.1] tracking-[-0.02em] text-white md:text-3xl lg:text-[38px]">
+          More than video.{" "}
+          <span className="text-white/35">
+            Captured, enriched, annotated, and delivered to your pipeline.
+          </span>
+        </h2>
+      </motion.div>
 
-          {/* Mobile: vertical stack with scroll-triggered fade-in */}
-          <div className="block py-32 md:hidden">
-            <div className="container mx-auto px-6">
-              <div className="mb-12">
-                <div className="v2-section-label mb-6">
-                  <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-[var(--accent-primary)]">
-                    {"// ANNOTATION & ENRICHMENT"}
-                  </span>
-                </div>
-                <h2 className="max-w-lg text-3xl font-bold leading-[1.1] tracking-[-0.02em] text-white md:text-4xl">
-                  Every clip gets depth, pose, and segmentation.{" "}
-                  <span className="text-white/40">Automatically.</span>
-                </h2>
-              </div>
-              <MobileFallback />
-            </div>
-          </div>
-        </>
-      )}
+      {/* Desktop: Stacked card reveal */}
+      {!isMobile && <StickyCardStack reducedMotion={reducedMotion} />}
+
+      {/* Mobile: Vertical stack */}
+      {isMobile && <MobileStack reducedMotion={reducedMotion} />}
+
+      {/* Spacer after cards */}
+      <div className="h-16 md:h-24" />
     </section>
   );
 }

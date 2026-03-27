@@ -83,4 +83,4 @@ Claru (operated by Reka AI Inc.) provides end-to-end data services for frontier 
 
 - Website: https://claru.ai
 - Contact form: https://claru.ai/#contact
-- Email: team@claru.ai
+- Email: contact@claru.ai

@@ -27,18 +27,18 @@ export default function FinalCTAV2() {
             className="font-bold leading-[1.05] tracking-[-0.03em] text-white"
             style={{ fontSize: "clamp(32px, 5vw, 56px)" }}
           >
-            3.7M annotations. 25 datasets.
+            Tell us what you&apos;re training.
             <br />
             <span className="text-white/40">
-              Expert human labeling across every modality.
+              We&apos;ll scope the dataset.
             </span>
           </h2>
           <p className="mt-6 text-base text-white/40 md:text-lg">
-            Tell us what you&apos;re training. We&apos;ll scope the dataset.
+            From brief to first delivery in days, not months.
           </p>
 
-          {/* CTAs */}
-          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+          {/* CTA */}
+          <div className="mt-10">
             <a
               href="#contact"
               className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-[var(--accent-primary)] px-10 py-4 text-[15px] font-semibold text-[#0a0908] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_40px_var(--accent-glow-strong)]"
@@ -46,12 +46,6 @@ export default function FinalCTAV2() {
               <span className="relative z-10">Talk to Our Team</span>
               <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
             </a>
-            <Link
-              href="/catalog"
-              className="inline-flex items-center justify-center rounded-full border border-white/12 px-10 py-4 text-[15px] font-medium text-white/70 transition-all duration-300 hover:border-[var(--accent-primary)]/30 hover:bg-white/[0.03] hover:text-white"
-            >
-              See the Catalog
-            </Link>
           </div>
         </motion.div>
 
@@ -67,25 +61,6 @@ export default function FinalCTAV2() {
           <ContactForm />
         </motion.div>
 
-        {/* Enrichment CTA */}
-        <motion.div
-          className="mt-16 text-center"
-          initial={reducedMotion ? {} : { opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-        >
-          <p className="text-sm text-white/30">
-            Already have raw data?{" "}
-            <a
-              href="#enrichment"
-              className="text-[var(--accent-primary)]/70 underline underline-offset-4 transition-colors duration-300 hover:text-[var(--accent-primary)]"
-            >
-              See our annotation pipeline
-            </a>
-          </p>
-        </motion.div>
-
         {/* Footer */}
         <div className="mx-auto mt-24 flex max-w-lg flex-col items-center gap-4 border-t border-white/[0.04] pt-10">
           <span className="font-mono text-[11px] tracking-[0.2em] text-white/20">
@@ -94,7 +69,7 @@ export default function FinalCTAV2() {
           <div className="flex gap-6 font-mono text-[11px] text-white/20">
             <Link href="/privacy" className="transition-colors duration-300 hover:text-white/40">Privacy</Link>
             <Link href="/terms" className="transition-colors duration-300 hover:text-white/40">Terms</Link>
-            <a href="mailto:team@claru.ai" className="transition-colors duration-300 hover:text-[var(--accent-primary)]">team@claru.ai</a>
+            <a href="mailto:contact@claru.ai" className="transition-colors duration-300 hover:text-[var(--accent-primary)]">contact@claru.ai</a>
           </div>
         </div>
       </div>
