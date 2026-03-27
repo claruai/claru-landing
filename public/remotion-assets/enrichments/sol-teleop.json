@@ -1,0 +1,4945 @@
+{
+  "compositionId": "sol-teleop",
+  "type": 1,
+  "annotationSource": "gemini",
+  "generatedAt": "2026-03-17T17:00:48.864Z",
+  "framesAnalyzed": 21,
+  "data": {
+    "frames": [
+      {
+        "timestamp_s": 0,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 0,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.45,
+              1,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0,
+              0.3,
+              0.7
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.3,
+              0,
+              0.5,
+              0.5
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.6,
+              0,
+              0.8,
+              0.6
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.3,
+              1,
+              0.45
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.3
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.95,
+              0.6,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.65,
+          "camera_pitch_deg": -8,
+          "workspace_depth_m": 2.5,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 0.5,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 1,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.45,
+              0.985,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0,
+              0.283,
+              0.695
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.29,
+              0,
+              0.485,
+              0.502
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.59,
+              0,
+              0.79,
+              0.602
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.297,
+              1,
+              0.445
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.297
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.935,
+              0.6,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.65,
+          "camera_pitch_deg": -7.8,
+          "workspace_depth_m": 2.5,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 1.1,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 1,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 2,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.46,
+              0.97,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0,
+              0.267,
+              0.69
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.28,
+              0,
+              0.47,
+              0.505
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.58,
+              0,
+              0.78,
+              0.605
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.293,
+              1,
+              0.44
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.293
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.92,
+              0.61,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.65,
+          "camera_pitch_deg": -7.7,
+          "workspace_depth_m": 2.5,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 2.3,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 1.5,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 3,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.465,
+              0.955,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0,
+              0.25,
+              0.685
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.27,
+              0,
+              0.455,
+              0.508
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.57,
+              0,
+              0.77,
+              0.608
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.29,
+              1,
+              0.435
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.29
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.905,
+              0.62,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.66,
+          "camera_pitch_deg": -7.5,
+          "workspace_depth_m": 2.6,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 3.4,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 2,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 4,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.47,
+              0.94,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0,
+              0.233,
+              0.68
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.26,
+              0,
+              0.44,
+              0.51
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.56,
+              0,
+              0.76,
+              0.61
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.287,
+              1,
+              0.43
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.287
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.89,
+              0.63,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.66,
+          "camera_pitch_deg": -7.3,
+          "workspace_depth_m": 2.6,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 4.5,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 2.5,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 5,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.475,
+              0.925,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0.01,
+              0.217,
+              0.675
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.25,
+              0,
+              0.425,
+              0.513
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.55,
+              0,
+              0.75,
+              0.613
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.283,
+              1,
+              0.425
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.283
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "path",
+            "bbox": [
+              1,
+              0.7,
+              1,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "clear",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tiled_wall_or_bench",
+            "bbox": [
+              1,
+              0.5,
+              1,
+              0.7
+            ],
+            "affordance": "sit-on-able",
+            "interacting": false,
+            "state": "curved",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.875,
+              0.64,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.66,
+          "camera_pitch_deg": -7.2,
+          "workspace_depth_m": 2.6,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 4.5,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 3,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 6,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.48,
+              0.91,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0.015,
+              0.2,
+              0.67
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.24,
+              0,
+              0.41,
+              0.515
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.54,
+              0,
+              0.74,
+              0.615
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.28,
+              1,
+              0.42
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.28
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "path",
+            "bbox": [
+              0.99,
+              0.697,
+              1,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "clear",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tiled_wall_or_bench",
+            "bbox": [
+              0.99,
+              0.498,
+              1,
+              0.698
+            ],
+            "affordance": "sit-on-able",
+            "interacting": false,
+            "state": "curved",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.86,
+              0.65,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.66,
+          "camera_pitch_deg": -7.1,
+          "workspace_depth_m": 2.6,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 4.5,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 3.5,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 7,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.485,
+              0.895,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0.02,
+              0.183,
+              0.665
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.23,
+              0,
+              0.395,
+              0.518
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.53,
+              0,
+              0.73,
+              0.618
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.277,
+              1,
+              0.415
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.277
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "path",
+            "bbox": [
+              0.98,
+              0.693,
+              1,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "clear",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tiled_wall_or_bench",
+            "bbox": [
+              0.98,
+              0.495,
+              1,
+              0.695
+            ],
+            "affordance": "sit-on-able",
+            "interacting": false,
+            "state": "curved",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.845,
+              0.66,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.66,
+          "camera_pitch_deg": -6.9,
+          "workspace_depth_m": 2.6,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 4.5,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 4,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 8,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.49,
+              0.88,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0.025,
+              0.167,
+              0.66
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.22,
+              0,
+              0.38,
+              0.52
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.52,
+              0,
+              0.72,
+              0.62
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.273,
+              1,
+              0.41
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.273
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "path",
+            "bbox": [
+              0.97,
+              0.689,
+              1,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "clear",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tiled_wall_or_bench",
+            "bbox": [
+              0.97,
+              0.492,
+              1,
+              0.692
+            ],
+            "affordance": "sit-on-able",
+            "interacting": false,
+            "state": "curved",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.83,
+              0.67,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_1_kite_flyer",
+            "bbox": [
+              1,
+              0.5,
+              1,
+              0.6
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "standing_flying_kite",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.66,
+          "camera_pitch_deg": -6.8,
+          "workspace_depth_m": 2.6,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 4.5,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 4.5,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 9,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.495,
+              0.865,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0.03,
+              0.15,
+              0.655
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.21,
+              0,
+              0.365,
+              0.523
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.51,
+              0,
+              0.71,
+              0.623
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.27,
+              1,
+              0.405
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.27
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "path",
+            "bbox": [
+              0.96,
+              0.684,
+              1,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "clear",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tiled_wall_or_bench",
+            "bbox": [
+              0.96,
+              0.488,
+              1,
+              0.688
+            ],
+            "affordance": "sit-on-able",
+            "interacting": false,
+            "state": "curved",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.815,
+              0.68,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_1_kite_flyer",
+            "bbox": [
+              0.98,
+              0.485,
+              0.99,
+              0.535
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "standing_flying_kite",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.66,
+          "camera_pitch_deg": -6.7,
+          "workspace_depth_m": 2.7,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 4.5,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 5,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 10,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.5,
+              0.85,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0.035,
+              0.133,
+              0.65
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.2,
+              0,
+              0.35,
+              0.525
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.5,
+              0,
+              0.7,
+              0.625
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.267,
+              1,
+              0.4
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.267
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "path",
+            "bbox": [
+              0.95,
+              0.68,
+              1,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "clear",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tiled_wall_or_bench",
+            "bbox": [
+              0.95,
+              0.484,
+              1,
+              0.684
+            ],
+            "affordance": "sit-on-able",
+            "interacting": false,
+            "state": "curved",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.8,
+              0.69,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_1_kite_flyer",
+            "bbox": [
+              0.96,
+              0.47,
+              0.97,
+              0.52
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "standing_flying_kite",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.67,
+          "camera_pitch_deg": -6.5,
+          "workspace_depth_m": 2.7,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 4.5,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 5.5,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 10,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.505,
+              0.835,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0.04,
+              0.117,
+              0.645
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.19,
+              0,
+              0.335,
+              0.528
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.49,
+              0,
+              0.69,
+              0.628
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.263,
+              1,
+              0.395
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.263
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "path",
+            "bbox": [
+              0.94,
+              0.676,
+              1,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "clear",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tiled_wall_or_bench",
+            "bbox": [
+              0.94,
+              0.481,
+              1,
+              0.681
+            ],
+            "affordance": "sit-on-able",
+            "interacting": false,
+            "state": "curved",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.785,
+              0.7,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_1_kite_flyer",
+            "bbox": [
+              0.94,
+              0.455,
+              0.95,
+              0.505
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "standing_flying_kite",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.67,
+          "camera_pitch_deg": -6.4,
+          "workspace_depth_m": 2.7,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 4.5,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 6,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 11,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.51,
+              0.82,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0.045,
+              0.1,
+              0.64
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.18,
+              0,
+              0.32,
+              0.53
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.48,
+              0,
+              0.68,
+              0.63
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.26,
+              1,
+              0.39
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.263
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "path",
+            "bbox": [
+              0.93,
+              0.672,
+              1,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "clear",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tiled_wall_or_bench",
+            "bbox": [
+              0.93,
+              0.477,
+              1,
+              0.677
+            ],
+            "affordance": "sit-on-able",
+            "interacting": false,
+            "state": "curved",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.77,
+              0.71,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_1_kite_flyer",
+            "bbox": [
+              0.92,
+              0.44,
+              0.93,
+              0.49
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "standing_flying_kite",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.67,
+          "camera_pitch_deg": -6.2,
+          "workspace_depth_m": 2.7,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 4.5,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 6.5,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 12,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.515,
+              0.805,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0.05,
+              0.083,
+              0.635
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.17,
+              0,
+              0.305,
+              0.532
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.47,
+              0,
+              0.67,
+              0.632
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.257,
+              1,
+              0.385
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.26
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "path",
+            "bbox": [
+              0.92,
+              0.668,
+              1,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "clear",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tiled_wall_or_bench",
+            "bbox": [
+              0.92,
+              0.473,
+              1,
+              0.673
+            ],
+            "affordance": "sit-on-able",
+            "interacting": false,
+            "state": "curved",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.755,
+              0.72,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_1_kite_flyer",
+            "bbox": [
+              0.9,
+              0.425,
+              0.91,
+              0.475
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "standing_flying_kite",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.67,
+          "camera_pitch_deg": -6.1,
+          "workspace_depth_m": 2.7,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 4.5,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 7,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 13,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.52,
+              0.79,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0.055,
+              0.067,
+              0.63
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.16,
+              0,
+              0.29,
+              0.535
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.46,
+              0,
+              0.66,
+              0.635
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.253,
+              1,
+              0.38
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.257
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "path",
+            "bbox": [
+              0.91,
+              0.664,
+              1,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "clear",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tiled_wall_or_bench",
+            "bbox": [
+              0.91,
+              0.469,
+              1,
+              0.669
+            ],
+            "affordance": "sit-on-able",
+            "interacting": false,
+            "state": "curved",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.74,
+              0.73,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_1_kite_flyer",
+            "bbox": [
+              0.88,
+              0.41,
+              0.89,
+              0.46
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "standing_flying_kite",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.67,
+          "camera_pitch_deg": -6,
+          "workspace_depth_m": 2.7,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 4.5,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 7.5,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 14,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.525,
+              0.775,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0.055,
+              0.05,
+              0.625
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.15,
+              0,
+              0.275,
+              0.538
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.45,
+              0,
+              0.65,
+              0.638
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.25,
+              1,
+              0.375
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.253
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "path",
+            "bbox": [
+              0.9,
+              0.66,
+              1,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "clear",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tiled_wall_or_bench",
+            "bbox": [
+              0.9,
+              0.465,
+              1,
+              0.665
+            ],
+            "affordance": "sit-on-able",
+            "interacting": false,
+            "state": "curved",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.725,
+              0.74,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_1_kite_flyer",
+            "bbox": [
+              0.86,
+              0.395,
+              0.87,
+              0.445
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "standing_flying_kite",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.67,
+          "camera_pitch_deg": -5.8,
+          "workspace_depth_m": 2.7,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 4.5,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 8,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 15,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.53,
+              0.76,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0.05,
+              0.033,
+              0.62
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.14,
+              0,
+              0.26,
+              0.54
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.44,
+              0,
+              0.64,
+              0.64
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.247,
+              1,
+              0.37
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.25
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "path",
+            "bbox": [
+              0.89,
+              0.655,
+              1,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "clear",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tiled_wall_or_bench",
+            "bbox": [
+              0.89,
+              0.461,
+              1,
+              0.661
+            ],
+            "affordance": "sit-on-able",
+            "interacting": false,
+            "state": "curved",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.71,
+              0.75,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_1_kite_flyer",
+            "bbox": [
+              0.84,
+              0.38,
+              0.85,
+              0.43
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "standing_flying_kite",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.67,
+          "camera_pitch_deg": -5.6,
+          "workspace_depth_m": 2.8,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 4.5,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 8.5,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 16,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.535,
+              0.745,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0.05,
+              0.017,
+              0.615
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.13,
+              0,
+              0.245,
+              0.542
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.43,
+              0,
+              0.63,
+              0.642
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.243,
+              1,
+              0.365
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.247
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "path",
+            "bbox": [
+              0.88,
+              0.651,
+              1,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "clear",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tiled_wall_or_bench",
+            "bbox": [
+              0.88,
+              0.458,
+              1,
+              0.658
+            ],
+            "affordance": "sit-on-able",
+            "interacting": false,
+            "state": "curved",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.695,
+              0.76,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_1_kite_flyer",
+            "bbox": [
+              0.82,
+              0.365,
+              0.83,
+              0.415
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "standing_flying_kite",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_2_walker",
+            "bbox": [
+              1,
+              0.6,
+              1,
+              0.7
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "walking",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.67,
+          "camera_pitch_deg": -5.5,
+          "workspace_depth_m": 2.8,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 4.5,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 9,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 17,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.54,
+              0.73,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0.05,
+              0.005,
+              0.61
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.12,
+              0,
+              0.23,
+              0.545
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.42,
+              0,
+              0.62,
+              0.645
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.24,
+              1,
+              0.36
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.243
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "path",
+            "bbox": [
+              0.87,
+              0.647,
+              1,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "clear",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tiled_wall_or_bench",
+            "bbox": [
+              0.87,
+              0.454,
+              1,
+              0.654
+            ],
+            "affordance": "sit-on-able",
+            "interacting": false,
+            "state": "curved",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.68,
+              0.77,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_1_kite_flyer",
+            "bbox": [
+              0.8,
+              0.35,
+              0.81,
+              0.4
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "standing_flying_kite",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_2_walker",
+            "bbox": [
+              0.99,
+              0.589,
+              1,
+              0.689
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "walking",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.67,
+          "camera_pitch_deg": -5.4,
+          "workspace_depth_m": 2.8,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 4.5,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 9.5,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 18,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.545,
+              0.715,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0.055,
+              0,
+              0.605
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.11,
+              0,
+              0.215,
+              0.548
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.41,
+              0,
+              0.61,
+              0.648
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.237,
+              1,
+              0.355
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.24
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "path",
+            "bbox": [
+              0.86,
+              0.643,
+              1,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "clear",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tiled_wall_or_bench",
+            "bbox": [
+              0.86,
+              0.45,
+              1,
+              0.65
+            ],
+            "affordance": "sit-on-able",
+            "interacting": false,
+            "state": "curved",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.665,
+              0.78,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_1_kite_flyer",
+            "bbox": [
+              0.78,
+              0.335,
+              0.79,
+              0.385
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "standing_flying_kite",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_2_walker",
+            "bbox": [
+              0.97,
+              0.578,
+              0.98,
+              0.678
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "walking",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.67,
+          "camera_pitch_deg": -5.2,
+          "workspace_depth_m": 2.8,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 4.5,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 10,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 19,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.55,
+              0.7,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0.055,
+              0,
+              0.605
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.1,
+              0,
+              0.2,
+              0.55
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.4,
+              0,
+              0.6,
+              0.65
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.233,
+              1,
+              0.35
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.237
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "path",
+            "bbox": [
+              0.85,
+              0.639,
+              1,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "clear",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tiled_wall_or_bench",
+            "bbox": [
+              0.85,
+              0.446,
+              1,
+              0.646
+            ],
+            "affordance": "sit-on-able",
+            "interacting": false,
+            "state": "curved",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.65,
+              0.79,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_1_kite_flyer",
+            "bbox": [
+              0.78,
+              0.335,
+              0.79,
+              0.385
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "standing_flying_kite",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_2_walker",
+            "bbox": [
+              0.95,
+              0.567,
+              0.96,
+              0.667
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "walking",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.68,
+          "camera_pitch_deg": -5.1,
+          "workspace_depth_m": 2.8,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 3.4,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 10.5,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 20,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.55,
+              0.7,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0.05,
+              0,
+              0.605
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.1,
+              0,
+              0.2,
+              0.55
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.4,
+              0,
+              0.6,
+              0.65
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.233,
+              1,
+              0.35
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.237
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "path",
+            "bbox": [
+              0.85,
+              0.639,
+              1,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "clear",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tiled_wall_or_bench",
+            "bbox": [
+              0.85,
+              0.446,
+              1,
+              0.646
+            ],
+            "affordance": "sit-on-able",
+            "interacting": false,
+            "state": "curved",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.65,
+              0.79,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_1_kite_flyer",
+            "bbox": [
+              0.78,
+              0.335,
+              0.79,
+              0.385
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "standing_flying_kite",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_2_walker",
+            "bbox": [
+              0.95,
+              0.567,
+              0.96,
+              0.667
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "walking",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.68,
+          "camera_pitch_deg": -5.1,
+          "workspace_depth_m": 2.8,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 2.3,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 11,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 20,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.55,
+              0.7,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0.05,
+              0,
+              0.605
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.1,
+              0,
+              0.2,
+              0.55
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.4,
+              0,
+              0.6,
+              0.65
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.233,
+              1,
+              0.35
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.237
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "path",
+            "bbox": [
+              0.85,
+              0.639,
+              1,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "clear",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tiled_wall_or_bench",
+            "bbox": [
+              0.85,
+              0.446,
+              1,
+              0.646
+            ],
+            "affordance": "sit-on-able",
+            "interacting": false,
+            "state": "curved",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.65,
+              0.79,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_1_kite_flyer",
+            "bbox": [
+              0.78,
+              0.335,
+              0.79,
+              0.385
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "standing_flying_kite",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_2_walker",
+            "bbox": [
+              0.95,
+              0.567,
+              0.96,
+              0.667
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "walking",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.68,
+          "camera_pitch_deg": -5,
+          "workspace_depth_m": 2.8,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 1.1,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      },
+      {
+        "timestamp_s": 11.5,
+        "manipulation_phase": "idle",
+        "task_step": "Walking and observing the park environment",
+        "task_pct": 20,
+        "hands": [],
+        "objects": [
+          {
+            "label": "grass_area",
+            "bbox": [
+              0,
+              0.55,
+              0.7,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "flat and maintained",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tree_cluster_left_foreground",
+            "bbox": [
+              0,
+              0.05,
+              0,
+              0.605
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_left",
+            "bbox": [
+              0.1,
+              0,
+              0.2,
+              0.55
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "palm_tree_midground_center",
+            "bbox": [
+              0.4,
+              0,
+              0.6,
+              0.65
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "upright",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "water_body_and_bridge",
+            "bbox": [
+              0,
+              0.233,
+              1,
+              0.35
+            ],
+            "affordance": "view_feature",
+            "interacting": false,
+            "state": "calm",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "city_buildings_background",
+            "bbox": [
+              0,
+              0,
+              1,
+              0.237
+            ],
+            "affordance": "background_visual",
+            "interacting": false,
+            "state": "stationary",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "path",
+            "bbox": [
+              0.85,
+              0.639,
+              1,
+              1
+            ],
+            "affordance": "walkable",
+            "interacting": false,
+            "state": "clear",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "tiled_wall_or_bench",
+            "bbox": [
+              0.85,
+              0.446,
+              1,
+              0.646
+            ],
+            "affordance": "sit-on-able",
+            "interacting": false,
+            "state": "curved",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "bush_right_foreground",
+            "bbox": [
+              0.65,
+              0.79,
+              1,
+              1
+            ],
+            "affordance": "obstruction",
+            "interacting": false,
+            "state": "foliage",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_1_kite_flyer",
+            "bbox": [
+              0.78,
+              0.335,
+              0.79,
+              0.385
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "standing_flying_kite",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          },
+          {
+            "label": "person_2_walker",
+            "bbox": [
+              0.95,
+              0.567,
+              0.96,
+              0.667
+            ],
+            "affordance": "social_interaction_potential",
+            "interacting": false,
+            "state": "walking",
+            "fill_level_pct": null,
+            "pose_6dof": {
+              "roll": 0,
+              "pitch": 0,
+              "yaw": 0
+            }
+          }
+        ],
+        "spatial": {
+          "camera_height_est_m": 1.68,
+          "camera_pitch_deg": -5,
+          "workspace_depth_m": 2.8,
+          "dominant_hand_distance_m": 0.5
+        },
+        "imu_estimate": {
+          "head_angular_vel_dps": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "linear_accel_ms2": {
+            "x": 0,
+            "y": 0,
+            "z": 0.1
+          },
+          "head_stable": false
+        },
+        "scene": {
+          "lighting_lux_est": 3500,
+          "clutter_level": "low",
+          "surface_material": "artificial turf"
+        }
+      }
+    ],
+    "summary": {
+      "total_frames": 21,
+      "primary_task": "Walking and observing an outdoor park environment",
+      "objects_involved": [
+        "bush_right_foreground",
+        "city_buildings_background",
+        "grass_area",
+        "palm_tree_midground_center",
+        "palm_tree_midground_left",
+        "path",
+        "person_1_kite_flyer",
+        "person_2_walker",
+        "tiled_wall_or_bench",
+        "tree_cluster_left_foreground",
+        "water_body_and_bridge"
+      ],
+      "manipulation_phases_observed": [
+        "idle"
+      ]
+    }
+  }
+}

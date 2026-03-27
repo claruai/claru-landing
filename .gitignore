@@ -79,8 +79,10 @@ public/enrichment-assets/*
 # HMR2 showcase — keep only final outputs
 public/images/hmr2-showcase/
 
-# Large asset dirs not used in V2
-public/remotion-assets/
+# Large video/image assets not used in V2 (keep JSON metadata)
+public/remotion-assets/*.mp4
+public/remotion-assets/samples/
+public/remotion-assets/frames/
 public/videos/enrichment-viz/
 
 # Temp/working files

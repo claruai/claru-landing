@@ -1,0 +1,1125 @@
+[
+  {
+    "timestamp_s": 0,
+    "manipulation_phase": "idle",
+    "task_step": "observing objects on table",
+    "task_pct": 0,
+    "hands": [],
+    "objects": [
+      {
+        "label": "white wine bottle",
+        "bbox": [
+          0.13,
+          0.14,
+          0.51,
+          0.77
+        ],
+        "affordance": "graspable",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": 85
+      },
+      {
+        "label": "mug",
+        "bbox": [
+          0.41,
+          0.47,
+          0.71,
+          0.76
+        ],
+        "affordance": "graspable",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": 0
+      },
+      {
+        "label": "food container",
+        "bbox": [
+          0.46,
+          0.08,
+          0.71,
+          0.41
+        ],
+        "affordance": "containable",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": 60
+      },
+      {
+        "label": "bottle cap",
+        "bbox": [
+          0.76,
+          0.5,
+          0.81,
+          0.56
+        ],
+        "affordance": "graspable",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "lying_flat",
+        "fill_level_pct": null
+      }
+    ],
+    "spatial": {
+      "camera_height_est_m": 1.1,
+      "camera_pitch_deg": -35,
+      "camera_roll_deg": 0,
+      "workspace_depth_m": 0.8,
+      "dominant_hand_distance_m": 0.4
+    },
+    "imu_estimate": {
+      "head_angular_vel_dps": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "linear_accel_ms2": {
+        "x": 0,
+        "y": -9.81,
+        "z": 0
+      },
+      "head_stable": true
+    },
+    "scene": {
+      "environment": "indoor_kitchen",
+      "lighting_lux_est": 350,
+      "clutter_level": "low",
+      "surface_material": "wood"
+    }
+  },
+  {
+    "timestamp_s": 1,
+    "manipulation_phase": "grasping",
+    "task_step": "holding wine bottle",
+    "task_pct": 25,
+    "hands": [
+      {
+        "side": "right",
+        "bbox": [
+          0.03,
+          0.25,
+          0.4,
+          0.6
+        ],
+        "action": "holding",
+        "holding": "wine bottle",
+        "wrist_pose": {
+          "x": 0.25,
+          "y": 0.45,
+          "z_depth_est": 0.3
+        },
+        "finger_state": "power_grip",
+        "force_estimate_N": 10,
+        "velocity_ms": 0
+      }
+    ],
+    "objects": [
+      {
+        "label": "wine bottle",
+        "bbox": [
+          0.18,
+          0.05,
+          0.35,
+          0.6
+        ],
+        "affordance": "graspable|pourable",
+        "interacting": true,
+        "pose_6dof": {
+          "roll": 5,
+          "pitch": 0,
+          "yaw": -10
+        },
+        "state": "held",
+        "fill_level_pct": 90
+      },
+      {
+        "label": "mug",
+        "bbox": [
+          0.45,
+          0.45,
+          0.65,
+          0.75
+        ],
+        "affordance": "graspable|containable",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": 0
+      },
+      {
+        "label": "bottle cap",
+        "bbox": [
+          0.8,
+          0.55,
+          0.85,
+          0.65
+        ],
+        "affordance": "graspable",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": null
+      },
+      {
+        "label": "bowl",
+        "bbox": [
+          0.4,
+          0.2,
+          0.65,
+          0.45
+        ],
+        "affordance": "containable",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": 50
+      }
+    ],
+    "spatial": {
+      "camera_height_est_m": 1.1,
+      "camera_pitch_deg": -30,
+      "camera_roll_deg": 0,
+      "workspace_depth_m": 0.8,
+      "dominant_hand_distance_m": 0.4
+    },
+    "imu_estimate": {
+      "head_angular_vel_dps": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "linear_accel_ms2": {
+        "x": 0,
+        "y": -9.81,
+        "z": 0
+      },
+      "head_stable": true
+    },
+    "scene": {
+      "environment": "indoor_kitchen",
+      "lighting_lux_est": 300,
+      "clutter_level": "low",
+      "surface_material": "wood"
+    }
+  },
+  {
+    "timestamp_s": 2,
+    "manipulation_phase": "pouring",
+    "task_step": "pouring liquid into a mug",
+    "task_pct": 50,
+    "hands": [
+      {
+        "side": "right",
+        "bbox": [
+          0.03,
+          0.35,
+          0.45,
+          0.7
+        ],
+        "action": "holding and pouring",
+        "holding": "bottle of liquid",
+        "wrist_pose": {
+          "x": 0.2,
+          "y": 0.55,
+          "z_depth_est": 0.35
+        },
+        "finger_state": "power_grip",
+        "force_estimate_N": 9.5,
+        "velocity_ms": 0.05
+      }
+    ],
+    "objects": [
+      {
+        "label": "bottle of liquid",
+        "bbox": [
+          0.08,
+          0.31,
+          0.41,
+          0.66
+        ],
+        "affordance": "graspable, pourable",
+        "interacting": true,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": -60,
+          "yaw": -10
+        },
+        "state": "held, tilted_60",
+        "fill_level_pct": 50
+      },
+      {
+        "label": "mug",
+        "bbox": [
+          0.46,
+          0.48,
+          0.65,
+          0.79
+        ],
+        "affordance": "containable, graspable",
+        "interacting": true,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": 5
+      },
+      {
+        "label": "bottle cap",
+        "bbox": [
+          0.77,
+          0.55,
+          0.83,
+          0.58
+        ],
+        "affordance": "graspable",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "on_surface",
+        "fill_level_pct": null
+      },
+      {
+        "label": "bowl with dome",
+        "bbox": [
+          0.4,
+          0.05,
+          0.61,
+          0.32
+        ],
+        "affordance": "containable",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "on_surface",
+        "fill_level_pct": null
+      }
+    ],
+    "spatial": {
+      "camera_height_est_m": 1.15,
+      "camera_pitch_deg": -35,
+      "camera_roll_deg": 0,
+      "workspace_depth_m": 0.8,
+      "dominant_hand_distance_m": 0.4
+    },
+    "imu_estimate": {
+      "head_angular_vel_dps": {
+        "x": 0.5,
+        "y": 0.5,
+        "z": 0.5
+      },
+      "linear_accel_ms2": {
+        "x": 0.1,
+        "y": -9.81,
+        "z": 0.1
+      },
+      "head_stable": true
+    },
+    "scene": {
+      "environment": "indoor_kitchen",
+      "lighting_lux_est": 350,
+      "clutter_level": "medium",
+      "surface_material": "wood"
+    }
+  },
+  {
+    "timestamp_s": 3,
+    "manipulation_phase": "pouring",
+    "task_step": "pouring liquid into a mug",
+    "task_pct": 50,
+    "hands": [
+      {
+        "side": "left",
+        "bbox": [
+          0.03,
+          0.31,
+          0.44,
+          0.6
+        ],
+        "action": "pouring",
+        "holding": "bottle of liquid",
+        "wrist_pose": {
+          "x": 0.22,
+          "y": 0.45,
+          "z_depth_est": 0.3
+        },
+        "finger_state": "power_grip",
+        "force_estimate_N": 15,
+        "velocity_ms": 0.15
+      }
+    ],
+    "objects": [
+      {
+        "label": "bottle of liquid",
+        "bbox": [
+          0.12,
+          0.35,
+          0.53,
+          0.58
+        ],
+        "affordance": "pourable",
+        "interacting": true,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": -45,
+          "yaw": 0
+        },
+        "state": "held",
+        "fill_level_pct": 50
+      },
+      {
+        "label": "mug",
+        "bbox": [
+          0.43,
+          0.46,
+          0.58,
+          0.68
+        ],
+        "affordance": "containable",
+        "interacting": true,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": 10
+      },
+      {
+        "label": "food cover",
+        "bbox": [
+          0.3,
+          0.14,
+          0.66,
+          0.42
+        ],
+        "affordance": "cover",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": null
+      },
+      {
+        "label": "bottle cap",
+        "bbox": [
+          0.75,
+          0.5,
+          0.81,
+          0.55
+        ],
+        "affordance": "graspable",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "null",
+        "fill_level_pct": null
+      }
+    ],
+    "spatial": {
+      "camera_height_est_m": 1.1,
+      "camera_pitch_deg": -30,
+      "camera_roll_deg": 0,
+      "workspace_depth_m": 0.8,
+      "dominant_hand_distance_m": 0.35
+    },
+    "imu_estimate": {
+      "head_angular_vel_dps": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "linear_accel_ms2": {
+        "x": 0,
+        "y": -9.81,
+        "z": 0
+      },
+      "head_stable": true
+    },
+    "scene": {
+      "environment": "indoor_kitchen",
+      "lighting_lux_est": 300,
+      "clutter_level": "medium",
+      "surface_material": "wood"
+    }
+  },
+  {
+    "timestamp_s": 4,
+    "manipulation_phase": "pouring",
+    "task_step": "pouring liquid from bottle into mug",
+    "task_pct": 50,
+    "hands": [
+      {
+        "side": "right",
+        "bbox": [
+          0,
+          0.23,
+          0.46,
+          0.68
+        ],
+        "action": "holding and pouring",
+        "holding": "bottle",
+        "wrist_pose": {
+          "x": 0.25,
+          "y": 0.45,
+          "z_depth_est": 0.3
+        },
+        "finger_state": "power_grip",
+        "force_estimate_N": 6,
+        "velocity_ms": 0.15
+      }
+    ],
+    "objects": [
+      {
+        "label": "bottle",
+        "bbox": [
+          0.15,
+          0.35,
+          0.55,
+          0.52
+        ],
+        "affordance": "pourable",
+        "interacting": true,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 45,
+          "yaw": 0
+        },
+        "state": "tilted_45",
+        "fill_level_pct": 40
+      },
+      {
+        "label": "mug",
+        "bbox": [
+          0.42,
+          0.43,
+          0.6,
+          0.62
+        ],
+        "affordance": "containable",
+        "interacting": true,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": 25
+      },
+      {
+        "label": "table",
+        "bbox": [
+          0,
+          0,
+          1,
+          0.85
+        ],
+        "affordance": "support_surface",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "static",
+        "fill_level_pct": null
+      },
+      {
+        "label": "bottle_cap",
+        "bbox": [
+          0.73,
+          0.44,
+          0.77,
+          0.48
+        ],
+        "affordance": "graspable",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "static",
+        "fill_level_pct": null
+      }
+    ],
+    "spatial": {
+      "camera_height_est_m": 1.1,
+      "camera_pitch_deg": -30,
+      "camera_roll_deg": 0,
+      "workspace_depth_m": 0.8,
+      "dominant_hand_distance_m": 0.3
+    },
+    "imu_estimate": {
+      "head_angular_vel_dps": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "linear_accel_ms2": {
+        "x": 0,
+        "y": -9.81,
+        "z": 0
+      },
+      "head_stable": true
+    },
+    "scene": {
+      "environment": "indoor_kitchen",
+      "lighting_lux_est": 300,
+      "clutter_level": "medium",
+      "surface_material": "wood"
+    }
+  },
+  {
+    "timestamp_s": 5,
+    "manipulation_phase": "pouring",
+    "task_step": "pouring liquid from bottle into mug",
+    "task_pct": 60,
+    "hands": [
+      {
+        "side": "right",
+        "bbox": [
+          0.05,
+          0.35,
+          0.45,
+          0.75
+        ],
+        "action": "pouring",
+        "holding": "bottle",
+        "wrist_pose": {
+          "x": 0.25,
+          "y": 0.55,
+          "z_depth_est": 0.35
+        },
+        "finger_state": "power_grip",
+        "force_estimate_N": 7,
+        "velocity_ms": 0.1
+      }
+    ],
+    "objects": [
+      {
+        "label": "bottle",
+        "bbox": [
+          0.18,
+          0.32,
+          0.49,
+          0.6
+        ],
+        "affordance": "graspable|pourable",
+        "interacting": true,
+        "pose_6dof": {
+          "roll": -10,
+          "pitch": 45,
+          "yaw": 0
+        },
+        "state": "held",
+        "fill_level_pct": 35
+      },
+      {
+        "label": "mug",
+        "bbox": [
+          0.44,
+          0.5,
+          0.63,
+          0.72
+        ],
+        "affordance": "containable|graspable",
+        "interacting": true,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": 5
+      },
+      {
+        "label": "table",
+        "bbox": [
+          0,
+          0.15,
+          1,
+          1
+        ],
+        "affordance": "surface",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "flat",
+        "fill_level_pct": null
+      },
+      {
+        "label": "food container",
+        "bbox": [
+          0.65,
+          0.2,
+          0.75,
+          0.35
+        ],
+        "affordance": "graspable",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": null
+      }
+    ],
+    "spatial": {
+      "camera_height_est_m": 1.1,
+      "camera_pitch_deg": -30,
+      "camera_roll_deg": 0,
+      "workspace_depth_m": 0.8,
+      "dominant_hand_distance_m": 0.4
+    },
+    "imu_estimate": {
+      "head_angular_vel_dps": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "linear_accel_ms2": {
+        "x": 0,
+        "y": -9.81,
+        "z": 0
+      },
+      "head_stable": true
+    },
+    "scene": {
+      "environment": "indoor_kitchen",
+      "lighting_lux_est": 300,
+      "clutter_level": "medium",
+      "surface_material": "wood"
+    }
+  },
+  {
+    "timestamp_s": 6,
+    "manipulation_phase": "pouring",
+    "task_step": "pouring liquid into mug",
+    "task_pct": 50,
+    "hands": [
+      {
+        "side": "right",
+        "bbox": [
+          0.09,
+          0.4,
+          0.44,
+          0.69
+        ],
+        "action": "pouring",
+        "holding": "bottle",
+        "wrist_pose": {
+          "x": 0.25,
+          "y": 0.55,
+          "z_depth_est": 0.3
+        },
+        "finger_state": "power_grip",
+        "force_estimate_N": 7,
+        "velocity_ms": 0.2
+      }
+    ],
+    "objects": [
+      {
+        "label": "bottle",
+        "bbox": [
+          0.2,
+          0.45,
+          0.52,
+          0.62
+        ],
+        "affordance": "graspable",
+        "interacting": true,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 45,
+          "yaw": 0
+        },
+        "state": "held",
+        "fill_level_pct": 50
+      },
+      {
+        "label": "mug",
+        "bbox": [
+          0.46,
+          0.48,
+          0.64,
+          0.6
+        ],
+        "affordance": "containable",
+        "interacting": true,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": 10
+      },
+      {
+        "label": "food cover",
+        "bbox": [
+          0.4,
+          0.12,
+          0.62,
+          0.34
+        ],
+        "affordance": "containable",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": null
+      },
+      {
+        "label": "snack bag",
+        "bbox": [
+          0.61,
+          0.15,
+          0.73,
+          0.28
+        ],
+        "affordance": "graspable",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": null
+      }
+    ],
+    "spatial": {
+      "camera_height_est_m": 1.1,
+      "camera_pitch_deg": -30,
+      "camera_roll_deg": 0,
+      "workspace_depth_m": 0.8,
+      "dominant_hand_distance_m": 0.4
+    },
+    "imu_estimate": {
+      "head_angular_vel_dps": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "linear_accel_ms2": {
+        "x": 0,
+        "y": -9.81,
+        "z": 0
+      },
+      "head_stable": true
+    },
+    "scene": {
+      "environment": "indoor_kitchen",
+      "lighting_lux_est": 300,
+      "clutter_level": "low",
+      "surface_material": "wood"
+    }
+  },
+  {
+    "timestamp_s": 7,
+    "manipulation_phase": "pouring",
+    "task_step": "pouring liquid into mug",
+    "task_pct": 60,
+    "hands": [
+      {
+        "side": "right",
+        "bbox": [
+          0.05,
+          0.3,
+          0.46,
+          0.81
+        ],
+        "action": "pouring",
+        "holding": "bottle",
+        "wrist_pose": {
+          "x": 0.25,
+          "y": 0.55,
+          "z_depth_est": 0.4
+        },
+        "finger_state": "power_grip",
+        "force_estimate_N": 7,
+        "velocity_ms": 0.1
+      }
+    ],
+    "objects": [
+      {
+        "label": "bottle",
+        "bbox": [
+          0.2,
+          0.35,
+          0.56,
+          0.66
+        ],
+        "affordance": "pourable",
+        "interacting": true,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": -45,
+          "yaw": 0
+        },
+        "state": "held",
+        "fill_level_pct": 35
+      },
+      {
+        "label": "mug",
+        "bbox": [
+          0.45,
+          0.55,
+          0.66,
+          0.86
+        ],
+        "affordance": "containable",
+        "interacting": true,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 90,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": 15
+      },
+      {
+        "label": "table",
+        "bbox": [
+          0,
+          0.15,
+          1,
+          0.95
+        ],
+        "affordance": "surface",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": null
+      },
+      {
+        "label": "bottle_cap",
+        "bbox": [
+          0.79,
+          0.55,
+          0.86,
+          0.61
+        ],
+        "affordance": null,
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": null
+      }
+    ],
+    "spatial": {
+      "camera_height_est_m": 1.1,
+      "camera_pitch_deg": -30,
+      "camera_roll_deg": 0,
+      "workspace_depth_m": 0.8,
+      "dominant_hand_distance_m": 0.4
+    },
+    "imu_estimate": {
+      "head_angular_vel_dps": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "linear_accel_ms2": {
+        "x": 0,
+        "y": -9.81,
+        "z": 0
+      },
+      "head_stable": true
+    },
+    "scene": {
+      "environment": "indoor_kitchen",
+      "lighting_lux_est": 350,
+      "clutter_level": "medium",
+      "surface_material": "wood"
+    }
+  },
+  {
+    "timestamp_s": 8,
+    "manipulation_phase": "transporting",
+    "task_step": "preparing to pour water into mug",
+    "task_pct": 20,
+    "hands": [
+      {
+        "side": "right",
+        "bbox": [
+          0,
+          0.208,
+          0.352,
+          0.729
+        ],
+        "action": "grasping",
+        "holding": "bottle",
+        "wrist_pose": {
+          "x": 0.17,
+          "y": 0.45,
+          "z_depth_est": 0.3
+        },
+        "finger_state": "power_grip",
+        "force_estimate_N": 4.5,
+        "velocity_ms": 0.2
+      }
+    ],
+    "objects": [
+      {
+        "label": "bottle",
+        "bbox": [
+          0.039,
+          0.104,
+          0.352,
+          0.781
+        ],
+        "affordance": "graspable|pourable",
+        "interacting": true,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "held",
+        "fill_level_pct": 70
+      },
+      {
+        "label": "mug",
+        "bbox": [
+          0.391,
+          0.5,
+          0.508,
+          0.698
+        ],
+        "affordance": "graspable|containable",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": 20
+      },
+      {
+        "label": "bowl",
+        "bbox": [
+          0.398,
+          0.052,
+          0.594,
+          0.26
+        ],
+        "affordance": "containable",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": null
+      },
+      {
+        "label": "bottle_cap",
+        "bbox": [
+          0.805,
+          0.563,
+          0.852,
+          0.615
+        ],
+        "affordance": "graspable",
+        "interacting": false,
+        "pose_6dof": {
+          "roll": 0,
+          "pitch": 0,
+          "yaw": 0
+        },
+        "state": "upright",
+        "fill_level_pct": null
+      }
+    ],
+    "spatial": {
+      "camera_height_est_m": 1.1,
+      "camera_pitch_deg": -35,
+      "camera_roll_deg": 0,
+      "workspace_depth_m": 0.8,
+      "dominant_hand_distance_m": 0.4
+    },
+    "imu_estimate": {
+      "head_angular_vel_dps": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "linear_accel_ms2": {
+        "x": 0,
+        "y": -9.81,
+        "z": 0
+      },
+      "head_stable": true
+    },
+    "scene": {
+      "environment": "indoor_kitchen",
+      "lighting_lux_est": 300,
+      "clutter_level": "medium",
+      "surface_material": "wood"
+    }
+  }
+]

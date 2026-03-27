@@ -1,0 +1,18 @@
+{
+  "type": 2,
+  "compositionId": "cs-vid-eval",
+  "videoA": {
+    "url": "s3://inference-service-public-staging/prompts/prompt_cc79d60e-11ea-48e3-a1b3-b8afa8fa3546/output/output_prompt_cc79d60e-11ea-48e3-a1b3-b8afa8fa3546.mp4",
+    "label": "config 21"
+  },
+  "videoB": {
+    "url": "s3://inference-service-public-staging/prompts/prompt_ff7d8725-b983-42e8-a4b9-18c5a89fe02b/output/output_prompt_ff7d8725-b983-42e8-a4b9-18c5a89fe02b.mp4",
+    "label": "config 41"
+  },
+  "winner": "A",
+  "promptText": "Detailed Description: A friendly, anthropomorphic capybara&lt;id_image_0&gt; sits peacefully on a sun-drenched grassy hill, embodying a moment of pure contentment. Rendered in a realistic Pixar animation style, its soft, light-brown fur ripples in a gentle breeze, and its large, kind eyes blink slowly with a serene expression. Dressed in a simple white t-shirt and blue shorts, the capybara&lt;id_image_0&gt; takes a slow, deep breath, its chest rising and falling gently as it soaks in the warmth of the soft daylight that casts gentle shadows across the scene.\nBackground: A peaceful meadow stretches out behind the hill, with soft-focus trees in the distance under a clear, pale blue sky, creating a gentle, hazy glow in the sunlight.\nMiddleground: The anthropomorphic capybara&lt;id_image_0&gt; sits comfortably with a relaxed posture, its hands resting gently on its knees as its ears twitch occasionally, reacting to the faint sounds of nature.\nForeground: Blades of vibrant green grass and a few small, white wildflowers sway gently in the breeze, creating a sense of life and movement at the base of the scene.",
+  "configLabels": {
+    "a": "config 21",
+    "b": "config 41"
+  }
+}

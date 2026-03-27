@@ -1,0 +1,50 @@
+{
+  "type": 3,
+  "compositionId": "sol-crowd-vs-expert",
+  "bestImage": "generation_0a62f119-a0e1-45da-a529-d947d2091fa1",
+  "selectedImages": [
+    "generation_0a62f119-a0e1-45da-a529-d947d2091fa1",
+    "generation_90634f00-5092-486b-b5d6-9d74325fc70e",
+    "generation_76a45209-df4d-40cb-abed-343d0b24d9e8",
+    "generation_122459ed-da07-43c0-8258-7c978c2cea7d",
+    "generation_08e50fe4-de19-491f-a66a-86db454222ef",
+    "generation_753d6c6a-e3ee-476d-889f-868b71a861cb"
+  ],
+  "hasGoodQuality": "yes",
+  "prompt": null,
+  "generations": [
+    {
+      "id": "generation_ab1e772f-837d-4190-a1db-211200a04116",
+      "url": "/remotion-assets/samples/sol-crowd-vs-expert-gen-0.png"
+    },
+    {
+      "id": "generation_0a62f119-a0e1-45da-a529-d947d2091fa1",
+      "url": "/remotion-assets/samples/sol-crowd-vs-expert-gen-1.png"
+    },
+    {
+      "id": "generation_fa97eea9-f166-42b2-9083-fddc5b0f837e",
+      "url": "/remotion-assets/samples/sol-crowd-vs-expert-gen-2.png"
+    },
+    {
+      "id": "generation_90634f00-5092-486b-b5d6-9d74325fc70e",
+      "url": "/remotion-assets/samples/sol-crowd-vs-expert-gen-3.png"
+    },
+    {
+      "id": "generation_76a45209-df4d-40cb-abed-343d0b24d9e8",
+      "url": "/remotion-assets/samples/sol-crowd-vs-expert-gen-4.png"
+    },
+    {
+      "id": "generation_122459ed-da07-43c0-8258-7c978c2cea7d",
+      "url": "/remotion-assets/samples/sol-crowd-vs-expert-gen-5.png"
+    },
+    {
+      "id": "generation_08e50fe4-de19-491f-a66a-86db454222ef",
+      "url": "/remotion-assets/samples/sol-crowd-vs-expert-gen-6.png"
+    },
+    {
+      "id": "generation_753d6c6a-e3ee-476d-889f-868b71a861cb",
+      "url": "/remotion-assets/samples/sol-crowd-vs-expert-gen-7.png"
+    }
+  ],
+  "projectType": "MAKER_GENERATION_EVALUATION"
+}
