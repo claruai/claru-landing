@@ -79,6 +79,10 @@ public/enrichment-assets/*
 # HMR2 showcase — keep only final outputs
 public/images/hmr2-showcase/
 
+# Large asset dirs not used in V2
+public/remotion-assets/
+public/videos/enrichment-viz/
+
 # Temp/working files
 tmp/
 scripts/fal-wham/.venv*/
