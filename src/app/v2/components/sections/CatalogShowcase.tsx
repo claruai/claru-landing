@@ -47,7 +47,7 @@ export default function CatalogShowcase() {
   const orbitRingRef = useRef<SVGSVGElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
 
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
   const setThumbRef = useCallback(
     (el: HTMLDivElement | null, i: number) => {
@@ -63,10 +63,10 @@ export default function CatalogShowcase() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  /* GSAP animations */
+  /* GSAP animations — desktop orbit only */
   useGSAP(
     () => {
-      if (reducedMotion || !sectionRef.current || !circleRef.current) return;
+      if (isMobile || reducedMotion || !sectionRef.current || !circleRef.current) return;
 
       const thumbs = thumbRefs.current.filter(Boolean) as HTMLDivElement[];
 
@@ -184,6 +184,15 @@ export default function CatalogShowcase() {
   const radius = isMobile ? 95 : 320;
   const thumbSize = isMobile ? 50 : 114;
   const orbitDuration = reducedMotion ? 0 : 40;
+
+  /* ---- Wait for viewport detection before rendering layout ---- */
+  if (isMobile === null) {
+    return (
+      <section id="catalog" className="relative bg-[var(--bg-primary)]">
+        <div className="h-screen" />
+      </section>
+    );
+  }
 
   /* ---- Mobile bento grid ---- */
   if (isMobile) {
