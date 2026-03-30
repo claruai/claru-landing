@@ -1043,7 +1043,7 @@ export default function AppenAlternativesPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href="https://calendly.com/claru-ai/30min"
+                href="/#contact"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center rounded-full px-8 py-4 text-base font-medium transition-all"
@@ -1052,7 +1052,7 @@ export default function AppenAlternativesPage() {
                   color: "#0a0908",
                 }}
               >
-                Book a Call
+                Get Started
               </a>
               <Link
                 href="/data-catalog"
