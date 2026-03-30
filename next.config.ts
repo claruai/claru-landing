@@ -61,7 +61,7 @@ const nextConfig: NextConfig = {
       // Also redirect nested data-catalog paths
       {
         source: "/data-catalog/request",
-        destination: "/catalog",
+        destination: "/data-catalog",
         permanent: true,
       },
     ];

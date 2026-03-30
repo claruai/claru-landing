@@ -140,7 +140,7 @@ const comparisonDimensions = [
     scale: "Large crowd workforce with project-specific training; strong on NLP and 2D tasks",
     claru: "Expert annotators trained on physical AI: grasp types, object affordances, intent labeling, edge cases",
     luel: "Data suppliers handle their own annotation",
-    appen: "Crowd workers; quality has declined in recent years per industry feedback",
+    appen: "Crowd workers across 170+ countries; general-purpose task-trained workforce",
   },
   {
     dim: "Speed to Delivery",
