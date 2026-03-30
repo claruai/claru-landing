@@ -62,15 +62,77 @@ export default function FinalCTAV2() {
         </motion.div>
 
         {/* Footer */}
-        <div className="mx-auto mt-24 flex max-w-lg flex-col items-center gap-4 border-t border-white/[0.04] pt-10">
-          <span className="font-mono text-[11px] tracking-[0.2em] text-white/20">
-            CLARU
-          </span>
-          <div className="flex gap-6 font-mono text-[11px] text-white/20">
-            <Link href="/legal" className="transition-colors duration-300 hover:text-white/40">Legal</Link>
-            <a href="mailto:contact@claru.ai" className="transition-colors duration-300 hover:text-[var(--accent-primary)]">contact@claru.ai</a>
+        <footer className="mt-32 border-t border-white/[0.06] pt-16">
+          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Solutions */}
+            <div>
+              <h4 className="mb-4 font-mono text-[11px] uppercase tracking-[0.3em] text-[var(--accent-primary)]">
+                Solutions
+              </h4>
+              <ul className="flex flex-col gap-2.5">
+                <li><Link href="/solutions/egocentric-video-data" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">Egocentric Video Data</Link></li>
+                <li><Link href="/solutions/vla-training-data" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">VLA Training Data</Link></li>
+                <li><Link href="/solutions/teleoperation-data" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">Teleoperation Data</Link></li>
+                <li><Link href="/solutions/manipulation-trajectory-data" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">Manipulation Trajectories</Link></li>
+              </ul>
+            </div>
+
+            {/* Compare */}
+            <div>
+              <h4 className="mb-4 font-mono text-[11px] uppercase tracking-[0.3em] text-[var(--accent-primary)]">
+                Compare
+              </h4>
+              <ul className="flex flex-col gap-2.5">
+                <li><Link href="/compare/claru-vs-luel" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">Claru vs Luel</Link></li>
+                <li><Link href="/compare/scale-ai-alternatives" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">Scale AI Alternatives</Link></li>
+                <li><Link href="/compare/appen-alternatives" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">Appen Alternatives</Link></li>
+                <li><Link href="/compare/labelbox-alternatives" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">Labelbox Alternatives</Link></li>
+                <li><Link href="/compare/surge-ai-alternatives" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">Surge AI Alternatives</Link></li>
+              </ul>
+            </div>
+
+            {/* Resources */}
+            <div>
+              <h4 className="mb-4 font-mono text-[11px] uppercase tracking-[0.3em] text-[var(--accent-primary)]">
+                Resources
+              </h4>
+              <ul className="flex flex-col gap-2.5">
+                <li><Link href="/training-data-for-robotics" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">Training Data for Robotics</Link></li>
+                <li><Link href="/physical-ai-training-data" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">Physical AI Data</Link></li>
+                <li><Link href="/egocentric-video-datasets" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">Egocentric Datasets</Link></li>
+                <li><Link href="/case-studies" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">Case Studies</Link></li>
+                <li><Link href="/data-catalog" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">Data Catalog</Link></li>
+              </ul>
+            </div>
+
+            {/* Company */}
+            <div>
+              <h4 className="mb-4 font-mono text-[11px] uppercase tracking-[0.3em] text-[var(--accent-primary)]">
+                Company
+              </h4>
+              <ul className="flex flex-col gap-2.5">
+                <li><Link href="/about" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">About</Link></li>
+                <li><Link href="/jobs" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">Jobs</Link></li>
+                <li><Link href="/for-annotators" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">For Annotators</Link></li>
+                <li><Link href="/#contact" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">Contact</Link></li>
+                <li><Link href="/legal" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">Legal</Link></li>
+              </ul>
+            </div>
           </div>
-        </div>
+
+          {/* Copyright */}
+          <div className="mt-12 flex flex-col items-center gap-3 border-t border-white/[0.04] pt-8 sm:flex-row sm:justify-between">
+            <span className="font-mono text-[11px] tracking-[0.2em] text-white/20">
+              &copy; 2026 Claru AI. All rights reserved.
+            </span>
+            <a
+              href="mailto:contact@claru.ai"
+              className="font-mono text-[11px] text-white/20 transition-colors duration-300 hover:text-[var(--accent-primary)]"
+            >
+              contact@claru.ai
+            </a>
+          </div>
+        </footer>
       </div>
     </section>
   );

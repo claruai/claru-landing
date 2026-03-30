@@ -2,14 +2,9 @@
 
 import { useRef, useEffect, useCallback, useState } from "react";
 import { motion, useInView } from "framer-motion";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
+// Note: useRef, useEffect, useCallback, useInView are used by CardVideo and RichJsonPanel
 
 /* -------------------------------------------------------------------------- */
 /*  Card data — 4 cards: captured → enriched → annotated → delivered          */
@@ -400,243 +395,143 @@ function CardMedia({ card }: { card: EnrichmentCard }) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Stacked card scroll — cards scale/rotate away revealing the next           */
+/*  Pipeline Card — normal flow, whileInView entrance (matches ProofOfWork)   */
 /* -------------------------------------------------------------------------- */
 
-function StickyCardStack({ reducedMotion }: { reducedMotion: boolean }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
-  useGSAP(
-    () => {
-      if (reducedMotion) return;
-
-      const cards = cardRefs.current.filter(Boolean) as HTMLDivElement[];
-      const total = cards.length;
-      if (total === 0) return;
-
-      gsap.set(cards[0], { y: "0%", scale: 1, rotation: 0 });
-      for (let i = 1; i < total; i++) {
-        gsap.set(cards[i], { y: "100%", scale: 1, rotation: 0 });
-      }
-
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: ".enrichment-sticky-cards",
-          start: "top top",
-          end: `+=${window.innerHeight * (total - 1)}`,
-          pin: true,
-          scrub: 0.5,
-          pinSpacing: true,
-        },
-      });
-
-      for (let i = 0; i < total - 1; i++) {
-        tl.to(
-          cards[i],
-          { scale: 0.78, rotation: 3, duration: 1, ease: "none" },
-          i
-        );
-        tl.to(cards[i + 1], { y: "0%", duration: 1, ease: "none" }, i);
-      }
-
-      const ro = new ResizeObserver(() => ScrollTrigger.refresh());
-      if (containerRef.current) ro.observe(containerRef.current);
-
-      return () => {
-        ro.disconnect();
-        tl.kill();
-      };
-    },
-    { scope: containerRef, dependencies: [reducedMotion] }
-  );
-
+function PipelineCard({
+  card,
+  index,
+  reducedMotion,
+}: {
+  card: EnrichmentCard;
+  index: number;
+  reducedMotion: boolean;
+}) {
   return (
-    <div ref={containerRef} className="relative h-full w-full">
-      <div className="enrichment-sticky-cards relative flex h-[85vh] w-full items-center justify-center overflow-hidden">
-        <div className="relative h-[90%] w-full max-w-6xl overflow-hidden rounded-2xl mx-4 md:mx-8">
-          {CARDS.map((card, i) => (
-            <div
-              key={card.id}
-              ref={(el) => {
-                cardRefs.current[i] = el;
-              }}
-              className="absolute inset-0 overflow-hidden rounded-2xl"
-              style={{ willChange: "transform" }}
-            >
-              {/* Media background */}
-              <CardMedia card={card} />
+    <motion.div
+      className="group relative overflow-hidden rounded-xl border border-white/[0.06]"
+      style={{
+        background: "linear-gradient(165deg, #121110 0%, #0e0d0c 100%)",
+        minHeight: card.media.type === "json" ? 380 : 320,
+      }}
+      initial={reducedMotion ? {} : { opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{
+        delay: index * 0.1,
+        duration: 0.7,
+        ease: EASE,
+      }}
+    >
+      {/* Media background */}
+      <CardMedia card={card} />
 
-              {/* Dark overlay — makes narrative text the focus */}
-              {card.media.type === "video" && (
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background:
-                      "radial-gradient(ellipse at center, rgba(10,9,8,0.65) 0%, rgba(10,9,8,0.45) 50%, rgba(10,9,8,0.55) 100%)",
-                  }}
-                />
-              )}
-
-              {/* Top accent line */}
-              <div
-                className="absolute left-0 right-0 top-0 h-[2px]"
-                style={{
-                  background: `linear-gradient(90deg, transparent, ${card.color}, transparent)`,
-                  opacity: 0.7,
-                }}
-              />
-
-              {/* Top: terminal chrome */}
-              <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between px-5 py-3 md:px-8 md:py-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1.5">
-                    <div className="h-[7px] w-[7px] rounded-full bg-[#ff5f57]/60" />
-                    <div className="h-[7px] w-[7px] rounded-full bg-[#febc2e]/60" />
-                    <div className="h-[7px] w-[7px] rounded-full bg-[#28c840]/60" />
-                  </div>
-                  <span
-                    className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] md:text-[11px]"
-                    style={{ color: card.color }}
-                  >
-                    {`// ${card.label}`}
-                  </span>
-                </div>
-                <span className="font-mono text-[10px] text-white/20">
-                  {i + 1} / {CARDS.length}
-                </span>
-              </div>
-
-              {/* Center: narrative tagline — the main focus */}
-              <div className="absolute inset-0 z-10 flex items-center justify-center px-8">
-                <p
-                  className="max-w-lg text-center text-xl font-bold leading-snug tracking-[-0.02em] text-white md:text-2xl lg:text-[28px]"
-                  style={{ textShadow: "0 2px 20px rgba(10,9,8,0.95), 0 0 40px rgba(10,9,8,0.8)" }}
-                >
-                  {card.tagline}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Mobile fallback                                                            */
-/* -------------------------------------------------------------------------- */
-
-function MobileStack({ reducedMotion }: { reducedMotion: boolean }) {
-  return (
-    <div className="flex flex-col gap-4 px-4">
-      {CARDS.map((card, i) => (
-        <motion.div
-          key={card.id}
-          className="relative overflow-hidden rounded-xl border border-white/[0.06]"
+      {/* Dark overlay */}
+      {card.media.type === "video" && (
+        <div
+          className="absolute inset-0"
           style={{
-            background: "linear-gradient(165deg, #121110 0%, #0e0d0c 100%)",
-            minHeight: card.media.type === "json" ? 320 : 240,
+            background:
+              "linear-gradient(180deg, rgba(10,9,8,0.4) 0%, rgba(10,9,8,0.05) 30%, rgba(10,9,8,0.05) 60%, rgba(10,9,8,0.6) 100%)",
           }}
-          initial={reducedMotion ? {} : { opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
-          transition={{
-            delay: i * 0.1,
-            duration: 0.6,
-            ease: [0.16, 1, 0.3, 1],
-          }}
-        >
-          <CardMedia card={card} />
-          {card.media.type === "video" && (
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(180deg, rgba(10,9,8,0.5) 0%, rgba(10,9,8,0.05) 30%, rgba(10,9,8,0.05) 65%, rgba(10,9,8,0.7) 100%)",
-              }}
-            />
-          )}
-          <div
-            className="absolute left-0 right-0 top-0 h-[2px] opacity-60"
-            style={{
-              background: `linear-gradient(90deg, transparent, ${card.color}, transparent)`,
-            }}
-          />
-          <div className="relative z-10 flex h-full min-h-[inherit] flex-col justify-between p-5">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1">
-                <div className="h-[6px] w-[6px] rounded-full bg-[#ff5f57]/50" />
-                <div className="h-[6px] w-[6px] rounded-full bg-[#febc2e]/50" />
-                <div className="h-[6px] w-[6px] rounded-full bg-[#28c840]/50" />
-              </div>
-              <span
-                className="font-mono text-[9px] font-semibold uppercase tracking-[0.15em]"
-                style={{ color: card.color }}
-              >
-                {`// ${card.label}`}
-              </span>
-            </div>
-            <div>
-              <p className="mb-1 text-base font-bold text-white">
-                {card.tagline}
-              </p>
-              <p className="max-w-sm text-[12px] leading-relaxed text-white/50">
-                {card.description}
-              </p>
-            </div>
+        />
+      )}
+
+      {/* Top accent line */}
+      <div
+        className="absolute left-0 right-0 top-0 h-[2px]"
+        style={{
+          background: `linear-gradient(90deg, transparent, ${card.color}, transparent)`,
+          opacity: 0.7,
+        }}
+      />
+
+      {/* Top: terminal chrome */}
+      <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between px-5 py-3 md:px-6 md:py-4">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <div className="h-[7px] w-[7px] rounded-full bg-[#ff5f57]/60" />
+            <div className="h-[7px] w-[7px] rounded-full bg-[#febc2e]/60" />
+            <div className="h-[7px] w-[7px] rounded-full bg-[#28c840]/60" />
           </div>
-        </motion.div>
-      ))}
-    </div>
+          <span
+            className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] md:text-[11px]"
+            style={{ color: card.color }}
+          >
+            {`// ${card.label}`}
+          </span>
+        </div>
+        <span className="font-mono text-[10px] text-white/20">
+          {index + 1} / {CARDS.length}
+        </span>
+      </div>
+
+      {/* Bottom: narrative tagline */}
+      <div className="absolute bottom-0 left-0 right-0 z-10 p-5 md:p-6">
+        <p
+          className="text-lg font-bold leading-snug tracking-[-0.01em] text-white md:text-xl"
+          style={{ textShadow: "0 2px 16px rgba(10,9,8,0.9)" }}
+        >
+          {card.tagline}
+        </p>
+      </div>
+    </motion.div>
   );
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Main component                                                             */
+/*  Main component — normal flow, matches ProofOfWork pattern                  */
 /* -------------------------------------------------------------------------- */
 
 export default function EnrichmentPipeline() {
   const reducedMotion = useReducedMotion();
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
 
   return (
-    <section id="enrichment" className="relative bg-[var(--bg-primary)]">
-      {/* Section header */}
-      <motion.div
-        className="container mx-auto px-6 pb-8 pt-24 md:pb-10 md:pt-32"
-        initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <span className="mb-4 inline-block font-mono text-[11px] uppercase tracking-[0.3em] text-[var(--accent-primary)]">
-          {"// THE PIPELINE"}
-        </span>
-        <h2 className="max-w-2xl text-2xl font-bold leading-[1.1] tracking-[-0.02em] text-white md:text-3xl lg:text-[38px]">
+    <section
+      id="enrichment"
+      className="relative bg-[var(--bg-primary)] py-28 md:py-36 lg:py-40"
+    >
+      <div className="container mx-auto max-w-[var(--container-max)] px-6">
+        {/* Section header */}
+        <motion.div
+          className="mb-6"
+          initial={reducedMotion ? {} : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: EASE }}
+        >
+          <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-[var(--accent-primary)]">
+            {"// THE PIPELINE"}
+          </span>
+        </motion.div>
+
+        <motion.h2
+          className="max-w-2xl text-3xl font-bold leading-[1.1] tracking-[-0.02em] text-white md:text-4xl lg:text-[44px]"
+          initial={reducedMotion ? {} : { opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, delay: 0.05, ease: EASE }}
+        >
           More than video.{" "}
           <span className="text-white/35">
             Captured, enriched, annotated, and delivered to your pipeline.
           </span>
-        </h2>
-      </motion.div>
+        </motion.h2>
 
-      {/* Desktop: Stacked card reveal */}
-      {!isMobile && <StickyCardStack reducedMotion={reducedMotion} />}
-
-      {/* Mobile: Vertical stack */}
-      {isMobile && <MobileStack reducedMotion={reducedMotion} />}
-
-      {/* Spacer after cards */}
-      <div className="h-16 md:h-24" />
+        {/* Cards — 2x2 grid on desktop, stacked on mobile */}
+        <div className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {CARDS.map((card, i) => (
+            <PipelineCard
+              key={card.id}
+              card={card}
+              index={i}
+              reducedMotion={reducedMotion}
+            />
+          ))}
+        </div>
+      </div>
     </section>
   );
 }

@@ -4,9 +4,9 @@ const egocentricVideoData: ContentPageData = {
   // -- Identity & SEO --
   slug: "egocentric-video-data",
   title: "Custom Egocentric Video Data Collection for Embodied AI",
-  metaTitle: "Egocentric Video Data for Embodied AI | Claru",
+  metaTitle: "Egocentric Video Data Collection at Scale | Claru",
   metaDescription:
-    "Egocentric video data collected at scale for robotics and world models. 386K+ clips across 3 pipelines with same-day QA. Compare Ego4D, EgoScale, EgoDex, and Claru.",
+    "500K+ licensed egocentric video clips for robotics and embodied AI. Enriched, QA-verified, delivered weekly. See how we compare to Ego4D and EgoDex.",
   primaryKeyword: "egocentric video data",
   secondaryKeywords: [
     "first-person video dataset",

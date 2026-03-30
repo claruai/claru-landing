@@ -46,6 +46,7 @@ export default function LenisProvider({ children }: LenisProviderProps) {
       wheelMultiplier: 1,
       touchMultiplier: 2,
       infinite: false,
+      autoRaf: false, // GSAP ticker drives raf — prevent double-RAF
     });
 
     lenisRef.current = lenis;

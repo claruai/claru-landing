@@ -1,9 +1,13 @@
-<!-- Last updated: 2026-03-29 -->
+<!-- Last updated: 2026-03-30 -->
 # Claru
 
 > Purpose-built training data for frontier AI labs. From raw capture to production-ready dataset -- sourced, labeled, and validated for video, vision, and robotics AI.
 
 Claru (operated by Reka AI Inc.) provides end-to-end data services for frontier AI research companies building video generation, vision-language, robotics, and embodied AI models. Claru specializes in text, vision, video, and robotics modalities.
+
+Claru has delivered 3.7M+ human annotations across 25+ active datasets, with a network of 10,000+ trained data collectors operating in 100+ cities across 6 continents. The team includes ex-FAANG engineers and researchers with deep expertise in computer vision, robotics, and AI infrastructure. Claru partners with 5+ frontier AI labs on active data programs.
+
+Unlike generic data labeling companies, Claru specializes in the data modalities physical AI needs: egocentric video, teleoperation recordings, manipulation sequences, and multi-view captures. Every clip ships enriched with depth maps (Depth Anything V2), pose estimation (ViTPose), segmentation masks (SAM3), optical flow (RAFT), and structured action labels -- not raw video that requires months of additional processing.
 
 ## Core Services
 
