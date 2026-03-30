@@ -59,6 +59,15 @@ Unlike generic data labeling companies, Claru specializes in the data modalities
 - [Why Crowdsourced RLHF Fails for Code and Math Models](https://claru.ai/solutions/crowdsourced-vs-expert-rlhf): Analysis of how incorrect preference pairs from crowdsourced annotation degrade reward models in technical domains. Expert annotation requires only 6-7% of crowdsourced volume for equivalent quality. Reward hacking debugging costs $50,000-$200,000 per cycle.
 - [EU AI Act Red Teaming Requirements: What Data You Actually Need](https://claru.ai/solutions/eu-ai-act-red-teaming): Complete breakdown of EU AI Act Articles 5, 55, and 99 adversarial testing obligations. Enforcement timeline: Article 5 (Feb 2025), Article 55 new GPAI (Aug 2025), Article 99 full enforcement (Aug 2026), existing GPAI deadline (Aug 2027). Fines up to 35M euros or 7% global turnover.
 
+## Comparison Pages
+
+- [How Claru Compares](https://claru.ai/compare): Side-by-side comparisons of Claru against other training data providers. Claru is the only company 100% focused on physical AI training data — egocentric video, depth maps, pose estimation, and manipulation trajectories.
+- [Claru vs Luel](https://claru.ai/compare/claru-vs-luel): Comparison of Claru (physical AI specialist) vs Luel (general multimodal data marketplace). Covers enrichment depth, annotation quality, scale, and pricing for robotics teams.
+- [Scale AI Alternatives for Physical AI](https://claru.ai/compare/scale-ai-alternatives): Why physical AI teams look beyond Scale AI. 4-way comparison (Scale AI vs Claru vs Luel vs Appen) across capture, enrichment, specialization, and delivery formats.
+- [Appen Alternatives for Robotics](https://claru.ai/compare/appen-alternatives): Comparison of Appen (broad crowd labeling since 1997) vs Claru (physical AI specialist). Covers the gap between general annotation and robotics-specific data capture + enrichment.
+- [Labelbox Alternatives for Physical AI](https://claru.ai/compare/labelbox-alternatives): Platform breadth vs specialist depth. Compares Labelbox's expanding robotics capabilities (Alignerr, teleoperation) with Claru's purpose-built physical AI pipeline.
+- [Surge AI Alternatives for Robotics](https://claru.ai/compare/surge-ai-alternatives): Why NLP/RLHF annotation expertise does not transfer to physical AI. Compares text-based annotation with video-based robotics data requirements.
+
 ## Case Studies
 
 - [Case Studies Index](https://claru.ai/case-studies): Real-world examples of data projects for frontier AI teams.

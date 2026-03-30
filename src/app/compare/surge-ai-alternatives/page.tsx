@@ -265,6 +265,19 @@ export default function SurgeAIAlternativesPage() {
               domain-specific collectors, enrichment pipelines, and
               annotators who understand grasp types, not grammar.
             </p>
+
+            <p className="mt-4 max-w-2xl text-sm text-white/40 italic">
+              Last updated: March 2026. We update this page as both
+              companies evolve. If anything here is inaccurate, email{" "}
+              <a
+                href="mailto:contact@claru.ai"
+                style={{ color: "#92B090" }}
+                className="not-italic"
+              >
+                contact@claru.ai
+              </a>
+              .
+            </p>
           </div>
         </section>
 

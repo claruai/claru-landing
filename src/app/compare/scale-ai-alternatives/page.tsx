@@ -250,6 +250,19 @@ export default function ScaleAIAlternativesPage() {
               </Link>{" "}
               and physical AI.
             </p>
+
+            <p className="mt-4 max-w-2xl text-sm text-white/40 italic">
+              Last updated: March 2026. We update this page as the
+              market evolves. If anything here is inaccurate, email{" "}
+              <a
+                href="mailto:contact@claru.ai"
+                style={{ color: "#92B090" }}
+                className="not-italic"
+              >
+                contact@claru.ai
+              </a>
+              .
+            </p>
           </div>
         </section>
 
