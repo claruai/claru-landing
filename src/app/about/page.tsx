@@ -175,20 +175,24 @@ const chadJsonLd = {
 // DATA
 // =============================================================================
 
-const founders = [
+const team = [
   {
     name: "John Thomas",
-    title: "Co-Founder & CEO",
-    bio: "Previously Co-Founder & COO at Moonvalley ($154M raised from General Catalyst, Khosla Ventures, Bessemer, YC, CoreWeave), where he built the licensed data acquisition and operations infrastructure behind Marey — the first AI video model trained exclusively on owned and licensed footage. Before Moonvalley, co-founded ContentFly (YC W21), one of the first generative AI content platforms, serving Lenovo, Webflow, and Zapier. Started career as Management Consultant at IBM Global Business Services. Industrial Engineering, University of Toronto.",
+    bio: "Co-founded Moonvalley, where he built the licensed data operations behind Marey. Previously co-founded ContentFly (YC W21).",
     linkedin: "https://linkedin.com/in/johnkthomas",
     id: "john-thomas",
   },
   {
     name: "Chad Birdsall",
-    title: "Co-Founder & Head of Operations",
-    bio: "Previously led data and marketplace operations at Moonvalley and ContentFly. Scaled multi-market operations at Bungalow as Head of Market Operations over 4 years. Senior Manager at Uber (2015\u20132018), running Driver Partner Support Centers across Southeast and North Asia. Deep operator experience turning messy, high-volume data workflows into reliable pipelines. Marketing & Management, Ohio University.",
+    bio: "Previously led data and marketplace operations at Moonvalley and ContentFly. Scaled operations at Bungalow and Uber.",
     linkedin: "https://linkedin.com/in/chadbirdsall",
     id: "chad-birdsall",
+  },
+  {
+    name: "Oni Baballari",
+    bio: "Previously at Moonvalley. Background in creative strategy, brand, and go-to-market.",
+    linkedin: "https://linkedin.com/in/erjon-oni-baballari",
+    id: "oni-baballari",
   },
 ];
 
@@ -333,14 +337,14 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── Founding Team ───────────────────────────────────────────── */}
+        {/* ── Core Team ──────────────────────────────────────────────── */}
         <section className="w-full py-16 md:py-24 bg-white/[0.02]">
           <div className="mx-auto max-w-4xl px-6">
             <h2 className="text-2xl font-semibold md:text-3xl text-white mb-4">
-              Founding Team
+              Core Team
             </h2>
             <p className="text-white/70 mb-12 text-lg">
-              Claru was incubated inside{" "}
+              Built from inside{" "}
               <a
                 href="https://moonvalley.com"
                 target="_blank"
@@ -350,50 +354,41 @@ export default function AboutPage() {
               >
                 Moonvalley
               </a>
-              &apos;s data procurement workflow. Building Marey &mdash; the
-              first AI video model trained exclusively on owned and licensed
-              footage &mdash; required solving licensed data capture at scale.
-              That operational problem is exactly what Claru now productizes
-              for other frontier AI labs.
+              &apos;s data pipeline. The team that solved licensed data capture
+              at scale for AI video generation, now doing the same for physical AI.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {founders.map((founder) => (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {team.map((person) => (
                 <div
-                  key={founder.id}
-                  id={founder.id}
+                  key={person.id}
+                  id={person.id}
                   className="rounded-lg border border-white/10 bg-white/[0.03] p-6"
                 >
                   <div
-                    className="w-12 h-12 rounded-lg flex items-center justify-center text-lg font-mono font-bold mb-4"
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-mono font-bold mb-4"
                     style={{
                       backgroundColor: "rgba(146,176,144,0.15)",
                       color: "#92B090",
                     }}
                   >
-                    {founder.name
+                    {person.name
                       .split(" ")
                       .map((n) => n[0])
                       .join("")}
                   </div>
-                  <h3 className="text-lg font-semibold text-white">
-                    {founder.name}
+                  <h3 className="text-base font-medium text-white">
+                    {person.name}
                   </h3>
-                  <p
-                    className="text-sm font-medium mt-1 mb-4"
-                    style={{ color: "#92B090" }}
-                  >
-                    {founder.title}
+                  <p className="text-white/50 text-sm leading-relaxed mt-2">
+                    {person.bio}
                   </p>
-                  <p className="text-white/70 text-sm leading-relaxed">
-                    {founder.bio}
-                  </p>
-                  {founder.linkedin && (
+                  {person.linkedin && (
                     <a
-                      href={founder.linkedin}
+                      href={person.linkedin}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-sm font-medium mt-4 transition-colors hover:underline"
+                      className="inline-flex items-center gap-1.5 text-xs font-medium mt-3 transition-colors hover:underline"
                       style={{ color: "#92B090" }}
                     >
                       LinkedIn &rarr;
