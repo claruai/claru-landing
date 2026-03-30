@@ -48,7 +48,7 @@ export default function NavPill() {
             Enrichment
           </a>
           <Link
-            href="/portal"
+            href="/for-annotators"
             className="min-h-[44px] flex items-center font-mono text-[11px] text-white/35 transition-colors hover:text-white/60"
           >
             Annotators

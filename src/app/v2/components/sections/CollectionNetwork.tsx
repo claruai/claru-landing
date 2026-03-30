@@ -558,7 +558,7 @@ export default function CollectionNetwork() {
               </span>
             </div>
             <h2 className="max-w-2xl text-3xl font-bold leading-[1.1] tracking-[-0.02em] text-white md:text-4xl lg:text-[42px]">
-              10,000+ collectors. 18 cities.{" "}
+              10,000+ collectors. 100+ cities.{" "}
               <span className="text-white/40">Every environment your model needs.</span>
             </h2>
           </div>
@@ -649,7 +649,7 @@ export default function CollectionNetwork() {
               </span>
             </div>
             <h2 className="max-w-2xl text-3xl font-bold leading-[1.1] tracking-[-0.02em] text-white md:text-4xl lg:text-[42px]">
-              10,000+ collectors. 18 cities.{" "}
+              10,000+ collectors. 100+ cities.{" "}
               <span className="text-white/40">Every environment your model needs.</span>
             </h2>
           </motion.div>
