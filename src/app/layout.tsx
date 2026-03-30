@@ -55,7 +55,7 @@ export const metadata: Metadata = {
   title:
     "Claru \u2014 Training Data for Physical AI",
   description:
-    "3.7M+ human annotations across real-world video, game environments, and custom captures. 25+ commercially licensed datasets built for robotics, embodied AI, and frontier video generation teams.",
+    "500K+ egocentric videos. 3.7M+ annotations. The only training data company 100% focused on physical AI.",
   keywords: [
     "AI training data",
     "physical AI",
@@ -81,10 +81,10 @@ export const metadata: Metadata = {
     siteName: "Claru",
     title: "Claru \u2014 Training Data for Physical AI",
     description:
-      "3.7M+ human annotations across real-world video, game environments, and custom captures. 25+ licensed datasets for robotics and embodied AI.",
+      "500K+ egocentric videos. 3.7M+ annotations. The only training data company 100% focused on physical AI.",
     images: [
       {
-        url: "/images/og-v2.webp",
+        url: "/images/og-v3.png",
         width: 1200,
         height: 630,
         alt: "Claru \u2014 Training Data for Physical AI",
@@ -95,8 +95,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Claru \u2014 Training Data for Physical AI",
     description:
-      "3.7M+ human annotations across real-world video and game environments. Built for robotics and embodied AI.",
-    images: ["/images/og-v2.webp"],
+      "500K+ egocentric videos. 3.7M+ annotations. The only training data company 100% focused on physical AI.",
+    images: ["/images/og-v3.png"],
   },
   alternates: {
     canonical: "/",
