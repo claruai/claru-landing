@@ -5,7 +5,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 /**
  * GET /api/admin/catalog/[id]/subcategories
- * Returns the distinct categories/subcategories found in the video_index
+ * Returns the distinct categories/subcategories found in the clips table
  * for this dataset's mapped S3 prefixes. Used as a level-2 filter dropdown.
  */
 export async function GET(
@@ -34,10 +34,10 @@ export async function GET(
   const bucket = routes[0].s3_bucket;
   const prefixes = routes.map((r) => r.key_prefix).filter(Boolean);
 
-  // Query distinct categories from caption_text in video_index
+  // Query distinct categories from caption_text in clips
   // Caption format: "Subcategory: X. Category: Y"
   let query = supabase
-    .from("video_index")
+    .from("clips")
     .select("caption_text")
     .eq("s3_bucket", bucket);
 

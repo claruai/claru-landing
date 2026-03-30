@@ -1,86 +1,71 @@
 # Session 001 Continued — 2026-03-25 (evening)
 
 ## Summary
-Massive build session. Ralph autonomously built 14/14 stories for V2 landing page. Multiple design iteration rounds followed. Currently in a "good structure but needs visual polish" state. Core feedback: videos need individual curation, hero needs organic edge decomposition (not CSS masks), enrichment section needs complete rethink as multi-scene scroll narrative, globe needs environment-type labels.
+Continued case study visualization work. Iterated through multiple approaches for dashcam detection overlays. Final state: 7 motion-verified driving clips with Gemini bounding box overlays at 30fps. Map visualization still needs building as a Remotion composition.
 
-## What Was Built
-- 14 user stories implemented via Ralph loop (~45 min autonomous)
-- R3F 3D floating video wall hero (Three.js + bloom + parallax)
-- Two-row auto-scrolling scale marquee (replaced clickable catalog)
-- GSAP scroll-pinned enrichment section (5-step layer reveal)
-- COBE globe with 18 collection points showing video thumbnails
-- Real assets from FAL (depth maps, pose, segmentation) + S3 clips
-- GTM copy rewrite (leads with catalog + annotation, not enrichment)
-- 195 global skills installed
+## What Still Needs Building
 
-## Branch State
-- Branch: `landing-page-v2`
-- Last commit: `b9a0b78` (+ uncommitted enrichment agent changes)
-- Dev server: port 3080
+### Remotion Composition: Bellwood Infrastructure Detection
+**Concept** (from user):
+1. **Start with 3x3 grid** — 9 dashcam feeds all driving with detection overlays playing simultaneously
+2. **Zoom into one grid cell** — it expands to full screen showing the driving + detection bounding boxes
+3. **Side panel slides in** — shows a map of Bellwood with driver routes highlighted, issue pins appearing as detections are found
 
-## Critical Feedback Not Yet Addressed
+### Assets Ready
+- 7 detected clips at `/tmp/bellwood-v3/clip_0{0-6}_detected.mp4` (1280x720, 5s each, 30fps)
+- Sezim detected clip at `/tmp/bellwood-v3/sezim_detected.mp4`
+- Grid tiles at `/tmp/bellwood-v3/tiles/t{0-8}.mp4` (426x240)
+- Pre-built grid video at `/tmp/bellwood-v3/grid.mp4`
+- All clips verified driving (no 0 MPH parked clips)
+- Speed verified: 7-31 MPH across all clips
 
-### Hero
-- Videos have sharp rectangular edges — should decompose into ASCII/particles at edges
-- Every video tile needs individual curation:
-  - "Depth map" tile should show actual depth visualization
-  - "Tracking" tile should show real object tracking with bboxes
-  - "Segmentation" tile should show real seg masks
-  - Need to build a pipeline: take raw clip → run through FAL → create visualization clip
-- Grid looks "slapped together" — needs to feel like data emerging from terminal noise
+### Clip Speed Map
+| Clip | Speed | Scene |
+|------|-------|-------|
+| clip_00 | 15 MPH | Residential street, overcast |
+| clip_01 | 0 MPH | PARKED — DO NOT USE |
+| clip_02 | 31 MPH | Commercial buildings, rain |
+| clip_03 | 31 MPH | Rainy commercial road, passing cars |
+| clip_04 | 0 MPH | PARKED — DO NOT USE |
+| clip_05 | 7 MPH | Commercial intersection, trucks |
+| clip_06 | 19 MPH | Dawn residential |
+| sezim | 31 MPH | Main road, overcast |
 
-### Enrichment Section (REJECTED TWICE)
-- Layer-by-layer overlay approach is wrong
-- Should be multi-scene scroll parallax:
-  - Different videos (not one video with overlays)
-  - Raw footage → pose visualization → depth heatmaps → 3D reconstruction → JSON metadata
-  - Reference images shared: pose skeletons on humans+robots, multi-modal views (RGB/depth/normals/seg), hand gesture recognition, 3D camera rig viz
-  - Message: "we don't just give raw data, we give rich supporting data"
+### Bellwood GPS Coordinates (from dashcam HUD)
+- N:41.8827 W:87.8747 (residential)
+- N:41.8837 W:87.8832 (commercial rain)
+- N:41.9223 W:87.8704 (main road)
+- N:41.8877 W:87.8635 (commercial intersection)
+- N:41.8875 W:87.8907 (dawn residential)
 
-### Globe
-- Labels should be environment types, not city names
-  - "Kitchen in Mumbai" not just "Mumbai"
-  - "Warehouse in Lagos" not just "Lagos"
-  - "Road in Ho Chi Minh" not just "Ho Chi Minh"
-- Every video at every point needs QA — must show real egocentric footage
+### Technical Notes
+- Gemini drawbox at 30fps via ffmpeg is the working approach
+- Extract keyframes at 3fps, run Gemini detection, apply drawbox filter (each detection held for 10 frames)
+- SAM 3 on FAL: only mask mode works (black cutout), bounding box mode crashes
+- Florence-2 OVD: treats comma-separated prompt as single label
+- YOLO + Supervision: works but COCO categories only, not infrastructure-specific
+- Motion detection: use frame-to-frame JPEG file size variance as proxy — but must verify speed from HUD
 
-## Next Steps (for next session)
+### Remotion Implementation Plan
+1. Create `src/remotion/compositions/type-9/BellwoodInfraComposition.tsx`
+2. Use `<OffthreadVideo>` for the 9 grid clips (copy to `public/remotion-assets/bellwood/`)
+3. Phase 1 (0-90 frames / 0-3s): 3x3 grid with all videos playing
+4. Phase 2 (90-180 frames / 3-6s): Center tile scales up with `interpolate()` to fill screen
+5. Phase 3 (180-450 frames / 6-15s): Side panel slides in from right with:
+   - Static map image of Bellwood area (generate from Mapbox/OpenStreetMap)
+   - Animated SVG route lines showing driver paths (use GPS coords)
+   - Issue pins appearing with pop animation as detection count ticks up
+6. Phase 4 (450-600 frames / 15-20s): Stats counter overlay — "75+ hours", "200+ lane-miles", "3x more defects detected"
 
-### Phase 1: Video Asset Pipeline
-1. Inventory ALL available videos (mosaic, datasets, case studies)
-2. Watch/screenshot each one, categorize by content
-3. For each hero tile slot, identify the right source video
-4. Run FAL pipeline to create visualization variants:
-   - Depth map visualization (FAL Depth Anything)
-   - Pose skeleton overlay (FAL DWPose)
-   - Segmentation mask overlay (FAL SAM2)
-   - Surface normal visualization
-5. Create the actual depth-map-looking clip, tracking-with-bbox clip, etc.
+### Background Jobs Status
+- Bellwood caption enrichment: was running (check `/tmp/enrich-bellwood.log`)
+- Bellwood bbox enrichment: was running (check `/tmp/enrich-bbox.log`)
+- Candidate testing enrichment: was running (check `/tmp/enrich-candidate.log`)
+- All may have completed or errored — check on next session start
 
-### Phase 2: Hero Visual Effects
-1. Implement ASCII/particle edge decomposition on the R3F tiles
-   - Options: custom shader that dissolves edges into particles, or WebGL post-processing that converts edge pixels to ASCII characters
-2. Re-curate every tile position with the right video
-
-### Phase 3: Enrichment Rebuild
-1. Multiple different scenes, not one scene with overlays
-2. Scroll-driven parallax across: raw → pose viz → depth heatmap → 3D reconstruction → metadata JSON
-3. Each step shows a DIFFERENT video/image, not the same one
-4. Generate all visual assets via FAL first
-
-### Phase 4: Globe Polish
-1. Change labels to "Environment in City" format
-2. QA every video at every point
-3. Ensure all show real egocentric footage
-
-## Key Files
-- `src/app/v2/` — all V2 code
-- `src/app/v2/components/sections/HeroV2.tsx` — R3F hero
-- `src/app/v2/components/ui/VideoWall3D.tsx` — Three.js wall component
-- `src/app/v2/components/sections/CatalogShowcase.tsx` — scale marquee
-- `src/app/v2/components/sections/EnrichmentPipeline.tsx` — scroll enrichment
-- `src/app/v2/components/sections/CollectionNetwork.tsx` — globe
-- `public/videos/mosaic/` — hero mosaic clips
-- `public/videos/globe/` — globe thumbnail clips
-- `public/images/slider/` — enrichment overlay assets
-- `tasks/prd-landing-page-v2.md` — full PRD (901 lines)
+### Git State
+- Branch: `brook-wildflower`
+- Last commit: `06274de` (v3 viz: motion-verified driving clips)
+- 8 commits ahead of origin/brook-wildflower (unpushed)
+- PR #51 merged to staging (legacy migration)
+- Staging → main merge still pending

@@ -151,22 +151,18 @@ const egocentricVideoData: ContentPageData = {
 
   // -- Video Showcase (real S3 samples) --
   sampleIds: [
-    // Manipulation tasks
-    "3486e6a3-8f4c-488d-8893-020168ec0c90", // Pour Liquid
-    "60277d2b-31d0-4dcd-bb9b-7951083a40a8", // Fasten & Unfasten
-    "49675c80-81c4-4707-8a73-5aaa57bbc4f4", // Pick Up & Unfold Clothes
-    "be857dc2-e865-4824-9e7d-52758d5d6b6f", // Screw/Unscrew Tool
+    // Manipulation tasks (clips table UUIDs)
+    "20438f6e-014e-41cb-a114-380ea618bb69", // Pour Liquid
+    "3aa32a9c-8b95-481e-abe3-c74f53b4e080", // Fasten & Unfasten
+    "1b1a3671-a3b9-4026-b160-b0d5b2fc554a", // Pick Up & Unfold Clothes
+    "cc84d299-29a8-4c0d-a9ca-ee416d415562", // Screw/Unscrew Tool
     // Kitchen / cooking
-    "ef71891e-29a4-46a9-bb6a-30e0928393c1", // Stirring Food & Cleaning Counter
-    "b2b1db5c-ee4c-485e-8d71-4826dd8b081d", // Peeling & Chopping Food
-    "52358b98-d55e-4bcc-8e03-d5befa834888", // Washing Dishes
-    // Workplace / specialized
-    "4bfc4680-c3cf-4e7f-8c36-076bae7f600a", // Barista - Preparing Drinks
-    "98fa7945-6c66-41d7-b257-66c86755d886", // Carpenter - Cutting Wood
-    "7a334748-8606-448a-8b9e-655be2a26ea2", // Phone Repair
+    "693f06ff-f935-4bf5-bfd3-c0426aa95e48", // Stirring Food & Cleaning Counter
+    "1e9ab476-a4c9-4ca4-8324-051c3aa35bf7", // Peeling & Chopping Food
+    "4650cf94-02cf-435e-81ef-63a16371b80b", // Washing Dishes
     // Outdoor / locomotion
-    "e2875e4b-851e-4a3c-a496-2c38c54d4284", // Move Forward - Outdoor
-    "7b1a317c-e59e-424c-ae35-8dd68cabb3b2", // Safari (cinematic)
+    "6a04be53-e6b0-4e15-bfe5-e049ba5f9c42", // Move Forward - Outdoor
+    "6de4f312-32e4-4317-bea3-643e1673ab4e", // Safari (cinematic)
   ],
   sampleShowcaseHeading: "Real Egocentric Video from Claru's Pipeline",
   sampleShowcaseSubheading: "Hover to preview. Samples span manipulation, cooking, workplace, and outdoor activities — captured across GoPro, smartphone, and activity-specific pipelines.",

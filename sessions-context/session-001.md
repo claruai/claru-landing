@@ -1,112 +1,122 @@
 # Session 001 — 2026-03-25
 
 ## Summary
-Massive session covering contract review (HackerRank MSA), git branch cleanup, global skill/tool installation (~195 skills), Maton API gateway setup, and full V2 landing page positioning research + PRD creation. The core output is a battle-tested PRD at `tasks/prd-landing-page-v2.md` that repositions Claru from "data services provider" to "the training data catalog for physical AI."
+Massive infrastructure session covering PostHog analytics for the client portal, Supabase RLS security hardening, complete legacy table migration (dataset_samples/video_index to clips/dataset_clips), embedding rebuild for 1M+ clips to 100% search coverage, Bellwood dashcam dataset ingestion (300 clips from Dropbox to S3), candidate testing fraud detection dataset ingestion (1,835 clips), Gemini vision enrichment pipelines, and bounding box infrastructure detection via Gemini 2.5 Flash. Also set up FAL MCP globally.
 
 ## What We Built / Changed
 
-### Contract Review
-- Reviewed HackerRank - Claru Order Form + MSA via Maton Google Docs API
-- Identified 3 blockers: "INSERT" placeholder in jurisdiction, swapped signature blocks, backdated term
-- Drafted new Section 7 (Limitation of Liability), Section 12 (Data Rights & IP), Section 13 (Force Majeure)
-- Key IP position: Claru owns all deliverables, client gets non-exclusive perpetual license, Claru can resell
+### PostHog Analytics (deployed to prod via PRs #36-40)
+- Created `src/app/components/portal/PortalIdentify.tsx` — identifies portal users in PostHog with name, company, lead_status, datasets_count
+- Created `src/app/components/portal/DatasetViewTracker.tsx` — fires `dataset_viewed` event
+- Added `portal_login` event to `src/app/portal/login/page.tsx`
+- Added `sample_opened` event to `src/app/portal/catalog/[id]/SampleGallery.tsx`
+- Added `custom_request_submitted` server-side event to `src/app/portal/request/actions.ts`
+- Added `posthog.reset()` on sign-out in `src/app/portal/PortalNav.tsx`
+- Added `NEXT_PUBLIC_POSTHOG_KEY` to `.env.example`
 
-### Git Cleanup
-- Synced `local/main`, `remote/main`, `remote/staging` — all in parity
-- Created `landing-page-v2` branch from main
-- Pushed staging to remote to catch it up
+### Bug Fixes (deployed via PRs #39, #41, #42)
+- Fixed `CatalogSearchClient.tsx` — "Create New" and "Add to Catalog" tabs sending `items` instead of `clip_ids` to `/api/admin/catalog/custom`
+- Fixed `/api/admin/catalog/custom/route.ts` — `upsert` with `onConflict` failing silently because Supabase client string doesn't match COALESCE-based unique index; switched to plain insert with pre-check
 
-### Global Skills Installed (~195 total)
-- **Anti-slop:** humanizer, stop-slop, unslop (with profiles), impeccable (21 sub-skills via marketplace)
-- **GTM:** cold-outreach-writer, icp-scorer, meeting-prep-brief, prospect-researcher, weekly-pipeline-digest (with references wired up)
-- **gstack (Garry Tan):** 28 skills — qa, ship, investigate, cso, design-review, plan-ceo-review, office-hours, etc.
-- **taste-skill:** 7 design aesthetic skills (brutalist, minimalist, soft, redesign, stitch, output)
-- **Generative Media:** 4 skills (gen-media-media, edit, platform, workflow) via muapi.ai
-- **design-plugin:** design-and-refine
-- **geo-seo-claude:** 15 GEO/SEO skills (audit, citability, crawlers, schema, report-pdf, prospect, etc.)
-- **design-research:** browser-based design analysis
-- **Efecto:** 3 skills (web-design, graphic-design, social-media) via MCP
-- **Shaders:** Custom skill — 70+ GPU-accelerated React components (aurora, plasma, glitch, CRT, particles, etc.)
-- **Fancy Components:** Custom skill — premium animated React components via shadcn @fancy registry
-- **Magic UI:** Custom skill — animated components (globe, particles, marquee, number ticker, terminal)
-- **Its Hover:** Custom skill — 186+ animated icons
-- **Skiper UI:** Custom skill — premium shadcn components
-- Fixed broken `~/.claude/skills` symlink (old uppercase path → lowercase)
+### RLS Security (applied directly to prod DB)
+- Revoked INSERT/UPDATE/DELETE/TRUNCATE from `anon` role on all 9 public tables
+- Revoked INSERT/UPDATE/DELETE/TRUNCATE from `authenticated` role (except INSERT on custom_requests, UPDATE on leads)
+- Verified via Playwright UAT — all portal flows work, all write operations blocked for anon
 
-### Maton API Gateway
-- Verified MATON_API_KEY is set (99 chars)
-- 3 active connections: Google Docs, Google Drive, Google Search Console (john@claru.ai)
-- 1 pending: Google Slides (needs OAuth)
-- Successfully fetched and parsed HackerRank contract .docx via Drive API
+### Legacy Table Migration (PR #51, merged to staging)
+- Migrated ALL 22 runtime `from("dataset_samples")` and `from("video_index")` references to `clips` + `dataset_clips`
+- 6 commits across 15+ files:
+  - `custom-samples/route.ts` + `bulk/route.ts` — accept `clip_id` instead of legacy IDs, fix live bug
+  - `portal/page.tsx` — viewable count from `dataset_clips`
+  - `enrichment/status/route.ts` + `run/route.ts` — all count queries migrated
+  - `subcategories/route.ts` — `video_index` to `clips`
+  - `VideoShowcase.tsx`, `DataPreview.tsx` + clients — `DatasetSample` to `Clip` type
+  - `catalog/[id]/samples/route.ts` POST — 3 insert modes now upsert `clips` + `dataset_clips`
+  - `catalog/[id]/samples/bulk/route.ts` POST — batch insert migrated
+  - `admin/leads/[id]/page.tsx` — custom samples from `dataset_clips`
+  - UUID remapping in `egocentric-video-data.ts`, `parametric/page.tsx`, `general-intuition/page.tsx`
+- Code review findings fixed: TOCTOU race condition in upsertClip (catch 23505), bulk count fix, stale comments, dead types
 
-### V2 Landing Page PRD
-- **File:** `tasks/prd-landing-page-v2.md`
-- Full competitive landscape research (Scale AI, Cortex, Sensei, Foxglove, Covariant, Skild, Pi, Rhoda, World Labs, Human Archive, Asimov, Luel)
-- 5 positioning angles analyzed, selected: "Browse. Buy. Build." with "The Catalog" identity
-- Current page fully audited (all sections, design system, animations)
-- FAL generative pipeline mapped (Wan 2.2, FLUX.2 Pro, Depth Anything, DWPose, SAM2, Topaz — ~$20 total for all assets)
-- COBE globe API documented for collection network visualization
-- Interactive viz patterns researched (GSAP stacked cards, CSS before/after slider, responsive video heroes)
-- Competitor visual design analysis (9 sites in detail)
-- QA review agent caught 7 critical issues — all resolved in PRD
+### Embedding Rebuild (completed)
+- Ran `scripts/rebuild-clip-captions.py` with 10 parallel workers split by s3_key range
+- 290,937 clips got embeddings in ~1.5 hours (down from 115 hour estimate with 1 worker)
+- Coverage: 72.2% → 100.0% (1,045,255 of 1,045,408 with embeddings)
+
+### Bellwood Dashcam Dataset (ingested + enriching)
+- Transferred 300 files (455 GB) from Dropbox shared folder to `s3://moonvalley-annotation-platform/bellwood-dashcam/` via EC2 streaming script (~$0.50 EC2 cost)
+- Set up rclone globally with Dropbox OAuth (shared folders via namespace)
+- Created "Bellwood Municipal Dashcam Collection" dataset in DB with "Municipal / Government" category
+- Ingested 300 clips with parsed metadata (driver, date, sequence from filenames)
+- 6 showcase clips marked across different drivers
+- Caption enrichment running (53/300 done at session end, ~247 remaining)
+- Bounding box detection running (91/300 done, detecting cracked roads, faded markings, broken sidewalks, litter)
+- Tested Gemini 2.5 Flash bounding box detection: 5 frames, 22 infrastructure detections, annotated overlay images generated
+
+### Candidate Testing Dataset (ingested + enriching)
+- Analyzed `candidate-testing/completed/` — 1,835 annotated video clips for interview fraud detection
+- 3 main categories: No Face (1,050), Multiple Faces (452), Secondary Face (333)
+- 19 subcategories including hand obstruction, face masks, clothing changes, spectacle swaps, hairstyle changes
+- Ingested 1,715 clips (117 failed — folders with no video), 6 showcase clips
+- Created "Interview Fraud Detection" dataset with "Identity Verification" category
+- Caption enrichment started (1,715 clips queued)
+
+### FAL MCP Setup
+- Added FAL MCP server globally: `claude mcp add --transport http fal-ai https://mcp.fal.ai/mcp`
+- FAL_KEY saved to `.env.local`
+- Tested: `search_models`, `recommend_model`, `get_model_schema`, `submit_job`, `upload_file`
+- Found Florence-2 OVD and SAM 3 Video on FAL for object detection
+
+### SentrySearch Analysis
+- Reviewed https://github.com/ssrajadh/sentrysearch — native video embedding via Gemini Embedding 2
+- Key learning: Gemini can embed raw video directly into 768-dim space (same as text), skipping caption step
+- Relevant for future: overlapping chunk strategy, still-frame detection, preprocessing for bandwidth
 
 ## Key Decisions Made
-
-1. **Positioning shift:** "Expert Human Intelligence for AI Labs" → "The training data catalog for physical AI." The "human intelligence" framing is now crowded (Asimov, Human Archive both use it).
-2. **Hero:** Full-bleed video montage (pre-encoded MP4), NOT Remotion, NOT COBE globe. Globe moves to Section 6 (Collection Network).
-3. **Catalog layout:** GSAP stacked cards (6 cards), not tabbed grid. Real clips first, FAL-generated only where footage is missing.
-4. **Enrichment demo:** Before/after CSS slider as primary interaction. Pipeline nodes as labels, not separate click-through.
-5. **Public catalog page:** Build `/catalog` route — email-gated for full access, no login wall on "Browse the Catalog" CTA.
-6. **Data rights in MSA:** Claru owns all deliverables, non-exclusive perpetual license to client, Claru can resell/use for marketing.
-7. **No pricing on landing page** but show pricing MODEL (per-dataset, per-hour, per-minute).
-8. **Real assets first:** Design principle #6 — use actual catalog clips wherever possible, FAL only to fill gaps.
+- **RLS approach**: Revoke grants rather than add restrictive policies — existing RLS policies already enforce row-level access, the vulnerability was overly permissive table-level grants
+- **Legacy migration order**: Low-risk reads first (portal count, enrichment dashboard), then high-risk writes (catalog POST routes), then atomic deploy (custom samples system)
+- **Embedding parallelization**: 10 workers split by s3_key range reduced 115 hours to 1.5 hours
+- **Bellwood transfer**: EC2 in us-east-1 streaming via Python (Dropbox API → S3 multipart) instead of rclone (shared folder access broken)
+- **Enrichment approach**: Single frame at 50% of video duration via Gemini 2.5 Flash — cheapest and fastest
+- **Bounding box storage**: Infrastructure detections stored in `ai_enrichment_json` on each clip
+- **Candidate testing**: Classification dataset, not detection — each clip gets one category label, stored in `ann_metadata`
 
 ## Technical Details
-
-### COBE Globe Config for Claru
-```js
-dark: 1, baseColor: [0.04, 0.04, 0.03], markerColor: [0.57, 0.69, 0.56],
-glowColor: [0.2, 0.25, 0.2], mapBrightness: 2, arcColor: [0.57, 0.69, 0.56]
-```
-CSS anchor positioning for floating labels: `--cobe-visible-{id}` fades labels as globe rotates.
-
-### FAL Pipeline (for asset generation)
-1. FLUX.2 Pro + Realism LoRA → base stills (~$0.03/image)
-2. Wan 2.2 image-to-video → 5-sec clips (~$0.50/clip)
-3. Depth Anything Video → depth overlays
-4. DWPose Video → pose skeletons
-5. SAM2 Video → segmentation masks
-6. Topaz Video AI → upscale/polish ($0.01-0.08/sec)
-
-### Performance Targets
-- Hero video: <2MB (H.264, 1080p desktop / 720p mobile)
-- Initial page: <3MB. Total with lazy: ~8MB.
-- LCP <2.5s, CLS <0.1, Lighthouse >90
-- `prefers-reduced-motion` fallbacks for all animations
-
-### Design System V2 Additions
-- Enrichment colors: `#4A9EDE` (depth), `#DE8A4A` (pose), `#9E6ADE` (segmentation)
-- OKLCH neutrals with 0.01 sage chroma
-- Dot grid background replacing ASCII canvas
-- Video thumbnails as first-class card content
+- `upsertClip` helper catches Postgres error code 23505 (unique violation) for TOCTOU race conditions
+- Supabase client `onConflict` string doesn't match COALESCE-based unique indexes — use plain insert with pre-check instead
+- `source .env.local` doesn't export vars in subshells — use `export $(grep -v '^#' .env.local | grep -v '^$' | xargs) 2>/dev/null`
+- Gemini 2.0 Flash deprecated — use `gemini-2.5-flash` with new `google.genai` SDK (not deprecated `google.generativeai`)
+- Gemini bbox detection returns `[y_min, x_min, y_max, x_max]` in 0-1000 range — Y comes first
+- Set `thinking_budget=0` and `temperature=0.5` for faster bbox detection
+- `dataset_clips` unique index uses COALESCE: `UNIQUE(dataset_id, clip_id, COALESCE(lead_id, '00000000-...'))`
+- Dropbox shared folders need namespace ID via API, not just `shared_folders=true` in rclone config
 
 ## Data & Metrics
-- Claru catalog: 3.7M+ annotations, 25+ datasets, 8 modalities, ~1.045M clips in prod DB
-- HackerRank deal: $10,800 / 10,800 units @ $1.00, March 20 – April 27, 2026
-- Competitor funding context: Scale ($15B), Physical Intelligence ($5.6B), Skild ($1.5B), Rhoda ($1.7B), Human Archive ($500K YC), Asimov ($500K YC), Luel ($500K YC)
+- **Clips table**: 1,045,408 total → 100% embedding coverage (was 72.2%)
+- **Bellwood**: 300 clips, 455 GB, 5 drivers, 10 days, ~75 hours footage
+- **Candidate testing**: 1,835 annotations, 1,715 videos, ~209 GB, 19 fraud subcategories
+- **Embedding rebuild rate**: ~2,500-3,400 clips/min with 10 parallel workers
+- **Bellwood enrichment rate**: ~4 clips/min (caption) + ~12 clips/min (bbox) — bottlenecked by S3 download of large files
+- **Gemini bbox cost**: <$0.01 for 5 frames
+- **EC2 transfer cost**: ~$0.50 total (c5.xlarge for ~1 hour)
+- **PostHog key**: `phc_aFuVsaSodRF53kKxdlSWYRHbWSsCyGOfE05KTRltOR3` (needs adding to Vercel env vars)
 
 ## Current State
-- **Branch:** `landing-page-v2` (from main, no commits yet)
-- **Last commit:** `8bb8440` Merge pull request #50 from claruai/staging
-- **All branches synced:** local/main = remote/main = remote/staging
-- **PRD written and QA'd:** `tasks/prd-landing-page-v2.md` — all 7 QA issues resolved, all open questions decided
-- **195 global skills** installed at `~/.claude/skills/`
-- **Maton gateway** active with 3 Google connections
-- **No code changes yet** — PRD is the deliverable, ready for Ralph conversion
+- **Branch**: `brook-wildflower` at commit `b370938`
+- **PR #51**: Merged to staging (legacy migration + code review fixes)
+- **Staging → main merge**: Not yet done — should UAT on staging first
+- **Bellwood enrichment**: Caption (53/300) + Bbox (91/300) running in background
+- **Candidate enrichment**: Caption (starting, 1,715 clips) running in background
+- **Embedding rebuild**: Will need to run for Bellwood + Candidate clips after captions finish
+- **Vercel env**: `NEXT_PUBLIC_POSTHOG_KEY` still needs adding
+- **EC2 cleaned up**: Instance terminated, SG deleted, key pair deleted
 
 ## Next Steps
-1. **Run the full QA loop on PRD** (Codex review → specialized agent review → Codex again → context7 docs → final read)
-2. **Convert PRD to prd.json** via `/ralph`
-3. **Generate visual assets** via FAL pipeline (`scripts/generate-v2-assets.ts`)
-4. **Execute via `/ralph-loop`** — autonomous section-by-section build
-5. **HackerRank MSA:** Fix the 3 blockers (INSERT jurisdiction, signature swap, term date), add Section 12 (Data Rights) + Section 13 (Force Majeure), soften Section 11(g), send to HackerRank
+1. **Wait for enrichments to complete** — Bellwood captions + bboxes (~30 min), Candidate captions (~45 min)
+2. **Run embedding rebuild** for Bellwood (300) + Candidate (1,715) clips
+3. **Merge staging → main** after enrichment + UAT
+4. **Build Bellwood case study** — Remotion composition with bbox overlays, case study page
+5. **Build Candidate Testing case study** — fraud detection visualization
+6. **Add `NEXT_PUBLIC_POSTHOG_KEY` to Vercel** for production PostHog tracking
+7. **Drop legacy tables** — `video_index` and `dataset_samples` can be dropped now that all code is migrated
+8. **Vision enrichment** for 25k captionless clips in `moonvalley-annotation-platform` bucket
+9. **mv-protege-external** — 79k raw videos, separate loader project
