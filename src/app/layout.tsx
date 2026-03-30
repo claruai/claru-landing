@@ -53,7 +53,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://claru.ai"),
   title:
-    "Claru \u2014 The Training Data Catalog for Physical AI",
+    "Claru \u2014 Training Data for Physical AI",
   description:
     "3.7M+ human annotations across real-world video, game environments, and custom captures. 25+ commercially licensed datasets built for robotics, embodied AI, and frontier video generation teams.",
   keywords: [
@@ -79,7 +79,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://claru.ai",
     siteName: "Claru",
-    title: "Claru \u2014 The Training Data Catalog for Physical AI",
+    title: "Claru \u2014 Training Data for Physical AI",
     description:
       "3.7M+ human annotations across real-world video, game environments, and custom captures. 25+ licensed datasets for robotics and embodied AI.",
     images: [
@@ -87,13 +87,13 @@ export const metadata: Metadata = {
         url: "/images/og-v2.webp",
         width: 1200,
         height: 630,
-        alt: "Claru \u2014 The Training Data Catalog for Physical AI",
+        alt: "Claru \u2014 Training Data for Physical AI",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Claru \u2014 The Training Data Catalog for Physical AI",
+    title: "Claru \u2014 Training Data for Physical AI",
     description:
       "3.7M+ human annotations across real-world video and game environments. Built for robotics and embodied AI.",
     images: ["/images/og-v2.webp"],
