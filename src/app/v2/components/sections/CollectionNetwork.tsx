@@ -206,7 +206,7 @@ const THUMB_SIZE_MOBILE = 44;
 /* ------------------------------------------------------------------ */
 function HubCounter({ inView, reducedMotion }: { inView: boolean; reducedMotion: boolean }) {
   const [count, setCount] = useState(0);
-  const target = 18;
+  const target = 100;
 
   useEffect(() => {
     if (!inView || reducedMotion) {
@@ -239,7 +239,7 @@ function HubCounter({ inView, reducedMotion }: { inView: boolean; reducedMotion:
       <span className="hidden text-white/15 sm:inline">|</span>
       <div className="flex items-center gap-2">
         <span className="font-mono text-2xl font-black tabular-nums text-[var(--accent-primary)] md:text-4xl">
-          {count}
+          {count}+
         </span>
         <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/35 md:text-[11px]">
           cities
@@ -566,10 +566,10 @@ export default function CollectionNetwork() {
           <div className="mx-auto flex max-w-lg items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-12">
             <div className="text-center">
               <p className="mb-1 font-mono text-2xl font-bold text-[var(--accent-primary)]">
-                18
+                100+
               </p>
               <p className="mb-4 font-mono text-xs text-white/40">
-                collection hubs worldwide
+                cities worldwide
               </p>
               <div className="flex flex-wrap justify-center gap-2">
                 {markerData.map((m) => (

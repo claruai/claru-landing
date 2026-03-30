@@ -113,7 +113,7 @@ const POSTS: SocialPost[] = [
     platforms: ["twitter"],
     status: "ready",
     twitterCopy:
-      "We collect training data for frontier AI labs.\n\nOver a million clips. 18 cities. 10,000+ people on the ground.\n\nThis is @claru_ai.",
+      "We collect training data for frontier AI labs.\n\nOver a million clips. 100+ cities. 10,000+ people on the ground.\n\nThis is @claru_ai.",
     compositionId: "video-clip",
     compositionProps: {
       videoSrc: "videos/bento-robot-arm.mp4",
@@ -206,7 +206,7 @@ const POSTS: SocialPost[] = [
         { type: "query", text: "SELECT COUNT(*) FROM clips;" },
         { type: "result", text: "1,045,000+ rows" },
         { type: "query", text: "SELECT DISTINCT city FROM collection_hubs;" },
-        { type: "result", text: "18 cities, 6 continents" },
+        { type: "result", text: "100+ cities, 6 continents" },
         {
           type: "query",
           text: "SELECT COUNT(*) FROM annotations WHERE source = 'human';",
@@ -284,9 +284,9 @@ const POSTS: SocialPost[] = [
     platforms: ["twitter", "linkedin"],
     status: "draft",
     twitterCopy:
-      "18 cities. 6 continents. Over 10,000 collectors on the ground.\n\nSan Francisco. Mumbai. Lagos. Bangkok. S\u00e3o Paulo. Kyiv. Cairo. Dhaka. Manila. Ho Chi Minh City. London. Jakarta. Nairobi. Mexico City. Lima. Bogot\u00e1. Karachi. Accra.\n\nWe don't scrape data. We go get it.",
+      "100+ cities. 6 continents. Over 10,000 collectors on the ground.\n\nSan Francisco. Mumbai. Lagos. Bangkok. S\u00e3o Paulo. Kyiv. Cairo. Dhaka. Manila. Ho Chi Minh City. London. Jakarta. Nairobi. Mexico City. Lima. Bogot\u00e1. Karachi. Accra.\n\nWe don't scrape data. We go get it.",
     linkedinCopy:
-      "Training data for physical AI needs to reflect the physical world — all of it.\n\nWe operate collection hubs in 18 cities across 6 continents, with over 10,000 trained collectors capturing egocentric video, manipulation data, and environmental footage in real kitchens, warehouses, streets, workshops, and homes.\n\nSan Francisco / Mumbai / Lagos / Bangkok / S\u00e3o Paulo / Kyiv / Cairo / Dhaka / Manila / Ho Chi Minh City / London / Jakarta / Nairobi / Mexico City / Lima / Bogota / Karachi / Accra\n\nYour model is only as good as the distribution it trains on.\n\nclaru.ai",
+      "Training data for physical AI needs to reflect the physical world — all of it.\n\nWe operate collection hubs in 100+ cities across 6 continents, with over 10,000 trained collectors capturing egocentric video, manipulation data, and environmental footage in real kitchens, warehouses, streets, workshops, and homes.\n\nSan Francisco / Mumbai / Lagos / Bangkok / S\u00e3o Paulo / Kyiv / Cairo / Dhaka / Manila / Ho Chi Minh City / London / Jakarta / Nairobi / Mexico City / Lima / Bogota / Karachi / Accra\n\nYour model is only as good as the distribution it trains on.\n\nclaru.ai",
     compositionId: "video-clip",
     compositionProps: {
       videoSrc: "enrichment-assets/generated/rgb-depth-comparison-padded.mp4",
@@ -362,7 +362,7 @@ const POSTS: SocialPost[] = [
     platforms: ["twitter"],
     status: "draft",
     twitterCopy:
-      "Kitchens. Streets. Warehouses. Workshops. Homes. Offices.\n\nSix environment types. 18 cities. One annotation standard.\n\nWeek 2 recap: we showed you where we are. Next week — how deep we go.",
+      "Kitchens. Streets. Warehouses. Workshops. Homes. Offices.\n\nSix environment types. 100+ cities. One annotation standard.\n\nWeek 2 recap: we showed you where we are. Next week — how deep we go.",
     compositionId: "video-clip",
     compositionProps: {
       videoSrc: "enrichment-assets/generated/mosaic-driving-upscaled.mp4",
@@ -492,7 +492,7 @@ const POSTS: SocialPost[] = [
         },
         {
           type: "result",
-          text: "env_diversity:       18 cities, 6 environment types",
+          text: "env_diversity:       100+ cities, 6 environment types",
         },
         { type: "comment", text: "-- That's one order. We've done five." },
       ],
@@ -671,7 +671,7 @@ const POSTS: SocialPost[] = [
     platforms: ["twitter"],
     status: "draft",
     twitterCopy:
-      "Month one, by the numbers.\n\nOver a million clips. Over 3.5 million annotations. 18 cities. 5 frontier lab partnerships.\n\nWe showed you everything. Now tell us what you're training.\n\nclaru.ai",
+      "Month one, by the numbers.\n\nOver a million clips. Over 3.5 million annotations. 100+ cities. 5 frontier lab partnerships.\n\nWe showed you everything. Now tell us what you're training.\n\nclaru.ai",
     compositionId: "social-terminal-query",
     compositionProps: {
       lines: [
@@ -679,7 +679,7 @@ const POSTS: SocialPost[] = [
         { type: "query", text: "SELECT * FROM platform_stats;" },
         { type: "result", text: "total_clips:          1,000,000+" },
         { type: "result", text: "human_annotations:    3,500,000+" },
-        { type: "result", text: "collection_hubs:      18 cities" },
+        { type: "result", text: "collection_hubs:      100+ cities" },
         { type: "result", text: "active_collectors:    10,000+" },
         {
           type: "result",
@@ -702,7 +702,7 @@ const POSTS: SocialPost[] = [
     twitterCopy:
       "The best AI labs in the world need the best human intelligence behind them.\n\nThat's us.\n\n@claru_ai",
     linkedinCopy:
-      "We spent the last 30 days showing you what we've built:\n\nOver a million video clips captured across 18 cities on 6 continents. Over 3.5 million human annotations. Enrichment pipelines that deliver depth, pose, segmentation, detection, and 3D reconstruction on every frame.\n\nWe didn't build this to talk about it. We built it because the best AI labs in the world need the best human intelligence behind them.\n\nIf you're training a frontier model — video generation, robotics, embodied AI, autonomous systems — we'd like to hear what you need.\n\nclaru.ai",
+      "We spent the last 30 days showing you what we've built:\n\nOver a million video clips captured across 100+ cities on 6 continents. Over 3.5 million human annotations. Enrichment pipelines that deliver depth, pose, segmentation, detection, and 3D reconstruction on every frame.\n\nWe didn't build this to talk about it. We built it because the best AI labs in the world need the best human intelligence behind them.\n\nIf you're training a frontier model — video generation, robotics, embodied AI, autonomous systems — we'd like to hear what you need.\n\nclaru.ai",
     compositionId: "social-quote-reveal",
     compositionProps: {
       quote:
