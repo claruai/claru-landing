@@ -1,0 +1,304 @@
+{
+  "project": "Claru Landing V2",
+  "branchName": "landing-page-v2",
+  "description": "Reposition claru.ai landing page from data services to training data catalog for physical AI. New /v2 route with video hero, GSAP stacked dataset cards, enrichment pipeline slider, full-featured COBE globe with arcs and floating labels, and /catalog page. Does NOT touch existing V1 page.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Project scaffolding and data population",
+      "description": "As a developer, I want the V2 route and file structure set up so I can build sections independently.",
+      "acceptanceCriteria": [
+        "src/app/v2/page.tsx exists as a client component with hydration-safe shell (useState mounted pattern)",
+        "Section components created as stubs in src/app/v2/components/sections/: HeroV2, DataGap, ThreeModes, CatalogShowcase, EnrichmentPipeline, CollectionNetwork, GameCapture, WhyClaru, SocialProofV2, FinalCTAV2",
+        "Page renders sections in order: Hero, DataGap, ThreeModes, CatalogShowcase, EnrichmentPipeline, CollectionNetwork, GameCapture, WhyClaru, SocialProofV2, FinalCTAV2",
+        "src/app/v2/components/ui/ created with Globe.tsx, DatasetCard.tsx, PipelineNode.tsx, EnrichmentOverlay.tsx stubs",
+        "src/app/v2/data/datasets.ts created with Dataset interface and 6 dataset entries with real counts: Egocentric Activity (~386K), Game Environment (~66K), Video Quality (~976K), Object Identity (~1.07M), Traffic (coming_soon), Robotic Arm (coming_soon)",
+        "src/app/v2/hooks/useReducedMotion.ts created reading prefers-reduced-motion media query",
+        "src/app/v2/hooks/useGlobe.ts created as empty hook",
+        "npm install cobe shaders completed",
+        "OKLCH CSS custom properties added to globals.css V2 section with 0.01 sage chroma neutrals",
+        "Dot grid background applied to V2 page layout",
+        "Lenis smooth scroll provider wraps V2 page",
+        "Placeholder solid-color WebP images at public/images/hero-poster.webp and public/images/datasets/",
+        "npm run dev serves /v2 without errors",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "BLOCKING - must complete before all other stories. Use @gsap/react useGSAP hook for all GSAP usage."
+    },
+    {
+      "id": "US-002",
+      "title": "Hero section with video background and text scramble",
+      "description": "As a visitor, I want to immediately understand what Claru sells so I decide in 5 seconds whether to keep scrolling.",
+      "acceptanceCriteria": [
+        "Full-viewport section with dark background #0a0908",
+        "Headline: 'The training data catalog for physical AI.' in Geist Sans, white, 72px desktop / 40px mobile, bold with per-character scramble reveal animation on load",
+        "Sub: 'Curated video datasets with depth, pose, and segmentation — built for robotics and embodied AI teams. Download, load, train.' white/80 20px/16px",
+        "Stats bar JetBrains Mono sage green: '3.7M+ annotations across kitchens, warehouses, roads, and game environments · 25+ licensed datasets · Depth + pose + segmentation on every clip'",
+        "Trust signal: 'Commercially licensed. Not scraped. Not synthetic.' JetBrains Mono white/60 14px",
+        "Two CTAs: 'Browse the Catalog' (sage green fill, /catalog) + 'Request Custom Collection' (ghost, scrolls to #contact)",
+        "Background: looping muted autoplay video with poster fallback. autoPlay muted loop playsInline. Separate desktop/mobile sources",
+        "Dark gradient overlay from-[#0a0908]/80 via-[#0a0908]/40 to-transparent",
+        "Shaders library <DotGrid> composited over video at low opacity sage green for terminal aesthetic",
+        "prefers-reduced-motion: poster only, no video, no text animation",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Use placeholder poster until real video extracted. Lead montage with robot arm footage."
+    },
+    {
+      "id": "US-003",
+      "title": "Data Gap section with GSAP scroll-pinned split",
+      "description": "As a visitor, I want to understand why existing data sources are insufficient.",
+      "acceptanceCriteria": [
+        "Section label '// THE DATA GAP' JetBrains Mono sage green 14px",
+        "GSAP ScrollTrigger pinned section: useGSAP hook, anticipatePin: 1, end: '+=150vh'",
+        "Left half: 4 degraded thumbnails with CSS grayscale(50%) brightness(0.6) contrast(0.8) plus shaders <Glitch> or <CRTScreen> overlay. Labels in muted red rgba(255,100,100,0.6)",
+        "One-liner: 'Open datasets get you started. Production models need purpose-collected, commercially licensed data with consistent enrichment across every clip.'",
+        "Right half: 2x2 grid same scene four ways - raw, depth (#4A9EDE), pose (#DE8A4A), segmentation (#9E6ADE)",
+        "Scroll: 0-40% both visible, 40-60% left fades, 60-100% right expands. Lenis ticker integration",
+        "ScrollTrigger.refresh() on resize and orientationchange",
+        "prefers-reduced-motion: static side-by-side, no pinning",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "Sequential dependency: must finalize pin height before US-005."
+    },
+    {
+      "id": "US-004",
+      "title": "Three Modes section (How It Works)",
+      "description": "As a visitor, I want to understand how to get data from Claru.",
+      "acceptanceCriteria": [
+        "Section label '// HOW IT WORKS'",
+        "Three-column grid desktop, single column mobile",
+        "Each card: dark bg, border, Lucide icon sage green, title 20px bold, 3-4 bullets, CTA with arrow",
+        "Mode 1 Browse & Buy: catalog icon, /catalog link",
+        "Mode 2 Commission Collection: globe icon, scroll to #contact",
+        "Mode 3 Enrich Your Data: layers icon, scroll to enrichment section",
+        "Pricing line: 'Per-dataset licensing · Per-hour collection rates · Per-minute enrichment' JetBrains Mono white/60",
+        "Cards fade up 0.1s stagger via Framer Motion whileInView",
+        "prefers-reduced-motion: instant visibility",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Catalog Showcase with GSAP stacked cards",
+      "description": "As a visitor, I want to browse available datasets visually.",
+      "acceptanceCriteria": [
+        "Section label '// DATA CATALOG'",
+        "6 stacked cards: pin: true, pinSpacing: false, anticipatePin: 1. Scale: 1 - (cards.length - index) * 0.025",
+        "Manual spacer div after section for pinSpacing compensation",
+        "will-change: transform only on active card",
+        "Each card: looping video thumbnail (poster + lazy video on intersection), name 24px bold, count with per-character count-up, modality badges with pulse, description, View Dataset link",
+        "Card hover: sage green glow, 4px lift, video scale 1.02",
+        "6 datasets from datasets.ts",
+        "After cards: 'View all 25+ datasets →' CTA to /catalog",
+        "Count-up via GSAP onEnter callback per card",
+        "iOS: ScrollTrigger.refresh() on resize, stopOverscroll(), touchMultiplier consideration",
+        "Below lg: disable pinning, vertical list",
+        "prefers-reduced-motion: vertical stack, no pinning",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "SEQUENTIAL after US-003. Test iOS Safari."
+    },
+    {
+      "id": "US-006",
+      "title": "Enrichment Pipeline with before/after slider",
+      "description": "As a visitor, I want to see how Claru enriches raw data.",
+      "acceptanceCriteria": [
+        "Section label '// ENRICHMENT PIPELINE'",
+        "Pipeline nodes horizontal with animated dashed line connections (stroke-dashoffset data-flow effect)",
+        "Active node: sage green glow, scale 1.1, [PROCESSING...] terminal flicker, scanline CSS transition",
+        "Video frame ~720px 16:9",
+        "Range slider: 0-20% raw, 20-40% depth, 40-60% pose, 60-80% seg, 80-100% all + caption via clip-path",
+        "64px touch target wrapper for iOS",
+        "Keyboard accessible arrow keys",
+        "Skeleton loading state with pulse",
+        "prefers-reduced-motion: fully enriched static view",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Collection Network with full-featured COBE globe",
+      "description": "As a visitor, I want to see Claru's global collection network visualized with data-flow arcs and location labels.",
+      "acceptanceCriteria": [
+        "Section label '// GLOBAL COLLECTION'",
+        "COBE globe: dynamic import ssr: false, dark: 1, sage green markers, phi += 0.003",
+        "mapSamples: 16000 desktop, 8000 mobile",
+        "Custom lat/lng-to-screen projection in onRender callback for marker positions",
+        "Floating DOM labels over canvas tracking marker positions per frame: 'Egocentric Video' (India), 'Game Capture' (US), 'Warehouse Data' (E. Europe), 'Traffic Data' (SE Asia), 'Workplace' (Brazil) in JetBrains Mono 12px sage green with backdrop-blur",
+        "Labels fade via dot product visibility (transparent when behind globe)",
+        "SVG arc overlay: paths from projection math, stroke-dasharray + stroke-dashoffset animation, 3-4 arcs staggered showing data flowing to SF hub",
+        "Globe 500px desktop, 300px mobile",
+        "2x3 environment grid below (1x6 mobile): Kitchens, Warehouses, Roads, Offices, Game Studios, Retail",
+        "Copy: 'We collect where your robots will operate. Suburban kitchens. Factory floors. City streets. Not lab environments — real ones.'",
+        "globe.destroy() on unmount",
+        "prefers-reduced-motion: static globe image",
+        "No-WebGL fallback: dark SVG map with dots",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": "~120 lines custom projection code in Globe.tsx. Self-contained component."
+    },
+    {
+      "id": "US-008",
+      "title": "Game Capture section with animated split view",
+      "description": "As a visitor, I want to understand the unique gaming data advantage.",
+      "acceptanceCriteria": [
+        "Section label '// GAME CAPTURE'",
+        "Full-bleed dark bg with game footage and gradient overlay",
+        "Split: left game clip, right 2x2 grid (RGB, depth, object IDs, physics state)",
+        "Animated toggle raw/annotated on 4-sec timer via AnimatePresence",
+        "Velocity vectors as animated arrows",
+        "Copy about pixel-perfect labels",
+        "Stats: ~66K clips, pixel-perfect ground truth, zero annotation",
+        "Unique differentiator callout sage green: 'No competitor offers game environment training data. This is unique to Claru.'",
+        "Mobile: stack vertically",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Why Claru competitive comparison",
+      "description": "As a visitor, I want to see how Claru compares to alternatives.",
+      "acceptanceCriteria": [
+        "Section label '// WHY CLARU'",
+        "4-column table: Claru vs Scale vs Cortex vs Open",
+        "Rows: catalog, enrichment, collection, game data",
+        "Animated SVG check-draw on scroll entry for checkmarks in sage green",
+        "Sage green glow on Yes cells, brighter pulse on 'Unique to Claru'",
+        "Dark card with grid bg, monospace text",
+        "Below: 'One vendor. Catalog, enrichment, collection, and game data.'",
+        "Mobile: horizontal scroll or card stack",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Social Proof metrics and testimonials",
+      "description": "As a visitor, I want evidence that Claru delivers quality.",
+      "acceptanceCriteria": [
+        "Section label '// PROOF OF WORK'",
+        "4 metrics: 3.7M+ annotations, quality metric, 25+ datasets, 8 modalities. Large monospace, row desktop / 2x2 mobile",
+        "Count-up on scroll via whileInView",
+        "Horizontal scroll testimonials reused from V1",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Final CTA and contact form",
+      "description": "As a visitor, I want to take action.",
+      "acceptanceCriteria": [
+        "Headline: '3.7M annotations. 25 datasets. Depth, pose, segmentation on every clip.' 48px/28px",
+        "Sub: 'Browse now or tell us what's missing.'",
+        "CTAs: Browse Catalog (sage, /catalog) + Request Custom (ghost, #contact)",
+        "Section id='contact' for Lenis anchor",
+        "Reuse V1 ContactForm.tsx, logs to console",
+        "Enrichment CTA below form linking to #contact",
+        "Dot grid bg, no globe",
+        "prefers-reduced-motion: no form animation",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Public catalog page at /catalog",
+      "description": "As a visitor who clicked Browse the Catalog, I want to see datasets with preview clips.",
+      "acceptanceCriteria": [
+        "Route src/app/catalog/page.tsx with V2 dark theme",
+        "Dataset card grid: 3 col desktop, 2 tablet, 1 mobile",
+        "Cards: poster + lazy video, name, count, badges, description",
+        "Click expand inline with AnimatePresence + layoutId",
+        "Email gate: ungated = cards + poster + count + 1 low-res 3-sec clip. Gated = 2-3 full clips + enrichment overlays + download",
+        "See all samples button opens EmailCaptureModal (email + company, console.log + localStorage, reveal gated)",
+        "No auth required to browse",
+        "SEO meta title and description",
+        "robots noindex during dev",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Responsive behavior across all sections",
+      "description": "As a mobile visitor, I want every section to work on my phone.",
+      "acceptanceCriteria": [
+        "Hero: stack vertical, full-width CTAs, portrait video",
+        "Data Gap: vertical at md, no pinning mobile",
+        "Catalog: vertical list below lg, no pinning",
+        "Three Modes: single column",
+        "Pipeline: nodes 2 rows, full-width slider",
+        "Globe: 300px mobile",
+        "Environment grid: 1x6",
+        "Game: vertical stack",
+        "Metrics: 2x2",
+        "Testimonials: touch scroll",
+        "Why Claru: horizontal scroll or cards",
+        "All touch targets 44x44px minimum",
+        "Renders correctly at 375px, 768px, 1280px",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill at mobile viewport"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": "Run AFTER all section stories."
+    },
+    {
+      "id": "US-014",
+      "title": "SEO meta tags and OG images",
+      "description": "As a visitor from search or social, I want meta tags to reflect V2 positioning.",
+      "acceptanceCriteria": [
+        "V2 metadata: title, description, openGraph with /images/og-v2.webp 1200x630, twitter summary_large_image",
+        "/catalog has own metadata",
+        "JSON-LD Organization structured data",
+        "robots noindex on /v2 during dev",
+        "Canonical URL correct",
+        "OG image created: dark bg, logo, headline, dataset thumbnails, sage green",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

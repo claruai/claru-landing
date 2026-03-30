@@ -14,10 +14,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/case-studies`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${BASE}/data-catalog`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE}/jobs`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
+    { url: `${BASE}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/for-annotators`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${BASE}/labeling`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${BASE}/data`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/solutions`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    // GEO landing pages — physical AI / robotics keyword clusters
+    { url: `${BASE}/training-data-for-robotics`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/physical-ai-training-data`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/egocentric-video-datasets`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/embodied-ai-datasets`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    // Comparison pages
+    { url: `${BASE}/compare`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/compare/appen-alternatives`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/compare/scale-ai-alternatives`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/compare/claru-vs-luel`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/compare/labelbox-alternatives`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/compare/surge-ai-alternatives`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     // Pillar landing pages
     { url: `${BASE}/pillars/acquire`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/pillars/enrich`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },

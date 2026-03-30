@@ -7,39 +7,39 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin/", "/portal/", "/experiment/", "/api/", "/for/"],
+        disallow: ["/admin/", "/portal/", "/experiment/", "/api/", "/for/", "/v1/"],
       },
 
       // Explicitly allow AI search/citation crawlers
       {
         userAgent: "GPTBot",
         allow: "/",
-        disallow: ["/admin/", "/portal/", "/experiment/", "/api/", "/for/"],
+        disallow: ["/admin/", "/portal/", "/experiment/", "/api/", "/for/", "/v1/"],
       },
       {
         userAgent: "ClaudeBot",
         allow: "/",
-        disallow: ["/admin/", "/portal/", "/experiment/", "/api/", "/for/"],
+        disallow: ["/admin/", "/portal/", "/experiment/", "/api/", "/for/", "/v1/"],
       },
       {
         userAgent: "Claude-SearchBot",
         allow: "/",
-        disallow: ["/admin/", "/portal/", "/experiment/", "/api/", "/for/"],
+        disallow: ["/admin/", "/portal/", "/experiment/", "/api/", "/for/", "/v1/"],
       },
       {
         userAgent: "Claude-User",
         allow: "/",
-        disallow: ["/admin/", "/portal/", "/experiment/", "/api/", "/for/"],
+        disallow: ["/admin/", "/portal/", "/experiment/", "/api/", "/for/", "/v1/"],
       },
       {
         userAgent: "PerplexityBot",
         allow: "/",
-        disallow: ["/admin/", "/portal/", "/experiment/", "/api/", "/for/"],
+        disallow: ["/admin/", "/portal/", "/experiment/", "/api/", "/for/", "/v1/"],
       },
       {
         userAgent: "Applebot-Extended",
         allow: "/",
-        disallow: ["/admin/", "/portal/", "/experiment/", "/api/", "/for/"],
+        disallow: ["/admin/", "/portal/", "/experiment/", "/api/", "/for/", "/v1/"],
       },
 
       // Block AI training crawlers

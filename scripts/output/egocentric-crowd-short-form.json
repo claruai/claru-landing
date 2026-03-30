@@ -1,0 +1,405 @@
+[
+  {
+    "filename": "7957bf96-8767-4dc8-ac0f-ab3f71e98f3b.mov",
+    "s3_object_key": "video_capture/completed/00356662-740a-4f4c-b543-b72a556cf807/7957bf96-8767-4dc8-ac0f-ab3f71e98f3b.mov",
+    "s3_annotation_key": "video_capture/completed/00356662-740a-4f4c-b543-b72a556cf807/annotation-data.json",
+    "mime_type": "video/quicktime",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Object Manipulation",
+      "subcategory": "Twist",
+      "annotation_id": "00356662-740a-4f4c-b543-b72a556cf807"
+    }
+  },
+  {
+    "filename": "096712d0-c6f3-4068-8818-d0bd0c9ae4ad.mov",
+    "s3_object_key": "video_capture/completed/00396133-8f60-45f0-8297-b87131522fde/096712d0-c6f3-4068-8818-d0bd0c9ae4ad.mov",
+    "s3_annotation_key": "video_capture/completed/00396133-8f60-45f0-8297-b87131522fde/annotation-data.json",
+    "mime_type": "video/quicktime",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Object Manipulation",
+      "subcategory": "Draw/sketch",
+      "annotation_id": "00396133-8f60-45f0-8297-b87131522fde"
+    }
+  },
+  {
+    "filename": "9a252e93-1754-44f9-9988-6ce5e6b1d2b1.mov",
+    "s3_object_key": "video_capture/completed/01fd633f-b9ec-4811-a171-22f1187bc928/9a252e93-1754-44f9-9988-6ce5e6b1d2b1.mov",
+    "s3_annotation_key": "video_capture/completed/01fd633f-b9ec-4811-a171-22f1187bc928/annotation-data.json",
+    "mime_type": "video/quicktime",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Object Manipulation",
+      "subcategory": "Tie",
+      "annotation_id": "01fd633f-b9ec-4811-a171-22f1187bc928"
+    }
+  },
+  {
+    "filename": "c0845408-45eb-48b5-80cf-49ef73b972fe.mov",
+    "s3_object_key": "video_capture/completed/0206cc94-dd88-4bec-ba8d-ac41c092e497/c0845408-45eb-48b5-80cf-49ef73b972fe.mov",
+    "s3_annotation_key": "video_capture/completed/0206cc94-dd88-4bec-ba8d-ac41c092e497/annotation-data.json",
+    "mime_type": "video/quicktime",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Object Manipulation",
+      "subcategory": "Iron Clothes",
+      "annotation_id": "0206cc94-dd88-4bec-ba8d-ac41c092e497"
+    }
+  },
+  {
+    "filename": "8b04c267-1dfd-41aa-8f55-4c204c70dc17.MP4",
+    "s3_object_key": "video_capture/completed/8aba52b1-583f-49fd-8b5c-e5c15084afcf/8b04c267-1dfd-41aa-8f55-4c204c70dc17.MP4",
+    "s3_annotation_key": "video_capture/completed/8aba52b1-583f-49fd-8b5c-e5c15084afcf/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Object Manipulation",
+      "subcategory": "Pick Up Object",
+      "annotation_id": "8aba52b1-583f-49fd-8b5c-e5c15084afcf"
+    }
+  },
+  {
+    "filename": "06b96053-e03e-4541-8501-cf9dd2932981.MP4",
+    "s3_object_key": "video_capture/completed/0253c253-7078-497c-b45c-2f5d40b8fc22/06b96053-e03e-4541-8501-cf9dd2932981.MP4",
+    "s3_annotation_key": "video_capture/completed/0253c253-7078-497c-b45c-2f5d40b8fc22/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Object Manipulation",
+      "subcategory": "Fold Clothes",
+      "annotation_id": "0253c253-7078-497c-b45c-2f5d40b8fc22",
+      "reka_vision_metadata": {
+        "domain": "household_living",
+        "task": "fold_clothing",
+        "task_description": "A person is folding a blue t-shirt on a wooden floor using both hands to manipulate the fabric into a neat fold.",
+        "technical_specs": {
+          "duration_s": 9,
+          "resolution_px": {
+            "width": 1920,
+            "height": 1080
+          },
+          "fps_estimate": 30,
+          "aspect_ratio": "16:9"
+        },
+        "environment_label": "indoor_home",
+        "environment_description": "An indoor setting featuring a polished wooden floor used as a flat folding surface.",
+        "hands": {
+          "hands_visible": true,
+          "right_hand_pct": 0,
+          "left_hand_pct": 0,
+          "both_hands_pct": 100,
+          "no_hand_pct": 0,
+          "primary_hand": "both",
+          "active_manipulation": true,
+          "confidence": 0.95
+        }
+      }
+    }
+  },
+  {
+    "filename": "6ca5347f-7d2b-4408-914d-5b9fa1a4d7bf.mp4",
+    "s3_object_key": "video_capture/completed/0195ddd3-1e17-4331-841d-f52c46ce46e4/6ca5347f-7d2b-4408-914d-5b9fa1a4d7bf.mp4",
+    "s3_annotation_key": "video_capture/completed/0195ddd3-1e17-4331-841d-f52c46ce46e4/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Object Manipulation",
+      "subcategory": "Pick Up & Unfold Clothes",
+      "annotation_id": "0195ddd3-1e17-4331-841d-f52c46ce46e4",
+      "reka_vision_metadata": {
+        "domain": "household_living",
+        "task": "organizing_storage",
+        "task_description": "A person is seen folding and arranging black pants, wrapping them around a vacuum cleaner cord to secure them for storage or packing.",
+        "technical_specs": {
+          "duration_s": 10,
+          "resolution_px": {
+            "width": 1920,
+            "height": 1080
+          },
+          "fps_estimate": 30,
+          "aspect_ratio": "16:9"
+        },
+        "environment_label": "indoor_home",
+        "environment_description": "A domestic room featuring a laundry basket, a vacuum cleaner, a black bag, and wall-mounted power sockets.",
+        "hands": {
+          "hands_visible": true,
+          "right_hand_pct": 0,
+          "left_hand_pct": 0,
+          "both_hands_pct": 100,
+          "no_hand_pct": 0,
+          "primary_hand": "both",
+          "active_manipulation": true,
+          "confidence": 0.95
+        }
+      }
+    }
+  },
+  {
+    "filename": "4b0b5186-d86a-4f7a-a14a-230561c94bda.MP4",
+    "s3_object_key": "video_capture/completed/00d77c7b-8a2e-491d-be14-d1b073d9f6e3/4b0b5186-d86a-4f7a-a14a-230561c94bda.MP4",
+    "s3_annotation_key": "video_capture/completed/00d77c7b-8a2e-491d-be14-d1b073d9f6e3/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Object Manipulation",
+      "subcategory": "Pour Liquid",
+      "annotation_id": "00d77c7b-8a2e-491d-be14-d1b073d9f6e3",
+      "reka_vision_metadata": {
+        "domain": "household_living",
+        "task": "elevated_liquid_pouring",
+        "task_description": "A person sitting at a kitchen table repeatedly attempts to pour wine from a bottle into a cup from a significant height, testing their stability and the liquid's trajectory.",
+        "technical_specs": {
+          "duration_s": 9,
+          "resolution_px": {
+            "width": 1920,
+            "height": 1080
+          },
+          "fps_estimate": 30,
+          "aspect_ratio": "16:9"
+        },
+        "environment_label": "indoor_home",
+        "environment_description": "A domestic kitchen and dining area with a wooden table, food packaging, and common household items.",
+        "hands": {
+          "hands_visible": true,
+          "right_hand_pct": 100,
+          "left_hand_pct": 0,
+          "both_hands_pct": 0,
+          "no_hand_pct": 0,
+          "primary_hand": "right",
+          "active_manipulation": true,
+          "confidence": 0.95
+        }
+      }
+    }
+  },
+  {
+    "filename": "1b18847d-cca4-4772-85ab-c5791b364bd7.MP4",
+    "s3_object_key": "video_capture/completed/0239990b-036a-407c-85fd-d7a2a0f517d9/1b18847d-cca4-4772-85ab-c5791b364bd7.MP4",
+    "s3_annotation_key": "video_capture/completed/0239990b-036a-407c-85fd-d7a2a0f517d9/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Object Manipulation",
+      "subcategory": "Fasten & Unfasten",
+      "annotation_id": "0239990b-036a-407c-85fd-d7a2a0f517d9",
+      "reka_vision_metadata": {
+        "domain": "household_living",
+        "task": "adjust_backpack_straps",
+        "task_description": "A person demonstrates the manual operation of plastic buckle clips and nylon straps on a black backpack, including sliding and securing the components.",
+        "technical_specs": {
+          "duration_s": 11,
+          "resolution_px": {
+            "width": 1920,
+            "height": 1080
+          },
+          "fps_estimate": 30,
+          "aspect_ratio": "16:9"
+        },
+        "environment_label": "indoor_home",
+        "environment_description": "A well-lit indoor setting with the backpack placed on a flat surface for demonstration.",
+        "hands": {
+          "hands_visible": true,
+          "right_hand_pct": 0,
+          "left_hand_pct": 0,
+          "both_hands_pct": 100,
+          "no_hand_pct": 0,
+          "primary_hand": "both",
+          "active_manipulation": true,
+          "confidence": 0.95
+        }
+      }
+    }
+  },
+  {
+    "filename": "27c5b365-546d-47b8-91a5-18e85a15427d.MP4",
+    "s3_object_key": "video_capture/completed/014439bc-6fd4-46d3-861a-816da3e8f424/27c5b365-546d-47b8-91a5-18e85a15427d.MP4",
+    "s3_annotation_key": "video_capture/completed/014439bc-6fd4-46d3-861a-816da3e8f424/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Object Manipulation",
+      "subcategory": "Buckle Seatbelt",
+      "annotation_id": "014439bc-6fd4-46d3-861a-816da3e8f424",
+      "reka_vision_metadata": {
+        "domain": "driving_mobility_navigation",
+        "task": "fasten_seat_belt",
+        "task_description": "A person inside a vehicle adjusts and secures their seat belt across their torso before settling into the seat.",
+        "technical_specs": {
+          "duration_s": 13,
+          "resolution_px": {
+            "width": 1920,
+            "height": 1080
+          },
+          "fps_estimate": 30,
+          "aspect_ratio": "16:9"
+        },
+        "environment_label": "indoor_transport",
+        "environment_description": "The interior cabin of a passenger vehicle, specifically focusing on the seating and safety restraint system.",
+        "hands": {
+          "hands_visible": true,
+          "right_hand_pct": 0,
+          "left_hand_pct": 0,
+          "both_hands_pct": 100,
+          "no_hand_pct": 0,
+          "primary_hand": "both",
+          "active_manipulation": true,
+          "confidence": 0.95
+        }
+      }
+    }
+  },
+  {
+    "filename": "9a7e69ee-0246-4184-a561-36e962958ab6.mov",
+    "s3_object_key": "Video Capture: First Person Videos (Phone)/completed/009b448b-f59c-44a8-adbb-e79d0b206cfd/9a7e69ee-0246-4184-a561-36e962958ab6.mov",
+    "s3_annotation_key": "Video Capture: First Person Videos (Phone)/completed/009b448b-f59c-44a8-adbb-e79d0b206cfd/annotation-data.json",
+    "mime_type": "video/quicktime",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Object Manipulation",
+      "subcategory": "Pick Up Object",
+      "annotation_id": "009b448b-f59c-44a8-adbb-e79d0b206cfd"
+    }
+  },
+  {
+    "filename": "9f784ec0-591c-4ec9-9f03-ad13f2f3a24f.MP4",
+    "s3_object_key": "video_capture/completed/00ea41fc-6b43-4452-9d11-72bd55d2977b/9f784ec0-591c-4ec9-9f03-ad13f2f3a24f.MP4",
+    "s3_annotation_key": "video_capture/completed/00ea41fc-6b43-4452-9d11-72bd55d2977b/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Body Movement",
+      "subcategory": "Move Forward - Outdoor",
+      "annotation_id": "00ea41fc-6b43-4452-9d11-72bd55d2977b"
+    }
+  },
+  {
+    "filename": "58f5dad8-7fd2-46ef-8d8d-7b2f7aec012c.MOV",
+    "s3_object_key": "Video Capture: First Person Videos (Phone)/completed/00f634a4-190d-403d-8c62-fcac665c1b8b/58f5dad8-7fd2-46ef-8d8d-7b2f7aec012c.MOV",
+    "s3_annotation_key": "Video Capture: First Person Videos (Phone)/completed/00f634a4-190d-403d-8c62-fcac665c1b8b/annotation-data.json",
+    "mime_type": "video/quicktime",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Body Movement",
+      "subcategory": "Move to the Right - Outdoor",
+      "annotation_id": "00f634a4-190d-403d-8c62-fcac665c1b8b"
+    }
+  },
+  {
+    "filename": "93430c51-982d-482a-adad-5628b8a0e3c0.MOV",
+    "s3_object_key": "Video Capture: First Person Videos (Phone)/completed/001d9667-a7ef-4fac-a493-fcfd29fd36a7/93430c51-982d-482a-adad-5628b8a0e3c0.MOV",
+    "s3_annotation_key": "Video Capture: First Person Videos (Phone)/completed/001d9667-a7ef-4fac-a493-fcfd29fd36a7/annotation-data.json",
+    "mime_type": "video/quicktime",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Body Movement",
+      "subcategory": "Move Forward - Outdoor",
+      "annotation_id": "001d9667-a7ef-4fac-a493-fcfd29fd36a7"
+    }
+  },
+  {
+    "filename": "9698ed4a-cfd2-4f8c-89fb-5672a4487ff3.MP4",
+    "s3_object_key": "video_capture/completed/013d6920-56ff-4915-bc87-02b6ee53580c/9698ed4a-cfd2-4f8c-89fb-5672a4487ff3.MP4",
+    "s3_annotation_key": "video_capture/completed/013d6920-56ff-4915-bc87-02b6ee53580c/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Object Manipulation",
+      "subcategory": "Open Door",
+      "annotation_id": "013d6920-56ff-4915-bc87-02b6ee53580c"
+    }
+  },
+  {
+    "filename": "a5b8a6f5-ecb1-4562-8a8c-4e19f198a39b.MP4",
+    "s3_object_key": "video_capture/completed/008729a5-b84f-4a19-9866-7e22f3315a96/a5b8a6f5-ecb1-4562-8a8c-4e19f198a39b.MP4",
+    "s3_annotation_key": "video_capture/completed/008729a5-b84f-4a19-9866-7e22f3315a96/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Object Manipulation",
+      "subcategory": "Eating & Using Utensils",
+      "annotation_id": "008729a5-b84f-4a19-9866-7e22f3315a96"
+    }
+  },
+  {
+    "filename": "72045fc1-4b7f-4432-8b5c-58e841dd739a.MP4",
+    "s3_object_key": "video_capture/completed/000d0514-0ab4-44f5-8029-a99bfed30a7c/72045fc1-4b7f-4432-8b5c-58e841dd739a.MP4",
+    "s3_annotation_key": "video_capture/completed/000d0514-0ab4-44f5-8029-a99bfed30a7c/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Transportation",
+      "subcategory": "Twist Throttle",
+      "annotation_id": "000d0514-0ab4-44f5-8029-a99bfed30a7c"
+    }
+  },
+  {
+    "filename": "03a71858-4233-48e8-8eff-f9d1d0693363.MP4",
+    "s3_object_key": "video_capture/completed/00e17ef1-1ff0-41ac-89e9-c15583591249/03a71858-4233-48e8-8eff-f9d1d0693363.MP4",
+    "s3_annotation_key": "video_capture/completed/00e17ef1-1ff0-41ac-89e9-c15583591249/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Body Movement",
+      "subcategory": "Turn Right - Outdoor",
+      "annotation_id": "00e17ef1-1ff0-41ac-89e9-c15583591249"
+    }
+  },
+  {
+    "filename": "2bbdb133-3160-4334-a3bb-392958f0ed79.mp4",
+    "s3_object_key": "video_capture/completed/00a8f160-18b0-4d68-9301-f16b83829679/2bbdb133-3160-4334-a3bb-392958f0ed79.mp4",
+    "s3_annotation_key": "video_capture/completed/00a8f160-18b0-4d68-9301-f16b83829679/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Object Manipulation",
+      "subcategory": "Tie/Untie Shoelace",
+      "annotation_id": "00a8f160-18b0-4d68-9301-f16b83829679"
+    }
+  },
+  {
+    "filename": "d6cef0ef-e784-4c23-afcf-4cc86d986f8d.MP4",
+    "s3_object_key": "video_capture/completed/00c6dd8a-5728-4ca2-a033-8fcfcbbf5e55/d6cef0ef-e784-4c23-afcf-4cc86d986f8d.MP4",
+    "s3_annotation_key": "video_capture/completed/00c6dd8a-5728-4ca2-a033-8fcfcbbf5e55/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Object Manipulation",
+      "subcategory": "Screw/Unscrew Tool",
+      "annotation_id": "00c6dd8a-5728-4ca2-a033-8fcfcbbf5e55"
+    }
+  },
+  {
+    "filename": "096712d0-c6f3-4068-8818-d0bd0c9ae4ad.mov",
+    "s3_object_key": "video_capture/completed/00396133-8f60-45f0-8297-b87131522fde/096712d0-c6f3-4068-8818-d0bd0c9ae4ad.mov",
+    "s3_annotation_key": "video_capture/completed/00396133-8f60-45f0-8297-b87131522fde/annotation-data.json",
+    "mime_type": "video/quicktime",
+    "metadata_json": {
+      "section": "Egocentric Crowd",
+      "type": "Short Form",
+      "category": "Object Manipulation",
+      "subcategory": "Draw/Sketch",
+      "annotation_id": "00396133-8f60-45f0-8297-b87131522fde"
+    }
+  }
+]

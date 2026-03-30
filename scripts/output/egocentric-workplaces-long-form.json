@@ -1,0 +1,145 @@
+[
+  {
+    "filename": "Barista.mov",
+    "s3_object_key": "Samples Egocentric Videos/Workplaces /Barista.mov",
+    "s3_annotation_key": null,
+    "mime_type": "video/quicktime",
+    "metadata_json": {
+      "section": "Egocentric Workplaces",
+      "type": "Long Form",
+      "category": "Coffeeshop",
+      "subcategory": "Barista - Preparing Drinks",
+      "annotation_id": null
+    }
+  },
+  {
+    "filename": "Carpentry.mp4",
+    "s3_object_key": "Samples Egocentric Videos/Workplaces /Carpentry.mp4",
+    "s3_annotation_key": null,
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Workplaces",
+      "type": "Long Form",
+      "category": "Skilled Trade",
+      "subcategory": "Carpenter - Cutting & Handling Wood",
+      "annotation_id": null
+    }
+  },
+  {
+    "filename": "Screen Printing.mov",
+    "s3_object_key": "Samples Egocentric Videos/Workplaces /Screen Printing.mov",
+    "s3_annotation_key": null,
+    "mime_type": "video/quicktime",
+    "metadata_json": {
+      "section": "Egocentric Workplaces",
+      "type": "Long Form",
+      "category": "Clothing Fabric",
+      "subcategory": "Screen Printing",
+      "annotation_id": null
+    }
+  },
+  {
+    "filename": "Copy of workplaces - clothing business (cutting).mov",
+    "s3_object_key": "Samples Egocentric Videos/Workplaces /Copy of workplaces - clothing business (cutting).mov",
+    "s3_annotation_key": null,
+    "mime_type": "video/quicktime",
+    "metadata_json": {
+      "section": "Egocentric Workplaces",
+      "type": "Long Form",
+      "category": "Clothing Warehouse",
+      "subcategory": "Folding, Measuring and Labeling Clothes",
+      "annotation_id": null
+    }
+  },
+  {
+    "filename": "Tailor.mp4",
+    "s3_object_key": "Samples Egocentric Videos/Workplaces /Tailor.mp4",
+    "s3_annotation_key": null,
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Workplaces",
+      "type": "Long Form",
+      "category": "Tailor",
+      "subcategory": "Sewing Fabric",
+      "annotation_id": null
+    }
+  },
+  {
+    "filename": "ironing clothes.MP4",
+    "s3_object_key": "Samples Egocentric Videos/Workplaces /ironing clothes.MP4",
+    "s3_annotation_key": null,
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Workplaces",
+      "type": "Long Form",
+      "category": "Textile Fabric",
+      "subcategory": "Ironing Clothes",
+      "annotation_id": null
+    }
+  },
+  {
+    "filename": "phone repair (1).MP4",
+    "s3_object_key": "Samples Egocentric Videos/Workplaces /phone repair (1).MP4",
+    "s3_annotation_key": null,
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Workplaces",
+      "type": "Long Form",
+      "category": "Tech Repair Shop",
+      "subcategory": "Phone Repair",
+      "annotation_id": null
+    }
+  },
+  {
+    "filename": "Furniture Assembly.mp4",
+    "s3_object_key": "Samples Egocentric Videos/Workplaces /Furniture Assembly.mp4",
+    "s3_annotation_key": null,
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Workplaces",
+      "type": "Long Form",
+      "category": "Furniture Warehouse",
+      "subcategory": "Home Decor Assembly",
+      "annotation_id": null
+    }
+  },
+  {
+    "filename": "Copy of workplaces - clothing business (folding).mp4",
+    "s3_object_key": "Samples Egocentric Videos/Workplaces /Copy of workplaces - clothing business (folding).mp4",
+    "s3_annotation_key": null,
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Egocentric Workplaces",
+      "type": "Long Form",
+      "category": "Textile Fabric",
+      "subcategory": "Cutting Clothes",
+      "annotation_id": null
+    }
+  },
+  {
+    "filename": "Paper Cutting",
+    "s3_object_key": "Samples Egocentric Videos/Workplaces /Paper Cutting",
+    "s3_annotation_key": null,
+    "mime_type": "application/octet-stream",
+    "metadata_json": {
+      "section": "Egocentric Workplaces",
+      "type": "Long Form",
+      "category": "Specialty Card Manufacturing",
+      "subcategory": "Cutting, Stacking and Assembling Cards",
+      "annotation_id": null
+    }
+  },
+  {
+    "filename": "Clothing Shop - Steaming.MOV",
+    "s3_object_key": "Samples Egocentric Videos/Workplaces /Clothing Shop - Steaming.MOV",
+    "s3_annotation_key": null,
+    "mime_type": "video/quicktime",
+    "metadata_json": {
+      "section": "Egocentric Workplaces",
+      "type": "Long Form",
+      "category": "Textile Fabric",
+      "subcategory": "Steaming Clothes",
+      "annotation_id": null
+    }
+  }
+]

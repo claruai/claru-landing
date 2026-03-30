@@ -8,7 +8,7 @@ import { motion, useInView } from 'framer-motion';
 // ---------------------------------------------------------------------------
 
 const WORKFORCE_STATS = [
-  { target: 2000, suffix: '+', label: 'Annotators', decimals: 0, prefix: '' },
+  { target: 10000, suffix: '+', label: 'Annotators', decimals: 0, prefix: '' },
   { target: 14, suffix: '', label: 'Countries', decimals: 0, prefix: '' },
   { target: 3, suffix: 'M+', label: 'Annotations Delivered', decimals: 0, prefix: '' },
   { target: 0, suffix: '', label: 'QA Turnaround', decimals: 0, prefix: '', displayValue: 'Same-day' },

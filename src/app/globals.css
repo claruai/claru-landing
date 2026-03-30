@@ -596,3 +596,179 @@ h1, h2, h3, h4, h5, h6 {
   animation: text-glitch 0.3s ease-in-out;
 }
 
+/* ============================================
+   V2 DESIGN SYSTEM — OKLCH NEUTRALS
+   Sage-chroma 0.01 neutral scale
+   ============================================ */
+
+:root {
+  /* V2 Neutral Scale — OKLCH with 0.01 sage chroma */
+  --v2-neutral-0: oklch(0.05 0.01 140);   /* Deepest background */
+  --v2-neutral-1: oklch(0.10 0.01 140);   /* Card background */
+  --v2-neutral-2: oklch(0.15 0.01 140);   /* Elevated surface */
+  --v2-neutral-3: oklch(0.20 0.01 140);   /* Border subtle */
+  --v2-neutral-4: oklch(0.30 0.01 140);   /* Border medium */
+  --v2-neutral-5: oklch(0.40 0.01 140);   /* Muted text */
+  --v2-neutral-6: oklch(0.60 0.01 140);   /* Secondary text */
+  --v2-neutral-7: oklch(0.80 0.01 140);   /* Primary text */
+  --v2-neutral-8: oklch(0.95 0.01 140);   /* Bright text */
+
+  /* V2 Accent — Sage green in OKLCH */
+  --v2-sage: oklch(0.72 0.06 145);
+  --v2-sage-dim: oklch(0.55 0.04 145);
+  --v2-sage-glow: oklch(0.72 0.06 145 / 0.2);
+  --v2-sage-glow-strong: oklch(0.72 0.06 145 / 0.4);
+
+  /* V2 Semantic — Enrichment layer colors */
+  --v2-depth: oklch(0.65 0.12 240);       /* #4A9EDE blue */
+  --v2-pose: oklch(0.65 0.12 60);         /* #DE8A4A orange */
+  --v2-segmentation: oklch(0.55 0.15 300); /* #9E6ADE purple */
+  --v2-muted-red: oklch(0.60 0.10 25 / 0.6);
+
+  /* V2 Dot grid */
+  --v2-dot-size: 1px;
+  --v2-dot-gap: 40px;
+}
+
+/* V2 page dot grid background — sage green at ~5% opacity */
+.v2-dot-grid {
+  background-image: radial-gradient(
+    circle,
+    rgba(146, 176, 144, 0.05) var(--v2-dot-size),
+    transparent var(--v2-dot-size)
+  );
+  background-size: var(--v2-dot-gap) var(--v2-dot-gap);
+}
+
+/* V2 section divider — subtle gradient line */
+.v2-section-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.03) 15%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.03) 85%,
+    transparent 100%
+  );
+}
+
+/* V2 section label line — extends right after label text */
+.v2-section-label {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.v2-section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(146, 176, 144, 0.2) 0%,
+    transparent 100%
+  );
+}
+
+/* V2 scanline effect for terminal chrome */
+@keyframes v2-scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.v2-scanline::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(146, 176, 144, 0.015) 2px,
+    rgba(146, 176, 144, 0.015) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* V2 card premium styles */
+.v2-card {
+  background: linear-gradient(165deg, #121110 0%, #161614 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 2rem;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.v2-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 40%,
+    transparent 60%,
+    rgba(146, 176, 144, 0.06) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.v2-card:hover {
+  border-color: rgba(146, 176, 144, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(146, 176, 144, 0.05);
+  transform: translateY(-2px);
+}
+
+.v2-card:hover::before {
+  opacity: 1;
+}
+
+/* Hide scrollbar utility */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ============================================
+   MARQUEE SCROLL ANIMATIONS
+   ============================================ */
+
+@keyframes marquee-scroll-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes marquee-scroll-right {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
+.animate-marquee-scroll-left {
+  animation: marquee-scroll-left 50s linear infinite;
+}
+
+.animate-marquee-scroll-right {
+  animation: marquee-scroll-right 50s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-scroll-left,
+  .animate-marquee-scroll-right {
+    animation: none;
+  }
+}
+

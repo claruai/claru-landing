@@ -1,0 +1,267 @@
+[
+  {
+    "filename": "4e5f9206-37f1-4d65-a1bb-c79e96a0fe4e.mp4",
+    "s3_object_key": "video-game-capture/completed/5b4decad-b774-4e6d-987f-3b0ece399d36/4e5f9206-37f1-4d65-a1bb-c79e96a0fe4e.mp4",
+    "s3_annotation_key": "video-game-capture/completed/5b4decad-b774-4e6d-987f-3b0ece399d36/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Video Game",
+      "type": "Game Capture",
+      "category": "Adventure",
+      "subcategory": "GTA 5",
+      "annotation_id": "5b4decad-b774-4e6d-987f-3b0ece399d36"
+    }
+  },
+  {
+    "filename": "592be61e-439c-4339-aef2-a28345617494.mp4",
+    "s3_object_key": "video-game-capture/completed/ef4b3845-02c2-4b17-bc7b-19492dd6feca/592be61e-439c-4339-aef2-a28345617494.mp4",
+    "s3_annotation_key": "video-game-capture/completed/ef4b3845-02c2-4b17-bc7b-19492dd6feca/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Video Game",
+      "type": "Game Capture",
+      "category": "Adventure",
+      "subcategory": "Red Dead Redemption 2",
+      "annotation_id": "ef4b3845-02c2-4b17-bc7b-19492dd6feca"
+    }
+  },
+  {
+    "filename": "69fee333-c58b-41a2-b3bb-e03d954f1c49.mp4",
+    "s3_object_key": "video-game-capture/completed/afd2c2ce-58a9-473e-adb7-dfa86f80424a/69fee333-c58b-41a2-b3bb-e03d954f1c49.mp4",
+    "s3_annotation_key": "video-game-capture/completed/afd2c2ce-58a9-473e-adb7-dfa86f80424a/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Video Game",
+      "type": "Game Capture",
+      "category": "Shooter",
+      "subcategory": "PUBG",
+      "annotation_id": "afd2c2ce-58a9-473e-adb7-dfa86f80424a"
+    }
+  },
+  {
+    "filename": "bad27cd3-d09e-4b6c-9d49-c15c79bb2652.mp4",
+    "s3_object_key": "video-game-capture/completed/57d03f2b-5025-4697-bc70-a766827a31b7/bad27cd3-d09e-4b6c-9d49-c15c79bb2652.mp4",
+    "s3_annotation_key": "video-game-capture/completed/57d03f2b-5025-4697-bc70-a766827a31b7/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Video Game",
+      "type": "Game Capture",
+      "category": "RPG",
+      "subcategory": "Genshin Impact",
+      "annotation_id": "57d03f2b-5025-4697-bc70-a766827a31b7"
+    }
+  },
+  {
+    "filename": "1eb8333f-bc16-4f00-a7ae-bacc7347c4fe.mp4",
+    "s3_object_key": "video-game-capture/completed/47f11f04-6089-4169-b75a-2bb4bf979c84/1eb8333f-bc16-4f00-a7ae-bacc7347c4fe.mp4",
+    "s3_annotation_key": "video-game-capture/completed/47f11f04-6089-4169-b75a-2bb4bf979c84/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Video Game",
+      "type": "Game Capture",
+      "category": "Shooter",
+      "subcategory": "Fornite",
+      "annotation_id": "47f11f04-6089-4169-b75a-2bb4bf979c84"
+    }
+  },
+  {
+    "filename": "0e156f65-bc0c-4f40-90e3-a1568dc17691.mp4",
+    "s3_object_key": "video-game-capture/completed/218d03c4-e0e3-446f-af17-6241741d84a6/0e156f65-bc0c-4f40-90e3-a1568dc17691.mp4",
+    "s3_annotation_key": "video-game-capture/completed/218d03c4-e0e3-446f-af17-6241741d84a6/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Video Game",
+      "type": "Game Capture",
+      "category": "Racing / Simulation",
+      "subcategory": "Euro Truck Simulator 2",
+      "annotation_id": "218d03c4-e0e3-446f-af17-6241741d84a6"
+    }
+  },
+  {
+    "filename": "d493145f-8598-4530-a430-fed87211478f.mp4",
+    "s3_object_key": "video-game-capture/completed/78379eb7-b683-4a6c-a039-8cde3caf13a7/d493145f-8598-4530-a430-fed87211478f.mp4",
+    "s3_annotation_key": "video-game-capture/completed/78379eb7-b683-4a6c-a039-8cde3caf13a7/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Video Game",
+      "type": "Game Capture",
+      "category": "Racing / Simulation",
+      "subcategory": "Euro Truck Simulator 2",
+      "annotation_id": "78379eb7-b683-4a6c-a039-8cde3caf13a7"
+    }
+  },
+  {
+    "filename": "908cef1e-1113-4b67-924f-1db88b66010d.mp4",
+    "s3_object_key": "video-game-capture/completed/85c66115-cc91-4a55-9b90-184aa74bd188/908cef1e-1113-4b67-924f-1db88b66010d.mp4",
+    "s3_annotation_key": "video-game-capture/completed/85c66115-cc91-4a55-9b90-184aa74bd188/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Video Game",
+      "type": "Game Capture",
+      "category": "RPG",
+      "subcategory": "Elden Ring",
+      "annotation_id": "85c66115-cc91-4a55-9b90-184aa74bd188"
+    }
+  },
+  {
+    "filename": "cbc093ea-aec6-42cf-aead-e4c4e14aa009.mp4",
+    "s3_object_key": "video-game-capture/completed/0ffda8ae-0a29-4462-952d-03678e0b37ef/cbc093ea-aec6-42cf-aead-e4c4e14aa009.mp4",
+    "s3_annotation_key": "video-game-capture/completed/0ffda8ae-0a29-4462-952d-03678e0b37ef/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Video Game",
+      "type": "Game Capture",
+      "category": "Shooter",
+      "subcategory": "Counter Strike 2",
+      "annotation_id": "0ffda8ae-0a29-4462-952d-03678e0b37ef"
+    }
+  },
+  {
+    "filename": "2b38520c-0d4a-47e9-81f3-d063baa80284.mp4",
+    "s3_object_key": "video-game-capture/completed/c1beb8f8-0a26-4447-a32c-2f4cb242e0a9/2b38520c-0d4a-47e9-81f3-d063baa80284.mp4",
+    "s3_annotation_key": "video-game-capture/completed/c1beb8f8-0a26-4447-a32c-2f4cb242e0a9/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Video Game",
+      "type": "Game Capture",
+      "category": "Shooter",
+      "subcategory": "Call of Duty",
+      "annotation_id": "c1beb8f8-0a26-4447-a32c-2f4cb242e0a9"
+    }
+  },
+  {
+    "filename": "57401d6a-633d-4cb4-ad3c-2dbb6e2c38b5.mp4",
+    "s3_object_key": "video-game-capture/completed/df2227f4-5ba4-42fe-96e9-e12a6c07a44a/57401d6a-633d-4cb4-ad3c-2dbb6e2c38b5.mp4",
+    "s3_annotation_key": "video-game-capture/completed/df2227f4-5ba4-42fe-96e9-e12a6c07a44a/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Video Game",
+      "type": "Game Capture",
+      "category": "Shooter",
+      "subcategory": "Call of Duty",
+      "annotation_id": "df2227f4-5ba4-42fe-96e9-e12a6c07a44a"
+    }
+  },
+  {
+    "filename": "5426d51e-665c-4f6b-997b-30de3abeb9b6.mp4",
+    "s3_object_key": "video-game-capture/completed/3ac0a038-6a4d-4074-acf1-88f3d985770c/5426d51e-665c-4f6b-997b-30de3abeb9b6.mp4",
+    "s3_annotation_key": "video-game-capture/completed/3ac0a038-6a4d-4074-acf1-88f3d985770c/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Video Game",
+      "type": "Game Capture",
+      "category": "Adventure / Sandbox",
+      "subcategory": "Minecraft",
+      "annotation_id": "3ac0a038-6a4d-4074-acf1-88f3d985770c"
+    }
+  },
+  {
+    "filename": "228f7b6a-a3b4-4664-82e9-8768d7f47471.mp4",
+    "s3_object_key": "claru-capture-test-group/completed/006c49a7-a690-4811-aa15-d47b797c63a1/228f7b6a-a3b4-4664-82e9-8768d7f47471.mp4",
+    "s3_annotation_key": "claru-capture-test-group/completed/006c49a7-a690-4811-aa15-d47b797c63a1/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Video Game",
+      "type": "Game Capture",
+      "category": "Shooter",
+      "subcategory": "Arc Raiders",
+      "annotation_id": "006c49a7-a690-4811-aa15-d47b797c63a1",
+      "s3_specs_key": "claru-capture-test-group/completed/006c49a7-a690-4811-aa15-d47b797c63a1/8f2df020-01e6-4d45-9402-290fc7f68c80.json"
+    }
+  },
+  {
+    "filename": "1c528fdf-4416-4bb7-a44d-6fe5f7367565.mp4",
+    "s3_object_key": "claru-capture-test-group/completed/4c1efe98-b7f0-4431-b378-040cdc9f7d58/1c528fdf-4416-4bb7-a44d-6fe5f7367565.mp4",
+    "s3_annotation_key": "claru-capture-test-group/completed/4c1efe98-b7f0-4431-b378-040cdc9f7d58/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Video Game",
+      "type": "Game Capture",
+      "category": "Shooter",
+      "subcategory": "Marvel Rivals",
+      "annotation_id": "4c1efe98-b7f0-4431-b378-040cdc9f7d58",
+      "s3_specs_key": "claru-capture-test-group/completed/4c1efe98-b7f0-4431-b378-040cdc9f7d58/59cfaba8-849a-478d-866e-60f6bcd1c5a1.json"
+    }
+  },
+  {
+    "filename": "8ff3141f-5bf3-4893-a33e-5dc3e329ec41.mp4",
+    "s3_object_key": "claru-capture-test-group/completed/0aea7fc5-04e6-4bd6-bcc6-cf67fce80c09/8ff3141f-5bf3-4893-a33e-5dc3e329ec41.mp4",
+    "s3_annotation_key": "claru-capture-test-group/completed/0aea7fc5-04e6-4bd6-bcc6-cf67fce80c09/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Video Game",
+      "type": "Game Capture",
+      "category": "Shooter",
+      "subcategory": "Valorant",
+      "annotation_id": "0aea7fc5-04e6-4bd6-bcc6-cf67fce80c09",
+      "s3_specs_key": "claru-capture-test-group/completed/0aea7fc5-04e6-4bd6-bcc6-cf67fce80c09/d145cafd-3cb8-4012-9043-184a30facdc8.json"
+    }
+  },
+  {
+    "filename": "ae597b0b-44b7-4920-b290-30e181fb6eb0.mp4",
+    "s3_object_key": "claru-capture-test-group/completed/261317ca-cd5f-4571-ae41-962d2ffdac8a/ae597b0b-44b7-4920-b290-30e181fb6eb0.mp4",
+    "s3_annotation_key": "claru-capture-test-group/completed/261317ca-cd5f-4571-ae41-962d2ffdac8a/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Video Game",
+      "type": "Game Capture",
+      "category": "Shooter",
+      "subcategory": "Arc Raiders",
+      "annotation_id": "261317ca-cd5f-4571-ae41-962d2ffdac8a",
+      "s3_specs_key": "claru-capture-test-group/completed/261317ca-cd5f-4571-ae41-962d2ffdac8a/1ecb1c53-5da1-4bcf-83f4-ae7ccffaf3b7.json"
+    }
+  },
+  {
+    "filename": "f8ac95a0-7d81-4bad-b6ea-4f8c04c86a8d.mp4",
+    "s3_object_key": "claru-capture-test-group/completed/cf9ccf61-ea8a-4e08-824d-a49de2ce65f8/f8ac95a0-7d81-4bad-b6ea-4f8c04c86a8d.mp4",
+    "s3_annotation_key": "claru-capture-test-group/completed/cf9ccf61-ea8a-4e08-824d-a49de2ce65f8/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Video Game",
+      "type": "Game Capture",
+      "category": "Adventure",
+      "subcategory": "GTA 5",
+      "annotation_id": "cf9ccf61-ea8a-4e08-824d-a49de2ce65f8",
+      "s3_specs_key": "claru-capture-test-group/completed/cf9ccf61-ea8a-4e08-824d-a49de2ce65f8/6ffc13d7-ec1f-4372-8df6-84f259ca3485.json"
+    }
+  },
+  {
+    "filename": "30cf4b7b-8f65-479b-a5a8-b4c3a0e2601d.mp4",
+    "s3_object_key": "video-game-capture/completed/a2b3ce2d-deb1-4ff6-9858-5b1f91ff3ab9/30cf4b7b-8f65-479b-a5a8-b4c3a0e2601d.mp4",
+    "s3_annotation_key": "video-game-capture/completed/a2b3ce2d-deb1-4ff6-9858-5b1f91ff3ab9/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Video Game",
+      "type": "Game Capture",
+      "category": "Racing",
+      "subcategory": "Asphalt 9: Legends",
+      "annotation_id": "a2b3ce2d-deb1-4ff6-9858-5b1f91ff3ab9"
+    }
+  },
+  {
+    "filename": "58430b52-733b-4261-8b20-62e050f6e905.mp4",
+    "s3_object_key": "video-game-capture/completed/d209688b-6576-43a6-a34e-f4727fb420cc/58430b52-733b-4261-8b20-62e050f6e905.mp4",
+    "s3_annotation_key": "video-game-capture/completed/d209688b-6576-43a6-a34e-f4727fb420cc/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Video Game",
+      "type": "Game Capture",
+      "category": "Racing",
+      "subcategory": "Asphalt 9: Legends",
+      "annotation_id": "d209688b-6576-43a6-a34e-f4727fb420cc"
+    }
+  },
+  {
+    "filename": "5615945b-9c33-4e25-a4cc-2e50ab9f2137.mp4",
+    "s3_object_key": "video-game-capture/completed/1695e952-5449-4208-9a68-1e9476be36ba/5615945b-9c33-4e25-a4cc-2e50ab9f2137.mp4",
+    "s3_annotation_key": "video-game-capture/completed/1695e952-5449-4208-9a68-1e9476be36ba/annotation-data.json",
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Video Game",
+      "type": "Game Capture",
+      "category": "Shooter",
+      "subcategory": "Apex Legends",
+      "annotation_id": "1695e952-5449-4208-9a68-1e9476be36ba"
+    }
+  }
+]

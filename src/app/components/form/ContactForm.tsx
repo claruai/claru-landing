@@ -72,6 +72,7 @@ export default function ContactForm() {
   const { bookingUrl } = useCalendly();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [leadData, setLeadData] = useState<FormData | null>(null);
+  const [showCalendly, setShowCalendly] = useState(false);
   const posthog = usePostHog();
 
   const {
@@ -112,7 +113,59 @@ export default function ContactForm() {
   };
 
   if (leadData) {
-    return <CalendlyStep name={leadData.name} email={leadData.email} bookingUrl={bookingUrl} />;
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="max-w-2xl mx-auto"
+      >
+        <div className="bg-[var(--bg-secondary)] border border-[var(--border-subtle)] overflow-hidden">
+          {/* Terminal header */}
+          <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--border-subtle)] bg-[var(--bg-tertiary)]">
+            <div className="flex gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-red-500/80" />
+              <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+              <div className="w-3 h-3 rounded-full bg-green-500/80" />
+            </div>
+            <span className="text-xs text-[var(--text-tertiary)] ml-2 font-mono">
+              claru@contact ~ SUBMITTED
+            </span>
+          </div>
+
+          <div className="p-8 text-center space-y-6">
+            <div className="font-mono text-sm text-[var(--accent-primary)]">
+              &gt; Request received. We&apos;ll be in touch within 24 hours.
+            </div>
+
+            <div>
+              <h3 className="text-xl font-bold text-white">Thanks, {leadData.name}.</h3>
+              <p className="mt-2 text-sm text-[var(--text-muted)] font-mono">
+                Our team will review your requirements and reach out at{" "}
+                <span className="text-[var(--text-secondary)]">{leadData.email}</span>
+              </p>
+            </div>
+
+            <div className="border-t border-[var(--border-subtle)] pt-6 space-y-3">
+              <p className="text-xs text-[var(--text-muted)] font-mono uppercase tracking-wider">
+                Want to skip the wait?
+              </p>
+              <button
+                onClick={() => setShowCalendly(true)}
+                className="btn-primary font-mono px-8"
+              >
+                Book a Call Now →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {showCalendly && (
+          <div className="mt-6">
+            <CalendlyStep name={leadData.name} email={leadData.email} bookingUrl={bookingUrl} />
+          </div>
+        )}
+      </motion.div>
+    );
   }
 
   return (
@@ -247,12 +300,12 @@ export default function ContactForm() {
               PROCESSING...
             </>
           ) : (
-            "Next: Choose a Time →"
+            "Submit →"
           )}
         </motion.button>
 
         {/* Secondary contact option */}
-        <p className="text-sm text-[var(--text-muted)] font-mono">
+        <p className="text-sm text-[var(--text-muted)] font-mono text-center">
           Or email us directly at{" "}
           <a
             href="mailto:contact@claru.ai"

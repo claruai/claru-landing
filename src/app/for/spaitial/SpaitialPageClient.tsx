@@ -99,7 +99,7 @@ function Hero() {
             building with AI.
           </p>
           <p>
-            We run a global annotator workforce of 2,000+ across 14 countries
+            We run a global annotator workforce of 10,000+ across 14 countries
             and have delivered over 3 million structured annotations across
             video, robotics, multimodal, and more. Our teams handle everything
             from data collection and labeling to quality assurance &mdash; so
@@ -228,7 +228,7 @@ const DIFFERENTIATORS = [
   {
     title: "Global Workforce, Central Management",
     description:
-      "2,000+ annotators across 14 countries, managed by a single dedicated project lead on our side. You get the geographic reach without the coordination overhead.",
+      "10,000+ annotators across 14 countries, managed by a single dedicated project lead on our side. You get the geographic reach without the coordination overhead.",
   },
 ];
 

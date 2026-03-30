@@ -12,7 +12,8 @@
     "remotion:extract": "tsx scripts/extract-annotations.ts",
     "remotion:enrich": "tsx scripts/gemini-enrich.ts",
     "remotion:render": "tsx scripts/render-all.ts",
-    "remotion:pipeline": "npm run remotion:extract && npm run remotion:enrich && npm run remotion:render"
+    "remotion:pipeline": "npm run remotion:extract && npm run remotion:enrich && npm run remotion:render",
+    "remotion:enrichment-viz": "tsx scripts/render-enrichment-viz.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.997.0",
@@ -24,11 +25,16 @@
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.2.2",
     "@modelcontextprotocol/sdk": "^1.27.1",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
+    "@react-three/postprocessing": "^3.0.4",
     "@remotion/cli": "^4.0.436",
     "@remotion/player": "^4.0.436",
+    "@remotion/three": "^4.0.436",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.97.0",
     "clsx": "^2.1.1",
+    "cobe": "^2.0.1",
     "dotenv": "^17.3.1",
     "framer-motion": "^12.24.10",
     "gsap": "^3.14.2",
@@ -48,6 +54,7 @@
     "remotion": "^4.0.436",
     "resend": "^6.9.2",
     "shaders": "^2.2.41",
+    "three": "^0.183.2",
     "zod": "^4.3.5"
   },
   "devDependencies": {
@@ -58,6 +65,7 @@
     "@types/papaparse": "^5.5.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.183.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
     "tailwindcss": "^4",
