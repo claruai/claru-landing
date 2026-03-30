@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title:
     "7 Best Egocentric Video Data Providers for Robotics (2026) | Claru",
   description:
-    "Comprehensive comparison of the top egocentric video data providers for robotics and physical AI in 2026. Covers Claru, Luel, Encord, Appen, Labelbox, Ego4D, and Scale AI.",
+    "Side-by-side comparison of 7 egocentric video data providers for robotics and physical AI in 2026. Covers Claru, Luel, Encord, Appen, Labelbox, Ego4D, and Scale AI.",
   keywords: [
     "egocentric video data providers",
     "egocentric data for robotics",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     title:
       "7 Best Egocentric Video Data Providers for Robotics (2026)",
     description:
-      "Comprehensive comparison of the top egocentric video data providers for robotics and physical AI in 2026.",
+      "Side-by-side comparison of 7 egocentric video data providers for robotics and physical AI in 2026.",
     type: "article",
     url: "https://claru.ai/blog/best-egocentric-data-providers",
     siteName: "Claru",
@@ -62,7 +62,7 @@ const articleJsonLd = {
   headline:
     "7 Best Egocentric Video Data Providers for Robotics (2026)",
   description:
-    "Comprehensive comparison of the top egocentric video data providers for robotics and physical AI in 2026. Covers Claru, Luel, Encord, Appen, Labelbox, Ego4D, and Scale AI.",
+    "Side-by-side comparison of 7 egocentric video data providers for robotics and physical AI in 2026. Covers Claru, Luel, Encord, Appen, Labelbox, Ego4D, and Scale AI.",
   author: {
     "@type": "Organization",
     name: "Claru AI",
@@ -263,7 +263,7 @@ const providers = [
     tagline: "Annotation platform with the Alignerr expert network",
     url: "https://labelbox.com",
     whatTheyOffer:
-      "Labelbox provides a comprehensive data labeling platform built around three pillars — Catalog, Annotate, and Model — plus the Alignerr network for managed annotation services. For robotics, the platform handles 3D point clouds, video, geospatial data, and sensor fusion. The Alignerr network provides access to 1.5M+ knowledge workers including 50K+ PhDs and 200K+ Master's degree holders, vetted through an AI interviewer (Zara) that conducts tailored technical interviews. The platform includes Model Foundry for model-assisted labeling, active learning for efficient sample selection, and a Python SDK with S3/GCS/Azure integrations.",
+      "Labelbox provides a full-featured data labeling platform built around three pillars — Catalog, Annotate, and Model — plus the Alignerr network for managed annotation services. For robotics, the platform handles 3D point clouds, video, geospatial data, and sensor fusion. The Alignerr network provides access to 1.5M+ knowledge workers including 50K+ PhDs and 200K+ Master's degree holders, vetted through an AI interviewer (Zara) that conducts tailored technical interviews. The platform includes Model Foundry for model-assisted labeling, active learning for efficient sample selection, and a Python SDK with S3/GCS/Azure integrations.",
     strengths: [
       "Alignerr network: access to top 3% of data talent with domain expertise across 200+ fields",
       "Strong tooling for robotics: 3D point clouds, video, sensor fusion, multi-camera annotation",

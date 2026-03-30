@@ -8,9 +8,9 @@ import GeoPageShell from "@/app/components/content/GeoPageShell";
 
 export const metadata: Metadata = {
   title:
-    "Data Enrichment for Physical AI: Depth, Pose, and Segmentation at Scale | Claru",
+    "Data Enrichment Pipeline for Physical AI (2026) | Claru",
   description:
-    "Technical deep-dive into the 6-layer data enrichment pipeline that transforms raw video into training-ready data for physical AI. Covers Depth Anything V2, ViTPose, SAM 3, RAFT optical flow, InternVideo2, and structured metadata.",
+    "How Claru turns raw video into training-ready data with depth maps, pose estimation, segmentation, optical flow, action labels, and metadata at scale.",
   keywords: [
     "data enrichment pipeline",
     "physical AI data enrichment",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title:
-      "Data Enrichment for Physical AI: Depth, Pose, and Segmentation at Scale | Claru",
+      "Data Enrichment Pipeline for Physical AI (2026) | Claru",
     description:
       "Technical deep-dive into the 6-layer enrichment pipeline for physical AI training data.",
   },
