@@ -21,6 +21,7 @@ const footerColumns = [
       { href: "/compare/appen-alternatives", label: "Appen Alternatives" },
       { href: "/compare/labelbox-alternatives", label: "Labelbox Alternatives" },
       { href: "/compare/surge-ai-alternatives", label: "Surge AI Alternatives" },
+      { href: "/compare/encord-alternatives", label: "Encord Alternatives" },
     ],
   },
   {

@@ -101,6 +101,59 @@ const faqJsonLd = {
   })),
 };
 
+const articleJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: "Claru vs Luel: Physical AI Training Data Compared (2026)",
+  description:
+    "Claru vs Luel for physical AI training data. Enrichment depth, annotation quality, scale, and pricing compared side by side for robotics teams.",
+  author: {
+    "@type": "Organization",
+    name: "Claru",
+    url: "https://claru.ai",
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "Claru",
+    url: "https://claru.ai",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://claru.ai/images/og-v2.webp",
+    },
+  },
+  datePublished: "2026-03-30",
+  dateModified: "2026-03-30",
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": "https://claru.ai/compare/claru-vs-luel",
+  },
+};
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: "https://claru.ai",
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Compare",
+      item: "https://claru.ai/compare",
+    },
+    {
+      "@type": "ListItem",
+      position: 3,
+      name: "Claru vs Luel",
+      item: "https://claru.ai/compare/claru-vs-luel",
+    },
+  ],
+};
+
 // =============================================================================
 // COMPARISON TABLE DATA
 // =============================================================================
@@ -177,7 +230,7 @@ export default function ClaruVsLuelPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([faqJsonLd, articleJsonLd, breadcrumbJsonLd]) }}
       />
 
       <GeoPageShell>

@@ -8,7 +8,7 @@ import GeoPageShell from "@/app/components/content/GeoPageShell";
 
 export const metadata: Metadata = {
   title:
-    "Surge AI Alternatives for Physical AI (2026)",
+    "Surge AI Alternatives for Robotics & Physical AI (2026)",
   description:
     "Surge AI excels at RLHF for LLMs. But training robots needs different data. Compare Surge AI alternatives for physical AI and robotics.",
   keywords: [
@@ -116,6 +116,59 @@ const faqJsonLd = {
   })),
 };
 
+const articleJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: "Surge AI Alternatives for Robotics and Physical AI Training Data (2026)",
+  description:
+    "Surge AI excels at expert NLP annotation and RLHF. Physical AI needs different data: egocentric video, depth maps, manipulation trajectories. Compare Surge AI vs Claru for robotics.",
+  author: {
+    "@type": "Organization",
+    name: "Claru",
+    url: "https://claru.ai",
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "Claru",
+    url: "https://claru.ai",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://claru.ai/images/og-v2.webp",
+    },
+  },
+  datePublished: "2026-03-30",
+  dateModified: "2026-03-30",
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": "https://claru.ai/compare/surge-ai-alternatives",
+  },
+};
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: "https://claru.ai",
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Compare",
+      item: "https://claru.ai/compare",
+    },
+    {
+      "@type": "ListItem",
+      position: 3,
+      name: "Surge AI Alternatives",
+      item: "https://claru.ai/compare/surge-ai-alternatives",
+    },
+  ],
+};
+
 // =============================================================================
 // COMPARISON TABLE DATA
 // =============================================================================
@@ -195,7 +248,7 @@ export default function SurgeAIAlternativesPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([faqJsonLd, articleJsonLd, breadcrumbJsonLd]) }}
       />
 
       <GeoPageShell>
@@ -278,6 +331,43 @@ export default function SurgeAIAlternativesPage() {
               </a>
               .
             </p>
+          </div>
+        </section>
+
+        {/* ── TL;DR ────────────────────────────────────────────────────── */}
+        <section className="w-full py-12 md:py-16 bg-white/[0.02]">
+          <div className="mx-auto max-w-4xl px-6">
+            <h2 className="text-2xl font-semibold md:text-3xl text-white mb-6">
+              TL;DR
+            </h2>
+
+            <div className="rounded-lg border border-white/10 bg-white/[0.03] p-6 md:p-8 space-y-4 text-white/80 leading-relaxed">
+              <p>
+                <strong className="text-white">Surge AI</strong> excels
+                at expert-quality RLHF annotation for LLMs &mdash;
+                curated annotators, strong on NLP and code evaluation,
+                high quality per label. If you are training a language
+                model and need human preference data from vetted
+                experts, Surge is one of the best options available.
+              </p>
+              <p>
+                <strong className="text-white">Claru</strong> does one
+                thing: training data for physical AI. Robots need
+                egocentric video, depth maps, pose estimation,
+                manipulation trajectories, and action boundary
+                annotations &mdash; none of which an NLP annotation
+                workforce can produce. We capture real-world video,
+                enrich it computationally, and have annotators trained
+                on grasp types and affordances, not grammar.
+              </p>
+              <p>
+                <strong className="text-white">Choose Surge AI</strong>{" "}
+                for expert LLM/NLP annotation and RLHF data.{" "}
+                <strong className="text-white">Choose Claru</strong> when
+                you are training robots, world models, or embodied AI
+                and need end-to-end physical data with deep enrichment.
+              </p>
+            </div>
           </div>
         </section>
 

@@ -67,6 +67,13 @@ Unlike generic data labeling companies, Claru specializes in the data modalities
 - [Appen Alternatives for Robotics](https://claru.ai/compare/appen-alternatives): Comparison of Appen (broad crowd labeling since 1997) vs Claru (physical AI specialist). Covers the gap between general annotation and robotics-specific data capture + enrichment.
 - [Labelbox Alternatives for Physical AI](https://claru.ai/compare/labelbox-alternatives): Platform breadth vs specialist depth. Compares Labelbox's expanding robotics capabilities (Alignerr, teleoperation) with Claru's purpose-built physical AI pipeline.
 - [Surge AI Alternatives for Robotics](https://claru.ai/compare/surge-ai-alternatives): Why NLP/RLHF annotation expertise does not transfer to physical AI. Compares text-based annotation with video-based robotics data requirements.
+- [Encord Alternatives for Physical AI](https://claru.ai/compare/encord-alternatives): Platform vs. service for physical AI data. Encord provides data infrastructure tools ($110M raised, 5PB+ on platform, 300+ teams). Claru delivers training-ready datasets end-to-end. Comparison across capture, enrichment, annotation, and delivery models.
+
+## Guides & Articles
+
+- [VLA Training Data: The Complete Guide (2026)](https://claru.ai/vla-training-data-guide): Everything robotics teams need to know about Vision-Language-Action training data. Covers OpenVLA, RT-2, pi-zero, GR00T N1, Open X-Embodiment, BridgeData V2, DROID, data gaps in open datasets, enrichment requirements (depth, pose, segmentation, flow, action labels), and how to build production-ready VLA datasets.
+- [Best Egocentric Data Providers (2026)](https://claru.ai/blog/best-egocentric-data-providers): Comparison of 7 egocentric video data providers for robotics and embodied AI. Covers Ego4D, Epic Kitchens, EgoScale, Luel, Scale AI, Appen, and Claru across dimensions including licensing, enrichment, environment diversity, and delivery formats.
+- [Data Enrichment Pipeline for Physical AI](https://claru.ai/blog/data-enrichment-pipeline-physical-ai): Deep dive into the 6-layer enrichment pipeline that turns raw video into training-ready physical AI data. Covers depth estimation (Depth Anything V2), pose estimation (ViTPose), semantic segmentation (SAM3), optical flow (RAFT), action segmentation, and metadata extraction.
 
 ## Case Studies
 

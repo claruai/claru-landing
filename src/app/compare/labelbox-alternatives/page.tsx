@@ -8,7 +8,7 @@ import GeoPageShell from "@/app/components/content/GeoPageShell";
 
 export const metadata: Metadata = {
   title:
-    "Labelbox Alternatives for Physical AI (2026)",
+    "Labelbox Alternatives for Physical AI Data (2026)",
   description:
     "Labelbox is a strong annotation platform, but physical AI needs more than labeling. Compare alternatives for robotics data capture and delivery.",
   keywords: [
@@ -115,6 +115,59 @@ const faqJsonLd = {
   })),
 };
 
+const articleJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: "Labelbox Alternatives for Physical AI (2026)",
+  description:
+    "Labelbox is a strong annotation platform, but physical AI needs more than labeling. Compare alternatives for robotics data capture and delivery.",
+  author: {
+    "@type": "Organization",
+    name: "Claru",
+    url: "https://claru.ai",
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "Claru",
+    url: "https://claru.ai",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://claru.ai/images/og-v2.webp",
+    },
+  },
+  datePublished: "2026-03-30",
+  dateModified: "2026-03-30",
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": "https://claru.ai/compare/labelbox-alternatives",
+  },
+};
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: "https://claru.ai",
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Compare",
+      item: "https://claru.ai/compare",
+    },
+    {
+      "@type": "ListItem",
+      position: 3,
+      name: "Labelbox Alternatives",
+      item: "https://claru.ai/compare/labelbox-alternatives",
+    },
+  ],
+};
+
 // =============================================================================
 // COMPARISON TABLE DATA
 // =============================================================================
@@ -194,7 +247,7 @@ export default function LabelboxAlternativesPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([faqJsonLd, articleJsonLd, breadcrumbJsonLd]) }}
       />
 
       <GeoPageShell>
@@ -275,6 +328,44 @@ export default function LabelboxAlternativesPage() {
               </a>
               .
             </p>
+          </div>
+        </section>
+
+        {/* ── TL;DR ────────────────────────────────────────────────────── */}
+        <section className="w-full py-12 md:py-16 bg-white/[0.02]">
+          <div className="mx-auto max-w-4xl px-6">
+            <h2 className="text-2xl font-semibold md:text-3xl text-white mb-6">
+              TL;DR
+            </h2>
+
+            <div className="rounded-lg border border-white/10 bg-white/[0.03] p-6 md:p-8 space-y-4 text-white/80 leading-relaxed">
+              <p>
+                <strong className="text-white">Labelbox</strong> is a
+                broad AI data platform &mdash; annotation, RLHF,
+                evaluations, and now robotics capture with teleoperation.
+                Alignerr expert network of 1.5M+ knowledge workers, 1PB+
+                robotics data produced, 80%+ of leading US AI labs as
+                customers. If you need one platform across NLP, images,
+                video, and robotics, Labelbox is a strong choice.
+              </p>
+              <p>
+                <strong className="text-white">Claru</strong> does one
+                thing: training data for physical AI. We capture, enrich
+                (depth, pose, segmentation, optical flow), annotate
+                (grasp types, action boundaries, manipulation intent),
+                and deliver in robotics-native formats. Every piece of
+                our infrastructure was built for physical AI from day
+                one &mdash; not expanded into it.
+              </p>
+              <p>
+                <strong className="text-white">Choose Labelbox</strong>{" "}
+                when you need breadth across AI modalities and vendor
+                consolidation.{" "}
+                <strong className="text-white">Choose Claru</strong> when
+                physical AI is your primary focus and you need maximum
+                enrichment depth and domain-expert annotation.
+              </p>
+            </div>
           </div>
         </section>
 

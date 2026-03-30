@@ -88,6 +88,7 @@ export default function FinalCTAV2() {
                 <li><Link href="/compare/appen-alternatives" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">Appen Alternatives</Link></li>
                 <li><Link href="/compare/labelbox-alternatives" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">Labelbox Alternatives</Link></li>
                 <li><Link href="/compare/surge-ai-alternatives" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">Surge AI Alternatives</Link></li>
+                <li><Link href="/compare/encord-alternatives" className="text-[13px] text-white/30 transition-colors duration-300 hover:text-white/50">Encord Alternatives</Link></li>
               </ul>
             </div>
 

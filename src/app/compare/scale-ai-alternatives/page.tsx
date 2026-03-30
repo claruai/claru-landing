@@ -102,6 +102,59 @@ const faqJsonLd = {
   })),
 };
 
+const articleJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: "Scale AI Alternatives for Physical AI Data (2026)",
+  description:
+    "Scale AI alternatives for robotics and physical AI. See how Claru, Luel, and Appen compare on capture, enrichment, specialization, and pricing.",
+  author: {
+    "@type": "Organization",
+    name: "Claru",
+    url: "https://claru.ai",
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "Claru",
+    url: "https://claru.ai",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://claru.ai/images/og-v2.webp",
+    },
+  },
+  datePublished: "2026-03-30",
+  dateModified: "2026-03-30",
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": "https://claru.ai/compare/scale-ai-alternatives",
+  },
+};
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: "https://claru.ai",
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Compare",
+      item: "https://claru.ai/compare",
+    },
+    {
+      "@type": "ListItem",
+      position: 3,
+      name: "Scale AI Alternatives",
+      item: "https://claru.ai/compare/scale-ai-alternatives",
+    },
+  ],
+};
+
 // =============================================================================
 // COMPARISON TABLE DATA
 // =============================================================================
@@ -174,7 +227,7 @@ export default function ScaleAIAlternativesPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([faqJsonLd, articleJsonLd, breadcrumbJsonLd]) }}
       />
 
       <GeoPageShell>
@@ -263,6 +316,44 @@ export default function ScaleAIAlternativesPage() {
               </a>
               .
             </p>
+          </div>
+        </section>
+
+        {/* ── TL;DR ────────────────────────────────────────────────────── */}
+        <section className="w-full py-12 md:py-16 bg-white/[0.02]">
+          <div className="mx-auto max-w-4xl px-6">
+            <h2 className="text-2xl font-semibold md:text-3xl text-white mb-6">
+              TL;DR
+            </h2>
+
+            <div className="rounded-lg border border-white/10 bg-white/[0.03] p-6 md:p-8 space-y-4 text-white/80 leading-relaxed">
+              <p>
+                <strong className="text-white">Scale AI</strong> is the
+                enterprise standard for data labeling &mdash; NLP, image
+                classification, autonomous vehicles, content moderation.
+                Massive workforce, proven quality controls, trusted by the
+                largest AI labs in the world. If you need high-volume
+                annotation on data you already have, Scale is hard to beat.
+              </p>
+              <p>
+                <strong className="text-white">Claru</strong> does one
+                thing: training data for physical AI. We capture real-world
+                video (10,000+ collectors, 100+ cities), enrich every clip
+                with depth maps, pose estimation, segmentation, and optical
+                flow, and have expert annotators label grasp types, action
+                boundaries, and manipulation intent. We deliver in
+                robotics-native formats. Scale labels data you bring them;
+                we build the dataset from scratch.
+              </p>
+              <p>
+                <strong className="text-white">Choose Scale AI</strong> for
+                enterprise-scale annotation on existing data across many
+                modalities.{" "}
+                <strong className="text-white">Choose Claru</strong> when
+                you need end-to-end physical AI data &mdash; captured,
+                enriched, annotated, and delivered.
+              </p>
+            </div>
           </div>
         </section>
 

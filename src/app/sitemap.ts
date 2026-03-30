@@ -22,6 +22,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/physical-ai-training-data`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/egocentric-video-datasets`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/embodied-ai-datasets`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    // Tier 3 content pages — pillar guides, listicles, deep-dives
+    { url: `${BASE}/vla-training-data-guide`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/blog/best-egocentric-data-providers`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE}/blog/data-enrichment-pipeline-physical-ai`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     // Comparison pages
     { url: `${BASE}/compare`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/compare/appen-alternatives`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
@@ -29,6 +33,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/compare/claru-vs-luel`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/compare/labelbox-alternatives`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/compare/surge-ai-alternatives`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/compare/encord-alternatives`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     // Pillar landing pages
     { url: `${BASE}/pillars/acquire`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/pillars/enrich`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },

@@ -84,6 +84,12 @@ const comparisons = [
     summary:
       "Surge AI excels at RLHF for language models. Training robots and world models requires egocentric video, depth data, and manipulation trajectories -- a different kind of data entirely.",
   },
+  {
+    slug: "encord-alternatives",
+    competitor: "Encord",
+    summary:
+      "Encord is building a physical AI data platform ($110M raised, 5PB+ data). Claru delivers training-ready data as a service. Platform vs. service -- different models for different teams.",
+  },
 ];
 
 // =============================================================================

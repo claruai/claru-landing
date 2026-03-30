@@ -109,6 +109,59 @@ const faqJsonLd = {
   })),
 };
 
+const articleJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: "Appen Alternatives for Physical AI & Robotics Training Data (2026)",
+  description:
+    "Appen pioneered crowd-sourced labeling. For physical AI, you need trained collectors, enrichment pipelines, and domain-expert annotators. Compare Appen vs Claru for robotics data.",
+  author: {
+    "@type": "Organization",
+    name: "Claru",
+    url: "https://claru.ai",
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "Claru",
+    url: "https://claru.ai",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://claru.ai/images/og-v2.webp",
+    },
+  },
+  datePublished: "2026-03-30",
+  dateModified: "2026-03-30",
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": "https://claru.ai/compare/appen-alternatives",
+  },
+};
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: "https://claru.ai",
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Compare",
+      item: "https://claru.ai/compare",
+    },
+    {
+      "@type": "ListItem",
+      position: 3,
+      name: "Appen Alternatives",
+      item: "https://claru.ai/compare/appen-alternatives",
+    },
+  ],
+};
+
 // =============================================================================
 // COMPARISON TABLE DATA
 // =============================================================================
@@ -175,7 +228,7 @@ export default function AppenAlternativesPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([faqJsonLd, articleJsonLd, breadcrumbJsonLd]) }}
       />
 
       <GeoPageShell>
@@ -271,6 +324,45 @@ export default function AppenAlternativesPage() {
               </a>
               .
             </p>
+          </div>
+        </section>
+
+        {/* ── TL;DR ────────────────────────────────────────────────────── */}
+        <section className="w-full py-12 md:py-16 bg-white/[0.02]">
+          <div className="mx-auto max-w-4xl px-6">
+            <h2 className="text-2xl font-semibold md:text-3xl text-white mb-6">
+              TL;DR
+            </h2>
+
+            <div className="rounded-lg border border-white/10 bg-white/[0.03] p-6 md:p-8 space-y-4 text-white/80 leading-relaxed">
+              <p>
+                <strong className="text-white">Appen</strong> pioneered
+                crowd-sourced data labeling nearly 30 years ago &mdash;
+                NLP, search relevance, content moderation at massive
+                global scale. They have recently expanded into physical AI
+                with LiDAR annotation and robotics trajectories. If you
+                need high-volume multilingual annotation from a large
+                crowd workforce, Appen has unmatched breadth.
+              </p>
+              <p>
+                <strong className="text-white">Claru</strong> does one
+                thing: training data for physical AI. We capture egocentric
+                video through 10,000+ trained collectors, enrich every clip
+                with depth, pose, segmentation, and optical flow, and have
+                expert annotators label manipulation intent, action
+                boundaries, and affordances. Crowd workers label at scale;
+                our specialists annotate physical AI tasks that crowds
+                cannot reliably handle.
+              </p>
+              <p>
+                <strong className="text-white">Choose Appen</strong> for
+                broad, high-volume annotation across many languages and
+                task types.{" "}
+                <strong className="text-white">Choose Claru</strong> when
+                you need end-to-end physical AI data with deep enrichment
+                and domain-expert annotation.
+              </p>
+            </div>
           </div>
         </section>
 
