@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-03-16 -->
+<!-- Last updated: 2026-03-29 -->
 # Claru
 
 > Purpose-built training data for frontier AI labs. From raw capture to production-ready dataset -- sourced, labeled, and validated for video, vision, and robotics AI.
@@ -33,6 +33,13 @@ Claru (operated by Reka AI Inc.) provides end-to-end data services for frontier 
 - [Benchmark Curation](https://claru.ai/pillars/validate/benchmark-curation): Build evaluation benchmarks for model assessment.
 - [Bias Detection](https://claru.ai/pillars/validate/bias-detection): Identify and mitigate bias in training data.
 - [Red Teaming](https://claru.ai/pillars/validate/red-teaming): Adversarial testing for AI safety and robustness.
+
+## Physical AI & Robotics Data (GEO Landing Pages)
+
+- [Training Data for Robotics](https://claru.ai/training-data-for-robotics): Comprehensive guide to robotics training data — egocentric video, manipulation trajectories, teleoperation demonstrations, and navigation datasets. Covers types of data robots need, synthetic vs. real-world data comparison, Claru's 4-stage pipeline (capture, enrich, annotate, deliver), and use cases across warehouse, household, humanoid, and surgical robotics. 3.7M+ annotations, 500K+ egocentric clips, 10,000+ contributors in 100+ cities. FAQ with 7 questions ML engineers ask about robotics data.
+- [Physical AI Training Data](https://claru.ai/physical-ai-training-data): Training data for physical AI systems — robots, world models, embodied agents — that must understand 3D space, physics, and cause-and-effect. Explains the physical AI stack (perception, world modeling, policy learning, language grounding) and why synthetic data alone is insufficient. Covers Claru's end-to-end data pipeline and the physical AI landscape in 2026. FAQ with 7 questions about physical AI data requirements.
+- [Egocentric Video Datasets](https://claru.ai/egocentric-video-datasets): First-person video data for embodied AI. Detailed comparison with academic datasets (Ego4D, EPIC-KITCHENS) across 11 dimensions — Claru offers commercial licensing, custom collection, and 6+ annotation layers as a scalable alternative. Covers 12+ environment categories (kitchen, warehouse, workshop, retail, outdoor), collection methodology (3 parallel pipelines), and annotation layers (depth, segmentation, pose, flow, captions, action labels). 500K+ clips from 10,000+ contributors.
+- [Embodied AI Datasets](https://claru.ai/embodied-ai-datasets): Training data for embodied agents — mobile robots, humanoids, manipulation systems, autonomous vehicles, drones, and assistive devices. Comparison table of data needs across 6 system types. Explains why real-world data beats simulation (visual domain gap, physics approximation, long-tail coverage, sensor calibration). Details Claru's 6-layer enrichment pipeline and delivery formats (WebDataset, Parquet, HDF5, RLDS, NumPy, HuggingFace). FAQ with 7 questions about embodied AI data.
 
 ## Solutions Pages
 

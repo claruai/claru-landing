@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
-import { ogImageUrl } from "@/lib/og";
 import "./globals.css";
 import "lenis/dist/lenis.css";
 import MotionProvider from "./components/providers/MotionProvider";
@@ -54,19 +53,21 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://claru.ai"),
   title:
-    "Claru | Purpose-Built Training Data for Frontier AI Labs",
+    "Claru \u2014 The Training Data Catalog for Physical AI",
   description:
-    "Training data built to your model's exact specifications. From raw capture to production-ready dataset — sourced, labeled, and validated for frontier video, vision, and robotics AI.",
+    "3.7M+ human annotations across real-world video, game environments, and custom captures. 25+ commercially licensed datasets built for robotics, embodied AI, and frontier video generation teams.",
   keywords: [
     "AI training data",
+    "physical AI",
+    "robotics training data",
+    "embodied AI data",
+    "world models",
     "frontier AI data",
     "video generation training data",
-    "robotics training data",
     "vision model annotation",
     "egocentric video data",
     "RLHF annotation",
     "manipulation trajectory data",
-    "embodied AI data",
     "synthetic data generation",
     "expert annotation",
     "multimodal AI data",
@@ -78,24 +79,24 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://claru.ai",
     siteName: "Claru",
-    title: "Claru | Purpose-Built Training Data for Frontier AI Labs",
+    title: "Claru \u2014 The Training Data Catalog for Physical AI",
     description:
-      "Training data built to your model's exact specifications. Sourced, labeled, and validated for frontier video, vision, and robotics AI.",
+      "3.7M+ human annotations across real-world video, game environments, and custom captures. 25+ licensed datasets for robotics and embodied AI.",
     images: [
       {
-        url: ogImageUrl("Purpose-Built Training Data for Frontier AI Labs"),
+        url: "/images/og-v2.webp",
         width: 1200,
         height: 630,
-        alt: "Claru - Purpose-Built Training Data for Frontier AI Labs",
+        alt: "Claru \u2014 The Training Data Catalog for Physical AI",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Claru | Purpose-Built Training Data for Frontier AI Labs",
+    title: "Claru \u2014 The Training Data Catalog for Physical AI",
     description:
-      "Training data built to your model's exact specifications. From raw capture to production-ready dataset for video, vision, and robotics AI.",
-    images: [ogImageUrl("Purpose-Built Training Data for Frontier AI Labs")],
+      "3.7M+ human annotations across real-world video and game environments. Built for robotics and embodied AI.",
+    images: ["/images/og-v2.webp"],
   },
   alternates: {
     canonical: "/",

@@ -34,7 +34,7 @@ const stats: StatItem[] = [
   { value: "3.7M+", label: "human annotations" },
   { value: "25+", label: "active datasets" },
   { value: "10,000+", label: "collectors worldwide" },
-  { value: "5", label: "frontier lab partnerships" },
+  { value: "5+", label: "frontier lab partnerships" },
 ];
 
 interface CaseStudy {

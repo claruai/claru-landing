@@ -27,7 +27,7 @@ export default function NavPill() {
       <nav className="flex items-center gap-3 rounded-full border border-white/[0.08] bg-[#0a0908]/80 px-3 py-1.5 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.4)] sm:gap-6 sm:px-6 sm:py-2.5">
         {/* CLARU logo text */}
         <Link
-          href="/v2"
+          href="/"
           className="min-h-[44px] flex items-center font-mono text-[13px] font-bold tracking-[0.15em] text-white/80 transition-colors hover:text-[#92B090]"
         >
           CLARU

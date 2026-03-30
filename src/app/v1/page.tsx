@@ -1,8 +1,17 @@
-import HomeLoader from "./HomeLoader";
+import Header from "../components/layout/Header";
+import Hero from "../components/sections/Hero";
+import ProblemAgitation from "../components/sections/ProblemAgitation";
+import Origin from "../components/sections/Origin";
+import TwoPaths from "../components/sections/TwoPaths";
+import ProofOfWork from "../components/sections/ProofOfWork";
+import CatalogPreview from "../components/sections/CatalogPreview";
+import Testimonials from "../components/sections/Testimonials";
+import FinalCTA from "../components/sections/FinalCTA";
+import Footer from "../components/sections/Footer";
+import SectionBridge from "../components/sections/SectionBridge";
+import ClientProviders from "../components/providers/ClientProviders";
+import AnimatedLogoWrapper from "../components/sections/AnimatedLogoWrapper";
 
-// ---------------------------------------------------------------------------
-// FAQ JSON-LD for rich results
-// ---------------------------------------------------------------------------
 const faqJsonLd = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
@@ -66,103 +75,36 @@ const faqJsonLd = {
   ],
 };
 
-// ---------------------------------------------------------------------------
-// Organization JSON-LD
-// ---------------------------------------------------------------------------
-const orgJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "Claru",
-  url: "https://claru.ai",
-  description:
-    "Purpose-built training data for frontier robotics, embodied AI, and world models. 3.7M+ annotations, 25+ datasets, 10,000+ collectors worldwide.",
-  sameAs: [],
-};
-
-// ---------------------------------------------------------------------------
-// Server-rendered SEO shell
-// ---------------------------------------------------------------------------
-// Provides crawlable text content for AI bots (GPTBot, ClaudeBot) and search
-// engines that do not execute JavaScript. The visual page is rendered entirely
-// by the client-side HomeContent component; this shell is hidden from sighted
-// users via Tailwind's sr-only utility but remains in the DOM for crawlers.
-// This is a standard, Google-approved pattern -- the hidden text matches the
-// visual content exactly, so it is not cloaking.
-// ---------------------------------------------------------------------------
-function SEOShell() {
-  return (
-    <div className="sr-only" aria-hidden="false">
-      <h1>Training Data for Physical AI</h1>
-      <p>
-        Purpose-built datasets for frontier robotics, embodied AI, and world
-        models.
-      </p>
-
-      <h2>Millions of clips. Every environment.</h2>
-      <p>
-        Egocentric video, game environments, driving, cinematic, manufacturing,
-        cooking, warehouse, and human activity data -- curated for frontier AI
-        labs training world models, VLAs, and video generation systems.
-      </p>
-
-      <h2>
-        More than video. Captured, enriched, annotated, and delivered to your
-        pipeline.
-      </h2>
-      <p>
-        Every clip ships with depth maps, pose estimation, segmentation masks,
-        and structured metadata. Licensed, real-world video -- not synthetic, not
-        scraped. Expert humans label what machines miss: intent, context, edge
-        cases. Your format. Your pipeline. Ready to train.
-      </p>
-
-      <h2>
-        10,000+ collectors. 100+ cities. Every environment your model needs.
-      </h2>
-      <p>
-        A global network of trained data collectors capturing real-world video
-        across 6 continents. Suburban kitchens. Factory floors. City streets.
-        Not lab data -- real-world data at scale.
-      </p>
-
-      <h2>Built for frontier labs. Proven at scale.</h2>
-      <p>
-        500K+ egocentric videos captured for a world-modeling lab. 10K+ hours
-        of game environment data. 2M+ video annotations powering RLHF for
-        frontier video generation.
-      </p>
-      <p>
-        3.7M+ human annotations. 25+ active datasets. 10,000+ collectors
-        worldwide. 5+ frontier lab partnerships.
-      </p>
-
-      <h2>Tell us what you are training.</h2>
-      <p>
-        From brief to first delivery in days, not months. We scope the dataset,
-        design the pipeline, and deliver training-ready data on your timeline.
-      </p>
-      <a href="#contact">Book a Call</a>
-      <a href="mailto:contact@claru.ai">contact@claru.ai</a>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Page component (Server Component -- no "use client" directive)
-// ---------------------------------------------------------------------------
 export default function Home() {
   return (
     <>
+      {/* FAQ structured data \u2014 suppressHydrationWarning prevents PostHog script injection mismatch */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        suppressHydrationWarning
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
-      />
-      <SEOShell />
-      <HomeLoader />
+      <ClientProviders>
+      {/* Header */}
+      <Header />
+
+      {/* Main Content */}
+      <main className="relative z-10">
+        <Hero />
+        <ProblemAgitation />
+        <SectionBridge text="So we built something different." />
+        <Origin />
+        <TwoPaths />
+        <ProofOfWork />
+        <CatalogPreview />
+        <Testimonials />
+        <FinalCTA />
+        <AnimatedLogoWrapper />
+      </main>
+
+      {/* Footer */}
+      <Footer />
+    </ClientProviders>
     </>
   );
 }

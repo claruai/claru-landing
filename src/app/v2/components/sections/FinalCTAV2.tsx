@@ -67,8 +67,7 @@ export default function FinalCTAV2() {
             CLARU
           </span>
           <div className="flex gap-6 font-mono text-[11px] text-white/20">
-            <Link href="/privacy" className="transition-colors duration-300 hover:text-white/40">Privacy</Link>
-            <Link href="/terms" className="transition-colors duration-300 hover:text-white/40">Terms</Link>
+            <Link href="/legal" className="transition-colors duration-300 hover:text-white/40">Legal</Link>
             <a href="mailto:contact@claru.ai" className="transition-colors duration-300 hover:text-[var(--accent-primary)]">contact@claru.ai</a>
           </div>
         </div>
