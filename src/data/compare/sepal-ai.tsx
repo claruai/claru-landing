@@ -204,7 +204,7 @@ export const sepalAiComparison: ComparisonData = {
   strengths: {
     title: "Where Sepal AI Is Strong",
     intro:
-      "Sepal AI's public materials focus on expert-led research workflows and structured RL environments. These are areas where they are a strong fit.",
+      "Sepal AI&apos;s public materials focus on expert-led research workflows and structured RL environments. These are areas where they are a strong fit.",
     cards: [
       {
         title: "RL environments and tasks",
@@ -243,7 +243,7 @@ export const sepalAiComparison: ComparisonData = {
         title: "Dataset factory platform",
         description: (
           <>
-            Sepal's YC profile describes a cloud-native agent dataset factory
+            Sepal&apos;s YC profile describes a cloud-native agent dataset factory
             for standardized evaluation and training data workflows.{" "}
             {sourceLink("https://www.ycombinator.com/companies/sepal-ai", "[1]")}
           </>
@@ -276,7 +276,7 @@ export const sepalAiComparison: ComparisonData = {
   comparison: {
     title: "Sepal AI vs Claru: Side-by-Side Comparison",
     intro:
-      "This comparison centers on physical AI needs while acknowledging Sepal AI's focus on expert RL environments and data research.",
+      "This comparison centers on physical AI needs while acknowledging Sepal AI&apos;s focus on expert RL environments and data research.",
     columns: [
       { key: "sepal", label: "Sepal AI" },
       { key: "claru", label: "Claru", highlight: true },
@@ -390,7 +390,7 @@ export const sepalAiComparison: ComparisonData = {
       "Sepal AI and Claru solve different problems. Sepal focuses on expert-designed RL environments and evaluation data, while Claru builds physical AI datasets from capture to delivery.",
     blocks: [
       {
-        title: "Sepal's focus on environments and experts",
+        title: "Sepal&apos;s focus on environments and experts",
         paragraphs: [
           "Sepal AI builds RL environments and outcome-verifiable tasks. The company positions itself as a data research partner for advanced AI systems and highlights its expert network.",
           "That model is powerful when tasks require deep domain expertise and precise evaluation signals that can be scored objectively.",
@@ -400,7 +400,7 @@ export const sepalAiComparison: ComparisonData = {
         title: "Outcome-verifiable tasks vs physical capture",
         paragraphs: [
           "Outcome-verifiable tasks are ideal for controlled evaluation and structured RL training. They are not the same as capturing real-world physical data from kitchens, warehouses, or outdoor environments.",
-          "Physical AI needs real footage, not just task definitions. That is why capture and enrichment pipelines sit at the center of Claru's model.",
+          "Physical AI needs real footage, not just task definitions. That is why capture and enrichment pipelines sit at the center of Claru&apos;s model.",
         ],
       },
       {
@@ -508,7 +508,7 @@ export const sepalAiComparison: ComparisonData = {
         answer: (
           <>
             Sepal AI states it has been acquired by Mercor and is now part of
-            Mercor's organization.{" "}
+            Mercor&apos;s organization.{" "}
             {sourceLink(
               "https://www.orrick.com/en/News/2026/02/Mercor-Acquires-Sepal-AI",
               "[2]"

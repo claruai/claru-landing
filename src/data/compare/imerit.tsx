@@ -184,7 +184,7 @@ export const imeritComparison: ComparisonData = {
         tuning services. {sourceLink("https://imerit.net/", "[2]")}
       </>,
       <>
-        Evaluation and testing are part of iMerit's AI data services.
+        Evaluation and testing are part of iMerit&apos;s AI data services.
         {sourceLink("https://imerit.net/", "[3]")}
       </>,
       <>
@@ -200,7 +200,7 @@ export const imeritComparison: ComparisonData = {
   strengths: {
     title: "Where iMerit Is Strong",
     intro:
-      "Based on iMerit's public materials, these are areas where their offering is a strong fit.",
+      "Based on iMerit&apos;s public materials, these are areas where their offering is a strong fit.",
     cards: [
       {
         title: "Expert annotation",
@@ -279,7 +279,7 @@ export const imeritComparison: ComparisonData = {
   comparison: {
     title: "iMerit vs Claru: Side-by-Side Comparison",
     intro:
-      "This comparison focuses on physical AI needs while recognizing iMerit's expert data services.",
+      "This comparison focuses on physical AI needs while recognizing iMerit&apos;s expert data services.",
     columns: [
       { key: "imerit", label: "iMerit" },
       { key: "claru", label: "Claru", highlight: true },
