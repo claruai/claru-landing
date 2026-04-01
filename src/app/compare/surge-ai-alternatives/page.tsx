@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata} from "next";
 import Link from "next/link";
 import GeoPageShell from "@/app/components/content/GeoPageShell";
 
@@ -39,19 +39,19 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         alt: "Surge AI Alternatives for Robotics & Physical AI — Claru",
-      },
+     },
     ],
-  },
+ },
   twitter: {
     card: "summary_large_image",
     title:
       "Surge AI Alternatives for Robotics & Physical AI Data (2026)",
     description:
       "Training a robot is not like training an LLM. Compare annotation services for physical AI, robotics, and world models.",
-  },
+ },
   alternates: {
     canonical: "https://claru.ai/compare/surge-ai-alternatives",
-  },
+ },
 };
 
 // =============================================================================
@@ -64,43 +64,43 @@ const faqItems = [
       "What is the main difference between Surge AI and Claru?",
     answer:
       "Surge AI is an expert annotation service focused on NLP and RLHF tasks for large language models. They provide high-quality human annotation through a curated workforce of vetted annotators who rate chatbot responses, evaluate text quality, label sentiment, and provide preference data for RLHF training. Claru is a vertically integrated training data service for physical AI — we capture real-world video, enrich it with depth maps, pose estimation, and segmentation, and have expert annotators label action boundaries, grasp affordances, and manipulation intent. The core difference: Surge AI annotates text data for LLMs; Claru captures and annotates video data for robots, world models, and embodied AI.",
-  },
+ },
   {
     question:
       "Can Surge AI annotate robotics or physical AI training data?",
     answer:
       "Surge AI's workforce is primarily trained on text-based annotation tasks: RLHF preference labeling, sentiment analysis, text classification, code review, and instruction evaluation. While their annotators are experts in language and reasoning tasks, physical AI annotation requires a fundamentally different skill set. Annotating manipulation trajectories requires understanding grasp types (power grasp, precision pinch, lateral pinch), action boundary detection with sub-second temporal precision, object affordance labeling (which surfaces are graspable, which are support structures), and spatial reasoning about 3D workspace layouts. These are not skills that transfer from text annotation. Claru's annotators are specifically trained on physical AI tasks and follow project-specific guidelines developed with each client's ML team.",
-  },
+ },
   {
     question:
       "Does Surge AI provide data capture or video enrichment?",
     answer:
       "No. Surge AI is an annotation-only service. They do not capture video, do not operate a camera network, and do not provide computational enrichment layers like depth maps, pose estimation, segmentation masks, or optical flow. To use Surge AI for any video annotation task, you would need to source and collect the raw video yourself, run your own enrichment pipeline, and then send the data to Surge AI for labeling. Claru handles the entire pipeline — from deploying 10,000+ trained collectors with wearable cameras across 100+ cities, through automated multi-model enrichment (Depth Anything V2, ViTPose, SAM3), to expert human annotation of physical AI-specific labels.",
-  },
+ },
   {
     question:
       "Is Surge AI good for RLHF annotation?",
     answer:
       "Yes. Surge AI is one of the best options for RLHF annotation on text-based AI systems. Their curated workforce of expert annotators produces high-quality preference ratings, instruction evaluations, and reward model training data for LLMs. If your project involves training or fine-tuning a large language model and you need expert human feedback on text outputs, Surge AI is a strong choice. The limitation appears when teams try to apply the same annotation approach to physical AI — rating robot manipulation sequences requires different expertise than rating chatbot responses.",
-  },
+ },
   {
     question:
       "When should I choose Surge AI over Claru?",
     answer:
       "Choose Surge AI when your project involves NLP annotation (sentiment, intent, entity extraction), RLHF preference labeling for large language models, code quality evaluation and annotation, text classification or content quality rating, or instruction-following evaluation for chatbots. Choose Claru when your project involves robotics training data (egocentric video, manipulation, teleoperation), world model training (video with depth, segmentation, and temporal structure), physical AI annotation (grasp types, affordances, action boundaries), or any use case that requires data capture and enrichment before annotation.",
-  },
+ },
   {
     question:
       "How do annotation quality standards differ between NLP and physical AI?",
     answer:
       "NLP annotation quality is typically measured by inter-annotator agreement on discrete labels: does annotator A agree with annotator B that response X is better than response Y? The quality framework revolves around consistency, calibration, and bias detection in categorical judgments. Physical AI annotation quality involves entirely different metrics: temporal precision of action boundaries (measured in milliseconds), spatial accuracy of affordance labels (measured in pixels), consistency of grasp type taxonomies across annotators, and physical plausibility of intent inferences. A skilled RLHF annotator who can reliably distinguish a helpful chatbot response from a harmful one may have no ability to identify whether a power grasp or precision pinch is appropriate for a given object. The expertise does not transfer.",
-  },
+ },
   {
     question:
       "What formats does Claru deliver that Surge AI does not support?",
     answer:
       "Surge AI delivers annotation outputs in standard text and JSON formats suitable for NLP and LLM training pipelines. Claru delivers data in the formats robotics and physical AI teams use: WebDataset for streaming video training at scale, HDF5 for dense numeric arrays and manipulation trajectories, RLDS/TFDS for reinforcement learning pipelines, and Parquet for tabular metadata queries. Every Claru delivery includes enrichment layers (depth maps, segmentation masks, pose estimates, optical flow) as aligned side-channels — not just annotation labels. These enrichment layers are training inputs for the model, not just metadata. Surge AI's output is labels; Claru's output is a complete training dataset.",
-  },
+ },
 ];
 
 const faqJsonLd = {
@@ -112,8 +112,8 @@ const faqJsonLd = {
     acceptedAnswer: {
       "@type": "Answer",
       text: item.answer,
-    },
-  })),
+   },
+ })),
 };
 
 const articleJsonLd = {
@@ -126,7 +126,7 @@ const articleJsonLd = {
     "@type": "Organization",
     name: "Claru",
     url: "https://claru.ai",
-  },
+ },
   publisher: {
     "@type": "Organization",
     name: "Claru",
@@ -134,14 +134,14 @@ const articleJsonLd = {
     logo: {
       "@type": "ImageObject",
       url: "https://claru.ai/images/og-v2.webp",
-    },
-  },
+   },
+ },
   datePublished: "2026-03-30",
   dateModified: "2026-03-30",
   mainEntityOfPage: {
     "@type": "WebPage",
     "@id": "https://claru.ai/compare/surge-ai-alternatives",
-  },
+ },
 };
 
 const breadcrumbJsonLd = {
@@ -153,19 +153,19 @@ const breadcrumbJsonLd = {
       position: 1,
       name: "Home",
       item: "https://claru.ai",
-    },
+   },
     {
       "@type": "ListItem",
       position: 2,
       name: "Compare",
       item: "https://claru.ai/compare",
-    },
+   },
     {
       "@type": "ListItem",
       position: 3,
       name: "Surge AI Alternatives",
       item: "https://claru.ai/compare/surge-ai-alternatives",
-    },
+   },
   ],
 };
 
@@ -180,63 +180,63 @@ const comparisonRows = [
       "Expert annotation for NLP, RLHF, code, and text quality — LLM training data",
     claru:
       "End-to-end training data for physical AI: capture, enrich, annotate, deliver",
-  },
+ },
   {
     dimension: "Data Capture",
     surge:
       "None — annotation-only service; you must source and provide the data",
     claru:
       "10,000+ trained collectors with wearable cameras across 100+ cities; managed teleoperation; game-based capture",
-  },
+ },
   {
     dimension: "Enrichment",
     surge:
       "None — no computational enrichment pipeline for video or images",
     claru:
       "6 automated layers: depth maps, pose estimation, segmentation, optical flow, AI captions — all cross-validated",
-  },
+ },
   {
     dimension: "Annotation Workforce",
     surge:
       "Curated expert annotators — vetted for language, reasoning, and code tasks",
     claru:
       "Expert annotators trained on physical AI: grasp types, affordances, action boundaries, manipulation intent",
-  },
+ },
   {
     dimension: "Modalities",
     surge:
       "Text, code, chat logs, instruction-response pairs — primarily language",
     claru:
       "Video, depth maps, pose data, segmentation masks, trajectories — physical AI modalities",
-  },
+ },
   {
     dimension: "RLHF Capability",
     surge:
       "Industry-leading for text-based RLHF: preference pairs, reward model training, instruction evaluation",
     claru:
       "RLHF for video and physical AI: preference ranking of video clips, robot behavior evaluation, world model outputs",
-  },
+ },
   {
     dimension: "Delivery Formats",
     surge:
       "JSON, CSV — standard text annotation exports for NLP pipelines",
     claru:
       "WebDataset, HDF5, RLDS, Parquet, COCO — robotics-native formats with enrichment side-channels",
-  },
+ },
   {
     dimension: "Pricing",
     surge:
       "Per-task or project-based; premium for expert quality",
     claru:
       "Project-based; capture + enrichment + annotation bundled; no long-term commitments",
-  },
+ },
   {
     dimension: "Best For",
     surge:
       "LLM training teams that need high-quality text annotation and RLHF data",
     claru:
       "Robotics, world model, and embodied AI teams that need the full data pipeline",
-  },
+ },
 ];
 
 // =============================================================================
@@ -248,7 +248,7 @@ export default function SurgeAIAlternativesPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify([faqJsonLd, articleJsonLd, breadcrumbJsonLd]) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([faqJsonLd, articleJsonLd, breadcrumbJsonLd])}}
       />
 
       <GeoPageShell>
@@ -262,7 +262,7 @@ export default function SurgeAIAlternativesPage() {
                   color: "rgba(255,255,255,0.5)",
                   fontFamily:
                     "var(--font-mono, 'JetBrains Mono', monospace)",
-                }}
+               }}
               >
                 <li>
                   <a
@@ -281,7 +281,7 @@ export default function SurgeAIAlternativesPage() {
                 <li aria-hidden="true" className="select-none">
                   /
                 </li>
-                <li aria-current="page" style={{ color: "#92B090" }}>
+                <li aria-current="page" style={{ color: "#92B090"}}>
                   Surge AI Alternatives
                 </li>
               </ol>
@@ -297,7 +297,7 @@ export default function SurgeAIAlternativesPage() {
                 href="https://surgehq.ai"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: "#92B090" }}
+                style={{ color: "#92B090"}}
                 className="underline underline-offset-2"
               >
                 Surge AI
@@ -309,7 +309,7 @@ export default function SurgeAIAlternativesPage() {
               rates conversation quality.{" "}
               <Link
                 href="/physical-ai-training-data"
-                style={{ color: "#92B090" }}
+                style={{ color: "#92B090"}}
                 className="underline underline-offset-2"
               >
                 Physical AI
@@ -324,7 +324,7 @@ export default function SurgeAIAlternativesPage() {
               companies evolve. If anything here is inaccurate, email{" "}
               <a
                 href="mailto:contact@claru.ai"
-                style={{ color: "#92B090" }}
+                style={{ color: "#92B090"}}
                 className="not-italic"
               >
                 contact@claru.ai
@@ -417,7 +417,7 @@ export default function SurgeAIAlternativesPage() {
                 <strong className="text-white">captured</strong>{" "}
                 (<Link
                   href="/egocentric-video-datasets"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   egocentric video from real environments
@@ -428,7 +428,7 @@ export default function SurgeAIAlternativesPage() {
                 Their pipeline starts at annotation;{" "}
                 <Link
                   href="/about"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   Claru&apos;s pipeline
@@ -467,22 +467,22 @@ export default function SurgeAIAlternativesPage() {
                   title: "Temporal Precision Over Categorical Agreement",
                   description:
                     "NLP annotation produces categorical judgments: is this response better or worse? Physical AI annotation produces temporal labels: the 'reach' action starts at frame 142 and ends at frame 287, the 'grasp' begins at frame 288. Quality is measured in milliseconds of boundary accuracy, not inter-annotator agreement on categories. Getting these boundaries wrong by even 200ms can teach a robot the wrong timing for contact.",
-                },
+               },
                 {
                   title: "Spatial and Geometric Reasoning",
                   description:
                     "Text annotators reason about language. Physical AI annotators reason about 3D space — which surfaces are graspable, what is the approach vector, where is the object's center of mass, is the gripper orientation compatible with the grasp type. This requires spatial intuition that comes from understanding physical manipulation, not from reading and evaluating text.",
-                },
+               },
                 {
                   title: "Domain-Specific Taxonomies",
                   description:
                     "RLHF annotation uses taxonomies like helpful/harmless/honest or a 1-5 quality scale. Physical AI annotation uses taxonomies from robotics research: grasp types (power, precision, lateral, hook), manipulation primitives (reach, grasp, lift, transport, place, pour, stir), and object affordances (graspable, stackable, pourable, containable). Annotators must learn and reliably apply these domain-specific classification systems.",
-                },
+               },
                 {
                   title: "Multi-Modal Annotation Alignment",
                   description:
                     "NLP annotation operates on text — a single modality. Physical AI annotation must be aligned across multiple modalities simultaneously: RGB video, depth maps, segmentation masks, pose estimates, and action labels must all correspond at the frame level. Annotators need to reference enrichment layers while making labeling decisions, and their annotations must be spatially and temporally consistent with the automated enrichment.",
-                },
+               },
               ].map((card) => (
                 <div
                   key={card.title}
@@ -526,7 +526,7 @@ export default function SurgeAIAlternativesPage() {
                     </th>
                     <th
                       className="px-4 py-3 font-mono text-xs uppercase tracking-wider min-w-[220px]"
-                      style={{ color: "#92B090" }}
+                      style={{ color: "#92B090"}}
                     >
                       Claru
                     </th>
@@ -540,7 +540,7 @@ export default function SurgeAIAlternativesPage() {
                         i % 2 === 0
                           ? "bg-transparent"
                           : "bg-white/[0.02]"
-                      }
+                     }
                     >
                       <td className="px-4 py-3 font-medium text-white align-top">
                         {row.dimension}
@@ -550,7 +550,7 @@ export default function SurgeAIAlternativesPage() {
                       </td>
                       <td
                         className="px-4 py-3 align-top"
-                        style={{ color: "rgba(146,176,144,0.9)" }}
+                        style={{ color: "rgba(146,176,144,0.9)"}}
                       >
                         {row.claru}
                       </td>
@@ -581,28 +581,28 @@ export default function SurgeAIAlternativesPage() {
                   {
                     title: "RLHF for large language models",
                     desc: "If you are training or fine-tuning an LLM and need expert human preference labels — response quality, helpfulness, safety ratings — Surge AI's curated workforce is purpose-built for this. Their annotators understand language nuance and can provide the calibrated judgments that reward models need.",
-                  },
+                 },
                   {
                     title: "Text and code annotation",
                     desc: "Sentiment analysis, named entity recognition, intent classification, code review, instruction evaluation. These are Surge AI's core competencies, and their quality on these tasks consistently exceeds crowd-sourced alternatives.",
-                  },
+                 },
                   {
                     title: "Quality over volume for NLP",
                     desc: "When you need 10,000 expert-quality preference labels rather than 1 million noisy ones, Surge AI's model — expert annotators, careful curation, quality control — delivers the precision that matters for reward model training.",
-                  },
+                 },
                   {
                     title: "Instruction tuning datasets",
                     desc: "Building or curating instruction-following datasets for LLM fine-tuning. Surge AI's annotators can evaluate whether model responses follow instructions, identify failure modes, and provide the human feedback that improves model behavior.",
-                  },
+                 },
                   {
                     title: "Content quality evaluation",
                     desc: "Evaluating and scoring text content for quality, factuality, tone, and style. This is annotation work that requires reading comprehension and critical thinking — skills that Surge AI's expert workforce demonstrably has.",
-                  },
+                 },
                 ].map((item) => (
                   <li
                     key={item.title}
                     className="border-l-2 pl-5"
-                    style={{ borderColor: "rgba(255,255,255,0.2)" }}
+                    style={{ borderColor: "rgba(255,255,255,0.2)"}}
                   >
                     <strong className="text-white">
                       {item.title}.
@@ -644,32 +644,32 @@ export default function SurgeAIAlternativesPage() {
                   title: "Your model learns from video, not text",
                   description:
                     "Vision-language-action (VLA) models, world models, and robot manipulation policies learn from video sequences — not from text-response pairs. The annotation challenge is spatial and temporal, not linguistic. You need annotators who can identify action boundaries in manipulation sequences, not annotators who can rate chatbot quality.",
-                },
+               },
                 {
                   title: "You need data captured, not just labeled",
                   description:
                     "Physical AI teams often lack the raw training data entirely. You cannot send a text file to Surge AI and get back annotated manipulation trajectories — the video of those manipulation sequences needs to be physically captured in real environments first. This requires a collector network, not an annotation workforce.",
-                },
+               },
                 {
                   title: "Your pipeline needs enrichment layers",
                   description:
                     "Robotics models consume depth maps, pose estimation, segmentation masks, and optical flow as input features for training. These computational enrichment layers must be generated at scale before annotation begins. No text annotation service provides this infrastructure.",
-                },
+               },
                 {
                   title: "Your annotations must align with multi-modal data",
                   description:
                     "Physical AI annotation is not labeling in isolation — annotators must reference depth maps, segmentation overlays, and pose estimates while making labeling decisions. The annotation interface needs to present multiple data modalities simultaneously, which text annotation platforms are not designed to do.",
-                },
+               },
                 {
                   title: "You need robotics-native delivery formats",
                   description:
                     "Your training pipeline expects WebDataset, HDF5, RLDS, or Parquet with aligned enrichment side-channels. Text annotation services deliver JSON or CSV. The format gap requires significant engineering to bridge, and the enrichment layers do not exist in text annotation outputs.",
-                },
+               },
                 {
                   title: "You are training robots or world models",
                   description:
                     "If your end product is a robot policy, a world model, or an embodied AI agent — not a chatbot or a text classifier — you need a data partner whose entire infrastructure is built for physical AI. The data modalities, annotation expertise, enrichment pipelines, and delivery formats are all different.",
-                },
+               },
               ].map((card) => (
                 <div
                   key={card.title}
@@ -706,25 +706,25 @@ export default function SurgeAIAlternativesPage() {
                   title: "Capture",
                   content:
                     "Three parallel data acquisition pipelines run continuously. Wearable camera capture deploys 10,000+ trained contributors with GoPro cameras across kitchens, workshops, warehouses, retail environments, and outdoor spaces in 100+ cities worldwide. Managed teleoperation coordinates demonstrations on client-specific robot hardware with trained operators following structured task protocols. Game-based capture uses custom environments that log synchronized video and control inputs at 60 FPS, producing interaction data with perfect action labels. No annotation service — Surge AI or otherwise — provides this capability.",
-                },
+               },
                 {
                   step: "02",
                   title: "Enrich",
                   content:
                     "Every clip passes through a multi-model enrichment pipeline before human annotation begins. Monocular depth estimation (Depth Anything V2) generates per-frame depth maps. Semantic segmentation (SAM3) labels every pixel with object class and instance identity. Human pose estimation (ViTPose) extracts 2D and 3D joint positions for hand-object interaction analysis. Optical flow computes dense motion fields between consecutive frames. AI-generated captions provide natural language descriptions. All enrichment outputs are cross-validated for physical consistency. These enrichment layers become training inputs for the model — they are not annotation outputs.",
-                },
+               },
                 {
                   step: "03",
                   title: "Annotate",
                   content:
                     "Expert human annotators — trained specifically on physical AI tasks — add labels that automated systems cannot reliably produce. Action boundary annotation marks discrete actions (reach, grasp, lift, transport, place) with sub-second temporal precision. Object affordance labels identify graspable surfaces, support structures, and obstacles. Grasp type classification follows robotics taxonomies. Intent annotation captures what the person is trying to achieve. Quality scoring flags problematic clips. Every project uses guidelines co-developed with the client's ML team. This is where Surge AI's RLHF expertise does not transfer — the annotation requires physical domain knowledge, not language reasoning.",
-                },
+               },
                 {
                   step: "04",
                   title: "Deliver",
                   content:
                     "Datasets ship in the formats robotics pipelines consume: WebDataset for streaming training, HDF5 for dense trajectories, RLDS for reinforcement learning, Parquet for metadata queries. Every delivery includes enrichment layers as aligned side-channels, a manifest with checksums, and a datasheet documenting collection methodology, annotator demographics, known limitations, and intended use cases. Data is delivered via S3, GCS, or direct cloud integration. The output is not labels on text — it is a complete, multi-modal training dataset ready for policy training.",
-                },
+               },
               ].map((phase) => (
                 <div key={phase.step} className="flex gap-6">
                   <div
@@ -732,7 +732,7 @@ export default function SurgeAIAlternativesPage() {
                     style={{
                       backgroundColor: "rgba(146,176,144,0.15)",
                       color: "#92B090",
-                    }}
+                   }}
                   >
                     {phase.step}
                   </div>
@@ -764,25 +764,25 @@ export default function SurgeAIAlternativesPage() {
                   label: "Human annotations",
                   context:
                     "across egocentric video, game environments, manipulation data, and custom captures",
-                },
+               },
                 {
                   stat: "500K+",
                   label: "Egocentric clips",
                   context:
                     "from real kitchens, workshops, warehouses, and outdoor environments worldwide",
-                },
+               },
                 {
                   stat: "10,000+",
                   label: "Global contributors",
                   context:
                     "trained data collectors with wearable cameras across 100+ cities",
-                },
+               },
                 {
                   stat: "Days",
                   label: "Brief to delivery",
                   context:
                     "pilot datasets scoped and delivered in under a week, not months",
-                },
+               },
               ].map((item) => (
                 <div
                   key={item.label}
@@ -790,7 +790,7 @@ export default function SurgeAIAlternativesPage() {
                 >
                   <div
                     className="text-3xl md:text-4xl font-bold font-mono mb-1"
-                    style={{ color: "#92B090" }}
+                    style={{ color: "#92B090"}}
                   >
                     {item.stat}
                   </div>
@@ -831,7 +831,7 @@ export default function SurgeAIAlternativesPage() {
                   href="https://www.nvidia.com/en-us/ai/physical-ai/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   NVIDIA&apos;s physical AI platform
@@ -841,7 +841,7 @@ export default function SurgeAIAlternativesPage() {
                   href="https://robotics-transformer-x.github.io/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   Open X-Embodiment
@@ -853,7 +853,7 @@ export default function SurgeAIAlternativesPage() {
                 Embodied agents need{" "}
                 <Link
                   href="/egocentric-video-datasets"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   egocentric video
@@ -919,7 +919,7 @@ export default function SurgeAIAlternativesPage() {
                     "Scale AI offers enterprise-scale data annotation with a massive workforce. Unlike Surge AI's quality-first approach, Scale AI optimizes for volume and breadth across NLP, image, video, and autonomous vehicle annotation. Strengths: proven at massive scale, broad modality coverage, strong enterprise tooling. Weaknesses: annotation-only (no capture or enrichment), not specialized for physical AI, expensive enterprise contracts. Best for large-volume annotation projects where you already have the raw data.",
                   link: "/compare/scale-ai-alternatives",
                   linkText: "See our Scale AI comparison",
-                },
+               },
                 {
                   name: "Labelbox",
                   type: "Annotation platform",
@@ -927,7 +927,7 @@ export default function SurgeAIAlternativesPage() {
                     "Labelbox has evolved from an annotation platform into a broad AI data factory. They now offer RLHF data, custom evaluations, an expert network (Alignerr, 1.5M+ workers), and robotics data capture with teleoperation. Strengths: breadth across AI modalities, large expert network, model evaluations. Weaknesses: breadth over depth — expanding into robotics rather than built for it. Best for teams that need one vendor across NLP, image, video, and robotics data.",
                   link: "/compare/labelbox-alternatives",
                   linkText: "See our Labelbox comparison",
-                },
+               },
                 {
                   name: "Appen",
                   type: "Crowd labeling",
@@ -935,7 +935,7 @@ export default function SurgeAIAlternativesPage() {
                     "Appen is a legacy crowd-sourced annotation provider with a massive global workforce. Strengths: linguistic diversity, global reach, broad task coverage. Weaknesses: quality has declined in recent years, no physical AI specialization, annotation-only model. Best for high-volume, cost-sensitive NLP and image labeling where perfect quality is less critical than coverage and scale.",
                   link: "/compare/appen-alternatives",
                   linkText: "See our Appen comparison",
-                },
+               },
                 {
                   name: "Luel (YC W26)",
                   type: "Data marketplace",
@@ -943,12 +943,12 @@ export default function SurgeAIAlternativesPage() {
                     "Luel is a two-sided marketplace for rights-cleared multimodal data. Unlike annotation services, Luel provides the raw data itself. Strengths: fast access to licensed video and image content, rights-cleared for training. Weaknesses: no enrichment pipeline, no annotation service, raw data only. Best for teams that need licensed footage for video generation models and will handle enrichment and annotation in-house.",
                   link: "/compare/claru-vs-luel",
                   linkText: "See our Luel comparison",
-                },
+               },
               ].map((alt) => (
                 <div
                   key={alt.name}
                   className="border-l-2 pl-6"
-                  style={{ borderColor: "rgba(146,176,144,0.4)" }}
+                  style={{ borderColor: "rgba(146,176,144,0.4)"}}
                 >
                   <div className="flex items-baseline gap-3 mb-2">
                     <h3 className="text-lg font-semibold text-white">
@@ -959,7 +959,7 @@ export default function SurgeAIAlternativesPage() {
                       style={{
                         backgroundColor: "rgba(146,176,144,0.15)",
                         color: "#92B090",
-                      }}
+                     }}
                     >
                       {alt.type}
                     </span>
@@ -971,7 +971,7 @@ export default function SurgeAIAlternativesPage() {
                     <Link
                       href={alt.link}
                       className="inline-block mt-2 text-sm font-medium transition-colors"
-                      style={{ color: "#92B090" }}
+                      style={{ color: "#92B090"}}
                     >
                       {alt.linkText} &rarr;
                     </Link>
@@ -1055,62 +1055,62 @@ export default function SurgeAIAlternativesPage() {
                   href: "/training-data-for-robotics",
                   title: "Training Data for Robotics",
                   desc: "Purpose-built datasets for robot learning: egocentric video, manipulation, teleoperation.",
-                },
+               },
                 {
                   href: "/physical-ai-training-data",
                   title: "Physical AI Training Data",
                   desc: "Real-world datasets for models that understand physics and embodiment.",
-                },
+               },
                 {
                   href: "/egocentric-video-datasets",
                   title: "Egocentric Video Datasets",
                   desc: "First-person video capture from 10,000+ contributors worldwide.",
-                },
+               },
                 {
                   href: "/embodied-ai-datasets",
                   title: "Embodied AI Datasets",
                   desc: "Grounded, multi-modal datasets for agents that act in the physical world.",
-                },
+               },
                 {
                   href: "/compare/scale-ai-alternatives",
                   title: "Scale AI Alternatives",
                   desc: "Specialized training data providers for physical AI teams.",
-                },
+               },
                 {
                   href: "/compare/labelbox-alternatives",
                   title: "Labelbox Alternatives",
                   desc: "End-to-end data infrastructure vs. annotation platforms.",
-                },
+               },
                 {
                   href: "/compare/appen-alternatives",
                   title: "Appen Alternatives",
                   desc: "Crowd labeling vs. physical AI specialization for robotics data.",
-                },
+               },
                 {
                   href: "/compare/claru-vs-luel",
                   title: "Claru vs Luel",
                   desc: "Marketplace raw data vs. end-to-end enriched physical AI data.",
-                },
+               },
                 {
                   href: "/about",
                   title: "About Claru",
                   desc: "Meet the Moonvalley co-founders building physical AI data infrastructure.",
-                },
+               },
                 {
                   href: "/case-studies",
                   title: "Case Studies",
                   desc: "Real project outcomes with metrics and methodology documentation.",
-                },
+               },
                 {
                   href: "/data-catalog",
                   title: "Browse the Data Catalog",
                   desc: "Explore 25+ licensed datasets across robotics, video, and multimodal AI.",
-                },
+               },
                 {
                   href: "/solutions",
                   title: "All Solutions",
                   desc: "Custom data pipelines for acquisition, enrichment, annotation, and validation.",
-                },
+               },
               ].map((link) => (
                 <Link
                   key={link.href}
@@ -1120,7 +1120,7 @@ export default function SurgeAIAlternativesPage() {
                   <div>
                     <div
                       className="text-sm font-medium group-hover:underline"
-                      style={{ color: "#92B090" }}
+                      style={{ color: "#92B090"}}
                     >
                       {link.title}
                     </div>
@@ -1178,7 +1178,7 @@ export default function SurgeAIAlternativesPage() {
                 style={{
                   backgroundColor: "#92B090",
                   color: "#0a0908",
-                }}
+               }}
               >
                 Get Started
               </a>

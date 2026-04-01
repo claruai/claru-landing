@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata} from "next";
 import Link from "next/link";
 import GeoPageShell from "@/app/components/content/GeoPageShell";
 
@@ -39,18 +39,18 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         alt: "Encord Alternatives for Physical AI Training Data — Claru",
-      },
+     },
     ],
-  },
+ },
   twitter: {
     card: "summary_large_image",
     title: "Encord Alternatives: Training-Ready Data for Physical AI (2026)",
     description:
       "Platform vs. service for physical AI data. Encord gives you tools to build your own pipeline. Claru delivers training-ready datasets. A side-by-side comparison.",
-  },
+ },
   alternates: {
     canonical: "https://claru.ai/compare/encord-alternatives",
-  },
+ },
 };
 
 // =============================================================================
@@ -63,43 +63,43 @@ const faqItems = [
       "What is the main difference between Encord and Claru for physical AI data?",
     answer:
       "Encord is a data infrastructure platform — it provides software tools for AI teams to manage, curate, annotate, and evaluate their own data. Teams bring their own data, their own annotators or use Encord's workflows, and build their pipeline on top of Encord's tooling. Claru is a data service — it captures real-world video through 10,000+ trained collectors, enriches every clip with depth maps, pose estimation, segmentation, and optical flow, has expert annotators label action boundaries and affordances, and delivers training-ready datasets in robotics-native formats. The core difference is platform (tools to build your own pipeline) vs. service (training-ready data delivered to you).",
-  },
+ },
   {
     question:
       "Does Encord capture physical AI data or is it annotation-only?",
     answer:
       "Encord is a software platform, not a data capture service. Teams using Encord bring their own data — video, LiDAR point clouds, sensor data, images — and use Encord's tools to manage, curate, annotate, and evaluate that data. Encord does not operate a data collection network or capture video on your behalf. Claru operates the full pipeline: 10,000+ contributors with wearable cameras across 100+ cities capture egocentric video, managed teleoperation records demonstrations on specific robot hardware, and game-based capture produces interaction data at 60 FPS. If you already have data and need better tooling, Encord is strong. If you need data captured and delivered, that is what Claru does.",
-  },
+ },
   {
     question:
       "How does Encord's data volume (5PB+) compare to Claru's scale?",
     answer:
       "Encord reports 5+ petabytes of data on its platform as of early 2026 — this represents data that Encord's customers have uploaded and processed through the platform, not data that Encord captured or owns. Encord serves 300+ AI teams globally, including Woven by Toyota and Skydio. Claru has delivered 3.7 million+ human annotations, 500,000+ egocentric video clips, and operates 10,000+ trained data collectors across 100+ cities — focused exclusively on physical AI. The numbers measure different things: Encord measures data processed through its software; Claru measures data captured, enriched, annotated, and delivered as a service.",
-  },
+ },
   {
     question:
       "When should I choose Encord over Claru for robotics data?",
     answer:
       "Choose Encord when your team already has large volumes of physical AI data (from your own robots, vehicles, or drones) and needs better tooling to manage, curate, annotate, and evaluate it. Encord's platform supports 2D, 3D, LiDAR, radar, video, and sensor fusion with built-in QA, version control, and model evaluation workflows. Choose Claru when you need training data delivered — when you do not yet have the data, when you need deep enrichment (depth, pose, segmentation, optical flow) as training inputs, or when you need expert annotators trained on physical AI tasks like grasp types and action boundaries. Many teams use both: Encord for managing their internal data pipeline, Claru for sourcing and delivering new training data.",
-  },
+ },
   {
     question:
       "Can I use Encord and Claru together?",
     answer:
       "Yes. The platform-vs-service distinction means they address different parts of the data lifecycle. Some teams use Claru to capture, enrich, and annotate new datasets, then import those datasets into Encord's platform for ongoing curation, model evaluation, and active learning workflows. Encord manages the data pipeline; Claru fills the pipeline with training-ready physical AI data. This is a common pattern for teams that have both internal data (managed via Encord) and external data needs (sourced via Claru).",
-  },
+ },
   {
     question:
       "How does Encord's annotation tooling compare to Claru's enrichment pipeline?",
     answer:
       "Encord offers AI-assisted annotation with human-in-the-loop workflows, claiming up to 3x faster labeling and 6x faster video annotation. Their tools include embedding-based curation, natural language search, model-assisted labeling, and quality assurance workflows. These are annotation productivity tools — they help human annotators work faster. Claru's enrichment pipeline produces computational training inputs that are not annotations at all: depth maps from Depth Anything V2, segmentation masks from SAM3, pose estimation from ViTPose, and optical flow from RAFT. These outputs are delivered as aligned side-channels that models consume directly during training. One improves annotation throughput; the other produces training-ready input features.",
-  },
+ },
   {
     question:
       "What is Encord's pricing model compared to Claru's?",
     answer:
       "Encord offers a software platform with tiered pricing — typically a subscription or enterprise license based on data volume, users, and features. Teams pay for the platform and then use their own resources (or Encord's workflows) for annotation. Claru uses project-based pricing that bundles capture, enrichment, and annotation into a single deliverable. There are no platform fees, no long-term commitments, and no separate charges for enrichment layers. The cost models reflect the difference: Encord is a tool you operate; Claru is a service that delivers output.",
-  },
+ },
 ];
 
 const faqJsonLd = {
@@ -111,8 +111,8 @@ const faqJsonLd = {
     acceptedAnswer: {
       "@type": "Answer",
       text: item.answer,
-    },
-  })),
+   },
+ })),
 };
 
 // =============================================================================
@@ -130,7 +130,7 @@ const articleJsonLd = {
     "@type": "Organization",
     name: "Claru",
     url: "https://claru.ai",
-  },
+ },
   publisher: {
     "@type": "Organization",
     name: "Claru",
@@ -138,14 +138,14 @@ const articleJsonLd = {
     logo: {
       "@type": "ImageObject",
       url: "https://claru.ai/images/og-v2.webp",
-    },
-  },
+   },
+ },
   datePublished: "2026-03-30",
   dateModified: "2026-03-30",
   mainEntityOfPage: {
     "@type": "WebPage",
     "@id": "https://claru.ai/compare/encord-alternatives",
-  },
+ },
 };
 
 // =============================================================================
@@ -161,19 +161,19 @@ const breadcrumbJsonLd = {
       position: 1,
       name: "Home",
       item: "https://claru.ai",
-    },
+   },
     {
       "@type": "ListItem",
       position: 2,
       name: "Compare",
       item: "https://claru.ai/compare",
-    },
+   },
     {
       "@type": "ListItem",
       position: 3,
       name: "Encord Alternatives",
       item: "https://claru.ai/compare/encord-alternatives",
-    },
+   },
   ],
 };
 
@@ -188,70 +188,70 @@ const comparisonRows = [
       "Software platform — tools for teams to manage, curate, annotate, and evaluate their own data",
     claru:
       "Data service — captures, enriches, annotates, and delivers training-ready datasets end-to-end",
-  },
+ },
   {
     dimension: "Data Capture",
     encord:
       "No capture — teams bring their own data (video, LiDAR, sensor, images) to the platform",
     claru:
       "10,000+ trained collectors with wearable cameras across 100+ cities; managed teleoperation; game-based capture at 60 FPS",
-  },
+ },
   {
     dimension: "Annotation Tooling",
     encord:
       "AI-assisted HITL workflows, up to 3x faster labeling, 6x faster video annotation, embedding-based curation, model-assisted labeling",
     claru:
       "Expert annotators trained on physical AI: grasp types, affordances, action boundaries, manipulation intent — project-specific guidelines co-developed with client ML teams",
-  },
+ },
   {
     dimension: "Enrichment",
     encord:
       "Natural language search, embedding-based filtering, auto-tagging for annotation productivity — tools to help annotators work faster",
     claru:
       "6 cross-validated layers on every clip: depth maps (Depth Anything V2), pose (ViTPose), segmentation (SAM3), optical flow (RAFT), AI captions — delivered as training inputs",
-  },
+ },
   {
     dimension: "Data Modalities",
     encord:
       "2D, 3D, LiDAR, radar, video, medical imaging, audio, sensor fusion — broad multimodal support",
     claru:
       "Video, egocentric video, teleoperation recordings, manipulation sequences, game-based capture — 100% physical AI focused",
-  },
+ },
   {
     dimension: "Model Evaluation",
     encord:
       "RLHF, rubric-based evaluation, pairwise comparison, embedding-based edge case discovery, active learning integration",
     claru:
       "Dataset datasheets with methodology documentation, cross-validation reports on enrichment quality, per-clip quality scoring",
-  },
+ },
   {
     dimension: "Scale / Customers",
     encord:
       "5PB+ data on platform, 300+ physical AI teams, Woven by Toyota, Skydio, Zipline; $110M total raised at $550M valuation",
     claru:
       "3.7M+ human annotations, 500K+ egocentric clips, 10,000+ collectors across 100+ cities; 5+ frontier lab partnerships",
-  },
+ },
   {
     dimension: "Delivery Formats",
     encord:
       "COCO, Pascal VOC, custom annotation exports; data stays on platform or exports via API",
     claru:
       "WebDataset, HDF5, RLDS, Parquet — robotics-native formats with aligned enrichment side-channels; S3/GCS delivery",
-  },
+ },
   {
     dimension: "Pricing Model",
     encord:
       "Platform subscription — tiered by data volume, users, and features; enterprise contracts available",
     claru:
       "Project-based pricing — capture + enrichment + annotation bundled; no platform fees, no long-term commitment required",
-  },
+ },
   {
     dimension: "Best For",
     encord:
       "Teams with existing data that need better tooling for annotation, curation, QA, and evaluation workflows",
     claru:
       "Teams that need training-ready physical AI data delivered — capture, enrichment, annotation, and format conversion included",
-  },
+ },
 ];
 
 // =============================================================================
@@ -265,7 +265,7 @@ export default function EncordAlternativesPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify([faqJsonLd, articleJsonLd, breadcrumbJsonLd]),
-        }}
+       }}
       />
 
       <GeoPageShell>
@@ -279,7 +279,7 @@ export default function EncordAlternativesPage() {
                   color: "rgba(255,255,255,0.5)",
                   fontFamily:
                     "var(--font-mono, 'JetBrains Mono', monospace)",
-                }}
+               }}
               >
                 <li>
                   <a
@@ -298,7 +298,7 @@ export default function EncordAlternativesPage() {
                 <li aria-hidden="true" className="select-none">
                   /
                 </li>
-                <li aria-current="page" style={{ color: "#92B090" }}>
+                <li aria-current="page" style={{ color: "#92B090"}}>
                   Encord Alternatives
                 </li>
               </ol>
@@ -313,7 +313,7 @@ export default function EncordAlternativesPage() {
                 href="https://encord.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: "#92B090" }}
+                style={{ color: "#92B090"}}
                 className="underline underline-offset-2"
               >
                 Encord
@@ -321,7 +321,7 @@ export default function EncordAlternativesPage() {
               is building a broad{" "}
               <Link
                 href="/physical-ai-training-data"
-                style={{ color: "#92B090" }}
+                style={{ color: "#92B090"}}
                 className="underline underline-offset-2"
               >
                 physical AI
@@ -339,7 +339,7 @@ export default function EncordAlternativesPage() {
               companies evolve. If anything here is inaccurate, email{" "}
               <a
                 href="mailto:contact@claru.ai"
-                style={{ color: "#92B090" }}
+                style={{ color: "#92B090"}}
                 className="not-italic"
               >
                 contact@claru.ai
@@ -377,7 +377,7 @@ export default function EncordAlternativesPage() {
                 datasets in{" "}
                 <Link
                   href="/training-data-for-robotics"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   robotics-native formats
@@ -410,7 +410,7 @@ export default function EncordAlternativesPage() {
                   href="https://encord.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   Encord
@@ -425,7 +425,7 @@ export default function EncordAlternativesPage() {
                   href="https://siliconangle.com/2026/02/26/physical-ai-data-infrastructure-startup-encord-lands-60m-accelerate-intelligent-robot-drone-development/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   $60M Series C
@@ -441,7 +441,7 @@ export default function EncordAlternativesPage() {
                 Claru took a different approach.{" "}
                 <Link
                   href="/about"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   Our founders
@@ -475,7 +475,7 @@ export default function EncordAlternativesPage() {
                   href="https://www.nvidia.com/en-us/ai/physical-ai/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   physical AI market
@@ -508,22 +508,22 @@ export default function EncordAlternativesPage() {
                   title: "Data Capture vs. Data Management",
                   description:
                     "Encord does not capture data. Teams bring video, LiDAR, sensor data, and images to the platform. Encord's value is in managing, organizing, and processing that data efficiently. Claru operates three parallel capture pipelines: wearable camera networks (10,000+ contributors, 100+ cities), managed teleoperation on client hardware, and game-based capture at 60 FPS. If you have data, Encord helps you manage it. If you need data, Claru captures it.",
-                },
+               },
                 {
                   title: "Annotation Tooling vs. Annotation Service",
                   description:
                     "Encord provides annotation tools — AI-assisted labeling, human-in-the-loop workflows, embedding-based curation, and quality assurance. Your team (or contractors) operates those tools. Claru provides annotation as a service — our annotators are trained specifically on physical AI tasks: grasp types, action boundaries, manipulation intent, object affordances. You get labeled data, not labeling software.",
-                },
+               },
                 {
                   title: "Enrichment Architecture",
                   description:
                     "Encord's AI features focus on annotation productivity: auto-tagging, natural language search, embedding-based filtering, and model-assisted labeling. These help annotators work faster. Claru's enrichment pipeline produces computational training inputs: depth maps (Depth Anything V2), segmentation masks (SAM3), pose estimation (ViTPose 2D/3D), optical flow (RAFT), and AI captions. These outputs are not annotation aids — they are training-ready features that models consume directly.",
-                },
+               },
                 {
                   title: "Delivery Model",
                   description:
                     "Encord is a SaaS platform — data lives on the platform and exports via API or standard formats (COCO, Pascal VOC). Claru delivers datasets directly to your infrastructure: WebDataset for streaming training, HDF5 for dense trajectories, RLDS for reinforcement learning, Parquet for metadata. Every delivery includes enrichment layers as aligned side-channels, manifests with checksums, and datasheets documenting methodology.",
-                },
+               },
               ].map((card) => (
                 <div
                   key={card.title}
@@ -566,7 +566,7 @@ export default function EncordAlternativesPage() {
                     </th>
                     <th
                       className="px-4 py-3 font-mono text-xs uppercase tracking-wider min-w-[220px]"
-                      style={{ color: "#92B090" }}
+                      style={{ color: "#92B090"}}
                     >
                       Claru
                     </th>
@@ -580,7 +580,7 @@ export default function EncordAlternativesPage() {
                         i % 2 === 0
                           ? "bg-transparent"
                           : "bg-white/[0.02]"
-                      }
+                     }
                     >
                       <td className="px-4 py-3 font-medium text-white align-top">
                         {row.dimension}
@@ -590,7 +590,7 @@ export default function EncordAlternativesPage() {
                       </td>
                       <td
                         className="px-4 py-3 align-top"
-                        style={{ color: "rgba(146,176,144,0.9)" }}
+                        style={{ color: "rgba(146,176,144,0.9)"}}
                       >
                         {row.claru}
                       </td>
@@ -621,28 +621,28 @@ export default function EncordAlternativesPage() {
                   {
                     title: "You already have large volumes of physical AI data",
                     desc: "If your robots, vehicles, or drones are capturing data at scale and your bottleneck is managing, curating, and annotating that data efficiently, Encord's platform is purpose-built for this. Their support for 2D, 3D, LiDAR, radar, and sensor fusion means your multimodal data can live in one place.",
-                  },
+                 },
                   {
                     title: "You have (or want to build) an internal annotation team",
                     desc: "Encord's AI-assisted labeling tools — 3x faster annotation, 6x faster video labeling, model-assisted pre-labeling — make human annotators more productive. If you have an existing annotation team and want to scale their throughput, Encord's tooling can accelerate that significantly.",
-                  },
+                 },
                   {
                     title: "You need model evaluation alongside annotation",
                     desc: "Encord offers RLHF workflows, rubric-based evaluation, pairwise comparison, and embedding-based edge case discovery within the same platform as annotation. If your workflow involves tight iteration between annotation, training, and evaluation, having these in one tool reduces context switching.",
-                  },
+                 },
                   {
                     title: "You work across many data modalities",
                     desc: "Encord supports images, video, LiDAR, point clouds, medical imaging, audio, and sensor fusion. If your team works across autonomous vehicles, drones, and robotics — each with different sensor stacks — Encord's broad modality support consolidates your toolchain.",
-                  },
+                 },
                   {
                     title: "You need an audit trail and compliance infrastructure",
                     desc: "Encord creates audit trails for annotation decisions, supports version control for datasets, and provides lineage tracking. For teams in regulated industries (medical robotics, autonomous vehicles), this compliance infrastructure can be a requirement, not a feature.",
-                  },
+                 },
                 ].map((item) => (
                   <li
                     key={item.title}
                     className="border-l-2 pl-5"
-                    style={{ borderColor: "rgba(255,255,255,0.2)" }}
+                    style={{ borderColor: "rgba(255,255,255,0.2)"}}
                   >
                     <strong className="text-white">
                       {item.title}.
@@ -684,32 +684,32 @@ export default function EncordAlternativesPage() {
                   title: "You need data captured, not just annotated",
                   description:
                     "Encord manages data you already have. Claru captures data you need. If your project requires egocentric video from diverse real-world environments, teleoperation demonstrations on specific hardware, or game-based interaction data — you need a capture service, not a management platform. Claru's 10,000+ contributor network spans 100+ cities with wearable cameras, managed teleoperation, and custom game-based pipelines.",
-                },
+               },
                 {
                   title: "Your models need enrichment as training inputs",
                   description:
                     "Robotics models consume depth maps, pose estimation, segmentation masks, and optical flow as direct training inputs — not just annotations on video. Claru's enrichment pipeline produces these at scale, cross-validates them for physical consistency, and delivers them as aligned side-channels. This is computational enrichment for training, not auto-tagging for annotation productivity.",
-                },
+               },
                 {
                   title: "You do not have (or want) an annotation ops team",
                   description:
                     "Many robotics startups have 10-50 ML researchers and zero annotation specialists. Building an annotation team, training them on physical AI tasks, managing quality, and operating tooling is a full-time operations challenge. Claru's annotators are already trained on grasp types, action boundaries, manipulation intent, and affordances. You describe what your model needs to learn; we deliver labeled data.",
-                },
+               },
                 {
                   title: "You need robotics-native delivery formats",
                   description:
                     "Your training pipeline expects WebDataset for streaming, HDF5 for dense trajectories, RLDS for reinforcement learning, or Parquet for metadata queries — with enrichment layers as aligned side-channels. Claru delivers in these formats natively. Exporting from an annotation platform and converting to robotics-native formats is engineering overhead that a data service eliminates.",
-                },
+               },
                 {
                   title: "Speed on custom datasets matters",
                   description:
                     "Claru scopes and delivers pilot datasets in days, not weeks. If you need a specific dataset — manipulation demonstrations in a particular environment, egocentric video of a particular task — captured, enriched, annotated, and delivered on a tight timeline, a service that owns the entire pipeline can move faster than a platform you need to configure and operate yourself.",
-                },
+               },
                 {
                   title: "Physical AI is your only data need",
                   description:
                     "If you are a robotics company and physical AI training data is the only external data you purchase, you do not need a multi-modality platform. You need a partner whose entire organization — engineering, operations, annotation workforce — is optimized for your specific use case. Claru does one thing: physical AI data. Nothing else.",
-                },
+               },
               ].map((card) => (
                 <div
                   key={card.title}
@@ -738,7 +738,7 @@ export default function EncordAlternativesPage() {
               built as a{" "}
               <Link
                 href="/training-data-for-robotics"
-                style={{ color: "#92B090" }}
+                style={{ color: "#92B090"}}
                 className="underline underline-offset-2"
               >
                 physical AI data delivery service
@@ -753,25 +753,25 @@ export default function EncordAlternativesPage() {
                   title: "Capture",
                   content:
                     "Three parallel acquisition pipelines run continuously. Wearable camera capture deploys 10,000+ trained contributors with GoPro cameras across kitchens, workshops, warehouses, retail environments, and outdoor spaces in 100+ cities worldwide. Managed teleoperation coordinates demonstrations on client-specific robot hardware (Franka, UR5, custom rigs) with trained operators following structured task protocols. Game-based capture uses custom environments that log synchronized video and control inputs at 60 FPS, producing interaction data with perfect action labels.",
-                },
+               },
                 {
                   step: "02",
                   title: "Enrich",
                   content:
                     "Every clip passes through a multi-model enrichment pipeline. Monocular depth estimation (Depth Anything V2) generates per-frame depth maps. Semantic segmentation (SAM3) labels every pixel with object class and instance identity. Human pose estimation (ViTPose) extracts 2D and 3D joint positions for hand-object interaction analysis. Optical flow (RAFT) computes dense motion fields between frames. AI-generated captions provide natural language descriptions. All outputs are cross-validated: depth against segmentation boundaries, pose against temporal smoothness.",
-                },
+               },
                 {
                   step: "03",
                   title: "Annotate",
                   content:
                     "Expert annotators trained on physical AI add labels automated systems cannot reliably produce. Action boundary annotation marks discrete actions (reach, grasp, lift, transport, place) with sub-second precision. Object affordance labels identify graspable surfaces, support structures, and obstacles. Grasp type classification follows established robotics taxonomies. Intent annotation captures what the person is trying to achieve. Quality scoring flags problematic clips. Every project uses guidelines co-developed with the client's ML team.",
-                },
+               },
                 {
                   step: "04",
                   title: "Deliver",
                   content:
                     "Datasets ship in robotics-native formats. WebDataset for streaming training. HDF5 for dense trajectories. RLDS for reinforcement learning. Parquet for metadata queries. Every delivery includes enrichment layers as aligned side-channels, a manifest with checksums, and a datasheet documenting collection methodology, annotator demographics, known limitations, and intended use cases. Data delivered via S3, GCS, or direct cloud integration.",
-                },
+               },
               ].map((phase) => (
                 <div key={phase.step} className="flex gap-6">
                   <div
@@ -779,7 +779,7 @@ export default function EncordAlternativesPage() {
                     style={{
                       backgroundColor: "rgba(146,176,144,0.15)",
                       color: "#92B090",
-                    }}
+                   }}
                   >
                     {phase.step}
                   </div>
@@ -837,7 +837,7 @@ export default function EncordAlternativesPage() {
                   href="https://depth-anything-v2.github.io/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   Depth Anything V2
@@ -897,7 +897,7 @@ export default function EncordAlternativesPage() {
                   <li key={point} className="flex items-start gap-3">
                     <span
                       className="mt-2 h-1.5 w-1.5 rounded-full flex-none"
-                      style={{ backgroundColor: "#92B090" }}
+                      style={{ backgroundColor: "#92B090"}}
                     />
                     <span>{point}</span>
                   </li>
@@ -922,7 +922,7 @@ export default function EncordAlternativesPage() {
                   href="https://www.nvidia.com/en-us/ai/physical-ai/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   400 million intelligent robots
@@ -947,25 +947,25 @@ export default function EncordAlternativesPage() {
                   label: "Human annotations",
                   context:
                     "across egocentric video, game environments, manipulation data, and custom captures",
-                },
+               },
                 {
                   stat: "500K+",
                   label: "Egocentric clips",
                   context:
                     "from real kitchens, workshops, warehouses, and outdoor environments worldwide",
-                },
+               },
                 {
                   stat: "10,000+",
                   label: "Global contributors",
                   context:
                     "trained data collectors with wearable cameras across 100+ cities",
-                },
+               },
                 {
                   stat: "Days",
                   label: "Brief to delivery",
                   context:
                     "pilot datasets scoped and delivered in under a week, not months",
-                },
+               },
               ].map((item) => (
                 <div
                   key={item.label}
@@ -973,7 +973,7 @@ export default function EncordAlternativesPage() {
                 >
                   <div
                     className="text-3xl md:text-4xl font-bold font-mono mb-1"
-                    style={{ color: "#92B090" }}
+                    style={{ color: "#92B090"}}
                   >
                     {item.stat}
                   </div>
@@ -1010,7 +1010,7 @@ export default function EncordAlternativesPage() {
                     "Labelbox is a broad AI data platform that has expanded into robotics capture, annotation, RLHF, and model evaluation. Like Encord, it is a platform — but broader (NLP, images, video, robotics) rather than physical-AI-focused. Strengths: Alignerr expert network (1.5M+ workers), RLHF for LLMs, custom evaluations. Weaknesses: breadth can mean less depth in any one vertical. Best when you need one platform across many AI modalities.",
                   link: "/compare/labelbox-alternatives",
                   linkText: "See our Labelbox comparison",
-                },
+               },
                 {
                   name: "Scale AI",
                   type: "Enterprise labeling",
@@ -1018,7 +1018,7 @@ export default function EncordAlternativesPage() {
                     "Scale AI is the enterprise standard for data labeling at massive scale. Primarily annotation-only: you bring data, they label it. Strengths: proven at enterprise scale, strong quality controls, massive workforce. Weaknesses: enterprise pricing, annotation-only model, generalist rather than specialist. Best for high-volume annotation on existing data.",
                   link: "/compare/scale-ai-alternatives",
                   linkText: "See our Scale AI comparison",
-                },
+               },
                 {
                   name: "Surge AI",
                   type: "Expert annotation",
@@ -1026,7 +1026,7 @@ export default function EncordAlternativesPage() {
                     "Surge AI provides expert human annotation through a curated workforce, focused on quality over volume. Excellent for RLHF and NLP tasks. Strengths: high annotation quality, vetted annotators. Weaknesses: annotation-only, NLP-focused, limited video and physical AI capabilities. Best for LLM training data.",
                   link: "/compare/surge-ai-alternatives",
                   linkText: "See our Surge AI comparison",
-                },
+               },
                 {
                   name: "Appen",
                   type: "Crowd labeling",
@@ -1034,7 +1034,7 @@ export default function EncordAlternativesPage() {
                     "Appen is one of the original crowd-sourced data labeling companies with nearly 30 years of operation. Recently expanded into physical AI with LiDAR annotation. Strengths: massive global workforce, linguistic diversity. Weaknesses: quality concerns in recent years, crowd model less suited for specialized physical AI tasks. Best for high-volume multilingual NLP.",
                   link: "/compare/appen-alternatives",
                   linkText: "See our Appen comparison",
-                },
+               },
                 {
                   name: "Luel (YC W26)",
                   type: "Data marketplace",
@@ -1042,18 +1042,18 @@ export default function EncordAlternativesPage() {
                     "Luel is a two-sided marketplace for rights-cleared multimodal data. Fast access to raw licensed footage. Strengths: speed, rights management, contributor network. Weaknesses: no enrichment pipeline, no custom capture, raw data only. Best for teams that need raw licensed video and handle enrichment in-house.",
                   link: "/compare/claru-vs-luel",
                   linkText: "See our Luel comparison",
-                },
+               },
                 {
                   name: "CVAT",
                   type: "Open-source platform",
                   description:
                     "Computer Vision Annotation Tool — open-source annotation platform from Intel. Similar in concept to Encord but self-hosted and free. Strengths: no licensing cost, flexible, strong community. Weaknesses: self-hosted (DevOps required), no data capture, no enrichment, no managed workforce. Best for teams that want full control and have engineering resources.",
-                },
+               },
               ].map((alt) => (
                 <div
                   key={alt.name}
                   className="border-l-2 pl-6"
-                  style={{ borderColor: "rgba(146,176,144,0.4)" }}
+                  style={{ borderColor: "rgba(146,176,144,0.4)"}}
                 >
                   <div className="flex items-baseline gap-3 mb-2">
                     <h3 className="text-lg font-semibold text-white">
@@ -1064,7 +1064,7 @@ export default function EncordAlternativesPage() {
                       style={{
                         backgroundColor: "rgba(146,176,144,0.15)",
                         color: "#92B090",
-                      }}
+                     }}
                     >
                       {alt.type}
                     </span>
@@ -1076,7 +1076,7 @@ export default function EncordAlternativesPage() {
                     <Link
                       href={alt.link}
                       className="inline-block mt-2 text-sm font-medium transition-colors"
-                      style={{ color: "#92B090" }}
+                      style={{ color: "#92B090"}}
                     >
                       {alt.linkText} &rarr;
                     </Link>
@@ -1125,7 +1125,7 @@ export default function EncordAlternativesPage() {
                 optical flow) as training inputs. Your{" "}
                 <Link
                   href="/embodied-ai-datasets"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   annotation tasks
@@ -1134,7 +1134,7 @@ export default function EncordAlternativesPage() {
                 in{" "}
                 <Link
                   href="/egocentric-video-datasets"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   robotics-native formats
@@ -1173,62 +1173,62 @@ export default function EncordAlternativesPage() {
                   href: "/training-data-for-robotics",
                   title: "Training Data for Robotics",
                   desc: "Purpose-built datasets for robot learning: egocentric video, manipulation, teleoperation.",
-                },
+               },
                 {
                   href: "/physical-ai-training-data",
                   title: "Physical AI Training Data",
                   desc: "Real-world datasets for models that understand physics and embodiment.",
-                },
+               },
                 {
                   href: "/egocentric-video-datasets",
                   title: "Egocentric Video Datasets",
                   desc: "First-person video capture from 10,000+ contributors worldwide.",
-                },
+               },
                 {
                   href: "/embodied-ai-datasets",
                   title: "Embodied AI Datasets",
                   desc: "Grounded, multi-modal datasets for agents that act in the physical world.",
-                },
+               },
                 {
                   href: "/compare/labelbox-alternatives",
                   title: "Labelbox Alternatives",
                   desc: "Broad platform vs. physical AI specialist for robotics data.",
-                },
+               },
                 {
                   href: "/compare/scale-ai-alternatives",
                   title: "Scale AI Alternatives",
                   desc: "Enterprise labeling vs. specialized physical AI data services.",
-                },
+               },
                 {
                   href: "/compare/surge-ai-alternatives",
                   title: "Surge AI Alternatives",
                   desc: "NLP annotation expertise vs. physical AI data delivery.",
-                },
+               },
                 {
                   href: "/compare/appen-alternatives",
                   title: "Appen Alternatives",
                   desc: "Crowd labeling vs. physical AI specialization for robotics data.",
-                },
+               },
                 {
                   href: "/compare/claru-vs-luel",
                   title: "Claru vs Luel",
                   desc: "Marketplace raw data vs. end-to-end enriched physical AI data.",
-                },
+               },
                 {
                   href: "/about",
                   title: "About Claru",
                   desc: "Meet the Moonvalley co-founders building physical AI data infrastructure.",
-                },
+               },
                 {
                   href: "/data-catalog",
                   title: "Browse the Data Catalog",
                   desc: "Explore 25+ licensed datasets across robotics, video, and multimodal AI.",
-                },
+               },
                 {
                   href: "/solutions",
                   title: "All Solutions",
                   desc: "Custom data pipelines for acquisition, enrichment, annotation, and validation.",
-                },
+               },
               ].map((link) => (
                 <Link
                   key={link.href}
@@ -1238,7 +1238,7 @@ export default function EncordAlternativesPage() {
                   <div>
                     <div
                       className="text-sm font-medium group-hover:underline"
-                      style={{ color: "#92B090" }}
+                      style={{ color: "#92B090"}}
                     >
                       {link.title}
                     </div>
@@ -1296,7 +1296,7 @@ export default function EncordAlternativesPage() {
                 style={{
                   backgroundColor: "#92B090",
                   color: "#0a0908",
-                }}
+               }}
               >
                 Get Started
               </a>
