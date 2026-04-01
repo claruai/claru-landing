@@ -20,7 +20,7 @@ Claru builds and delivers purpose-built training datasets for frontier robotics,
 1. **Real-world, licensed data** — Not synthetic, not scraped. Every clip comes from our network of 10,000+ trained collectors across 100+ cities.
 2. **Enriched by default** — Every clip ships with depth maps, pose estimation, segmentation masks, optical flow, and action labels. Competitors sell raw video; we sell training-ready data.
 3. **Expert human annotation** — Our annotators label what machines miss: intent, context, edge cases, grasp types, object affordances.
-4. **Scale + Speed** — 3.7M+ completed annotations. 25+ active datasets. Brief to first delivery in days, not months.
+4. **Scale + Speed** — 4M+ completed annotations. 100+ active datasets. Brief to first delivery in days, not months.
 5. **Physical AI focus** — We're not a generic data labeling shop. We specialize in the data modalities that physical AI needs: egocentric video, teleoperation recordings, manipulation sequences, multi-view captures.
 
 ## Competitive Landscape
@@ -33,14 +33,14 @@ Claru builds and delivers purpose-built training datasets for frontier robotics,
 - 500K+ egocentric videos captured for a world-modeling lab
 - 10K+ hours of game environment data
 - 2M+ video annotations powering RLHF for frontier video generation
-- 3.7M+ total human annotations
-- 25+ active datasets
+- 4M+ total human annotations
+- 100+ active datasets
 - 10,000+ collectors worldwide
 - 5+ frontier lab partnerships
 
 ## Brand Voice
 - Terminal aesthetic — senior engineer's internal dashboard, not marketing agency output
-- Specific over vague — "3.7M annotations" not "millions of data points"
+- Specific over vague — "4M annotations" not "millions of data points"
 - Show don't tell — video clips, JSON metadata, real examples
 - Technically credible — mention specific models (Depth Anything V2, ViTPose, SAM3), formats (COCO RLE, WebDataset, Parquet), and pipelines
 - No hype — "purpose-built datasets" not "revolutionary AI training solution"
