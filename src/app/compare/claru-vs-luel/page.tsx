@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata} from "next";
 import Link from "next/link";
 import GeoPageShell from "@/app/components/content/GeoPageShell";
 
@@ -37,18 +37,18 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         alt: "Claru vs Luel — Physical AI Training Data Compared",
-      },
+     },
     ],
-  },
+ },
   twitter: {
     card: "summary_large_image",
     title: "Claru vs Luel: Physical AI Training Data Compared (2026)",
     description:
       "Enrichment depth, annotation quality, scale, and pricing compared side by side. Find the right provider for your physical AI program.",
-  },
+ },
   alternates: {
     canonical: "https://claru.ai/compare/claru-vs-luel",
-  },
+ },
 };
 
 // =============================================================================
@@ -60,32 +60,32 @@ const faqItems = [
     question: "What is the main difference between Claru and Luel?",
     answer:
       "Claru and Luel serve different markets. Claru is 100% focused on physical AI training data — robotics, embodied AI, and world models. Every clip ships with depth maps, pose estimation, segmentation masks, optical flow, and human-labeled action annotations. Claru does not serve NLP, voice, text, or general image classification use cases. Luel is a broad two-sided marketplace for multimodal data across many industries, connecting data contributors with AI companies and delivering raw, rights-cleared media. The core differences are specialization (physical AI only vs. general-purpose) and enrichment depth (6+ annotation layers vs. raw media).",
-  },
+ },
   {
     question: "Is Luel a good alternative to Claru for robotics training data?",
     answer:
       "It depends on where you are in your research cycle. If you need large volumes of raw, rights-cleared video quickly for prototyping or exploratory research, Luel's marketplace model can deliver fast. However, if you are training production robot policies, world models, or VLAs that require enriched data — depth, pose, segmentation, action labels — Claru is the stronger choice because those annotation layers are built into our standard delivery pipeline. Most robotics teams find that the cost of enriching raw marketplace data themselves exceeds the cost of purchasing pre-enriched data from a specialized provider like Claru.",
-  },
+ },
   {
     question: "How does Claru's enrichment pipeline compare to buying raw data from Luel?",
     answer:
       "Claru's enrichment pipeline processes every clip through six automated and human annotation stages: monocular depth estimation (using models like Depth Anything V2, validated against LiDAR ground truth), semantic segmentation (SAM3-based instance and part segmentation), human pose estimation (ViTPose 2D/3D joint extraction), optical flow (dense inter-frame motion fields), AI-generated captions (multi-model natural language descriptions), and expert human annotation (action boundaries, object affordances, quality scoring). Luel delivers raw video from its contributor marketplace. To achieve equivalent enrichment, a team purchasing from Luel would need to build or license each of these processing stages independently, which typically costs 3-5x more than purchasing pre-enriched data.",
-  },
+ },
   {
     question: "How long has Luel been operating compared to Claru?",
     answer:
       "Luel launched in early 2026 as a Y Combinator Winter 2026 startup, founded by two UC Berkeley students. As of March 2026, Luel has been operating for approximately six weeks. Claru (operated by Reka AI Inc.) has been delivering training data to frontier AI labs since 2025 and has completed 3.7 million+ human annotations across 25+ datasets for clients building world models, robotics systems, and embodied AI. Claru's track record includes delivering 500,000+ egocentric video clips and operating a collector network of 10,000+ contributors in 100+ cities.",
-  },
+ },
   {
     question: "Does Luel provide depth maps, pose estimation, or segmentation with its data?",
     answer:
       "As of March 2026, Luel's marketplace delivers rights-cleared raw video and images contributed by its network. Luel does not advertise a built-in enrichment pipeline that provides depth maps, pose estimation, segmentation masks, optical flow, or structured action annotations. Teams purchasing from Luel would need to run their own enrichment processing or use third-party annotation services. Claru includes all of these enrichment layers as part of its standard data delivery at no additional processing cost to the customer.",
-  },
+ },
   {
     question: "Which is better for training world models — Claru or Luel?",
     answer:
       "World models require training data that captures not just visual appearance but physical structure and dynamics — depth, object boundaries, motion patterns, and causal relationships between actions and outcomes. Claru's enriched datasets are purpose-built for this use case: every clip includes depth maps for 3D scene understanding, segmentation for object-level reasoning, optical flow for motion modeling, and action labels for learning causal structure. Luel's raw video can provide visual diversity but lacks these structural annotations. For teams building production world models, Claru's pre-enriched data significantly reduces the time from data acquisition to training. For teams in early exploration phases that need to quickly test hypotheses on diverse raw video, Luel's marketplace speed can be valuable.",
-  },
+ },
 ];
 
 const faqJsonLd = {
@@ -97,8 +97,8 @@ const faqJsonLd = {
     acceptedAnswer: {
       "@type": "Answer",
       text: item.answer,
-    },
-  })),
+   },
+ })),
 };
 
 const articleJsonLd = {
@@ -111,7 +111,7 @@ const articleJsonLd = {
     "@type": "Organization",
     name: "Claru",
     url: "https://claru.ai",
-  },
+ },
   publisher: {
     "@type": "Organization",
     name: "Claru",
@@ -119,14 +119,14 @@ const articleJsonLd = {
     logo: {
       "@type": "ImageObject",
       url: "https://claru.ai/images/og-v2.webp",
-    },
-  },
+   },
+ },
   datePublished: "2026-03-30",
   dateModified: "2026-03-30",
   mainEntityOfPage: {
     "@type": "WebPage",
     "@id": "https://claru.ai/compare/claru-vs-luel",
-  },
+ },
 };
 
 const breadcrumbJsonLd = {
@@ -138,19 +138,19 @@ const breadcrumbJsonLd = {
       position: 1,
       name: "Home",
       item: "https://claru.ai",
-    },
+   },
     {
       "@type": "ListItem",
       position: 2,
       name: "Compare",
       item: "https://claru.ai/compare",
-    },
+   },
     {
       "@type": "ListItem",
       position: 3,
       name: "Claru vs Luel",
       item: "https://claru.ai/compare/claru-vs-luel",
-    },
+   },
   ],
 };
 
@@ -163,62 +163,62 @@ const comparisonRows = [
     dimension: "Founded",
     claru: "2025 (operated by Reka AI Inc.)",
     luel: "2026 (YC W26, ~6 weeks old)",
-  },
+ },
   {
     dimension: "Model",
     claru: "Vertically integrated for physical AI: capture, enrich, annotate, deliver",
     luel: "Two-sided marketplace: contributors upload across all modalities, buyers browse",
-  },
+ },
   {
     dimension: "Enrichment",
     claru: "6 layers standard: depth, pose, segmentation, optical flow, captions, human annotations",
     luel: "Raw media only — no built-in enrichment pipeline",
-  },
+ },
   {
     dimension: "Annotation Quality",
     claru: "Trained human annotators for intent, affordances, edge cases; project-specific guidelines",
     luel: "Crowdsourced contributor metadata; no structured annotation pipeline",
-  },
+ },
   {
     dimension: "Scale (delivered)",
     claru: "3.7M+ annotations, 500K+ egocentric clips, 25+ datasets",
     luel: "Claims ~$2M ARR in 6 weeks; published dataset counts unavailable",
-  },
+ },
   {
     dimension: "Contributor Network",
     claru: "10,000+ trained collectors across 100+ cities",
     luel: "Claims 3M+ contributors (marketplace sign-ups)",
-  },
+ },
   {
     dimension: "Specialization",
     claru: "100% physical AI: robotics, embodied AI, world models, VLAs — nothing else",
     luel: "General-purpose: voice, text, images, video across many industries",
-  },
+ },
   {
     dimension: "Delivery Format",
     claru: "WebDataset, HDF5, RLDS, Parquet, custom formats; direct S3/GCS delivery",
     luel: "Standard media downloads via marketplace",
-  },
+ },
   {
     dimension: "Rights Clearance",
     claru: "All data licensed from contributors with commercial rights",
     luel: "Rights-cleared from contributors — a core value proposition",
-  },
+ },
   {
     dimension: "Case Studies",
     claru: "Published case studies with real metrics and methodologies",
     luel: "No published case studies as of March 2026",
-  },
+ },
   {
     dimension: "Content / SEO",
     claru: "4 GEO landing pages, solution pages, case studies",
     luel: "60+ blog posts, strong content velocity",
-  },
+ },
   {
     dimension: "Pricing",
     claru: "Custom per-project scoping based on volume, complexity, and enrichment requirements",
     luel: "Marketplace pricing; varies by contributor and data type",
-  },
+ },
 ];
 
 // =============================================================================
@@ -230,7 +230,7 @@ export default function ClaruVsLuelPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify([faqJsonLd, articleJsonLd, breadcrumbJsonLd]) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([faqJsonLd, articleJsonLd, breadcrumbJsonLd])}}
       />
 
       <GeoPageShell>
@@ -244,7 +244,7 @@ export default function ClaruVsLuelPage() {
                   color: "rgba(255,255,255,0.5)",
                   fontFamily:
                     "var(--font-mono, 'JetBrains Mono', monospace)",
-                }}
+               }}
               >
                 <li>
                   <a
@@ -265,7 +265,7 @@ export default function ClaruVsLuelPage() {
                 <li aria-hidden="true" className="select-none">
                   /
                 </li>
-                <li aria-current="page" style={{ color: "#92B090" }}>
+                <li aria-current="page" style={{ color: "#92B090"}}>
                   Claru vs Luel
                 </li>
               </ol>
@@ -281,7 +281,7 @@ export default function ClaruVsLuelPage() {
                 href="https://luel.ai"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: "#92B090" }}
+                style={{ color: "#92B090"}}
                 className="underline underline-offset-2"
               >
                 Luel
@@ -291,7 +291,7 @@ export default function ClaruVsLuelPage() {
               company 100% focused on training data for{" "}
               <Link
                 href="/physical-ai-training-data"
-                style={{ color: "#92B090" }}
+                style={{ color: "#92B090"}}
                 className="underline underline-offset-2"
               >
                 physical AI
@@ -306,7 +306,7 @@ export default function ClaruVsLuelPage() {
               products evolve. If anything here is inaccurate, email{" "}
               <a
                 href="mailto:contact@claru.ai"
-                style={{ color: "#92B090" }}
+                style={{ color: "#92B090"}}
                 className="not-italic"
               >
                 contact@claru.ai
@@ -377,7 +377,7 @@ export default function ClaruVsLuelPage() {
                     </th>
                     <th
                       className="px-4 py-3 font-mono text-xs uppercase tracking-wider"
-                      style={{ color: "#92B090" }}
+                      style={{ color: "#92B090"}}
                     >
                       Claru
                     </th>
@@ -394,7 +394,7 @@ export default function ClaruVsLuelPage() {
                         i % 2 === 0
                           ? "bg-transparent"
                           : "bg-white/[0.02]"
-                      }
+                     }
                     >
                       <td className="px-4 py-3 font-medium text-white whitespace-nowrap align-top">
                         {row.dimension}
@@ -433,7 +433,7 @@ export default function ClaruVsLuelPage() {
                   href="https://ego4d-data.org/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   Ego4D
@@ -443,7 +443,7 @@ export default function ClaruVsLuelPage() {
                   href="https://robotics-transformer-x.github.io/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   Open X-Embodiment
@@ -477,32 +477,32 @@ export default function ClaruVsLuelPage() {
                     layer: "Depth Estimation",
                     detail:
                       "Per-frame monocular depth maps using state-of-the-art models (Depth Anything V2), cross-validated against LiDAR ground truth where available. Delivered as 16-bit PNG or NumPy arrays.",
-                  },
+                 },
                   {
                     layer: "Semantic Segmentation",
                     detail:
                       "Pixel-level object class, instance ID, and part annotations using SAM3-based models. COCO RLE format for efficient storage and fast mask decoding during training.",
-                  },
+                 },
                   {
                     layer: "Human Pose Estimation",
                     detail:
                       "2D and 3D joint positions extracted via ViTPose for hand-object interaction understanding. Critical for training manipulation policies and grasping models.",
-                  },
+                 },
                   {
                     layer: "Optical Flow",
                     detail:
                       "Dense inter-frame motion fields capturing how every pixel moves between consecutive frames. Essential for learning dynamics and predicting physical interactions.",
-                  },
+                 },
                   {
                     layer: "AI-Generated Captions",
                     detail:
                       "Multi-model natural language descriptions of each clip generated by frontier vision-language models. Provides semantic grounding for VLA training and retrieval.",
-                  },
+                 },
                   {
                     layer: "Expert Human Annotation",
                     detail:
                       "Trained annotators label action boundaries, object affordances, grasp types, quality scores, and edge cases. The labels machines cannot reliably produce on their own.",
-                  },
+                 },
                 ].map((item) => (
                   <div
                     key={item.layer}
@@ -510,7 +510,7 @@ export default function ClaruVsLuelPage() {
                   >
                     <div
                       className="text-sm font-mono font-bold mb-2"
-                      style={{ color: "#92B090" }}
+                      style={{ color: "#92B090"}}
                     >
                       {item.layer}
                     </div>
@@ -564,7 +564,7 @@ export default function ClaruVsLuelPage() {
                   <li key={i} className="flex gap-3">
                     <span
                       className="flex-none mt-1 w-1.5 h-1.5 rounded-full"
-                      style={{ backgroundColor: "#92B090" }}
+                      style={{ backgroundColor: "#92B090"}}
                     />
                     <span>{item}</span>
                   </li>
@@ -601,7 +601,7 @@ export default function ClaruVsLuelPage() {
                 <div className="rounded-lg border border-white/10 bg-white/[0.03] p-6">
                   <h3
                     className="text-lg font-semibold mb-3"
-                    style={{ color: "#92B090" }}
+                    style={{ color: "#92B090"}}
                   >
                     Claru: Managed Pipeline
                   </h3>
@@ -618,7 +618,7 @@ export default function ClaruVsLuelPage() {
                       <li key={i} className="flex gap-2">
                         <span
                           className="flex-none mt-1 w-1.5 h-1.5 rounded-full"
-                          style={{ backgroundColor: "#92B090" }}
+                          style={{ backgroundColor: "#92B090"}}
                         />
                         <span>{item}</span>
                       </li>
@@ -682,27 +682,27 @@ export default function ClaruVsLuelPage() {
                     title: "You are not building physical AI",
                     description:
                       "If your use case is NLP, voice recognition, text annotation, content moderation, or generic image classification — Luel's broad marketplace is a better fit than Claru. We do not serve those modalities at all.",
-                  },
+                 },
                   {
                     title: "Rapid prototyping with raw video",
                     description:
                       "You are testing a new model architecture and need diverse raw video quickly to validate your approach before investing in enriched data. Luel's same-day delivery and broad catalog can accelerate early-stage experimentation.",
-                  },
+                 },
                   {
                     title: "You have your own enrichment stack",
                     description:
                       "If your team has already built and validated depth, pose, segmentation, and annotation pipelines, you may only need raw input data. In that case, a marketplace that delivers raw video at scale is a reasonable source.",
-                  },
+                 },
                   {
                     title: "Content diversity over annotation depth",
                     description:
                       "Some research (e.g., pre-training large video models on broad visual distributions) benefits more from content diversity than deep per-clip annotations. Luel's 3M+ contributor network could provide geographic and contextual breadth.",
-                  },
+                 },
                   {
                     title: "Budget-constrained exploration",
                     description:
                       "Academic labs or early-stage startups with limited budgets may benefit from marketplace pricing where you can purchase exactly the volume you need without committing to a custom project scope.",
-                  },
+                 },
                 ].map((item) => (
                   <div
                     key={item.title}
@@ -735,7 +735,7 @@ export default function ClaruVsLuelPage() {
                 world.{" "}
                 <Link
                   href="/about"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   Our team
@@ -751,37 +751,37 @@ export default function ClaruVsLuelPage() {
                     title: "Training production robot policies",
                     description:
                       "If your model will be deployed on real hardware — picking items in a warehouse, cooking in a kitchen, navigating a hospital — you need training data with depth, pose, segmentation, and action labels aligned to your robot's observation space. Claru delivers this out of the box.",
-                  },
+                 },
                   {
                     title: "Building world models or video generation systems",
                     description:
                       "World models need to understand physical structure and dynamics, not just visual appearance. Claru's enrichment layers provide the structural annotations (depth, flow, segmentation) that teach models how the physical world works.",
-                  },
+                 },
                   {
                     title: "Training vision-language-action (VLA) models",
                     description:
                       "VLAs require paired visual observations, natural language descriptions, and action labels. Claru's pipeline produces all three: egocentric video, multi-model captions, and human-annotated action boundaries — aligned and packaged in RLDS, WebDataset, or your preferred format.",
-                  },
+                 },
                   {
                     title: "Needing custom data collection at scale",
                     description:
                       "If your training requirements don't match any existing dataset — specific environments, object categories, camera perspectives, or task protocols — Claru designs and executes custom collection campaigns using our 10,000+ trained contributor network.",
-                  },
+                 },
                   {
                     title: "Requiring expert human annotation",
                     description:
                       "Some labels cannot be automated: grasp affordances, human intent, task completion quality, edge case identification. Claru's trained annotators work from project-specific guidelines developed with your ML team.",
-                  },
+                 },
                   {
                     title: "Optimizing total cost of training data",
                     description:
                       "When you factor in the engineering time and compute cost of building your own enrichment pipeline, purchasing pre-enriched data from Claru is typically 3-5x cheaper than buying raw data and processing it yourself. We have already amortized the infrastructure cost across multiple clients.",
-                  },
+                 },
                 ].map((item) => (
                   <div
                     key={item.title}
                     className="border-l-2 pl-6"
-                    style={{ borderColor: "rgba(146,176,144,0.4)" }}
+                    style={{ borderColor: "rgba(146,176,144,0.4)"}}
                   >
                     <h3 className="text-lg font-semibold text-white mb-1">
                       {item.title}
@@ -817,25 +817,25 @@ export default function ClaruVsLuelPage() {
                     label: "Human annotations",
                     context:
                       "delivered across egocentric video, game environments, and custom capture projects",
-                  },
+                 },
                   {
                     stat: "500K+",
                     label: "Egocentric clips",
                     context:
                       "from kitchens, workshops, warehouses, and outdoor environments worldwide",
-                  },
+                 },
                   {
                     stat: "10,000+",
                     label: "Trained collectors",
                     context:
                       "across 100+ cities, following project-specific capture protocols",
-                  },
+                 },
                   {
                     stat: "25+",
                     label: "Active datasets",
                     context:
                       "commercially licensed for robotics, video generation, and embodied AI",
-                  },
+                 },
                 ].map((item) => (
                   <div
                     key={item.label}
@@ -843,7 +843,7 @@ export default function ClaruVsLuelPage() {
                   >
                     <div
                       className="text-3xl md:text-4xl font-bold font-mono mb-1"
-                      style={{ color: "#92B090" }}
+                      style={{ color: "#92B090"}}
                     >
                       {item.stat}
                     </div>
@@ -891,7 +891,7 @@ export default function ClaruVsLuelPage() {
                 Claru does not compete in those categories. We are{" "}
                 <Link
                   href="/physical-ai-training-data"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   100% focused on physical AI training data
@@ -920,7 +920,7 @@ export default function ClaruVsLuelPage() {
                   <li key={i} className="flex gap-3">
                     <span
                       className="flex-none mt-1 w-1.5 h-1.5 rounded-full"
-                      style={{ backgroundColor: "#92B090" }}
+                      style={{ backgroundColor: "#92B090"}}
                     />
                     <span>{item}</span>
                   </li>
@@ -977,42 +977,42 @@ export default function ClaruVsLuelPage() {
                         need: "Raw video quickly for prototyping",
                         pick: "Luel",
                         why: "Marketplace model optimizes for speed and immediate availability",
-                      },
+                     },
                       {
                         need: "Enriched data with depth, pose, segmentation",
                         pick: "Claru",
                         why: "Built-in enrichment pipeline delivers 6 annotation layers standard",
-                      },
+                     },
                       {
                         need: "Expert human annotations (affordances, intent)",
                         pick: "Claru",
                         why: "Trained annotators with project-specific guidelines and QA",
-                      },
+                     },
                       {
                         need: "Broad content diversity across many domains",
                         pick: "Luel",
                         why: "3M+ contributor network spans many content categories",
-                      },
+                     },
                       {
                         need: "Custom data collection campaigns",
                         pick: "Claru",
                         why: "10,000+ trained collectors following structured protocols",
-                      },
+                     },
                       {
                         need: "Robot-specific delivery formats (RLDS, HDF5)",
                         pick: "Claru",
                         why: "Native support for robotics pipeline formats",
-                      },
+                     },
                       {
                         need: "Same-day small-batch delivery",
                         pick: "Luel",
                         why: "Marketplace inventory available for immediate purchase",
-                      },
+                     },
                       {
                         need: "Proven track record with published case studies",
                         pick: "Claru",
                         why: "3.7M+ annotations delivered; published case studies with metrics",
-                      },
+                     },
                     ].map((row, i) => (
                       <tr
                         key={row.need}
@@ -1020,7 +1020,7 @@ export default function ClaruVsLuelPage() {
                           i % 2 === 0
                             ? "bg-transparent"
                             : "bg-white/[0.02]"
-                        }
+                       }
                       >
                         <td className="px-4 py-3 text-white font-medium align-top">
                           {row.need}
@@ -1032,7 +1032,7 @@ export default function ClaruVsLuelPage() {
                               row.pick === "Claru"
                                 ? "#92B090"
                                 : "rgba(255,255,255,0.7)",
-                          }}
+                         }}
                         >
                           {row.pick}
                         </td>
@@ -1071,62 +1071,62 @@ export default function ClaruVsLuelPage() {
                   href: "/physical-ai-training-data",
                   title: "Physical AI Training Data",
                   desc: "Deep dive into the data modalities physical AI systems need.",
-                },
+               },
                 {
                   href: "/training-data-for-robotics",
                   title: "Training Data for Robotics",
                   desc: "Purpose-built datasets for robot learning, from egocentric video to teleoperation demos.",
-                },
+               },
                 {
                   href: "/egocentric-video-datasets",
                   title: "Egocentric Video Datasets",
                   desc: "First-person video data for visuomotor policies and embodied AI research.",
-                },
+               },
                 {
                   href: "/embodied-ai-datasets",
                   title: "Embodied AI Datasets",
                   desc: "Datasets for agents that perceive and act in the physical world.",
-                },
+               },
                 {
                   href: "/compare/scale-ai-alternatives",
                   title: "Scale AI Alternatives",
                   desc: "How Claru compares to Scale AI for physical AI training data.",
-                },
+               },
                 {
                   href: "/compare/appen-alternatives",
                   title: "Appen Alternatives",
                   desc: "Appen vs Claru for robotics and embodied AI data.",
-                },
+               },
                 {
                   href: "/compare/labelbox-alternatives",
                   title: "Labelbox Alternatives",
                   desc: "Annotation platform vs end-to-end data service for physical AI.",
-                },
+               },
                 {
                   href: "/compare/surge-ai-alternatives",
                   title: "Surge AI Alternatives",
                   desc: "Beyond NLP annotation: end-to-end data for robotics and world models.",
-                },
+               },
                 {
                   href: "/about",
                   title: "About Claru",
                   desc: "Meet the team behind Claru's physical AI data infrastructure.",
-                },
+               },
                 {
                   href: "/data-catalog",
                   title: "Browse the Data Catalog",
                   desc: "Explore Claru's 25+ commercially licensed datasets.",
-                },
+               },
                 {
                   href: "/case-studies",
                   title: "Case Studies",
                   desc: "Real project outcomes with metrics and methodology documentation.",
-                },
+               },
                 {
                   href: "/solutions",
                   title: "All Solutions",
                   desc: "Custom data pipelines for acquisition, enrichment, annotation, and validation.",
-                },
+               },
               ].map((link) => (
                 <Link
                   key={link.href}
@@ -1136,7 +1136,7 @@ export default function ClaruVsLuelPage() {
                   <div>
                     <div
                       className="text-sm font-medium group-hover:underline"
-                      style={{ color: "#92B090" }}
+                      style={{ color: "#92B090"}}
                     >
                       {link.title}
                     </div>
@@ -1195,7 +1195,7 @@ export default function ClaruVsLuelPage() {
                 style={{
                   backgroundColor: "#92B090",
                   color: "#0a0908",
-                }}
+               }}
               >
                 Get Started
               </a>
