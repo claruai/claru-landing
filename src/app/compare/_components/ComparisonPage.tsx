@@ -1,6 +1,27 @@
 import Link from "next/link";
+import { isValidElement, type ReactNode } from "react";
 import GeoPageShell from "@/app/components/content/GeoPageShell";
 import type { ComparisonData } from "@/data/compare/types";
+
+function nodeToText(node: ReactNode): string {
+  if (node === null || node === undefined || typeof node === "boolean") {
+    return "";
+  }
+
+  if (typeof node === "string" || typeof node === "number") {
+    return String(node);
+  }
+
+  if (Array.isArray(node)) {
+    return node.map(nodeToText).join(" ").replace(/\s+/g, " ").trim();
+  }
+
+  if (isValidElement(node)) {
+    return nodeToText(node.props?.children);
+  }
+
+  return "";
+}
 
 function buildJsonLd(data: ComparisonData) {
   const url = `https://claru.ai/compare/${data.slug}`;
@@ -13,7 +34,7 @@ function buildJsonLd(data: ComparisonData) {
       name: item.question,
       acceptedAnswer: {
         "@type": "Answer",
-        text: item.answer,
+        text: nodeToText(item.answer),
       },
     })),
   };
