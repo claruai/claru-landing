@@ -1,4 +1,5 @@
 import Logo from "./components/ui/Logo";
+import Link from "next/link";
 
 export default function NotFound() {
   return (
@@ -42,12 +43,12 @@ export default function NotFound() {
         </pre>
 
         {/* CTA */}
-        <a
+        <Link
           href="/"
           className="btn-primary inline-flex items-center justify-center"
         >
           [ Return Home ]
-        </a>
+        </Link>
       </div>
     </div>
   );

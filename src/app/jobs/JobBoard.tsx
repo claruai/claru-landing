@@ -153,6 +153,7 @@ export default function JobBoard({ jobs }: { jobs: Job[] }) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -181,6 +182,7 @@ export default function JobBoard({ jobs }: { jobs: Job[] }) {
 
   // Reset visible count when filters change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setVisibleCount(PAGE_SIZE);
   }, [activeCategory, searchQuery]);
 

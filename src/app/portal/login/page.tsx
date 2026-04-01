@@ -60,7 +60,7 @@ function PortalLoginForm() {
       // Redirect to portal on success — middleware handles the rest
       window.location.href = "/portal";
     },
-    [email, password]
+    [email, password, posthog]
   );
 
   // If stale cookies exist (e.g. expired refresh token), clear them

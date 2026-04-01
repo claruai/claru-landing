@@ -180,9 +180,11 @@ function AnimatedCounter({
 
   useEffect(() => {
     if (!inView || reducedMotion) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrent(targetNum);
       return;
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrent(0);
     const duration = 1400;
     const startTime = performance.now();

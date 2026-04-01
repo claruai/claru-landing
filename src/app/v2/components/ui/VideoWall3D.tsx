@@ -413,6 +413,7 @@ function VideoPlane({
   );
 
   // Subtle per-tile floating animation + shader time uniform update
+  // eslint-disable-next-line react-hooks/purity
   const floatOffset = useMemo(() => Math.random() * Math.PI * 2, []);
   useFrame(({ clock }) => {
     if (!meshRef.current) return;
@@ -544,6 +545,7 @@ function AtmosphericParticles() {
   const pointsRef = useRef<THREE.Points>(null);
   const count = 200;
 
+  /* eslint-disable react-hooks/purity */
   const [positions, opacities] = useMemo(() => {
     const pos = new Float32Array(count * 3);
     const opac = new Float32Array(count);
@@ -555,6 +557,7 @@ function AtmosphericParticles() {
     }
     return [pos, opac];
   }, []);
+  /* eslint-enable react-hooks/purity */
 
   useFrame(({ clock }) => {
     if (!pointsRef.current) return;
@@ -706,6 +709,7 @@ export default function VideoWall3D() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 

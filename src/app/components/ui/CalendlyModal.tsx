@@ -191,7 +191,7 @@ function StepCalendly({ leadData, bookingUrl }: { leadData: LeadData; bookingUrl
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
           <Loader2 className="w-6 h-6 text-[var(--accent-primary)] animate-spin" />
           <span className="font-mono text-xs text-[var(--text-muted)] animate-pulse">
-            // LOADING...
+            {"// LOADING..."}
           </span>
         </div>
       )}
@@ -215,6 +215,7 @@ export default function CalendlyModal() {
   const backdropRef = useRef<HTMLDivElement>(null);
   const mouseDownTarget = useRef<EventTarget | null>(null);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setMounted(true), []);
 
   // Autofocus close button on open

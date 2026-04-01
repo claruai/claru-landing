@@ -35,6 +35,7 @@ export function ProspectTracking({
   companyName,
 }: ProspectTrackingProps) {
   const posthog = usePostHog();
+  // eslint-disable-next-line react-hooks/purity
   const startTime = useRef(Date.now());
   const firedDepths = useRef(new Set<number>());
   const lastScrollFire = useRef(0);

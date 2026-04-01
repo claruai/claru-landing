@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Video, ImageIcon, Layers, Bot } from "lucide-react";
@@ -49,7 +50,8 @@ export default function DatasetCard({
   variant,
   href,
 }: DatasetCardProps) {
-  const ModalityIcon = getModalityIcon(dataset.type);
+  // eslint-disable-next-line react-hooks/static-components
+  const ModalityIcon = useMemo(() => getModalityIcon(dataset.type), [dataset.type]);
 
   return (
     <Link href={href} className="group block">
@@ -66,6 +68,7 @@ export default function DatasetCard({
             />
           ) : (
             <div className="flex h-full items-center justify-center">
+              {/* eslint-disable-next-line react-hooks/static-components */}
               <ModalityIcon
                 className="h-10 w-10 text-[var(--text-muted)]"
                 strokeWidth={1}
@@ -75,6 +78,7 @@ export default function DatasetCard({
 
           {/* Type badge (top-right) */}
           <span className="absolute top-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-[var(--bg-primary)]/80 px-2.5 py-1 text-xs font-mono text-[var(--text-secondary)] backdrop-blur-sm">
+            {/* eslint-disable-next-line react-hooks/static-components */}
             <ModalityIcon className="h-3 w-3" strokeWidth={1.5} />
             {dataset.type.replace("_", " ")}
           </span>

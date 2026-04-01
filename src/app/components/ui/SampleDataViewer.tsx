@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Copy, Check } from "lucide-react";
 import Image from "next/image";
@@ -1556,6 +1556,27 @@ const CONFIDENCE_TIERS = [
   { tier: "Tier 4", label: "Needs Review", count: 3150, pct: 3, color: "var(--error)" },
 ];
 
+function AnimatedCount({ target, duration = 1.2 }: { target: number; duration?: number }) {
+  const countRef = useRef<HTMLSpanElement>(null);
+  const inView = useInView(countRef, { once: true });
+
+  useEffect(() => {
+    if (!inView || !countRef.current) return;
+    const el = countRef.current;
+    gsap.fromTo(el, { innerText: 0 }, {
+      innerText: target,
+      duration,
+      ease: "power2.out",
+      snap: { innerText: 1 },
+      onUpdate: function () {
+        el.textContent = Math.round(Number(gsap.getProperty(el, "innerText") || 0)).toLocaleString();
+      },
+    });
+  }, [inView, target, duration]);
+
+  return <span ref={countRef}>0</span>;
+}
+
 function ClassificationPipelineViewer() {
   const [activeStep, setActiveStep] = useState(-1);
   const [showResult, setShowResult] = useState(false);
@@ -1581,27 +1602,7 @@ function ClassificationPipelineViewer() {
     return () => { tl.kill(); };
   }, [isInView]);
 
-  // Animated counter hook
-  const AnimatedCount = useCallback(({ target, duration = 1.2 }: { target: number; duration?: number }) => {
-    const countRef = useRef<HTMLSpanElement>(null);
-    const inView = useInView(countRef, { once: true });
-
-    useEffect(() => {
-      if (!inView || !countRef.current) return;
-      const el = countRef.current;
-      gsap.fromTo(el, { innerText: 0 }, {
-        innerText: target,
-        duration,
-        ease: "power2.out",
-        snap: { innerText: 1 },
-        onUpdate: function () {
-          el.textContent = Math.round(Number(gsap.getProperty(el, "innerText") || 0)).toLocaleString();
-        },
-      });
-    }, [inView, target, duration]);
-
-    return <span ref={countRef}>0</span>;
-  }, []);
+  // AnimatedCount is now a standalone component defined above
 
   return (
     <div ref={containerRef} className="space-y-6">
@@ -1925,7 +1926,7 @@ function FashionAnnotationViewer() {
           <div className="rounded-lg overflow-hidden border border-[var(--border-subtle)]">
             <div className="px-3 py-1.5 bg-[var(--bg-tertiary)] border-b border-[var(--border-subtle)]">
               <span className="font-mono text-xs text-[var(--text-muted)]">
-                // INPUT SOURCE
+                {"// INPUT SOURCE"}
               </span>
             </div>
             <Image
@@ -1939,7 +1940,7 @@ function FashionAnnotationViewer() {
           <div className="rounded-lg overflow-hidden border border-[var(--accent-primary)]/30">
             <div className="px-3 py-1.5 bg-[var(--bg-tertiary)] border-b border-[var(--accent-primary)]/30 flex items-center justify-between">
               <span className="font-mono text-xs text-[var(--text-muted)]">
-                // BOUNDING BOX
+                {"// BOUNDING BOX"}
               </span>
               <span className="font-mono text-xs text-[var(--accent-primary)]">
                 CONFIDENCE: 99.8%

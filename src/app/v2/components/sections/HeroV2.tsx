@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck - Experimental component with incomplete type definitions from shaders/react
 "use client";
 

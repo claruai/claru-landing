@@ -98,6 +98,7 @@ export function SampleGallery({
   useEffect(() => {
     if (!deepLinkId) return;
     const idx = items.findIndex((item) => item.id === deepLinkId);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (idx !== -1) setSelectedIndex(idx);
   }, [deepLinkId, items]);
 

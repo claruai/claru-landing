@@ -58,7 +58,7 @@ interface SocialPost {
 // ---------------------------------------------------------------------------
 // Composition map — resolves compositionId to the React component
 // ---------------------------------------------------------------------------
-const COMPOSITION_MAP: Record<string, React.FC<any> | undefined> = {
+const COMPOSITION_MAP: Record<string, React.FC<Record<string, unknown>> | undefined> = {
   "social-stat-reveal": StatReveal,
   "social-terminal-query": TerminalQuery,
   "social-network-status": NetworkStatus,

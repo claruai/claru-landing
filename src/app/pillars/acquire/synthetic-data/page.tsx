@@ -26,6 +26,7 @@ export default function SyntheticDataPage() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -825,7 +826,7 @@ export default function SyntheticDataPage() {
       <section className="py-12 border-t border-[var(--border-subtle)]">
         <div className="container">
           <p className="text-sm font-mono text-[var(--accent-primary)] mb-4">
-            // RELATED SERVICES
+            {"// RELATED SERVICES"}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Link

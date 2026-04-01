@@ -37,6 +37,7 @@ export function useDeviceCapability(): DeviceCapability {
     const checkReducedMotion = () => reducedMotionQuery.matches;
 
     // Set initial values
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCapability({
       isMobile: checkMobile(),
       isLowPower: checkLowPower(),
