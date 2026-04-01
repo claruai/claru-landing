@@ -6,6 +6,8 @@
 // No animations — SSR-first for crawlers.
 // ---------------------------------------------------------------------------
 
+import Link from "next/link";
+
 interface ContentHeroProps {
   /** H1 text */
   title: string;
@@ -37,25 +39,25 @@ export default function ContentHero({
             }}
           >
             <li>
-              <a
+              <Link
                 href="/"
                 className="transition-colors hover:text-white"
                 style={{ color: "rgba(255, 255, 255, 0.5)" }}
               >
                 Home
-              </a>
+              </Link>
             </li>
             <li aria-hidden="true" className="select-none">
               /
             </li>
             <li>
-              <a
+              <Link
                 href="/solutions"
                 className="transition-colors hover:text-white"
                 style={{ color: "rgba(255, 255, 255, 0.5)" }}
               >
                 Solutions
-              </a>
+              </Link>
             </li>
             <li aria-hidden="true" className="select-none">
               /

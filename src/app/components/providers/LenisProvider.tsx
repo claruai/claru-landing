@@ -89,6 +89,7 @@ export default function LenisProvider({ children }: LenisProviderProps) {
   }, [prefersReducedMotion]);
 
   return (
+    // eslint-disable-next-line react-hooks/refs
     <LenisContext.Provider value={{ lenis: lenisRef.current }}>
       {children}
     </LenisContext.Provider>

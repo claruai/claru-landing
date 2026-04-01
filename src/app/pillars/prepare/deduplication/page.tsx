@@ -21,6 +21,7 @@ export default function DeduplicationPage() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -783,7 +784,7 @@ export default function DeduplicationPage() {
       <section className="py-12 border-t border-[var(--border-subtle)]">
         <div className="container">
           <p className="text-sm font-mono text-[var(--accent-primary)] mb-4">
-            // RELATED PREPARE SERVICES
+            {"// RELATED PREPARE SERVICES"}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Link

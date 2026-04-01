@@ -231,9 +231,9 @@ export default function AboutPage() {
                 }}
               >
                 <li>
-                  <a href="/" className="transition-colors hover:text-white">
+                  <Link href="/" className="transition-colors hover:text-white">
                     Home
-                  </a>
+                  </Link>
                 </li>
                 <li aria-hidden="true" className="select-none">
                   /
@@ -608,7 +608,7 @@ export default function AboutPage() {
               hear about it.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
+              <Link
                 href="/#contact"
                 className="inline-flex items-center justify-center rounded-full px-8 py-4 text-base font-medium transition-all"
                 style={{
@@ -617,7 +617,7 @@ export default function AboutPage() {
                 }}
               >
                 Get Started
-              </a>
+              </Link>
               <Link
                 href="/#contact"
                 className="inline-flex items-center justify-center rounded-full px-8 py-4 text-base font-medium border border-white/20 text-white transition-colors hover:bg-white/5"

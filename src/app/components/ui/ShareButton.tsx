@@ -163,6 +163,7 @@ export default function ShareButton({
             aria-label="Share options"
             className="absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] py-1 shadow-lg shadow-black/30"
           >
+            {/* eslint-disable-next-line react-hooks/refs */}
             {shareOptions.map((option) => {
               const Icon = option.icon;
               return (

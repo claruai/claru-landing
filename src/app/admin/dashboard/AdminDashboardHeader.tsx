@@ -10,6 +10,7 @@ export function AdminDashboardHeader() {
   const [mounted, setMounted] = useState(false);
   const { resolvedTheme, setTheme } = useTheme();
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setMounted(true), []);
 
   const handleLogout = useCallback(async () => {

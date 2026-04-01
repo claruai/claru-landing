@@ -51,7 +51,7 @@ function CalendlyStep({ name, email, bookingUrl }: { name: string; email: string
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
             <Loader2 className="w-6 h-6 text-[var(--accent-primary)] animate-spin" />
             <span className="font-mono text-xs text-[var(--text-muted)] animate-pulse">
-              // LOADING...
+              {"// LOADING..."}
             </span>
           </div>
         )}

@@ -37,6 +37,7 @@ export default function CalendlyEmbed() {
       `script[src="${CALENDLY_SCRIPT_URL}"]`
     );
     if (existing) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setScriptLoaded(true);
       return;
     }

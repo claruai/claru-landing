@@ -210,9 +210,11 @@ function HubCounter({ inView, reducedMotion }: { inView: boolean; reducedMotion:
 
   useEffect(() => {
     if (!inView || reducedMotion) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCount(target);
       return;
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCount(0);
     const duration = 1000;
     const start = performance.now();
