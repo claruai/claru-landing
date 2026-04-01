@@ -1115,7 +1115,7 @@ export default function ClaruVsLuelPage() {
                 {
                   href: "/data-catalog",
                   title: "Browse the Data Catalog",
-                  desc: "Explore Claru's 25+ commercially licensed datasets.",
+                  desc: "Explore Claru's 100+ commercially licensed datasets.",
                },
                 {
                   href: "/case-studies",
