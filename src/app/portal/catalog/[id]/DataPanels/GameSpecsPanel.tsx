@@ -64,7 +64,7 @@ function formatDisplay(d: Record<string, unknown>): string {
 function SectionHeader({ label }: { label: string }) {
   return (
     <div className="font-mono text-xs tracking-wider text-[var(--accent-primary)] mb-2 mt-1 select-none">
-      // {label}
+      {"// "}{label}
     </div>
   );
 }
@@ -250,7 +250,7 @@ function RawSpecsSection({ rawData }: { rawData: Record<string, unknown> }) {
             open ? "rotate-0" : "-rotate-90"
           }`}
         />
-        <span>// RAW SPECS</span>
+        <span>{"// RAW SPECS"}</span>
         <span className="text-[var(--text-muted)]/60 ml-1">
           ({Object.keys(rawData).length} field{Object.keys(rawData).length !== 1 ? "s" : ""})
         </span>

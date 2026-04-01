@@ -25,13 +25,13 @@ export function PortalNav() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const { resolvedTheme, setTheme } = useTheme();
+  const posthog = usePostHog();
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setMounted(true), []);
 
   // Don't render the nav chrome on the login page
   if (pathname === "/portal/login") return null;
-
-  const posthog = usePostHog();
 
   async function handleSignOut() {
     const supabase = getSupabaseBrowserClient();

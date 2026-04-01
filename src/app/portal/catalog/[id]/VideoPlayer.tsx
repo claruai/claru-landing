@@ -97,6 +97,7 @@ export function VideoPlayer({
     // Reset state when src changes (e.g. navigating between samples)
     canPlayFiredRef.current = false;
     reportedRef.current = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setShowFallback(false);
 
     const timer = window.setTimeout(() => {

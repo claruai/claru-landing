@@ -127,39 +127,40 @@ export function ClipDetailModal({
   const backdropRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const current = items[selectedIndex];
-  if (!current) return null;
+  const current = items[selectedIndex] ?? null;
 
-  const { clip, sample, signedUrl } = current;
+  // Derive fields from current item -- all hooks must be called unconditionally
+  const clip = current?.clip;
+  const sample = current?.sample;
+  const signedUrl = current?.signedUrl ?? "";
 
-  // Resolve fields from clip or legacy sample
-  // Infer mime_type from s3_key extension if not stored
-  const storedMime = clip?.mime_type ?? sample?.mime_type ?? "";
-  const s3Key = clip?.s3_key ?? sample?.s3_object_key ?? "";
-  const inferredMime = !storedMime && s3Key
-    ? (() => {
-        const ext = s3Key.split(".").pop()?.toLowerCase();
-        const map: Record<string, string> = {
-          mp4: "video/mp4", mov: "video/quicktime", webm: "video/webm",
-          jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png",
-        };
-        return (ext && map[ext]) || "video/mp4"; // default to video
-      })()
-    : storedMime;
-  const mimeType = inferredMime;
-  const filename = clip?.filename ?? sample?.filename ?? "download";
-  const itemId = clip?.id ?? sample?.id ?? "";
-  const annAnnotationKey = clip?.ann_annotation_key ?? sample?.s3_annotation_key ?? null;
-  const annSpecsKey = clip?.ann_specs_key ?? sample?.s3_specs_key ?? null;
-  // ann_metadata may be a JSONB object or double-serialized string
-  let rawAnn = clip?.ann_metadata ?? sample?.metadata_json ?? {};
-  if (typeof rawAnn === "string") {
-    try { rawAnn = JSON.parse(rawAnn); } catch { rawAnn = {}; }
-  }
-  const annMetadata = (rawAnn ?? {}) as Record<string, unknown>;
+  const derived = useMemo(() => {
+    const storedMime = clip?.mime_type ?? sample?.mime_type ?? "";
+    const s3Key = clip?.s3_key ?? sample?.s3_object_key ?? "";
+    const inferredMime = !storedMime && s3Key
+      ? (() => {
+          const ext = s3Key.split(".").pop()?.toLowerCase();
+          const map: Record<string, string> = {
+            mp4: "video/mp4", mov: "video/quicktime", webm: "video/webm",
+            jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png",
+          };
+          return (ext && map[ext]) || "video/mp4";
+        })()
+      : storedMime;
+    const mimeType = inferredMime;
+    const filename = clip?.filename ?? sample?.filename ?? "download";
+    const itemId = clip?.id ?? sample?.id ?? "";
+    let rawAnn: unknown = clip?.ann_metadata ?? sample?.metadata_json ?? {};
+    if (typeof rawAnn === "string") {
+      try { rawAnn = JSON.parse(rawAnn); } catch { rawAnn = {}; }
+    }
+    const annMetadata = (rawAnn ?? {}) as Record<string, unknown>;
+    const renderer = getRendererForMime(mimeType);
+    const rendererComponent = renderer?.component ?? null;
+    return { mimeType, filename, itemId, annMetadata, renderer, rendererComponent };
+  }, [clip, sample]);
 
-  const renderer = getRendererForMime(mimeType);
-  const rendererComponent = renderer?.component ?? null;
+  const { mimeType, filename, itemId, annMetadata, renderer, rendererComponent } = derived;
 
   const hasPrev = selectedIndex > 0;
   const hasNext = selectedIndex < items.length - 1;
@@ -288,6 +289,7 @@ export function ClipDetailModal({
   }, [jsonString]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCopied(false);
   }, [selectedIndex]);
 
@@ -295,7 +297,9 @@ export function ClipDetailModal({
   // Fetch annotation data from S3 on-demand
   // -------------------------------------------------------------------------
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAnnotationData(null);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAnnotationLoading(false);
 
     const currentItem = items[selectedIndex];
@@ -338,7 +342,9 @@ export function ClipDetailModal({
   // Fetch specs data from S3 on-demand
   // -------------------------------------------------------------------------
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSpecsData(null);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSpecsLoading(false);
 
     const currentItem = items[selectedIndex];
@@ -415,6 +421,9 @@ export function ClipDetailModal({
     },
     [onClose]
   );
+
+  // Early return for invalid index -- placed after all hooks
+  if (!current) return null;
 
   return (
     <div

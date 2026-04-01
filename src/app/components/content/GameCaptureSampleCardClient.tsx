@@ -328,12 +328,14 @@ export function GameCaptureSampleCardClient({
   const [currentTimeUs, setCurrentTimeUs] = useState(0);
   const animFrameRef = useRef<number>(0);
 
+  /* eslint-disable react-hooks/immutability */
   const syncTime = useCallback(() => {
     if (videoRef.current && !videoRef.current.paused) {
       setCurrentTimeUs(videoRef.current.currentTime * 1_000_000);
       animFrameRef.current = requestAnimationFrame(syncTime);
     }
   }, []);
+  /* eslint-enable react-hooks/immutability */
 
   const handlePlay = useCallback(() => {
     setIsPlaying(true);

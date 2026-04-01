@@ -75,9 +75,9 @@ export default function Footer() {
         {/* Copyright */}
         <div className="mt-12 pt-8 border-t border-[var(--border-subtle)] flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
           <div className="flex items-center gap-3">
-            <a href="/">
+            <Link href="/">
               <Logo size="sm" className="text-[var(--text-primary)]" />
-            </a>
+            </Link>
             <p className="text-sm text-[var(--text-muted)]">
               &copy; 2026 Claru AI. All rights reserved.
             </p>

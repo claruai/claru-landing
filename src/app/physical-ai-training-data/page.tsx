@@ -678,7 +678,7 @@ export default function PhysicalAITrainingDataPage() {
               physical world. We&apos;ll design the dataset.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
+              <Link
                 href="/#contact"
                 className="inline-flex items-center justify-center rounded-full px-8 py-4 text-base font-medium transition-all"
                 style={{
@@ -687,7 +687,7 @@ export default function PhysicalAITrainingDataPage() {
                 }}
               >
                 Get Started
-              </a>
+              </Link>
               <Link
                 href="/data-catalog"
                 className="inline-flex items-center justify-center rounded-full px-8 py-4 text-base font-medium border border-white/20 text-white transition-colors hover:bg-white/5"

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Header from "../components/layout/Header";
 import Footer from "../components/sections/Footer";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Job Applicant Privacy Policy - Claru",
@@ -534,12 +535,12 @@ export default function JobApplicantPrivacy() {
 
           {/* Back link */}
           <div className="mt-16 pt-8 border-t border-[var(--border-subtle)]">
-            <a
+            <Link
               href="/"
               className="font-mono text-sm text-[var(--text-tertiary)] hover:text-[var(--accent-primary)] transition-colors"
             >
               &larr; Back to Home
-            </a>
+            </Link>
           </div>
         </div>
         </div>
