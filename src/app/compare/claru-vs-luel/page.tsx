@@ -258,9 +258,7 @@ export default function ClaruVsLuelPage() {
                   /
                 </li>
                 <li>
-                  <span className="transition-colors">
-                    Compare
-                  </span>
+                  <Link href="/compare" className="transition-colors hover:text-white">Compare</Link>
                 </li>
                 <li aria-hidden="true" className="select-none">
                   /
