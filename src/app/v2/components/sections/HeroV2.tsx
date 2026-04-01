@@ -956,9 +956,9 @@ export default function HeroV2() {
               }}
             >
               {[
-                { value: "3.7M+", label: "human annotations" },
-                { value: "25+", label: "licensed datasets" },
-                { value: "5+", label: "environments" },
+                { value: "4M+", label: "human annotations" },
+                { value: "100+", label: "licensed datasets" },
+                { value: "150+", label: "environments" },
               ].map((stat, i) => (
                 <div key={stat.label} className="flex items-baseline gap-2.5">
                   {i > 0 && (

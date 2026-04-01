@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title:
     "Physical AI Training Data: Real-World Datasets for Models That Understand Physics | Claru",
   description:
-    "Real-world training data for physical AI from Claru. Video, demonstrations, and annotations for robotics, world models, and embodied agents. 3.7M+ annotations.",
+    "Real-world training data for physical AI from Claru. Video, demonstrations, and annotations for robotics, world models, and embodied agents. 4M+ annotations.",
   keywords: [
     "physical AI training data",
     "physical AI datasets",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     title:
       "Physical AI Training Data: Real-World Datasets for Models That Understand Physics",
     description:
-      "Real-world training data for physical AI from Claru. Purpose-built for robotics, world models, and embodied agents. 3.7M+ annotations from 10,000+ contributors.",
+      "Real-world training data for physical AI from Claru. Purpose-built for robotics, world models, and embodied agents. 4M+ annotations from 10,000+ contributors.",
     type: "article",
     url: "https://claru.ai/physical-ai-training-data",
     siteName: "Claru",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Physical AI Training Data | Claru",
     description:
-      "Real-world datasets for physical AI. Robotics, world models, embodied agents. 3.7M+ annotations, 500K+ clips.",
+      "Real-world datasets for physical AI. Robotics, world models, embodied agents. 4M+ annotations, 500K+ clips.",
   },
   alternates: {
     canonical: "https://claru.ai/physical-ai-training-data",
@@ -460,7 +460,7 @@ export default function PhysicalAITrainingDataPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
               {[
                 {
-                  stat: "3.7M+",
+                  stat: "4M+",
                   label: "Human annotations",
                   context:
                     "across egocentric video, game environments, and custom captures — not automated labels, but human-verified annotations",
@@ -478,7 +478,7 @@ export default function PhysicalAITrainingDataPage() {
                     "trained collectors with wearable cameras deployed across 100+ cities on 6 continents",
                 },
                 {
-                  stat: "25+",
+                  stat: "100+",
                   label: "Licensed datasets",
                   context:
                     "commercially available datasets built for robotics, video generation, and embodied AI research",

@@ -1163,7 +1163,7 @@ export default function VLATrainingDataGuidePage() {
                 {
                   title: "Expert Action Annotation",
                   description:
-                    "Human annotators label what automated systems miss: temporal action boundaries, object affordances, grasp types, intent labels, and natural language instruction paraphrases. 3.7M+ completed human annotations and growing.",
+                    "Human annotators label what automated systems miss: temporal action boundaries, object affordances, grasp types, intent labels, and natural language instruction paraphrases. 4M+ completed human annotations and growing.",
                 },
                 {
                   title: "Your Format, Your Timeline",
@@ -1189,9 +1189,9 @@ export default function VLATrainingDataGuidePage() {
             <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6">
               {[
                 { stat: "500K+", label: "Egocentric clips" },
-                { stat: "3.7M+", label: "Human annotations" },
+                { stat: "4M+", label: "Human annotations" },
                 { stat: "10,000+", label: "Global contributors" },
-                { stat: "25+", label: "Licensed datasets" },
+                { stat: "100+", label: "Licensed datasets" },
               ].map((item) => (
                 <div
                   key={item.label}
@@ -1279,7 +1279,7 @@ export default function VLATrainingDataGuidePage() {
                 {
                   href: "/data-catalog",
                   title: "Browse the Data Catalog",
-                  desc: "Explore Claru's 25+ licensed datasets with live previews.",
+                  desc: "Explore Claru's 100+ licensed datasets with live previews.",
                 },
                 {
                   href: "/compare/claru-vs-luel",

@@ -98,7 +98,7 @@ const faqItems = [
     question:
       "How do Labelbox and Claru compare on scale for robotics?",
     answer:
-      "Labelbox claims over 1 petabyte of robotics data produced as of early 2026 and works with over 80% of leading US AI labs across all modalities. Claru has delivered 3.7 million+ human annotations, 500,000+ egocentric video clips, and operates 10,000+ trained data collectors across 100+ cities — focused exclusively on physical AI. Labelbox's scale is broader (they serve the entire AI industry); Claru's scale is deeper within physical AI specifically. The right comparison depends on whether your robotics data needs are better served by a larger platform with diverse capabilities or a smaller specialist with deeper enrichment and domain focus.",
+      "Labelbox claims over 1 petabyte of robotics data produced as of early 2026 and works with over 80% of leading US AI labs across all modalities. Claru has delivered 4 million+ human annotations, 500,000+ egocentric video clips, and operates 10,000+ trained data collectors across 100+ cities — focused exclusively on physical AI. Labelbox's scale is broader (they serve the entire AI industry); Claru's scale is deeper within physical AI specifically. The right comparison depends on whether your robotics data needs are better served by a larger platform with diverse capabilities or a smaller specialist with deeper enrichment and domain focus.",
  },
 ];
 
@@ -853,7 +853,7 @@ export default function LabelboxAlternativesPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {[
                 {
-                  stat: "3.7M+",
+                  stat: "4M+",
                   label: "Human annotations",
                   context:
                     "across egocentric video, game environments, manipulation data, and custom captures",
@@ -1112,7 +1112,7 @@ export default function LabelboxAlternativesPage() {
                 {
                   href: "/data-catalog",
                   title: "Browse the Data Catalog",
-                  desc: "Explore 25+ licensed datasets across robotics, video, and multimodal AI.",
+                  desc: "Explore 100+ licensed datasets across robotics, video, and multimodal AI.",
                },
                 {
                   href: "/solutions",

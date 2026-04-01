@@ -177,7 +177,7 @@ const providers = [
       "Claru captures, enriches, and delivers purpose-built egocentric video datasets for robotics, embodied AI, and world model companies. Every clip comes from Claru's network of 10,000+ trained contributors wearing cameras during real tasks across kitchens, workshops, warehouses, and outdoor environments in 100+ cities worldwide. Data is enriched by default with depth maps (Depth Anything V2), pose estimation (ViTPose), semantic segmentation (SAM), optical flow, and AI-generated captions. Expert human annotators add action boundary labels, object affordances, grasp types, and natural language instruction annotations.",
     strengths: [
       "500K+ enriched egocentric clips — not raw video, but training-ready data with 5+ annotation layers",
-      "3.7M+ completed human annotations spanning egocentric video, game environments, and custom captures",
+      "4M+ completed human annotations spanning egocentric video, game environments, and custom captures",
       "Real-world diversity: 100+ cities, thousands of environment types, natural lighting and clutter",
       "Delivered in VLA-native formats: RLDS, WebDataset, HDF5, Parquet — compatible with OpenVLA, Octo, LeRobot",
       "Managed collection campaigns with brief-to-delivery in days, not months",
@@ -874,7 +874,7 @@ export default function BestEgocentricDataProvidersPage() {
                 {
                   href: "/data-catalog",
                   title: "Browse the Data Catalog",
-                  desc: "Explore Claru's 25+ licensed datasets with live previews.",
+                  desc: "Explore Claru's 100+ licensed datasets with live previews.",
                 },
                 {
                   href: "/solutions",

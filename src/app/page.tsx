@@ -75,7 +75,7 @@ const orgJsonLd = {
   name: "Claru",
   url: "https://claru.ai",
   description:
-    "Purpose-built training data for frontier robotics, embodied AI, and world models. 3.7M+ annotations, 25+ datasets, 10,000+ collectors worldwide.",
+    "Purpose-built training data for frontier robotics, embodied AI, and world models. 4M+ annotations, 100+ datasets, 10,000+ collectors worldwide.",
   sameAs: [],
 };
 
@@ -132,7 +132,7 @@ function SEOShell() {
         frontier video generation.
       </p>
       <p>
-        3.7M+ human annotations. 25+ active datasets. 10,000+ collectors
+        4M+ human annotations. 100+ active datasets. 10,000+ collectors
         worldwide. 5+ frontier lab partnerships.
       </p>
 

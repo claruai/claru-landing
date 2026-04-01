@@ -864,7 +864,7 @@ export default function DataEnrichmentPipelinePage() {
                 {
                   href: "/data-catalog",
                   title: "Browse the Data Catalog",
-                  desc: "Explore Claru's 25+ licensed datasets with live previews.",
+                  desc: "Explore Claru's 100+ licensed datasets with live previews.",
                 },
                 {
                   href: "/compare/claru-vs-luel",

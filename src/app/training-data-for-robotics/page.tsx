@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title:
     "Training Data for Robotics: Purpose-Built Datasets for Robot Learning | Claru",
   description:
-    "Purpose-built robotics training data from Claru. Egocentric video, manipulation trajectories, and teleoperation demos. 3.7M+ annotations, 10,000+ contributors.",
+    "Purpose-built robotics training data from Claru. Egocentric video, manipulation trajectories, and teleoperation demos. 4M+ annotations, 10,000+ contributors.",
   keywords: [
     "robotics training data",
     "robot learning datasets",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     title:
       "Training Data for Robotics: Purpose-Built Datasets for Robot Learning",
     description:
-      "Purpose-built robotics training data from Claru. Egocentric video, manipulation trajectories, teleoperation demos. 3.7M+ annotations, 10,000+ contributors.",
+      "Purpose-built robotics training data from Claru. Egocentric video, manipulation trajectories, teleoperation demos. 4M+ annotations, 10,000+ contributors.",
     type: "article",
     url: "https://claru.ai/training-data-for-robotics",
     siteName: "Claru",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Training Data for Robotics | Claru",
     description:
-      "Purpose-built robotics training data. 3.7M+ annotations, 500K+ egocentric clips, 10,000+ contributors worldwide.",
+      "Purpose-built robotics training data. 4M+ annotations, 500K+ egocentric clips, 10,000+ contributors worldwide.",
   },
   alternates: {
     canonical: "https://claru.ai/training-data-for-robotics",
@@ -470,7 +470,7 @@ export default function TrainingDataForRoboticsPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {[
                 {
-                  stat: "3.7M+",
+                  stat: "4M+",
                   label: "Human annotations",
                   context:
                     "across egocentric video, game environments, and custom captures",
@@ -488,7 +488,7 @@ export default function TrainingDataForRoboticsPage() {
                     "trained data collectors with wearable cameras across 100+ cities",
                 },
                 {
-                  stat: "25+",
+                  stat: "100+",
                   label: "Licensed datasets",
                   context:
                     "commercially available for robotics, video generation, and embodied AI research",
