@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata} from "next";
 import Link from "next/link";
 import GeoPageShell from "@/app/components/content/GeoPageShell";
 
@@ -37,18 +37,18 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         alt: "Scale AI Alternatives for Physical AI Training Data — Claru",
-      },
+     },
     ],
-  },
+ },
   twitter: {
     card: "summary_large_image",
     title: "Scale AI Alternatives for Physical AI Training Data (2026)",
     description:
       "Side-by-side comparison of Scale AI, Claru, Luel, and Appen for robotics and physical AI training data.",
-  },
+ },
   alternates: {
     canonical: "https://claru.ai/compare/scale-ai-alternatives",
-  },
+ },
 };
 
 // =============================================================================
@@ -60,33 +60,33 @@ const faqItems = [
     question: "Why do physical AI teams look for Scale AI alternatives?",
     answer:
       "Scale AI is an excellent platform for broad AI data labeling — NLP, image classification, and autonomous vehicle annotation. However, physical AI teams building robotics, embodied AI, and world models need more than annotation. They need end-to-end data pipelines that include real-world video capture, multi-modal enrichment (depth maps, pose estimation, segmentation), and expert annotation of intent, affordance, and edge cases. Scale AI's model is annotation-only: you provide the data, they label it. Teams that need capture-through-delivery often find that a specialist like Claru is faster and more cost-effective for their specific use case.",
-  },
+ },
   {
     question: "How does Claru differ from Scale AI for robotics data?",
     answer:
       "Claru is purpose-built for physical AI data. Unlike Scale AI's annotation-only model, Claru operates the full pipeline: capture (10,000+ contributors with wearable cameras across 100+ cities), enrichment (depth maps via Depth Anything V2, pose estimation via ViTPose, segmentation via SAM3, optical flow), expert human annotation (action boundaries, object affordances, grasp types), and delivery in formats like WebDataset, HDF5, and RLDS. Scale AI labels data you already have; Claru builds the dataset from scratch if needed, or enriches and annotates your existing footage.",
-  },
+ },
   {
     question: "Is Scale AI too expensive for physical AI startups?",
     answer:
       "Scale AI's pricing is designed for large enterprise contracts, often with annual commitments and six-figure minimums. For physical AI startups and growth-stage robotics companies, this can be prohibitive — especially when the project scope is narrower (e.g., 10,000 annotated manipulation clips rather than millions of image labels). Claru offers project-based pricing without long-term commitments, with turnaround measured in days rather than months. Many teams find that Claru's end-to-end approach (capture + enrichment + annotation) is more cost-effective than sourcing raw data separately and then paying Scale AI to annotate it.",
-  },
+ },
   {
     question: "Can Claru handle the same volume as Scale AI?",
     answer:
       "Scale AI has a larger total workforce, which matters for high-volume NLP and image classification projects. For physical AI data, volume requirements are different — robotics teams typically need 5,000 to 500,000 high-quality demonstrations rather than millions of simple labels. Claru has delivered 3.7M+ annotations, 500K+ egocentric video clips, and manages 10,000+ contributors worldwide. For the volume ranges that physical AI teams actually need, Claru matches or exceeds Scale AI's throughput while maintaining the domain expertise that robotics data requires.",
-  },
+ },
   {
     question:
       "When should I use Scale AI instead of a physical AI specialist?",
     answer:
       "Scale AI is the right choice when you need large-scale annotation of existing data for NLP, image classification, content moderation, or 2D autonomous vehicle labeling. If your project is primarily text or image data, if you already have the raw data collected, and if your annotation task can be handled by general crowd workers following a rubric, Scale AI's infrastructure and workforce are hard to beat. Choose a specialist like Claru when your project involves 3D/video data, requires domain-specific capture, needs enrichment layers beyond simple labels, or involves physical AI modalities that general annotators cannot reliably handle.",
-  },
+ },
   {
     question: "What formats does Claru deliver physical AI datasets in?",
     answer:
       "Claru delivers data in the formats robotics and physical AI teams actually use. Standard options include WebDataset for streaming training, HDF5 for dense numeric arrays and trajectories, RLDS/TFDS for reinforcement learning pipelines, Parquet for tabular metadata and annotation queries, and COCO JSON for detection and segmentation tasks. Video is delivered as MP4 (H.264/H.265) or extracted frames in PNG/WebP. Every delivery includes enrichment layers (depth, segmentation, pose) as aligned side-channels, a manifest with checksums, and a datasheet documenting methodology and limitations. Custom formats and direct S3/GCS delivery are available.",
-  },
+ },
 ];
 
 const faqJsonLd = {
@@ -98,8 +98,8 @@ const faqJsonLd = {
     acceptedAnswer: {
       "@type": "Answer",
       text: item.answer,
-    },
-  })),
+   },
+ })),
 };
 
 const articleJsonLd = {
@@ -112,7 +112,7 @@ const articleJsonLd = {
     "@type": "Organization",
     name: "Claru",
     url: "https://claru.ai",
-  },
+ },
   publisher: {
     "@type": "Organization",
     name: "Claru",
@@ -120,14 +120,14 @@ const articleJsonLd = {
     logo: {
       "@type": "ImageObject",
       url: "https://claru.ai/images/og-v2.webp",
-    },
-  },
+   },
+ },
   datePublished: "2026-03-30",
   dateModified: "2026-03-30",
   mainEntityOfPage: {
     "@type": "WebPage",
     "@id": "https://claru.ai/compare/scale-ai-alternatives",
-  },
+ },
 };
 
 const breadcrumbJsonLd = {
@@ -139,19 +139,19 @@ const breadcrumbJsonLd = {
       position: 1,
       name: "Home",
       item: "https://claru.ai",
-    },
+   },
     {
       "@type": "ListItem",
       position: 2,
       name: "Compare",
       item: "https://claru.ai/compare",
-    },
+   },
     {
       "@type": "ListItem",
       position: 3,
       name: "Scale AI Alternatives",
       item: "https://claru.ai/compare/scale-ai-alternatives",
-    },
+   },
   ],
 };
 
@@ -166,56 +166,56 @@ const comparisonDimensions = [
     claru: "100% focused on physical AI: training data for robotics, world models, and embodied AI — nothing else",
     luel: "Rights-cleared multimodal data marketplace (launched 2026)",
     appen: "Crowd-sourced data labeling across broad AI use cases",
-  },
+ },
   {
     dim: "Data Capture",
     scale: "Annotation-only — you provide the raw data",
     claru: "End-to-end: 10,000+ contributors with wearable cameras across 100+ cities capture real-world video",
     luel: "Marketplace model — connects buyers with data suppliers",
     appen: "Limited capture — primarily an annotation workforce",
-  },
+ },
   {
     dim: "Enrichment Pipeline",
     scale: "Basic annotation outputs (bounding boxes, segmentation, text labels)",
     claru: "Multi-model enrichment: depth maps, pose estimation, segmentation masks, optical flow, AI captions — all cross-validated",
     luel: "Metadata and rights management; no deep enrichment pipeline",
     appen: "Manual annotation only; no automated enrichment",
-  },
+ },
   {
     dim: "Robotics Specialization",
     scale: "Some robotics clients, but same general platform and workforce",
     claru: "Built for robotics: egocentric video, manipulation trajectories, teleoperation data, action boundary annotation",
     luel: "General multimodal focus; no robotics-specific tooling",
     appen: "No robotics specialization",
-  },
+ },
   {
     dim: "Annotation Expertise",
     scale: "Large crowd workforce with project-specific training; strong on NLP and 2D tasks",
     claru: "Expert annotators trained on physical AI: grasp types, object affordances, intent labeling, edge cases",
     luel: "Data suppliers handle their own annotation",
     appen: "Crowd workers across 170+ countries; general-purpose task-trained workforce",
-  },
+ },
   {
     dim: "Speed to Delivery",
     scale: "Weeks to months for custom projects; enterprise onboarding can take 4-8 weeks",
     claru: "Brief to first delivery in days; pilot datasets in under a week",
     luel: "Depends on marketplace supply; fast for available datasets, slow for custom",
     appen: "Weeks to months; similar to Scale AI for custom work",
-  },
+ },
   {
     dim: "Pricing Model",
     scale: "Enterprise contracts; annual commitments typical; six-figure minimums common",
     claru: "Project-based pricing; no long-term commitments; scoped to your dataset",
     luel: "Per-dataset or per-clip marketplace pricing",
     appen: "Enterprise and self-serve tiers; per-task pricing",
-  },
+ },
   {
     dim: "Delivery Formats",
     scale: "JSON, CSV, COCO — standard annotation formats",
     claru: "WebDataset, HDF5, RLDS, Parquet, COCO — formats robotics pipelines consume",
     luel: "Raw media files with metadata; limited format flexibility",
     appen: "JSON, CSV — standard annotation exports",
-  },
+ },
 ];
 
 // =============================================================================
@@ -227,7 +227,7 @@ export default function ScaleAIAlternativesPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify([faqJsonLd, articleJsonLd, breadcrumbJsonLd]) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([faqJsonLd, articleJsonLd, breadcrumbJsonLd])}}
       />
 
       <GeoPageShell>
@@ -241,15 +241,15 @@ export default function ScaleAIAlternativesPage() {
                   color: "rgba(255,255,255,0.5)",
                   fontFamily:
                     "var(--font-mono, 'JetBrains Mono', monospace)",
-                }}
+               }}
               >
                 <li>
-                  <a
-                    href="/"
-                    className="transition-colors hover:text-white"
-                  >
-                    Home
-                  </a>
+                <Link
+                  href="/"
+                  className="transition-colors hover:text-white"
+                >
+                  Home
+                </Link>
                 </li>
                 <li aria-hidden="true" className="select-none">
                   /
@@ -260,7 +260,7 @@ export default function ScaleAIAlternativesPage() {
                 <li aria-hidden="true" className="select-none">
                   /
                 </li>
-                <li aria-current="page" style={{ color: "#92B090" }}>
+                <li aria-current="page" style={{ color: "#92B090"}}>
                   Scale AI Alternatives
                 </li>
               </ol>
@@ -276,7 +276,7 @@ export default function ScaleAIAlternativesPage() {
                 href="https://scale.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: "#92B090" }}
+                style={{ color: "#92B090"}}
                 className="underline underline-offset-2"
               >
                 Scale AI
@@ -287,7 +287,7 @@ export default function ScaleAIAlternativesPage() {
               or{" "}
               <Link
                 href="/embodied-ai-datasets"
-                style={{ color: "#92B090" }}
+                style={{ color: "#92B090"}}
                 className="underline underline-offset-2"
               >
                 embodied AI
@@ -296,7 +296,7 @@ export default function ScaleAIAlternativesPage() {
               the only company 100% focused on{" "}
               <Link
                 href="/training-data-for-robotics"
-                style={{ color: "#92B090" }}
+                style={{ color: "#92B090"}}
                 className="underline underline-offset-2"
               >
                 training data for robotics
@@ -309,7 +309,7 @@ export default function ScaleAIAlternativesPage() {
               market evolves. If anything here is inaccurate, email{" "}
               <a
                 href="mailto:contact@claru.ai"
-                style={{ color: "#92B090" }}
+                style={{ color: "#92B090"}}
                 className="not-italic"
               >
                 contact@claru.ai
@@ -370,7 +370,7 @@ export default function ScaleAIAlternativesPage() {
                   href="https://scale.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   Scale AI
@@ -408,7 +408,7 @@ export default function ScaleAIAlternativesPage() {
                   href="https://www.nvidia.com/en-us/ai/physical-ai/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   NVIDIA&apos;s physical AI initiative
@@ -418,7 +418,7 @@ export default function ScaleAIAlternativesPage() {
                   href="https://ego4d-data.org/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   Ego4D
@@ -436,7 +436,7 @@ export default function ScaleAIAlternativesPage() {
                 Claru exists because frontier labs kept asking for this.{" "}
                 <Link
                   href="/about"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   Our team
@@ -449,7 +449,7 @@ export default function ScaleAIAlternativesPage() {
                 standalone company &mdash; 100% focused on{" "}
                 <Link
                   href="/physical-ai-training-data"
-                  style={{ color: "#92B090" }}
+                  style={{ color: "#92B090"}}
                   className="underline underline-offset-2"
                 >
                   training data for physical AI
@@ -482,17 +482,17 @@ export default function ScaleAIAlternativesPage() {
                   title: "No Data Capture",
                   description:
                     "If you do not have the raw video, you cannot use an annotation service. Physical AI teams need someone to capture the footage in the first place — egocentric video from real environments, teleoperation demonstrations, multi-view recordings. Scale AI does not do this.",
-                },
+               },
                 {
                   title: "No Deep Enrichment",
                   description:
                     "Modern robotics pipelines need more than bounding boxes and segmentation masks drawn by hand. They need monocular depth estimation, 2D/3D pose estimation, optical flow, and AI-generated descriptions — all computed at scale and cross-validated against each other. Annotation platforms do not provide this.",
-                },
+               },
                 {
                   title: "No Domain Specialization",
                   description:
                     "Annotating a grasp affordance is not the same as drawing a bounding box. Physical AI annotation requires understanding of contact physics, manipulation primitives, action boundaries, and embodiment constraints. General crowd workers, even well-trained ones, miss the nuances.",
-                },
+               },
               ].map((card) => (
                 <div
                   key={card.title}
@@ -536,7 +536,7 @@ export default function ScaleAIAlternativesPage() {
                     </th>
                     <th
                       className="px-4 py-3 font-mono text-xs uppercase tracking-wider min-w-[180px]"
-                      style={{ color: "#92B090" }}
+                      style={{ color: "#92B090"}}
                     >
                       Claru
                     </th>
@@ -556,7 +556,7 @@ export default function ScaleAIAlternativesPage() {
                         i % 2 === 0
                           ? "bg-transparent"
                           : "bg-white/[0.02]"
-                      }
+                     }
                     >
                       <td className="px-4 py-3 font-medium text-white align-top">
                         {row.dim}
@@ -566,7 +566,7 @@ export default function ScaleAIAlternativesPage() {
                       </td>
                       <td
                         className="px-4 py-3 align-top"
-                        style={{ color: "rgba(146,176,144,0.9)" }}
+                        style={{ color: "rgba(146,176,144,0.9)"}}
                       >
                         {row.claru}
                       </td>
@@ -603,28 +603,28 @@ export default function ScaleAIAlternativesPage() {
                   {
                     title: "High-volume NLP annotation",
                     desc: "If you need millions of text labels (sentiment, intent, entity extraction), Scale AI's crowd workforce and tooling are purpose-built for this.",
-                  },
+                 },
                   {
                     title: "Image classification at scale",
                     desc: "Labeling millions of images with categories, bounding boxes, or polygon segmentation. Scale AI's annotation platform handles this efficiently with strong quality controls.",
-                  },
+                 },
                   {
                     title: "Autonomous vehicle 2D/3D labeling",
                     desc: "Scale AI has deep experience in AV annotation — lidar point clouds, lane markings, traffic sign classification. Their tooling is mature for this domain.",
-                  },
+                 },
                   {
                     title: "Content moderation labeling",
                     desc: "When you need to classify content at scale for trust and safety applications, Scale AI's workforce and moderation tooling are well-established.",
-                  },
+                 },
                   {
                     title: "You already have the raw data",
                     desc: "If your data is already collected and you just need annotation, Scale AI's pure labeling model is a strong fit. The gap only appears when you also need capture and enrichment.",
-                  },
+                 },
                 ].map((item) => (
                   <li
                     key={item.title}
                     className="border-l-2 pl-5"
-                    style={{ borderColor: "rgba(255,255,255,0.2)" }}
+                    style={{ borderColor: "rgba(255,255,255,0.2)"}}
                   >
                     <strong className="text-white">
                       {item.title}.
@@ -665,32 +665,32 @@ export default function ScaleAIAlternativesPage() {
                   title: "You need the raw data captured",
                   description:
                     "Your training pipeline needs egocentric video, teleoperation demonstrations, or multi-view recordings from real environments. You cannot just upload existing data because it does not exist yet. You need a partner with a global capture network.",
-                },
+               },
                 {
                   title: "Your data needs enrichment, not just labels",
                   description:
                     "Robotics models consume depth maps, pose estimation, optical flow, and segmentation masks as input features — not just annotations on top of RGB. You need a pipeline that computes these enrichment layers at scale, cross-validates them, and delivers them as aligned side-channels.",
-                },
+               },
                 {
                   title: "Your annotation requires domain expertise",
                   description:
                     "Action boundary annotation, grasp type classification, object affordance labeling, and intent inference require annotators who understand manipulation physics and embodiment constraints. General crowd workers, even with good instructions, produce unreliable labels for these tasks.",
-                },
+               },
                 {
                   title: "You are building a world model",
                   description:
                     "World models need diverse, high-quality video with rich temporal structure — not static images with bounding boxes. The data pipeline for video generation, physical simulation, and embodied reasoning is fundamentally different from image classification.",
-                },
+               },
                 {
                   title: "Speed matters more than scale",
                   description:
                     "If you need a pilot dataset in days rather than a production contract in months, the enterprise onboarding cycle at Scale AI may not fit. Claru scopes and delivers pilot datasets in under a week.",
-                },
+               },
                 {
                   title: "You need robotics-native formats",
                   description:
                     "Your training pipeline expects WebDataset, HDF5, RLDS, or other formats that robotics teams use. Generic annotation exports in JSON or CSV require significant post-processing before they can be fed to a policy.",
-                },
+               },
               ].map((card) => (
                 <div
                   key={card.title}
@@ -730,25 +730,25 @@ export default function ScaleAIAlternativesPage() {
                   title: "Capture",
                   content:
                     "Claru operates three parallel data acquisition pipelines. Wearable camera capture deploys 10,000+ trained contributors with GoPro cameras across kitchens, workshops, warehouses, retail environments, and outdoor spaces in 100+ cities worldwide. Managed teleoperation coordinates demonstrations on client-specific robot hardware (Franka, UR5, custom rigs) with trained operators following structured task protocols. Game-based capture uses custom environments that log synchronized video and control inputs at 60 FPS, producing interaction data with perfect action labels. This is the step that annotation-only platforms cannot provide.",
-                },
+               },
                 {
                   step: "02",
                   title: "Enrich",
                   content:
                     "Raw video enters a multi-model enrichment pipeline before any human touches it. Monocular depth estimation (Depth Anything V2) generates per-frame depth maps. Semantic segmentation (SAM3) labels every pixel with object class and instance identity. Human pose estimation (ViTPose) extracts 2D and 3D joint positions for hand-object interaction analysis. Optical flow computes dense motion fields between consecutive frames. AI-generated captions provide natural language descriptions of each clip. All enrichment outputs are cross-validated: depth consistency is checked against segmentation boundaries, pose estimates are validated against temporal smoothness constraints. This automated enrichment produces the multi-modal signals that robotics models consume as input features — not just labels.",
-                },
+               },
                 {
                   step: "03",
                   title: "Annotate",
                   content:
                     "Expert human annotators add the labels that automated systems cannot reliably produce. Action boundary annotation marks precise temporal start and end of discrete actions (reach, grasp, lift, transport, place) with sub-second precision. Object affordance labels identify graspable surfaces, support surfaces, and obstacles. Grasp type classification follows established taxonomies (power grasp, precision pinch, lateral pinch, hook). Intent annotation captures what the person is trying to achieve, not just what their hand is doing. Quality scoring flags clips with occlusions, motion blur, or calibration drift. Every annotation project follows guidelines developed in collaboration with the client's ML team.",
-                },
+               },
                 {
                   step: "04",
                   title: "Deliver",
                   content:
                     "Datasets are packaged in the exact format each team's training pipeline expects. WebDataset for streaming training at scale. HDF5 for dense numeric trajectories. RLDS for reinforcement learning workflows. Parquet for metadata queries and filtering. Every delivery includes enrichment layers as aligned side-channels, a manifest with checksums, and a datasheet documenting collection methodology, annotator demographics, known limitations, and intended use cases. Data is delivered via S3, GCS, or direct integration with the client's cloud infrastructure. No format conversion needed on the client side.",
-                },
+               },
               ].map((phase) => (
                 <div key={phase.step} className="flex gap-6">
                   <div
@@ -756,7 +756,7 @@ export default function ScaleAIAlternativesPage() {
                     style={{
                       backgroundColor: "rgba(146,176,144,0.15)",
                       color: "#92B090",
-                    }}
+                   }}
                   >
                     {phase.step}
                   </div>
@@ -788,25 +788,25 @@ export default function ScaleAIAlternativesPage() {
                   label: "Human annotations",
                   context:
                     "across egocentric video, game environments, manipulation data, and custom captures",
-                },
+               },
                 {
                   stat: "500K+",
                   label: "Egocentric clips",
                   context:
                     "from real kitchens, workshops, warehouses, and outdoor environments worldwide",
-                },
+               },
                 {
                   stat: "10,000+",
                   label: "Global contributors",
                   context:
                     "trained data collectors with wearable cameras across 100+ cities",
-                },
+               },
                 {
                   stat: "Days",
                   label: "Brief to delivery",
                   context:
                     "pilot datasets scoped and delivered in under a week, not months",
-                },
+               },
               ].map((item) => (
                 <div
                   key={item.label}
@@ -814,7 +814,7 @@ export default function ScaleAIAlternativesPage() {
                 >
                   <div
                     className="text-3xl md:text-4xl font-bold font-mono mb-1"
-                    style={{ color: "#92B090" }}
+                    style={{ color: "#92B090"}}
                   >
                     {item.stat}
                   </div>
@@ -851,7 +851,7 @@ export default function ScaleAIAlternativesPage() {
                     "Luel is a two-sided marketplace for rights-cleared multimodal data. They connect data suppliers with AI teams and handle licensing. Strengths: strong content library, good SEO presence, fast access to available datasets. Weaknesses: no deep enrichment pipeline, no custom capture network, limited robotics-specific data. Best for teams that need licensed footage for video generation models and are comfortable handling enrichment in-house.",
                   link: "/compare/claru-vs-luel",
                   linkText: "See our Luel comparison",
-                },
+               },
                 {
                   name: "Appen",
                   type: "Legacy crowd labeling",
@@ -859,7 +859,7 @@ export default function ScaleAIAlternativesPage() {
                     "Appen is one of the original crowd-sourced data labeling companies, now publicly traded. They have a massive global workforce and broad capability across languages and modalities. Strengths: linguistic diversity, global reach, established enterprise relationships. Weaknesses: quality has declined in recent years (frequently cited in industry feedback), no specialization in robotics or physical AI, annotation-only model similar to Scale AI. Best for large-volume multilingual NLP projects where cost efficiency matters more than domain depth.",
                   link: "/compare/appen-alternatives",
                   linkText: "See our Appen comparison",
-                },
+               },
                 {
                   name: "Labelbox",
                   type: "Data platform",
@@ -867,7 +867,7 @@ export default function ScaleAIAlternativesPage() {
                     "Labelbox has evolved from annotation software into a broad AI data factory with RLHF, evaluations, an expert network (Alignerr, 1.5M+ workers), and robotics capture. Strengths: breadth across AI modalities, large expert network. Weaknesses: expanding into robotics rather than built for it. Best for teams that need one vendor across NLP, image, video, and robotics data.",
                   link: "/compare/labelbox-alternatives",
                   linkText: "See our Labelbox comparison",
-                },
+               },
                 {
                   name: "Surge AI",
                   type: "Expert annotation",
@@ -875,12 +875,12 @@ export default function ScaleAIAlternativesPage() {
                     "Surge AI focuses on high-quality annotation with a curated workforce of expert labelers. Strengths: annotation quality is generally above crowd platforms, strong on NLP and RLHF tasks. Weaknesses: annotation-only model, no data capture, no robotics specialization, limited video annotation capabilities. Best for RLHF and text-heavy annotation projects where quality matters more than volume.",
                   link: "/compare/surge-ai-alternatives",
                   linkText: "See our Surge AI comparison",
-                },
+               },
               ].map((alt) => (
                 <div
                   key={alt.name}
                   className="border-l-2 pl-6"
-                  style={{ borderColor: "rgba(146,176,144,0.4)" }}
+                  style={{ borderColor: "rgba(146,176,144,0.4)"}}
                 >
                   <div className="flex items-baseline gap-3 mb-2">
                     <h3 className="text-lg font-semibold text-white">
@@ -891,7 +891,7 @@ export default function ScaleAIAlternativesPage() {
                       style={{
                         backgroundColor: "rgba(146,176,144,0.15)",
                         color: "#92B090",
-                      }}
+                     }}
                     >
                       {alt.type}
                     </span>
@@ -903,7 +903,7 @@ export default function ScaleAIAlternativesPage() {
                     <Link
                       href={alt.link}
                       className="inline-block mt-2 text-sm font-medium transition-colors"
-                      style={{ color: "#92B090" }}
+                      style={{ color: "#92B090"}}
                     >
                       {alt.linkText} &rarr;
                     </Link>
@@ -988,62 +988,62 @@ export default function ScaleAIAlternativesPage() {
                   href: "/training-data-for-robotics",
                   title: "Training Data for Robotics",
                   desc: "Purpose-built datasets for robot learning: egocentric video, manipulation, teleoperation.",
-                },
+               },
                 {
                   href: "/physical-ai-training-data",
                   title: "Physical AI Training Data",
                   desc: "Real-world datasets for models that understand physics and embodiment.",
-                },
+               },
                 {
                   href: "/egocentric-video-datasets",
                   title: "Egocentric Video Datasets",
                   desc: "First-person video capture from 10,000+ contributors worldwide.",
-                },
+               },
                 {
                   href: "/embodied-ai-datasets",
                   title: "Embodied AI Datasets",
                   desc: "Grounded, multi-modal datasets for agents that act in the physical world.",
-                },
+               },
                 {
                   href: "/compare/claru-vs-luel",
                   title: "Claru vs Luel",
                   desc: "Marketplace raw data vs. end-to-end enriched physical AI data.",
-                },
+               },
                 {
                   href: "/compare/appen-alternatives",
                   title: "Appen Alternatives",
                   desc: "Crowd labeling vs. physical AI specialization for robotics data.",
-                },
+               },
                 {
                   href: "/compare/labelbox-alternatives",
                   title: "Labelbox Alternatives",
                   desc: "End-to-end data service vs. annotation platform for physical AI.",
-                },
+               },
                 {
                   href: "/compare/surge-ai-alternatives",
                   title: "Surge AI Alternatives",
                   desc: "Beyond NLP annotation: end-to-end data for robotics and world models.",
-                },
+               },
                 {
                   href: "/about",
                   title: "About Claru",
                   desc: "Meet the Moonvalley co-founders building physical AI data infrastructure.",
-                },
+               },
                 {
                   href: "/case-studies",
                   title: "Case Studies",
                   desc: "Real project outcomes with metrics and methodology documentation.",
-                },
+               },
                 {
                   href: "/data-catalog",
                   title: "Browse the Data Catalog",
                   desc: "Explore 25+ licensed datasets across robotics, video, and multimodal AI.",
-                },
+               },
                 {
                   href: "/solutions",
                   title: "All Solutions",
                   desc: "Custom data pipelines for acquisition, enrichment, annotation, and validation.",
-                },
+               },
               ].map((link) => (
                 <Link
                   key={link.href}
@@ -1053,7 +1053,7 @@ export default function ScaleAIAlternativesPage() {
                   <div>
                     <div
                       className="text-sm font-medium group-hover:underline"
-                      style={{ color: "#92B090" }}
+                      style={{ color: "#92B090"}}
                     >
                       {link.title}
                     </div>
@@ -1104,16 +1104,16 @@ export default function ScaleAIAlternativesPage() {
               training-ready data &mdash; capture through annotation.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
+              <Link
                 href="/#contact"
                 className="inline-flex items-center justify-center rounded-full px-8 py-4 text-base font-medium transition-all"
                 style={{
                   backgroundColor: "#92B090",
                   color: "#0a0908",
-                }}
+               }}
               >
                 Get Started
-              </a>
+              </Link>
               <Link
                 href="/data-catalog"
                 className="inline-flex items-center justify-center rounded-full px-8 py-4 text-base font-medium border border-white/20 text-white transition-colors hover:bg-white/5"
