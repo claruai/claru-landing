@@ -31,8 +31,8 @@ interface StatItem {
 }
 
 const stats: StatItem[] = [
-  { value: "3.7M+", label: "human annotations" },
-  { value: "25+", label: "active datasets" },
+  { value: "4M+", label: "human annotations" },
+  { value: "100+", label: "active datasets" },
   { value: "10,000+", label: "collectors worldwide" },
   { value: "5+", label: "frontier lab partnerships" },
 ];
@@ -166,9 +166,9 @@ function AnimatedCounter({
   reducedMotion: boolean;
   delay?: number;
 }) {
-  // Parse: "3.7M+" -> numeric=3.7, suffix="M+"
+  // Parse: "4M+" -> numeric=4, suffix="M+"
   // Parse: "10,000+" -> numeric=10000, suffix="+", hasComma=true
-  // Parse: "25+" -> numeric=25, suffix="+"
+  // Parse: "100+" -> numeric=100, suffix="+"
   // Parse: "5" -> numeric=5, suffix=""
   const cleaned = value.replace(/,/g, "");
   const match = cleaned.match(/^([\d.]+)(.*)$/);

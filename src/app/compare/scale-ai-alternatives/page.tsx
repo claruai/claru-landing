@@ -74,7 +74,7 @@ const faqItems = [
   {
     question: "Can Claru handle the same volume as Scale AI?",
     answer:
-      "Scale AI has a larger total workforce, which matters for high-volume NLP and image classification projects. For physical AI data, volume requirements are different — robotics teams typically need 5,000 to 500,000 high-quality demonstrations rather than millions of simple labels. Claru has delivered 3.7M+ annotations, 500K+ egocentric video clips, and manages 10,000+ contributors worldwide. For the volume ranges that physical AI teams actually need, Claru matches or exceeds Scale AI's throughput while maintaining the domain expertise that robotics data requires.",
+      "Scale AI has a larger total workforce, which matters for high-volume NLP and image classification projects. For physical AI data, volume requirements are different — robotics teams typically need 5,000 to 500,000 high-quality demonstrations rather than millions of simple labels. Claru has delivered 4M+ annotations, 500K+ egocentric video clips, and manages 10,000+ contributors worldwide. For the volume ranges that physical AI teams actually need, Claru matches or exceeds Scale AI's throughput while maintaining the domain expertise that robotics data requires.",
  },
   {
     question:
@@ -255,7 +255,7 @@ export default function ScaleAIAlternativesPage() {
                   /
                 </li>
                 <li>
-                  <span className="transition-colors">Compare</span>
+                  <Link href="/compare" className="transition-colors hover:text-white">Compare</Link>
                 </li>
                 <li aria-hidden="true" className="select-none">
                   /
@@ -784,7 +784,7 @@ export default function ScaleAIAlternativesPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {[
                 {
-                  stat: "3.7M+",
+                  stat: "4M+",
                   label: "Human annotations",
                   context:
                     "across egocentric video, game environments, manipulation data, and custom captures",
@@ -1037,7 +1037,7 @@ export default function ScaleAIAlternativesPage() {
                 {
                   href: "/data-catalog",
                   title: "Browse the Data Catalog",
-                  desc: "Explore 25+ licensed datasets across robotics, video, and multimodal AI.",
+                  desc: "Explore 100+ licensed datasets across robotics, video, and multimodal AI.",
                },
                 {
                   href: "/solutions",

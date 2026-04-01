@@ -35,7 +35,7 @@ export const claruPipelineSteps: ComparisonStep[] = [
 
 export const claruProofStats: ComparisonStat[] = [
   {
-    stat: "3.7M+",
+    stat: "4M+",
     label: "Human annotations",
     context:
       "across egocentric video, game environments, manipulation data, and custom captures",
