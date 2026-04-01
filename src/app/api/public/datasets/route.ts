@@ -8,8 +8,13 @@ import { createClient } from "@supabase/supabase-js";
  * Uses a plain anon client (no cookies) so RLS always resolves as anon role,
  * not as an authenticated user who may have limited dataset access.
  *
+ * Excludes custom curations (lead-specific datasets) from the public catalog.
+ *
  * Cached at the CDN edge for 1 hour.
  */
+
+const CUSTOM_CURATIONS_CATEGORY_ID = "46cf5324-f3e3-484f-9cb3-7b1dffff0094";
+
 export async function GET() {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,6 +27,7 @@ export async function GET() {
       "id, name, slug, description, type, subcategory, source_type, modality, total_samples, total_duration_hours, geographic_coverage, annotation_types, dataset_categories(name, slug, display_order)"
     )
     .eq("is_published", true)
+    .neq("category_id", CUSTOM_CURATIONS_CATEGORY_ID)
     .order("name", { ascending: true });
 
   if (error) {
