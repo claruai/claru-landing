@@ -3,7 +3,7 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Data Catalog | Claru",
   description:
-    "Browse 25+ curated video datasets with depth, pose, and segmentation enrichment. Commercially licensed training data for robotics and embodied AI.",
+    "Browse 100+ curated video datasets with depth, pose, and segmentation enrichment. Commercially licensed training data for robotics and embodied AI.",
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     siteName: "Claru",
     title: "Data Catalog | Claru",
     description:
-      "Browse 25+ curated video datasets with depth, pose, and segmentation enrichment for robotics and embodied AI.",
+      "Browse 100+ curated video datasets with depth, pose, and segmentation enrichment for robotics and embodied AI.",
     images: [
       {
         url: "/images/og-v2.webp",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Data Catalog | Claru",
     description:
-      "Browse 25+ curated video datasets with depth, pose, and segmentation enrichment for robotics and embodied AI.",
+      "Browse 100+ curated video datasets with depth, pose, and segmentation enrichment for robotics and embodied AI.",
     images: ["/images/og-v2.webp"],
   },
   alternates: {

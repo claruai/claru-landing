@@ -55,7 +55,7 @@ export const metadata: Metadata = {
   title:
     "Claru \u2014 Training Data for Physical AI",
   description:
-    "500K+ egocentric videos. 3.7M+ annotations. The only training data company 100% focused on physical AI.",
+    "500K+ egocentric videos. 4M+ annotations. The only training data company 100% focused on physical AI.",
   keywords: [
     "AI training data",
     "physical AI",
@@ -81,7 +81,7 @@ export const metadata: Metadata = {
     siteName: "Claru",
     title: "Claru \u2014 Training Data for Physical AI",
     description:
-      "500K+ egocentric videos. 3.7M+ annotations. The only training data company 100% focused on physical AI.",
+      "500K+ egocentric videos. 4M+ annotations. The only training data company 100% focused on physical AI.",
     images: [
       {
         url: "/images/og-v3.png",
@@ -95,7 +95,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Claru \u2014 Training Data for Physical AI",
     description:
-      "500K+ egocentric videos. 3.7M+ annotations. The only training data company 100% focused on physical AI.",
+      "500K+ egocentric videos. 4M+ annotations. The only training data company 100% focused on physical AI.",
     images: ["/images/og-v3.png"],
   },
   alternates: {

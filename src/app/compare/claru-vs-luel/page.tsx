@@ -74,7 +74,7 @@ const faqItems = [
   {
     question: "How long has Luel been operating compared to Claru?",
     answer:
-      "Luel launched in early 2026 as a Y Combinator Winter 2026 startup, founded by two UC Berkeley students. As of March 2026, Luel has been operating for approximately six weeks. Claru (operated by Reka AI Inc.) has been delivering training data to frontier AI labs since 2025 and has completed 3.7 million+ human annotations across 25+ datasets for clients building world models, robotics systems, and embodied AI. Claru's track record includes delivering 500,000+ egocentric video clips and operating a collector network of 10,000+ contributors in 100+ cities.",
+      "Luel launched in early 2026 as a Y Combinator Winter 2026 startup, founded by two UC Berkeley students. As of March 2026, Luel has been operating for approximately six weeks. Claru (operated by Reka AI Inc.) has been delivering training data to frontier AI labs since 2025 and has completed 4 million+ human annotations across 100+ datasets for clients building world models, robotics systems, and embodied AI. Claru's track record includes delivering 500,000+ egocentric video clips and operating a collector network of 10,000+ contributors in 100+ cities.",
  },
   {
     question: "Does Luel provide depth maps, pose estimation, or segmentation with its data?",
@@ -181,7 +181,7 @@ const comparisonRows = [
  },
   {
     dimension: "Scale (delivered)",
-    claru: "3.7M+ annotations, 500K+ egocentric clips, 25+ datasets",
+    claru: "4M+ annotations, 500K+ egocentric clips, 100+ datasets",
     luel: "Claims ~$2M ARR in 6 weeks; published dataset counts unavailable",
  },
   {
@@ -813,7 +813,7 @@ export default function ClaruVsLuelPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
                 {[
                   {
-                    stat: "3.7M+",
+                    stat: "4M+",
                     label: "Human annotations",
                     context:
                       "delivered across egocentric video, game environments, and custom capture projects",
@@ -831,7 +831,7 @@ export default function ClaruVsLuelPage() {
                       "across 100+ cities, following project-specific capture protocols",
                  },
                   {
-                    stat: "25+",
+                    stat: "100+",
                     label: "Active datasets",
                     context:
                       "commercially licensed for robotics, video generation, and embodied AI",
@@ -1011,7 +1011,7 @@ export default function ClaruVsLuelPage() {
                       {
                         need: "Proven track record with published case studies",
                         pick: "Claru",
-                        why: "3.7M+ annotations delivered; published case studies with metrics",
+                        why: "4M+ annotations delivered; published case studies with metrics",
                      },
                     ].map((row, i) => (
                       <tr
@@ -1115,7 +1115,7 @@ export default function ClaruVsLuelPage() {
                 {
                   href: "/data-catalog",
                   title: "Browse the Data Catalog",
-                  desc: "Explore Claru's 25+ commercially licensed datasets.",
+                  desc: "Explore Claru's 100+ commercially licensed datasets.",
                },
                 {
                   href: "/case-studies",

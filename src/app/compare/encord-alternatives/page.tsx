@@ -74,7 +74,7 @@ const faqItems = [
     question:
       "How does Encord's data volume (5PB+) compare to Claru's scale?",
     answer:
-      "Encord reports 5+ petabytes of data on its platform as of early 2026 — this represents data that Encord's customers have uploaded and processed through the platform, not data that Encord captured or owns. Encord serves 300+ AI teams globally, including Woven by Toyota and Skydio. Claru has delivered 3.7 million+ human annotations, 500,000+ egocentric video clips, and operates 10,000+ trained data collectors across 100+ cities — focused exclusively on physical AI. The numbers measure different things: Encord measures data processed through its software; Claru measures data captured, enriched, annotated, and delivered as a service.",
+      "Encord reports 5+ petabytes of data on its platform as of early 2026 — this represents data that Encord's customers have uploaded and processed through the platform, not data that Encord captured or owns. Encord serves 300+ AI teams globally, including Woven by Toyota and Skydio. Claru has delivered 4 million+ human annotations, 500,000+ egocentric video clips, and operates 10,000+ trained data collectors across 100+ cities — focused exclusively on physical AI. The numbers measure different things: Encord measures data processed through its software; Claru measures data captured, enriched, annotated, and delivered as a service.",
  },
   {
     question:
@@ -229,7 +229,7 @@ const comparisonRows = [
     encord:
       "5PB+ data on platform, 300+ physical AI teams, Woven by Toyota, Skydio, Zipline; $110M total raised at $550M valuation",
     claru:
-      "3.7M+ human annotations, 500K+ egocentric clips, 10,000+ collectors across 100+ cities; 5+ frontier lab partnerships",
+      "4M+ human annotations, 500K+ egocentric clips, 10,000+ collectors across 100+ cities; 5+ frontier lab partnerships",
  },
   {
     dimension: "Delivery Formats",
@@ -943,7 +943,7 @@ export default function EncordAlternativesPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {[
                 {
-                  stat: "3.7M+",
+                  stat: "4M+",
                   label: "Human annotations",
                   context:
                     "across egocentric video, game environments, manipulation data, and custom captures",
@@ -1222,7 +1222,7 @@ export default function EncordAlternativesPage() {
                 {
                   href: "/data-catalog",
                   title: "Browse the Data Catalog",
-                  desc: "Explore 25+ licensed datasets across robotics, video, and multimodal AI.",
+                  desc: "Explore 100+ licensed datasets across robotics, video, and multimodal AI.",
                },
                 {
                   href: "/solutions",

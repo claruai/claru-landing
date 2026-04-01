@@ -760,7 +760,7 @@ export default function SurgeAIAlternativesPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {[
                 {
-                  stat: "3.7M+",
+                  stat: "4M+",
                   label: "Human annotations",
                   context:
                     "across egocentric video, game environments, manipulation data, and custom captures",
@@ -1104,7 +1104,7 @@ export default function SurgeAIAlternativesPage() {
                 {
                   href: "/data-catalog",
                   title: "Browse the Data Catalog",
-                  desc: "Explore 25+ licensed datasets across robotics, video, and multimodal AI.",
+                  desc: "Explore 100+ licensed datasets across robotics, video, and multimodal AI.",
                },
                 {
                   href: "/solutions",

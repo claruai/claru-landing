@@ -197,8 +197,8 @@ const team = [
 ];
 
 const stats = [
-  { value: "3.7M+", label: "Human annotations", detail: "Across video, robotics, and multimodal datasets" },
-  { value: "25+", label: "Active datasets", detail: "Licensed for commercial AI training" },
+  { value: "4M+", label: "Human annotations", detail: "Across video, robotics, and multimodal datasets" },
+  { value: "100+", label: "Active datasets", detail: "Licensed for commercial AI training" },
   { value: "10K+", label: "Data collectors", detail: "Trained contributors with wearable cameras" },
   { value: "100+", label: "Cities worldwide", detail: "Diverse real-world environments on 6 continents" },
   { value: "5+", label: "Frontier lab partnerships", detail: "Working with leading AI research teams" },
@@ -551,7 +551,7 @@ export default function AboutPage() {
                 {
                   href: "/data-catalog",
                   title: "Browse the Data Catalog",
-                  desc: "Explore 25+ licensed datasets across robotics, video, and multimodal AI.",
+                  desc: "Explore 100+ licensed datasets across robotics, video, and multimodal AI.",
                 },
                 {
                   href: "/compare/scale-ai-alternatives",

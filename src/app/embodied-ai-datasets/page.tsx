@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title:
     "Embodied AI Datasets: Training Data for Agents That Act in the Real World | Claru",
   description:
-    "Training data for embodied AI from Claru. Real-world video and annotations for mobile robots, humanoids, and autonomous systems. 3.7M+ annotations, 500K+ clips.",
+    "Training data for embodied AI from Claru. Real-world video and annotations for mobile robots, humanoids, and autonomous systems. 4M+ annotations, 500K+ clips.",
   keywords: [
     "embodied AI training data",
     "embodied AI datasets",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Embodied AI Datasets | Claru",
     description:
-      "Training data for embodied agents. Real-world video, manipulation demos, multi-layer annotations. 3.7M+ annotations.",
+      "Training data for embodied agents. Real-world video, manipulation demos, multi-layer annotations. 4M+ annotations.",
   },
   alternates: {
     canonical: "https://claru.ai/embodied-ai-datasets",
@@ -546,7 +546,7 @@ export default function EmbodiedAIDatasetsPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
               {[
                 {
-                  stat: "3.7M+",
+                  stat: "4M+",
                   label: "Human annotations",
                   context:
                     "across egocentric video, game environments, and custom captures",
@@ -576,7 +576,7 @@ export default function EmbodiedAIDatasetsPage() {
                     "depth, segmentation, pose, optical flow, captions, and action labels",
                 },
                 {
-                  stat: "25+",
+                  stat: "100+",
                   label: "Licensed datasets",
                   context:
                     "commercially available for robotics, video generation, and embodied AI",

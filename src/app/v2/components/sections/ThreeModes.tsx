@@ -19,7 +19,7 @@ const modes = [
     number: "01",
     title: "Browse & License",
     bullets: [
-      "Search 25+ curated datasets by modality, environment, or task",
+      "Search 100+ curated datasets by modality, environment, or task",
       "Preview clips with expert annotations before purchasing",
       "Download annotated datasets in standard formats",
       "Per-dataset licensing with commercial rights included",
