@@ -148,8 +148,8 @@
         "Typecheck passes"
       ],
       "priority": 9,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "geo-content + geo-citability + on-page skills loaded. Retry on geoScore < 65. Never throws."
     },
     {
       "id": "US-010",
