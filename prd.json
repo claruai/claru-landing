@@ -30,8 +30,8 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "additionalFiles is top-level (deprecated but functional); retries.default is RetryOptions object {maxAttempts:2}, not number."
     },
     {
       "id": "US-003",
