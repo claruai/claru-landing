@@ -258,8 +258,8 @@
         "Typecheck passes"
       ],
       "priority": 15,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "generate.ts exports kept for backward compat. orphanCleanup added as second schedules.task in same file."
     },
     {
       "id": "US-016",
@@ -274,8 +274,8 @@
         "Typecheck passes"
       ],
       "priority": 16,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented in same file as weeklyBlogPipeline (US-015). Uses .select('id') after update to count affected rows."
     },
     {
       "id": "US-017",
