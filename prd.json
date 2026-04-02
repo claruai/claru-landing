@@ -99,8 +99,8 @@
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "All 4 agents use Promise.allSettled. arXiv never fabricates — explicit fallback text. Web uses DuckDuckGo HTML. SERP skipped for timely/case_study."
     },
     {
       "id": "US-007",
