@@ -290,8 +290,8 @@
         "Typecheck passes"
       ],
       "priority": 17,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Check-before-insert pattern. Resets existing rows to queued. Cleans stale runs with delete. test:content-team script also added."
     },
     {
       "id": "US-018",

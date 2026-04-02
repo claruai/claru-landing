@@ -17,7 +17,9 @@
     "remotion:enrichment-viz": "tsx scripts/render-enrichment-viz.ts",
     "test:blog-pipeline": "tsx scripts/test-blog-pipeline.ts",
     "enrich:backlog": "tsx scripts/enrich-keyword-backlog.ts",
-    "generate:timely": "tsx scripts/generate-timely-post.ts"
+    "generate:timely": "tsx scripts/generate-timely-post.ts",
+    "seed:content-team": "tsx scripts/seed-content-team-test.ts",
+    "test:content-team": "SKIP_REMOTION=true tsx scripts/test-content-team.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.75.0",
