@@ -114,8 +114,8 @@
         "Typecheck passes"
       ],
       "priority": 7,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "VOICE_SYSTEM_PROMPT exported from generate.ts. Writer injects all brief fields. Opus-4-6 for quality."
     },
     {
       "id": "US-008",
