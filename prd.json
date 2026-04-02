@@ -241,8 +241,8 @@
         "Typecheck passes"
       ],
       "priority": 14,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "4A/4B sequential inside Promise.allSettled alongside 4C. Idempotency check on backlog_id. Phase updates at each transition."
     },
     {
       "id": "US-015",
