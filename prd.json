@@ -131,8 +131,8 @@
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "3-pass system: stop-slop flag, humanizer rewrite, adversarial question. Retry pass if slopScore < 7. Never throws."
     },
     {
       "id": "US-009",
