@@ -187,8 +187,8 @@
         "Typecheck passes"
       ],
       "priority": 11,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Dynamic import of @remotion/lambda/client avoids SSR issues. Validates compositionId against BLOG_VISUAL_COMPOSITION_IDS. Never rethrows."
     },
     {
       "id": "US-012",
