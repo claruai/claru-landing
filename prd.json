@@ -221,8 +221,8 @@
         "Typecheck passes"
       ],
       "priority": 13,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Optional 5th arg is additive — existing 4-arg calls unaffected. Score fields, video button, editorial notes added conditionally."
     },
     {
       "id": "US-014",
