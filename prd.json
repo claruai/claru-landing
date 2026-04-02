@@ -204,8 +204,8 @@
         "Typecheck passes"
       ],
       "priority": 12,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Video embed injected after first '---' or before second '##'. Stat alignment check uses regex. Twitter thread for timely only."
     },
     {
       "id": "US-013",
