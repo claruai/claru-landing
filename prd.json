@@ -82,8 +82,8 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "DataForSEO called via direct HTTP (Basic auth). Gap analysis via Claude sonnet. Never throws — try/catch at top level."
     },
     {
       "id": "US-006",
