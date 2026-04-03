@@ -5,6 +5,7 @@ import {
   Database,
   Settings,
   ArrowRight,
+  FileText,
 } from "lucide-react";
 import { getAllJobs } from "@/lib/jobs";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -19,6 +20,7 @@ export default async function AdminDashboardPage() {
   let leadTotal = 0;
   let leadPending = 0;
   let datasetCount = 0;
+  let blogPending = 0;
 
   try {
     const supabase = createSupabaseAdminClient();
@@ -38,6 +40,12 @@ export default async function AdminDashboardPage() {
       .from("datasets")
       .select("*", { count: "exact", head: true });
     datasetCount = dCount ?? 0;
+
+    const { count: bPending } = await supabase
+      .from("blog_posts")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "pending_review");
+    blogPending = bPending ?? 0;
   } catch {
     // Supabase may not be set up yet — graceful fallback
   }
@@ -67,6 +75,15 @@ export default async function AdminDashboardPage() {
       title: "Data Catalog",
       description: "Manage datasets, upload samples, organize categories",
       stat: `${datasetCount} datasets`,
+      color: "text-[var(--accent-primary)]",
+    },
+    {
+      href: "/admin/blog-queue",
+      icon: FileText,
+      title: "Blog Queue",
+      description: "Review AI-generated blog posts before publishing",
+      stat: blogPending > 0 ? `${blogPending} pending review` : "no drafts",
+      highlight: blogPending > 0,
       color: "text-[var(--accent-primary)]",
     },
     {
