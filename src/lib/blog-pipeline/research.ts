@@ -134,11 +134,15 @@ Return JSON only: {"sources": [], "keyInsights": ["Insight 1 — specific and pr
     });
 
     const text = response.content[0].type === 'text' ? response.content[0].text : '';
-    const parsed = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0] ?? '{}') as ResearchFindings;
-    return {
-      sources: (parsed.sources ?? []).slice(0, MAX_ITEMS),
-      keyInsights: (parsed.keyInsights ?? []).slice(0, MAX_ITEMS),
-    };
+    try {
+      const parsed = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0] ?? '{}') as ResearchFindings;
+      return {
+        sources: (parsed.sources ?? []).slice(0, MAX_ITEMS),
+        keyInsights: (parsed.keyInsights ?? []).slice(0, MAX_ITEMS),
+      };
+    } catch {
+      return { sources: [], keyInsights: ['No web research findings'] };
+    }
   } catch (err) {
     console.error('[research:web] error:', err);
     return { sources: [], keyInsights: ['No web research findings'] };
