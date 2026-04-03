@@ -16,6 +16,7 @@ import BlogDataComparison, { blogDataComparisonSchema } from "./blog-visuals/Blo
 import BlogTimeline, { blogTimelineSchema } from "./blog-visuals/BlogTimeline";
 import BlogMetricReveal, { blogMetricRevealSchema } from "./blog-visuals/BlogMetricReveal";
 import BlogProcessSteps, { blogProcessStepsSchema } from "./blog-visuals/BlogProcessSteps";
+import DynamicVisual from "./blog-visuals/DynamicVisual";
 
 // ---------------------------------------------------------------------------
 // TYPE_MAP: composition type number -> React component
@@ -51,6 +52,9 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="BlogTimeline" component={BlogTimeline} schema={blogTimelineSchema} durationInFrames={360} fps={30} width={1280} height={720} defaultProps={{ events: [{ date: '2022', label: 'ACT paper — action chunking with transformers' }, { date: '2023', label: 'Open X-Embodiment: 22 datasets, 1M+ demos' }, { date: 'Jan 2024', label: 'Diffusion Policy scales to dexterous tasks' }, { date: 'Mar 2024', label: 'Physical Intelligence π0 demo' }, { date: '2025', label: 'Humanoid labs hit 10k+ daily demonstrations' }] }} />
       <Composition id="BlogMetricReveal" component={BlogMetricReveal} schema={blogMetricRevealSchema} durationInFrames={240} fps={30} width={1280} height={720} defaultProps={{ before: '40% rejection rate', after: '< 8% rejection rate', metric: 'with structured collection protocols' }} />
       <Composition id="BlogProcessSteps" component={BlogProcessSteps} schema={blogProcessStepsSchema} durationInFrames={300} fps={30} width={1280} height={720} defaultProps={{ steps: ['Define task specification with success criteria', 'Deploy structured data collection with protocol training', 'Run real-time QA with rejection thresholds', 'Enrich with semantic annotations and embeddings', 'Deliver with documentation for policy training'] }} />
+
+      {/* ── DynamicVisual — AI-generated bespoke composition per blog post ── */}
+      <Composition id="DynamicVisual" component={DynamicVisual} durationInFrames={240} fps={30} width={1280} height={720} />
 
       {/* 23 compositions registered from composition-manifest.json */}
       {manifest.compositions.map((entry) => {

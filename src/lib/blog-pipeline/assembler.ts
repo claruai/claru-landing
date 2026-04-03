@@ -131,6 +131,9 @@ export async function runAssembler(input: AssemblyInput): Promise<{ postId: stri
       editorial_notes: editorialNotes,
       research_sources: brief.citableSources.slice(0, 5),
       video_url: visualOutput.videoUrl ?? null,
+      composition_id: visualOutput.compositionId ?? null,
+      input_props: visualOutput.inputProps ?? null,
+      composition_code: visualOutput.compositionCode ?? null,
       twitter_thread: twitterThread,
     })
     .select('id')

@@ -96,7 +96,7 @@ export async function runPipeline(
 
     let editorOutput: EditorOutput = { revisedBodyMdx: draft.body_mdx, editorialNotes: [], slopScore: 5 };
     let seoOutput: SeoOutput = { revisedBodyMdx: draft.body_mdx, revisedExcerpt: draft.excerpt, seoNotes: [], geoScore: 50, citabilityScore: 50 };
-    let visualOutput: VisualDesignerOutput = { videoUrl: null, compositionId: null, inputProps: null, visualConcept: 'not started' };
+    let visualOutput: VisualDesignerOutput = { videoUrl: null, compositionId: null, inputProps: null, compositionCode: null, visualConcept: 'not started' };
 
     // Run 4C (visual) concurrently alongside 4A→4B chain
     const [editorSeoResult, visualResult] = await Promise.allSettled([
@@ -108,7 +108,7 @@ export async function runPipeline(
         return { editor, seo };
       })(),
       // 4C visual
-      runVisualDesigner(draft.body_mdx, draft.slug, postType),
+      runVisualDesigner(draft.body_mdx, draft.slug, postType, draft.title),
     ]);
 
     if (editorSeoResult.status === 'fulfilled') {

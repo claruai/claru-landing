@@ -113,12 +113,14 @@ export default function BlogQueueActions({
         reject
       </button>
 
-      <span
-        title="Preview available after publishing"
-        className="px-4 py-1.5 text-xs font-mono border border-[var(--border-subtle)] text-[var(--text-muted)] rounded opacity-40 cursor-not-allowed"
+      <a
+        href={`/blog/${slug}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="px-4 py-1.5 text-xs font-mono border border-[var(--border-subtle)] text-[var(--text-muted)] rounded hover:text-[var(--accent-primary)] hover:border-[var(--accent-primary)]/40 transition-colors"
       >
         preview ↗
-      </span>
+      </a>
 
       {state === "error" && errorMessage && (
         <span className="text-xs font-mono text-[var(--error)]">

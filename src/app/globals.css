@@ -772,3 +772,20 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+
+/* Blog page CSS-only hover classes (no event handlers in server components) */
+.blog-breadcrumb-link {
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+.blog-breadcrumb-link:hover {
+  color: var(--accent-primary);
+}
+
+.blog-card-link {
+  background: transparent;
+  transition: background 0.2s;
+}
+.blog-card-link:hover {
+  background: rgba(146, 176, 144, 0.03);
+}

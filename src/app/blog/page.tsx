@@ -121,6 +121,14 @@ async function getPublishedPosts(): Promise<BlogPost[]> {
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("en-US", {
     year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function formatDateLong(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString("en-US", {
+    year: "numeric",
     month: "long",
     day: "numeric",
   });
@@ -216,6 +224,9 @@ export default async function BlogIndexPage() {
     return new Date(bDate).getTime() - new Date(aDate).getTime();
   });
 
+  const featuredPost = allPosts[0] ?? null;
+  const remainingPosts = allPosts.slice(1);
+
   return (
     <>
       <script
@@ -223,107 +234,353 @@ export default async function BlogIndexPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd) }}
       />
 
-      <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
-        {/* Nav breadcrumb */}
-        <div className="border-b border-[var(--border-subtle)]">
-          <div className="max-w-4xl mx-auto px-6 py-4">
+      {/* CSS-only hover states — no client JS needed */}
+      <style>{`
+        .blog-breadcrumb-link {
+          color: var(--text-muted);
+          transition: color 0.15s;
+        }
+        .blog-breadcrumb-link:hover {
+          color: var(--accent-primary);
+        }
+        .blog-card-link {
+          display: block;
+          background: transparent;
+          transition: background 0.15s;
+        }
+        .blog-card-link:hover {
+          background: rgba(146, 176, 144, 0.04);
+        }
+        .blog-featured-link:hover .blog-featured-title {
+          opacity: 0.8;
+        }
+        .blog-featured-link:hover .blog-arrow {
+          transform: translateX(4px);
+        }
+        .blog-arrow {
+          display: inline-block;
+          transition: transform 0.2s ease-out;
+        }
+        .blog-card-link:hover .blog-card-title {
+          opacity: 0.8;
+        }
+        .blog-card-link:hover .blog-card-arrow {
+          transform: translateX(3px);
+          color: var(--accent-primary);
+        }
+        .blog-card-title {
+          transition: opacity 0.15s;
+        }
+        .blog-card-arrow {
+          display: inline-block;
+          transition: transform 0.2s ease-out, color 0.15s;
+          color: var(--text-muted);
+        }
+      `}</style>
+
+      <div
+        className="min-h-screen"
+        style={{ background: "var(--bg-primary)", color: "var(--text-primary)" }}
+      >
+        {/* Breadcrumb nav */}
+        <div style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+          <div className="max-w-6xl mx-auto px-6 py-4">
             <nav aria-label="Breadcrumb">
-              <ol className="flex items-center gap-2 text-xs font-mono text-[var(--text-muted)]">
+              <ol className="flex items-center gap-2" style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--text-muted)" }}>
                 <li>
                   <Link
                     href="/"
-                    className="hover:text-[var(--accent-primary)] transition-colors"
+                    className="blog-breadcrumb-link"
                   >
                     claru.ai
                   </Link>
                 </li>
-                <li aria-hidden="true" className="opacity-40">
-                  /
-                </li>
-                <li className="text-[var(--text-primary)]">blog</li>
+                <li aria-hidden="true" style={{ opacity: 0.4 }}>/</li>
+                <li style={{ color: "var(--text-primary)" }}>blog</li>
               </ol>
             </nav>
           </div>
         </div>
 
-        {/* Header */}
-        <header className="max-w-4xl mx-auto px-6 pt-16 pb-12">
-          <p className="text-xs font-mono text-[var(--accent-primary)] uppercase tracking-widest mb-4">
-            insights
-          </p>
-          <h1 className="text-4xl font-semibold tracking-tight text-[var(--text-primary)] mb-4">
-            Physical AI Training Data
-          </h1>
-          <p className="text-lg text-[var(--text-secondary)] max-w-2xl leading-relaxed">
-            Technical writing on robotics datasets, VLA model training, egocentric
-            video, and the infrastructure behind frontier physical AI.
-          </p>
+        {/* Page header */}
+        <header className="max-w-6xl mx-auto px-6 pt-14 pb-10">
+          <div className="flex items-end justify-between gap-8">
+            <div>
+              <p
+                className="uppercase tracking-widest mb-3"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "10px",
+                  color: "var(--accent-primary)",
+                  letterSpacing: "0.15em",
+                }}
+              >
+                field notes
+              </p>
+              <h1
+                className="tracking-tight"
+                style={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "clamp(2rem, 4vw, 3rem)",
+                  fontWeight: 600,
+                  color: "var(--text-primary)",
+                  lineHeight: 1.1,
+                }}
+              >
+                Physical AI
+                <br />
+                <span style={{ color: "var(--accent-primary)" }}>Training Data</span>
+              </h1>
+            </div>
+            <p
+              className="hidden md:block max-w-sm pb-1"
+              style={{
+                fontFamily: "var(--font-sans)",
+                fontSize: "0.9rem",
+                color: "var(--text-muted)",
+                lineHeight: 1.6,
+              }}
+            >
+              Technical writing on robotics datasets, VLA model training,
+              egocentric video, and frontier physical AI.
+            </p>
+          </div>
         </header>
 
-        {/* Post list */}
-        <main className="max-w-4xl mx-auto px-6 pb-24">
+        {/* Horizontal rule */}
+        <div className="max-w-6xl mx-auto px-6">
+          <div style={{ height: "1px", background: "var(--border-subtle)" }} />
+        </div>
+
+        <main className="max-w-6xl mx-auto px-6 pb-32">
           {allPosts.length === 0 ? (
-            <div className="py-16 text-center">
-              <p className="font-mono text-sm text-[var(--text-muted)]">
+            <div className="py-24 text-center">
+              <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--text-muted)" }}>
                 no posts yet — check back soon.
               </p>
             </div>
           ) : (
-            <ol className="space-y-0 divide-y divide-[var(--border-subtle)]">
-              {allPosts.map((post) => (
-                <li key={post.id} className="py-10">
-                  <article>
-                    {/* Tags */}
-                    {post.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {post.tags.slice(0, 4).map((tag) => (
-                          <span
-                            key={tag}
-                            className="text-[10px] font-mono uppercase tracking-widest text-[var(--accent-primary)] border border-[var(--accent-primary)]/20 px-2 py-0.5 rounded-sm"
-                          >
-                            {tag}
-                          </span>
-                        ))}
+            <>
+              {/* Featured post */}
+              {featuredPost && (
+                <div className="py-12 md:py-16" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                  <Link
+                    href={`/blog/${featuredPost.slug}`}
+                    className="blog-featured-link block"
+                    aria-label={`Read featured post: ${featuredPost.title}`}
+                  >
+                    <div className="flex flex-col md:flex-row md:items-start gap-8 md:gap-16">
+                      {/* Left: meta column */}
+                      <div className="md:w-48 shrink-0 flex md:flex-col gap-3 md:gap-4 pt-1">
+                        <span
+                          className="uppercase tracking-widest"
+                          style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "9px",
+                            color: "var(--accent-primary)",
+                            letterSpacing: "0.2em",
+                            display: "inline-block",
+                            padding: "3px 8px",
+                            border: "1px solid rgba(146,176,144,0.3)",
+                            borderRadius: "2px",
+                          }}
+                        >
+                          latest
+                        </span>
+                        <time
+                          dateTime={featuredPost.published_at ?? featuredPost.created_at}
+                          style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "11px",
+                            color: "var(--text-muted)",
+                            display: "block",
+                          }}
+                        >
+                          {formatDateLong(featuredPost.published_at ?? featuredPost.created_at)}
+                        </time>
                       </div>
-                    )}
 
-                    {/* Title */}
-                    <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2 leading-snug">
-                      <Link
-                        href={`/blog/${post.slug}`}
-                        className="hover:text-[var(--accent-primary)] transition-colors duration-150"
-                      >
-                        {post.title}
-                      </Link>
-                    </h2>
+                      {/* Right: content */}
+                      <div className="flex-1">
+                        {/* Tags */}
+                        {featuredPost.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {featuredPost.tags.slice(0, 3).map((tag) => (
+                              <span
+                                key={tag}
+                                className="uppercase tracking-widest"
+                                style={{
+                                  fontFamily: "var(--font-mono)",
+                                  fontSize: "9px",
+                                  color: "var(--text-muted)",
+                                  letterSpacing: "0.12em",
+                                }}
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
 
-                    {/* Excerpt */}
-                    {post.excerpt && (
-                      <p className="text-[var(--text-secondary)] text-sm leading-relaxed mb-4 max-w-2xl">
-                        {post.excerpt}
-                      </p>
-                    )}
+                        <h2
+                          className="blog-featured-title mb-4"
+                          style={{
+                            fontFamily: "var(--font-sans)",
+                            fontSize: "clamp(1.5rem, 3vw, 2.25rem)",
+                            fontWeight: 600,
+                            color: "var(--text-primary)",
+                            lineHeight: 1.2,
+                            letterSpacing: "-0.02em",
+                            transition: "opacity 0.15s",
+                          }}
+                        >
+                          {featuredPost.title}
+                        </h2>
 
-                    {/* Meta row */}
-                    <div className="flex items-center gap-4">
-                      <time
-                        dateTime={post.published_at ?? post.created_at}
-                        className="text-xs font-mono text-[var(--text-muted)]"
-                      >
-                        {formatDate(post.published_at ?? post.created_at)}
-                      </time>
-                      <Link
-                        href={`/blog/${post.slug}`}
-                        className="text-xs font-mono text-[var(--accent-primary)] hover:underline transition-all"
-                        aria-label={`Read: ${post.title}`}
-                      >
-                        read →
-                      </Link>
+                        {featuredPost.excerpt && (
+                          <p
+                            className="mb-6 max-w-2xl"
+                            style={{
+                              fontFamily: "var(--font-sans)",
+                              fontSize: "1rem",
+                              color: "var(--text-secondary)",
+                              lineHeight: 1.7,
+                            }}
+                          >
+                            {featuredPost.excerpt}
+                          </p>
+                        )}
+
+                        <span
+                          className="inline-flex items-center gap-2"
+                          style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "11px",
+                            color: "var(--accent-primary)",
+                          }}
+                        >
+                          Read article
+                          <span className="blog-arrow">→</span>
+                        </span>
+                      </div>
                     </div>
-                  </article>
-                </li>
-              ))}
-            </ol>
+                  </Link>
+                </div>
+              )}
+
+              {/* Remaining posts grid */}
+              {remainingPosts.length > 0 && (
+                <div className="pt-12">
+                  <p
+                    className="uppercase tracking-widest mb-8"
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "9px",
+                      color: "var(--text-muted)",
+                      letterSpacing: "0.2em",
+                    }}
+                  >
+                    more articles
+                  </p>
+
+                  <ol className="grid md:grid-cols-2 gap-0" style={{ borderTop: "1px solid var(--border-subtle)" }}>
+                    {remainingPosts.map((post, idx) => (
+                      <li
+                        key={post.id}
+                        style={{
+                          borderBottom: "1px solid var(--border-subtle)",
+                          borderRight: idx % 2 === 0 ? "1px solid var(--border-subtle)" : undefined,
+                        }}
+                      >
+                        <Link
+                          href={`/blog/${post.slug}`}
+                          className="blog-card-link group block p-8 h-full"
+                          aria-label={`Read: ${post.title}`}
+                        >
+                          <article className="h-full flex flex-col">
+                            {/* Date + tags row */}
+                            <div className="flex items-center gap-3 mb-4">
+                              <time
+                                dateTime={post.published_at ?? post.created_at}
+                                style={{
+                                  fontFamily: "var(--font-mono)",
+                                  fontSize: "10px",
+                                  color: "var(--text-muted)",
+                                }}
+                              >
+                                {formatDate(post.published_at ?? post.created_at)}
+                              </time>
+                              {post.tags.slice(0, 1).map((tag) => (
+                                <span
+                                  key={tag}
+                                  style={{
+                                    fontFamily: "var(--font-mono)",
+                                    fontSize: "9px",
+                                    color: "var(--accent-primary)",
+                                    textTransform: "uppercase",
+                                    letterSpacing: "0.1em",
+                                    opacity: 0.7,
+                                  }}
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+
+                            {/* Title */}
+                            <h2
+                              className="blog-card-title mb-3 flex-1"
+                              style={{
+                                fontFamily: "var(--font-sans)",
+                                fontSize: "1.05rem",
+                                fontWeight: 600,
+                                color: "var(--text-primary)",
+                                lineHeight: 1.35,
+                                letterSpacing: "-0.01em",
+                              }}
+                            >
+                              {post.title}
+                            </h2>
+
+                            {/* Excerpt */}
+                            {post.excerpt && (
+                              <p
+                                className="mb-5"
+                                style={{
+                                  fontFamily: "var(--font-sans)",
+                                  fontSize: "0.825rem",
+                                  color: "var(--text-muted)",
+                                  lineHeight: 1.65,
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 3,
+                                  WebkitBoxOrient: "vertical",
+                                  overflow: "hidden",
+                                }}
+                              >
+                                {post.excerpt}
+                              </p>
+                            )}
+
+                            {/* Read link */}
+                            <span
+                              className="inline-flex items-center gap-1.5 transition-colors duration-200 mt-auto"
+                              style={{
+                                fontFamily: "var(--font-mono)",
+                                fontSize: "10px",
+                                color: "var(--text-muted)",
+                              }}
+                            >
+                              Read
+                              <span className="blog-card-arrow">→</span>
+                            </span>
+                          </article>
+                        </Link>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+            </>
           )}
         </main>
       </div>

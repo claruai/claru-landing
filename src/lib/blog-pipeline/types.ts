@@ -69,6 +69,7 @@ export interface VisualDesignerOutput {
   videoUrl: string | null;
   compositionId: string | null;
   inputProps: Record<string, unknown> | null;
+  compositionCode: string | null;
   visualConcept: string;
 }
 
