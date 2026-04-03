@@ -2,10 +2,11 @@ import type { MetadataRoute } from "next";
 import { getAllCaseStudies } from "@/lib/case-studies";
 import { getAllJobs } from "@/lib/jobs";
 import { getAllContentPages } from "@/data/content-pages";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 const BASE = "https://claru.ai";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date().toISOString();
 
   // ── Static pages ───────────────────────────────────────────────────
@@ -22,10 +23,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/physical-ai-training-data`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/egocentric-video-datasets`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/embodied-ai-datasets`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    // Glossary
+    { url: `${BASE}/glossary`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     // Tier 3 content pages — pillar guides, listicles, deep-dives
     { url: `${BASE}/vla-training-data-guide`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/blog/best-egocentric-data-providers`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/blog/data-enrichment-pipeline-physical-ai`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE}/blog/vlm-vs-vla`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE}/blog/vla-training-data-volume`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE}/blog/sim-to-real-gap`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE}/blog/physical-ai-stack`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     // Comparison pages
     { url: `${BASE}/compare`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/compare/appen-alternatives`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
@@ -174,5 +181,43 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })
   );
 
-  return [...staticPages, ...caseStudyPages, ...jobPages, ...solutionPages];
+  // ── Dynamic: Blog Posts ────────────────────────────────────────────
+  // Blog index always present; individual slugs fetched from Supabase.
+  const blogIndexEntry: MetadataRoute.Sitemap = [
+    {
+      url: `${BASE}/blog`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+  ];
+
+  let blogPostPages: MetadataRoute.Sitemap = [];
+  try {
+    const supabase = createSupabaseAdminClient();
+    const { data } = await supabase
+      .from("blog_posts")
+      .select("slug, published_at, updated_at")
+      .eq("status", "published");
+
+    blogPostPages = (data ?? []).map(
+      (post: { slug: string; published_at: string | null; updated_at: string }) => ({
+        url: `${BASE}/blog/${post.slug}`,
+        lastModified: post.updated_at ?? post.published_at ?? now,
+        changeFrequency: "monthly" as const,
+        priority: 0.8,
+      })
+    );
+  } catch {
+    // Graceful degradation — sitemap still works if Supabase is unavailable
+  }
+
+  return [
+    ...staticPages,
+    ...caseStudyPages,
+    ...jobPages,
+    ...solutionPages,
+    ...blogIndexEntry,
+    ...blogPostPages,
+  ];
 }

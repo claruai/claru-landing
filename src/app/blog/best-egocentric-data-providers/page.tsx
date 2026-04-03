@@ -375,12 +375,12 @@ export default function BestEgocentricDataProvidersPage() {
                   /
                 </li>
                 <li>
-                  <a
+                  <Link
                     href="/blog"
                     className="transition-colors hover:text-white"
                   >
                     Blog
-                  </a>
+                  </Link>
                 </li>
                 <li aria-hidden="true" className="select-none">
                   /

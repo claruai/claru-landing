@@ -1,0 +1,508 @@
+{
+  "meta": {
+    "title": "Physical AI & Robotics Glossary",
+    "description": "Comprehensive glossary of 50 terms covering physical AI, robotics ML, embodied AI, data collection, annotation, and computer vision — produced for Claru (claru.ai).",
+    "version": "1.0",
+    "generated": "2026-04-02",
+    "term_count": 54
+  },
+  "categories": [
+    {
+      "name": "Physical AI Systems",
+      "slug": "physical-ai-systems",
+      "description": "Architectures, model families, and system types that operate in or learn from the physical world.",
+      "terms": [
+        {
+          "term": "Vision-Language-Action Model (VLA)",
+          "slug": "vision-language-action-model",
+          "short_definition": "A robot policy model that takes visual observations and natural language instructions as inputs and outputs motor actions.",
+          "expanded": "VLAs unify perception, language understanding, and motor control in a single neural network — typically built on a large vision-language model backbone (e.g., PaLI, LLaMA) with an action decoder head. Models like RT-2, OpenVLA, and pi-zero follow this architecture. VLAs demand training data that simultaneously covers visual diversity (varied environments, lighting, viewpoints), language diversity (different ways to phrase the same instruction), and action diversity (multiple valid execution strategies for each task). High-quality VLA training data requires synchronized video, language annotations, and robot proprioceptive trajectories.",
+          "related_terms": ["Visuomotor Policy", "Imitation Learning", "Teleoperation Data"],
+          "category": "physical-ai-systems"
+        },
+        {
+          "term": "Embodied AI",
+          "slug": "embodied-ai",
+          "short_definition": "AI systems that perceive and act in a physical or simulated physical environment through a body or agent.",
+          "expanded": "Embodied AI contrasts with disembodied AI (pure language or image models) by requiring the model to take actions that change the state of an environment. This includes robots, autonomous vehicles, drones, and simulation-based agents. The embodiment constraint fundamentally changes the data requirements: models need sequential observations with corresponding actions, reward signals, and often proprioceptive state information that pure vision models don't require. Datasets like Ego4D, Open X-Embodiment, and BridgeData V2 were designed specifically for this paradigm.",
+          "related_terms": ["Vision-Language-Action Model (VLA)", "World Model", "Visuomotor Policy"],
+          "category": "physical-ai-systems"
+        },
+        {
+          "term": "World Model",
+          "slug": "world-model",
+          "short_definition": "A neural network that learns to predict future states of an environment given current observations and actions.",
+          "expanded": "World models (also called dynamics models) allow an agent to plan and reason about consequences of actions without executing them in the real world. Models like Dreamer, GAIA-1 (for autonomous driving), and Genie learn compressed latent representations of world dynamics from video. Training world models requires large quantities of diverse video data with temporal consistency — the model must learn plausible physics, object permanence, and causal relationships. Egocentric video is particularly valuable because it contains the action-consequence relationships a world model needs to learn.",
+          "related_terms": ["Video Prediction", "Embodied AI", "Sim-to-Real Gap"],
+          "category": "physical-ai-systems"
+        },
+        {
+          "term": "Humanoid Robot",
+          "slug": "humanoid-robot",
+          "short_definition": "A bipedal robot with human-like morphology (two arms, two legs, a torso, and a head) designed to operate in human environments.",
+          "expanded": "Humanoid robots like Figure-01, Apptronik Apollo, Boston Dynamics Atlas, and Agility Robotics Digit are designed to use infrastructure built for humans (doors, stairs, tools, furniture) without modification. Training humanoid robots is uniquely challenging because their high degree-of-freedom (DOF) morphology, dynamic balance requirements, and the diversity of human environments require training data that covers the full complexity of human physical activity. Egocentric video from human demonstrators is the closest available proxy for the humanoid's visual perspective.",
+          "related_terms": ["Teleoperation Data", "Imitation Learning", "Manipulation Trajectory"],
+          "category": "physical-ai-systems"
+        },
+        {
+          "term": "Visuomotor Policy",
+          "slug": "visuomotor-policy",
+          "short_definition": "A robot control policy that directly maps raw visual observations (images or video frames) to motor commands.",
+          "expanded": "Visuomotor policies bypass explicit state estimation and planning by learning end-to-end mappings from pixels to actions. Pioneered by work like ALVINN and popularized by deep RL and imitation learning, they are now the dominant paradigm in data-driven robotics. Because these policies operate directly on pixel inputs, the distribution of training images must closely match the distribution the deployed robot will encounter — making diverse, in-distribution training data a primary bottleneck for policy performance. Data augmentation (random crops, color jitter, lighting changes) is essential during training.",
+          "related_terms": ["Imitation Learning", "Behavioral Cloning", "Vision-Language-Action Model (VLA)"],
+          "category": "physical-ai-systems"
+        },
+        {
+          "term": "Foundation Model for Robotics",
+          "slug": "foundation-model-robotics",
+          "short_definition": "A large pretrained model trained on broad robot or physical world data that can be fine-tuned for specific robotic tasks.",
+          "expanded": "Following the success of language foundation models (GPT, LLaMA) and vision foundation models (CLIP, DINOv2), the robotics community has pursued foundation models that generalize across robot embodiments, tasks, and environments. Projects like RT-X, GR00T, and Open X-Embodiment aim to train on data from 50+ robot platforms simultaneously. The central challenge is that robot data is scarce, heterogeneous, and hardware-specific — making large-scale data aggregation (and the licensing and quality normalization it requires) the primary technical barrier to robotics foundation models.",
+          "related_terms": ["Open X-Embodiment", "Vision-Language-Action Model (VLA)", "Cross-Embodiment Data"],
+          "category": "physical-ai-systems"
+        },
+        {
+          "term": "Cross-Embodiment Data",
+          "slug": "cross-embodiment-data",
+          "short_definition": "Robot demonstration data collected across multiple different robot platforms and morphologies, used to train policies that generalize across hardware.",
+          "expanded": "Cross-embodiment training (as in Open X-Embodiment / RT-X) pools demonstration data from Franka Panda arms, UR5s, mobile manipulation platforms, quadrupeds, and other platforms to train a single generalist policy. The hypothesis is that shared semantic understanding of tasks (what 'pick up the cup' means) can transfer across different robot bodies. For data providers, this means data collected on one robot platform (or from human demonstrators) has value for training policies on entirely different hardware — enormously expanding the addressable market for physical world training data.",
+          "related_terms": ["Foundation Model for Robotics", "Teleoperation Data", "Imitation Learning"],
+          "category": "physical-ai-systems"
+        },
+        {
+          "term": "Physical AI",
+          "slug": "physical-ai",
+          "short_definition": "AI systems designed to understand, reason about, and act in the physical world, as opposed to purely digital or language domains.",
+          "expanded": "Physical AI is a category term encompassing robotics AI, autonomous vehicles, drone systems, smart manufacturing, and any AI that interacts with physical matter. NVIDIA's GR00T project and the broader industry around humanoid and industrial robots use this term to distinguish from LLM-centric AI. Physical AI imposes hard constraints on training data that language AI does not: real-world sensor data (cameras, LiDAR, IMUs, force-torque sensors), temporal continuity across frames, and the physics of object manipulation — constraints that synthetic data alone cannot fully satisfy.",
+          "related_terms": ["Embodied AI", "Sim-to-Real Gap", "World Model"],
+          "category": "physical-ai-systems"
+        }
+      ]
+    },
+    {
+      "name": "Data Modalities",
+      "slug": "data-modalities",
+      "description": "Types of sensor data and video captured for training physical AI systems.",
+      "terms": [
+        {
+          "term": "Egocentric Video",
+          "slug": "egocentric-video",
+          "short_definition": "Video recorded from a first-person perspective, typically via a wearable camera mounted on the head, chest, or wrist.",
+          "expanded": "Egocentric (first-person) video captures what the camera-wearer sees — the same viewpoint that a robot's onboard camera would have. This makes it uniquely valuable for training visuomotor policies: the viewpoint matches deployment, attention (where the person looks) is implicitly encoded in what is visible, and hand-object interactions are naturally prominent. Datasets like Ego4D (3,670 hours, 9 countries), EPIC-KITCHENS (100+ hours, kitchen activities), and Claru's collection (500K+ clips, 12+ environment types) are the primary egocentric sources for embodied AI research.",
+          "related_terms": ["Third-Person Video", "Teleoperation Data", "Hand-Object Interaction"],
+          "category": "data-modalities"
+        },
+        {
+          "term": "Teleoperation Data",
+          "slug": "teleoperation-data",
+          "short_definition": "Robot demonstration data collected by a human operator remotely controlling a robot in real-time to perform target tasks.",
+          "expanded": "Teleoperation is the dominant method for collecting high-quality robot demonstration data because it produces data in the exact robot's action space (joint positions, end-effector poses, gripper states) synchronized with the robot's onboard camera observations. Systems like SpaceMouse teleoperation, VR-based teleoperation, and exoskeleton teleoperation allow skilled human operators to demonstrate complex manipulation tasks at scale. Datasets like BridgeData V2 (60K+ demonstrations), Droid (76K demonstrations), and ALOHA data are predominantly teleoperated. The bottleneck is operator throughput — expert humans can typically collect 100-500 demonstrations per day.",
+          "related_terms": ["Manipulation Trajectory", "Imitation Learning", "Behavioral Cloning"],
+          "category": "data-modalities"
+        },
+        {
+          "term": "Manipulation Trajectory",
+          "slug": "manipulation-trajectory",
+          "short_definition": "A time-series record of a robot arm's motion during a manipulation task, including joint angles, end-effector pose, and gripper state at each timestep.",
+          "expanded": "Manipulation trajectories are the fundamental unit of robot learning data for arm-based tasks. A complete trajectory includes proprioceptive state (joint angles and velocities), end-effector 6-DOF pose, gripper aperture, force/torque readings, and synchronized camera observations from one or more viewpoints. Trajectory quality is assessed by task success rate, execution smoothness (jerk minimization), and coverage of the task's critical waypoints. For imitation learning, diverse manipulation trajectories from multiple demonstrators performing the same task are more robust than many trajectories from a single operator.",
+          "related_terms": ["Teleoperation Data", "Imitation Learning", "Action Chunking"],
+          "category": "data-modalities"
+        },
+        {
+          "term": "Depth Data",
+          "slug": "depth-data",
+          "short_definition": "Per-pixel distance measurements from a sensor to scene surfaces, providing 3D spatial information from a 2D camera viewpoint.",
+          "expanded": "Depth data enables 3D scene understanding, obstacle avoidance, grasp planning, and spatial reasoning in robotic systems. It can be captured directly (RGB-D cameras like Intel RealSense, LiDAR, structured light) or estimated from monocular RGB video using models like Depth Anything V2. Depth maps are a critical annotation layer for training embodied AI: they provide metric 3D information that enables models to reason about object positions, surface orientations, and reachability that pure RGB data cannot provide. Claru produces depth maps for all egocentric clips using Depth Anything V2.",
+          "related_terms": ["Monocular Depth Estimation", "Point Cloud", "RGB-D Data"],
+          "category": "data-modalities"
+        },
+        {
+          "term": "RGB-D Data",
+          "slug": "rgbd-data",
+          "short_definition": "Synchronized RGB color image and aligned depth map pairs, providing both texture/color and 3D spatial information from the same viewpoint.",
+          "expanded": "RGB-D sensors (Intel RealSense, Microsoft Kinect, Orbbec) produce color and depth frames at the same resolution and timestamps, enabling models to directly correlate visual appearance with 3D geometry. RGB-D data is the standard input format for many manipulation policies (including those trained on BridgeData V2 and ALOHA) because it provides sufficient scene understanding for tabletop and pick-and-place tasks without requiring a full 3D reconstruction. For training, RGB-D data is typically stored as (H, W, 4) tensors or as separate depth and color image files.",
+          "related_terms": ["Depth Data", "Point Cloud", "Manipulation Trajectory"],
+          "category": "data-modalities"
+        },
+        {
+          "term": "Point Cloud",
+          "slug": "point-cloud",
+          "short_definition": "A 3D representation of a scene as a set of discrete points in (x, y, z) space, typically derived from LiDAR or stereo/depth camera sensors.",
+          "expanded": "Point clouds provide direct 3D measurements of scene geometry without the reconstruction artifacts of mesh-based representations. For robotics, they are used in obstacle avoidance, manipulation planning (6-DOF grasp pose estimation), and SLAM. As training data, point clouds annotated with semantic class labels and instance IDs (3D semantic segmentation) are used to train models that reason about 3D object placement and spatial relationships. Processing point clouds requires specialized architectures (PointNet, PointTransformer, VoxNet) because they are unordered sets, not grid-structured like images.",
+          "related_terms": ["RGB-D Data", "Depth Data", "LiDAR"],
+          "category": "data-modalities"
+        },
+        {
+          "term": "Proprioceptive Data",
+          "slug": "proprioceptive-data",
+          "short_definition": "Sensor readings from a robot's internal state — joint angles, joint velocities, end-effector pose, and force/torque measurements.",
+          "expanded": "Proprioception (from Latin 'proprius' — one's own) refers to a system's sense of its own body state. In robotics, proprioceptive data includes joint encoder readings (angle, velocity, effort), IMU measurements (acceleration, angular velocity), and wrist force-torque sensor readings. These signals are essential for closed-loop control and for learning contact-rich manipulation. In imitation learning datasets, proprioceptive state is recorded alongside camera observations to give the policy the full physical context needed to replicate the demonstration. Missing proprioceptive data is a common reason why human video alone (without robot demonstrations) is insufficient for direct policy training.",
+          "related_terms": ["Manipulation Trajectory", "Teleoperation Data", "Action Chunking"],
+          "category": "data-modalities"
+        },
+        {
+          "term": "Synthetic Data (for Robotics)",
+          "slug": "synthetic-data-robotics",
+          "short_definition": "Robot training data generated in simulation rather than collected in the physical world, used to augment or replace real-world data collection.",
+          "expanded": "Physics simulation engines (IsaacSim, MuJoCo, PyBullet, Webots) can generate unlimited robot demonstration data at near-zero marginal cost, with perfect ground-truth labels for depth, segmentation, and pose. However, the sim-to-real gap — differences between simulated and real sensor data, object dynamics, and contact physics — means synthetic data alone rarely produces policies that transfer to hardware without additional real-world fine-tuning. The current best practice is sim-to-real transfer: pretrain on large synthetic datasets for broad skill acquisition, then fine-tune on smaller real-world datasets for precision and robustness.",
+          "related_terms": ["Sim-to-Real Gap", "Domain Randomization", "Real-World Data"],
+          "category": "data-modalities"
+        }
+      ]
+    },
+    {
+      "name": "Annotation Types",
+      "slug": "annotation-types",
+      "description": "Methods and formats for labeling physical AI training data at the frame, clip, and trajectory level.",
+      "terms": [
+        {
+          "term": "Keypoint Annotation",
+          "slug": "keypoint-annotation",
+          "short_definition": "Labeled (x, y) or (x, y, z) coordinates marking anatomically or structurally significant points on an object, person, or robot.",
+          "expanded": "Keypoint annotations are the primary representation for human pose (COCO 17-keypoint skeleton), hand pose (MediaPipe 21-keypoint hand), and object pose (keypoints on object corners, handles, or articulation joints). For embodied AI training data, keypoint annotations on hands and objects are critical for learning manipulation: models need to know where the fingers are, what they are contacting, and what trajectory the end-effector followed. Keypoint annotators must have sufficient anatomical and mechanical knowledge to accurately place keypoints through self-occlusion, motion blur, and unusual viewpoints.",
+          "related_terms": ["Pose Estimation", "Hand-Object Interaction", "Instance Segmentation"],
+          "category": "annotation-types"
+        },
+        {
+          "term": "Temporal Annotation",
+          "slug": "temporal-annotation",
+          "short_definition": "Labels applied to specific time intervals within a video, identifying when particular events, actions, or states occur.",
+          "expanded": "Temporal annotations mark the boundaries (start frame, end frame) of discrete events within continuous video: action segments (when a 'pour' action begins and ends), state changes (when an object changes hands), or phase transitions (when the preparation phase ends and the assembly phase begins). Temporal annotations are used to train action recognition models, segment videos for imitation learning, and provide supervision for temporal action detection models like ActionFormer or TemporalMaxER. Quality temporal annotation requires annotators to understand the task well enough to identify semantically meaningful boundaries, not just motion boundaries.",
+          "related_terms": ["Action Segmentation", "Action Recognition", "Activity Annotation"],
+          "category": "annotation-types"
+        },
+        {
+          "term": "Action Segmentation",
+          "slug": "action-segmentation",
+          "short_definition": "The task of dividing a continuous video sequence into segments and assigning each segment a discrete action label from a predefined taxonomy.",
+          "expanded": "Action segmentation is a fine-grained temporal annotation task that produces dense per-frame action labels for entire videos — for example, labeling each frame of a cooking video as 'reach', 'grasp', 'lift', 'pour', 'place', 'stir', or 'idle'. This annotation type is essential for imitation learning (defining the primitive action library), reward model training (identifying which segments correspond to task progress), and temporal action detection. The annotation challenge is handling ambiguous transitions (when does 'reach' end and 'grasp' begin?) and overlapping actions (stirring while holding a pan).",
+          "related_terms": ["Temporal Annotation", "Activity Annotation", "Action Recognition"],
+          "category": "annotation-types"
+        },
+        {
+          "term": "Semantic Segmentation",
+          "slug": "semantic-segmentation",
+          "short_definition": "Per-pixel classification of an image into semantic object categories (cup, table, hand, background, etc.) without distinguishing individual instances.",
+          "expanded": "Semantic segmentation assigns a class label to every pixel in an image, producing a dense categorical mask. Models like SegFormer, DeepLabV3+, and SAM (with prompting) perform semantic segmentation. For robotics training data, semantic segmentation provides scene understanding: which pixels belong to graspable objects, which to surfaces, which to the robot itself. Claru runs semantic segmentation on all annotated clips using SAM3 (Segment Anything Model 3) followed by human verification for accuracy on robotics-relevant object classes.",
+          "related_terms": ["Instance Segmentation", "Panoptic Segmentation", "SAM"],
+          "category": "annotation-types"
+        },
+        {
+          "term": "Instance Segmentation",
+          "slug": "instance-segmentation",
+          "short_definition": "Per-pixel labeling that both classifies pixels into semantic categories and assigns a unique ID to each individual object instance.",
+          "expanded": "Unlike semantic segmentation (which labels all cups with the same mask), instance segmentation distinguishes Cup #1 from Cup #2 — even if they are the same class. This capability is essential for manipulation tasks where a robot must track a specific target object across frames, understand which object to pick up, and reason about spatial relationships between individual instances. Instance segmentation is typically produced by mask-based detectors (Mask R-CNN, Mask2Former) or promptable segmentation models (SAM). Instance IDs must be tracked consistently across video frames for temporal tasks.",
+          "related_terms": ["Semantic Segmentation", "Object Tracking", "Panoptic Segmentation"],
+          "category": "annotation-types"
+        },
+        {
+          "term": "Activity Annotation",
+          "slug": "activity-annotation",
+          "short_definition": "High-level labels describing what a person or robot is doing in a video at the clip, scene, or temporal segment level.",
+          "expanded": "Activity annotations capture semantic intent rather than physical motion: 'preparing a meal', 'assembling a shelf', 'navigating to the door'. They operate at a higher level of abstraction than action segmentation (which labels primitive motor actions) and provide the task context needed for training instruction-following models. For VLA training, activity annotations are commonly expressed as natural language phrases that align with the instructions a language-conditioned policy would receive at inference time. Inter-annotator agreement is the key quality metric for activity annotations because the category boundaries are often judgment calls.",
+          "related_terms": ["Action Segmentation", "Temporal Annotation", "Natural Language Instruction"],
+          "category": "annotation-types"
+        },
+        {
+          "term": "Bounding Box Annotation",
+          "slug": "bounding-box-annotation",
+          "short_definition": "A rectangular (axis-aligned or oriented) region label that localizes an object instance within an image or video frame.",
+          "expanded": "Bounding boxes are the most common object localization format due to their simplicity: each box is defined by (x_min, y_min, x_max, y_max) or (center_x, center_y, width, height). For video, tracked bounding boxes (with consistent instance IDs across frames) are annotated as tracklets. Bounding boxes are used to train object detectors (YOLO, DINO, Grounding DINO) that downstream robotic systems use for target object localization. For manipulation data annotation, bounding box annotation on hands and objects is a common preprocessing step before more expensive instance segmentation.",
+          "related_terms": ["Instance Segmentation", "Object Tracking", "Object Detection"],
+          "category": "annotation-types"
+        },
+        {
+          "term": "Preference Annotation (RLHF)",
+          "slug": "preference-annotation",
+          "short_definition": "Human judgments comparing two or more model outputs or robot behaviors, used to train reward models via reinforcement learning from human feedback.",
+          "expanded": "Preference annotation asks annotators to rank or compare robot trajectories, generated plans, or model responses — rather than labeling ground-truth actions. For robotics, a human might compare two trajectory demonstrations and indicate which was more efficient, safer, or better-aligned with the task goal. These preferences train reward models that capture human values about robot behavior (smoothness, safety margin, task completion quality) that are difficult to specify with explicit reward functions. The technique, popularized in LLM alignment (InstructGPT), is increasingly applied to robot learning under names like RLHF-for-Robotics and Preference-Based RL.",
+          "related_terms": ["Reward Model", "RLHF", "Human Feedback"],
+          "category": "annotation-types"
+        }
+      ]
+    },
+    {
+      "name": "Data Quality & Pipelines",
+      "slug": "data-quality-pipelines",
+      "description": "Methods for ensuring, measuring, and improving the quality and diversity of training datasets.",
+      "terms": [
+        {
+          "term": "Data Enrichment",
+          "slug": "data-enrichment",
+          "short_definition": "The process of adding computed annotation layers (depth, segmentation, pose, optical flow, captions) to raw video or sensor data to increase its training value.",
+          "expanded": "Raw video captures appearance but not the structured signals ML models need as supervision. Data enrichment runs automated pipelines — depth estimation models, segmentation models, pose estimators, optical flow networks, vision-language captioners — to add dense, pixel-level or frame-level annotations to existing data. Enrichment multiplies the training value of each clip: a single egocentric video clip enriched with 6 annotation layers provides the supervision signal for depth estimation, segmentation, pose estimation, optical flow prediction, and language grounding simultaneously. Claru's enrichment pipeline runs Depth Anything V2, SAM3, ViTPose, RAFT, and Gemini 2.5 on all ingested clips.",
+          "related_terms": ["Monocular Depth Estimation", "Optical Flow", "Pose Estimation"],
+          "category": "data-quality-pipelines"
+        },
+        {
+          "term": "Benchmark Curation",
+          "slug": "benchmark-curation",
+          "short_definition": "The systematic process of selecting, cleaning, and validating data samples to create held-out evaluation benchmarks for measuring model performance.",
+          "expanded": "A benchmark is only as good as its data quality. Benchmark curation involves selecting representative samples across the distribution of evaluation conditions, removing contaminated or duplicate samples, ensuring balanced coverage across categories, and validating label accuracy through multiple annotator passes. For physical AI, benchmark curation is especially challenging because the evaluation conditions are high-dimensional (task × environment × object × skill complexity) and performance gaps between a well-curated and poorly-curated benchmark can mislead development decisions. Common physical AI benchmarks include RLBench, Meta-World, SIMPLER, and BiGym.",
+          "related_terms": ["Inter-Annotator Agreement", "Data Deduplication", "Evaluation Protocol"],
+          "category": "data-quality-pipelines"
+        },
+        {
+          "term": "Data Deduplication",
+          "slug": "data-deduplication",
+          "short_definition": "The process of identifying and removing near-duplicate samples from a training dataset to prevent overrepresentation of specific data points.",
+          "expanded": "Near-duplicate data in training sets causes models to overfit to specific visual patterns, inflates apparent dataset size, and wastes compute. For video datasets, deduplication operates at multiple granularities: exact frame duplicates (same video re-uploaded), near-duplicate clips (same scene, different lighting or crop), and semantic duplicates (same activity in nearly identical environments). Common techniques include perceptual hashing (dHash, pHash), embedding-based similarity search (cosine similarity in CLIP or DINOv2 embedding space), and temporal fingerprinting. For robotic demonstrations, semantic deduplication also removes demonstrations that cover the same behavioral modes, preserving only the diversity-maximizing subset.",
+          "related_terms": ["Benchmark Curation", "Data Quality Scoring", "Dataset Diversity"],
+          "category": "data-quality-pipelines"
+        },
+        {
+          "term": "Inter-Annotator Agreement (IAA)",
+          "slug": "inter-annotator-agreement",
+          "short_definition": "A statistical measure of how consistently multiple annotators label the same data samples, used to assess annotation quality and task difficulty.",
+          "expanded": "IAA quantifies whether annotation labels reflect objective truth (high agreement) or subjective interpretation (low agreement). Common metrics include Cohen's Kappa (for two annotators), Fleiss' Kappa (for multiple annotators), Krippendorff's Alpha (for continuous or ordinal labels), and simple percent agreement. In physical AI annotation, IAA benchmarks for keypoint annotations typically target >90% within-tolerance agreement, for action boundary annotation >80%, and for preference annotations >70%. Low IAA is a signal to revise the annotation guidelines, simplify the taxonomy, or provide additional annotator training.",
+          "related_terms": ["Benchmark Curation", "Annotation Quality", "Human Feedback"],
+          "category": "data-quality-pipelines"
+        },
+        {
+          "term": "RLHF (Reinforcement Learning from Human Feedback)",
+          "slug": "rlhf",
+          "short_definition": "A training paradigm that uses human preference judgments to train a reward model, which then guides policy optimization via reinforcement learning.",
+          "expanded": "RLHF was popularized in LLM alignment (InstructGPT, Claude, GPT-4) and is increasingly applied to robotics. The pipeline has three stages: (1) supervised fine-tuning on demonstrations, (2) reward model training on human preference comparisons, and (3) RL optimization of the policy against the reward model. For physical AI, human feedback can assess trajectory quality dimensions that are hard to specify formally: task elegance, safety margins, interaction naturalness. The data bottleneck in RLHF for robotics is the preference annotation step — collecting sufficient human comparisons across the full task distribution requires significant human annotator infrastructure.",
+          "related_terms": ["Preference Annotation (RLHF)", "Reward Model", "Behavioral Cloning"],
+          "category": "data-quality-pipelines"
+        },
+        {
+          "term": "Data Quality Scoring",
+          "slug": "data-quality-scoring",
+          "short_definition": "Automated or human-assigned numeric scores that rank individual data samples by their expected training value.",
+          "expanded": "Not all data is equally useful. Quality scoring assigns a numeric signal to each sample reflecting factors like: annotation accuracy, visual clarity, task completion success, diversity contribution to the overall dataset, and alignment with the target distribution. Quality scores are used during training to weight samples (importance sampling), during curation to filter low-quality samples, and during active learning to identify which new data to collect. For video data, automated quality signals include motion blur detection, exposure validation, occlusion severity, and completion of the target task sequence.",
+          "related_terms": ["Data Deduplication", "Benchmark Curation", "Active Learning"],
+          "category": "data-quality-pipelines"
+        },
+        {
+          "term": "Dataset Diversity",
+          "slug": "dataset-diversity",
+          "short_definition": "The breadth of variation in a training dataset across dimensions like environment, lighting, object appearance, demographics, and task execution style.",
+          "expanded": "Diversity is the primary determinant of a trained model's ability to generalize. For physical AI training data, relevant diversity dimensions include: visual diversity (environments, lighting, time of day, object appearances), actor diversity (different people with different body types, skin tones, and movement styles), geographic diversity (cultural environments across different regions), and behavioral diversity (different strategies and execution styles for the same task). Coverage gaps in diversity produce brittle policies that fail outside the training distribution. Dataset diversity is typically measured via embedding-space coverage metrics and fine-grained categorical coverage matrices.",
+          "related_terms": ["Data Deduplication", "Sim-to-Real Gap", "Domain Randomization"],
+          "category": "data-quality-pipelines"
+        },
+        {
+          "term": "Active Learning",
+          "slug": "active-learning",
+          "short_definition": "An iterative data collection strategy where a model identifies the specific samples it is most uncertain about, directing annotators to label the highest-value data first.",
+          "expanded": "Active learning closes the loop between model training and data collection: instead of labeling data randomly, annotators label the samples where the model's uncertainty is highest (uncertainty sampling) or where labeling would most improve decision boundaries (query-by-committee). For robotics datasets, active learning identifies which task scenarios, environments, or object configurations the current policy handles poorly, directing targeted data collection at the failure modes. This dramatically reduces the annotation budget needed to reach target performance compared to passive random collection.",
+          "related_terms": ["Data Quality Scoring", "Dataset Diversity", "Benchmark Curation"],
+          "category": "data-quality-pipelines"
+        }
+      ]
+    },
+    {
+      "name": "Computer Vision Fundamentals",
+      "slug": "computer-vision-fundamentals",
+      "description": "Core CV methods used to process and annotate video and image data for physical AI training pipelines.",
+      "terms": [
+        {
+          "term": "Optical Flow",
+          "slug": "optical-flow",
+          "short_definition": "Dense 2D motion vector fields that describe the apparent motion of each pixel between consecutive video frames.",
+          "expanded": "Optical flow captures the dynamic information in video that static frame analysis misses: how fast objects are moving, in what direction, and which regions are stationary. For robotics training data, optical flow enables models to learn motion patterns, predict future frame positions, and understand the relationship between actions and visual changes. State-of-the-art optical flow models include RAFT (Recurrent All-Pairs Field Transforms), FlowNet2, and GMFlow. Claru uses RAFT to compute optical flow for all annotated video clips, delivering flow as float16 (dx, dy) vector fields stored in .flo or NumPy format.",
+          "related_terms": ["Video Prediction", "Motion Estimation", "RAFT"],
+          "category": "computer-vision-fundamentals"
+        },
+        {
+          "term": "Monocular Depth Estimation",
+          "slug": "monocular-depth-estimation",
+          "short_definition": "Inferring per-pixel depth (distance from camera to scene surfaces) from a single RGB image or video frame, without stereo cameras or LiDAR.",
+          "expanded": "Monocular depth estimation recovers 3D geometry from a 2D image using learned priors about scene structure, object sizes, and perspective. Models like Depth Anything V2, MiDaS, ZoeDepth, and Marigold produce metric or relative depth maps from single frames. For physical AI training data, depth maps are a critical enrichment layer because they provide the 3D spatial information (object distance, surface orientation, reach reachability) that pure RGB data lacks. Depth Anything V2, trained on 62M images, currently achieves state-of-the-art performance on in-the-wild monocular depth and is the model of choice for Claru's enrichment pipeline.",
+          "related_terms": ["Depth Data", "RGB-D Data", "Point Cloud"],
+          "category": "computer-vision-fundamentals"
+        },
+        {
+          "term": "Pose Estimation",
+          "slug": "pose-estimation",
+          "short_definition": "The estimation of the position and orientation of a human body, hand, face, or object from image or video input.",
+          "expanded": "Pose estimation produces structured representations of articulated bodies or objects: a human pose is typically represented as a set of 2D or 3D keypoints connected by a skeleton graph. For physical AI training data, human and hand pose annotations are essential for learning manipulation skills from human demonstration: where are the hands, what grasp type is being used, and what trajectory did the end-effector follow during the task. State-of-the-art models include ViTPose (whole-body), HaMeR (3D hand mesh), and FoundPose (6-DOF object pose). Claru uses ViTPose for whole-body and hand pose on all egocentric clips.",
+          "related_terms": ["Keypoint Annotation", "Hand-Object Interaction", "Human Pose"],
+          "category": "computer-vision-fundamentals"
+        },
+        {
+          "term": "Hand-Object Interaction (HOI)",
+          "slug": "hand-object-interaction",
+          "short_definition": "The detection and analysis of contact, grasp, and manipulation events between human hands and physical objects in video.",
+          "expanded": "HOI detection identifies which hands are interacting with which objects, what type of grasp is being used (power grasp, pinch, precision grip), and whether contact is occurring. HOI is the central representation challenge in manipulation learning from human video: a model that cannot distinguish which hand is holding which object cannot effectively extract manipulation primitives from demonstrations. The 100DOH (100 Days of Hands) and ContactDB datasets provide HOI training data; models like Hand4Whole and ContactPose estimate hand-object contact maps. For egocentric video specifically, HOI detection drives hand+object tracking that is the primary annotation of interest.",
+          "related_terms": ["Pose Estimation", "Grasp Annotation", "Egocentric Video"],
+          "category": "computer-vision-fundamentals"
+        },
+        {
+          "term": "Object Tracking",
+          "slug": "object-tracking",
+          "short_definition": "Following a specific object or set of objects across video frames, maintaining consistent identity through occlusion, motion, and appearance changes.",
+          "expanded": "Multi-object tracking (MOT) is a prerequisite for temporal annotation tasks: to label when an object is picked up, placed, or handed off, annotators need consistent object identity (instance IDs) across frames. For manipulation videos, tracking must handle the egocentric viewpoint challenges of significant camera motion, frequent occlusion by hands, and object appearance change during manipulation (rotation, deformation). State-of-the-art trackers include DeepSORT, ByteTrack, and SAM2 (which can track arbitrary objects from a single click prompt). SAM2 in particular has made video object tracking significantly more tractable for annotation pipelines.",
+          "related_terms": ["Instance Segmentation", "Temporal Annotation", "SAM"],
+          "category": "computer-vision-fundamentals"
+        },
+        {
+          "term": "Video Prediction",
+          "slug": "video-prediction",
+          "short_definition": "The task of predicting future video frames given a history of observed frames, optionally conditioned on actions or language.",
+          "expanded": "Video prediction is the foundational task for learning world models: a model that can accurately predict the visual consequences of actions has implicitly learned the physics and causal structure of the world. Models like UniSim, IRASim, and SuSIE learn video prediction from large video datasets to build action-conditioned world models for robotics planning. For training data, video prediction models require temporally consistent, high-quality video with clean transitions between states — making egocentric video from controlled collection better than consumer internet video for this application.",
+          "related_terms": ["World Model", "Optical Flow", "Temporal Annotation"],
+          "category": "computer-vision-fundamentals"
+        },
+        {
+          "term": "SAM (Segment Anything Model)",
+          "slug": "segment-anything-model",
+          "short_definition": "Meta AI's promptable segmentation foundation model that produces high-quality instance masks for arbitrary objects in images and (with SAM2) videos.",
+          "expanded": "SAM, released by Meta AI in 2023, accepts point, box, or text prompts and produces precise segmentation masks for any object in an image. SAM2 (2024) extends this to video with an efficient memory mechanism for tracking segmented objects across frames. For annotation pipelines, SAM dramatically reduces the human effort required for segmentation tasks: an annotator who previously had to trace precise polygon masks can instead click on an object and verify SAM's mask — typically a 5-10x speed improvement. SAM2 is now the standard tool in physical AI annotation pipelines for video segmentation and object tracking.",
+          "related_terms": ["Instance Segmentation", "Object Tracking", "Semantic Segmentation"],
+          "category": "computer-vision-fundamentals"
+        },
+        {
+          "term": "Panoptic Segmentation",
+          "slug": "panoptic-segmentation",
+          "short_definition": "A unified segmentation task that produces per-pixel semantic labels for all regions (semantic segmentation) plus instance IDs for countable objects (instance segmentation).",
+          "expanded": "Panoptic segmentation combines semantic segmentation (labeling 'floor', 'wall', 'background' regions that have no distinct instances) with instance segmentation (labeling individual countable objects like Cup #1, Cup #2, Hand #1) into a single output representation. For physical AI training data, panoptic segmentation produces the richest scene understanding annotation — every pixel in the frame has both a category label and, if it belongs to a countable object, an instance ID. Models like Panoptic FPN, Mask2Former, and OneFormer produce panoptic segmentation outputs. This annotation type is the most expensive to produce and verify but provides the most complete training signal for scene-understanding tasks.",
+          "related_terms": ["Semantic Segmentation", "Instance Segmentation", "SAM"],
+          "category": "computer-vision-fundamentals"
+        }
+      ]
+    },
+    {
+      "name": "Robotics Fundamentals",
+      "slug": "robotics-fundamentals",
+      "description": "Core robotics concepts relevant to data collection, policy training, and deployment for physical AI systems.",
+      "terms": [
+        {
+          "term": "Imitation Learning",
+          "slug": "imitation-learning",
+          "short_definition": "A robot learning paradigm where a policy is trained to replicate demonstrated behaviors, using expert demonstrations as supervision rather than a reward function.",
+          "expanded": "Imitation learning (IL) encompasses behavioral cloning (supervised learning on state-action pairs), inverse RL (inferring a reward function from demonstrations), and DAgger (iterative on-policy correction of the imitation policy). IL is the dominant training paradigm for manipulation robots because collecting expert demonstrations (via teleoperation) is far more tractable than specifying reward functions that correctly capture complex task success criteria. The data bottleneck for IL is demonstration diversity and quality: policies trained on few demonstrations overfit to the specific trajectories seen during training and fail on slight variations in object position, lighting, or environment layout.",
+          "related_terms": ["Behavioral Cloning", "Teleoperation Data", "Visuomotor Policy"],
+          "category": "robotics-fundamentals"
+        },
+        {
+          "term": "Behavioral Cloning (BC)",
+          "slug": "behavioral-cloning",
+          "short_definition": "The simplest form of imitation learning: directly training a supervised learning model to predict expert actions from observations using a state-action dataset.",
+          "expanded": "Behavioral cloning treats robot policy learning as standard supervised learning: given observations (camera images, proprioceptive state) as inputs and expert actions (joint velocities, end-effector deltas) as outputs, minimize prediction loss. BC suffers from compounding errors — small deviations from the training distribution accumulate over a rollout, leading to distributional shift. Techniques like DAgger, GAIL, and VAIL address this. For BC to work well in practice, demonstrations must cover the full range of starting conditions and perturbations the policy will encounter at deployment. This creates strong demand for diverse demonstration data across varied object poses and environment configurations.",
+          "related_terms": ["Imitation Learning", "Action Chunking", "Manipulation Trajectory"],
+          "category": "robotics-fundamentals"
+        },
+        {
+          "term": "Sim-to-Real Gap",
+          "slug": "sim-to-real-gap",
+          "short_definition": "The performance degradation that occurs when a robot policy trained in simulation is deployed on physical hardware, due to differences between simulated and real sensor data and physics.",
+          "expanded": "The sim-to-real gap arises from multiple sources: visual domain gap (simulated rendering vs. real camera images), dynamics gap (simulated physics vs. real contact and friction), and sensor gap (simulated noise models vs. real sensor characteristics). Bridging the sim-to-real gap requires either reducing the gap (more realistic simulation, domain adaptation) or making policies robust to it (domain randomization, data augmentation, real-world fine-tuning). High-quality real-world training data is the most reliable solution: policies pretrained on diverse real data transfer better to new real environments than policies trained in simulation. This makes real-world data collection a strategic asset.",
+          "related_terms": ["Domain Randomization", "Synthetic Data (for Robotics)", "Transfer Learning"],
+          "category": "robotics-fundamentals"
+        },
+        {
+          "term": "Domain Randomization",
+          "slug": "domain-randomization",
+          "short_definition": "A sim-to-real bridging technique that randomizes simulation parameters (lighting, textures, object masses, friction) during training to produce policies robust to real-world variation.",
+          "expanded": "Domain randomization (DR) was popularized by OpenAI's Dactyl project (learning to solve a Rubik's cube in simulation) as a way to train policies in simulation that transfer to the real world without explicit domain adaptation. By exposing the policy to an enormous variety of simulated conditions, DR trains models that treat any specific environment as just another sample from the training distribution. DR has been extended to include visual randomization (random textures, backgrounds, lighting angles), dynamics randomization (random mass, friction, damping), and camera pose randomization. High-quality real-world training data limits the degree of randomization needed and can be used to calibrate randomization ranges.",
+          "related_terms": ["Sim-to-Real Gap", "Synthetic Data (for Robotics)", "Transfer Learning"],
+          "category": "robotics-fundamentals"
+        },
+        {
+          "term": "Action Chunking",
+          "slug": "action-chunking",
+          "short_definition": "A training technique that predicts a sequence of future actions as a single output chunk, rather than predicting one action per timestep.",
+          "expanded": "Action chunking, used in ACT (Action Chunked Transformers) and Diffusion Policy, predicts K future actions at once given the current observation. This reduces the number of environment queries needed during inference and allows the model to plan coherent multi-step behaviors rather than greedy one-step actions. Chunked action representations are also more robust to temporal ambiguity in imitation learning data because slight timing variations in when the demonstration transitions between actions have reduced impact when predicting at the chunk level. For training data annotation, action chunking requires that demonstrations have consistent action rate (same Hz throughout) and clean action boundaries.",
+          "related_terms": ["Behavioral Cloning", "Diffusion Policy", "Manipulation Trajectory"],
+          "category": "robotics-fundamentals"
+        },
+        {
+          "term": "Diffusion Policy",
+          "slug": "diffusion-policy",
+          "short_definition": "A robot policy that uses a diffusion model to generate action trajectories from noisy samples conditioned on current observations.",
+          "expanded": "Diffusion Policy (Chi et al., 2023) applies the denoising diffusion probabilistic model framework to robot action generation, producing smooth, multimodal action distributions by iteratively denoising random action sequences. Unlike regression-based policies that output a single action prediction (and struggle to capture multimodal demonstrations where multiple strategies are valid), diffusion policies can represent the full distribution of valid actions. This is particularly valuable for training data where multiple demonstrators used different but equally valid strategies for the same task — a common situation in diverse teleoperation datasets.",
+          "related_terms": ["Action Chunking", "Behavioral Cloning", "Manipulation Trajectory"],
+          "category": "robotics-fundamentals"
+        },
+        {
+          "term": "Reward Model",
+          "slug": "reward-model",
+          "short_definition": "A neural network trained to predict a scalar reward signal for robot behaviors, used in reinforcement learning and RLHF pipelines as a substitute for a hand-coded reward function.",
+          "expanded": "Reward models encode human preferences about robot behavior in a learnable function. Training a reward model requires preference annotation: human judges compare pairs of robot trajectories or behaviors and indicate which better satisfies the task objective (higher quality execution, safer motion, cleaner task completion). The reward model generalizes these pairwise comparisons into a scalar signal that can guide RL policy optimization over the full state-action space. For physical AI, reward models are valuable for tasks where success criteria are hard to specify formally (cooking quality, assembly precision, manipulation naturalness) but easy for humans to evaluate comparatively.",
+          "related_terms": ["RLHF (Reinforcement Learning from Human Feedback)", "Preference Annotation (RLHF)", "Behavioral Cloning"],
+          "category": "robotics-fundamentals"
+        },
+        {
+          "term": "6-DOF Grasp Planning",
+          "slug": "6dof-grasp-planning",
+          "short_definition": "Computing a 6-degree-of-freedom end-effector pose (position + orientation) that will successfully grasp a target object.",
+          "expanded": "Grasp planning determines where to approach an object (position: x, y, z) and at what orientation (roll, pitch, yaw) to achieve a stable, collision-free grasp. Learning-based grasp planners (GraspNet-1Billion, Contact-GraspNet, AnyGrasp) trained on large annotated datasets can generalize across novel objects. For training data, 6-DOF grasp annotations require labeling the stable grasp poses on object point clouds or meshes, a task that requires 3D spatial reasoning from annotators. The scarcity of diverse real-world grasp annotation data is a key bottleneck for grasping model generalization to novel objects in cluttered scenes.",
+          "related_terms": ["Point Cloud", "Manipulation Trajectory", "Hand-Object Interaction (HOI)"],
+          "category": "robotics-fundamentals"
+        }
+      ]
+    },
+    {
+      "name": "Models & Architectures",
+      "slug": "models-architectures",
+      "description": "Specific model architectures, tools, and systems referenced in physical AI research and annotation pipelines.",
+      "terms": [
+        {
+          "term": "RAFT (Recurrent All-Pairs Field Transforms)",
+          "slug": "raft",
+          "short_definition": "A state-of-the-art optical flow neural network that computes dense motion vector fields between image pairs using recurrent refinement over a 4D correlation volume.",
+          "expanded": "RAFT (Teed & Deng, 2020) processes two images by extracting features, constructing a 4D all-pairs correlation volume, and iteratively updating a flow field estimate using a recurrent network (GRU). It achieves state-of-the-art performance on Sintel, KITTI, and real-world video benchmarks. For physical AI annotation pipelines, RAFT's key advantage is its ability to produce accurate optical flow even for large motions and across significant appearance changes — common in egocentric manipulation video where hands move rapidly and cause large frame-to-frame motion. Claru uses RAFT as the default optical flow component in its enrichment pipeline.",
+          "related_terms": ["Optical Flow", "Data Enrichment", "Video Prediction"],
+          "category": "models-architectures"
+        },
+        {
+          "term": "Depth Anything V2",
+          "slug": "depth-anything-v2",
+          "short_definition": "A large-scale monocular depth estimation foundation model trained on 62 million images that achieves state-of-the-art performance on in-the-wild single-image depth estimation.",
+          "expanded": "Depth Anything V2 (Yang et al., 2024) improves over V1 by replacing noisy pseudo-labeled real data with higher-quality synthetic data in training, producing significantly sharper depth boundaries and more accurate depth estimates in challenging conditions (thin objects, reflective surfaces, complex backgrounds). Available in small, base, large, and giant variants, with the large model balancing inference speed and accuracy for production enrichment pipelines. The model outputs relative depth maps (or metric depth with the metric variant), enabling downstream geometry-aware model training. Depth Anything V2 is currently the gold-standard monocular depth model for robotics data annotation.",
+          "related_terms": ["Monocular Depth Estimation", "Depth Data", "Data Enrichment"],
+          "category": "models-architectures"
+        },
+        {
+          "term": "ViTPose",
+          "slug": "vitpose",
+          "short_definition": "A pose estimation model based on Vision Transformers (ViT) that achieves state-of-the-art human body and hand keypoint estimation on standard benchmarks.",
+          "expanded": "ViTPose (Xu et al., 2022) applies a plain ViT backbone to pose estimation, demonstrating that large-scale pretraining and simple decoder heads outperform complex hand-crafted pose estimation architectures. ViTPose-Huge achieves state-of-the-art performance on COCO, MPII, and AIC benchmarks. For annotation pipelines, ViTPose is particularly valuable because its ViT backbone can be fine-tuned for domain-specific pose estimation tasks (warehouse worker poses, specific tool-use motions) with relatively little additional labeled data. Claru runs ViTPose on all egocentric clips to produce whole-body and hand pose keypoint annotations.",
+          "related_terms": ["Pose Estimation", "Keypoint Annotation", "Hand-Object Interaction (HOI)"],
+          "category": "models-architectures"
+        },
+        {
+          "term": "Open X-Embodiment (OXE)",
+          "slug": "open-x-embodiment",
+          "short_definition": "A large-scale cross-embodiment robot manipulation dataset and training framework aggregating 60+ datasets from 22+ robot types to train generalist robot policies.",
+          "expanded": "Open X-Embodiment (RT-X team, Google DeepMind, 2023) is the largest publicly available robot manipulation dataset, containing 1M+ demonstrations across tabletop manipulation, mobile manipulation, dexterous manipulation, and outdoor navigation. The RT-X models trained on OXE demonstrate that multi-robot, multi-task training improves generalization compared to single-robot, single-task training. OXE represents the research direction that motivates commercial data providers: AI labs need broad real-world demonstration data across diverse environments and embodiments, and academic datasets alone cannot satisfy this at production scale.",
+          "related_terms": ["Cross-Embodiment Data", "Foundation Model for Robotics", "Teleoperation Data"],
+          "category": "models-architectures"
+        },
+        {
+          "term": "Diffusion Transformer (DiT)",
+          "slug": "diffusion-transformer",
+          "short_definition": "A diffusion model architecture that replaces the U-Net backbone with a Transformer, enabling scalable generation of images, videos, and robot action sequences.",
+          "expanded": "DiT (Peebles & Xie, 2023) demonstrated that Transformer architectures scale more predictably than U-Nets for diffusion models, leading to strong generation performance on ImageNet and being adopted as the backbone for video generation models (Sora, Open-Sora) and robot policy models (pi-zero's flow matching component). For physical AI, DiT-based video generation models are increasingly used to generate synthetic training data (augmenting real-world data) and as world models for robotic planning. The scalability of DiT means that data quality improvements (more diverse, better annotated real-world data) translate more reliably into policy performance improvements.",
+          "related_terms": ["World Model", "Diffusion Policy", "Video Prediction"],
+          "category": "models-architectures"
+        },
+        {
+          "term": "Vision Transformer (ViT)",
+          "slug": "vision-transformer",
+          "short_definition": "A Transformer architecture applied to image patches rather than text tokens, treating images as sequences of non-overlapping patches for self-attention computation.",
+          "expanded": "ViT (Dosovitskiy et al., 2020) divides an image into fixed-size patches (typically 16x16 pixels), projects them to embeddings, and processes them with standard Transformer self-attention. ViT models pretrained at scale (ViT-L, ViT-H) via supervised learning (ImageNet-21K), self-supervised learning (DINO, MAE, DINOv2), or language supervision (CLIP) produce powerful visual representations that transfer to downstream robotics tasks including pose estimation, segmentation, depth prediction, and policy learning. The dominance of ViT backbones in physical AI means that data annotation tools and enrichment models increasingly run on shared ViT backbone infrastructure.",
+          "related_terms": ["Foundation Model for Robotics", "ViTPose", "Data Enrichment"],
+          "category": "models-architectures"
+        },
+        {
+          "term": "GR00T (NVIDIA)",
+          "slug": "groot-nvidia",
+          "short_definition": "NVIDIA's foundation model initiative for humanoid robots, aiming to train a generalist policy on diverse physical AI data across robot embodiments and tasks.",
+          "expanded": "Project GR00T (Generalist Robot 00 Technology) is NVIDIA's push toward a foundation model for humanoid robots, announced in 2024 alongside the Jetson Thor compute platform. GR00T's training data strategy mirrors Open X-Embodiment's cross-embodiment approach but focuses specifically on humanoid-relevant tasks and human video. The project underscores why the leading AI hardware company is directly investing in physical AI training data infrastructure: the bottleneck for humanoid robot generalization is not compute or architecture but the diversity and scale of high-quality physical interaction data.",
+          "related_terms": ["Foundation Model for Robotics", "Humanoid Robot", "Cross-Embodiment Data"],
+          "category": "models-architectures"
+        },
+        {
+          "term": "pi-zero (Physical Intelligence)",
+          "slug": "pi-zero",
+          "short_definition": "Physical Intelligence's generalist robot policy model combining a VLM backbone with a flow-matching action expert, trained on a large proprietary dataset of robot demonstrations.",
+          "expanded": "pi-zero (Black et al., 2024) introduced a 'mixture of experts' architecture for robot learning: a pretrained VLM (PaliGemma) handles vision and language understanding while a separate flow-matching action expert generates precise action trajectories. The key training data insight in pi-zero is that the VLM backbone transfers knowledge from internet-scale vision-language pretraining, allowing the action expert to be fine-tuned efficiently on far smaller robot demonstration datasets. This architecture pattern is increasingly adopted by the robotics community because it separates the semantic understanding problem (solved with internet data) from the motor control problem (requiring robot-specific data).",
+          "related_terms": ["Vision-Language-Action Model (VLA)", "Diffusion Policy", "Cross-Embodiment Data"],
+          "category": "models-architectures"
+        }
+      ]
+    }
+  ]
+}
