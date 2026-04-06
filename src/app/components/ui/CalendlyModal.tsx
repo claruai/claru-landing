@@ -15,6 +15,7 @@ const HEARD_ABOUT_OPTIONS = [
   { value: "twitter", label: "Twitter / X" },
   { value: "word_of_mouth", label: "Word of mouth / Referral" },
   { value: "google", label: "Google / Search" },
+  { value: "ai_assistant", label: "AI assistant (ChatGPT, Claude, Perplexity...)" },
   { value: "blog", label: "Blog or article" },
   { value: "conference", label: "Conference or event" },
   { value: "newsletter", label: "Newsletter" },
@@ -176,13 +177,13 @@ function StepForm({ onSuccess }: { onSuccess: (data: FormData) => void }) {
         {/* Project Description */}
         <div className="space-y-1.5">
           <label className="block font-mono text-sm text-[var(--accent-primary)]">
-            $ project_description <span className="text-red-400">*</span>
+            $ how_can_we_help <span className="text-red-400">*</span>
           </label>
           <textarea
             {...register("projectDescription")}
             rows={3}
             className="w-full bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] px-4 py-2.5 font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors resize-none"
-            placeholder="Tell us about your project or requirements..."
+            placeholder="What are you building? What kind of data do you need?"
           />
           {errors.projectDescription && (
             <p className="font-mono text-xs text-red-400">ERROR: {errors.projectDescription.message}</p>
@@ -192,7 +193,7 @@ function StepForm({ onSuccess }: { onSuccess: (data: FormData) => void }) {
         {/* Heard About */}
         <div className="space-y-1.5">
           <label className="block font-mono text-sm text-[var(--accent-primary)]">
-            $ heard_about <span className="text-red-400">*</span>
+            $ how_did_you_find_us <span className="text-red-400">*</span>
           </label>
           <select
             {...register("heardAbout")}

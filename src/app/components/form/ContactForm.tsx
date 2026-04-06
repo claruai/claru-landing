@@ -13,6 +13,7 @@ const HEARD_ABOUT_OPTIONS = [
   { value: "twitter", label: "Twitter / X" },
   { value: "word_of_mouth", label: "Word of mouth / Referral" },
   { value: "google", label: "Google / Search" },
+  { value: "ai_assistant", label: "AI assistant (ChatGPT, Claude, Perplexity...)" },
   { value: "blog", label: "Blog or article" },
   { value: "conference", label: "Conference or event" },
   { value: "newsletter", label: "Newsletter" },
@@ -213,14 +214,14 @@ export default function ContactForm() {
               htmlFor="projectDescription"
               className="block font-mono text-sm text-[var(--accent-primary)]"
             >
-              $ project_description <span className="text-red-400">*</span>
+              $ how_can_we_help <span className="text-red-400">*</span>
             </label>
             <textarea
               id="projectDescription"
               {...register("projectDescription")}
               rows={4}
               className="w-full bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] px-4 py-3 font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors resize-none"
-              placeholder="Tell us about your project or requirements..."
+              placeholder="What are you building? What kind of data do you need?"
             />
             {errors.projectDescription && (
               <p className="font-mono text-xs text-red-400">
@@ -235,7 +236,7 @@ export default function ContactForm() {
               htmlFor="heardAbout"
               className="block font-mono text-sm text-[var(--accent-primary)]"
             >
-              $ heard_about <span className="text-red-400">*</span>
+              $ how_did_you_find_us <span className="text-red-400">*</span>
             </label>
             <select
               id="heardAbout"
