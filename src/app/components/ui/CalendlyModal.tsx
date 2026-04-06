@@ -269,9 +269,12 @@ export default function CalendlyModal() {
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setMounted(true), []);
 
-  // Reset submitted state when modal closes
+  // Reset submitted state: immediately on open (guarantees clean form), after animation on close
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSubmitted(null);
+    } else {
       setTimeout(() => setSubmitted(null), 300);
     }
   }, [isOpen]);

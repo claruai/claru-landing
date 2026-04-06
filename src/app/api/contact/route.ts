@@ -95,7 +95,8 @@ export async function POST(request: NextRequest) {
           company,
           use_case: project_description || null,
           heard_about: heard_about || null,
-          status: "pending",
+          // status intentionally omitted — DB default is 'pending' for new rows;
+          // omitting it prevents overwriting qualified/approved leads on re-submit
         },
         { onConflict: "email" },
       );
