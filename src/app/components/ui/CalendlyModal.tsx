@@ -7,24 +7,36 @@ import { X, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useCalendly, type LeadData } from "../providers/CalendlyProvider";
-import { buildCalendlyEmbedUrl } from "../../lib/constants";
+import { useCalendly } from "../providers/CalendlyProvider";
+import { usePostHog } from "posthog-js/react";
+
+const HEARD_ABOUT_OPTIONS = [
+  { value: "linkedin", label: "LinkedIn" },
+  { value: "twitter", label: "Twitter / X" },
+  { value: "word_of_mouth", label: "Word of mouth / Referral" },
+  { value: "google", label: "Google / Search" },
+  { value: "blog", label: "Blog or article" },
+  { value: "conference", label: "Conference or event" },
+  { value: "newsletter", label: "Newsletter" },
+  { value: "other", label: "Other" },
+] as const;
 
 const formSchema = z.object({
   name: z.string().min(2, "Name is required"),
   email: z.string().email("Please enter a valid email"),
   company: z.string().min(1, "Company is required"),
-  projectDescription: z.string().optional(),
+  projectDescription: z.string().min(10, "Please describe your project (at least 10 characters)"),
+  heardAbout: z.string().min(1, "Please select an option"),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
 function TerminalHeader({
-  step,
+  submitted,
   onClose,
   closeRef,
 }: {
-  step: 1 | 2;
+  submitted: boolean;
   onClose: () => void;
   closeRef: React.RefObject<HTMLButtonElement | null>;
 }) {
@@ -37,7 +49,7 @@ function TerminalHeader({
           <div className="w-3 h-3 rounded-full bg-green-500/80" />
         </div>
         <span className="font-mono text-xs text-[var(--text-secondary)]">
-          {step === 1 ? "// STEP 1/2 — INITIALIZE" : "// STEP 2/2 — SCHEDULE"}
+          {submitted ? "// SUBMITTED" : "// INITIALIZE"}
         </span>
       </div>
       <div className="flex items-center gap-3">
@@ -57,8 +69,9 @@ function TerminalHeader({
   );
 }
 
-function StepForm({ onSuccess }: { onSuccess: (data: LeadData) => void }) {
+function StepForm({ onSuccess }: { onSuccess: (data: FormData) => void }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const posthog = usePostHog();
   const {
     register,
     handleSubmit,
@@ -70,14 +83,34 @@ function StepForm({ onSuccess }: { onSuccess: (data: LeadData) => void }) {
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
+
+    posthog?.capture("contact_form_submitted", {
+      company: data.company,
+      heard_about: data.heardAbout,
+      source: "modal",
+    });
+
+    posthog?.identify(data.email, {
+      name: data.name,
+      email: data.email,
+      company: data.company,
+      heard_about: data.heardAbout,
+    });
+
     try {
       await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          company: data.company,
+          project_description: data.projectDescription,
+          heard_about: data.heardAbout,
+        }),
       });
     } catch {
-      // Silently handle — still advance to booking
+      // Silently handle — still advance to confirmation
     }
     setIsSubmitting(false);
     onSuccess(data);
@@ -142,9 +175,8 @@ function StepForm({ onSuccess }: { onSuccess: (data: LeadData) => void }) {
 
         {/* Project Description */}
         <div className="space-y-1.5">
-          <label className="flex flex-wrap gap-x-1.5 font-mono text-sm text-[var(--accent-primary)]">
-            <span>$ project_description</span>
-            <span className="text-[var(--text-muted)]">(optional)</span>
+          <label className="block font-mono text-sm text-[var(--accent-primary)]">
+            $ project_description <span className="text-red-400">*</span>
           </label>
           <textarea
             {...register("projectDescription")}
@@ -152,6 +184,30 @@ function StepForm({ onSuccess }: { onSuccess: (data: LeadData) => void }) {
             className="w-full bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] px-4 py-2.5 font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors resize-none"
             placeholder="Tell us about your project or requirements..."
           />
+          {errors.projectDescription && (
+            <p className="font-mono text-xs text-red-400">ERROR: {errors.projectDescription.message}</p>
+          )}
+        </div>
+
+        {/* Heard About */}
+        <div className="space-y-1.5">
+          <label className="block font-mono text-sm text-[var(--accent-primary)]">
+            $ heard_about <span className="text-red-400">*</span>
+          </label>
+          <select
+            {...register("heardAbout")}
+            className="w-full bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] px-4 py-2.5 font-mono text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors appearance-none"
+          >
+            <option value="">-- Select an option --</option>
+            {HEARD_ABOUT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          {errors.heardAbout && (
+            <p className="font-mono text-xs text-red-400">ERROR: {errors.heardAbout.message}</p>
+          )}
         </div>
       </div>
 
@@ -171,7 +227,7 @@ function StepForm({ onSuccess }: { onSuccess: (data: LeadData) => void }) {
                 PROCESSING...
               </>
             ) : (
-              "Next: Choose a Time →"
+              "Submit →"
             )}
           </span>
         </motion.button>
@@ -180,36 +236,30 @@ function StepForm({ onSuccess }: { onSuccess: (data: LeadData) => void }) {
   );
 }
 
-function StepCalendly({ leadData, bookingUrl }: { leadData: LeadData; bookingUrl: string }) {
-  const [iframeLoaded, setIframeLoaded] = useState(false);
-
-  const calendlyUrl = buildCalendlyEmbedUrl(bookingUrl, { name: leadData.name, email: leadData.email });
-
+function SuccessView({ name, email, onClose }: { name: string; email: string; onClose: () => void }) {
   return (
-    <div className="flex-1 min-h-0 relative">
-      {!iframeLoaded && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-          <Loader2 className="w-6 h-6 text-[var(--accent-primary)] animate-spin" />
-          <span className="font-mono text-xs text-[var(--text-muted)] animate-pulse">
-            {"// LOADING..."}
-          </span>
-        </div>
-      )}
-      <iframe
-        src={calendlyUrl}
-        title="Schedule a call with Claru"
-        className={`w-full h-full border-0 transition-opacity duration-300 ${
-          iframeLoaded ? "opacity-100" : "opacity-0"
-        }`}
-        onLoad={() => setIframeLoaded(true)}
-      />
+    <div className="flex flex-col items-center justify-center flex-1 p-8 text-center space-y-4">
+      <div className="font-mono text-sm text-[var(--accent-primary)]">
+        &gt; Request received. We&apos;ll be in touch within 24 hours.
+      </div>
+      <h3 className="text-xl font-bold text-white">Thanks, {name}.</h3>
+      <p className="text-sm text-[var(--text-muted)] font-mono">
+        Our team will review your requirements and reach out at{" "}
+        <span className="text-[var(--text-secondary)]">{email}</span>
+      </p>
+      <button
+        onClick={onClose}
+        className="mt-4 font-mono text-sm text-[var(--accent-primary)] border border-[var(--accent-primary)] px-6 py-2 hover:bg-[var(--accent-primary)] hover:text-[var(--bg-primary)] transition-colors"
+      >
+        Close
+      </button>
     </div>
   );
 }
 
 export default function CalendlyModal() {
-  const { isOpen, step, leadData, bookingUrl, closeCalendly, advanceToCalendly } =
-    useCalendly();
+  const { isOpen, closeCalendly } = useCalendly();
+  const [submitted, setSubmitted] = useState<FormData | null>(null);
   const [mounted, setMounted] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
@@ -217,6 +267,13 @@ export default function CalendlyModal() {
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setMounted(true), []);
+
+  // Reset submitted state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setTimeout(() => setSubmitted(null), 300);
+    }
+  }, [isOpen]);
 
   // Autofocus close button on open
   useEffect(() => {
@@ -282,36 +339,40 @@ export default function CalendlyModal() {
         >
           <motion.div
             className="relative w-full max-w-lg bg-[#0a0908] border border-[var(--border-medium)] rounded-lg overflow-hidden flex flex-col"
-            style={{ height: step === 1 ? "auto" : "85vh", maxHeight: "700px" }}
+            style={{ height: "auto", maxHeight: "90vh" }}
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
           >
-            <TerminalHeader step={step} onClose={closeCalendly} closeRef={closeRef} />
+            <TerminalHeader submitted={!!submitted} onClose={closeCalendly} closeRef={closeRef} />
 
             <AnimatePresence mode="wait">
-              {step === 1 ? (
+              {submitted ? (
+                <motion.div
+                  key="success"
+                  className="flex flex-col min-h-0"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <SuccessView
+                    name={submitted.name}
+                    email={submitted.email}
+                    onClose={closeCalendly}
+                  />
+                </motion.div>
+              ) : (
                 <motion.div
                   key="form"
-                  className="flex flex-col min-h-0"
+                  className="flex flex-col min-h-0 overflow-y-auto"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <StepForm onSuccess={advanceToCalendly} />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="calendly"
-                  className="flex-1 min-h-0 flex flex-col"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <StepCalendly leadData={leadData!} bookingUrl={bookingUrl} />
+                  <StepForm onSuccess={(data) => setSubmitted(data)} />
                 </motion.div>
               )}
             </AnimatePresence>
