@@ -70,6 +70,7 @@ export type ComparisonData = {
     title: string;
     subtitle: ReactNode;
     lastUpdated: string;
+    paragraphs?: string[];
   };
   tldr: {
     title: string;

@@ -60,6 +60,10 @@ export const isahitComparison: ComparisonData = {
       </>
     ),
     lastUpdated: "April 2, 2026",
+    paragraphs: [
+      "iSAHIT was founded in 2017 by Isabelle Mashola and is headquartered in Paris, France. The company has built its identity around ethical AI and social impact, employing a predominantly female workforce across Africa, Asia, Europe, and South America. iSAHIT achieved B Corp certification, reinforcing its commitment to fair labor practices in an industry often scrutinized for worker treatment. The company serves clients ranging from startups to Fortune 500 enterprises, offering managed human-in-the-loop data labeling for computer vision, natural language processing, large language models, audio, and speech tasks.",
+      "For physical AI teams evaluating iSAHIT, it is important to recognize that the company operates as a labeling and RLHF services provider rather than a data capture pipeline. iSAHIT does not deploy field collection networks, generate egocentric video from wearable cameras, or produce enrichment layers such as depth maps, human pose estimation, or optical flow. Teams training robotics foundation models, manipulation policies, or world models for embodied AI will find that iSAHIT can handle downstream annotation tasks effectively, but the upstream challenges of physical-world data capture and multi-layer spatial enrichment require a different kind of partner.",
+    ],
   },
   tldr: {
     title: "TL;DR",
@@ -392,10 +396,17 @@ export const isahitComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics AI readiness",
+        paragraphs: [
+          "Modern robotics foundation models like RT-2, Octo, and pi0 require training data that pairs egocentric video with dense spatial signals including depth, pose, segmentation, and optical flow. iSAHIT's HITL workforce can classify actions, label objects, and evaluate model outputs, but these are annotation tasks applied to existing data rather than the capture and enrichment steps that generate the raw training signal.",
+          "Claru addresses this gap by deploying wearable camera operators to capture task-specific video in real environments and then applying automated enrichment pipelines that produce per-frame depth, pose, and motion layers. The resulting datasets ship in robotics-native formats like RLDS and LeRobot, ready for direct ingestion into training frameworks.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "iSAHIT is strong for HITL and RLHF throughput with ethical workforce sourcing.",
-          "Claru is stronger when physical-world capture is the bottleneck.",
+          "iSAHIT is strong for HITL and RLHF throughput with ethical workforce sourcing. If you need classification, preference ranking, or evaluation tasks executed by a vetted workforce with B Corp standards, iSAHIT delivers reliably across multiple languages and modalities.",
+          "Claru is stronger when physical-world capture is the bottleneck. If your robotics training pipeline needs new egocentric manipulation data, kitchen activity recordings, or warehouse navigation footage with aligned spatial signals, Claru addresses the upstream data generation challenge.",
         ],
       },
     ],
@@ -468,7 +479,7 @@ export const isahitComparison: ComparisonData = {
         question: "What is iSAHIT?",
         answer: (
           <>
-            iSAHIT positions itself as a Human-by-API partner for AI projects.
+            iSAHIT is a B Corp-certified, Paris-based company founded in 2017 that positions itself as a Human-by-API partner for AI projects. The company employs a predominantly female workforce across four continents to deliver managed human-in-the-loop data labeling and RLHF services. iSAHIT serves clients from startups to Fortune 500 enterprises and has built its brand around ethical AI practices and fair labor standards in the data annotation industry.
             {sourceLink("https://www.isahit.com/", "[1]")}
           </>
         ),
@@ -477,8 +488,7 @@ export const isahitComparison: ComparisonData = {
         question: "What tasks does iSAHIT support?",
         answer: (
           <>
-            iSAHIT highlights human-in-the-loop labeling across CV, NLP, LLM,
-            audio, and speech tasks.
+            iSAHIT highlights human-in-the-loop labeling across computer vision, natural language processing, large language model training, audio transcription, and speech recognition tasks. The company supports a range of annotation types from image classification and bounding boxes to text categorization and preference ranking for RLHF workflows. This breadth makes iSAHIT a strong choice for teams with diverse labeling needs across multiple modalities.
             {sourceLink("https://www.isahit.com/", "[2]")}
           </>
         ),
@@ -487,7 +497,7 @@ export const isahitComparison: ComparisonData = {
         question: "Does iSAHIT offer RLHF services?",
         answer: (
           <>
-            Yes. iSAHIT promotes RLHF workflows for fine-tuning and evaluation.
+            Yes. iSAHIT promotes RLHF workflows for fine-tuning and evaluation of large language models. The company provides human evaluators who can perform preference ranking, response quality assessment, and red-teaming tasks. These services are particularly relevant for teams training conversational AI or generative models, though they do not extend to the spatial enrichment tasks required for physical AI and robotics training.
             {sourceLink("https://www.isahit.com/", "[3]")}
           </>
         ),
@@ -496,15 +506,20 @@ export const isahitComparison: ComparisonData = {
         question: "Can iSAHIT work with our annotation tools?",
         answer: (
           <>
-            iSAHIT notes you can label on their tool, your tool, or a partner
-            tool. {sourceLink("https://www.isahit.com/", "[5]")}
+            iSAHIT notes you can label on their tool, your tool, or a partner tool. This flexibility allows teams to integrate iSAHIT's workforce into existing labeling infrastructure without migrating data to a new platform. The tool-agnostic approach is valuable for enterprises that have already invested in annotation tooling but need additional human capacity to scale throughput.
+            {sourceLink("https://www.isahit.com/", "[5]")}
           </>
         ),
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your training pipeline requires new egocentric video from real-world environments paired with depth maps, human pose estimation, segmentation masks, and optical flow layers, Claru addresses those upstream data generation needs. iSAHIT excels at downstream annotation tasks but does not operate capture networks or produce spatial enrichment signals.",
+      },
+      {
+        question: "Does iSAHIT handle physical AI or robotics data?",
+        answer:
+          "iSAHIT can label existing robotics-related footage with classifications, bounding boxes, or action labels. However, the company does not capture new physical-world data, deploy wearable camera operators, or generate enrichment layers like depth estimation and pose extraction. Teams building embodied AI systems typically need a capture-first provider alongside any annotation services partner.",
       },
     ],
   },

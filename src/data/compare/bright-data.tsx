@@ -78,6 +78,9 @@ export const brightDataComparison: ComparisonData = {
       <>
         Bright Data documentation covers dataset access and delivery workflows. {sourceLink("https://docs.brightdata.com/datasets", "[2]")}
       </>,
+      "Bright Data was originally founded in 2014 as Luminati Networks, a division of the Hola VPN company. In 2017, the company was sold to EMK Capital, a London-based private investment fund, at a valuation of approximately 200 million dollars. The company rebranded to Bright Data in 2021. Headquartered in Netanya, Israel, Bright Data employs approximately 415 people and crossed 300 million dollars in annual revenue in 2025, with plans to reach 400 million dollars by 2026.",
+      "Bright Data operates one of the largest proxy networks in the world with over 150 million residential IPs across 195 countries, achieving reported success rates exceeding 99 percent for web data extraction. The company supports over 20,000 enterprises across AI, e-commerce, finance, and market research verticals. Their dataset marketplace and scraper APIs make it straightforward to source structured web data at scale.",
+      "For physical AI and robotics teams, the fundamental distinction is that Bright Data's entire infrastructure is built around extracting data from the web. Web-sourced data, no matter how well structured, is categorically different from physical-world data captured through wearable cameras and sensors. Robotics training requires egocentric video, depth maps, 3D pose data, object segmentation, and motion signals that cannot be sourced from web scraping. If your AI models operate in the physical world, you need a provider like Claru that captures and enriches real-world data rather than extracting data from web pages.",
       "If your bottleneck is sourcing web data at scale, Bright Data is a strong fit. If your bottleneck is physical-world capture and enrichment for robotics, Claru is the better fit.",
     ],
   },
@@ -347,7 +350,8 @@ export const brightDataComparison: ComparisonData = {
         question: "What is Bright Data?",
         answer: (
           <>
-            Bright Data provides web data collection and dataset products. {sourceLink("https://brightdata.com/products/datasets", "[1]")}
+            Bright Data (formerly Luminati Networks) is a global web data collection and proxy company founded in 2014 and headquartered in Netanya, Israel. The company operates one of the world's largest proxy networks with over 150 million residential IPs across 195 countries. Acquired by EMK Capital in 2017, Bright Data crossed 300 million dollars in annual revenue in 2025 and supports over 20,000 enterprises across AI, e-commerce, finance, and market research.{" "}
+            {sourceLink("https://brightdata.com/products/datasets", "[1]")}
           </>
         ),
       },
@@ -355,19 +359,25 @@ export const brightDataComparison: ComparisonData = {
         question: "Does Bright Data provide dataset delivery workflows?",
         answer: (
           <>
-            Yes. Bright Data documentation covers dataset access and delivery. {sourceLink("https://docs.brightdata.com/datasets", "[2]")}
+            Yes. Bright Data provides dataset access and delivery workflows through their platform, including a dataset marketplace, scraper APIs, and structured data feeds. Their infrastructure is designed for extracting and structuring data from web sources at enterprise scale. However, these delivery workflows are for web-sourced data and do not cover physical-world sensor data, video capture, or the enrichment layers that robotics teams require.{" "}
+            {sourceLink("https://docs.brightdata.com/datasets", "[2]")}
           </>
         ),
       },
       {
         question: "Is Bright Data a physical AI data provider?",
         answer:
-          "Bright Data focuses on web data rather than capture-first physical data pipelines.",
+          "No. Bright Data's entire infrastructure is built around extracting data from the web using proxy networks and scraper APIs. Web-sourced data is categorically different from physical-world data captured through wearable cameras and sensors. Robotics training requires egocentric video, depth maps, 3D pose data, object segmentation, and motion signals that cannot be sourced from web scraping, regardless of how sophisticated the extraction pipeline is.",
+      },
+      {
+        question: "How large is Bright Data?",
+        answer:
+          "Bright Data is a substantial company with approximately 415 employees, over 300 million dollars in annual revenue as of 2025, and more than 20,000 enterprise customers. The company operates over 150 million residential proxy IPs across 195 countries. They are privately owned by EMK Capital, a London-based private equity firm that acquired the company in 2017 at a valuation of approximately 200 million dollars.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit whenever your AI models operate in the physical world rather than on web data. If you are training robotics policies, navigation models, manipulation systems, or world models that need egocentric video, depth maps, 3D pose, segmentation, and optical flow as training inputs, Claru provides the specialized capture and enrichment pipeline for those needs. Choose Bright Data when you need web-sourced datasets for text, pricing, or digital content analysis.",
       },
     ],
   },

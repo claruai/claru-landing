@@ -76,10 +76,12 @@ export const deepenAiComparison: ComparisonData = {
         Deepen AI positions itself as a data engine for physical AI.
         {sourceLink("https://deepen.ai/", "[1]")}
       </>,
+      "Deepen AI was founded with the goal of building infrastructure for teams working on autonomous vehicles and physical AI systems. The company emerged from the growing need for specialized data tools that handle the unique requirements of sensor-rich environments, including multi-camera setups, LiDAR point clouds, and radar data. Over time, Deepen AI has expanded its scope beyond AV to serve broader physical AI use cases such as warehouse robotics and last-mile delivery.",
       <>
         The platform highlights annotation, sensor calibration, and data
         validation capabilities. {sourceLink("https://deepen.ai/", "[2]")}
       </>,
+      "In the physical AI data landscape, Deepen AI occupies a specific niche: it provides the tooling layer that sits between raw sensor data and training-ready datasets. This positioning means teams still need to source and capture their own data before using Deepen AI to process it. For organizations with existing data pipelines, this is an advantage. For teams starting from scratch on new robotics tasks, the gap between data acquisition and data tooling remains a bottleneck that Deepen AI does not directly address.",
       <>
         Deepen AI describes workflows for AV, robotics, and other physical AI
         programs. {sourceLink("https://help.deepen.ai/deepen-ai-enterprise/faq", "[3]")}
@@ -291,22 +293,29 @@ export const deepenAiComparison: ComparisonData = {
       {
         title: "Tooling vs pipeline",
         paragraphs: [
-          "Deepen AI provides annotation, calibration, and validation tools.",
-          "Claru provides capture, enrichment, and training-ready datasets.",
+          "Deepen AI provides annotation, calibration, and validation tools. These are the software components that help teams organize, label, and verify sensor data once it has already been collected. For AV teams with existing fleets generating terabytes of driving data, this tooling layer is essential.",
+          "Claru provides capture, enrichment, and training-ready datasets. Rather than assuming data already exists, Claru begins with physical-world collection using wearable cameras and task-specific protocols, then layers on depth, pose, segmentation, and motion enrichment before delivering in robotics-native formats.",
         ],
       },
       {
         title: "Data sourcing",
         paragraphs: [
-          "Deepen AI assumes teams already have data to process.",
-          "Claru captures new physical-world data tailored to robotics tasks.",
+          "Deepen AI assumes teams already have data to process. This works well for autonomous vehicle programs with continuous data streams from test vehicles, but it creates a gap for robotics teams building new manipulation or navigation capabilities that require task-specific scenarios not yet captured.",
+          "Claru captures new physical-world data tailored to robotics tasks. This includes egocentric video of human demonstrations, object interactions in diverse environments, and multi-angle recordings of tasks that robots need to learn.",
+        ],
+      },
+      {
+        title: "Robotics AI requirements",
+        paragraphs: [
+          "Modern robotics AI models such as vision-language-action architectures and diffusion policies require training data with specific properties: egocentric viewpoints, manipulation context, depth alignment, and action-level temporal segmentation. These requirements go beyond what standard AV data tooling was designed to handle.",
+          "Claru designs capture protocols around these robotics-specific requirements, ensuring that every clip includes the spatial and temporal context needed for policy learning and sim-to-real transfer.",
         ],
       },
       {
         title: "Where each wins",
         paragraphs: [
-          "Deepen AI is strong when data tooling is the bottleneck.",
-          "Claru is stronger when capture and enrichment are the bottleneck.",
+          "Deepen AI is strong when data tooling is the bottleneck, particularly for teams with existing sensor data that needs annotation, calibration, and validation at scale.",
+          "Claru is stronger when capture and enrichment are the bottleneck, especially for robotics teams that need new task-specific data with multi-layer enrichment from the start.",
         ],
       },
     ],
@@ -377,8 +386,9 @@ export const deepenAiComparison: ComparisonData = {
         question: "What is Deepen AI?",
         answer: (
           <>
-            Deepen AI positions itself as a data engine for physical AI.
-            {sourceLink("https://deepen.ai/", "[1]")}
+            Deepen AI positions itself as a data engine for physical AI, providing annotation, sensor calibration, and data validation tools.{" "}
+            {sourceLink("https://deepen.ai/", "[1]")}{" "}
+            The company was built to support teams working on autonomous vehicles and other physical AI systems that generate large volumes of sensor data. Deepen AI helps these teams process, label, and validate their existing data through a suite of software tools designed for multi-sensor environments including cameras, LiDAR, and radar systems.
           </>
         ),
       },
@@ -386,8 +396,9 @@ export const deepenAiComparison: ComparisonData = {
         question: "What capabilities does Deepen AI highlight?",
         answer: (
           <>
-            The platform highlights annotation, sensor calibration, and data
-            validation. {sourceLink("https://deepen.ai/", "[2]")}
+            The platform highlights annotation, sensor calibration, and data validation as its core capabilities.{" "}
+            {sourceLink("https://deepen.ai/", "[2]")}{" "}
+            Annotation tools support labeling across 2D and 3D data types, including bounding boxes, semantic segmentation, and point cloud labeling. Sensor calibration ensures that data from multiple sensors is properly aligned, which is critical for fusion-based perception systems. Data validation workflows help teams identify labeling errors and maintain quality standards across large-scale annotation projects.
           </>
         ),
       },
@@ -395,15 +406,21 @@ export const deepenAiComparison: ComparisonData = {
         question: "What teams use Deepen AI?",
         answer: (
           <>
-            Deepen AI describes workflows for AV and robotics programs.
-            {sourceLink("https://help.deepen.ai/deepen-ai-enterprise/faq", "[3]")}
+            Deepen AI describes workflows for AV, robotics, and physical AI programs.{" "}
+            {sourceLink("https://help.deepen.ai/deepen-ai-enterprise/faq", "[3]")}{" "}
+            The platform is primarily used by autonomous vehicle companies that need to process driving data from test fleets, but it also serves robotics teams and other physical AI programs that work with sensor-rich data. Teams that already have data collection infrastructure in place and need tooling to annotate and validate that data are the primary audience for Deepen AI.
           </>
         ),
       },
       {
+        question: "How does Deepen AI compare to Claru for robotics?",
+        answer:
+          "Deepen AI provides data tooling that assumes you already have physical-world data to process. Claru starts with capture, collecting task-specific physical-world data through a network of trained collectors using wearable cameras and structured protocols. For robotics teams that need new data rather than tools for existing data, Claru addresses the upstream bottleneck that Deepen AI does not cover. Teams can use both: Deepen AI for tooling on existing data and Claru for new capture-first datasets.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when your primary bottleneck is acquiring new physical-world data for robotics training rather than processing data you already have. If you need egocentric video of human demonstrations, task-specific manipulation recordings, or enrichment layers like depth maps, pose estimation, and optical flow aligned to each clip, Claru provides an end-to-end pipeline from capture brief to training-ready delivery. Claru is also the better choice when you need datasets delivered in robotics-native formats such as RLDS, WebDataset, or HDF5.",
       },
     ],
   },

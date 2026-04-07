@@ -59,6 +59,10 @@ export const lxtComparison: ComparisonData = {
       </>
     ),
     lastUpdated: "April 2, 2026",
+    paragraphs: [
+      "LXT (formerly Pactera EDGE) is a Toronto-based AI data services company that provides global data collection, annotation, and evaluation services. The company cites a contributor network of over 8 million people with 250,000+ specialists spanning more than 150 countries and 1,000+ language locales. LXT has positioned itself as a provider that can handle the full data lifecycle for AI programs, from collection through annotation to evaluation, with particular strength in multilingual and culturally diverse datasets. The company also lists compliance capabilities including ISO 27001 certification and options for GDPR and HIPAA-compliant workflows.",
+      "For physical AI teams, LXT's global scale and multi-modal collection capabilities provide broad coverage but are designed for general AI training rather than robotics-specific workflows. The company does not operate specialized capture networks for egocentric video, does not generate enrichment layers such as depth estimation, human pose extraction, or optical flow, and does not deliver datasets in robotics-native training formats like RLDS or LeRobot. Teams building robotics foundation models, manipulation policies, or world models need upstream data capture and spatial enrichment that goes beyond LXT's services-first approach.",
+    ],
   },
   tldr: {
     title: "TL;DR",
@@ -530,9 +534,14 @@ export const lxtComparison: ComparisonData = {
         ),
       },
       {
+        question: "Can LXT handle robotics or physical AI data?",
+        answer:
+          "LXT can collect and annotate video and image data that may be relevant to robotics use cases, leveraging its global contributor network. However, the company does not operate specialized capture networks for egocentric video, does not generate enrichment layers like depth estimation, human pose extraction, or optical flow, and does not deliver datasets in robotics-native formats such as RLDS or LeRobot. Teams building robotics foundation models typically need a capture-first provider that handles the upstream data generation challenge.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your training pipeline requires new egocentric video from real-world environments with aligned depth, pose, segmentation, and motion signals, Claru handles the entire upstream workflow. LXT is better suited for broad, multilingual data collection and annotation programs where global scale and compliance are the primary requirements.",
       },
     ],
   },

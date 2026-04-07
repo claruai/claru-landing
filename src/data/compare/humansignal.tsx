@@ -84,6 +84,8 @@ export const humansignalComparison: ComparisonData = {
         HumanSignal also highlights enterprise labeling services and workflows.
         {sourceLink("https://humansignal.com/", "[3]")}
       </>,
+      "HumanSignal was founded to commercialize Label Studio, one of the most widely adopted open-source data labeling tools in the AI ecosystem. Label Studio gained traction through its flexibility, supporting a wide range of data types and annotation templates. HumanSignal raised venture funding to build an enterprise offering on top of the open-source foundation, adding features like team management, quality workflows, and deployment options that enterprise customers require. The company has grown to serve thousands of teams globally, from startups to large enterprises.",
+      "For physical AI and robotics teams, Label Studio and HumanSignal provide strong annotation capabilities for data that already exists. However, the core challenge for many robotics programs is not annotation tooling but data acquisition. Robotics models built on imitation learning, diffusion policies, and vision-language-action architectures need egocentric video of human demonstrations, manipulation sequences, and multi-sensor recordings captured with specialized equipment and protocols. The gap between having annotation tools and having the physical-world data to annotate is the fundamental distinction that shapes provider selection for embodied AI teams.",
       "If your bottleneck is annotation tooling and QA workflows, HumanSignal is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -298,10 +300,17 @@ export const humansignalComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics AI data requirements",
+        paragraphs: [
+          "Modern robotics AI models require training data with specific properties beyond what annotation tools alone can address: egocentric viewpoints matching robot sensor placements, manipulation sequences with hand-object interaction context, depth-aligned frames for spatial reasoning, and action-level temporal segmentation for policy learning. Label Studio can annotate these data types once they exist, but the data must first be captured through specialized collection programs.",
+          "Claru provides the upstream capture infrastructure that generates this data, then enriches it with depth estimation, pose detection, instance segmentation, and optical flow before delivery in robotics-native formats. Teams can use Label Studio for additional annotation on top of Claru-delivered datasets if needed.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "HumanSignal is strong for annotation tooling and QA workflows.",
-          "Claru is stronger when capture and enrichment are the bottleneck.",
+          "HumanSignal is strong for annotation tooling and QA workflows, particularly for teams that have existing data across multiple modalities and need flexible, extensible labeling infrastructure with open-source foundations.",
+          "Claru is stronger when capture and enrichment are the bottleneck, especially for robotics teams that need new task-specific data with multi-layer enrichment delivered in formats that integrate directly into training pipelines.",
         ],
       },
     ],
@@ -372,8 +381,9 @@ export const humansignalComparison: ComparisonData = {
         question: "What is HumanSignal?",
         answer: (
           <>
-            HumanSignal is the home of Label Studio, an open-source labeling
-            tool. {sourceLink("https://humansignal.com/", "[1]")}
+            HumanSignal is the company behind Label Studio, one of the most widely adopted open-source data labeling tools in the AI ecosystem.{" "}
+            {sourceLink("https://humansignal.com/", "[1]")}{" "}
+            Founded to commercialize Label Studio, HumanSignal raised venture funding to build an enterprise offering with team management, quality workflows, and deployment options. The company serves thousands of teams globally, from startups to large enterprises, providing flexible annotation infrastructure across multiple data types and annotation templates.
           </>
         ),
       },
@@ -381,8 +391,9 @@ export const humansignalComparison: ComparisonData = {
         question: "What data types does HumanSignal support?",
         answer: (
           <>
-            Label Studio supports text, image, audio, video, and time series
-            labeling. {sourceLink("https://humansignal.com/", "[2]")}
+            Label Studio supports text, image, audio, video, and time series labeling through its flexible annotation template system.{" "}
+            {sourceLink("https://humansignal.com/", "[2]")}{" "}
+            The open-source foundation allows custom annotation interfaces for specialized tasks, making Label Studio adaptable to a wide range of labeling needs. This flexibility has made it popular among research teams and organizations that need to customize their annotation workflows rather than use rigid pre-built interfaces.
           </>
         ),
       },
@@ -390,15 +401,16 @@ export const humansignalComparison: ComparisonData = {
         question: "Does HumanSignal offer services?",
         answer: (
           <>
-            HumanSignal highlights enterprise services for labeling workflows.
-            {sourceLink("https://humansignal.com/", "[3]")}
+            HumanSignal highlights enterprise services for labeling workflows alongside the open-source Label Studio tool.{" "}
+            {sourceLink("https://humansignal.com/", "[3]")}{" "}
+            Enterprise features include team management, role-based access control, advanced quality workflows, and dedicated support. These services are designed for organizations running production-scale annotation operations that need governance, compliance, and reliability beyond what the open-source version provides.
           </>
         ),
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. Label Studio and HumanSignal provide excellent annotation tooling for data you already have, but robotics teams often face an upstream challenge: they need new physical-world data collected for specific tasks. Claru provides the capture infrastructure, trained collector network, and enrichment pipeline including depth, pose, segmentation, and optical flow, all delivered in robotics-native formats like RLDS, WebDataset, and HDF5.",
       },
     ],
   },

@@ -58,6 +58,10 @@ export const v7LabsComparison: ComparisonData = {
         robotics, Claru is built for physical AI from day one.
       </>
     ),
+    paragraphs: [
+      "V7 Labs was originally founded in 2018 as a computer vision annotation platform, but has since pivoted to focus on operational AI for document-heavy workflows. The company raised significant venture capital and evolved from serving ML teams building vision models to targeting enterprises that need to automate complex document processing tasks like contract review, insurance claims, and financial statement analysis. V7 Labs now positions AI agents as the core of its offering, deploying purpose-built agents for specific business roles like legal bill auditors and contract managers.",
+      "V7 Labs operates in a fundamentally different domain than physical AI data providers. While V7 helps enterprises automate document workflows, robotics and embodied AI teams need real-world data capture with wearable cameras, task-specific collection protocols, and enrichment pipelines that produce depth maps, pose estimations, optical flow, and spatial annotations. Document automation and physical AI data are entirely separate markets. For teams building robots, world models, or embodied agents that learn from physical demonstrations, Claru provides the specialized capture-to-delivery pipeline that these systems require.",
+    ],
     lastUpdated: "March 31, 2026",
   },
   tldr: {
@@ -457,8 +461,8 @@ export const v7LabsComparison: ComparisonData = {
         question: "What is V7 Labs?",
         answer: (
           <>
-            V7 Labs positions itself around operational AI for complex document
-            workflows. {sourceLink("https://www.v7labs.com/", "[1]")}
+            V7 Labs positions itself around operational AI for complex document workflows. Originally founded in 2018 as a computer vision annotation platform, the company pivoted to focus on enterprise document automation, deploying purpose-built AI agents for tasks like contract review, insurance claims processing, and financial statement analysis. V7 Labs now targets enterprises that need to convert unstructured document workflows into structured, repeatable processes with AI agent automation.
+            {sourceLink("https://www.v7labs.com/", "[1]")}
           </>
         ),
       },
@@ -466,8 +470,8 @@ export const v7LabsComparison: ComparisonData = {
         question: "What does V7 Labs automate?",
         answer: (
           <>
-            V7 Labs highlights automating document-heavy workflows with AI
-            agents. {sourceLink("https://www.v7labs.com/", "[3]")}
+            V7 Labs highlights automating document-heavy workflows with AI agents. The platform deploys specialized AI agents that can read, extract, and process information from complex documents including contracts, invoices, medical records, and financial statements. Each agent is designed for a specific business role, combining document understanding with workflow automation to handle tasks that previously required manual review by domain experts.
+            {sourceLink("https://www.v7labs.com/", "[3]")}
           </>
         ),
       },
@@ -475,8 +479,7 @@ export const v7LabsComparison: ComparisonData = {
         question: "What are example V7 Labs use cases?",
         answer: (
           <>
-            The site lists AI contract review, claims processing, OCR/data
-            extraction, and financial statement analysis.
+            The site lists AI contract review, claims processing, OCR/data extraction, and financial statement analysis as primary use cases. These applications share a common pattern: transforming complex, unstructured documents into structured data through AI-powered extraction and classification. The use cases are focused entirely on enterprise document processing rather than physical-world data capture or robotics applications.
             {sourceLink("https://www.v7labs.com/", "[5]")}
           </>
         ),
@@ -485,20 +488,20 @@ export const v7LabsComparison: ComparisonData = {
         question: "Does V7 Labs offer AI agents for specific roles?",
         answer: (
           <>
-            V7 Labs lists AI agents for roles like contract manager and legal
-            bill auditor. {sourceLink("https://www.v7labs.com/", "[4]")}
+            V7 Labs lists AI agents for roles like contract manager and legal bill auditor, along with agents for investor relations, accounts payable, and other document-intensive business functions. Each agent is trained on domain-specific document types and workflows, providing specialized automation for tasks that traditionally require expert human judgment. This role-based approach makes V7 Labs a strong fit for enterprise back-office automation.
+            {sourceLink("https://www.v7labs.com/", "[4]")}
           </>
         ),
       },
       {
         question: "Is V7 Labs a fit for robotics data capture?",
         answer:
-          "V7 Labs focuses on document automation. Claru is a better fit when you need physical-world capture and enrichment for robotics data.",
+          "V7 Labs focuses entirely on enterprise document automation and does not provide physical-world data capture or robotics-specific enrichment. Robotics teams need egocentric video collection, depth estimation, pose detection, optical flow, and action labeling that originate from structured capture programs in physical environments. These requirements are in a completely different domain than document processing. Claru is purpose-built for physical AI data capture and enrichment.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your team is building embodied AI systems that require physical-world demonstrations with depth maps, pose annotations, segmentation masks, and action labels, Claru provides the complete pipeline from real-world collection through multi-layer enrichment to training-ready delivery in robotics-compatible formats.",
       },
       {
         question: "Can teams use both V7 Labs and Claru?",

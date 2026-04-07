@@ -58,6 +58,10 @@ export const kanerikaComparison: ComparisonData = {
       </>
     ),
     lastUpdated: "March 31, 2026",
+    paragraphs: [
+      "Kanerika is a data and AI consulting firm that provides enterprise services spanning analytics, integration, governance, and platform migrations. The company also markets FLIP, a low-code/no-code DataOps platform designed for governed data workflows. Kanerika serves mid-market and enterprise clients across industries including financial services, healthcare, and manufacturing, helping them modernize legacy data stacks and adopt AI-powered automation.",
+      "For physical AI teams, it is critical to understand that Kanerika's offerings center on enterprise data modernization and internal analytics transformation rather than physical-world data capture for robotics. The company does not operate field collection networks, generate egocentric video, or produce enrichment layers such as depth maps, human pose estimation, or optical flow. Teams building robotics foundation models, embodied manipulation policies, or video world models need a provider that starts with real-world capture and layers spatial enrichment signals on top, which is a fundamentally different workflow than enterprise DataOps modernization.",
+    ],
   },
   tldr: {
     title: "TL;DR",
@@ -317,10 +321,17 @@ export const kanerikaComparison: ComparisonData = {
         ],
       },
       {
+        title: "Physical AI data requirements",
+        paragraphs: [
+          "Robotics foundation models like RT-2, Octo, and OpenVLA require training datasets that combine egocentric video with dense spatial signals such as depth estimation, human pose skeletons, semantic segmentation, and optical flow vectors. These enrichment layers are essential for teaching robots to perceive, plan, and act in physical environments. Enterprise DataOps platforms do not produce these signals.",
+          "Claru generates these outputs automatically during its enrichment phase, producing per-frame depth maps, pose estimates, segmentation masks, and motion fields aligned to the video timeline. Datasets are delivered in robotics-native formats like RLDS, LeRobot, or HDF5 so they plug directly into training pipelines without additional preprocessing.",
+        ],
+      },
+      {
         title: "Where each provider fits",
         paragraphs: [
-          "Kanerika is a strong fit if you need modernization, migration, or enterprise analytics transformation.",
-          "Claru is a better fit when you need capture, enrichment, and delivery for robotics or embodied AI.",
+          "Kanerika is a strong fit if you need modernization, migration, or enterprise analytics transformation. The FLIP platform and consulting services can help teams rationalize data stacks, implement governance, and build AI-powered internal workflows.",
+          "Claru is a better fit when you need capture, enrichment, and delivery for robotics or embodied AI. If your bottleneck is generating new physical-world training data with aligned spatial signals, a capture-first provider addresses that need directly.",
         ],
       },
     ],
@@ -391,8 +402,7 @@ export const kanerikaComparison: ComparisonData = {
         question: "What is Kanerika?",
         answer: (
           <>
-            Kanerika provides AI services, data services, and migration
-            accelerators for enterprise modernization. {" "}
+            Kanerika is a data and AI consulting firm that provides enterprise services spanning AI implementation, data analytics, integration, governance, and platform migrations. The company serves mid-market and enterprise clients across industries including financial services, healthcare, and manufacturing. Kanerika helps organizations modernize legacy data stacks and adopt AI-powered automation through consulting engagements and its proprietary FLIP DataOps platform.
             {sourceLink("https://kanerika.com/", "[1]")}
           </>
         ),
@@ -401,8 +411,7 @@ export const kanerikaComparison: ComparisonData = {
         question: "What is FLIP?",
         answer: (
           <>
-            Kanerika describes FLIP as a low-code/no-code DataOps platform with
-            built-in governance, quality, and AI. {" "}
+            Kanerika describes FLIP as a low-code/no-code DataOps platform with built-in governance, quality, and AI capabilities. The platform is designed to help enterprise teams automate data workflows, enforce governance policies, and manage data quality without requiring extensive coding expertise. FLIP addresses internal data operations challenges rather than external data capture or physical-world dataset generation.
             {sourceLink("https://kanerika.com/product/flip/", "[2]")}
           </>
         ),
@@ -410,12 +419,17 @@ export const kanerikaComparison: ComparisonData = {
       {
         question: "Does Kanerika focus on physical AI data capture?",
         answer:
-          "Kanerika’s public materials emphasize enterprise data modernization and DataOps, not physical-world data capture for robotics.",
+          "Kanerika’s public materials emphasize enterprise data modernization and DataOps, not physical-world data capture for robotics. The company does not operate field collection networks, deploy wearable camera operators, or produce enrichment layers like depth estimation, human pose extraction, or optical flow. Teams building robotics foundation models or embodied AI systems need a provider that handles upstream data generation, which is outside Kanerika’s service model.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your training pipeline requires new physical-world video from real environments with aligned depth, pose, segmentation, and motion signals delivered in formats like RLDS or HDF5, Claru addresses that need. Kanerika is better suited for enterprise data modernization and analytics transformation projects.",
+      },
+      {
+        question: "Can Kanerika and Claru work together?",
+        answer:
+          "Some organizations use Kanerika for enterprise data infrastructure modernization and Claru for physical AI dataset generation. The two providers address different bottlenecks: Kanerika helps with internal data governance, analytics, and platform migration, while Claru captures and enriches real-world data for robotics training pipelines. There is minimal overlap between the service models.",
       },
     ],
   },

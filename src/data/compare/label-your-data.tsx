@@ -59,6 +59,10 @@ export const labelYourDataComparison: ComparisonData = {
       </>
     ),
     lastUpdated: "March 31, 2026",
+    paragraphs: [
+      "Label Your Data is a Ukraine-based data labeling company that provides managed annotation services across a wide range of modalities including image, video, 3D point cloud, text, audio, and medical imaging. The company has built a reputation for handling complex annotation projects for autonomous driving, healthcare AI, and computer vision applications. Label Your Data offers both annotation services and data collection capabilities, positioning itself as a full-service partner for teams that need labeled datasets but lack internal annotation capacity.",
+      "For physical AI teams, Label Your Data's video annotation and 3D point cloud capabilities are relevant, particularly the support for LiDAR, RADAR, and photogrammetry data. However, the company operates as a labeling services provider rather than a capture-first data pipeline. Label Your Data does not deploy wearable camera networks for egocentric video collection, does not generate enrichment layers such as depth estimation or optical flow, and does not deliver datasets in robotics-native training formats. Teams building robotics foundation models, manipulation policies, or world models need upstream capture and multi-layer spatial enrichment that extends beyond the annotation services Label Your Data provides.",
+    ],
   },
   tldr: {
     title: "TL;DR",
@@ -391,10 +395,17 @@ export const labelYourDataComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics AI requirements",
+        paragraphs: [
+          "Robotics foundation models like RT-2, Octo, and OpenVLA require training data that pairs egocentric video with dense spatial signals including depth maps, human pose skeletons, semantic segmentation masks, and optical flow fields. While Label Your Data can annotate existing footage with bounding boxes, keypoints, and segmentation masks, the upstream challenge of capturing task-specific video and generating these enrichment layers automatically is outside their service model.",
+          "Claru runs the full pipeline from field capture to enrichment to delivery. Wearable camera operators record real-world manipulation, navigation, and activity tasks, and the enrichment pipeline produces per-frame depth, pose, segmentation, and motion outputs aligned to the video timeline. Datasets are delivered in robotics-native formats like RLDS, LeRobot, or HDF5.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Label Your Data is strong when managed labeling is the bottleneck.",
-          "Claru is stronger when physical-world capture is the bottleneck.",
+          "Label Your Data is strong when managed labeling is the bottleneck. The company's multi-modal coverage, including medical imaging, GIS, and 3D point cloud annotation, makes it a versatile partner for teams with diverse annotation needs across existing datasets.",
+          "Claru is stronger when physical-world capture is the bottleneck. If your robotics training pipeline needs new task-specific recordings from real environments with aligned spatial enrichment signals, Claru addresses that upstream data generation need.",
         ],
       },
     ],
@@ -468,8 +479,7 @@ export const labelYourDataComparison: ComparisonData = {
         question: "What is Label Your Data?",
         answer: (
           <>
-            Label Your Data provides managed data labeling services across
-            multiple modalities.
+            Label Your Data is a Ukraine-based data labeling company that provides managed annotation services across image, video, 3D point cloud, text, audio, and medical imaging. The company handles complex annotation projects for autonomous driving, healthcare AI, and computer vision applications. Label Your Data positions itself as a full-service labeling partner for teams that need high-quality labeled datasets but lack internal annotation capacity, offering both annotation and data collection capabilities.
             {sourceLink("https://labelyourdata.com/", "[1]")}
           </>
         ),
@@ -513,17 +523,17 @@ export const labelYourDataComparison: ComparisonData = {
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your training pipeline requires new egocentric video from real-world environments paired with depth maps, human pose estimation, segmentation masks, and motion vectors, Claru handles that entire upstream workflow. Label Your Data is better suited for teams that already have data and need managed annotation services across multiple modalities.",
       },
       {
         question: "Can teams use both Label Your Data and Claru?",
         answer:
-          "Some teams use Label Your Data for labeling services and Claru for capture-first physical AI datasets.",
+          "Yes, some organizations use Label Your Data for annotation of existing datasets and Claru for generating new physical-world recordings with enrichment layers. This combination works well when a team has both legacy data that needs labeling and a need for new robotics-specific captures with spatial signals. The two providers address different stages of the data pipeline and are complementary rather than competitive.",
       },
       {
         question: "Is Label Your Data a fit for robotics data capture?",
         answer:
-          "Label Your Data focuses on managed labeling services. Claru is better for capture-first robotics data collection and enrichment.",
+          "Label Your Data focuses on managed labeling services, not data capture or enrichment. While the company can annotate existing robotics footage with bounding boxes, keypoints, and segmentation, it does not deploy wearable camera operators, generate depth or optical flow enrichment layers, or deliver datasets in robotics-native formats like RLDS or HDF5. Teams building robotics foundation models typically need a capture-first provider alongside their annotation services partner.",
       },
     ],
   },

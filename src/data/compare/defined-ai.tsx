@@ -109,6 +109,8 @@ export const definedAiComparison: ComparisonData = {
         Data annotation services cover text, audio, image, video, and
         multimodal workflows. {sourceLink("https://defined.ai/data-annotation", "[7]")}
       </>,
+      "Defined.ai was originally founded in Portugal under the name DefinedCrowd before rebranding. The company built its reputation on creating a data marketplace where AI teams could discover and purchase pre-existing training datasets across languages and modalities. Over time, Defined.ai expanded into custom data collection and annotation services, positioning itself as a one-stop shop for AI data procurement. The company has raised venture funding and grown its contributor network to over 1.6 million members worldwide, making it one of the larger crowd-sourced data platforms in the industry.",
+      "For physical AI and robotics teams, the key question with marketplace-style providers like Defined.ai is whether off-the-shelf datasets meet the specificity requirements of embodied AI training. Robotics models typically need egocentric viewpoints, task-specific manipulation sequences, and aligned sensor data that are rarely available in general-purpose data marketplaces. Custom collection services can bridge some of this gap, but the capture protocols, equipment, and domain expertise required for physical AI data are fundamentally different from those used for text, speech, or standard image datasets.",
       "If your bottleneck is sourcing existing datasets quickly or procuring compliant global data, Defined.ai is a strong fit. If your bottleneck is capture and enrichment of physical-world data for robotics, Claru is the better fit.",
     ],
   },
@@ -409,10 +411,17 @@ export const definedAiComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics AI data requirements",
+        paragraphs: [
+          "Frontier robotics models such as vision-language-action architectures and diffusion-based policy networks require training data with properties that general-purpose marketplaces rarely provide: egocentric camera angles, hand-object interaction sequences, depth-aligned frames, and action-level temporal annotations. These requirements mean that even large marketplace catalogs may not contain datasets suitable for embodied AI training.",
+          "Claru addresses this gap by designing capture protocols specifically for robotics use cases, ensuring that every dataset includes the spatial context, viewpoint diversity, and enrichment layers that physical AI models need to generalize across environments.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Defined.ai is strong for marketplace sourcing and global coverage.",
-          "Claru is stronger when you need physical-world capture and enrichment.",
+          "Defined.ai is strong for marketplace sourcing, global coverage, and compliance-driven procurement workflows where speed of access to existing data matters most.",
+          "Claru is stronger when you need physical-world capture and enrichment, particularly for robotics teams that require task-specific data with depth, pose, and motion signals that do not exist in off-the-shelf marketplace catalogs.",
         ],
       },
     ],
@@ -485,8 +494,9 @@ export const definedAiComparison: ComparisonData = {
         question: "What is Defined.ai?",
         answer: (
           <>
-            Defined.ai positions itself as an AI data marketplace for training
-            data procurement. {sourceLink("https://defined.ai/en", "[1]")}
+            Defined.ai positions itself as an AI data marketplace for training data procurement, originally founded in Portugal as DefinedCrowd.{" "}
+            {sourceLink("https://defined.ai/en", "[1]")}{" "}
+            The platform allows AI teams to browse and purchase pre-existing datasets or commission custom data collection, annotation, and evaluation services. Defined.ai has built a global contributor network of over 1.6 million members and supports data procurement across 500+ languages, 175+ domains, and 150+ countries, making it one of the broader data sourcing platforms in the market.
           </>
         ),
       },
@@ -494,9 +504,9 @@ export const definedAiComparison: ComparisonData = {
         question: "Does Defined.ai provide data collection and annotation?",
         answer: (
           <>
-            Yes. Defined.ai highlights data collection, data annotation, and
-            evaluation services.
-            {sourceLink("https://defined.ai/solutions/data-collection", "[2]")}
+            Yes. Defined.ai highlights data collection, data annotation, and evaluation services alongside its marketplace offering.{" "}
+            {sourceLink("https://defined.ai/solutions/data-collection", "[2]")}{" "}
+            Custom data collection covers text, speech, image, video, and multimodal projects. Annotation services span similar modalities with managed QA workflows. These services extend beyond the marketplace model, allowing teams to commission purpose-built datasets when off-the-shelf options do not meet their requirements.
           </>
         ),
       },
@@ -504,8 +514,9 @@ export const definedAiComparison: ComparisonData = {
         question: "How large is Defined.ai's crowd?",
         answer: (
           <>
-            Defined.ai cites 1.6M+ experts across 500+ languages and locales.
-            {sourceLink("https://defined.ai/solutions/data-collection", "[3]")}
+            Defined.ai cites a global expert crowd of 1.6M+ members across 500+ languages and locales.{" "}
+            {sourceLink("https://defined.ai/solutions/data-collection", "[3]")}{" "}
+            This crowd supports data collection and annotation across 175+ domains and 150+ countries. The scale of the network is an advantage for text and speech data tasks where linguistic diversity matters, though physical AI tasks like robotics data capture require different specialization than language-focused crowd work.
           </>
         ),
       },
@@ -513,16 +524,16 @@ export const definedAiComparison: ComparisonData = {
         question: "What modalities does Defined.ai collect?",
         answer: (
           <>
-            The company lists data collection across text, speech, image, video,
-            and multimodal data.
-            {sourceLink("https://defined.ai/solutions/data-collection", "[6]")}
+            The company lists data collection across text, speech, image, video, and multimodal data.{" "}
+            {sourceLink("https://defined.ai/solutions/data-collection", "[6]")}{" "}
+            While this covers a broad range of AI training data needs, physical AI teams working on robotics and embodied systems typically need specialized capture protocols including egocentric video, depth-aligned frames, and task-specific manipulation sequences that go beyond standard multimodal collection workflows.
           </>
         ),
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your training pipeline requires egocentric video of human demonstrations, depth maps aligned to each frame, pose estimation, optical flow, and segmentation masks delivered in robotics-native formats like RLDS or WebDataset, Claru provides an end-to-end pipeline designed for those requirements. Marketplace data sources are valuable for many AI tasks, but physical AI models need task-specific data that typically does not exist in off-the-shelf catalogs.",
       },
     ],
   },

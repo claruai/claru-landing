@@ -84,6 +84,23 @@ export const cogitoTechComparison: ComparisonData = {
         Cogito Tech emphasizes managed delivery and QA workflows.
         {sourceLink("https://www.cogitotech.com/data-labeling/", "[3]")}
       </>,
+      <>
+        Cogito Tech was founded in 2011 by Rohan Agrawal, with headquarters
+        in New York and a delivery team in India operating 24/7. The company
+        employs over 1,000 trained data labeling experts and holds
+        certifications including ISO 27001, ISO 9001, SOC 2 Type II, HIPAA,
+        and GDPR compliance.{" "}
+        {sourceLink("https://www.cogitotech.com/", "[4]")}
+      </>,
+      <>
+        Beyond traditional computer vision annotation, Cogito Tech has
+        expanded into LLM and GenAI services including RLHF, fine-tuning,
+        red teaming, and prompt engineering. The company serves industries
+        including healthcare, automotive, agriculture, and defense, with
+        data labeling services available through the AWS Marketplace.{" "}
+        {sourceLink("https://www.cogitotech.com/data-labeling/", "[5]")}
+      </>,
+      "For robotics teams, Cogito Tech provides solid annotation capacity for image, video, and 3D point cloud data, but does not offer physical-world data capture infrastructure or the specialized enrichment layers like depth estimation, body and hand pose tracking, and optical flow that embodied AI models require. If you already have data and need managed labeling services, Cogito Tech is a dependable choice. If your bottleneck is capturing and enriching new physical-world data, you need a capture-first pipeline.",
       "If your bottleneck is managed labeling services and QA, Cogito Tech is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -275,6 +292,20 @@ export const cogitoTechComparison: ComparisonData = {
         },
       },
       {
+        dimension: "Team size",
+        values: {
+          cogito: "1,000+ trained experts, 24/7 operations from India",
+          claru: "Specialized team with 10,000+ collectors worldwide",
+        },
+      },
+      {
+        dimension: "Compliance",
+        values: {
+          cogito: "ISO 27001, SOC 2 Type II, HIPAA, GDPR, CCPA",
+          claru: "Secure capture workflows and training-ready delivery",
+        },
+      },
+      {
         dimension: "Best fit",
         values: {
           cogito: "Teams needing managed labeling services",
@@ -377,7 +408,14 @@ export const cogitoTechComparison: ComparisonData = {
         question: "What is Cogito Tech?",
         answer: (
           <>
-            Cogito Tech provides data labeling services for AI teams.
+            Cogito Tech is a data labeling services company founded in 2011 by
+            Rohan Agrawal, headquartered in New York with a delivery team of
+            over 1,000 trained experts in India operating 24/7. The company
+            provides Enterprise Data Labeling Services (EDLS) for AI teams
+            across computer vision, NLP, and GenAI use cases. Cogito Tech
+            holds ISO 27001, ISO 9001, SOC 2 Type II, HIPAA, and GDPR
+            certifications, and its services are available through the AWS
+            Marketplace.
             {sourceLink("https://www.cogitotech.com/data-labeling/", "[1]")}
           </>
         ),
@@ -386,7 +424,13 @@ export const cogitoTechComparison: ComparisonData = {
         question: "What data types does Cogito Tech support?",
         answer: (
           <>
-            The company highlights image, video, and 3D point cloud annotation.
+            Cogito Tech supports image, video, and 3D point cloud annotation
+            for computer vision projects. The company has also expanded into
+            LLM and GenAI services including RLHF, fine-tuning, red teaming,
+            and prompt engineering. Their annotation capabilities serve
+            industries including healthcare, automotive, agriculture, and
+            defense, making them a versatile labeling partner for teams with
+            diverse data types.
             {sourceLink("https://www.cogitotech.com/data-labeling/", "[2]")}
           </>
         ),
@@ -395,7 +439,12 @@ export const cogitoTechComparison: ComparisonData = {
         question: "Does Cogito Tech provide QA workflows?",
         answer: (
           <>
-            Cogito Tech emphasizes managed delivery and QA workflows.
+            Yes. Cogito Tech emphasizes managed delivery and QA workflows with
+            multiple quality checkpoints throughout the annotation process.
+            Their 24/7 operations model means labeling can continue around the
+            clock, which helps with throughput on large-volume annotation
+            projects. The company maintains ISO 9001 quality management
+            certification alongside its security and compliance certifications.
             {sourceLink("https://www.cogitotech.com/data-labeling/", "[3]")}
           </>
         ),
@@ -403,7 +452,21 @@ export const cogitoTechComparison: ComparisonData = {
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. Cogito Tech excels at labeling existing data with managed workflows and QA, but if your bottleneck is collecting new physical-world data for robotics training with enrichment layers like depth maps, pose estimation, segmentation, and optical flow, you need a capture-first pipeline like Claru.",
+      },
+      {
+        question: "What industries does Cogito Tech serve?",
+        answer: (
+          <>
+            Cogito Tech serves healthcare, automotive, agriculture, and defense
+            industries with data labeling services. Their compliance
+            certifications (HIPAA, SOC 2 Type II) make them suitable for
+            regulated industries. However, the company does not specialize in
+            physical AI or robotics data capture, which requires different
+            infrastructure and expertise.
+            {sourceLink("https://www.cogitotech.com/", "[4]")}
+          </>
+        ),
       },
     ],
   },

@@ -60,6 +60,10 @@ export const lionbridgeAiComparison: ComparisonData = {
       </>
     ),
     lastUpdated: "April 2, 2026",
+    paragraphs: [
+      "Lionbridge is a publicly traded language and AI services company founded in 1996 and headquartered in Waltham, Massachusetts. The Lionbridge AI division provides data collection, annotation, and human-in-the-loop review services for AI training, drawing on a global community of over 500,000 testers, reviewers, and linguists. The company's roots in localization and translation give it particular strength in multilingual data programs, and its enterprise pedigree means it can meet compliance requirements like ISO 27001, GDPR, and HIPAA that smaller providers often cannot.",
+      "For physical AI teams, Lionbridge AI's breadth is both a strength and a limitation. The company can collect and annotate text, audio, image, and video data across many geographies, which is useful for teams that need diverse data at scale. However, Lionbridge AI does not operate specialized robotics capture networks, does not deploy wearable camera operators for egocentric video collection, and does not generate enrichment layers such as depth estimation, human pose extraction, or optical flow. Teams building robotics foundation models, manipulation policies, or world models need upstream capture and spatial enrichment that goes beyond Lionbridge AI's services-first model.",
+    ],
   },
   tldr: {
     title: "TL;DR",
@@ -395,10 +399,17 @@ export const lionbridgeAiComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics AI data requirements",
+        paragraphs: [
+          "Robotics foundation models such as RT-2, Octo, and pi0 require training data that combines egocentric video with dense spatial signals: per-frame depth maps, human pose skeletons, semantic segmentation masks, and optical flow vectors. Lionbridge AI can annotate existing footage with classifications, bounding boxes, and text labels, but generating the raw capture data and the spatial enrichment layers that robotics training demands is outside the company's core service model.",
+          "Claru addresses this gap by deploying wearable camera operators to capture task-specific video in real environments and then running automated enrichment pipelines that produce depth, pose, segmentation, and motion layers aligned frame-by-frame to the source video. Datasets are delivered in robotics-native formats like RLDS, LeRobot, or HDF5 that plug directly into training frameworks.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Lionbridge AI is strong when you need managed AI data services at scale.",
-          "Claru is stronger when physical-world capture is the bottleneck.",
+          "Lionbridge AI is strong when you need managed AI data services at scale. The company's global workforce, multilingual expertise, and enterprise compliance posture make it a reliable partner for large data collection and annotation programs across text, audio, image, and video.",
+          "Claru is stronger when physical-world capture is the bottleneck. If your robotics training pipeline needs new egocentric recordings from real-world environments with aligned spatial enrichment signals, a capture-first provider like Claru addresses that upstream need directly.",
         ],
       },
     ],
@@ -471,8 +482,8 @@ export const lionbridgeAiComparison: ComparisonData = {
         question: "What is Lionbridge AI?",
         answer: (
           <>
-            Lionbridge AI provides data collection and annotation services for
-            AI training data. {sourceLink("https://www.lionbridge.com/ai-data-services/", "[1]")}
+            Lionbridge AI is the artificial intelligence data services division of Lionbridge, a publicly traded company founded in 1996 and headquartered in Waltham, Massachusetts. The AI division provides managed data collection, annotation, and human-in-the-loop review services for enterprise AI programs. Lionbridge draws on a global community of over 500,000 testers, reviewers, and linguists, and its heritage in localization gives it particular strength in multilingual and cross-cultural data programs.
+            {sourceLink("https://www.lionbridge.com/ai-data-services/", "[1]")}
           </>
         ),
       },
@@ -507,9 +518,14 @@ export const lionbridgeAiComparison: ComparisonData = {
         ),
       },
       {
+        question: "Can Lionbridge AI handle robotics data?",
+        answer:
+          "Lionbridge AI can annotate existing robotics-related footage with bounding boxes, classifications, and text labels through its managed workforce. However, the company does not deploy specialized capture networks for egocentric video, does not generate spatial enrichment layers like depth or optical flow, and does not deliver datasets in robotics-native formats. Teams building robotics foundation models typically need a capture-first provider in addition to annotation services.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your training pipeline requires new egocentric video from real-world environments with aligned depth, pose, segmentation, and motion signals, Claru handles the entire upstream workflow. Lionbridge AI is better suited for teams that need large-scale annotation and data collection with enterprise compliance across multiple modalities and languages.",
       },
     ],
   },

@@ -59,6 +59,10 @@ export const telusDigitalComparison: ComparisonData = {
         physical AI from day one.
       </>
     ),
+    paragraphs: [
+      "TELUS Digital is a subsidiary of TELUS Corporation, one of Canada's largest telecommunications companies, and has grown into a major global provider of AI data services through its acquisition of Lionbridge AI in 2020 and subsequent organic expansion. The company operates one of the largest AI data communities in the industry, claiming over one million contributors across more than 500 languages and dialects. TELUS Digital serves some of the world's largest technology companies with data collection, annotation, validation, and post-training services across text, image, audio, video, and multimodal programs.",
+      "While TELUS Digital offers impressive global scale and breadth of service, its AI data division is designed as a horizontal platform serving many industries and modalities. Robotics and embodied AI teams require a fundamentally different approach: task-specific capture programs with wearable cameras, structured demonstration protocols, and enrichment pipelines that produce depth maps, pose estimations, optical flow, and spatial annotations. These specialized outputs require a capture-first pipeline with deep domain expertise in physical AI, which is where Claru is purpose-built. Teams often use broad data service providers like TELUS Digital for language and NLP tasks while engaging specialized providers like Claru for physical AI datasets.",
+    ],
     lastUpdated: "April 2, 2026",
   },
   tldr: {
@@ -448,8 +452,7 @@ export const telusDigitalComparison: ComparisonData = {
         question: "What is TELUS Digital?",
         answer: (
           <>
-            TELUS Digital provides data services across multimodal, multilingual,
-            and physical AI workloads.
+            TELUS Digital is a subsidiary of TELUS Corporation, one of Canada&apos;s largest telecommunications companies, and provides global data services across multimodal, multilingual, and physical AI workloads. The company grew significantly through its 2020 acquisition of Lionbridge AI and now operates one of the largest AI data contributor communities in the industry, serving major technology companies with data collection, annotation, validation, and post-training services across diverse modalities.
             {sourceLink("https://www.telusdigital.com/solutions/data-for-ai-training", "[1]")}
           </>
         ),
@@ -458,8 +461,7 @@ export const telusDigitalComparison: ComparisonData = {
         question: "Does TELUS Digital support GenAI post-training?",
         answer: (
           <>
-            Yes. The site lists post-training, fine-tuning, RLHF, and red-teaming
-            workflows.
+            Yes. The site lists post-training, fine-tuning, RLHF, and red-teaming workflows for generative AI systems. These services help frontier model developers improve model outputs through human feedback, supervised fine-tuning, and adversarial testing. The post-training capabilities are designed for language models and multimodal AI systems, leveraging TELUS Digital&apos;s large global contributor network to provide expert feedback at scale across many languages and domains.
             {sourceLink("https://www.telusdigital.com/solutions/data-for-ai-training", "[3]")}
           </>
         ),
@@ -468,16 +470,20 @@ export const telusDigitalComparison: ComparisonData = {
         question: "How large is TELUS Digital&apos;s contributor network?",
         answer: (
           <>
-            TELUS Digital reports 1M+ global contributors and 500+ annotation
-            languages.
+            TELUS Digital reports 1M+ global contributors and 500+ annotation languages and dialects. This makes it one of the largest AI data workforces in the industry, capable of handling massive annotation programs across many languages and cultural contexts. The scale is particularly valuable for multilingual NLP and content moderation tasks, though robotics and physical AI applications require specialized capture infrastructure rather than large-scale distributed annotation.
             {sourceLink("https://www.telusdigital.com/solutions/data-for-ai-training", "[6]")}
           </>
         ),
       },
       {
+        question: "Does TELUS Digital handle robotics data?",
+        answer:
+          "TELUS Digital lists physical AI as one of its service areas and mentions 3D sensor fusion annotation capabilities. However, the company is primarily a horizontal data services provider serving many industries and modalities simultaneously. Robotics teams that need task-specific capture programs with wearable cameras, structured demonstration protocols, and enrichment pipelines for depth, pose, and optical flow typically benefit from a specialized provider focused exclusively on physical AI data.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your bottleneck is acquiring new physical-world demonstrations with task-specific protocols and enriching them with depth estimation, pose detection, segmentation, and optical flow, Claru provides a purpose-built pipeline. Teams often use TELUS Digital for language and NLP tasks while engaging Claru for physical AI capture and enrichment.",
       },
     ],
   },

@@ -9,6 +9,7 @@ import {
   getTermsByCategory,
   type GlossaryTerm,
 } from "@/data/glossary";
+import { getAllGlossaryDeepSlugs } from "@/data/programmatic/glossary-deep/index";
 
 // =============================================================================
 // META
@@ -223,7 +224,10 @@ const breadcrumbJsonLd = {
 // TERM CARD component (server)
 // =============================================================================
 
+const deepSlugs = new Set(getAllGlossaryDeepSlugs());
+
 function TermCard({ term }: { term: GlossaryTerm }) {
+  const hasDeepPage = deepSlugs.has(term.slug);
   return (
     <div
       id={term.slug}
@@ -236,6 +240,22 @@ function TermCard({ term }: { term: GlossaryTerm }) {
       <p className="text-white/75 leading-relaxed text-sm mb-5">
         {term.shortDefinition}
       </p>
+
+      {/* Deep page link */}
+      {hasDeepPage && (
+        <div className="mb-4">
+          <Link
+            href={`/glossary/${term.slug}`}
+            className="inline-flex items-center gap-1 text-xs font-medium transition-colors hover:underline"
+            style={{
+              color: "#92B090",
+              fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)",
+            }}
+          >
+            Read full definition &rarr;
+          </Link>
+        </div>
+      )}
 
       {/* Used in practice */}
       <div className="mb-4">

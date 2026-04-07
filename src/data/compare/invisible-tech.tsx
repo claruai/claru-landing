@@ -57,6 +57,10 @@ export const invisibleTechComparison: ComparisonData = {
       </>
     ),
     lastUpdated: "March 31, 2026",
+    paragraphs: [
+      "Invisible Technologies was founded in 2015 by Francis Pedraza and has grown into a prominent AI data services company headquartered in San Francisco. The company has raised significant venture capital and built an operations platform that combines human intelligence with AI-assisted workflows to deliver training data, content moderation, and process automation at scale. Invisible has served enterprise clients across industries including technology, finance, and healthcare, positioning itself as a partner for teams that need managed human review layered on top of automated pipelines.",
+      "For physical AI teams evaluating Invisible as a potential data partner, it is important to understand that the company's core strength lies in annotation throughput and workflow orchestration rather than real-world data capture. Invisible does not operate a field collection network, does not generate egocentric video from wearable cameras, and does not produce enrichment layers like depth estimation, human pose extraction, or optical flow. Teams building robotics foundation models, embodied manipulation policies, or world models for physical simulation will find that Invisible's service model addresses downstream labeling but not the upstream capture and enrichment bottlenecks that define physical AI data pipelines.",
+    ],
   },
   tldr: {
     title: "TL;DR",
@@ -267,22 +271,29 @@ export const invisibleTechComparison: ComparisonData = {
       {
         title: "Services vs pipeline",
         paragraphs: [
-          "Invisible provides managed annotation workflows and delivery capacity.",
-          "Claru provides capture, enrichment, and training-ready datasets.",
+          "Invisible provides managed annotation workflows and delivery capacity. The company operates as a services layer that sits on top of existing data, applying human intelligence to labeling, classification, and quality review tasks at scale.",
+          "Claru provides capture, enrichment, and training-ready datasets. Rather than starting with customer-provided data, Claru deploys its own collector network to generate new physical-world recordings and then layers enrichment signals on top.",
         ],
       },
       {
         title: "Data ownership",
         paragraphs: [
-          "Invisible assumes data already exists and focuses on labeling throughput.",
-          "Claru creates new physical-world datasets tailored to robotic tasks.",
+          "Invisible assumes data already exists and focuses on labeling throughput. This works well when teams have large pools of unlabeled data but lack the internal headcount to annotate it quickly enough to keep model training pipelines fed.",
+          "Claru creates new physical-world datasets tailored to robotic tasks. For teams building manipulation policies or navigation models, the bottleneck is usually the absence of task-specific video from real environments, not a shortage of annotation labor.",
+        ],
+      },
+      {
+        title: "Robotics AI readiness",
+        paragraphs: [
+          "Robotics foundation models like RT-2, Octo, and OpenVLA require training data that combines egocentric video with dense spatial signals such as depth maps, human pose skeletons, and optical flow fields. Invisible's annotation services can label objects and actions in existing footage, but they do not generate these spatial enrichment layers as part of the delivery pipeline.",
+          "Claru produces these signals automatically during its enrichment phase, outputting per-frame depth, pose, segmentation masks, and motion vectors that align directly with the video timeline. This means physical AI teams receive datasets that are ready to ingest into training frameworks without additional preprocessing steps.",
         ],
       },
       {
         title: "Where each wins",
         paragraphs: [
-          "Invisible is a strong fit when annotation services are the bottleneck.",
-          "Claru is better when capture and enrichment are the bottleneck.",
+          "Invisible is a strong fit when annotation services are the bottleneck. If you have terabytes of unlabeled data and need classification, bounding boxes, or text labeling at high throughput, Invisible's managed workforce and automation platform can deliver reliably.",
+          "Claru is better when capture and enrichment are the bottleneck. If your training pipeline is starved for real-world manipulation video, kitchen activity footage, or warehouse navigation recordings with aligned spatial signals, Claru addresses that gap directly.",
         ],
       },
     ],
@@ -353,7 +364,7 @@ export const invisibleTechComparison: ComparisonData = {
         question: "What is Invisible Technologies?",
         answer: (
           <>
-            Invisible provides training data services and annotation workflows. {sourceLink("https://www.invisible.co/scale-training-data", "[1]")}
+            Invisible Technologies is an AI data services company founded in 2015 and headquartered in San Francisco. The company combines human intelligence with AI-assisted workflows to deliver training data, content moderation, and process automation at scale. Invisible has raised significant venture funding and serves enterprise clients across technology, finance, and healthcare verticals, positioning itself as a managed partner for teams that need annotation throughput and quality review layered onto automated pipelines. {sourceLink("https://www.invisible.co/scale-training-data", "[1]")}
           </>
         ),
       },
@@ -361,20 +372,24 @@ export const invisibleTechComparison: ComparisonData = {
         question: "Does Invisible provide custom annotation workflows?",
         answer: (
           <>
-            Yes. Invisible highlights custom annotation interfaces and scaled
-            delivery. {sourceLink("https://www.invisible.co/scale-training-data", "[2]")}
+            Yes. Invisible highlights custom annotation interfaces and scaled delivery as core capabilities. The platform enables teams to design task-specific labeling workflows that combine automated pre-labeling with multi-stage human review, which is particularly useful for high-volume classification and tagging workloads. However, these workflows operate on customer-provided data rather than generating new physical-world captures. {sourceLink("https://www.invisible.co/scale-training-data", "[2]")}
           </>
         ),
       },
       {
         question: "Is Invisible a physical AI data provider?",
         answer:
-          "Invisible focuses on annotation services rather than capture-first physical data pipelines.",
+          "Invisible focuses on annotation services rather than capture-first physical data pipelines. The company does not operate a field collection network or produce enrichment layers like depth estimation, human pose extraction, or optical flow. For teams building robotics foundation models or embodied AI systems that need egocentric video paired with spatial signals, a capture-first provider like Claru is better suited to the workflow.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your training pipeline requires real-world manipulation video, egocentric activity footage, or task-specific recordings with aligned depth, pose, and segmentation signals, Claru addresses that need directly. The platform handles everything from field capture through enrichment to delivery in robotics-native formats like RLDS or HDF5.",
+      },
+      {
+        question: "Can Invisible Technologies handle robotics training data?",
+        answer:
+          "Invisible can annotate existing robotics-related footage with bounding boxes, classifications, or text labels. However, it does not capture new physical-world data, generate spatial enrichment layers, or deliver datasets in robotics-native training formats. Teams with robotics-specific requirements typically need a provider that covers capture and enrichment in addition to annotation.",
       },
     ],
   },

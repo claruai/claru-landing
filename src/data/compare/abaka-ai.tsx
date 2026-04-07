@@ -80,6 +80,8 @@ export const abakaComparison: ComparisonData = {
         The company also promotes the Abaka Forge platform for managing data
         workflows. {sourceLink("https://www.abaka.ai/", "[2]")}
       </>,
+      "Abaka AI has established global offices in Singapore, Paris, and Silicon Valley, and claims cooperative relationships with more than 1,000 technology companies and research institutions across automobile AI, generative AI, and embodied AI. The company was recognized on the 2023 Global Open Innovation Top 100 Board, indicating a focus on innovation and scale in the data services market.",
+      "The Abaka Forge platform, also known as the MooreData Platform, is described as an intelligent data engineering platform that can process multimodal data including image, video, text, audio, and point clouds. Abaka AI claims the platform's built-in AI accelerates data engineering efficiency by 500 to 1000 percent. For physical AI teams, the relevant question is whether this platform addresses the upstream challenge of capturing real-world data in the first place, or whether it is primarily focused on processing and labeling data that already exists.",
       "If your bottleneck is data collection or labeling workflows, Abaka AI is a strong fit. If your bottleneck is physical-world capture and robotics enrichment, you need a specialized pipeline.",
     ],
   },
@@ -283,22 +285,29 @@ export const abakaComparison: ComparisonData = {
       {
         title: "Workflow platform vs dataset delivery",
         paragraphs: [
-          "Abaka AI emphasizes a platform plus services for data collection and annotation.",
-          "Claru delivers training-ready datasets enriched for robotics.",
+          "Abaka AI emphasizes a platform plus services for data collection and annotation. The Abaka Forge platform (MooreData Platform) processes multimodal data and claims AI-powered acceleration of data engineering workflows. This is a strong model for teams that need to run large-scale labeling operations across standard data types.",
+          "Claru delivers training-ready datasets enriched for robotics. Rather than providing a platform for teams to manage their own labeling, Claru handles the entire pipeline from capture through enrichment and delivery, shipping datasets that are ready to plug into robotics training stacks.",
         ],
       },
       {
         title: "Multi-modality vs robotics-specific signals",
         paragraphs: [
-          "Abaka AI highlights multi-modal data types across common AI datasets.",
-          "Claru adds enrichment layers like depth and pose that are core inputs for robotics models.",
+          "Abaka AI highlights multi-modal data types across common AI datasets including image, video, text, audio, and point clouds. They position themselves across automobile AI, generative AI, and embodied AI verticals with over 1,000 partner relationships. This breadth is valuable for teams working across multiple AI domains.",
+          "Claru adds enrichment layers like depth and pose that are core inputs for robotics models. Rather than covering all modalities broadly, Claru focuses deeply on the specific signals that physical AI models need: egocentric video, depth maps, 3D human pose, object segmentation, optical flow, and aligned natural language captions.",
+        ],
+      },
+      {
+        title: "Global presence and scale",
+        paragraphs: [
+          "Abaka AI operates from offices in Singapore, Paris, and Silicon Valley, giving them global reach for data collection and annotation projects. Their scale and enterprise relationships may be attractive for large organizations running multi-region data programs.",
+          "Claru operates a specialized collector network focused on physical-world data capture. The network is optimized for deploying collectors with wearable cameras into specific environments and tasks, rather than for broad geographic coverage across all data types.",
         ],
       },
       {
         title: "Where each provider fits",
         paragraphs: [
-          "Abaka AI is a strong fit for teams needing managed data workflows.",
-          "Claru is a better fit when you need capture and enrichment of physical-world data.",
+          "Abaka AI is a strong fit for teams needing managed data workflows across standard AI data types, particularly those who benefit from an integrated platform for managing collection and annotation at scale.",
+          "Claru is a better fit when you need capture and enrichment of physical-world data for robotics, especially when your training pipeline requires enrichment signals like depth, pose, and motion as first-class outputs rather than optional add-ons.",
         ],
       },
     ],
@@ -369,8 +378,7 @@ export const abakaComparison: ComparisonData = {
         question: "What is Abaka AI?",
         answer: (
           <>
-            Abaka AI provides data collection and annotation services and
-            promotes the Abaka Forge platform. {" "}
+            Abaka AI is a data services company with global offices in Singapore, Paris, and Silicon Valley. They provide data collection and annotation services and promote the Abaka Forge platform (also called MooreData Platform) for managing data workflows. The company claims cooperative relationships with more than 1,000 technology companies and research institutions across automobile AI, generative AI, and embodied AI verticals.{" "}
             {sourceLink("https://www.abaka.ai/", "[1]")}
           </>
         ),
@@ -379,7 +387,7 @@ export const abakaComparison: ComparisonData = {
         question: "What is Abaka Forge?",
         answer: (
           <>
-            Abaka Forge is presented as a data workflow platform. {" "}
+            Abaka Forge is an intelligent data engineering platform that processes multimodal data including image, video, text, audio, and point clouds. The platform claims AI-powered acceleration that improves data engineering efficiency by 500 to 1000 percent. It supports annotation needs across image, 3D and 4D point cloud, RLHF, text, and video data types, combining collection, cleaning, annotation, and training into a single platform.{" "}
             {sourceLink("https://www.abaka.ai/", "[2]")}
           </>
         ),
@@ -387,12 +395,12 @@ export const abakaComparison: ComparisonData = {
       {
         question: "Is Abaka AI a physical AI data provider?",
         answer:
-          "Abaka AI focuses on data workflows and annotation rather than capture-first physical-world data for robotics.",
+          "Abaka AI positions itself across automobile AI, generative AI, and embodied AI, and does handle 3D point cloud and video annotation. However, their primary focus is on data workflows and annotation rather than capture-first physical-world data collection for robotics. Teams that need upstream data capture with task-specific collection protocols, wearable camera deployments, and enrichment layers like depth and pose may need a provider like Claru that specializes in the capture-to-delivery pipeline.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need the full pipeline from physical-world data capture through enrichment and delivery of robotics-ready datasets. If your team does not yet have raw data and needs to create it from scratch with specific capture protocols, wearable cameras, and task-specific environments, Claru is designed for exactly that workflow. Choose Abaka AI when you have existing data that needs annotation and workflow management at scale.",
       },
     ],
   },

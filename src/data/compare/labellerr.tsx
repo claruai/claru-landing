@@ -57,6 +57,10 @@ export const labellerrComparison: ComparisonData = {
       </>
     ),
     lastUpdated: "March 31, 2026",
+    paragraphs: [
+      "Labellerr is an India-based data annotation platform that provides automated labeling workflows for computer vision and AI teams. The platform supports multiple data types and emphasizes automation features that reduce the manual effort required for large-scale annotation projects. Labellerr targets mid-market and enterprise customers that need to process high volumes of image and video data efficiently, offering cloud-based infrastructure and team collaboration features.",
+      "For physical AI teams, Labellerr's annotation automation is relevant for accelerating labeling throughput on existing datasets. However, Labellerr operates as a labeling platform rather than a capture-first data pipeline. The company does not operate field collection networks, deploy wearable camera operators, or generate enrichment layers such as depth estimation, human pose extraction, or optical flow. Teams building robotics foundation models, manipulation policies, or world models need upstream data capture and spatial enrichment that a labeling platform alone cannot provide, regardless of how advanced its automation features are.",
+    ],
   },
   tldr: {
     title: "TL;DR",
@@ -274,10 +278,17 @@ export const labellerrComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics AI considerations",
+        paragraphs: [
+          "Modern robotics foundation models such as RT-2, Octo, and pi0 require training data that combines egocentric video with dense spatial signals: per-frame depth maps, human pose skeletons, semantic segmentation masks, and optical flow vectors. An annotation platform can help label existing footage, but generating the raw capture data and the enrichment layers that robotics training demands is a separate challenge entirely.",
+          "Claru operates the full pipeline from field capture through automated enrichment to delivery. Trained operators record real-world manipulation, navigation, and activity tasks using wearable cameras. The enrichment pipeline then produces depth, pose, segmentation, and motion outputs aligned frame-by-frame with the source video. Datasets ship in robotics-native formats like RLDS, LeRobot, or HDF5.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Labellerr is a strong fit for labeling workflow tooling.",
-          "Claru is better when capture and enrichment are the bottleneck.",
+          "Labellerr is a strong fit for labeling workflow tooling. If your team has large volumes of existing data and needs automated annotation workflows with team collaboration features, Labellerr's platform can accelerate labeling throughput and reduce manual effort.",
+          "Claru is better when capture and enrichment are the bottleneck. If your robotics training pipeline is blocked on acquiring new physical-world recordings with aligned spatial enrichment signals, a capture-first provider like Claru addresses that upstream need directly.",
         ],
       },
     ],
@@ -348,7 +359,8 @@ export const labellerrComparison: ComparisonData = {
         question: "What is Labellerr?",
         answer: (
           <>
-            Labellerr provides a data annotation platform with automation. {sourceLink("https://www.labellerr.com/data-annotate", "[1]")}
+            Labellerr is an India-based data annotation platform that provides automated labeling workflows for computer vision and AI teams. The platform supports multiple data types including images, video, and documents, and emphasizes automation features that reduce manual annotation effort at scale. Labellerr targets mid-market and enterprise customers that need to process high volumes of data efficiently, offering cloud-based infrastructure with team collaboration and project management capabilities.
+            {sourceLink("https://www.labellerr.com/data-annotate", "[1]")}
           </>
         ),
       },
@@ -356,19 +368,25 @@ export const labellerrComparison: ComparisonData = {
         question: "Does Labellerr support multiple data types?",
         answer: (
           <>
-            Yes. Labellerr highlights support for multiple data types and tasks. {sourceLink("https://www.labellerr.com/data-annotate", "[2]")}
+            Yes. Labellerr highlights support for multiple data types and annotation tasks including image classification, object detection, semantic segmentation, and video annotation. The platform is designed to handle various annotation workflows through a unified interface, allowing teams to manage diverse labeling projects from a single tool. This multi-modal support makes it useful for teams with annotation needs across different types of training data.
+            {sourceLink("https://www.labellerr.com/data-annotate", "[2]")}
           </>
         ),
       },
       {
         question: "Is Labellerr a physical AI data provider?",
         answer:
-          "Labellerr focuses on labeling workflows rather than capture-first physical data pipelines.",
+          "Labellerr focuses on labeling workflows rather than capture-first physical data pipelines. The platform does not operate field collection networks, deploy wearable camera operators, or generate enrichment layers such as depth estimation, human pose extraction, or optical flow. Teams building robotics foundation models need upstream data capture and spatial enrichment in addition to annotation tooling, which is outside the scope of what Labellerr provides.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your training pipeline requires new egocentric video from real-world environments paired with depth maps, pose estimation, segmentation masks, and motion vectors, Claru handles the entire upstream workflow. Labellerr is better suited for teams that already have data and need automated annotation tooling to label it efficiently.",
+      },
+      {
+        question: "Can Labellerr handle robotics training data?",
+        answer:
+          "Labellerr can annotate existing robotics-related imagery and video with bounding boxes, segmentation masks, and classifications. However, it does not capture new physical-world data or generate the spatial enrichment signals that robotics foundation models require for training. Teams building manipulation policies or navigation models typically need a capture-first provider that also produces depth, pose, and motion enrichment layers.",
       },
     ],
   },

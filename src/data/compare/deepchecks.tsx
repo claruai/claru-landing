@@ -98,6 +98,24 @@ export const deepchecksComparison: ComparisonData = {
         systems.
         {sourceLink("https://llmdocs.deepchecks.com/docs/what-is-deepchecks", "[4]")}
       </>,
+      <>
+        Deepchecks was founded in 2019 in Tel Aviv, Israel, by Philip Tannor
+        and Shir Chorev, who met at age 18 and both came through the IDF&apos;s
+        Talpiot program and the elite 8200 intelligence unit. Both co-founders
+        were listed on the Forbes 30 Under 30 list.{" "}
+        {sourceLink("https://www.prnewswire.com/il/news-releases/deepchecks-unveils-its-open-source-solution-for-continuous-validation-of-machine-learning-with-14m-seed-funding-301850861.html", "[7]")}
+      </>,
+      <>
+        The company has raised $14 million in seed funding led by Alpha Wave
+        Ventures with participation from Hetz Ventures and Grove Ventures.
+        Deepchecks started as an open-source testing package for ML models
+        that gained over 500,000 downloads and is used by AWS, Booking.com,
+        and Wix. It follows an open-core business model, with enterprise
+        features like advanced security, scalable deployment, and audit
+        templates available in the commercial product.{" "}
+        {sourceLink("https://deepchecks.com/", "[8]")}
+      </>,
+      "For robotics teams, Deepchecks is valuable as a downstream tool for validating and monitoring ML models after they are trained, but it does not address the upstream challenge of collecting and enriching physical-world training data. If your bottleneck is model evaluation and monitoring, Deepchecks is a strong fit. If your bottleneck is data capture and enrichment, a different provider is needed.",
       "If your bottleneck is AI evaluation and monitoring, Deepchecks is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -464,9 +482,24 @@ export const deepchecksComparison: ComparisonData = {
         ),
       },
       {
+        question: "Who founded Deepchecks and how is it funded?",
+        answer: (
+          <>
+            Deepchecks was founded in 2019 in Tel Aviv by Philip Tannor and
+            Shir Chorev, both Forbes 30 Under 30 alumni who came through the
+            IDF Talpiot program and 8200 intelligence unit. The company has
+            raised $14 million in seed funding led by Alpha Wave Ventures with
+            participation from Hetz Ventures and Grove Ventures. Deepchecks
+            started as an open-source ML testing package that gained over
+            500,000 downloads and is used by AWS, Booking.com, and Wix.
+            {sourceLink("https://www.prnewswire.com/il/news-releases/deepchecks-unveils-its-open-source-solution-for-continuous-validation-of-machine-learning-with-14m-seed-funding-301850861.html", "[7]")}
+          </>
+        ),
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. Deepchecks addresses model evaluation and monitoring after training, while Claru addresses the upstream data challenge of collecting and enriching physical-world training data. For robotics teams, both tools may be useful at different stages of the ML lifecycle, but they serve fundamentally different purposes.",
       },
     ],
   },

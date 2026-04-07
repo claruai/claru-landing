@@ -58,6 +58,10 @@ export const superbAiComparison: ComparisonData = {
         robotics, Claru is built for physical AI from day one.
       </>
     ),
+    paragraphs: [
+      "Superb AI was founded in 2018 in South Korea and has built an integrated computer vision platform spanning data curation, automated labeling, model training, and deployment. The company raised over $30 million in funding and differentiates itself from pure annotation tools by offering the full MLOps lifecycle for CV applications. Superb AI has attracted customers in manufacturing, autonomous driving, and retail who need to move quickly from raw image data to deployed models with automated labeling features like Auto-Edit segmentation and custom auto-labeling from as few as 100 training images.",
+      "While Superb AI provides a comprehensive CV platform, it is optimized for teams that already have data and need to accelerate the label-to-deploy cycle. Robotics and embodied AI teams face a different challenge: they need to acquire physical-world demonstrations, egocentric video, and manipulation sequences from real environments before any labeling or model training can begin. Additionally, robotics models require enrichment layers like depth estimation, 3D pose reconstruction, and optical flow that go beyond what annotation platforms produce. Claru addresses this upstream gap with a capture-first pipeline designed specifically for physical AI workloads.",
+    ],
     lastUpdated: "April 2, 2026",
   },
   tldr: {
@@ -451,8 +455,7 @@ export const superbAiComparison: ComparisonData = {
         question: "What is Superb AI?",
         answer: (
           <>
-            Superb AI provides a CV platform spanning data curation, labeling,
-            and model deployment.
+            Superb AI provides an end-to-end computer vision platform spanning data curation, automated labeling, model training, and deployment. Founded in 2018 in South Korea, the company has raised over $30 million in funding and serves customers in manufacturing, autonomous driving, and retail. The platform differentiates from pure annotation tools by offering the complete MLOps lifecycle for CV applications, including automated dataset curation with distribution visualization and no-code model deployment capabilities.
             {sourceLink("https://superb-ai.com/en/products/platform", "[1]")}
           </>
         ),
@@ -461,8 +464,7 @@ export const superbAiComparison: ComparisonData = {
         question: "Does Superb AI offer labeling automation?",
         answer: (
           <>
-            Yes. Superb Label highlights Auto-Edit segmentation, custom
-            auto-labeling, and automatic object tracking.
+            Yes. Superb Label highlights Auto-Edit segmentation, custom auto-labeling with as few as 100 training images, and automatic object tracking across video frames. These automation features are designed to reduce the manual effort required for repetitive labeling tasks in computer vision workflows. The platform integrates labeling automation with project management tools so teams can track progress, manage quality, and coordinate annotators within the same system.
             {sourceLink("https://superb-ai.com/en/products/platform", "[3]")}
           </>
         ),
@@ -471,16 +473,20 @@ export const superbAiComparison: ComparisonData = {
         question: "What security certifications does Superb AI mention?",
         answer: (
           <>
-            Superb AI notes security certifications like SOC and ISO 27001,
-            along with AES-256 encryption and RBAC.
+            Superb AI notes security certifications like SOC and ISO 27001, along with AES-256 encryption and role-based access control. These security measures are designed for enterprise customers who need to ensure their data annotation and model training workflows meet strict compliance requirements. The security infrastructure supports controlled access to datasets and model artifacts across team members with different permission levels.
             {sourceLink("https://superb-ai.com/en/company/security", "[6]")}
           </>
         ),
       },
       {
+        question: "Can Superb AI be used for robotics data?",
+        answer:
+          "Superb AI can label video frames with segmentation masks and track objects across frames, which is useful for some robotics applications. However, robotics training data also requires upstream capture of physical-world demonstrations and enrichment layers like monocular depth estimation, 3D pose reconstruction, and optical flow that are computed rather than manually labeled. For teams whose primary bottleneck is acquiring new physical-world data with these enrichment signals, a capture-first provider is a better fit.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your team needs to acquire egocentric video, manipulation demonstrations, or task-specific sequences from real environments, and then enrich that data with depth, pose, segmentation, and optical flow layers, Claru provides the complete pipeline from physical collection through multi-layer enrichment to training-ready delivery.",
       },
     ],
   },

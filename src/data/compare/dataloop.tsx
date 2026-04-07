@@ -80,6 +80,23 @@ export const dataloopComparison: ComparisonData = {
         Dataloop documentation covers data annotation workflows and dataset
         management across multiple data types. {sourceLink("https://docs.dataloop.ai/docs/data-annotation-overview", "[2]")}
       </>,
+      <>
+        Dataloop was founded in 2017 by Nir Buschi, Avi Yashar, and Eran
+        Shlomo, and is based in Tel Aviv, Israel. The company has raised $50
+        million in total funding from investors including F2 Capital, Amiti
+        Ventures, and NGP Capital, with a $33 million Series B round led by
+        NGP Capital and Alpha Wave Ventures.{" "}
+        {sourceLink("https://dataloop.ai/solutions/data-annotation/", "[4]")}
+      </>,
+      <>
+        Dataloop counts notable customers including Intel, Toyota, LinkedIn,
+        and Vimeo. The platform goes beyond basic annotation to include
+        data management, workflow orchestration, and pipeline automation
+        features that help teams manage the full data lifecycle for AI
+        development.{" "}
+        {sourceLink("https://docs.dataloop.ai/docs/data-annotation-overview", "[5]")}
+      </>,
+      "For robotics teams, Dataloop provides strong annotation and workflow tooling for existing datasets, but does not offer physical-world data capture infrastructure or automated enrichment pipelines for depth, pose, and motion signals. If you already have video data and need to build annotation workflows around it, Dataloop is a strong choice. If your bottleneck is collecting new data and generating robotics-specific enrichment layers, you need a capture-first pipeline.",
       "If your bottleneck is labeling workflow and dataset management, Dataloop is a strong fit. If your bottleneck is capture and enrichment of physical-world data, Claru is the better fit.",
     ],
   },
@@ -270,22 +287,29 @@ export const dataloopComparison: ComparisonData = {
       {
         title: "Platform vs pipeline",
         paragraphs: [
-          "Dataloop provides a platform for labeling operations and QA.",
-          "Claru provides capture, enrichment, and delivery for robotics teams.",
+          "Dataloop provides a platform for labeling operations and QA, with automation features and team collaboration tools. Founded in 2017 in Tel Aviv, the company has raised $50 million and counts Intel, Toyota, LinkedIn, and Vimeo among its customers. The platform handles the full annotation lifecycle from data management through QA and delivery.",
+          "Claru provides capture, enrichment, and delivery for robotics teams. Rather than a platform for labeling existing data, Claru runs end-to-end data programs that start with custom capture and end with training-ready datasets that include depth, pose, segmentation, and motion signals.",
         ],
       },
       {
-        title: "Data ownership",
+        title: "Data ownership and sourcing",
         paragraphs: [
-          "Dataloop assumes you already have data to annotate.",
-          "Claru acquires new physical-world data and enriches it for training.",
+          "Dataloop assumes you already have data to annotate and need workflow tooling to manage the labeling process. This is the right model for teams with existing data pipelines, internal collection systems, or third-party data sources that need to be annotated efficiently.",
+          "Claru acquires new physical-world data and enriches it for training. For robotics teams, the data itself is often the bottleneck rather than the annotation tooling. Claru addresses this by running task-specific capture programs in real environments with wearable cameras and specialized collection protocols.",
+        ],
+      },
+      {
+        title: "Automation and team features",
+        paragraphs: [
+          "Dataloop emphasizes automation features for accelerating annotation, including model-assisted labeling, workflow orchestration, and pipeline automation. These features help teams scale labeling operations without proportionally scaling headcount.",
+          "Claru applies automation at the enrichment level, using AI models to generate depth maps, pose estimates, segmentation masks, and optical flow from captured video. This automated enrichment produces the multi-layer signals that robotics models need without requiring manual annotation of each layer.",
         ],
       },
       {
         title: "Where each wins",
         paragraphs: [
-          "Dataloop is a strong fit for teams building labeling pipelines.",
-          "Claru is a better fit when capture and enrichment are the bottleneck.",
+          "Dataloop is a strong fit for teams building labeling pipelines who need a platform with automation, collaboration, and workflow management for existing datasets.",
+          "Claru is a better fit when capture and enrichment are the bottleneck, particularly for robotics teams that need new physical-world data with rich signal layers that go beyond traditional annotation.",
         ],
       },
     ],
@@ -376,9 +400,23 @@ export const dataloopComparison: ComparisonData = {
           "Dataloop focuses on annotation workflows; it does not provide a capture-first physical data pipeline.",
       },
       {
+        question: "Who founded Dataloop and how much funding has it raised?",
+        answer: (
+          <>
+            Dataloop was founded in 2017 by Nir Buschi, Avi Yashar, and Eran
+            Shlomo in Tel Aviv, Israel. The company has raised $50 million in
+            total funding across seed, Series A, and Series B rounds, with key
+            investors including F2 Capital, Amiti Ventures, NGP Capital, and
+            Alpha Wave Ventures. Notable customers include Intel, Toyota,
+            LinkedIn, and Vimeo.
+            {sourceLink("https://dataloop.ai/solutions/data-annotation/", "[4]")}
+          </>
+        ),
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. Dataloop excels at annotation workflow management and dataset operations for existing data, but if you need new physical-world data collected in specific environments with depth, pose, segmentation, and motion enrichment, a capture-first pipeline like Claru is required.",
       },
     ],
   },

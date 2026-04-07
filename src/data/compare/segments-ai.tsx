@@ -77,6 +77,8 @@ export const segmentsAiComparison: ComparisonData = {
         Segments.ai provides annotation tools for 2D images and 3D point clouds,
         including multi-sensor labeling workflows. {sourceLink("https://segments.ai/data-labeling/multi-sensor", "[2]")}
       </>,
+      "Segments.ai is a Belgian startup that has carved out a niche in the 3D annotation space, particularly for autonomous driving and robotics perception teams that work with LiDAR point clouds alongside camera data. The platform differentiates itself from general-purpose annotation tools by providing specialized interfaces for 3D labeling, multi-sensor fusion, and temporal tracking across sequences. Segments.ai has attracted teams working on self-driving vehicles, drones, and industrial robotics that need to label complex 3D environments.",
+      "For physical AI and robotics training teams, the critical question is whether annotation tooling alone meets the full data pipeline requirement. Embodied AI models depend on task-specific video captured in real-world environments with dense enrichment layers like monocular depth estimation, human pose tracking, instance segmentation, and optical flow. These signals serve as direct model inputs during training and must be generated alongside capture to ensure temporal alignment. Annotation platforms handle the labeling step but do not provide the capture infrastructure or enrichment processing that physical AI training demands.",
       "If your bottleneck is raw data capture and enrichment, you need a pipeline that starts before annotation.",
     ],
   },
@@ -354,7 +356,8 @@ export const segmentsAiComparison: ComparisonData = {
         question: "What is Segments.ai?",
         answer: (
           <>
-            Segments.ai is a 2D and 3D annotation platform. {sourceLink("https://segments.ai/", "[1]")}
+            Segments.ai is a Belgian startup that provides a 2D and 3D annotation platform specializing in point cloud labeling and multi-sensor data. The platform has carved out a niche in the autonomous driving and robotics perception space by offering specialized interfaces for labeling LiDAR point clouds alongside camera imagery. Segments.ai is well suited for teams that already have 3D sensor data and need annotation tooling with support for temporal tracking across sequences.
+            {sourceLink("https://segments.ai/", "[1]")}
           </>
         ),
       },
@@ -362,7 +365,8 @@ export const segmentsAiComparison: ComparisonData = {
         question: "Does Segments.ai support LiDAR and camera data?",
         answer: (
           <>
-            Yes. It supports multi-sensor labeling for LiDAR and camera data. {sourceLink("https://segments.ai/data-labeling/multi-sensor", "[2]")}
+            Yes. Segments.ai supports multi-sensor labeling that combines LiDAR and camera data in a single workflow. This capability is particularly valuable for autonomous driving teams that need to annotate 3D point clouds with corresponding 2D camera imagery, enabling consistent labeling across sensor modalities. The multi-sensor support distinguishes Segments.ai from general-purpose annotation platforms that may only handle 2D data.
+            {sourceLink("https://segments.ai/data-labeling/multi-sensor", "[2]")}
           </>
         ),
       },
@@ -370,14 +374,25 @@ export const segmentsAiComparison: ComparisonData = {
         question: "Does Segments.ai support 3D point clouds?",
         answer: (
           <>
-            Yes. It provides 3D point cloud labeling tools. {sourceLink("https://segments.ai/data-labeling/3d-point-cloud", "[3]")}
+            Yes. Segments.ai provides specialized 3D point cloud labeling tools with interfaces designed for efficient annotation of LiDAR data. The platform supports various 3D annotation types including 3D bounding boxes, semantic segmentation of point clouds, and instance segmentation. These tools are particularly useful for teams working on autonomous driving, drone navigation, and industrial robotics perception systems that depend on LiDAR data.
+            {sourceLink("https://segments.ai/data-labeling/3d-point-cloud", "[3]")}
           </>
         ),
       },
       {
         question: "How is Segments.ai different from Claru?",
         answer:
-          "Segments.ai provides annotation tooling, while Claru provides capture and enrichment for physical AI datasets.",
+          "Segments.ai provides annotation tooling for teams that already have 2D or 3D sensor data and need labeling workflows. Claru provides an end-to-end physical AI data pipeline that starts with capture and includes enrichment before delivery. The key difference is scope: Segments.ai handles the labeling step while Claru handles capture, enrichment, and delivery. For teams whose bottleneck is raw data capture and enrichment layers like depth, pose, and motion signals, Claru addresses a broader set of needs.",
+      },
+      {
+        question: "When is Claru a better fit?",
+        answer:
+          "Claru is a better fit when your primary need is capturing new physical-world data and enriching it for robotics training. This includes scenarios where you need egocentric video from specific environments, enrichment layers such as monocular depth, pose estimation, segmentation, and optical flow, and delivery in robotics-native formats like WebDataset, HDF5, or RLDS. If you already have LiDAR and camera data and need 3D annotation tooling, Segments.ai is the more appropriate choice.",
+      },
+      {
+        question: "Can teams use both Segments.ai and Claru?",
+        answer:
+          "Yes. Some teams use Segments.ai for labeling existing 3D point cloud and camera datasets while using Claru for capture-first physical AI data with enrichment layers. This combination works well when a team has both LiDAR annotation needs for perception systems and specialized requirements for egocentric video datasets with dense enrichment for manipulation or locomotion training.",
       },
     ],
   },

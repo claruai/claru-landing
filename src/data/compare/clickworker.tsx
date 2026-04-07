@@ -103,6 +103,23 @@ export const clickworkerComparison: ComparisonData = {
         its information security management practices.
         {sourceLink("https://www.clickworker.com/ai-training-data/", "[5]")}
       </>,
+      <>
+        Clickworker was founded in 2005 in Essen, Germany, by Christian
+        Rozsenich and Alexander Linden, making it one of the longest-running
+        crowdsourced data services companies in the industry. The crowd has
+        completed over 600 million jobs, demonstrating operational maturity
+        at scale.{" "}
+        {sourceLink("https://www.clickworker.com/about-us/", "[6]")}
+      </>,
+      <>
+        In December 2024, Clickworker was acquired by LXT, an AI data
+        solutions company, to create a combined entity with broader
+        capabilities across crowdsourced and managed data services.
+        Christian Rozsenich was appointed LXT&apos;s CTO to oversee the
+        integration of both platforms.{" "}
+        {sourceLink("https://www.clickworker.com/press-releases/lxt-acquires-clickworker/", "[7]")}
+      </>,
+      "For robotics teams, the key distinction is that Clickworker excels at scaling labeling and categorization tasks across existing datasets, but does not offer physical-world data capture or the enrichment layers that embodied AI models require. If your bottleneck is collecting new data from specific environments with depth, pose, and motion enrichment, you need a capture-first pipeline rather than a crowd labeling service.",
       "If your bottleneck is large-scale crowd data services and labeling for existing data, Clickworker is a strong fit. If your bottleneck is physical-world capture and enrichment for robotics, Claru is the better fit.",
     ],
   },
@@ -477,9 +494,14 @@ export const clickworkerComparison: ComparisonData = {
         ),
       },
       {
+        question: "Who founded Clickworker and when?",
+        answer:
+          "Clickworker was founded in 2005 in Essen, Germany, by Christian Rozsenich and Alexander Linden. The company has over 20 years of experience in crowdsourced micro-tasks, making it one of the longest-running players in the AI data services space. In December 2024, Clickworker was acquired by LXT, with Rozsenich appointed as LXT's CTO to oversee the combined platform.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. Clickworker excels at crowdsourced labeling and categorization tasks for existing data, but if your bottleneck is collecting new physical-world data for robotics training with enrichment layers like depth, pose, segmentation, and motion signals, you need a provider built specifically for that pipeline.",
       },
     ],
   },

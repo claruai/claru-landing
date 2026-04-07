@@ -85,6 +85,8 @@ export const alignerrComparison: ComparisonData = {
         Workflows, Persona Webhooks, and Persona Verifications.
         {sourceLink("https://status.alignerr.com/", "[2]")}
       </>,
+      "Alignerr is developed and operated by Labelbox, a well-funded data annotation platform company. The Alignerr platform connects organizations with expert AI talent who are carefully vetted through human and AI interviews with a reported 3 percent acceptance rate. Alignerrs are described as a community of highly skilled professionals specializing in AI model evaluation, data labeling, and data generation.",
+      "Labelbox launched Alignerr Connect to complement its fully-managed labeling services, allowing organizations to discover and recruit qualified AI trainers with proven data labeling and model evaluation experience. This positions Alignerr primarily as a talent marketplace for AI training work rather than a capture-first physical data pipeline. The platform's focus on vetting and connecting expert annotators is valuable for LLM evaluation and text-based AI tasks, but may not address the upstream capture and enrichment needs of physical AI teams.",
       "If you are evaluating Alignerr, confirm workflows and deliverables directly with their team. If your bottleneck is capture and enrichment of physical-world data, Claru is the better fit.",
     ],
   },
@@ -350,13 +352,13 @@ export const alignerrComparison: ComparisonData = {
       {
         question: "What is Alignerr?",
         answer:
-          "Public product details are limited; consider contacting Alignerr directly for confirmed capabilities.",
+          "Alignerr is a platform developed by Labelbox that connects organizations with expert AI talent for data labeling, model evaluation, and data generation tasks. The platform vets contributors through human and AI interviews with a reported 3 percent acceptance rate. Labelbox launched Alignerr Connect to allow organizations to discover and hire proven AI trainers directly, complementing their fully-managed labeling services.",
       },
       {
         question: "Does Alignerr provide public documentation?",
         answer: (
           <>
-            A public status page lists platform components and service status.
+            A public status page lists platform components and service status, including Application Process, Interview and Assessment, Onboarding, and Persona API modules. Labelbox also publishes documentation for Alignerr Connect that covers how organizations can access the expert talent marketplace. For detailed product capabilities beyond what is publicly documented, direct evaluation with the Alignerr team is recommended.{" "}
             {sourceLink("https://status.alignerr.com/", "[1]")}
           </>
         ),
@@ -364,12 +366,17 @@ export const alignerrComparison: ComparisonData = {
       {
         question: "Is Alignerr a physical AI data provider?",
         answer:
-          "Public information is insufficient to confirm a capture-first physical AI pipeline.",
+          "Alignerr is primarily positioned as an expert talent marketplace for AI model evaluation, data labeling, and data generation. Its focus appears to be on connecting organizations with vetted AI trainers rather than providing a capture-first physical data pipeline. Teams that need upstream data capture with wearable cameras, task-specific collection protocols, and enrichment layers like depth and pose estimation would benefit from a provider like Claru that specializes in physical AI data.",
+      },
+      {
+        question: "What is the relationship between Alignerr and Labelbox?",
+        answer:
+          "Alignerr is owned and operated by Labelbox, a well-known data annotation platform company. Labelbox developed Alignerr as a talent marketplace that complements their annotation platform. While Labelbox provides the annotation tooling, Alignerr provides the vetted human talent to perform labeling, evaluation, and data generation tasks. Together they form an end-to-end annotation offering, though neither is focused on physical-world data capture for robotics.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need the full pipeline from physical-world data capture through enrichment and delivery of robotics-ready datasets. If your team needs to create new physical data from scratch rather than label existing datasets, Claru is purpose-built for that workflow with wearable camera networks, task-specific capture protocols, and enrichment layers including depth, pose, and optical flow.",
       },
     ],
   },

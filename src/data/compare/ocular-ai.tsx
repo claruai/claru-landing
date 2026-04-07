@@ -81,6 +81,8 @@ export const ocularComparison: ComparisonData = {
         Ocular’s docs outline platform setup and workflow configuration for
         labeling projects. {sourceLink("https://docs.useocular.com/getting-started/quickstart", "[2]")}
       </>,
+      "Ocular AI operates in the data annotation platform space alongside established players like Labelbox, Scale AI, and V7. The platform targets computer vision teams that need managed annotation workflows with project management, quality assurance, and collaboration features. Ocular AI is positioned as a self-serve and team-oriented labeling tool rather than a managed services provider, which makes it attractive for teams that want control over their annotation process.",
+      "For physical AI and robotics teams, the fundamental question is whether annotation tooling alone addresses the data pipeline bottleneck. Embodied AI models require task-specific data captured in real-world environments, not just labels applied to existing imagery. Robotics training depends on enrichment layers such as monocular depth, human pose estimation, instance segmentation, and optical flow, all temporally aligned with the source video and delivered in formats compatible with robotics training frameworks. Annotation platforms handle the labeling step but do not provide the capture infrastructure or enrichment processing that physical AI demands.",
       "If your bottleneck is labeling existing data, Ocular AI is a strong fit. If your bottleneck is physical-world capture and robotics enrichment, you need a specialized pipeline.",
     ],
   },
@@ -276,10 +278,17 @@ export const ocularComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics data requirements",
+        paragraphs: [
+          "Training embodied AI systems requires more than labeled images or video. Physical AI models depend on dense enrichment layers including monocular depth estimation, human pose tracking, instance segmentation, and optical flow. These signals serve as direct model inputs during training and must be generated alongside capture to ensure temporal alignment and format consistency across the dataset.",
+          "Annotation platforms like Ocular AI handle the labeling step well. Claru addresses the full pipeline from capture through enrichment to delivery, generating depth, pose, and motion signals as first-class outputs alongside expert annotations in robotics-native formats.",
+        ],
+      },
+      {
         title: "Where each provider fits",
         paragraphs: [
-          "Ocular AI is a strong fit for labeling workflows and QA.",
-          "Claru is a better fit when you need capture + enrichment for physical AI datasets.",
+          "Ocular AI is a strong fit for teams that already have data and need labeling workflows with project management and QA features. The platform provides the tooling to manage annotation teams, define schemas, and review outputs across computer vision projects.",
+          "Claru is a better fit when the bottleneck is not labeling tooling but rather the absence of task-specific physical-world data and the enrichment layers needed to make it training-ready for robotics and world models.",
         ],
       },
     ],
@@ -350,8 +359,8 @@ export const ocularComparison: ComparisonData = {
         question: "What is Ocular AI?",
         answer: (
           <>
-            Ocular AI provides a data annotation platform with tooling and QA
-            workflows. {sourceLink("https://www.useocular.com/data-labelling/annotation", "[1]")}
+            Ocular AI is a data annotation platform that provides tooling for labeling workflows, project management, and quality assurance. The platform targets computer vision teams that need to manage annotation projects with features for collaboration, schema definition, and review processes. Ocular AI operates in the annotation platform space alongside tools like Labelbox, V7, and Roboflow, offering a self-serve approach to data labeling.
+            {sourceLink("https://www.useocular.com/data-labelling/annotation", "[1]")}
           </>
         ),
       },
@@ -359,8 +368,7 @@ export const ocularComparison: ComparisonData = {
         question: "Does Ocular AI provide labeling workflows?",
         answer: (
           <>
-            Yes. Ocular AI highlights annotation workflows and project
-            management features. {" "}
+            Yes. Ocular AI highlights annotation workflows and project management features as core parts of its platform. These workflows enable teams to define labeling schemas, assign tasks to annotators, manage review cycles, and track project progress. The platform is designed for teams that already have data and need organized tooling to apply labels efficiently with quality controls in place.
             {sourceLink("https://www.useocular.com/data-labelling/annotation", "[2]")}
           </>
         ),
@@ -368,12 +376,22 @@ export const ocularComparison: ComparisonData = {
       {
         question: "Is Ocular AI a physical AI data provider?",
         answer:
-          "Ocular AI focuses on labeling workflows rather than capture-first physical-world data for robotics.",
+          "Ocular AI focuses on labeling workflows and annotation tooling rather than capture-first physical-world data for robotics. The platform does not position itself as a data capture provider or enrichment pipeline. Teams building embodied AI systems that need task-specific video capture, enrichment layers like depth and pose estimation, and delivery in robotics-native formats should evaluate providers designed specifically for physical AI data pipelines rather than general annotation platforms.",
+      },
+      {
+        question: "How does Ocular AI compare to Claru for robotics data?",
+        answer:
+          "Ocular AI provides annotation tooling for existing datasets, while Claru provides an end-to-end pipeline that starts with physical-world capture and adds enrichment layers before delivery. For robotics teams, the difference is significant: annotation platforms help you label data you already have, while capture-first providers like Claru help you collect the task-specific data your model needs in the first place, then enrich it with depth maps, pose tracks, and segmentation masks.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when your primary need is capturing new physical-world data and enriching it for robotics training. This includes scenarios where you need egocentric video from specific environments, dense enrichment layers such as monocular depth, pose estimation, segmentation, and optical flow, and delivery in robotics-native formats like WebDataset, HDF5, or RLDS. If you already have data and primarily need labeling tooling with QA workflows, Ocular AI may be the more appropriate choice.",
+      },
+      {
+        question: "Can teams use both Ocular AI and Claru?",
+        answer:
+          "Yes. Some teams use annotation platforms like Ocular AI for labeling tasks on existing datasets while using Claru for capture-first physical AI data with enrichment layers. This combination works well when a team has both general annotation needs for standard computer vision projects and specialized requirements for robotics training data that demands capture in real-world environments with dense enrichment.",
       },
     ],
   },

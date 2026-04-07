@@ -91,6 +91,8 @@ export const blomegaComparison: ComparisonData = {
         Blomega LLC.
         {sourceLink("https://apps.apple.com/us/app/blolabel/id6741109360", "[3]")}
       </>,
+      "Blomega Lab is headquartered in Nevada and has been operating for approximately three years. The company describes itself as an AI development company specializing in tailored AI solutions for industries including medical, agriculture, and education. Their Blolabel platform and RLHF pipeline were built with the mission to reduce RLHF costs by at least 40 percent without sacrificing agreement quality. A key team member, Sam Shamsan, describes their work as helping leading AI labs go from noisy feedback data to clean, high-agreement training signals.",
+      "For physical AI and robotics teams, the critical distinction is that Blomega's public positioning centers on RLHF workflows and LLM alignment data rather than physical-world capture. Their Blolabel mobile app suggests a labeling workflow optimized for text-based feedback tasks. Teams that need egocentric video capture, depth maps, 3D pose extraction, and motion signals for robotics training will need a provider like Claru that specializes in the physical data pipeline from capture through enrichment and delivery.",
       "If you are evaluating Blomega, confirm workflows and deliverables directly with their team. If your bottleneck is capture and enrichment of physical-world data, Claru is the better fit.",
     ],
   },
@@ -384,13 +386,13 @@ export const blomegaComparison: ComparisonData = {
       {
         question: "What is Blomega?",
         answer:
-          "Public product details are limited; available sources include a company profile, blog posts, and an app listing.",
+          "Blomega Lab is an AI development company headquartered in Nevada that has been operating for approximately three years. The company specializes in creating tailored AI solutions for industries including medical, agriculture, and education. They built the Blolabel platform focused on RLHF workflows and data annotation. A public company profile lists services including AI development, AI-driven data annotation, real-time translation, and AI model evaluation.",
       },
       {
         question: "What does Blolabel focus on?",
         answer: (
           <>
-            A public blog post describes RLHF workflows and efficiency claims.
+            Blolabel focuses on RLHF workflows and cost optimization for AI alignment data. Their team architected an RLHF pipeline with the specific goal of reducing costs by at least 40 percent without sacrificing agreement quality. The platform is designed to help AI labs transform noisy feedback data into clean, high-agreement training signals. This positions Blolabel primarily around text-based LLM alignment rather than physical-world data capture for robotics.{" "}
             {sourceLink("https://www.blolabel.ai/blogs/how-we-reduced-rlhf-cost-by-40-without-sacrificing-agreement", "[2]")}
           </>
         ),
@@ -399,16 +401,20 @@ export const blomegaComparison: ComparisonData = {
         question: "Is there a Blolabel app?",
         answer: (
           <>
-            Yes. The App Store listing shows a Blolabel app published by
-            Blomega LLC.
+            Yes. The App Store listing shows a Blolabel labeling app published by Blomega LLC. The mobile app suggests a labeling workflow that allows annotators to provide feedback and labels from their devices, which aligns with the RLHF focus of the broader Blolabel platform. The app is one of several public signals about the company's product direction.{" "}
             {sourceLink("https://apps.apple.com/us/app/blolabel/id6741109360", "[3]")}
           </>
         ),
       },
       {
+        question: "Is Blomega a physical AI data provider?",
+        answer:
+          "Based on available public information, Blomega's focus is on RLHF workflows, LLM alignment data, and general AI development rather than physical-world data capture for robotics. Teams that need egocentric video, depth maps, 3D pose extraction, and motion signals for robotics training will need a provider like Claru that specializes in the physical AI data pipeline from capture through enrichment and delivery.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your team builds embodied AI systems that require physical-world data with enrichment layers like depth, pose, segmentation, and optical flow, Claru provides the specialized pipeline for those needs. Choose Blomega when your primary need is RLHF data optimization and LLM alignment workflows.",
       },
     ],
   },

@@ -84,6 +84,8 @@ export const helpwareComparison: ComparisonData = {
         Helpware emphasizes human-in-the-loop workflows and QA.
         {sourceLink("https://www.helpware.com/services/data-labeling-service/", "[3]")}
       </>,
+      "Helpware is a broader outsourcing and technology services company headquartered in the United States with operations in several countries. Data labeling is one component of Helpware's service portfolio, which also includes customer support, back-office operations, and digital services. The company brings an outsourcing operations mindset to data annotation, emphasizing managed teams, process standardization, and quality oversight. Helpware has worked with AI companies across verticals including e-commerce, healthcare, and autonomous systems.",
+      "For robotics and physical AI teams, the key consideration when evaluating managed labeling providers like Helpware is whether annotation services alone address the core data challenge. Most robotics teams building manipulation policies, navigation systems, or world models need to collect physical-world data before they can label it. Egocentric video of human demonstrations, multi-sensor recordings of task-specific scenarios, and depth-aligned capture sequences require specialized collection infrastructure that annotation service providers do not typically provide. The gap between data acquisition and data labeling is the fundamental distinction between capture-first pipelines and labeling-first services.",
       "If your bottleneck is managed labeling services and QA, Helpware is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -303,10 +305,17 @@ export const helpwareComparison: ComparisonData = {
         ],
       },
       {
+        title: "Physical AI data requirements",
+        paragraphs: [
+          "Robotics AI models including imitation learning architectures, diffusion policies, and vision-language-action networks need training data with properties that labeling services alone cannot produce: first-person camera viewpoints matching robot sensor placements, hand-object manipulation sequences, depth-aligned frames for spatial reasoning, and action-level temporal segmentation for policy learning. These requirements demand specialized capture infrastructure deployed in real-world environments.",
+          "Claru designs capture programs around these robotics-specific requirements, deploying trained collectors with wearable cameras to record task-specific scenarios in diverse settings, then enriching every clip with depth estimation, pose detection, instance segmentation, and optical flow before delivery in robotics-native formats.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Helpware is strong when you need scalable labeling services.",
-          "Claru is stronger when physical-world capture is the bottleneck.",
+          "Helpware is strong when you need scalable labeling services with managed QA, particularly for teams that have existing data across text, image, audio, or video and need outsourced annotation capacity with operational oversight.",
+          "Claru is stronger when physical-world capture is the bottleneck, especially for robotics teams that need new task-specific data with multi-layer enrichment as a standard output rather than annotation of pre-existing datasets.",
         ],
       },
     ],
@@ -377,8 +386,9 @@ export const helpwareComparison: ComparisonData = {
         question: "What is Helpware?",
         answer: (
           <>
-            Helpware provides data labeling and annotation services.
-            {sourceLink("https://www.helpware.com/services/data-labeling-service/", "[1]")}
+            Helpware is a technology services and outsourcing company that provides data labeling and annotation services as part of its broader service portfolio.{" "}
+            {sourceLink("https://www.helpware.com/services/data-labeling-service/", "[1]")}{" "}
+            The company is headquartered in the United States with operations across multiple countries, bringing an outsourcing operations approach to AI data work. Helpware offers managed labeling teams, process standardization, and quality oversight for AI companies across verticals including e-commerce, healthcare, and autonomous systems.
           </>
         ),
       },
@@ -386,8 +396,9 @@ export const helpwareComparison: ComparisonData = {
         question: "What data types does Helpware support?",
         answer: (
           <>
-            Helpware highlights text, image, audio, and video labeling.
-            {sourceLink("https://www.helpware.com/services/data-labeling-service/", "[2]")}
+            Helpware highlights text, image, audio, and video labeling across its data annotation services.{" "}
+            {sourceLink("https://www.helpware.com/services/data-labeling-service/", "[2]")}{" "}
+            This multi-modal coverage makes Helpware suitable for teams with diverse labeling needs. However, physical AI teams working on robotics typically require specialized annotation types such as affordance labels, grasp annotations, action boundary markings, and depth-aligned labeling that go beyond standard text, image, and video annotation categories.
           </>
         ),
       },
@@ -395,15 +406,16 @@ export const helpwareComparison: ComparisonData = {
         question: "Does Helpware provide QA workflows?",
         answer: (
           <>
-            Helpware emphasizes human-in-the-loop QA workflows.
-            {sourceLink("https://www.helpware.com/services/data-labeling-service/", "[3]")}
+            Helpware emphasizes human-in-the-loop QA workflows as a core component of its labeling services.{" "}
+            {sourceLink("https://www.helpware.com/services/data-labeling-service/", "[3]")}{" "}
+            These QA processes include multi-tier review systems, consistency checks across annotators, and quality metrics tracking to ensure labeling accuracy meets client standards. The managed team model allows Helpware to maintain dedicated labeling teams familiar with specific project requirements, which improves consistency over time.
           </>
         ),
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your team needs new physical-world data collected for specific robot tasks rather than annotation of existing datasets, Claru provides the capture infrastructure, collector network, and task-specific protocols that labeling providers do not offer. Claru delivers depth maps, pose estimation, segmentation, and optical flow as standard enrichment layers, packaged in robotics-native formats like RLDS, WebDataset, and HDF5.",
       },
     ],
   },

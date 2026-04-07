@@ -82,6 +82,8 @@ export const anthromindComparison: ComparisonData = {
         domain-specific data and expert evaluation. {" "}
         {sourceLink("https://www.anthromind.com/", "[2]")}
       </>,
+      "Anthromind's model evaluation service uses a systematic process to measure how models or workflows perform against tasks that matter to the customer, combining proven methodologies and benchmarking frameworks to assess accuracy, reliability, and safety. Their fine-tuning capability aims to turn generic models into domain experts by fine-tuning on unique customer data to boost relevance, accuracy, and brand alignment. They also enhance retrieval-augmented generation (RAG) with precise citations, enabling models to understand industry-specific terminology, style, and context.",
+      "For physical AI and robotics teams, the critical distinction is that Anthromind's services are oriented around text-based LLM workflows. Their evaluation frameworks assess language model outputs, and their fine-tuning data is designed for text-centric models. Robotics training data requires entirely different inputs: egocentric video, depth maps, 3D pose data, object segmentation, and motion signals that come from physical-world capture rather than expert text evaluation. If your team builds embodied AI systems, Anthromind's LLM focus is complementary but not a substitute for a physical data pipeline.",
       "If your bottleneck is LLM evaluation or specialized fine-tuning data, Anthromind is a strong fit. If your bottleneck is physical-world data capture, you need a different pipeline.",
     ],
   },
@@ -373,8 +375,7 @@ export const anthromindComparison: ComparisonData = {
         question: "What is Anthromind?",
         answer: (
           <>
-            Anthromind positions itself around scalable oversight for LLM
-            evaluation and post-training workflows. {" "}
+            Anthromind is a company focused on scalable oversight for LLM evaluation and post-training workflows. They help teams generate specialized data for evaluation or fine-tuning use cases, using systematic evaluation processes to measure model performance against specific tasks. Their services span model evaluation, fine-tuning data creation, RAG enhancement, and expert-in-the-loop evaluations. The company supports the entire AI project lifecycle from training data creation to custom evaluations.{" "}
             {sourceLink("https://www.anthromind.com/", "[1]")}
           </>
         ),
@@ -383,8 +384,7 @@ export const anthromindComparison: ComparisonData = {
         question: "Does Anthromind provide fine-tuning data?",
         answer: (
           <>
-            Anthromind highlights fine-tuning and RAG enhancement with
-            domain-specific data. {" "}
+            Yes. Anthromind creates fine-tuning data designed to turn generic models into domain experts by training on unique customer data. Their fine-tuning service aims to boost relevance, accuracy, and brand alignment. They also enhance RAG systems with precise citations, enabling models to understand industry-specific terminology, style, and context. These services are oriented around text-based LLM workflows rather than physical-world data for robotics.{" "}
             {sourceLink("https://www.anthromind.com/", "[2]")}
           </>
         ),
@@ -392,12 +392,17 @@ export const anthromindComparison: ComparisonData = {
       {
         question: "Is Anthromind a physical AI data provider?",
         answer:
-          "Anthromind focuses on LLM evaluation and fine-tuning rather than physical-world data capture.",
+          "No. Anthromind focuses on LLM evaluation, fine-tuning, and post-training oversight for text-based language models. Their evaluation frameworks assess language model outputs, and their fine-tuning data is designed for text-centric models. Robotics training data requires entirely different inputs such as egocentric video, depth maps, 3D pose data, and motion signals that come from physical-world capture rather than expert text evaluation.",
+      },
+      {
+        question: "Can teams use both Anthromind and Claru?",
+        answer:
+          "Yes. Some teams building multi-modal AI systems use Anthromind for LLM evaluation and fine-tuning of their language components while using Claru for physical-world data capture and enrichment for their robotics or embodied AI components. The two services address fundamentally different parts of the AI training stack and are naturally complementary.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your team builds embodied AI systems that require egocentric video, depth maps, 3D pose, segmentation, and optical flow as core training inputs, Claru provides the specialized pipeline for those needs. Choose Anthromind when your primary need is LLM evaluation and domain-specific fine-tuning data.",
       },
     ],
   },

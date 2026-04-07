@@ -487,8 +487,7 @@ export const sepalAiComparison: ComparisonData = {
         question: "What is Sepal AI?",
         answer: (
           <>
-            Sepal AI focuses on expert-led data research, RL environments, and
-            outcome-verifiable tasks for advanced AI systems.{" "}
+            Sepal AI is a data research company that focuses on building RL environments and outcome-verifiable tasks for advanced AI systems. The company was part of Y Combinator and positioned itself as a data research partner for frontier labs and enterprises working on challenging AI benchmarks and evaluation tasks. Sepal highlights an expert network of over 20,000 specialists across STEM and professional services domains, with tooling to source, vet, and onboard specialists quickly for complex data projects.{" "}
             {sourceLink("https://www.ycombinator.com/companies/sepal-ai", "[1]")}
           </>
         ),
@@ -497,8 +496,7 @@ export const sepalAiComparison: ComparisonData = {
         question: "Does Sepal AI build RL environments?",
         answer: (
           <>
-            Yes. Sepal AI highlights RL environments and structured tasks as
-            part of its core offering for advanced AI evaluation and training.{" "}
+            Yes. Sepal AI highlights RL environments and structured outcome-verifiable tasks as core parts of its offering for advanced AI evaluation and training. The company builds controlled environments where task completion can be objectively measured, which is valuable for training and evaluating AI agents on structured reasoning, code generation, and other domains where correctness is well-defined. This approach differs fundamentally from physical-world data capture where the goal is to collect real sensor data from uncontrolled environments.{" "}
             {sourceLink("https://www.ycombinator.com/companies/sepal-ai", "[1]")}
           </>
         ),
@@ -507,8 +505,7 @@ export const sepalAiComparison: ComparisonData = {
         question: "Is Sepal AI part of Mercor?",
         answer: (
           <>
-            Sepal AI states it has been acquired by Mercor and is now part of
-            Mercor&apos;s organization.{" "}
+            Yes. Sepal AI was acquired by Mercor in early 2026. The acquisition brought Sepal&apos;s expert network and dataset factory capabilities under Mercor&apos;s organization, which focuses on AI talent and workforce solutions. Teams that were previously working with Sepal AI should check with Mercor regarding service continuity and how the integration affects ongoing data research programs and expert network access.{" "}
             {sourceLink(
               "https://www.orrick.com/en/News/2026/02/Mercor-Acquires-Sepal-AI",
               "[2]"
@@ -520,9 +517,7 @@ export const sepalAiComparison: ComparisonData = {
         question: "Can Sepal AI provide physical-world data capture?",
         answer: (
           <>
-            Sepal AI focuses on expert task design and RL environments. If you
-            need physical-world capture and enrichment, a specialist like Claru
-            is built for that pipeline.{" "}
+            Sepal AI focuses on expert task design and RL environments rather than physical-world data capture. The company&apos;s strength is in designing structured evaluation tasks and building controlled environments, not in deploying sensor-equipped collectors to capture video in kitchens, warehouses, or outdoor settings. If your team needs physical-world capture and enrichment with depth, pose, and motion signals for robotics training, a specialist provider like Claru is built for that pipeline from the ground up.{" "}
             {sourceLink("https://www.ycombinator.com/companies/sepal-ai", "[1]")}
           </>
         ),
@@ -531,9 +526,7 @@ export const sepalAiComparison: ComparisonData = {
         question: "How is Sepal AI different from Claru?",
         answer: (
           <>
-            Sepal AI focuses on expert-driven task design and RL environments.
-            Claru focuses on capturing and enriching real-world physical AI data
-            for robotics and world models.{" "}
+            Sepal AI and Claru address fundamentally different AI data needs. Sepal focuses on expert-driven task design, RL environments, and outcome-verifiable evaluation tasks for advanced AI systems. Claru focuses on capturing and enriching real-world physical AI data for robotics and world models. Sepal&apos;s model centers on controlled environments with measurable outcomes, while Claru&apos;s model centers on uncontrolled real-world capture with dense enrichment layers. The data types, collection methods, and delivery formats have minimal overlap between these two approaches.{" "}
             {sourceLink("https://www.ycombinator.com/companies/sepal-ai", "[1]")}
           </>
         ),
@@ -541,7 +534,7 @@ export const sepalAiComparison: ComparisonData = {
       {
         question: "What outputs does Claru deliver?",
         answer:
-          "Claru delivers training-ready datasets in WebDataset, HDF5, RLDS, Parquet, and COCO, with enrichment layers aligned as side-channels.",
+          "Claru delivers training-ready datasets in WebDataset, HDF5, RLDS, Parquet, and COCO formats, with enrichment layers aligned as side-channels alongside the source video. Each dataset includes monocular depth maps, human pose estimation tracks, instance segmentation masks, and optical flow fields, all temporally aligned to the source clips. This format consistency means robotics teams can plug Claru datasets directly into their training pipelines without additional preprocessing or format conversion steps.",
       },
     ],
   },

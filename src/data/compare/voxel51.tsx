@@ -56,6 +56,10 @@ export const voxel51Comparison: ComparisonData = {
         robotics, Claru is built for physical AI from day one.
       </>
     ),
+    paragraphs: [
+      "Voxel51 is the company behind FiftyOne, one of the most widely adopted open-source tools for visual AI dataset management. Founded by former researchers from the University of Michigan and backed by venture funding, Voxel51 has built a strong community around FiftyOne, which provides dataset curation, visualization, and management capabilities for computer vision teams. The platform is used by thousands of CV practitioners to explore, filter, and analyze image and video datasets, with integrations to popular ML frameworks and annotation tools.",
+      "While FiftyOne is a valuable tool for managing and curating existing visual AI datasets, it operates as a downstream platform that assumes data has already been collected and annotated. Robotics and embodied AI teams face an upstream challenge: they need to capture task-specific demonstrations from physical environments using wearable cameras and structured protocols, then enrich that data with depth estimation, pose detection, optical flow, and temporal action labels before it enters any dataset management system. Voxel51 can help organize and analyze physical AI datasets after they have been created, but Claru provides the capture and enrichment pipeline that produces these datasets in the first place.",
+    ],
     lastUpdated: "March 31, 2026",
   },
   tldr: {
@@ -372,7 +376,7 @@ export const voxel51Comparison: ComparisonData = {
         question: "What is Voxel51?",
         answer: (
           <>
-            Voxel51 provides the FiftyOne visual AI data platform.
+            Voxel51 is the company behind FiftyOne, one of the most widely adopted open-source tools for visual AI dataset management. Founded by former researchers from the University of Michigan, the company provides a platform for dataset curation, visualization, and analysis that is used by thousands of computer vision practitioners. FiftyOne integrates with popular ML frameworks, annotation tools, and cloud storage providers to create a unified workspace for exploring and managing visual AI data.
             {sourceLink("https://voxel51.com/", "[1]")}
           </>
         ),
@@ -381,7 +385,7 @@ export const voxel51Comparison: ComparisonData = {
         question: "What is FiftyOne used for?",
         answer: (
           <>
-            FiftyOne focuses on dataset curation, management, and visualization.
+            FiftyOne focuses on dataset curation, management, and visualization for computer vision teams. The platform allows teams to explore, filter, and analyze large image and video datasets, identify labeling errors, find duplicate or near-duplicate samples, and evaluate model predictions against ground truth. FiftyOne is particularly valuable for teams that already have datasets and need tools to understand data quality, distribution, and composition before training models.
             {sourceLink("https://voxel51.com/", "[2]")}
           </>
         ),
@@ -390,15 +394,20 @@ export const voxel51Comparison: ComparisonData = {
         question: "Does Voxel51 support multimodal data?",
         answer: (
           <>
-            The platform highlights unifying multimodal data in one workspace.
+            The platform highlights unifying multimodal data in one workspace, including images, video, 3D point clouds, and associated metadata. This multimodal support allows teams to manage diverse dataset types within a single tool rather than using separate systems for different data modalities. However, the platform manages data that has already been collected rather than capturing new physical-world data or generating enrichment layers.
             {sourceLink("https://voxel51.com/", "[3]")}
           </>
         ),
       },
       {
+        question: "Can Voxel51 be used alongside Claru?",
+        answer:
+          "Yes, Voxel51 and Claru serve complementary roles. Claru handles the upstream pipeline of capturing physical-world data and enriching it with depth, pose, segmentation, and optical flow layers. Once Claru delivers a training-ready dataset, teams can use FiftyOne to explore, curate, and analyze the data before feeding it into model training. This combination gives teams both capture infrastructure and dataset management tooling.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your primary bottleneck is acquiring new physical-world data with task-specific demonstrations and enriching it with depth estimation, pose detection, and optical flow, Claru provides the upstream pipeline that produces the datasets FiftyOne can then help manage and explore.",
       },
     ],
   },

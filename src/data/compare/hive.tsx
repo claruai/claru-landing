@@ -84,6 +84,8 @@ export const hiveComparison: ComparisonData = {
         Hive reports labeling over 10 million items daily across video, image,
         text, and audio. {sourceLink("https://thehive.ai/data-labeling", "[3]")}
       </>,
+      "Hive has built one of the largest managed data labeling operations in the AI industry, combining a massive global workforce with enterprise-grade project management and quality assurance. The company was founded to address the scaling challenges of AI data operations, recognizing that model performance is often gated by the volume and quality of training data. Hive also develops its own AI models, particularly in content moderation and visual search, using the data infrastructure it has built for clients. This dual focus on data services and model development gives Hive a unique perspective on the relationship between data quality and model performance.",
+      "For physical AI and robotics teams, Hive's scale is impressive but the scope of its services is oriented toward labeling existing data rather than capturing new physical-world data. Robotics models built on imitation learning, diffusion policies, or vision-language-action architectures need training data with specific properties: egocentric viewpoints, manipulation sequences, depth alignment, and temporal action segmentation. These requirements demand specialized capture infrastructure and task-specific collection protocols that labeling-at-scale providers are not designed to deliver. The distinction between labeling capacity and capture capability is the key factor in provider selection for physical AI teams.",
       "If your bottleneck is managed labeling capacity, Hive is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -298,10 +300,17 @@ export const hiveComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics AI data challenges",
+        paragraphs: [
+          "Modern robotics AI architectures require training data that labeling services alone cannot create. Policy learning models need demonstrations captured from viewpoints matching robot camera placements. Manipulation models require hand-object interaction sequences with spatial context. World models need diverse environment recordings with consistent depth and motion information. These requirements demand specialized capture programs deployed in real-world settings with trained collectors using wearable cameras and structured protocols.",
+          "Claru addresses these upstream requirements by providing end-to-end data pipelines that start with physical-world capture and end with training-ready delivery, including enrichment layers like depth estimation, pose detection, segmentation, and optical flow aligned to every clip.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Hive is strong when you need massive labeling throughput.",
-          "Claru is stronger when physical-world capture is the bottleneck.",
+          "Hive is strong when you need massive labeling throughput with a proven global workforce. For teams with existing data across video, image, text, and audio that need annotation at enterprise scale, Hive's infrastructure and 5M+ contributor network provide unmatched capacity.",
+          "Claru is stronger when physical-world capture is the bottleneck, especially for robotics teams that need new task-specific data with multi-layer enrichment delivered in formats that integrate directly into training pipelines.",
         ],
       },
     ],
@@ -372,8 +381,9 @@ export const hiveComparison: ComparisonData = {
         question: "What is Hive?",
         answer: (
           <>
-            Hive provides fully managed data collection and annotation services.
-            {sourceLink("https://thehive.ai/data-labeling", "[1]")}
+            Hive provides fully managed data collection and annotation services, operating one of the largest data labeling workforces in the AI industry.{" "}
+            {sourceLink("https://thehive.ai/data-labeling", "[1]")}{" "}
+            The company also develops its own AI models for content moderation and visual search, leveraging the data infrastructure it built for client services. Hive was founded to solve the scaling challenges of AI data operations and has grown into an enterprise-grade platform serving major AI companies across multiple industries.
           </>
         ),
       },
@@ -381,8 +391,9 @@ export const hiveComparison: ComparisonData = {
         question: "How large is Hive's workforce?",
         answer: (
           <>
-            Hive highlights a global workforce of over 5 million contributors.
-            {sourceLink("https://thehive.ai/data-labeling", "[2]")}
+            Hive highlights a global workforce of over 5 million contributors across its data labeling operations.{" "}
+            {sourceLink("https://thehive.ai/data-labeling", "[2]")}{" "}
+            This massive contributor network enables Hive to handle high-volume labeling tasks across video, image, text, and audio data types. The scale of the workforce is a key differentiator for enterprise clients that need to label millions of items quickly while maintaining quality standards through managed QA processes and contributor skill matching.
           </>
         ),
       },
@@ -390,15 +401,16 @@ export const hiveComparison: ComparisonData = {
         question: "How much data does Hive label daily?",
         answer: (
           <>
-            Hive reports labeling over 10 million items daily across modalities.
-            {sourceLink("https://thehive.ai/data-labeling", "[3]")}
+            Hive reports labeling over 10 million items daily across modalities including video, image, text, and audio.{" "}
+            {sourceLink("https://thehive.ai/data-labeling", "[3]")}{" "}
+            This throughput makes Hive one of the highest-volume data labeling operations in the industry. The daily throughput is supported by the 5M+ contributor workforce, automated quality control systems, and project management infrastructure designed for enterprise-scale annotation operations.
           </>
         ),
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. While Hive excels at high-volume labeling of existing data, robotics teams often face an upstream bottleneck: they need new physical-world data collected for specific tasks. Claru provides the capture infrastructure, trained collector network, and enrichment pipeline that labeling-at-scale providers do not offer. Claru delivers depth maps, pose estimation, segmentation, and optical flow as standard enrichment layers, packaged in robotics-native formats like RLDS, WebDataset, and HDF5.",
       },
     ],
   },

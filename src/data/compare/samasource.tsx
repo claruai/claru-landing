@@ -84,6 +84,8 @@ export const samasourceComparison: ComparisonData = {
         Sama positions its workflows around human-in-the-loop quality and
         managed delivery. {sourceLink("https://www.sama.com/data-annotation-solution", "[3]")}
       </>,
+      "Sama, formerly known as Samasource, was founded in 2008 as a social enterprise providing digital work to marginalized communities in East Africa. The company has since evolved into a significant managed data annotation provider, serving major technology companies including Google, Microsoft, and Meta. Sama has built a workforce of thousands of trained annotators and emphasizes ethical sourcing practices alongside enterprise-grade delivery. The company is publicly traded on the Toronto Stock Exchange and positions itself as a premium managed services provider with strong compliance and quality standards.",
+      "For physical AI and robotics teams, the key consideration when evaluating Sama is whether managed annotation services address the full data pipeline requirement. Embodied AI models need task-specific data captured in real-world environments with dense enrichment layers like depth estimation, pose tracking, instance segmentation, and optical flow. These signals serve as direct training inputs and must be temporally aligned with the source video. Managed annotation providers can label existing data but typically do not provide the capture infrastructure and enrichment processing that physical AI training demands.",
       "If your bottleneck is annotation services and QA, Sama is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -372,8 +374,8 @@ export const samasourceComparison: ComparisonData = {
         question: "What is Sama?",
         answer: (
           <>
-            Sama provides managed data annotation, validation, and model
-            evaluation services. {sourceLink("https://www.sama.com/data-annotation-solution", "[1]")}
+            Sama, formerly known as Samasource, is a managed data annotation provider founded in 2008. Originally a social enterprise providing digital work opportunities in East Africa, Sama has evolved into an enterprise-grade annotation services company serving major technology clients including Google, Microsoft, and Meta. The company provides managed data annotation, validation, and model evaluation services across image, video, 3D point cloud, and text modalities, with a strong emphasis on ethical sourcing and quality standards.
+            {sourceLink("https://www.sama.com/data-annotation-solution", "[1]")}
           </>
         ),
       },
@@ -381,7 +383,7 @@ export const samasourceComparison: ComparisonData = {
         question: "What data types does Sama support?",
         answer: (
           <>
-            Sama highlights image, video, 3D point cloud, and text annotation.
+            Sama supports image, video, 3D point cloud, and text annotation as part of its managed services portfolio. This multi-modal coverage enables enterprise teams to consolidate annotation work with a single provider across different data types. For physical AI teams, the key consideration is whether annotation services for these modalities are sufficient or whether task-specific capture and enrichment layers like depth estimation and pose tracking are also needed.
             {sourceLink("https://www.sama.com/data-annotation-solution", "[2]")}
           </>
         ),
@@ -390,15 +392,25 @@ export const samasourceComparison: ComparisonData = {
         question: "Does Sama emphasize human-in-the-loop QA?",
         answer: (
           <>
-            Sama describes human-in-the-loop quality and managed delivery.
+            Yes. Sama positions its workflows around human-in-the-loop quality and managed delivery. The company has built quality assurance processes across its annotation workforce, with multiple review stages and consistency checks designed to maintain label accuracy at scale. This emphasis on QA is particularly important for enterprise clients with strict accuracy requirements for production AI systems.
             {sourceLink("https://www.sama.com/data-annotation-solution", "[3]")}
           </>
         ),
       },
       {
+        question: "Is Sama a fit for robotics data capture?",
+        answer:
+          "Sama focuses on managed annotation services rather than capture-first physical AI data. While the company can annotate video and 3D point cloud data, it does not position itself as a data capture pipeline for robotics training. Teams building embodied AI systems that need task-specific video capture in real-world environments, enrichment layers like depth and pose estimation, and delivery in robotics-native formats should evaluate providers designed specifically for physical AI data pipelines.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when your primary need is capturing new physical-world data and enriching it for robotics training. This includes scenarios where you need egocentric video from specific environments, enrichment layers such as monocular depth, pose estimation, segmentation, and optical flow, and delivery in formats like WebDataset, HDF5, or RLDS. If you already have data and need managed annotation with enterprise-grade QA, Sama may be the more appropriate choice.",
+      },
+      {
+        question: "Can teams use both Sama and Claru?",
+        answer:
+          "Yes. Some teams use Sama for managed annotation services on existing datasets while using Claru for capture-first physical AI data with enrichment layers. This combination works well when a team needs both high-volume annotation throughput for existing data and specialized capture with enrichment for robotics training. Sama handles the labeling operations, while Claru provides the capture pipeline and enrichment processing that physical AI models require.",
       },
     ],
   },

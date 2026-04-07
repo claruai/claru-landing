@@ -80,6 +80,8 @@ export const epinoteComparison: ComparisonData = {
         The company highlights human-in-the-loop and workforce management
         capabilities. {sourceLink("https://epinote.io/", "[2]")}
       </>,
+      "Epinote has built its platform around the idea that managing large-scale data annotation projects requires purpose-built workflow infrastructure. The company focuses on helping AI teams coordinate distributed workforces, track task progress, manage quality gates, and maintain consistency across annotation projects. This workflow-centric approach is valuable for organizations running complex labeling operations with many annotators working across different task types and quality tiers.",
+      "For robotics and physical AI teams, the question is whether workflow orchestration alone addresses the core bottleneck. Most robotics teams building manipulation policies, navigation systems, or world models face a data acquisition challenge before they face an annotation workflow challenge. They need egocentric video of human demonstrations, task-specific interaction sequences, and multi-sensor recordings that capture the spatial and temporal context needed for policy learning. Workflow platforms help manage annotation after data exists, but they do not solve the upstream capture problem.",
       "If your bottleneck is workflow orchestration for annotation projects, Epinote is a strong fit. If your bottleneck is physical-world capture and enrichment for robotics, Claru is the better fit.",
     ],
   },
@@ -281,10 +283,17 @@ export const epinoteComparison: ComparisonData = {
         ],
       },
       {
+        title: "Physical AI data requirements",
+        paragraphs: [
+          "Robotics AI models including imitation learning architectures, diffusion policies, and vision-language-action networks need training data with specific properties: first-person viewpoints, manipulation context with hand-object interactions, depth alignment, and frame-level temporal annotations. These requirements go beyond what standard annotation workflow platforms are designed to produce, as the data itself must be captured with specialized equipment and protocols.",
+          "Claru addresses these requirements by providing an end-to-end pipeline from capture brief design through data collection, enrichment with depth and pose signals, and delivery in robotics-native formats. This capture-first approach ensures that the data meeting the specific needs of physical AI training is available before any annotation workflow begins.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Epinote is a strong fit for workflow orchestration.",
-          "Claru is better when capture and enrichment are the bottleneck.",
+          "Epinote is a strong fit for workflow orchestration, especially for teams running large-scale annotation operations that need project management, workforce coordination, and quality gate enforcement across distributed labeling teams.",
+          "Claru is better when capture and enrichment are the bottleneck, particularly for robotics teams that need new task-specific data with multi-layer enrichment as a first-class output rather than just annotation management for existing datasets.",
         ],
       },
     ],
@@ -355,8 +364,9 @@ export const epinoteComparison: ComparisonData = {
         question: "What is Epinote?",
         answer: (
           <>
-            Epinote describes a platform for data collection, annotation, and QA
-            workflows. {sourceLink("https://epinote.io/", "[1]")}
+            Epinote describes a platform for data collection, annotation, and QA workflows designed to help AI teams manage large-scale labeling operations.{" "}
+            {sourceLink("https://epinote.io/", "[1]")}{" "}
+            The platform focuses on workflow orchestration, allowing teams to coordinate distributed workforces, track annotation progress, manage quality gates, and maintain consistency across projects. Epinote serves as infrastructure for annotation project management rather than a direct data capture or enrichment service.
           </>
         ),
       },
@@ -364,19 +374,21 @@ export const epinoteComparison: ComparisonData = {
         question: "Does Epinote provide workforce management?",
         answer: (
           <>
-            The platform references workforce management for data tasks. {sourceLink("https://epinote.io/", "[2]")}
+            The platform references workforce management for data tasks as a core capability.{" "}
+            {sourceLink("https://epinote.io/", "[2]")}{" "}
+            This includes tools for coordinating annotators, assigning tasks based on skill levels, tracking productivity metrics, and managing quality assurance across large labeling teams. Workforce management is particularly valuable for organizations running annotation operations at scale with hundreds or thousands of distributed labelers.
           </>
         ),
       },
       {
         question: "Is Epinote a physical AI data provider?",
         answer:
-          "Epinote focuses on annotation workflows rather than capture-first physical data pipelines.",
+          "Epinote focuses on annotation workflows rather than capture-first physical data pipelines. The platform helps manage labeling operations for data that already exists, but it does not provide the physical-world data collection infrastructure that robotics teams need. Physical AI training requires specialized capture protocols, wearable cameras, multi-sensor setups, and task-specific collection programs that are outside the scope of workflow orchestration platforms.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your team needs new physical-world data collected for specific robot tasks, Claru provides the capture network, task-specific protocols, and enrichment pipeline that workflow platforms do not offer. Claru delivers depth maps, pose estimation, segmentation masks, and optical flow aligned to each clip, packaged in robotics-native formats like RLDS, WebDataset, and HDF5 for direct integration into training pipelines.",
       },
     ],
   },

@@ -59,6 +59,10 @@ export const superviselyComparison: ComparisonData = {
         for physical AI from day one.
       </>
     ),
+    paragraphs: [
+      "Supervisely has been operating since 2017 as an end-to-end computer vision platform that covers annotation, data management, neural network training, and deployment. The platform distinguishes itself from lighter-weight annotation tools by supporting complex modalities including LiDAR/3D point cloud sensor fusion and DICOM volumetric medical imaging alongside standard image and video labeling. Supervisely offers both cloud and self-hosted enterprise deployment options, making it attractive to organizations in autonomous driving, healthcare, and agriculture that require on-premise data handling for regulatory or security reasons.",
+      "While Supervisely provides strong tooling for annotating existing datasets across multiple modalities, it does not address the upstream challenge of acquiring new physical-world data for robotics training. Embodied AI systems require task-specific capture programs that produce egocentric video, manipulation demonstrations, and human activity sequences from diverse real-world environments. These datasets must then be enriched with depth estimation, human pose detection, optical flow, and temporal action segmentation before they are suitable for training policies. Supervisely can process data after collection, but Claru provides the complete capture-to-delivery pipeline that physical AI teams need.",
+    ],
     lastUpdated: "March 31, 2026",
   },
   tldr: {
@@ -487,8 +491,7 @@ export const superviselyComparison: ComparisonData = {
         question: "What is Supervisely?",
         answer: (
           <>
-            Supervisely is a CV platform offering labeling toolboxes and model
-            workflows across modalities.
+            Supervisely is an end-to-end computer vision platform offering labeling toolboxes and model workflows across modalities. Operating since 2017, the platform covers annotation, data management, neural network training, and deployment. Supervisely supports complex data types including LiDAR/3D point cloud sensor fusion and DICOM volumetric medical imaging, making it suitable for teams in autonomous driving, healthcare, and agriculture who need to annotate specialized datasets.
             {sourceLink("https://supervisely.com/", "[1]")}
           </>
         ),
@@ -497,8 +500,8 @@ export const superviselyComparison: ComparisonData = {
         question: "What data types does Supervisely support?",
         answer: (
           <>
-            Supervisely lists images, video, LiDAR/3D point clouds, and DICOM
-            datasets. {sourceLink("https://supervisely.com/", "[1]")}
+            Supervisely lists images, video, LiDAR/3D point clouds, and DICOM datasets. The image labeling toolbox supports standard annotation types including bounding boxes, polygons, and segmentation masks. The LiDAR/3D toolbox enables sensor fusion workflows where point cloud data is combined with camera images for autonomous driving and robotics perception tasks. DICOM support handles volumetric medical scans with specialized viewing and annotation tools.
+            {sourceLink("https://supervisely.com/", "[1]")}
           </>
         ),
       },
@@ -506,7 +509,7 @@ export const superviselyComparison: ComparisonData = {
         question: "Does Supervisely offer AI-assisted labeling?",
         answer: (
           <>
-            Supervisely highlights AI-assisted labeling and custom labeling UIs.
+            Supervisely highlights AI-assisted labeling and custom labeling UIs as part of its automation capabilities. AI-assisted features can pre-label data to reduce manual effort, and the platform supports building custom labeling interfaces tailored to specific project requirements. These automation features help teams scale annotation throughput for large datasets, though they operate on existing data rather than generating new enrichment layers like depth estimation or optical flow.
             {sourceLink("https://supervisely.com/", "[2]")}
           </>
         ),
@@ -515,8 +518,8 @@ export const superviselyComparison: ComparisonData = {
         question: "What operational features does Supervisely include?",
         answer: (
           <>
-            The platform includes data management, QA, collaboration, and
-            security controls. {sourceLink("https://supervisely.com/", "[3]")}
+            The platform includes data management, quality assurance, collaboration, and security controls. Data management handles dataset versioning, organization, and storage. QA features include review workflows, consensus scoring, and annotation validation. Collaboration tools enable teams to coordinate across annotators, reviewers, and project managers with role-based permissions and activity tracking.
+            {sourceLink("https://supervisely.com/", "[3]")}
           </>
         ),
       },
@@ -524,7 +527,7 @@ export const superviselyComparison: ComparisonData = {
         question: "Does Supervisely support model workflows?",
         answer: (
           <>
-            Supervisely lists train, serve, and apply neural network workflows.
+            Supervisely lists train, serve, and apply neural network workflows that allow teams to train models on annotated data, deploy them for inference, and apply predictions back to datasets for iterative improvement. This closed-loop approach supports active learning where model predictions guide the selection of data that most needs human annotation, improving labeling efficiency over time.
             {sourceLink("https://supervisely.com/", "[4]")}
           </>
         ),
@@ -533,20 +536,20 @@ export const superviselyComparison: ComparisonData = {
         question: "Is there an on-premise option?",
         answer: (
           <>
-            Supervisely advertises an on-premise Enterprise edition and
-            self-hosted deployment options. {sourceLink("https://supervisely.com/", "[5]")}
+            Supervisely advertises an on-premise Enterprise edition and self-hosted deployment options. This is important for organizations in regulated industries or with strict data sovereignty requirements who cannot send sensitive data to cloud services. The self-hosted option gives teams full control over their data and infrastructure while still accessing the platform annotation and model training features.
+            {sourceLink("https://supervisely.com/", "[5]")}
           </>
         ),
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your primary bottleneck is acquiring new physical-world data with task-specific demonstrations, egocentric perspectives, and enrichment layers like depth estimation, pose detection, and optical flow, Claru provides the end-to-end pipeline from physical collection through enrichment to training-ready delivery.",
       },
       {
         question: "Can teams use both Supervisely and Claru?",
         answer:
-          "Some teams use Supervisely for annotation tooling and Claru for capture-first physical AI datasets.",
+          "Some teams use Supervisely for annotation tooling and Claru for capture-first physical AI datasets. In this workflow, Claru handles the upstream capture and enrichment pipeline to produce data with depth, pose, and motion layers, while Supervisely can provide additional annotation workflows for specific labeling tasks that require human judgment beyond what enrichment pipelines produce automatically.",
       },
     ],
   },

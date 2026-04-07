@@ -84,6 +84,9 @@ export const asimovYcW26Comparison: ComparisonData = {
         Asimov lists egocentric video plus rich annotations such as 3D body
         pose, depth maps, semantic labels, and activity segmentation. {sourceLink("https://tryasimov.ai/", "[3]")}
       </>,
+      "Asimov was founded in 2026 by Lyem Ningthou and Anshul Verma and is part of the Y Combinator W26 batch. Lyem previously built data pipelines for the United States Air Force and was a founding engineer at Blume (YC W24). Anshul brings data infrastructure experience from Scale AI and ML research at BAIR (Berkeley Artificial Intelligence Research). The co-founders were roommates in college and previously co-founded a startup they grew to six figures in revenue.",
+      "Asimov's approach involves deploying collectors wearing custom capture rigs into real households and businesses. Unlike factory datasets that capture repetitive tasks in controlled environments, Asimov focuses on delivering the full diversity of real human environments with thousands of hours of data per day flowing to leading robotics labs. The company also owns a growing cleaning company, offering free and reduced-price cleanings where cleaners wear custom rigs while performing their work, creating a natural and cost-effective data collection flywheel.",
+      "For physical AI teams comparing Asimov and Claru, the key distinction is scope. Asimov specializes specifically in human movement and activity data captured from an egocentric perspective, which is highly relevant for humanoid robot training. Claru covers a broader range of physical AI tasks and environments, and provides multi-layer enrichment including depth estimation, segmentation, optical flow, and aligned captions as standard outputs alongside capture.",
       "If your bottleneck is egocentric human activity data, Asimov is a strong fit. If your bottleneck is broader physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -366,7 +369,8 @@ export const asimovYcW26Comparison: ComparisonData = {
         question: "What is Asimov?",
         answer: (
           <>
-            Asimov collects real-world human activity data for robotics. {sourceLink("https://tryasimov.ai/", "[1]")}
+            Asimov is a Y Combinator W26 startup founded by Lyem Ningthou and Anshul Verma that collects real-world human movement data from households and businesses to train humanoid robots. The company deploys collectors wearing custom capture rigs into real environments, delivering diverse egocentric video data at scale. Lyem previously built data pipelines for the US Air Force, and Anshul brings experience from Scale AI and ML research at BAIR.{" "}
+            {sourceLink("https://tryasimov.ai/", "[1]")}
           </>
         ),
       },
@@ -374,8 +378,8 @@ export const asimovYcW26Comparison: ComparisonData = {
         question: "What annotations does Asimov provide?",
         answer: (
           <>
-            Asimov lists 3D body pose, depth maps, semantic labels, and activity
-            segmentation as part of its annotations. {sourceLink("https://tryasimov.ai/", "[3]")}
+            Asimov provides rich annotations including 3D body pose, depth maps, semantic labels, and activity segmentation as part of its data pipeline. These annotation layers are generated through post-processing of the captured egocentric video, making the data immediately useful for training humanoid robot policies. The annotation coverage aligns closely with what robotics teams need for human motion imitation and task learning.{" "}
+            {sourceLink("https://tryasimov.ai/", "[3]")}
           </>
         ),
       },
@@ -383,15 +387,20 @@ export const asimovYcW26Comparison: ComparisonData = {
         question: "Does Asimov mention privacy protections?",
         answer: (
           <>
-            Asimov notes privacy-first data collection with no audio, auto-blurred
-            faces, and PII removal. {sourceLink("https://tryasimov.ai/", "[4]")}
+            Yes. Asimov describes privacy-first data collection practices including no audio recording, automatic face blurring, and PII removal from captured data. This approach is important for collecting data in real homes and businesses where privacy concerns are paramount. The privacy-by-design approach enables Asimov to scale data collection across private environments that would otherwise be off-limits.{" "}
+            {sourceLink("https://tryasimov.ai/", "[4]")}
           </>
         ),
       },
       {
+        question: "How does Asimov compare to Claru?",
+        answer:
+          "Both Asimov and Claru capture physical-world data for robotics, but they differ in scope. Asimov specializes specifically in human movement and activity data captured from an egocentric perspective, primarily for humanoid robot training. Claru covers a broader range of physical AI tasks and environments, and provides multi-layer enrichment including depth, pose, segmentation, optical flow, and aligned captions as standard outputs. Teams focused solely on humanoid activity data may prefer Asimov, while teams with broader physical AI needs may prefer Claru.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets across multiple task types.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets across multiple task types and environments. If your training needs extend beyond human activity data to include object manipulation, navigation, industrial scenarios, or other physical AI tasks, Claru's broader capture network and multi-layer enrichment pipeline provides the flexibility to address diverse data requirements.",
       },
     ],
   },

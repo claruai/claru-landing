@@ -96,6 +96,8 @@ export const roboflowComparison: ComparisonData = {
         Annotation types include bounding boxes, polygons, keypoints, and
         classification. {sourceLink("https://roboflow.com/annotate", "[5]")}
       </>,
+      "Roboflow has become one of the most widely adopted computer vision platforms, building a large community around open datasets and accessible ML tooling. The company was founded in 2019 and has raised significant venture capital to build its platform for dataset management, annotation, model training, and deployment. Roboflow's Universe hosts hundreds of thousands of public datasets contributed by the community, making it a go-to resource for CV practitioners who need training data for common object detection, classification, and segmentation tasks.",
+      "For physical AI and robotics teams, the key consideration when evaluating Roboflow is whether general-purpose CV annotation and dataset management tools meet the specific requirements of embodied AI training. Robotics models need task-specific data captured in controlled or real-world environments, enrichment layers such as monocular depth estimation, human pose tracking, instance segmentation, and optical flow, and delivery in formats compatible with robotics training frameworks. While Roboflow's annotation capabilities are strong for standard CV tasks, the platform does not provide physical-world capture infrastructure or the specialized enrichment processing that robotics training demands.",
       "If your bottleneck is CV annotation tooling and dataset management, Roboflow is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -388,10 +390,17 @@ export const roboflowComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics data requirements",
+        paragraphs: [
+          "Training embodied AI systems requires more than annotation tooling for images. Physical AI models depend on temporal video data with dense enrichment layers including monocular depth, human pose estimation, instance segmentation, and optical flow. These signals must be temporally aligned with the source video and delivered in formats compatible with robotics training frameworks like WebDataset, HDF5, or RLDS.",
+          "Roboflow focuses on image-level annotation and dataset management. Claru addresses the full pipeline from physical-world capture through enrichment to delivery, ensuring that robotics teams receive video datasets with all required enrichment signals included.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Roboflow is strong when annotation tooling is the bottleneck.",
-          "Claru is stronger when physical-world capture is the bottleneck.",
+          "Roboflow is strong when annotation tooling and dataset management are the bottleneck. Its AI-assisted labeling, Auto Label, and community dataset ecosystem make it a top choice for CV practitioners working on standard object detection, classification, and segmentation tasks. The platform's developer-friendly API and tooling reduce the time from data to trained model significantly.",
+          "Claru is stronger when physical-world capture and multi-layer enrichment are the bottleneck. If your model needs task-specific egocentric video with aligned depth maps, pose tracks, and segmentation masks delivered in robotics-native formats, Claru is built for that end-to-end pipeline.",
         ],
       },
     ],
@@ -465,8 +474,8 @@ export const roboflowComparison: ComparisonData = {
         question: "What is Roboflow?",
         answer: (
           <>
-            Roboflow provides a CV data management and annotation platform with
-            AI-assisted labeling. {sourceLink("https://roboflow.com/annotate", "[2]")}
+            Roboflow is a computer vision data management and annotation platform founded in 2019. The platform provides tools for dataset management, annotation, AI-assisted labeling, auto-labeling, model training, and deployment. Roboflow has built one of the largest communities in the CV space, with its Universe hosting hundreds of thousands of public datasets. The platform is widely adopted by developers and CV practitioners who need end-to-end tooling from data preparation to model deployment.
+            {sourceLink("https://roboflow.com/annotate", "[2]")}
           </>
         ),
       },
@@ -474,7 +483,7 @@ export const roboflowComparison: ComparisonData = {
         question: "How large is Roboflow's dataset scale?",
         answer: (
           <>
-            Roboflow highlights 750K+ datasets and 575M+ labeled images.
+            Roboflow highlights 750K+ datasets and 575M+ labeled images across its platform. This scale reflects the large community of contributors who share public datasets through Roboflow Universe. The breadth of available datasets makes Roboflow a valuable resource for standard CV tasks like object detection, classification, and segmentation, though robotics teams typically need task-specific capture rather than general-purpose community datasets.
             {sourceLink("https://roboflow.com/annotate", "[1]")}
           </>
         ),
@@ -483,7 +492,7 @@ export const roboflowComparison: ComparisonData = {
         question: "What is Label Assist?",
         answer: (
           <>
-            Roboflow claims Label Assist can reduce labeling time by up to 95%.
+            Roboflow claims Label Assist can reduce labeling time by up to 95%. Label Assist uses AI to suggest annotations as you label, creating an efficient feedback loop where the model improves its suggestions with each correction. This feature is particularly useful for repetitive labeling tasks where the annotation patterns are consistent across images, significantly accelerating the time from raw data to labeled dataset.
             {sourceLink("https://roboflow.com/annotate", "[3]")}
           </>
         ),
@@ -492,8 +501,7 @@ export const roboflowComparison: ComparisonData = {
         question: "What is Auto Label?",
         answer: (
           <>
-            Auto Label is described as using foundation models to label
-            thousands of images in minutes.
+            Auto Label uses foundation models to automatically label thousands of images in minutes without manual annotation. This feature leverages pre-trained models to generate labels at scale, which can then be reviewed and corrected by human annotators. Auto Label is most effective for common object categories where foundation models have strong performance, though specialized or domain-specific labeling tasks may still require significant human oversight.
             {sourceLink("https://roboflow.com/annotate", "[4]")}
           </>
         ),
@@ -502,25 +510,25 @@ export const roboflowComparison: ComparisonData = {
         question: "What annotation types does Roboflow support?",
         answer: (
           <>
-            Roboflow lists bounding boxes, polygons, keypoints, and
-            classification. {sourceLink("https://roboflow.com/annotate", "[5]")}
+            Roboflow supports bounding boxes, polygons, keypoints, and classification annotation types. These cover the most common computer vision labeling needs including object detection, instance segmentation, pose estimation, and image classification. For robotics teams that also need temporal video annotations, enrichment layers like depth estimation, and delivery in robotics-native formats, additional tooling beyond standard CV annotation may be required.
+            {sourceLink("https://roboflow.com/annotate", "[5]")}
           </>
         ),
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when your primary need is capturing new physical-world data and enriching it for robotics training. This includes scenarios where you need egocentric video from specific environments, enrichment layers such as monocular depth, pose estimation, segmentation, and optical flow, and delivery in formats like WebDataset, HDF5, or RLDS. If your bottleneck is image-level annotation and dataset management for standard CV tasks, Roboflow is the more appropriate choice.",
       },
       {
         question: "Can teams use both Roboflow and Claru?",
         answer:
-          "Some teams use Roboflow for annotation tooling and Claru for capture-first physical AI datasets.",
+          "Yes. Some teams use Roboflow for annotation tooling on standard computer vision tasks while using Claru for capture-first physical AI datasets. This combination works well when a team has both general CV annotation needs that benefit from Roboflow's AI-assisted labeling and specialized requirements for robotics training data that demands physical-world capture with dense enrichment layers and robotics-native delivery formats.",
       },
       {
         question: "Is Roboflow a fit for robotics data capture?",
         answer:
-          "Roboflow focuses on annotation tooling. Claru is better for capture-first robotics data collection and enrichment.",
+          "Roboflow focuses on annotation tooling and dataset management for existing image data rather than physical-world capture for robotics. The platform does not provide capture infrastructure, collector networks, or enrichment processing. Teams building embodied AI systems that need task-specific video capture in real-world environments, enrichment layers like depth and pose estimation, and delivery in robotics-native formats should evaluate providers designed specifically for physical AI data pipelines.",
       },
     ],
   },

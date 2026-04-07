@@ -56,6 +56,10 @@ export const turingComparison: ComparisonData = {
         physical AI from the ground up. This page compares the two approaches.
       </>
     ),
+    paragraphs: [
+      "Turing was founded in 2018 by Jonathan Siddharth and Vijay Krishnan, both Stanford alumni, with a mission to connect elite AI engineering talent with global organizations. The company raised over $140 million in venture funding and built a platform that matches vetted AI engineers and data scientists with enterprise teams through embedded talent pods. Turing expanded beyond talent placement into AI system delivery and curated dataset services, positioning itself as a comprehensive partner for organizations looking to accelerate their AI roadmaps without building large internal teams.",
+      "While Turing provides valuable talent and system delivery capabilities, the company operates primarily as a staffing and consulting model rather than a physical-world data infrastructure provider. Robotics and embodied AI teams require more than AI talent: they need structured capture programs with wearable cameras, task-specific collection protocols, and enrichment pipelines that produce depth maps, pose estimations, optical flow, and spatial annotations at the frame level. These capabilities require specialized physical capture infrastructure that sits outside the scope of talent augmentation. Claru provides this infrastructure as a purpose-built pipeline for physical AI data, from capture brief through enrichment to robotics-ready delivery.",
+    ],
     lastUpdated: "March 31, 2026",
   },
   tldr: {
@@ -389,8 +393,7 @@ export const turingComparison: ComparisonData = {
         question: "What does Turing provide?",
         answer: (
           <>
-            Turing promotes AI system delivery and embedded AI talent pods to
-            help organizations move from pilot to production. {" "}
+            Turing promotes AI system delivery and embedded AI talent pods to help organizations move from pilot to production. Founded in 2018 by Stanford alumni, the company has raised over $140 million and built a platform that matches vetted AI engineers and data scientists with enterprise teams. Turing has expanded beyond talent placement into AI system delivery and curated datasets, offering a comprehensive partner model for accelerating AI roadmaps.
             {sourceLink("https://www.turing.com/intelligence/build", "[1]")}
           </>
         ),
@@ -399,20 +402,25 @@ export const turingComparison: ComparisonData = {
         question: "Does Turing provide embedded AI talent?",
         answer: (
           <>
-            Yes. Turing highlights AI-native pods integrated into client teams
-            and stacks. {sourceLink("https://www.turing.com/intelligence/build", "[2]")}
+            Yes. Turing highlights AI-native pods integrated into client teams and stacks. These embedded talent pods include AI engineers, data scientists, and ML specialists who work as extensions of the client organization. The model is designed for teams that need execution capacity to ship AI systems but already have clarity on their data strategy, infrastructure, and model architecture decisions.
+            {sourceLink("https://www.turing.com/intelligence/build", "[2]")}
           </>
         ),
       },
       {
         question: "Is Turing a physical AI data provider?",
         answer:
-          "Turing’s core positioning is talent and system delivery rather than physical-world data capture.",
+          "Turing’s core positioning is talent and system delivery rather than physical-world data capture. While the company offers curated datasets for AI training, it does not operate a physical capture network with wearable cameras, task-specific collection protocols, or enrichment pipelines that produce depth maps, pose estimations, and optical flow. Robotics teams that need new physical-world demonstrations collected and enriched require a specialized capture-first provider.",
+      },
+      {
+        question: "Does Turing offer training datasets?",
+        answer:
+          "Turing highlights curated datasets for AI training as part of its broader AI service offering. However, these datasets are positioned as supplementary to the company’s primary talent and system delivery model. For robotics and physical AI teams that need task-specific capture programs with structured demonstration protocols and multi-layer enrichment, a dedicated data pipeline provider offers more appropriate infrastructure.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need physical-world capture, enrichment, and robotics-ready dataset delivery.",
+          "Claru is a better fit when you need physical-world capture, enrichment, and robotics-ready dataset delivery. If your team already has engineering talent but needs new physical-world data collected from real environments with wearable cameras, enriched with depth, pose, segmentation, and optical flow, and delivered in formats compatible with robotics training frameworks, Claru provides the specialized infrastructure for that pipeline.",
       },
     ],
   },

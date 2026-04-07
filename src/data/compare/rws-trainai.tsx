@@ -104,6 +104,8 @@ export const rwsTrainAiComparison: ComparisonData = {
         The service is positioned as technology-agnostic across tooling and
         platforms. {sourceLink("https://www.rws.com/artificial-intelligence/train-ai-data-services/", "[6]")}
       </>,
+      "RWS Group is a publicly traded language services and content technology company headquartered in the UK, with TrainAI as its dedicated AI data services division. RWS acquired Appen's competitor Lionbridge AI in 2020, significantly expanding its AI data capabilities. The TrainAI division leverages RWS's existing global network of linguists and subject matter experts to provide AI training data services across languages and modalities. The company's enterprise scale and multilingual infrastructure make it one of the largest managed AI data services providers globally.",
+      "For physical AI and robotics teams, the critical question is whether enterprise-scale managed data services address the specific requirements of embodied AI training. Robotics models require task-specific data captured in controlled or real-world environments with dense enrichment layers like depth estimation, pose tracking, instance segmentation, and optical flow. These signals must be temporally aligned and delivered in robotics-native formats. Global data services providers excel at scale and linguistic diversity but may not offer the specialized capture infrastructure and enrichment processing that physical AI demands.",
       "If your bottleneck is global AI data services and multilingual coverage, RWS TrainAI is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -478,8 +480,7 @@ export const rwsTrainAiComparison: ComparisonData = {
         question: "What is RWS TrainAI?",
         answer: (
           <>
-            RWS TrainAI provides data collection, annotation, and validation
-            services for AI training data.
+            RWS TrainAI is the AI data services division of RWS Group, a publicly traded language services and content technology company headquartered in the UK. TrainAI provides data collection, annotation, and validation services leveraging a global network of over 100,000 vetted AI data specialists across 175+ countries with 400+ language variants. RWS expanded its AI data capabilities significantly through its acquisition of Lionbridge AI, making TrainAI one of the largest managed AI data services providers globally.
             {sourceLink("https://www.rws.com/artificial-intelligence/train-ai-data-services/", "[1]")}
           </>
         ),
@@ -488,7 +489,7 @@ export const rwsTrainAiComparison: ComparisonData = {
         question: "How large is the RWS TrainAI workforce?",
         answer: (
           <>
-            RWS cites 100,000+ active, vetted AI data specialists.
+            RWS cites 100,000+ active, vetted AI data specialists in its workforce network. This scale comes from combining RWS's existing global linguist network with the AI data capabilities acquired through the Lionbridge AI acquisition. The large workforce enables RWS TrainAI to handle enterprise-scale data programs across multiple languages and modalities simultaneously, making it suitable for global AI deployment programs that require consistent data quality across many markets.
             {sourceLink("https://www.rws.com/artificial-intelligence/train-ai-data-services/", "[3]")}
           </>
         ),
@@ -497,7 +498,7 @@ export const rwsTrainAiComparison: ComparisonData = {
         question: "What language coverage does RWS TrainAI offer?",
         answer: (
           <>
-            RWS highlights 400+ language variants across 175+ countries.
+            RWS highlights 400+ language variants across 175+ countries. This extensive linguistic coverage is one of TrainAI's primary differentiators, reflecting RWS's heritage as a language services company. The multilingual capability is particularly valuable for teams deploying AI systems globally that need training data in low-resource languages or culturally specific contexts. For physical AI and robotics teams, language coverage is typically less critical than capture infrastructure and enrichment pipelines.
             {sourceLink("https://www.rws.com/artificial-intelligence/train-ai-data-services/", "[4]")}
           </>
         ),
@@ -506,16 +507,20 @@ export const rwsTrainAiComparison: ComparisonData = {
         question: "Does RWS TrainAI support GenAI workflows?",
         answer: (
           <>
-            Yes. RWS lists data or content creation, prompt engineering, RLHF,
-            and red teaming services.
+            Yes. RWS lists generative AI services including data or content creation, prompt engineering, RLHF feedback, and red teaming. These services target teams developing large language models and generative AI systems that need human evaluation, preference data, and safety testing. For physical AI teams focused on robotics and embodied AI, these GenAI services address a different part of the AI development stack than capture-first data pipelines.
             {sourceLink("https://www.rws.com/artificial-intelligence/train-ai-data-services/", "[2]")}
           </>
         ),
       },
       {
+        question: "Is RWS TrainAI a fit for robotics data capture?",
+        answer:
+          "RWS TrainAI focuses on managed AI data services with strong multilingual coverage rather than capture-first robotics data. While the platform covers video and multimodal data collection, it is not positioned as a specialized physical AI data provider with enrichment pipelines for depth, pose, and motion signals. Teams building embodied AI systems that require task-specific video capture and dense enrichment should evaluate providers designed specifically for physical AI data pipelines.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when your primary need is capturing physical-world data and enriching it for robotics training. This includes scenarios where you need egocentric video from specific environments, enrichment layers such as monocular depth, pose estimation, segmentation, and optical flow, and delivery in robotics-native formats like WebDataset, HDF5, or RLDS. If your bottleneck is global multilingual data services at enterprise scale, RWS TrainAI may be the more appropriate choice.",
       },
     ],
   },

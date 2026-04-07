@@ -84,6 +84,8 @@ export const company1840Comparison: ComparisonData = {
         The company highlights image, video, and 3D point cloud annotation
         workflows. {sourceLink("https://www.1840andco.com/back-office/data-annotation", "[3]")}
       </>,
+      "Founded in 2014 and headquartered in Overland Park, Kansas, 1840 & Company has grown into a global outsourcing provider covering back-office functions, customer support, and AI data services. The company operates as a privately held entity and has built its reputation on managed workforce delivery rather than proprietary annotation tooling. Their data labeling division is one arm of a broader outsourcing business that also includes virtual assistants, customer service, and content moderation.",
+      "For physical AI and robotics teams, the key consideration is that 1840 & Company approaches data annotation as a managed service engagement. They provide trained annotators who work on customer-supplied data using standard labeling workflows. This model works well when you already have raw data and need human labeling capacity. However, it does not address the upstream challenge of capturing physical-world data in the first place, nor does it provide the enrichment layers like depth estimation, pose extraction, or optical flow that robotics models require as first-class training signals.",
       "If your bottleneck is annotation services and managed teams, 1840 & Company is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -275,6 +277,20 @@ export const company1840Comparison: ComparisonData = {
         },
       },
       {
+        dimension: "Delivery format",
+        values: {
+          company1840: "Labeled datasets in client-specified formats",
+          claru: "Robotics-native formats (RLDS, LeRobot, HDF5)",
+        },
+      },
+      {
+        dimension: "Company background",
+        values: {
+          company1840: "Founded 2014, Overland Park, Kansas, broader outsourcing firm",
+          claru: "Purpose-built for physical AI from day one",
+        },
+      },
+      {
         dimension: "Best fit",
         values: {
           company1840: "Teams needing managed annotation services",
@@ -291,22 +307,29 @@ export const company1840Comparison: ComparisonData = {
       {
         title: "Services vs pipeline",
         paragraphs: [
-          "1840 & Company delivers managed data labeling services.",
-          "Claru delivers capture, enrichment, and training-ready datasets.",
+          "1840 & Company delivers managed data labeling services. Their model is built around providing trained annotators who work on your data using established labeling workflows. This is a proven approach for teams with existing datasets that need human labeling throughput.",
+          "Claru delivers capture, enrichment, and training-ready datasets. Rather than starting with existing data, Claru operates a network of collectors who capture physical-world video and sensor data tailored to specific robotics tasks and environments.",
         ],
       },
       {
         title: "Data sourcing",
         paragraphs: [
-          "1840 & Company helps teams label existing data across modalities.",
-          "Claru captures new physical-world data tailored to robotics tasks.",
+          "1840 & Company helps teams label existing data across modalities. If you have raw images, video, text, or audio that need annotation, their managed workforce model can scale to meet throughput requirements. The company has been operating since 2014 and has built processes for consistent quality across outsourced annotation work.",
+          "Claru captures new physical-world data tailored to robotics tasks. This is a fundamentally different starting point: instead of labeling what you already have, Claru creates the raw data you need by deploying collectors with wearable cameras into real environments performing real tasks.",
+        ],
+      },
+      {
+        title: "Physical AI relevance",
+        paragraphs: [
+          "For robotics and embodied AI teams, the biggest gap in 1840 & Company's offering is upstream data creation. Annotating existing 2D images or text is straightforward, but robotics models need egocentric video, depth maps, 3D pose data, and motion signals that cannot be sourced from generic labeling workflows.",
+          "Claru addresses this gap directly by providing capture protocols designed for physical AI, enrichment layers like depth estimation and pose extraction, and delivery in formats compatible with robotics training stacks such as RLDS and LeRobot.",
         ],
       },
       {
         title: "Where each wins",
         paragraphs: [
-          "1840 & Company is strong when you need managed annotation teams.",
-          "Claru is stronger when capture and enrichment are the bottleneck.",
+          "1840 & Company is strong when you need managed annotation teams for labeling existing datasets across standard modalities like text, image, audio, and video.",
+          "Claru is stronger when capture and enrichment are the bottleneck, particularly for teams building manipulation policies, navigation models, or world models that require real-world physical data with rich sensor signals.",
         ],
       },
     ],
@@ -365,9 +388,10 @@ export const company1840Comparison: ComparisonData = {
   decision: {
     title: "How to Choose",
     paragraphs: [
-      "Choose 1840 & Company when you need managed data labeling and annotation services.",
-      "Choose Claru when you need capture and enrichment of physical-world data for robotics training.",
-      "Some teams use both: 1840 & Company for labeling services, Claru for capture-first datasets.",
+      "Choose 1840 & Company when you need managed data labeling and annotation services. They are a solid fit for teams that already have raw data in hand and need human annotators to label it at scale across standard modalities like text, images, audio, and video.",
+      "Choose Claru when you need capture and enrichment of physical-world data for robotics training. If your bottleneck is not labeling but rather the absence of high-quality physical-world data with rich sensor signals, Claru addresses that gap directly with capture protocols, enrichment pipelines, and robotics-native delivery formats.",
+      "Some teams use both: 1840 & Company for labeling services on existing datasets, and Claru for capture-first datasets where the raw data does not yet exist. This complementary approach is common among teams scaling physical AI programs that have both legacy data labeling needs and new capture requirements.",
+      "If you are migrating from 1840 & Company to a capture-first provider, expect the engagement model to shift from providing data for labeling to co-designing capture briefs that specify environments, tasks, camera placements, and enrichment layers upfront.",
     ],
   },
   faq: {
@@ -377,8 +401,8 @@ export const company1840Comparison: ComparisonData = {
         question: "What is 1840 & Company?",
         answer: (
           <>
-            1840 & Company provides managed data labeling and annotation
-            services. {sourceLink("https://www.1840andco.com/back-office/data-annotation", "[1]")}
+            1840 & Company is a global outsourcing provider founded in 2014 and headquartered in Overland Park, Kansas. Their services include managed data labeling and annotation across computer vision, NLP, audio, and multi-modal datasets. The company operates as a broader outsourcing business that also covers virtual assistants, customer support, and content moderation, with data annotation being one division of their offering.{" "}
+            {sourceLink("https://www.1840andco.com/back-office/data-annotation", "[1]")}
           </>
         ),
       },
@@ -386,8 +410,8 @@ export const company1840Comparison: ComparisonData = {
         question: "What data types does 1840 & Company cover?",
         answer: (
           <>
-            The company highlights computer vision, NLP, audio, and multi-modal
-            annotation services. {sourceLink("https://www.1840andco.com/back-office/data-annotation", "[2]")}
+            The company highlights computer vision, NLP, audio, and multi-modal annotation services. Their CV workflows include image annotation, video annotation, and 3D point cloud labeling. For NLP tasks, they cover text classification, named entity recognition, and sentiment analysis. Their multi-modal capabilities combine these data types for more complex annotation projects.{" "}
+            {sourceLink("https://www.1840andco.com/back-office/data-annotation", "[2]")}
           </>
         ),
       },
@@ -395,15 +419,20 @@ export const company1840Comparison: ComparisonData = {
         question: "Does 1840 & Company support 3D annotation?",
         answer: (
           <>
-            1840 & Company highlights image, video, and 3D point cloud
-            annotation. {sourceLink("https://www.1840andco.com/back-office/data-annotation", "[3]")}
+            1840 & Company lists image, video, and 3D point cloud annotation as part of their computer vision workflows. However, their 3D annotation capability is positioned as a labeling service for existing point cloud data rather than a capture-first pipeline. Teams that need to generate 3D data from scratch, including depth maps and pose estimation, may find that a capture-and-enrichment provider like Claru is a better fit for their upstream data needs.{" "}
+            {sourceLink("https://www.1840andco.com/back-office/data-annotation", "[3]")}
           </>
         ),
       },
       {
+        question: "Can 1840 & Company handle robotics data?",
+        answer:
+          "1840 & Company can annotate existing robotics datasets through their managed labeling services. However, they do not offer physical-world data capture, enrichment layers like depth or pose estimation, or delivery in robotics-native formats. For teams that need the full pipeline from capture to training-ready delivery, a specialized provider like Claru is better suited to the task.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need the full pipeline from physical-world data capture through enrichment and delivery. If your team does not yet have raw robotics data, or if you need enrichment layers like depth maps, 3D pose, segmentation, and optical flow as first-class outputs rather than add-ons, Claru is designed specifically for that workflow. Choose 1840 & Company when you already have data and need managed human labeling throughput.",
       },
     ],
   },

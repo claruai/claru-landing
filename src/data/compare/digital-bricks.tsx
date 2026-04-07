@@ -84,6 +84,8 @@ export const digitalBricksComparison: ComparisonData = {
         Digital Bricks highlights multiple annotation types and managed QA
         workflows. {sourceLink("https://www.digitalbricks.ai/build-innovate/data-labeling-annotation", "[3]")}
       </>,
+      "Digital Bricks operates as part of a broader technology services company, offering data labeling and annotation as one component of its build-and-innovate portfolio. The company positions itself as a partner for AI teams that need outsourced labeling capacity with managed quality assurance, spanning use cases from computer vision to natural language processing. Digital Bricks has built its annotation practice around human-driven workflows with multiple annotation types including bounding boxes, polygons, semantic segmentation, and classification tasks.",
+      "For teams working on physical AI and robotics, the distinction between general-purpose labeling services and capture-first data pipelines is critical. Labeling providers like Digital Bricks assume you already have data that needs annotation. Robotics teams, however, often face a more fundamental challenge: they need to collect the physical-world data in the first place. Egocentric video of manipulation tasks, multi-angle recordings of object interactions, and sensor-aligned capture sequences require specialized collection infrastructure that annotation-only providers do not offer.",
       "If your bottleneck is annotation services and QA, Digital Bricks is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -298,10 +300,17 @@ export const digitalBricksComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics AI data challenges",
+        paragraphs: [
+          "Modern robotics AI architectures including imitation learning models, vision-language-action networks, and diffusion policies require training data with specific characteristics: egocentric viewpoints that match robot camera placements, manipulation sequences showing hand-object interactions, depth information for spatial reasoning, and action-level temporal segmentation for policy learning. General-purpose annotation services can label these data types once they exist, but they cannot create them.",
+          "Claru addresses the upstream bottleneck by providing capture protocols designed for robotics scenarios, then enriching captured data with depth maps, human pose estimation, instance segmentation, and optical flow before delivery in formats that plug directly into robotics training pipelines.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Digital Bricks is strong when you need labeling capacity and QA.",
-          "Claru is stronger when capture and enrichment are the bottleneck.",
+          "Digital Bricks is strong when you need labeling capacity and QA across standard data types like images, text, and video. Their managed services model works well for teams with existing data that needs annotation at scale.",
+          "Claru is stronger when capture and enrichment are the bottleneck, particularly for robotics teams that need new task-specific physical-world data with multi-layer enrichment from collection through delivery.",
         ],
       },
     ],
@@ -372,8 +381,9 @@ export const digitalBricksComparison: ComparisonData = {
         question: "What is Digital Bricks?",
         answer: (
           <>
-            Digital Bricks provides data labeling and annotation services.
-            {sourceLink("https://www.digitalbricks.ai/build-innovate/data-labeling-annotation", "[1]")}
+            Digital Bricks provides data labeling and annotation services as part of a broader technology services company.{" "}
+            {sourceLink("https://www.digitalbricks.ai/build-innovate/data-labeling-annotation", "[1]")}{" "}
+            The company offers managed annotation capacity across multiple data types, including image, video, text, audio, and tabular data. Digital Bricks positions its labeling practice as a build-and-innovate service, helping AI teams outsource annotation work with quality assurance workflows and multiple annotation type support.
           </>
         ),
       },
@@ -381,8 +391,9 @@ export const digitalBricksComparison: ComparisonData = {
         question: "What data types does Digital Bricks support?",
         answer: (
           <>
-            The company lists image, video, text, audio, and tabular data
-            labeling. {sourceLink("https://www.digitalbricks.ai/build-innovate/data-labeling-annotation", "[2]")}
+            The company lists image, video, text, audio, and tabular data labeling across its annotation services.{" "}
+            {sourceLink("https://www.digitalbricks.ai/build-innovate/data-labeling-annotation", "[2]")}{" "}
+            This multi-modal coverage makes Digital Bricks suitable for teams that need labeling across diverse data types within a single provider. However, physical AI teams working on robotics typically need specialized annotation types like affordance labels, grasp annotations, and action boundary markings that require domain-specific expertise beyond standard labeling services.
           </>
         ),
       },
@@ -390,15 +401,16 @@ export const digitalBricksComparison: ComparisonData = {
         question: "Does Digital Bricks cover multiple annotation types?",
         answer: (
           <>
-            Digital Bricks highlights multiple annotation types and QA
-            workflows. {sourceLink("https://www.digitalbricks.ai/build-innovate/data-labeling-annotation", "[3]")}
+            Digital Bricks highlights multiple annotation types and QA workflows in its labeling services.{" "}
+            {sourceLink("https://www.digitalbricks.ai/build-innovate/data-labeling-annotation", "[3]")}{" "}
+            These include bounding boxes, polygon annotation, semantic segmentation, classification, and other standard computer vision labeling tasks. The managed QA component ensures labeling quality across projects. For robotics-specific annotation requirements like temporal action segmentation or depth-aligned labeling, teams may need additional specialized tooling or providers.
           </>
         ),
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your team needs new physical-world data collected for specific robot tasks rather than annotation of existing datasets, Claru provides the capture infrastructure, collector network, and task-specific protocols that annotation-only providers do not offer. Claru also delivers enrichment layers including depth maps, pose estimation, segmentation, and optical flow as standard outputs, packaged in robotics-native formats like RLDS, WebDataset, and HDF5.",
       },
     ],
   },
