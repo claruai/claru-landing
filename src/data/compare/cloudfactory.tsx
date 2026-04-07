@@ -104,6 +104,17 @@ export const cloudfactoryComparison: ComparisonData = {
         workflows.
         {sourceLink("https://www.cloudfactory.com/data-engine", "[5]")}
       </>,
+      <>
+        CloudFactory was founded in 2010 by Mark Sears in Nepal, with a
+        mission to connect talented people to meaningful work through AI data
+        services. The company has raised $153 million in total funding,
+        including a $65 million growth equity round led by FTV Capital in
+        2019. CloudFactory has grown from three developers to over 7,000
+        analysts and 1,000+ full-time employees across four continents.{" "}
+        {sourceLink("https://www.cloudfactory.com/about", "[6]")}
+      </>,
+      "CloudFactory serves customers including autonomous vehicle companies, medical imaging firms, and enterprise AI teams. The company emphasizes a social enterprise model, providing employment opportunities in developing economies while delivering AI data services to global clients. Notable customers include Ibotta, DroneDeploy, and Luminar Technologies.",
+      "For robotics teams, CloudFactory provides solid managed data services for annotation and curation, but does not offer physical-world data capture or the specialized enrichment layers like depth estimation, pose tracking, and optical flow that embodied AI models require. If your data already exists and you need managed labeling, CloudFactory is a strong choice. If you need to collect and enrich new physical-world data, a capture-first pipeline is necessary.",
       "If your bottleneck is managed data services with AI-assisted labeling, CloudFactory is a strong fit. If your bottleneck is physical-world capture and robotics enrichment, you need a specialized pipeline.",
     ],
   },
@@ -463,9 +474,24 @@ export const cloudfactoryComparison: ComparisonData = {
         ),
       },
       {
+        question: "Who founded CloudFactory and how large is the company?",
+        answer: (
+          <>
+            CloudFactory was founded in 2010 by Mark Sears in Nepal, starting
+            with a team of three developers. The company has raised $153
+            million in total funding and grown to over 7,000 analysts and
+            1,000+ full-time employees across four continents. CloudFactory
+            operates as a social enterprise, providing meaningful employment
+            in developing economies while delivering AI data services to global
+            clients.
+            {sourceLink("https://www.cloudfactory.com/about", "[6]")}
+          </>
+        ),
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. CloudFactory excels at managed annotation and data curation for existing datasets, but if you need new physical-world data collected in specific environments with depth, pose, segmentation, and motion enrichment, a capture-first pipeline like Claru is required.",
       },
     ],
   },

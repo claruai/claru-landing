@@ -104,6 +104,8 @@ export const opentrainAiComparison: ComparisonData = {
         tools.
         {sourceLink("https://www.opentrain.ai/", "[5]")}
       </>,
+      "OpenTrain AI differentiates itself from traditional annotation platforms by focusing on the workforce operations layer rather than the annotation tooling itself. The platform emphasizes integrating workers into whatever tools a team already uses, avoiding vendor lock-in and tool migration. This approach is particularly appealing for teams that have already invested in annotation infrastructure and need to scale their workforce without changing their technical stack.",
+      "For physical AI and robotics teams, the critical question is whether workforce staffing is the primary bottleneck or whether it is the data capture and enrichment pipeline. Embodied AI models require task-specific data captured in real-world environments with dense enrichment layers like depth estimation, pose tracking, instance segmentation, and optical flow. These requirements go beyond annotation workforce management into specialized capture infrastructure, sensor alignment, and enrichment processing that workforce platforms do not typically provide.",
       "If your bottleneck is staffing and operations for AI trainers, OpenTrain AI is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -370,10 +372,17 @@ export const opentrainAiComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics data requirements",
+        paragraphs: [
+          "Training embodied AI systems requires more than annotation workforce capacity. Physical AI models depend on dense enrichment layers including monocular depth, human pose estimation, instance segmentation, and optical flow. These signals serve as direct model inputs and must be generated alongside capture to ensure temporal alignment and consistency across the entire dataset.",
+          "Workforce platforms like OpenTrain AI help teams staff annotation programs. Claru addresses the full pipeline from physical-world capture through enrichment to delivery, ensuring that robotics teams receive training-ready datasets with all required enrichment signals included.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "OpenTrain AI is strong when staffing and trainer operations are the bottleneck.",
-          "Claru is stronger when physical-world capture is the bottleneck.",
+          "OpenTrain AI is strong when staffing and trainer operations are the bottleneck. If you need to rapidly scale your annotation workforce, integrate workers into existing tools, or manage QA across distributed teams, the platform provides the operational infrastructure for that.",
+          "Claru is stronger when physical-world capture and multi-layer enrichment are the bottleneck. If your model needs task-specific egocentric video with aligned depth maps, pose tracks, and segmentation masks delivered in robotics-native formats, Claru is built for that pipeline.",
         ],
       },
     ],
@@ -444,8 +453,7 @@ export const opentrainAiComparison: ComparisonData = {
         question: "What is OpenTrain AI?",
         answer: (
           <>
-            OpenTrain AI provides a platform to hire, manage, and pay AI
-            trainers and data labelers.
+            OpenTrain AI provides a platform to hire, manage, and pay AI trainers and data labelers while integrating them into existing annotation tools. The platform focuses on the workforce operations layer of AI data programs, handling recruitment, vetting, onboarding, scheduling, and quality assurance. OpenTrain differentiates itself by avoiding tool lock-in, allowing teams to keep their existing annotation infrastructure while scaling their workforce through the platform.
             {sourceLink("https://www.opentrain.ai/", "[1]")}
           </>
         ),
@@ -454,8 +462,7 @@ export const opentrainAiComparison: ComparisonData = {
         question: "Does OpenTrain integrate with existing labeling tools?",
         answer: (
           <>
-            Yes. OpenTrain highlights integration into existing tools without
-            migration or lock-in.
+            Yes. OpenTrain emphasizes integration into existing tools without requiring migration or creating lock-in. This means teams can continue using their current annotation platforms such as Labelbox, Scale, or custom tools while using OpenTrain to source, vet, and manage the annotators working within those platforms. This approach is particularly useful for organizations that have already invested in annotation tooling and want to scale their workforce without changing their tech stack.
             {sourceLink("https://www.opentrain.ai/", "[4]")}
           </>
         ),
@@ -464,16 +471,25 @@ export const opentrainAiComparison: ComparisonData = {
         question: "Does OpenTrain offer managed services?",
         answer: (
           <>
-            OpenTrain describes a managed service covering recruiting,
-            onboarding, training, scheduling, and QA.
+            OpenTrain describes a managed service model that covers the full lifecycle of workforce operations including recruiting, onboarding, training, scheduling, and quality assurance. This managed approach handles the operational overhead of running annotation programs so teams can focus on task design and output review rather than workforce logistics. The managed service runs inside the client's existing tools rather than requiring migration to a proprietary platform.
             {sourceLink("https://www.opentrain.ai/", "[5]")}
           </>
         ),
       },
       {
+        question: "Is OpenTrain AI a fit for robotics data capture?",
+        answer:
+          "OpenTrain AI focuses on workforce operations for annotation programs rather than physical-world data capture. The platform helps teams hire and manage annotators but does not provide capture infrastructure, sensor-equipped collector networks, or enrichment processing for robotics data. Teams building embodied AI systems that require task-specific video capture, enrichment layers like depth estimation and pose tracking, and delivery in robotics-native formats should evaluate providers designed specifically for physical AI data pipelines.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when your primary need is capturing new physical-world data and enriching it for robotics training. This includes scenarios where you need egocentric video from specific environments, dense enrichment layers such as monocular depth, pose estimation, segmentation, and optical flow, and delivery in formats like WebDataset, HDF5, or RLDS. If your bottleneck is workforce scaling for annotation programs within existing tools, OpenTrain AI may be the more appropriate starting point.",
+      },
+      {
+        question: "Can teams use both OpenTrain AI and Claru?",
+        answer:
+          "Yes. Some teams use OpenTrain AI for workforce management and annotation staffing while using Claru for capture-first physical AI datasets with enrichment layers. This combination works well when a team needs to scale annotation operations for existing data while also acquiring new task-specific physical-world data for robotics training. The two platforms address different layers of the data pipeline and can work together effectively.",
       },
     ],
   },

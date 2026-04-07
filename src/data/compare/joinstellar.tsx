@@ -59,6 +59,10 @@ export const joinstellarComparison: ComparisonData = {
       </>
     ),
     lastUpdated: "April 2, 2026",
+    paragraphs: [
+      "Joinstellar operates as a contributor marketplace that connects freelance workers with AI training and data annotation tasks. The platform emphasizes flexibility for contributors, offering project-based work with no contracts or required schedules. Joinstellar appears to function as a supply-side recruitment portal for companies that need distributed annotation labor, sitting in a similar space to platforms like Remotasks and Toloka but with a more contributor-friendly positioning.",
+      "For teams building physical AI systems, it is important to understand that Joinstellar is a workforce access platform rather than a data pipeline. The platform helps companies find annotators but does not capture real-world video, generate spatial enrichment layers like depth or pose, or deliver datasets in robotics-native formats. Physical AI teams training manipulation policies, navigation models, or world models need upstream data capture and enrichment that goes well beyond what a contributor marketplace provides. Joinstellar may serve as a source of annotation labor for existing datasets, but the core bottleneck in robotics data, which is generating task-specific physical-world recordings with aligned spatial signals, requires a fundamentally different kind of provider.",
+    ],
   },
   tldr: {
     title: "TL;DR",
@@ -317,10 +321,17 @@ export const joinstellarComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics AI considerations",
+        paragraphs: [
+          "Physical AI models such as RT-2, Octo, and OpenVLA require training data that combines egocentric video with dense spatial signals like depth maps, human pose skeletons, segmentation masks, and optical flow vectors. A contributor marketplace can provide annotation labor to label existing footage, but it cannot generate the raw capture data or the enrichment layers that robotics training pipelines demand.",
+          "Claru addresses this upstream gap by deploying trained operators with wearable cameras to capture task-specific video in real environments, then running automated enrichment pipelines that produce per-frame depth, pose, segmentation, and motion outputs. The resulting datasets are delivered in robotics-native formats like RLDS, LeRobot, or HDF5.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Joinstellar is a strong fit for distributed contributor capacity.",
-          "Claru is better when capture and enrichment are the bottleneck.",
+          "Joinstellar is a strong fit when you need access to distributed annotation contributors for classification, labeling, or evaluation tasks. The self-service model and flexible scheduling make it easy to scale up and down based on project volume.",
+          "Claru is better when capture and enrichment are the bottleneck. If your team is blocked on acquiring new physical-world recordings with aligned spatial signals for robotics training, a capture-first provider like Claru addresses that need directly.",
         ],
       },
     ],
@@ -391,8 +402,7 @@ export const joinstellarComparison: ComparisonData = {
         question: "What is Joinstellar?",
         answer: (
           <>
-            Joinstellar promotes flexible project-based work in data annotation
-            and AI training.
+            Joinstellar is a contributor marketplace that connects freelance workers with AI training and data annotation projects. The platform promotes flexible, project-based work where contributors can control their own workflow and schedule. It functions as a supply-side recruitment and task distribution portal for companies that need distributed annotation labor, similar in concept to platforms like Remotasks or Toloka but with a more contributor-centric positioning.
             {sourceLink("https://joinstellar.ai/", "[1]")}
           </>
         ),
@@ -401,8 +411,7 @@ export const joinstellarComparison: ComparisonData = {
         question: "How does the Joinstellar platform work?",
         answer: (
           <>
-            The site highlights a self-service contributor experience with
-            workflow control and resources.
+            The site highlights a self-service contributor experience where individuals control their workflow and access the resources they need. Contributors browse available projects, complete tasks at their own pace, and earn compensation on a per-project basis. This model works well for companies that need to scale annotation capacity quickly without hiring full-time annotators, though it provides workforce access rather than a managed data pipeline.
             {sourceLink("https://joinstellar.ai/", "[2]")}
           </>
         ),
@@ -411,15 +420,20 @@ export const joinstellarComparison: ComparisonData = {
         question: "Does Joinstellar require contracts or schedules?",
         answer: (
           <>
-            Joinstellar notes there are no contracts or required schedules.
+            Joinstellar notes there are no contracts or required schedules for contributors. This flexibility makes the platform attractive for workers who want to participate in AI training tasks on their own terms. For companies, this means access to a distributed workforce that can scale elastically, though it also means less control over annotator availability and consistency compared to managed services providers.
             {sourceLink("https://joinstellar.ai/", "[3]")}
           </>
         ),
       },
       {
+        question: "Can Joinstellar handle robotics data capture?",
+        answer:
+          "Joinstellar is a contributor marketplace for annotation tasks, not a data capture pipeline. The platform does not deploy field collection operators, generate egocentric video from wearable cameras, or produce enrichment layers like depth estimation or human pose extraction. Teams building robotics foundation models need upstream capture and enrichment capabilities that go beyond annotation workforce access.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your training pipeline is blocked on acquiring new physical-world video with aligned depth, pose, segmentation, and motion signals, Claru addresses that upstream data generation need. Joinstellar is better suited for teams that already have data and need distributed annotation labor to label it.",
       },
     ],
   },

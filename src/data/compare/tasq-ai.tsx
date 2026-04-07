@@ -56,6 +56,10 @@ export const tasqAiComparison: ComparisonData = {
         built for physical AI from day one.
       </>
     ),
+    paragraphs: [
+      "Tasq.ai positions itself as a human-in-the-loop platform that combines AI automation with human expertise for data tasks and evaluation workflows. The company serves AI teams that need to scale data operations across collection, enrichment, and evaluation phases while maintaining quality through human oversight. Tasq.ai targets the growing market for AI evaluation services, where frontier model developers need structured feedback from domain experts to assess model outputs, safety, and alignment.",
+      "While Tasq.ai provides valuable task orchestration and evaluation capabilities, it operates as a workflow and services layer rather than a capture-first data pipeline. Robotics and embodied AI teams face a fundamentally different challenge: they need to acquire physical-world demonstrations from real environments using wearable cameras, task-specific protocols, and structured capture programs. The resulting data must then be enriched with depth estimation, pose detection, segmentation, and optical flow before it is suitable for training manipulation policies or navigation models. Tasq.ai can coordinate human tasks around existing data, but Claru provides the end-to-end pipeline from physical capture through multi-layer enrichment to robotics-ready delivery.",
+    ],
     lastUpdated: "March 31, 2026",
   },
   tldr: {
@@ -354,8 +358,8 @@ export const tasqAiComparison: ComparisonData = {
         question: "What is Tasq.ai?",
         answer: (
           <>
-            Tasq.ai positions itself as a human-in-the-loop platform for AI data
-            tasks. {sourceLink("https://www.tasq.ai/", "[1]")}
+            Tasq.ai positions itself as a human-in-the-loop platform for AI data tasks and evaluation workflows. The company combines AI automation with human expertise to help teams scale data operations across collection, enrichment, and evaluation phases. Tasq.ai targets the growing market for structured AI evaluation where frontier model developers need domain experts to assess model outputs, safety, and alignment quality at scale.
+            {sourceLink("https://www.tasq.ai/", "[1]")}
           </>
         ),
       },
@@ -363,19 +367,25 @@ export const tasqAiComparison: ComparisonData = {
         question: "Does Tasq.ai offer data enrichment workflows?",
         answer: (
           <>
-            The platform references data collection and enrichment workflows. {sourceLink("https://www.tasq.ai/", "[2]")}
+            The platform references data collection and enrichment workflows as part of its service offering. These workflows are designed for human-in-the-loop data processing where tasks can be distributed across a managed workforce with quality oversight. However, these enrichment workflows focus on human task orchestration rather than computational enrichment layers like depth estimation, pose detection, or optical flow that physical AI training data requires.
+            {sourceLink("https://www.tasq.ai/", "[2]")}
           </>
         ),
       },
       {
         question: "Is Tasq.ai a physical AI data provider?",
         answer:
-          "Tasq.ai focuses on task orchestration and evaluation rather than capture-first physical data pipelines.",
+          "Tasq.ai focuses on task orchestration and evaluation rather than capture-first physical data pipelines. Robotics and embodied AI teams need physical-world data collection with wearable cameras, task-specific capture protocols, and enrichment layers like depth estimation and 3D pose reconstruction. These requirements are fundamentally different from human-in-the-loop task orchestration and require a provider with physical capture infrastructure.",
+      },
+      {
+        question: "What is the difference between task orchestration and data capture?",
+        answer:
+          "Task orchestration platforms like Tasq.ai coordinate human workers to perform discrete tasks on existing data, such as labeling, evaluation, or quality review. Data capture providers like Claru operate in the physical world, deploying collectors with cameras and sensors to acquire new demonstrations, video sequences, and environmental data that does not exist until the collection program runs. For robotics AI, capture is the upstream bottleneck that must be solved before any orchestrated tasks can begin.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your team is training embodied AI models that require egocentric video, depth maps, human pose estimation, object segmentation, or action-labeled demonstrations, Claru provides the complete pipeline from physical-world collection through multi-layer enrichment to training-ready delivery in formats compatible with robotics stacks.",
       },
     ],
   },

@@ -3,6 +3,16 @@ import { getAllCaseStudies } from "@/lib/case-studies";
 import { getAllJobs } from "@/lib/jobs";
 import { getAllContentPages } from "@/data/content-pages";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getAllGlossaryDeepSlugs } from "@/data/programmatic/glossary-deep/index";
+import { getAllGuideSlugs } from "@/data/programmatic/guides/index";
+import { getAllTaskSlugs } from "@/data/programmatic/tasks/index";
+import { getAllModelSlugs } from "@/data/programmatic/models/index";
+import { getAllDatasetSlugs } from "@/data/programmatic/datasets/index";
+import { getAllFormatSlugs } from "@/data/programmatic/formats/index";
+import { getAllIndustrySlugs } from "@/data/programmatic/industries/index";
+import { getAllLabSlugs } from "@/data/programmatic/labs/index";
+import { getAllBenchmarkSlugs } from "@/data/programmatic/benchmarks/index";
+import { getAllAcademicAltSlugs } from "@/data/programmatic/academic-alts/index";
 
 const BASE = "https://claru.ai";
 
@@ -17,14 +27,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/jobs`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
     { url: `${BASE}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/for-annotators`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${BASE}/solutions`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     // GEO landing pages — physical AI / robotics keyword clusters
     { url: `${BASE}/training-data-for-robotics`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/physical-ai-training-data`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/egocentric-video-datasets`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/embodied-ai-datasets`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
-    // Glossary
-    { url: `${BASE}/glossary`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     // Tier 3 content pages — pillar guides, listicles, deep-dives
     { url: `${BASE}/vla-training-data-guide`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/blog/best-egocentric-data-providers`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
@@ -34,7 +41,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/blog/sim-to-real-gap`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/blog/physical-ai-stack`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     // Comparison pages
-    { url: `${BASE}/compare`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/compare/appen-alternatives`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/compare/scale-ai-alternatives`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/compare/claru-vs-luel`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
@@ -212,6 +218,105 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Graceful degradation — sitemap still works if Supabase is unavailable
   }
 
+  // ── Dynamic: Glossary Deep Pages ────────────────────────────────
+  const glossaryDeepPages: MetadataRoute.Sitemap = getAllGlossaryDeepSlugs().map(
+    (slug) => ({
+      url: `${BASE}/glossary/${slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })
+  );
+
+  // ── Dynamic: Guide Pages ──────────────────────────────────────────
+  const guidePages: MetadataRoute.Sitemap = getAllGuideSlugs().map(
+    (slug) => ({
+      url: `${BASE}/guides/${slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })
+  );
+
+  // ── Dynamic: Task Pages ────────────────────────────────────────
+  const taskPages: MetadataRoute.Sitemap = getAllTaskSlugs().map((slug) => ({
+    url: `${BASE}/training-data/${slug}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
+  // ── Dynamic: Model Pages ───────────────────────────────────────
+  const modelPages: MetadataRoute.Sitemap = getAllModelSlugs().map((slug) => ({
+    url: `${BASE}/models/${slug}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
+  // ── Dynamic: Dataset Pages ─────────────────────────────────────
+  const datasetPages: MetadataRoute.Sitemap = getAllDatasetSlugs().map((slug) => ({
+    url: `${BASE}/datasets/${slug}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
+  // ── Dynamic: Format Pages ──────────────────────────────────────
+  const formatPages: MetadataRoute.Sitemap = getAllFormatSlugs().map((slug) => ({
+    url: `${BASE}/formats/${slug}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.6,
+  }));
+
+  // ── Dynamic: Industry Pages ────────────────────────────────────
+  const industryPages: MetadataRoute.Sitemap = getAllIndustrySlugs().map((slug) => ({
+    url: `${BASE}/industries/${slug}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
+  // ── Dynamic: Lab Pages ─────────────────────────────────────────
+  const labPages: MetadataRoute.Sitemap = getAllLabSlugs().map((slug) => ({
+    url: `${BASE}/for/${slug}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.6,
+  }));
+
+  // ── Dynamic: Benchmark Pages ───────────────────────────────────
+  const benchmarkPages: MetadataRoute.Sitemap = getAllBenchmarkSlugs().map((slug) => ({
+    url: `${BASE}/benchmarks/${slug}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.6,
+  }));
+
+  // ── Dynamic: Academic Alt Pages ────────────────────────────────
+  const academicAltPages: MetadataRoute.Sitemap = getAllAcademicAltSlugs().map((slug) => ({
+    url: `${BASE}/compare/${slug}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.6,
+  }));
+
+  // ── Hub Pages ──────────────────────────────────────────────────
+  const hubPages: MetadataRoute.Sitemap = [
+    { url: `${BASE}/training-data`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.8 },
+    { url: `${BASE}/models`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.8 },
+    { url: `${BASE}/datasets`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.8 },
+    { url: `${BASE}/formats`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.7 },
+    { url: `${BASE}/industries`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.7 },
+    { url: `${BASE}/benchmarks`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.7 },
+    { url: `${BASE}/for`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.8 },
+    { url: `${BASE}/glossary`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.8 },
+    { url: `${BASE}/guides`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.8 },
+    { url: `${BASE}/solutions`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.8 },
+    { url: `${BASE}/compare`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.8 },
+  ];
+
   return [
     ...staticPages,
     ...caseStudyPages,
@@ -219,5 +324,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...solutionPages,
     ...blogIndexEntry,
     ...blogPostPages,
+    ...glossaryDeepPages,
+    ...guidePages,
+    ...taskPages,
+    ...modelPages,
+    ...datasetPages,
+    ...formatPages,
+    ...industryPages,
+    ...labPages,
+    ...benchmarkPages,
+    ...academicAltPages,
+    ...hubPages,
   ];
 }

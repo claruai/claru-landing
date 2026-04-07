@@ -57,6 +57,10 @@ export const mercorComparison: ComparisonData = {
       </>
     ),
     lastUpdated: "March 31, 2026",
+    paragraphs: [
+      "Mercor is a San Francisco-based AI talent marketplace that connects experts with top-tier remote AI roles. Founded in 2023, the company has raised significant venture funding and positions itself as a platform where AI practitioners can find high-quality work opportunities. Mercor uses AI-powered matching to connect candidates with roles at leading AI companies, covering positions in data annotation, model evaluation, RLHF, and other AI training tasks. The company has grown rapidly and reportedly works with several major AI labs and technology companies.",
+      "For physical AI teams, it is important to understand that Mercor is fundamentally a talent and staffing platform rather than a data pipeline. Mercor does not capture real-world video, deploy wearable camera operators, generate spatial enrichment layers like depth or pose estimation, or deliver datasets in robotics-native formats. While Mercor could help teams hire AI data workers, the platform does not provide the end-to-end capture, enrichment, and delivery pipeline that physical AI and robotics teams need to generate training data. The distinction is between sourcing people and delivering datasets.",
+    ],
   },
   tldr: {
     title: "TL;DR",
@@ -293,10 +297,17 @@ export const mercorComparison: ComparisonData = {
         ],
       },
       {
+        title: "Physical AI data requirements",
+        paragraphs: [
+          "Robotics foundation models like RT-2, Octo, and pi0 require training datasets that combine egocentric video with dense spatial signals: per-frame depth maps, human pose skeletons, semantic segmentation masks, and optical flow vectors. These requirements demand a specialized capture and enrichment pipeline, not just access to AI talent. A marketplace for AI workers can help with downstream annotation tasks, but it cannot generate the raw capture data or the automated enrichment layers that robotics training demands.",
+          "Claru operates the full pipeline from field capture through automated enrichment to delivery. Trained operators record real-world manipulation, navigation, and activity tasks using wearable cameras, and the enrichment pipeline produces depth, pose, segmentation, and motion outputs aligned frame-by-frame with the source video. Datasets ship in robotics-native formats like RLDS, LeRobot, or HDF5.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Mercor is strong when AI staffing is the bottleneck.",
-          "Claru is stronger when physical-world data capture is the bottleneck.",
+          "Mercor is strong when AI staffing is the bottleneck. If you need to hire skilled annotators, model evaluators, or AI data workers quickly at competitive rates, Mercor's AI-powered talent matching can connect you with qualified candidates from a global pool.",
+          "Claru is stronger when physical-world data capture is the bottleneck. If your robotics training pipeline needs new task-specific recordings from real environments with aligned spatial enrichment signals, a capture-first data provider addresses that need directly rather than staffing a team to build the pipeline from scratch.",
         ],
       },
     ],
@@ -369,7 +380,7 @@ export const mercorComparison: ComparisonData = {
         question: "What is Mercor?",
         answer: (
           <>
-            Mercor highlights a platform for top-tier, remote AI roles.
+            Mercor is a San Francisco-based AI talent marketplace founded in 2023 that connects experts with top-tier remote AI roles. The company uses AI-powered matching to pair candidates with positions at leading AI companies, covering roles in data annotation, model evaluation, RLHF, and other AI training tasks. Mercor has raised significant venture funding and reportedly works with several major AI labs and technology companies to source skilled AI workers at scale.
             {sourceLink("https://mercor.com/", "[1]")}
           </>
         ),
@@ -378,7 +389,7 @@ export const mercorComparison: ComparisonData = {
         question: "What does Mercor focus on?",
         answer: (
           <>
-            Mercor emphasizes finding AI work and shaping the future of AI.
+            Mercor emphasizes finding AI work and shaping the future of AI. The platform focuses on connecting AI practitioners with high-quality remote work opportunities, using algorithmic matching to assess candidate skills and pair them with appropriate roles. This talent-first approach helps both companies that need to scale their AI data teams quickly and workers who want access to premium AI projects from top labs.
             {sourceLink("https://mercor.com/", "[2]")}
           </>
         ),
@@ -386,28 +397,28 @@ export const mercorComparison: ComparisonData = {
       {
         question: "Is Mercor a data provider?",
         answer:
-          "Mercor is a talent marketplace for AI roles rather than a data capture or enrichment provider.",
+          "Mercor is a talent marketplace for AI roles rather than a data capture or enrichment provider. The platform helps companies hire AI workers but does not itself generate, capture, enrich, or deliver training datasets. Teams that need physical AI data should work with a data provider directly rather than staffing a team through a marketplace, unless they plan to build their own internal capture pipeline.",
       },
       {
         question: "Is Mercor a fit for robotics data capture?",
         answer:
-          "Mercor focuses on AI talent matching. Claru is better for capture-first robotics data collection and enrichment.",
+          "Mercor focuses on AI talent matching and does not operate capture networks, deploy wearable camera operators, or generate enrichment layers like depth estimation, pose extraction, or optical flow. While you could use Mercor to hire annotators or ML engineers, the platform cannot deliver the end-to-end capture, enrichment, and delivery pipeline that robotics teams need. Claru is better suited for teams that need training-ready physical AI datasets.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your training pipeline requires new egocentric video from real-world environments with aligned depth, pose, segmentation, and motion signals, Claru handles the entire upstream workflow. Mercor is better suited when your primary need is hiring AI talent rather than acquiring datasets.",
       },
       {
         question: "Can teams use both Mercor and Claru?",
         answer:
-          "Some teams use Mercor for AI talent and Claru for capture-first physical AI datasets.",
+          "Some teams use Mercor to hire AI data workers for internal projects and Claru for capture-first physical AI datasets. This combination makes sense when a team needs both in-house annotation capacity for existing data and new physical-world recordings with enrichment layers for robotics training. The two services address fundamentally different needs and are complementary.",
       },
       {
         question: "Does Mercor offer remote AI roles?",
         answer: (
           <>
-            Mercor highlights remote AI roles on its platform.
+            Yes, Mercor highlights remote AI roles as a core offering on its platform. The company connects AI experts worldwide with remote positions at leading AI companies, including roles in data annotation, model evaluation, and RLHF. The remote-first model allows Mercor to access a global talent pool rather than being limited to specific geographies.
             {sourceLink("https://mercor.com/", "[1]")}
           </>
         ),
@@ -415,7 +426,7 @@ export const mercorComparison: ComparisonData = {
       {
         question: "Who is Mercor for?",
         answer:
-          "Mercor is suited to AI experts seeking roles and teams hiring AI talent. Claru is for teams seeking physical AI datasets.",
+          "Mercor serves two audiences: AI experts seeking high-quality remote roles and companies that need to scale their AI data teams quickly. For AI practitioners, it provides access to projects at top labs. For companies, it provides AI-powered talent matching to find and hire qualified workers. Claru, by contrast, serves teams that need physical AI training datasets delivered rather than teams that need to hire AI workers.",
       },
     ],
   },

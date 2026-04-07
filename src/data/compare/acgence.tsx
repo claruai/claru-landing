@@ -106,6 +106,8 @@ export const acgenceComparison: ComparisonData = {
         The About page lists 3000+ languages and 170+ countries of coverage.
         {sourceLink("https://acgence.com/about-us/", "[6]")}
       </>,
+      "Acgence is based in Noida, Uttar Pradesh, India, and has built its reputation on providing bulk data collection services at competitive prices. The company highlights experience working with top technology clients including Google and TCS, positioning itself as a cost-effective partner for large-scale data operations. Their global workforce enables data sourcing across a wide range of languages and geographies, which is particularly relevant for NLP and speech-focused AI projects.",
+      "For physical AI and robotics teams, the key question is whether Acgence's broad multi-modal coverage extends to the specific upstream capture and enrichment signals that embodied AI models require. While their data collection services cover speech, text, image, and video, robotics training data typically demands task-specific capture protocols, egocentric video from wearable cameras, and enrichment layers like depth estimation, 3D pose extraction, and optical flow that go beyond standard annotation workflows.",
       "If your bottleneck is managed data services across modalities, Acgence is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -424,9 +426,9 @@ export const acgenceComparison: ComparisonData = {
   decision: {
     title: "How to Choose",
     paragraphs: [
-      "Choose Acgence when you need managed data services across text, speech, image, and video.",
-      "Choose Claru when you need capture and enrichment of physical-world data for robotics training.",
-      "Some teams use both: Acgence for data services, Claru for capture-first datasets.",
+      "Choose Acgence when you need managed data services across text, speech, image, and video. Their broad language coverage of 3,000 or more languages and competitive pricing from their India-based operations make them especially attractive for multilingual NLP and speech AI projects at scale.",
+      "Choose Claru when you need capture and enrichment of physical-world data for robotics training. If your models require egocentric video, depth maps, 3D pose, and motion signals as core training inputs, Claru provides the specialized capture and enrichment pipeline for those needs.",
+      "Some teams use both: Acgence for data services on existing text, speech, and image datasets, and Claru for capture-first physical datasets where the raw data does not yet exist. This division of labor lets each provider focus on what they do best.",
     ],
   },
   faq: {
@@ -436,8 +438,7 @@ export const acgenceComparison: ComparisonData = {
         question: "What services does Acgence provide?",
         answer: (
           <>
-            Acgence lists data collection, transcription, labeling,
-            de-identification, and dataset services.
+            Acgence provides a comprehensive range of AI training data services including data collection, transcription, labeling, de-identification, and dataset licensing. They also offer cognitive data annotation for unstructured textual data, speech annotation, and image annotation for machine vision. The company is based in Noida, India, and highlights experience working with top technology clients including Google and TCS.{" "}
             {sourceLink("https://acgence.com/", "[1]")}
             {sourceLink("https://acgence.com/", "[2]")}
           </>
@@ -447,7 +448,7 @@ export const acgenceComparison: ComparisonData = {
         question: "How broad is Acgence&apos;s language coverage?",
         answer: (
           <>
-            The About page lists 3000+ languages and 170+ countries.
+            Acgence claims coverage of more than 3,000 languages across 170 or more countries. This breadth makes them particularly relevant for NLP and speech AI projects that require multilingual data at scale. Their global workforce enables data sourcing across a wide range of geographies and linguistic contexts, which is a differentiator for language-heavy AI programs.{" "}
             {sourceLink("https://acgence.com/about-us/", "[6]")}
           </>
         ),
@@ -456,15 +457,20 @@ export const acgenceComparison: ComparisonData = {
         question: "What data types does Acgence support?",
         answer: (
           <>
-            Acgence highlights text, speech, image, and video data types.
+            Acgence highlights text, speech, image, and video data types for AI training. Their services include cognitive annotation for unstructured text, speech data annotation, and image annotation for machine vision applications. For physical AI teams, the relevant question is whether these services extend to the specialized capture and enrichment workflows that robotics models require, such as egocentric video, depth maps, and 3D pose estimation.{" "}
             {sourceLink("https://acgence.com/", "[5]")}
           </>
         ),
       },
       {
+        question: "Can Acgence handle robotics data?",
+        answer:
+          "Acgence provides image and video annotation services that could be applied to robotics datasets. However, their primary positioning is around broad multi-modal data services rather than capture-first physical AI workflows. Teams that need upstream data capture with wearable cameras, task-specific collection protocols, and enrichment layers like depth and pose estimation may find a specialized provider like Claru to be a better fit.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need the full pipeline from physical-world data capture through enrichment and delivery of robotics-ready datasets. If your team needs to create new data from scratch with specific environments, tasks, and sensor configurations rather than annotating existing data, Claru is purpose-built for that workflow.",
       },
     ],
   },

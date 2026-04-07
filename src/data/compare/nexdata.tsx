@@ -92,6 +92,8 @@ export const nexdataComparison: ComparisonData = {
         The platform positions itself around training data solutions and
         services. {sourceLink("https://www.nexdata.ai/", "[4]")}
       </>,
+      "Nexdata is headquartered in Beijing with operations serving global clients across AI development sectors. The company has built a catalog of off-the-shelf datasets spanning multiple modalities and languages, positioning itself as a one-stop provider for teams that need ready-made training data alongside custom collection and annotation services. Nexdata's strength lies in breadth of coverage rather than specialization in any single AI domain.",
+      "For physical AI and robotics teams, the critical question is whether off-the-shelf datasets and general-purpose data services meet the specificity requirements of embodied AI training. Robotics models typically require task-specific capture in controlled or real-world environments, dense enrichment layers such as depth estimation and pose tracking, and delivery in formats compatible with robotics training frameworks. General data services providers may cover annotation needs but often lack the capture infrastructure and enrichment pipelines that physical AI demands.",
       "If your bottleneck is sourcing datasets or managed data services, Nexdata is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -362,15 +364,22 @@ export const nexdataComparison: ComparisonData = {
       {
         title: "Modalities",
         paragraphs: [
-          "Nexdata lists datasets across image, video, audio, text, and LiDAR.",
-          "Claru prioritizes egocentric video and robotics sensors.",
+          "Nexdata lists datasets across image, video, audio, text, and LiDAR. This breadth is useful for teams that work across multiple AI domains and need a single provider for diverse data types. The catalog approach lets teams browse and acquire datasets without commissioning custom collection programs.",
+          "Claru prioritizes egocentric video and robotics sensors. Rather than offering broad modality coverage, Claru focuses on the specific data types that physical AI models need most: first-person video, manipulation footage, and sensor-aligned enrichment layers that serve as direct training inputs for robotics and world models.",
+        ],
+      },
+      {
+        title: "Robotics data requirements",
+        paragraphs: [
+          "Training embodied AI systems requires more than general-purpose datasets. Robotics models depend on data captured in specific environments with specific actions, along with enrichment layers like monocular depth, human pose estimation, instance segmentation, and optical flow. These signals must be temporally aligned and delivered in formats compatible with robotics training frameworks such as WebDataset, HDF5, or RLDS.",
+          "Off-the-shelf datasets rarely include the task-specific capture and dense enrichment that physical AI demands. Teams evaluating Nexdata for robotics use cases should assess whether the available catalog meets their specificity requirements or whether custom capture with enrichment is the faster path to training-ready data.",
         ],
       },
       {
         title: "Where each wins",
         paragraphs: [
-          "Nexdata is strong when managed data services are the bottleneck.",
-          "Claru is stronger when physical-world capture is the bottleneck.",
+          "Nexdata is strong when managed data services and multi-modal dataset sourcing are the bottleneck. If you need ready-made datasets across languages and modalities with annotation support, Nexdata provides that breadth of coverage.",
+          "Claru is stronger when physical-world capture and enrichment are the bottleneck. If your model needs task-specific egocentric video with aligned depth, pose, and segmentation layers delivered in robotics-native formats, Claru is built for that pipeline.",
         ],
       },
     ],
@@ -444,8 +453,8 @@ export const nexdataComparison: ComparisonData = {
         question: "What is Nexdata?",
         answer: (
           <>
-            Nexdata highlights off-the-shelf datasets and training data
-            solutions. {sourceLink("https://www.nexdata.ai/", "[4]")}
+            Nexdata is a training data solutions provider headquartered in Beijing that offers off-the-shelf datasets and managed data services for AI development. The company maintains a catalog of datasets across image, video, audio, text, and LiDAR modalities, alongside custom data collection and annotation services. Nexdata targets a broad range of AI use cases rather than specializing in a single domain, making it a general-purpose option for teams that need diverse data types.
+            {sourceLink("https://www.nexdata.ai/", "[4]")}
           </>
         ),
       },
@@ -453,8 +462,8 @@ export const nexdataComparison: ComparisonData = {
         question: "What datasets does Nexdata list?",
         answer: (
           <>
-            The site lists image, video, audio, text, and LiDAR dataset
-            categories. {sourceLink("https://www.nexdata.ai/", "[1]")}
+            Nexdata lists datasets across image, video, audio, text, and LiDAR categories. The catalog approach lets teams browse and acquire ready-made datasets without commissioning custom collection programs. This breadth is useful for teams working across multiple AI domains, though robotics teams often need task-specific capture and enrichment layers that off-the-shelf datasets may not include.
+            {sourceLink("https://www.nexdata.ai/", "[1]")}
           </>
         ),
       },
@@ -462,7 +471,7 @@ export const nexdataComparison: ComparisonData = {
         question: "Does Nexdata offer data collection services?",
         answer: (
           <>
-            Nexdata lists data collection services.
+            Yes, Nexdata lists data collection services for custom data acquisition alongside its off-the-shelf catalog. These services cover various modalities and can be tailored to specific project requirements. For robotics teams, the key consideration is whether the collection methodology includes the sensor configurations, environment specifications, and enrichment pipelines needed for physical AI training data.
             {sourceLink("https://www.nexdata.ai/", "[2]")}
           </>
         ),
@@ -471,7 +480,7 @@ export const nexdataComparison: ComparisonData = {
         question: "Does Nexdata offer data annotation services?",
         answer: (
           <>
-            Nexdata lists data annotation services.
+            Nexdata lists data annotation services as part of its managed data solutions portfolio. These services complement the collection offerings by adding labels and annotations to raw data. For physical AI use cases, annotation alone may not be sufficient because robotics models also depend on enrichment layers such as depth estimation, pose tracking, and optical flow that require specialized processing pipelines.
             {sourceLink("https://www.nexdata.ai/", "[3]")}
           </>
         ),
@@ -479,23 +488,23 @@ export const nexdataComparison: ComparisonData = {
       {
         question: "Is Nexdata a fit for robotics data capture?",
         answer:
-          "Nexdata focuses on datasets and managed services. Claru is better for capture-first robotics data collection and enrichment.",
+          "Nexdata focuses on broad dataset cataloging and managed data services across multiple modalities. While these services can support some robotics use cases, Nexdata is not positioned as a capture-first robotics data provider. Teams building embodied AI systems that require task-specific capture in real-world environments, dense enrichment layers like depth and pose, and delivery in robotics-native formats should evaluate providers specifically built for physical AI data pipelines.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when your primary need is capturing new physical-world data and enriching it for robotics training. This includes scenarios where you need egocentric video from specific environments, enrichment layers such as monocular depth, pose estimation, segmentation, and optical flow, and delivery in formats like WebDataset, HDF5, or RLDS. If you already have data or need general-purpose datasets across modalities, Nexdata may be the more appropriate starting point.",
       },
       {
         question: "Can teams use both Nexdata and Claru?",
         answer:
-          "Some teams use Nexdata for datasets and Claru for capture-first physical AI datasets.",
+          "Yes. Some teams use Nexdata for off-the-shelf datasets and general data services while using Claru for capture-first physical AI datasets. This combination works well when a team needs both broad modality coverage for general AI tasks and specialized capture with enrichment for robotics training. The two providers address different layers of the data stack and can complement each other in a multi-provider strategy.",
       },
       {
         question: "Does Nexdata cover LiDAR data?",
         answer: (
           <>
-            The dataset categories listed by Nexdata include LiDAR.
+            The dataset categories listed by Nexdata include LiDAR alongside image, video, audio, and text data. LiDAR datasets are relevant for autonomous driving and 3D perception tasks. For robotics teams that also need enrichment layers like pose estimation and optical flow aligned to video capture, a provider with an integrated capture-and-enrichment pipeline may be a better fit for the full data requirement.
             {sourceLink("https://www.nexdata.ai/", "[1]")}
           </>
         ),

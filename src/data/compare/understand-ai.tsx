@@ -57,6 +57,10 @@ export const understandAiComparison: ComparisonData = {
         enrichment for robotics, Claru is built for physical AI from day one.
       </>
     ),
+    paragraphs: [
+      "Understand.ai was founded in Germany and later acquired by dSPACE, a leading provider of simulation and validation tools for the automotive industry. The company specializes in ground truth annotation for autonomous driving and ADAS systems, with deep expertise in camera, LiDAR, and radar sensor data labeling. Understand.ai has built its reputation on high-precision annotation at scale, with quality management systems and automation technology specifically designed for the rigorous accuracy requirements of safety-critical autonomous systems.",
+      "While Understand.ai brings strong capabilities to autonomous driving annotation, its focus is on labeling sensor data that has already been captured by vehicle fleets or test platforms. Robotics teams working on manipulation, navigation, and embodied AI face a different upstream challenge: they need to capture task-specific demonstrations from diverse real-world environments using wearable cameras and structured protocols. The resulting data must be enriched with depth estimation, 3D human pose reconstruction, optical flow, and temporal action segmentation. Understand.ai can annotate driving-related sensor data with high precision, but Claru provides the complete capture-to-delivery pipeline for the broader physical AI domain including robotics, world models, and embodied agents.",
+    ],
     lastUpdated: "March 31, 2026",
   },
   tldr: {
@@ -467,8 +471,8 @@ export const understandAiComparison: ComparisonData = {
         question: "What is Understand.ai?",
         answer: (
           <>
-            Understand.ai positions itself as an award-winning ground truth
-            solution. {sourceLink("https://understand.ai/", "[1]")}
+            Understand.ai positions itself as an award-winning ground truth solution for autonomous systems. Founded in Germany and acquired by dSPACE, a leading automotive simulation and validation company, Understand.ai specializes in high-precision annotation for camera, LiDAR, and radar sensor data used in autonomous driving and ADAS development. The company has built quality management systems and automation technology designed for the rigorous accuracy requirements of safety-critical applications.
+            {sourceLink("https://understand.ai/", "[1]")}
           </>
         ),
       },
@@ -476,8 +480,8 @@ export const understandAiComparison: ComparisonData = {
         question: "What does Understand.ai emphasize?",
         answer: (
           <>
-            The company highlights quality management and broad annotation
-            coverage. {sourceLink("https://understand.ai/", "[2]")}
+            The company highlights quality management and broad annotation coverage as core differentiators. Their approach combines rigorous quality checks with automation to maintain consistent annotation accuracy across large-scale projects. This focus on quality is particularly important in autonomous driving where ground truth annotation errors can have safety implications, requiring precision levels that general-purpose annotation platforms may not achieve.
+            {sourceLink("https://understand.ai/", "[2]")}
           </>
         ),
       },
@@ -485,8 +489,7 @@ export const understandAiComparison: ComparisonData = {
         question: "How does Understand.ai handle automation?",
         answer: (
           <>
-            Understand.ai describes an automation approach for complex
-            annotation projects at scale.
+            Understand.ai describes an automation approach for complex annotation projects at scale. Their technology combines pre-labeling with model predictions, structured attribute definitions for consistent labeling, and rigorous quality checks that catch errors before they propagate. This automation pipeline is optimized for sensor fusion annotation where camera, LiDAR, and radar data must be labeled consistently across multiple views and time steps.
             {sourceLink("https://understand.ai/technology/", "[3]")}
           </>
         ),
@@ -495,8 +498,8 @@ export const understandAiComparison: ComparisonData = {
         question: "What labeling automation features are listed?",
         answer: (
           <>
-            The technology page mentions pre-labeling, attribute definitions,
-            and rigorous quality checks. {sourceLink("https://understand.ai/technology/", "[4]")}
+            The technology page mentions pre-labeling, attribute definitions, and rigorous quality checks as key automation features. Pre-labeling uses model predictions to provide initial annotations that human reviewers refine, reducing manual effort. Attribute definitions ensure consistent labeling across annotators by standardizing how objects and their properties are classified. Quality checks operate at multiple levels to maintain accuracy standards across large annotation programs.
+            {sourceLink("https://understand.ai/technology/", "[4]")}
           </>
         ),
       },
@@ -504,8 +507,7 @@ export const understandAiComparison: ComparisonData = {
         question: "Is Understand.ai built for multi-cloud?",
         answer: (
           <>
-            Understand.ai notes its platform is designed for a multi-cloud
-            environment with scale, precision, and speed.
+            Understand.ai notes its platform is designed for a multi-cloud environment with scale, precision, and speed. This architecture allows the platform to be deployed across different cloud providers depending on customer requirements, data residency regulations, and performance needs. Multi-cloud support is particularly relevant for automotive customers who may have specific infrastructure requirements driven by their existing cloud partnerships and data governance policies.
             {sourceLink("https://understand.ai/technology/", "[5]")}
           </>
         ),
@@ -513,17 +515,17 @@ export const understandAiComparison: ComparisonData = {
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. While Understand.ai excels at annotating existing autonomous driving sensor data, Claru serves the broader physical AI domain where the primary bottleneck is acquiring new task-specific demonstrations from real environments and enriching them with depth, pose, segmentation, and optical flow for robotics training.",
       },
       {
         question: "Can teams use both Understand.ai and Claru?",
         answer:
-          "Some teams use Understand.ai for ground truth annotation and Claru for capture-first physical AI datasets.",
+          "Some teams use Understand.ai for ground truth annotation of autonomous driving sensor data and Claru for capture-first physical AI datasets. This makes sense when a team has both autonomous driving perception needs, where Understand.ai's precision annotation is valuable, and broader robotics data needs, where Claru's capture and enrichment pipeline provides the upstream infrastructure.",
       },
       {
         question: "Is Understand.ai a fit for robotics data capture?",
         answer:
-          "Understand.ai focuses on annotation. Claru is better for capture-first robotics data collection and enrichment.",
+          "Understand.ai focuses on annotation of existing sensor data rather than physical-world data capture. Robotics teams that need new task-specific demonstrations collected from diverse real-world environments, enriched with depth estimation, 3D pose reconstruction, and optical flow, require a capture-first provider with physical collection infrastructure. Claru is purpose-built for this upstream pipeline.",
       },
     ],
   },

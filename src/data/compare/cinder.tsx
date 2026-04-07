@@ -84,6 +84,15 @@ export const cinderComparison: ComparisonData = {
         The human review and case management product includes data labeling
         tools and configurable content views for images, video, text, and audio. {sourceLink("https://www.cinder.co/product/human-review-case-management", "[3]")}
       </>,
+      <>
+        Cinder was founded in 2021 by Glen Wise (CEO), Phil Brennan (COO),
+        Brian Fishman, and Declan Cummings, all former Trust and Safety
+        professionals from Meta and Palantir. The company emerged from stealth
+        in December 2022 with $14 million in funding led by Accel with
+        participation from Y Combinator.{" "}
+        {sourceLink("https://techcrunch.com/2022/12/08/cinder-builds-a-trust-and-safety-platform/", "[4]")}
+      </>,
+      "Cinder is the only integrated platform that manages an organization&apos;s entire Trust and Safety operations, including policy setting, case and investigation management, moderation and reviews, risk monitoring and compliance. This makes it a specialized tool for platform companies dealing with content safety at scale, but it is not designed for physical-world data capture or robotics data enrichment.",
       "If your bottleneck is moderation, policy enforcement, and QA for content or platform safety, Cinder is a strong fit. If your bottleneck is physical-world capture and enrichment for robotics, Claru is the better fit.",
     ],
   },
@@ -261,6 +270,20 @@ export const cinderComparison: ComparisonData = {
         },
       },
       {
+        dimension: "Founding team",
+        values: {
+          cinder: "Former Meta and Palantir Trust & Safety professionals",
+          claru: "Physical AI and robotics data specialists",
+        },
+      },
+      {
+        dimension: "Funding",
+        values: {
+          cinder: "$14M from Accel and Y Combinator",
+          claru: "Venture-backed physical AI data company",
+        },
+      },
+      {
         dimension: "Best fit",
         values: {
           cinder: "Trust & Safety and content moderation teams",
@@ -277,22 +300,29 @@ export const cinderComparison: ComparisonData = {
       {
         title: "Ops workflows vs data pipeline",
         paragraphs: [
-          "Cinder centralizes policy enforcement, human review, and labeling for safety operations.",
-          "Claru focuses on collecting and enriching physical-world data for robotics training.",
+          "Cinder centralizes policy enforcement, human review, and labeling for safety operations. Founded by former Meta and Palantir professionals, Cinder brings deep expertise in content moderation at scale, with tools for case management, investigation workflows, and risk monitoring that reflect real-world Trust and Safety operations.",
+          "Claru focuses on collecting and enriching physical-world data for robotics training. The two companies operate in fundamentally different domains: Cinder deals with platform content (text, images, video from user-generated content), while Claru deals with physical-world data (egocentric video, manipulation recordings, depth maps) for embodied AI.",
         ],
       },
       {
         title: "Annotation context",
         paragraphs: [
-          "Cinder labels content already flowing through a platform or moderation pipeline.",
-          "Claru creates new datasets designed around robotic tasks and environments.",
+          "Cinder labels content already flowing through a platform or moderation pipeline. The labeling workflow is designed around safety classifications, policy violations, and content review decisions. Annotators evaluate whether content violates specific policies rather than extracting physical properties from the data.",
+          "Claru creates new datasets designed around robotic tasks and environments. The annotation and enrichment layers are fundamentally different: depth estimation, pose tracking, segmentation, and action boundary labels serve as direct training inputs for robotics models rather than content classification outputs.",
+        ],
+      },
+      {
+        title: "Team pedigree and focus",
+        paragraphs: [
+          "Cinder was founded by Glen Wise (former Meta red team engineer), Phil Brennan and Declan Cummings (Meta threat intelligence), and Brian Fishman (former director of Facebook counterterrorism). This deep Trust and Safety background shapes every aspect of the product.",
+          "Claru was built by physical AI and robotics data specialists who understand the specific requirements of embodied AI training: capture protocols, sensor calibration, enrichment pipelines, and delivery formats that integrate with robotics training stacks.",
         ],
       },
       {
         title: "Where each wins",
         paragraphs: [
-          "Cinder is a strong fit for Trust & Safety and moderation teams.",
-          "Claru is better when you need capture and enrichment for physical AI models.",
+          "Cinder is a strong fit for Trust & Safety and moderation teams at platform companies that need integrated policy enforcement, case management, and content review workflows backed by $14M in funding from Accel and Y Combinator.",
+          "Claru is better when you need capture and enrichment for physical AI models. The two providers serve entirely different use cases with no meaningful overlap.",
         ],
       },
     ],
@@ -363,8 +393,14 @@ export const cinderComparison: ComparisonData = {
         question: "What is Cinder?",
         answer: (
           <>
-            Cinder is a Trust & Safety operations platform with labeling and QA
-            workflows. {sourceLink("https://www.cinder.co/", "[1]")}
+            Cinder is a Trust and Safety operations platform founded in 2021 by
+            former Meta and Palantir professionals including Glen Wise (CEO),
+            Phil Brennan (COO), Brian Fishman, and Declan Cummings. The company
+            emerged from stealth in December 2022 with $14 million in funding
+            from Accel and Y Combinator. Cinder is the only integrated platform
+            that manages an entire Trust and Safety operation, including policy
+            setting, case management, moderation, and compliance monitoring.
+            {sourceLink("https://www.cinder.co/", "[1]")}
           </>
         ),
       },
@@ -373,19 +409,37 @@ export const cinderComparison: ComparisonData = {
         answer: (
           <>
             Yes. Cinder highlights real-time data annotation and labeling
-            workflows. {sourceLink("https://www.cinder.co/ai-development", "[2]")}
+            workflows as part of its AI development offering. However, the
+            labeling is oriented toward content moderation and safety
+            classifications rather than the enrichment layers needed for
+            physical AI training. The annotation tools support multi-modal
+            content review across text, images, video, and audio within the
+            context of Trust and Safety operations.
+            {sourceLink("https://www.cinder.co/ai-development", "[2]")}
           </>
         ),
       },
       {
         question: "Is Cinder a physical AI data provider?",
         answer:
-          "Cinder focuses on moderation and labeling workflows rather than capture-first physical data pipelines.",
+          "No. Cinder focuses on moderation, policy enforcement, and Trust and Safety labeling workflows rather than capture-first physical data pipelines. The company was built by content moderation experts from Meta and Palantir, and its tools are designed for platform safety teams rather than robotics or embodied AI developers. If you need physical-world data capture and enrichment, you need a provider specifically built for that use case.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. Cinder and Claru serve fundamentally different markets: Cinder helps platform companies manage content safety, while Claru helps robotics and physical AI teams collect and enrich training data. If your work involves embodied AI, manipulation tasks, or world models, Claru is the relevant provider.",
+      },
+      {
+        question: "Who are Cinder's investors?",
+        answer: (
+          <>
+            Cinder has raised $14 million in total funding. Accel led both the
+            $4 million seed round and the $10 million Series A, with
+            participation from Y Combinator. The company is backed by investors
+            who specialize in enterprise software and developer tools.
+            {sourceLink("https://techcrunch.com/2022/12/08/cinder-builds-a-trust-and-safety-platform/", "[4]")}
+          </>
+        ),
       },
     ],
   },
@@ -400,5 +454,6 @@ export const cinderComparison: ComparisonData = {
     { label: "Cinder Platform", url: "https://www.cinder.co/" },
     { label: "Cinder AI Development", url: "https://www.cinder.co/ai-development" },
     { label: "Cinder Human Review", url: "https://www.cinder.co/product/human-review-case-management" },
+    { label: "Cinder TechCrunch Launch", url: "https://techcrunch.com/2022/12/08/cinder-builds-a-trust-and-safety-platform/" },
   ],
 };

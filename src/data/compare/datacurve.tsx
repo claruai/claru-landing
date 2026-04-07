@@ -86,6 +86,24 @@ export const datacurveComparison: ComparisonData = {
         custom IDE and other complex coding tasks.
         {sourceLink("https://datacurve.ai/", "[3]")}
       </>,
+      <>
+        Datacurve was founded in 2024 by Serena Ge and Charley Lee and is
+        based in San Francisco. The company went through Y Combinator&apos;s W24
+        batch and has raised approximately $17.7 million in total funding,
+        including a $15 million Series A led by Chemistry with participation
+        from DeepMind, Vercel, Anthropic, and OpenAI employees.{" "}
+        {sourceLink("https://techcrunch.com/2025/10/09/datacurve-raises-15-million-to-take-on-scaleai/", "[4]")}
+      </>,
+      <>
+        Datacurve uses a bounty hunter system to attract skilled software
+        engineers to complete the hardest-to-source coding datasets,
+        distributing over $1 million in bounties. The company captures
+        agentic workflow traces through a custom IDE and produces coding
+        tasks that go beyond simple completions into complex multi-step
+        software engineering scenarios.{" "}
+        {sourceLink("https://datacurve.ai/", "[5]")}
+      </>,
+      "For robotics teams, Datacurve is not a relevant provider since it focuses exclusively on coding and software engineering data for LLM training. If your work involves embodied AI, manipulation policies, or world models that need physical-world data, you need a fundamentally different data pipeline.",
       "If your bottleneck is coding data for LLMs or agents, Datacurve is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -283,22 +301,29 @@ export const datacurveComparison: ComparisonData = {
       {
         title: "Code data vs physical data",
         paragraphs: [
-          "Datacurve focuses on high-quality coding data for foundation models.",
-          "Claru focuses on real-world capture for robotics and embodied AI.",
+          "Datacurve focuses on high-quality coding data for foundation models, using a bounty hunter system that pays skilled software engineers to complete complex coding tasks. The company has distributed over $1 million in bounties and captures agentic workflow traces through a custom IDE, producing data that goes beyond simple code completions.",
+          "Claru focuses on real-world capture for robotics and embodied AI. The data types are fundamentally different: Datacurve works with code, terminal sessions, and browser interactions, while Claru works with egocentric video, depth maps, pose sequences, and manipulation recordings from physical environments.",
         ],
       },
       {
-        title: "Output format",
+        title: "Output format and use cases",
         paragraphs: [
-          "Datacurve outputs coding datasets and evaluation signals.",
-          "Claru outputs multimodal robotics-ready datasets with rich annotations.",
+          "Datacurve outputs coding datasets including SFT data, reinforcement learning environments, RLHF preference data, and evaluation benchmarks. These formats are designed for training and evaluating code-focused foundation models, agent systems, and coding assistants.",
+          "Claru outputs multimodal robotics-ready datasets with depth, pose, segmentation, optical flow, and aligned captions. These formats are designed for training manipulation policies, world models, and embodied AI systems that need to understand and interact with the physical world.",
+        ],
+      },
+      {
+        title: "Founding and funding",
+        paragraphs: [
+          "Datacurve was founded in 2024 by Serena Ge and Charley Lee, went through YC W24, and has raised $17.7M including a $15M Series A led by Chemistry. The company has attracted angel investment from employees at DeepMind, Anthropic, OpenAI, and Vercel.",
+          "Both companies represent the trend toward specialized, high-quality data providers for AI training, but they serve completely different modalities and model types with no overlap in their target customer base.",
         ],
       },
       {
         title: "Where each wins",
         paragraphs: [
-          "Datacurve is strong for code model training and evaluation.",
-          "Claru is stronger when physical-world capture is the bottleneck.",
+          "Datacurve is strong for code model training and evaluation, particularly for teams building coding assistants, software engineering agents, or evaluating LLM coding capabilities.",
+          "Claru is stronger when physical-world capture is the bottleneck, particularly for teams building robotics systems, world models, or any embodied AI that needs to understand physical environments.",
         ],
       },
     ],
@@ -393,9 +418,23 @@ export const datacurveComparison: ComparisonData = {
         ),
       },
       {
+        question: "Who founded Datacurve and how much funding has it raised?",
+        answer: (
+          <>
+            Datacurve was founded in 2024 by Serena Ge and Charley Lee and is
+            based in San Francisco. The company went through Y Combinator W24
+            and has raised approximately $17.7 million in total funding,
+            including a $2.7M seed round and a $15M Series A led by Chemistry.
+            Investors include employees from DeepMind, Anthropic, OpenAI, and
+            Vercel, as well as former Coinbase CTO Balaji Srinivasan.
+            {sourceLink("https://techcrunch.com/2025/10/09/datacurve-raises-15-million-to-take-on-scaleai/", "[4]")}
+          </>
+        ),
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. Datacurve focuses exclusively on coding data for LLM training and evaluation, which serves a completely different use case. If you are building physical AI, robotics, or world models, you need a provider that captures real-world data and enriches it with depth, pose, segmentation, and motion signals.",
       },
     ],
   },

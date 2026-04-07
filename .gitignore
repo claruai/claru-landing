@@ -89,3 +89,4 @@ public/videos/enrichment-viz/
 tmp/
 scripts/fal-wham/.venv*/
 scripts/fal-hawor/
+sessions-context/

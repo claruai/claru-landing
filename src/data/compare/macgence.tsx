@@ -59,6 +59,10 @@ export const macgenceComparison: ComparisonData = {
       </>
     ),
     lastUpdated: "April 2, 2026",
+    paragraphs: [
+      "Macgence is an India-headquartered AI training data company that provides data collection, annotation, validation, RLHF, and data licensing services. The company reports scale metrics including 5 million-plus files annotated, 500-plus projects delivered, and expertise across 200-plus languages. Macgence serves clients across industries including autonomous vehicles, healthcare, NLP, and computer vision, positioning itself as a full-service data partner with global sourcing capabilities and sensor data support for LiDAR, RADAR, and IoT devices.",
+      "For physical AI teams, Macgence's sensor data collection and annotation capabilities are noteworthy, particularly the support for LiDAR, RADAR, and vehicle data. However, Macgence operates primarily as a data services provider rather than a capture-first robotics data pipeline. The company does not deploy wearable camera networks for egocentric video collection, does not produce enrichment layers such as depth estimation or optical flow as automated pipeline outputs, and does not deliver datasets in robotics-native formats like RLDS or LeRobot. Teams building robotics foundation models need upstream capture and multi-layer spatial enrichment that extends beyond general-purpose data annotation services.",
+    ],
   },
   tldr: {
     title: "TL;DR",
@@ -370,10 +374,17 @@ export const macgenceComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics AI data requirements",
+        paragraphs: [
+          "Robotics foundation models such as RT-2, Octo, and pi0 require training data that pairs egocentric video with dense spatial signals including depth maps, human pose skeletons, semantic segmentation masks, and optical flow fields. While Macgence can annotate sensor data including LiDAR and RADAR signals, the upstream challenge of capturing task-specific manipulation, navigation, or activity video and generating automated enrichment layers is outside the company's standard service offering.",
+          "Claru runs the full pipeline from field capture through automated enrichment to delivery. Wearable camera operators record real-world activities, and the enrichment pipeline produces per-frame depth, pose, segmentation, and motion outputs aligned to the video timeline. Datasets ship in robotics-native formats like RLDS, LeRobot, or HDF5.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Macgence is a strong fit for multi-modal data services at scale.",
-          "Claru is better when capture and enrichment are the bottleneck.",
+          "Macgence is a strong fit for multi-modal data services at scale. The company's sensor data annotation capabilities, global sourcing, and quick turnaround make it a reliable partner for teams with diverse annotation needs across text, image, audio, video, and sensor modalities.",
+          "Claru is better when capture and enrichment are the bottleneck. If your robotics training pipeline needs new task-specific recordings from real environments with aligned spatial enrichment signals, Claru addresses that upstream data generation challenge directly.",
         ],
       },
     ],
@@ -471,9 +482,14 @@ export const macgenceComparison: ComparisonData = {
         ),
       },
       {
+        question: "Can Macgence handle robotics or physical AI data?",
+        answer:
+          "Macgence can annotate sensor data including LiDAR, RADAR, and IoT signals, and the company lists vehicle and sensor data collection as service capabilities. However, Macgence does not deploy wearable camera networks for egocentric video collection, does not generate automated enrichment layers like depth estimation or optical flow, and does not deliver datasets in robotics-native formats like RLDS or LeRobot. Teams building robotics foundation models typically need a capture-first provider that handles upstream data generation and spatial enrichment.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your training pipeline requires new egocentric video from real-world environments with aligned depth, pose, segmentation, and motion signals, Claru handles the full upstream workflow from field capture through enrichment to delivery. Macgence is better suited for teams that need broad, multi-modal data services with global annotation scale.",
       },
     ],
   },

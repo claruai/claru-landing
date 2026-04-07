@@ -98,6 +98,8 @@ export const imeritComparison: ComparisonData = {
         iMerit highlights industry domains such as generative AI, medical
         imaging, and autonomous mobility. {sourceLink("https://imerit.net/", "[5]")}
       </>,
+      "iMerit was founded in 2012 in India and has grown into one of the larger AI data services companies, employing thousands of trained annotators across multiple facilities. The company has built deep expertise in specialized domains including medical imaging, autonomous vehicles, and geospatial analysis, where annotation requires subject-matter knowledge beyond basic labeling skills. iMerit has raised significant venture funding and counts major technology companies among its clients. The company differentiates itself through its emphasis on expert-led annotation rather than crowd-sourced labeling, arguing that complex AI applications require annotators with domain training.",
+      "For physical AI and robotics teams, iMerit's multi-modal coverage and domain expertise in autonomous mobility are relevant strengths. However, the core distinction between iMerit and capture-first providers like Claru remains: iMerit annotates and tunes models using data that already exists, while robotics teams often need to collect new task-specific data before any annotation or tuning can begin. Egocentric video demonstrations, manipulation sequences, and sensor-aligned capture programs require specialized collection infrastructure that annotation and tuning services do not provide.",
       "If your bottleneck is expert annotation, model tuning, or evaluation, iMerit is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -395,10 +397,17 @@ export const imeritComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics AI data challenges",
+        paragraphs: [
+          "Modern robotics AI architectures such as vision-language-action networks, diffusion policies, and world models require training data with properties that go beyond annotation and tuning services: egocentric viewpoints matching robot sensor placements, manipulation sequences with hand-object interaction context, depth-aligned frames for spatial reasoning, and action-level temporal segmentation for policy learning.",
+          "Claru addresses these upstream data requirements by designing capture protocols specifically for robotics tasks, deploying trained collectors with wearable cameras in real-world environments, and enriching every clip with depth estimation, pose detection, instance segmentation, and optical flow before delivery in robotics-native formats like RLDS and WebDataset.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "iMerit is strong when expert annotation and tuning are the bottleneck.",
-          "Claru is stronger when physical-world capture is the bottleneck.",
+          "iMerit is strong when expert annotation and tuning are the bottleneck, particularly for teams working across specialized domains like medical imaging, autonomous vehicles, and generative AI that require annotators with deep subject-matter expertise.",
+          "Claru is stronger when physical-world capture is the bottleneck, especially for robotics teams that need new task-specific data with multi-layer enrichment designed for embodied AI training from the ground up.",
         ],
       },
     ],

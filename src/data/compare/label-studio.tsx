@@ -58,6 +58,10 @@ export const labelStudioComparison: ComparisonData = {
       </>
     ),
     lastUpdated: "March 31, 2026",
+    paragraphs: [
+      "Label Studio is an open-source data labeling platform originally developed by Heartex and now maintained by HumanSignal. The project has attracted a large community of contributors and users, with thousands of GitHub stars and widespread adoption among ML teams that want self-hosted labeling infrastructure. Label Studio supports a wide range of data types and annotation tasks, from text classification and NER to image segmentation and audio transcription. HumanSignal also offers Label Studio Enterprise, a commercial version with team management, RBAC, and enterprise security features.",
+      "For physical AI teams, Label Studio provides flexible tooling that could be used for labeling robotics-related data such as object detection in manipulation scenes or action classification in activity recordings. However, Label Studio is a labeling platform, not a data capture or enrichment pipeline. It does not deploy field collection networks, generate egocentric video from wearable cameras, or produce spatial enrichment layers like depth estimation, human pose extraction, or optical flow. Teams building robotics foundation models need upstream data capture and multi-layer enrichment that goes beyond what any labeling platform provides, regardless of how customizable the annotation workflows are.",
+    ],
   },
   tldr: {
     title: "TL;DR",
@@ -317,10 +321,17 @@ export const labelStudioComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics AI data needs",
+        paragraphs: [
+          "Robotics foundation models like RT-2, Octo, and pi0 train on datasets that combine egocentric video with dense spatial signals: per-frame depth maps, full-body and hand pose skeletons, semantic segmentation masks, and optical flow vectors. Label Studio can create annotation interfaces for some of these tasks, but the challenge for robotics teams is usually not labeling tooling. The bottleneck is acquiring the raw video with aligned spatial enrichment in the first place.",
+          "Claru addresses this gap by operating the full pipeline from field capture through automated enrichment to delivery. Operators record task-specific video using wearable cameras, and the enrichment pipeline produces depth, pose, segmentation, and motion outputs that align frame-by-frame with the source video. Datasets ship in robotics-native formats like RLDS, LeRobot, or HDF5.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Label Studio is strong when teams want open-source control.",
-          "Claru is stronger when physical-world capture is the bottleneck.",
+          "Label Studio is strong when teams want open-source control over their labeling infrastructure. The platform's extensibility, self-hosting options, and active community make it a natural choice for ML teams that want to build and maintain their own annotation workflows.",
+          "Claru is stronger when physical-world capture is the bottleneck. If your robotics training pipeline is starved for task-specific video with aligned spatial enrichment signals, a capture-first provider addresses that need directly.",
         ],
       },
     ],
@@ -394,7 +405,7 @@ export const labelStudioComparison: ComparisonData = {
         question: "What is Label Studio?",
         answer: (
           <>
-            Label Studio is an open source data labeling platform.
+            Label Studio is an open-source data labeling platform originally developed by Heartex and now maintained by HumanSignal. It has attracted a large community with thousands of GitHub stars and is widely adopted by ML teams that want self-hosted labeling infrastructure. The platform supports a broad range of data types and annotation tasks, from text classification to image segmentation and audio transcription. HumanSignal also offers a commercial enterprise version with team management, RBAC, and advanced security features.
             {sourceLink("https://labelstud.io/", "[1]")}
           </>
         ),
@@ -403,8 +414,8 @@ export const labelStudioComparison: ComparisonData = {
         question: "What use cases does Label Studio list?",
         answer: (
           <>
-            The platform highlights LLM fine-tuning, training data preparation,
-            and AI evaluation. {sourceLink("https://labelstud.io/", "[2]")}
+            The platform highlights LLM fine-tuning, training data preparation, and AI evaluation as primary use cases. Label Studio is designed to be flexible enough to support any annotation workflow, from simple classification to complex multi-step labeling pipelines. The extensible template system allows teams to build custom interfaces for specialized tasks, making it adaptable to many different ML training scenarios.
+            {sourceLink("https://labelstud.io/", "[2]")}
           </>
         ),
       },
@@ -412,7 +423,7 @@ export const labelStudioComparison: ComparisonData = {
         question: "Is Label Studio customizable?",
         answer: (
           <>
-            Label Studio emphasizes flexible, customizable workflows.
+            Label Studio emphasizes flexible, customizable workflows as a core strength. The platform uses a template-based configuration system that allows teams to define custom annotation interfaces, validation rules, and multi-step review processes. This extensibility is one of the main reasons ML teams choose Label Studio over more opinionated annotation platforms, as it can be adapted to fit almost any labeling workflow.
             {sourceLink("https://labelstud.io/", "[3]")}
           </>
         ),
@@ -420,23 +431,23 @@ export const labelStudioComparison: ComparisonData = {
       {
         question: "Is Label Studio a fit for robotics data capture?",
         answer:
-          "Label Studio focuses on labeling tools. Claru is better for capture-first robotics data collection and enrichment.",
+          "Label Studio is a labeling platform, not a data capture or enrichment pipeline. While you can create annotation interfaces for robotics-related tasks like object detection or action classification, the platform does not capture new physical-world video, deploy field operators, or generate spatial enrichment layers such as depth estimation, pose extraction, or optical flow. The core challenge for robotics teams is usually upstream data generation, not labeling tooling.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your training pipeline requires new egocentric video from real environments with aligned depth, pose, segmentation, and motion signals, Claru addresses that need. Label Studio is better suited for teams that already have data and want open-source control over their annotation workflows.",
       },
       {
         question: "Can teams use both Label Studio and Claru?",
         answer:
-          "Some teams use Label Studio for labeling infrastructure and Claru for capture-first physical AI datasets.",
+          "Yes, some teams use Label Studio for their internal labeling infrastructure and Claru for capture-first physical AI datasets. This combination works well when a team needs both custom annotation workflows for existing data and new physical-world recordings with enrichment layers for robotics training. The two tools address different parts of the ML data pipeline and complement each other.",
       },
       {
         question: "Is Label Studio open source?",
         answer: (
           <>
-            Label Studio positions itself as an open source platform.
+            Label Studio is open source under the Apache 2.0 license, with the community edition freely available on GitHub. HumanSignal also offers Label Studio Enterprise, a commercial product with additional features for team management, role-based access control, and enterprise security requirements. The open-source version is fully functional for individual and small team use.
             {sourceLink("https://labelstud.io/", "[1]")}
           </>
         ),
@@ -445,7 +456,7 @@ export const labelStudioComparison: ComparisonData = {
         question: "Does Label Studio support LLM workflows?",
         answer: (
           <>
-            The platform highlights LLM fine-tuning and AI evaluation use cases.
+            The platform highlights LLM fine-tuning and AI evaluation as prominent use cases. Label Studio can be configured for tasks like prompt-response rating, preference ranking for RLHF, and model output evaluation. These capabilities make it useful for language model training teams, though they differ from the spatial enrichment and physical-world capture needs of robotics AI teams.
             {sourceLink("https://labelstud.io/", "[2]")}
           </>
         ),

@@ -59,6 +59,10 @@ export const lightwheelComparison: ComparisonData = {
       </>
     ),
     lastUpdated: "April 2, 2026",
+    paragraphs: [
+      "Lightwheel AI is a physical AI data company that offers a sim2real pipeline and data factory for building robotics foundation models. The company positions its Lightwheel Lab Enterprise platform as an end-to-end solution spanning simulation data generation, real-world data collection, and calibrated sensor delivery. Lightwheel supports simulation environments like NVIDIA Isaac Sim and MuJoCo, and lists data collection modalities including teleoperation in simulation and reinforcement learning in simulation, alongside ego-centric real-world capture using physical robots.",
+      "For physical AI teams, Lightwheel is one of the closest competitors to Claru in the market because both companies operate specifically in the robotics training data space. The key difference lies in emphasis: Lightwheel leads with simulation-driven data generation and sim2real transfer, while Claru leads with real-world field capture and multi-layer enrichment. Teams that rely heavily on simulation for initial policy training and need sim2real bridges may find Lightwheel's approach compelling. Teams whose bottleneck is acquiring diverse real-world manipulation, navigation, or activity recordings with dense spatial enrichment will find Claru's capture-first model more directly addresses their needs.",
+    ],
   },
   tldr: {
     title: "TL;DR",
@@ -385,10 +389,17 @@ export const lightwheelComparison: ComparisonData = {
         ],
       },
       {
+        title: "Sim2real gap and real-world diversity",
+        paragraphs: [
+          "The sim2real gap remains one of the biggest challenges in robotics AI. Models trained exclusively on simulation data often struggle to generalize to real-world conditions where lighting varies, surfaces have complex textures, objects deform unpredictably, and human interactions introduce noise that simulators cannot fully replicate. Lightwheel addresses this with its ego-centric real-world data collection capability, but its platform architecture still leads with simulation as the primary data generation method.",
+          "Claru takes the opposite approach, prioritizing real-world capture as the foundation and treating enrichment as the computational layer that adds spatial signals to organic recordings. This means datasets capture the full diversity of real-world conditions by default, including environmental variability, naturalistic human behavior, and the unpredictable physics of everyday object interactions that simulators often approximate poorly.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Lightwheel is a fit when simulation data and sim2real workflows are the bottleneck.",
-          "Claru is a fit when real-world capture and enrichment are the bottleneck.",
+          "Lightwheel is a fit when simulation data and sim2real workflows are the bottleneck. If your team relies on physics-based simulation for initial policy training and needs structured environments, teleoperation data, and calibrated sensor streams with known physical parameters, Lightwheel's platform is purpose-built for that workflow.",
+          "Claru is a fit when real-world capture and enrichment are the bottleneck. If your model needs diverse real-world manipulation, navigation, or activity recordings with dense spatial enrichment signals captured across varied environments and conditions, Claru's capture-first approach is the more direct path to training-ready data.",
         ],
       },
     ],
@@ -459,8 +470,7 @@ export const lightwheelComparison: ComparisonData = {
         question: "What is Lightwheel Lab Enterprise?",
         answer: (
           <>
-            Lightwheel describes it as an end-to-end sim2real pipeline and data
-            factory for physical AI models.
+            Lightwheel Lab Enterprise is described as an end-to-end sim2real pipeline and comprehensive data factory for building physical AI models. The platform spans the full data lifecycle from simulation-based data generation through real-world collection to calibrated delivery. Lightwheel positions itself as one of the few companies specifically focused on the robotics training data market, combining simulation environments with real-world capture capabilities and structured sensor output.
             {sourceLink("https://www.lightwheel.ai/lightwheel-platform", "[1]")}
           </>
         ),
@@ -469,7 +479,7 @@ export const lightwheelComparison: ComparisonData = {
         question: "What simulation environments does Lightwheel list?",
         answer: (
           <>
-            Lightwheel lists NVIDIA Isaac Sim and MuJoCo environments.
+            Lightwheel lists NVIDIA Isaac Sim and MuJoCo as supported simulation environments for data generation. These are the two most widely used physics simulators in the robotics research community. Isaac Sim provides photorealistic rendering and GPU-accelerated physics, while MuJoCo excels at fast, accurate contact dynamics. Supporting both allows Lightwheel to serve teams across different simulation preferences and research traditions.
             {sourceLink("https://www.lightwheel.ai/lightwheel-platform", "[2]")}
           </>
         ),
@@ -478,17 +488,21 @@ export const lightwheelComparison: ComparisonData = {
         question: "What data does Lightwheel deliver?",
         answer: (
           <>
-            Lightwheel delivers synchronized, calibrated sensor streams with
-            rich sensory signals and compatibility with RLDS and LeRobot.
+            Lightwheel delivers synchronized, calibrated sensor streams with rich sensory outputs including RGB and depth visuals, proprioceptive feedback, and tactile data. Physical parameters such as positions, velocities, accelerations, forces, and torques are included for robots and objects. Data is compatible with RLDS and LeRobot formats, and optional annotation services are available on top of the raw sensor data.
             {sourceLink("https://www.lightwheel.ai/lightwheel-platform", "[3]")}
             {sourceLink("https://www.lightwheel.ai/lightwheel-platform", "[7]")}
           </>
         ),
       },
       {
+        question: "How does Lightwheel compare to Claru for real-world data?",
+        answer:
+          "Lightwheel's platform architecture leads with simulation and includes ego-centric real-world collection as a complementary capability. Claru leads with real-world field capture as the primary data generation method. If your core need is diverse real-world recordings across varied environments and conditions, with dense spatial enrichment layers generated automatically, Claru's capture-first approach is more direct. If you need structured simulation data with sim2real bridges and calibrated physics parameters, Lightwheel is designed for that workflow.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets from real-world environments. If your model needs diverse manipulation, navigation, or activity recordings that capture the full variability of real-world conditions, including naturalistic human behavior and unpredictable object interactions, Claru's field capture network and automated enrichment pipeline address those needs. Lightwheel is better suited when simulation-driven data generation is the primary workflow.",
       },
     ],
   },

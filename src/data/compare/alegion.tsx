@@ -99,6 +99,8 @@ export const alegionComparison: ComparisonData = {
         Alegion states its AI-powered annotation tools can reduce annotation
         time by up to 50%. {sourceLink("https://alegion.com/", "[6]")}
       </>,
+      "Alegion is headquartered in Austin, Texas, and has raised approximately 34 million dollars in total funding, including a 12 million dollar Series A round in 2019. The company operates a human-in-the-loop platform designed for enterprise-grade data-intensive tasks including AI training data, content moderation, content tagging, and data categorization. Their focus on skilled workforces and quality delivery reflects an enterprise-oriented service model.",
+      "For physical AI and robotics teams, Alegion's managed annotation services can handle labeling of existing datasets including image, video, and sensor data. However, their platform is designed around annotating data that customers provide rather than capturing new physical-world data from scratch. Robotics models often require task-specific capture with wearable cameras, along with enrichment layers like depth estimation, 3D pose extraction, and optical flow that go beyond traditional annotation workflows.",
       "If your bottleneck is managed annotation services and data collection, Alegion is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -477,8 +479,8 @@ export const alegionComparison: ComparisonData = {
         question: "What is Alegion?",
         answer: (
           <>
-            Alegion provides data annotation services and data collection for AI
-            projects. {sourceLink("https://alegion.com/", "[1]")}
+            Alegion is a data annotation and collection company headquartered in Austin, Texas. Founded with approximately 34 million dollars in total funding including a 12 million dollar Series A round, the company provides a human-in-the-loop platform for enterprise-grade tasks including AI training data, content moderation, and data categorization. They emphasize skilled workforces and quality delivery across their managed service offerings.{" "}
+            {sourceLink("https://alegion.com/", "[1]")}
           </>
         ),
       },
@@ -521,17 +523,17 @@ export const alegionComparison: ComparisonData = {
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need the full pipeline from physical-world data capture through enrichment and delivery of robotics-ready datasets. If your team needs to create new data from scratch with wearable cameras, task-specific collection protocols, and enrichment layers like depth maps and 3D pose estimation, Claru is purpose-built for that workflow.",
       },
       {
         question: "Can teams use both Alegion and Claru?",
         answer:
-          "Some teams use Alegion for managed annotation services and Claru for capture-first physical AI datasets.",
+          "Yes. Some teams use Alegion for managed annotation services on existing datasets and Claru for capture-first physical AI datasets where the raw data does not yet exist. This complementary approach lets each provider handle what they do best: Alegion for labeling throughput on existing data, Claru for capture, enrichment, and robotics-native delivery.",
       },
       {
         question: "Is Alegion a fit for robotics data capture?",
         answer:
-          "Alegion focuses on managed annotation services. Claru is better for capture-first robotics data collection and enrichment.",
+          "Alegion can annotate existing robotics datasets through their managed labeling services and AI-powered tooling. However, their platform is designed around labeling data that customers provide rather than capturing new physical-world data from scratch. For teams that need upstream data capture with specific environments, tasks, and sensor configurations, a specialized provider like Claru is better suited.",
       },
     ],
   },

@@ -104,6 +104,8 @@ export const hastyAiComparison: ComparisonData = {
         CloudFactory also emphasizes data security protocols and compliance
         support. {sourceLink("https://www.cloudfactory.com/platform/ai-cv-tool", "[7]")}
       </>,
+      "Hasty was originally an independent AI-assisted annotation startup before being acquired by CloudFactory, a managed workforce platform for AI data operations. The acquisition combined Hasty's annotation tooling with CloudFactory's global workforce of managed labelers, creating an integrated platform that offers both the software and the human resources for computer vision labeling. This integration positions Hasty as more than a standalone tool: it is now part of a full-service data operations offering that handles annotation from task design through delivery.",
+      "For physical AI and robotics teams, the question is whether annotation tooling and managed labeling address the core data bottleneck. Robotics models built on imitation learning, diffusion policies, or vision-language-action architectures need training data with specific properties: egocentric viewpoints, manipulation context, depth alignment, and action-level temporal annotations. These requirements demand specialized capture infrastructure before annotation can even begin. Hasty excels at the annotation layer, but the upstream challenge of physical-world data acquisition for robotics remains outside its scope.",
       "If your bottleneck is annotation tooling and QA, Hasty is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -406,10 +408,17 @@ export const hastyAiComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics AI data challenges",
+        paragraphs: [
+          "Modern robotics AI systems require training data that goes beyond what annotation tooling alone can produce. Policy learning architectures need demonstrations captured from viewpoints that match robot camera placements. Manipulation models require hand-object interaction sequences with spatial context. World models need diverse environment recordings with consistent depth and motion information. These requirements demand specialized capture infrastructure deployed in real-world settings.",
+          "Claru addresses these upstream requirements by designing capture protocols around robotics tasks, deploying collectors with wearable cameras, and enriching every clip with depth estimation, pose detection, segmentation, and optical flow before delivery in formats that plug directly into robotics training frameworks.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Hasty is strong when annotation tooling is the bottleneck.",
-          "Claru is stronger when physical-world capture is the bottleneck.",
+          "Hasty is strong when annotation tooling is the bottleneck, particularly for computer vision teams that have existing image or video data and need AI-assisted labeling with automated quality control to accelerate their annotation pipelines.",
+          "Claru is stronger when physical-world capture is the bottleneck, especially for robotics teams that need new task-specific data with multi-layer enrichment as a standard output rather than annotation of existing datasets.",
         ],
       },
     ],
@@ -483,9 +492,9 @@ export const hastyAiComparison: ComparisonData = {
         question: "What is Hasty?",
         answer: (
           <>
-            Hasty is an AI-assisted annotation tool integrated into
-            CloudFactory&apos;s AI Data Platform.
-            {sourceLink("https://www.cloudfactory.com/platform/ai-cv-tool", "[1]")}
+            Hasty is an AI-assisted annotation tool now integrated into CloudFactory&apos;s AI Data Platform following its acquisition.{" "}
+            {sourceLink("https://www.cloudfactory.com/platform/ai-cv-tool", "[1]")}{" "}
+            Originally an independent startup, Hasty built its reputation on using AI models to assist human annotators with smart suggestions and feedback loops. The CloudFactory acquisition combined Hasty&apos;s annotation technology with a managed global workforce, creating a full-service platform for computer vision data labeling that pairs tooling with human labeling capacity.
           </>
         ),
       },
@@ -493,8 +502,9 @@ export const hastyAiComparison: ComparisonData = {
         question: "How does Hasty speed up labeling?",
         answer: (
           <>
-            Hasty emphasizes smart suggestions and feedback loops.
-            {sourceLink("https://www.cloudfactory.com/platform/ai-cv-tool", "[2]")}
+            Hasty emphasizes smart suggestions and feedback loops that learn from annotator corrections to provide increasingly accurate pre-labels.{" "}
+            {sourceLink("https://www.cloudfactory.com/platform/ai-cv-tool", "[2]")}{" "}
+            As annotators work through datasets, the AI model behind Hasty improves its suggestions, reducing the manual effort required for each subsequent label. This active learning approach is designed to accelerate annotation velocity while maintaining quality, making it particularly effective for large computer vision datasets where similar patterns repeat across images.
           </>
         ),
       },
@@ -502,8 +512,9 @@ export const hastyAiComparison: ComparisonData = {
         question: "Does Hasty claim faster labeling?",
         answer: (
           <>
-            CloudFactory claims AI-assisted annotation can reduce labeling time
-            by up to 30x. {sourceLink("https://www.cloudfactory.com/platform/ai-cv-tool", "[3]")}
+            CloudFactory claims AI-assisted annotation through Hasty can reduce labeling time by up to 30x compared to fully manual annotation.{" "}
+            {sourceLink("https://www.cloudfactory.com/platform/ai-cv-tool", "[3]")}{" "}
+            This speed improvement comes from the combination of AI pre-labeling, smart suggestions, and active learning feedback loops. The actual speedup depends on the complexity of the annotation task, the quality of the initial model, and the consistency of the data being labeled. Simpler tasks with repetitive patterns see the largest time reductions.
           </>
         ),
       },
@@ -511,9 +522,9 @@ export const hastyAiComparison: ComparisonData = {
         question: "What annotation types does Hasty support?",
         answer: (
           <>
-            The tool supports semantic segmentation, object detection, and
-            instance segmentation.
-            {sourceLink("https://www.cloudfactory.com/platform/ai-cv-tool", "[4]")}
+            The tool supports semantic segmentation, object detection, and instance segmentation as its primary annotation types.{" "}
+            {sourceLink("https://www.cloudfactory.com/platform/ai-cv-tool", "[4]")}{" "}
+            These annotation types cover the most common computer vision labeling needs, from classifying pixels in medical images to drawing bounding boxes around vehicles in driving data. For robotics-specific annotation needs like affordance labeling, grasp type classification, or action boundary marking, teams may need specialized tooling beyond standard CV annotation types.
           </>
         ),
       },
@@ -521,8 +532,9 @@ export const hastyAiComparison: ComparisonData = {
         question: "What QA workflows does Hasty offer?",
         answer: (
           <>
-            Hasty highlights 100% QA, consensus scoring, and automated quality
-            control. {sourceLink("https://www.cloudfactory.com/platform/ai-cv-tool", "[5]")}
+            Hasty highlights 100% QA, consensus scoring, and automated quality control as part of its annotation pipeline.{" "}
+            {sourceLink("https://www.cloudfactory.com/platform/ai-cv-tool", "[5]")}{" "}
+            The 100% QA feature means every annotation passes through a review step. Consensus scoring compares labels from multiple annotators to identify disagreements. Automated quality control uses statistical methods to flag potential errors. These workflows are designed to maintain high label accuracy across large annotation projects.
           </>
         ),
       },
@@ -530,20 +542,21 @@ export const hastyAiComparison: ComparisonData = {
         question: "Does Hasty include model training?",
         answer: (
           <>
-            Hasty highlights no-code model development for training custom
-            models. {sourceLink("https://www.cloudfactory.com/platform/ai-cv-tool", "[6]")}
+            Hasty highlights no-code model development for training custom models on labeled data.{" "}
+            {sourceLink("https://www.cloudfactory.com/platform/ai-cv-tool", "[6]")}{" "}
+            This feature allows teams to train basic computer vision models directly within the platform using their annotated datasets, without writing code. The no-code approach lowers the barrier to model experimentation, though production robotics teams typically use specialized training frameworks and architectures that require custom training pipelines.
           </>
         ),
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. Hasty excels at annotation tooling for existing data, but robotics teams often face an upstream bottleneck: they need new physical-world data collected for specific tasks. Claru provides capture infrastructure, trained collectors with wearable cameras, and enrichment layers including depth, pose, segmentation, and optical flow, all delivered in robotics-native formats like RLDS and WebDataset.",
       },
       {
         question: "Can teams use both Hasty and Claru?",
         answer:
-          "Some teams use Hasty for annotation tooling and Claru for capture-first physical AI datasets.",
+          "Some teams use Hasty for annotation tooling and Claru for capture-first physical AI datasets. This combination works well when a team has both existing data that needs labeling and new data collection requirements for robotics tasks. Claru handles the capture and enrichment pipeline for physical-world data, while Hasty provides the annotation interface for labeling tasks where AI-assisted tooling accelerates the process.",
       },
     ],
   },

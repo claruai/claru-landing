@@ -80,6 +80,8 @@ export const redbrickAiComparison: ComparisonData = {
         The company highlights tooling for medical imaging workflows in its
         platform documentation. {sourceLink("https://docs.redbrickai.com/", "[2]")}
       </>,
+      "RedBrick AI has established itself as a specialized player in the medical imaging annotation space, building purpose-built tooling for radiology workflows including CT, MRI, and X-ray annotation. The platform supports DICOM-native workflows and has been adopted by healthcare AI teams that need annotation tools designed specifically for medical imaging data rather than general-purpose labeling platforms. RedBrick AI's focus on healthcare compliance and domain-specific tooling sets it apart from horizontal annotation platforms.",
+      "For physical AI and robotics teams, RedBrick AI addresses a fundamentally different problem space. While both medical imaging AI and robotics AI require high-quality training data, the data types, capture methods, and enrichment requirements are entirely distinct. Robotics models need task-specific video captured in physical environments with dense enrichment layers like depth estimation, pose tracking, instance segmentation, and optical flow. Medical imaging annotation platforms are designed for static 3D volumes and 2D slices from clinical scanners, not for the temporal video data and sensor signals that embodied AI systems require.",
       "If your bottleneck is medical imaging annotation, RedBrick AI is a strong fit. If your bottleneck is physical-world capture and enrichment for robotics, Claru is the better fit.",
     ],
   },
@@ -276,10 +278,17 @@ export const redbrickAiComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics vs medical imaging data needs",
+        paragraphs: [
+          "Medical imaging annotation requires specialized tooling for 3D volumes, DICOM support, and clinical workflow integration. The data comes from clinical scanners and the labeling taxonomy is driven by medical expertise. RedBrick AI is purpose-built for this domain and provides the compliance, tooling, and workflow features that healthcare AI teams need.",
+          "Robotics data requires a fundamentally different pipeline: task-specific video capture in physical environments, enrichment layers like depth estimation and pose tracking, and delivery in formats compatible with robotics training frameworks. The data sources, enrichment requirements, and delivery formats have almost no overlap with medical imaging.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "RedBrick AI is a strong fit for healthcare AI programs.",
-          "Claru is better when you need capture and enrichment for physical AI.",
+          "RedBrick AI is a strong fit for healthcare AI programs that need specialized medical imaging annotation workflows with DICOM support, clinical compliance, and radiology-specific tooling. If your team works with CT, MRI, or X-ray data, RedBrick AI provides purpose-built infrastructure for that domain.",
+          "Claru is better when you need capture and enrichment for physical AI. If your model needs egocentric video captured in real-world environments with aligned depth maps, pose tracks, and segmentation masks delivered in robotics-native formats, Claru is designed for that end-to-end pipeline.",
         ],
       },
     ],
@@ -350,8 +359,8 @@ export const redbrickAiComparison: ComparisonData = {
         question: "What is RedBrick AI?",
         answer: (
           <>
-            RedBrick AI positions itself as a medical imaging annotation
-            platform. {sourceLink("https://www.redbrickai.com/", "[1]")}
+            RedBrick AI is a specialized medical imaging annotation platform designed for radiology and clinical imaging workflows. The platform provides DICOM-native tooling for annotating CT, MRI, X-ray, and other medical imaging modalities. RedBrick AI has built purpose-specific features for healthcare AI teams including 3D volume annotation, clinical workflow integration, and compliance features for regulated healthcare environments. The platform targets a niche but important segment of the AI data tooling market.
+            {sourceLink("https://www.redbrickai.com/", "[1]")}
           </>
         ),
       },
@@ -359,20 +368,30 @@ export const redbrickAiComparison: ComparisonData = {
         question: "Does RedBrick AI focus on medical imaging?",
         answer: (
           <>
-            Yes. The platform highlights medical imaging workflows in its
-            documentation. {sourceLink("https://docs.redbrickai.com/", "[2]")}
+            Yes. RedBrick AI is entirely focused on medical imaging workflows. The platform documentation covers tooling for radiology-specific annotation tasks, DICOM data handling, 3D volume labeling, and clinical workflow integration. This deep specialization makes RedBrick AI a strong choice for healthcare AI teams but means the platform is not designed for other AI data domains such as robotics, autonomous driving, or embodied AI.
+            {sourceLink("https://docs.redbrickai.com/", "[2]")}
           </>
         ),
       },
       {
         question: "Is RedBrick AI a physical AI data provider?",
         answer:
-          "RedBrick AI focuses on medical imaging annotation rather than capture-first physical data pipelines.",
+          "RedBrick AI focuses on medical imaging annotation rather than capture-first physical data pipelines for robotics. The platform addresses an entirely different problem space from physical AI data providers. Medical imaging annotation involves labeling clinical scanner data like CT and MRI volumes, while physical AI data requires task-specific video capture in real-world environments with enrichment layers such as depth estimation, pose tracking, and optical flow. Teams building embodied AI systems should evaluate providers designed specifically for physical AI data pipelines.",
+      },
+      {
+        question: "How does RedBrick AI compare to Claru?",
+        answer:
+          "RedBrick AI and Claru address fundamentally different AI data needs. RedBrick AI specializes in medical imaging annotation with DICOM-native tooling for healthcare AI teams. Claru specializes in physical AI data capture and enrichment for robotics and world model training. The data types, capture methods, enrichment requirements, and delivery formats are entirely distinct between these two domains. There is very little overlap in their target customer base.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when your primary need is capturing physical-world data and enriching it for robotics or embodied AI training. This includes scenarios where you need egocentric video from specific environments, enrichment layers such as monocular depth, pose estimation, segmentation, and optical flow, and delivery in robotics-native formats like WebDataset, HDF5, or RLDS. If your team works with medical imaging data from clinical scanners, RedBrick AI is the more appropriate choice for that specific domain.",
+      },
+      {
+        question: "Can teams use both RedBrick AI and Claru?",
+        answer:
+          "While theoretically possible, using both RedBrick AI and Claru would only make sense for organizations working across both medical imaging AI and physical AI robotics. This is uncommon, as these are separate research and engineering domains with different data requirements. Most teams will choose one based on their specific domain: RedBrick AI for healthcare imaging annotation or Claru for robotics data capture and enrichment.",
       },
     ],
   },

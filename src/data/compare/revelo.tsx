@@ -82,6 +82,8 @@ export const reveloComparison: ComparisonData = {
         evaluation suites for specialized architectures and domains.
         {sourceLink("https://humandata.revelo.com/human-data-expert-curated-code-datasets", "[2]")}
       </>,
+      "Revelo was originally known as a Latin American tech talent marketplace connecting software engineers with companies. The company pivoted to focus on human data for LLM training, leveraging its existing network of technical professionals to provide expert-quality code data for SFT, RLHF, and evaluation programs. This pivot positioned Revelo in the growing market for specialized human data that supports large language model development and fine-tuning.",
+      "For physical AI and robotics teams, Revelo addresses a fundamentally different problem domain. Code LLM training data involves expert software engineers writing, reviewing, and evaluating code samples. Physical AI training data requires task-specific video captured in real-world environments with dense enrichment layers like depth estimation, pose tracking, instance segmentation, and optical flow. The data types, capture methods, and enrichment requirements have no overlap between these two domains. Teams building embodied AI systems should evaluate providers designed specifically for physical-world data capture and enrichment.",
       "If your bottleneck is code-focused human data for LLM training, Revelo is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -289,10 +291,17 @@ export const reveloComparison: ComparisonData = {
         ],
       },
       {
+        title: "Domain differences",
+        paragraphs: [
+          "Code LLM training and physical AI training are fundamentally different data domains. Code data involves structured text written by software engineers, with quality measured by correctness, style, and complexity. Physical AI data involves video and sensor streams captured in real environments, with quality measured by task coverage, enrichment density, and temporal alignment.",
+          "Revelo excels in the code domain because of its network of technical professionals. Claru excels in the physical AI domain because of its capture infrastructure, enrichment pipelines, and robotics-native delivery formats.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Revelo is a strong fit for code LLM programs needing expert data.",
-          "Claru is better when physical-world capture is the limiting factor.",
+          "Revelo is a strong fit for code LLM programs that need expert-curated datasets, SFT data, RLHF feedback, and evaluation suites from experienced software engineers. If your model is a code assistant or code generation system, Revelo provides the domain expertise to create high-quality training data.",
+          "Claru is better when the bottleneck is physical-world capture and enrichment. If your model needs egocentric video with aligned depth maps, pose tracks, and segmentation masks delivered in robotics-native formats like WebDataset or HDF5, Claru is designed for that pipeline.",
         ],
       },
     ],
@@ -363,7 +372,7 @@ export const reveloComparison: ComparisonData = {
         question: "What is Revelo?",
         answer: (
           <>
-            Revelo provides fully managed human data for LLM code training.
+            Revelo provides fully managed human data for LLM code training. Originally a Latin American tech talent marketplace, Revelo pivoted to focus on human data for large language model development. The company leverages its network of technical professionals to deliver expert-quality code datasets including SFT data, RLHF feedback, preference datasets, and custom evaluation suites. Revelo targets AI labs and companies that are training or fine-tuning code-focused language models.
             {sourceLink("https://www.revelo.com/human-data-llm-training", "[1]")}
           </>
         ),
@@ -372,7 +381,7 @@ export const reveloComparison: ComparisonData = {
         question: "What data programs does Revelo offer?",
         answer: (
           <>
-            Revelo lists SFT, RLHF, audits, and preference datasets.
+            Revelo offers several data programs for code LLM training including supervised fine-tuning data, reinforcement learning from human feedback datasets, code audits, and preference datasets. These programs are designed for teams that need expert software engineers to create, review, and evaluate code samples at scale. The managed service model means Revelo handles recruiting, quality assurance, and delivery so AI teams can focus on model development.
             {sourceLink("https://www.revelo.com/human-data-llm-training", "[2]")}
           </>
         ),
@@ -381,15 +390,25 @@ export const reveloComparison: ComparisonData = {
         question: "Does Revelo provide curated code datasets?",
         answer: (
           <>
-            The Human Data program highlights expert-curated code datasets and
-            evaluation suites. {sourceLink("https://humandata.revelo.com/human-data-expert-curated-code-datasets", "[3]")}
+            Yes. Revelo's Human Data program highlights expert-curated code datasets and custom evaluation suites for specialized architectures and domains. These datasets are created by experienced software engineers who can produce high-quality code samples across multiple programming languages and complexity levels. The evaluation suites help teams benchmark their code models against domain-specific criteria.
+            {sourceLink("https://humandata.revelo.com/human-data-expert-curated-code-datasets", "[3]")}
           </>
         ),
       },
       {
+        question: "Is Revelo a fit for robotics data?",
+        answer:
+          "Revelo focuses exclusively on code and text data for LLM training rather than physical-world data for robotics. The company's expertise is in software engineering domain knowledge, not in sensor-rich video capture or physical AI enrichment. Teams building embodied AI systems that require task-specific video capture, enrichment layers like depth estimation and pose tracking, and delivery in robotics-native formats should evaluate providers designed specifically for physical AI data pipelines.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when your primary need is capturing physical-world data and enriching it for robotics or embodied AI training. This includes scenarios where you need egocentric video from specific environments, enrichment layers such as monocular depth, pose estimation, segmentation, and optical flow, and delivery in formats like WebDataset, HDF5, or RLDS. If your team is training a code generation or code assistance model, Revelo is the more appropriate choice for that domain.",
+      },
+      {
+        question: "Can teams use both Revelo and Claru?",
+        answer:
+          "Using both Revelo and Claru would make sense for organizations developing both code-focused LLMs and physical AI robotics systems. This is a relatively uncommon combination, but some large AI labs work across both domains. Revelo would supply expert code data for language model training, while Claru would provide capture-first physical AI datasets for robotics training. The two providers address entirely separate data needs.",
       },
     ],
   },

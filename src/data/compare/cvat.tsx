@@ -84,6 +84,16 @@ export const cvatComparison: ComparisonData = {
         CVAT also offers cloud/enterprise deployments and labeling services.
         {sourceLink("https://www.cvat.ai/", "[3]")}
       </>,
+      <>
+        CVAT was originally developed as an internal tool at Intel in 2017 by
+        engineers Nikita Manovich and Andrey Zhavoronkov. The project grew
+        rapidly on GitHub, reaching over 14,000 stars within three years. In
+        2022, CVAT spun out from Intel as an independent company, CVAT.ai,
+        co-founded by Manovich and Boris Sekachev.{" "}
+        {sourceLink("https://www.cvat.ai/about", "[4]")}
+      </>,
+      "CVAT is used by tens of thousands of users and companies worldwide for annotation tasks ranging from simple image classification to complex video tracking and 3D point cloud labeling. Its open-source nature makes it particularly popular with research teams and startups that want full control over their annotation infrastructure without vendor lock-in.",
+      "For robotics teams, CVAT provides excellent annotation tooling for labeling existing data, but does not offer physical-world data capture infrastructure or automated enrichment pipelines. If you already have video data and need to label it with bounding boxes, segmentation masks, or tracking annotations, CVAT is a strong choice. If your bottleneck is collecting new data and generating enrichment layers like depth, pose, and optical flow, you need a capture-first pipeline.",
       "If your bottleneck is annotation tooling and workflow management, CVAT is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -368,8 +378,14 @@ export const cvatComparison: ComparisonData = {
         question: "What is CVAT?",
         answer: (
           <>
-            CVAT is an open-source data annotation platform for images, video,
-            and 3D data. {sourceLink("https://www.cvat.ai/", "[1]")}
+            CVAT (Computer Vision Annotation Tool) is an open-source data
+            annotation platform that was originally developed at Intel in 2017
+            by engineers Nikita Manovich and Andrey Zhavoronkov. The project
+            grew to over 14,000 GitHub stars and spun out as an independent
+            company, CVAT.ai, in 2022. CVAT supports annotation of images,
+            video, and 3D data and is used by tens of thousands of users and
+            companies worldwide for computer vision workflows.
+            {sourceLink("https://www.cvat.ai/", "[1]")}
           </>
         ),
       },
@@ -377,7 +393,12 @@ export const cvatComparison: ComparisonData = {
         question: "What data types does CVAT support?",
         answer: (
           <>
-            CVAT highlights image, video, and 3D data annotation.
+            CVAT supports annotation of images, video sequences, and 3D point
+            cloud data. The platform provides a broad set of annotation tools
+            including bounding boxes, polygons, polylines, points, cuboids,
+            and tracking annotations for computer vision workflows. Its
+            extensible architecture allows custom annotation types and
+            integrations with external ML models for semi-automated labeling.
             {sourceLink("https://www.cvat.ai/", "[2]")}
           </>
         ),
@@ -386,15 +407,35 @@ export const cvatComparison: ComparisonData = {
         question: "Does CVAT offer services or hosting?",
         answer: (
           <>
-            CVAT offers cloud/enterprise deployments and labeling services.
+            Yes. Beyond the open-source self-hosted option, CVAT offers a
+            cloud-hosted version at cvat.ai and enterprise deployment options
+            with SLA-backed support. The company also provides labeling
+            services for teams that need human annotation capacity in addition
+            to the tooling. This makes CVAT accessible to both research teams
+            who want to self-host and enterprises that need managed deployments.
             {sourceLink("https://www.cvat.ai/", "[3]")}
+          </>
+        ),
+      },
+      {
+        question: "Who founded CVAT?",
+        answer: (
+          <>
+            CVAT was created at Intel in 2017 by Nikita Manovich and Andrey
+            Zhavoronkov, who enhanced the earlier VATIC annotation tool with
+            image annotation support, attribute handling, and a redesigned
+            client-server architecture. Boris Sekachev, who joined Intel as an
+            intern in 2017, became a co-founder when CVAT spun out as an
+            independent company in 2022. The open-source project is hosted
+            under the same GitHub organization as OpenCV.
+            {sourceLink("https://www.cvat.ai/about", "[4]")}
           </>
         ),
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. CVAT excels as an annotation tool for existing data, but if your bottleneck is collecting new physical-world data and generating enrichment layers like depth maps, pose estimation, segmentation, and optical flow, you need a capture-first pipeline. Teams can use both: CVAT for custom annotation tasks and Claru for upstream data capture and enrichment.",
       },
     ],
   },

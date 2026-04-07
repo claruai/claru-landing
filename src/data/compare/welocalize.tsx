@@ -58,6 +58,10 @@ export const welocalizeComparison: ComparisonData = {
         for physical AI from day one.
       </>
     ),
+    paragraphs: [
+      "Welocalize is a global localization and data services company founded in 1997, with a long history in translation and content services before expanding into AI training data. In 2024, the company launched Welo Data as a dedicated brand for its AI data operations, leveraging its existing global workforce of over 500,000 AI training and domain experts. Welocalize brings enterprise-grade operational maturity to the AI data space, with established quality management systems, compliance frameworks, and workforce management infrastructure built over decades of localization work.",
+      "While Welo Data offers comprehensive AI data services including annotation, collection, LLM fine-tuning, and RLHF workflows, the platform is designed as a horizontal service provider serving many industries and data types. Robotics and embodied AI teams require a fundamentally different pipeline: task-specific capture programs with wearable cameras, structured demonstration protocols, and enrichment that produces depth maps, pose estimations, optical flow, and spatial annotations at the frame level. These specialized requirements demand a capture-first provider with deep physical AI domain expertise. Teams often use broad data providers like Welo Data for multilingual and NLP tasks while engaging Claru for physical AI capture and enrichment.",
+    ],
     lastUpdated: "April 2, 2026",
   },
   tldr: {
@@ -435,8 +439,7 @@ export const welocalizeComparison: ComparisonData = {
         question: "What is Welo Data?",
         answer: (
           <>
-            Welo Data is Welocalize&apos;s AI training data brand focused on
-            high-quality, ethically sourced data.
+            Welo Data is Welocalize&apos;s AI training data brand focused on high-quality, ethically sourced data. Welocalize launched Welo Data in 2024 as a dedicated brand for its AI data operations, leveraging the company&apos;s global workforce of over 500,000 AI training and domain experts. Welocalize itself was founded in 1997 and brings decades of operational maturity in localization and content services to the AI training data market, with established quality management systems and compliance frameworks.
             {sourceLink("https://www.welocalize.com/insights/welocalize-launches-welo-data-to-elevate-ai-training-with-high-quality-ethical-data/", "[1]")}
           </>
         ),
@@ -445,9 +448,7 @@ export const welocalizeComparison: ComparisonData = {
         question: "What services does Welo Data provide?",
         answer: (
           <>
-            Welo Data lists annotation, data collection/generation, relevance
-            and intent evaluation, and LLM workflows such as prompt engineering,
-            SFT, and RLHF.
+            Welo Data lists annotation, data collection/generation, relevance and intent evaluation, and LLM workflows such as prompt engineering, SFT, and RLHF. These services cover the full lifecycle of training data development for language and multimodal AI systems. The annotation services span text, image, audio, and video with multilingual coverage across 150+ languages and 300+ locales, backed by the NIMO quality monitoring system.
             {sourceLink("https://www.welocalize.com/insights/welocalize-launches-welo-data-to-elevate-ai-training-with-high-quality-ethical-data/", "[2]")}
           </>
         ),
@@ -456,16 +457,20 @@ export const welocalizeComparison: ComparisonData = {
         question: "What is NIMO?",
         answer: (
           <>
-            NIMO is a system designed to address AI training data quality,
-            trust, and origin.
+            NIMO is Welo Data&apos;s proprietary system designed to address AI training data quality, trust, and origin. The system monitors identity, location, qualification, and task attention across the data pipeline, providing fraud detection and quality validation across the global workforce. NIMO represents Welocalize&apos;s approach to solving the data quality challenges that large-scale distributed annotation programs face, including workforce verification and output consistency.
             {sourceLink("https://www.welocalize.com/insights/introducing-nimo-elevating-ai-training-data-quality-to-new-heights/", "[4]")}
           </>
         ),
       },
       {
+        question: "Does Welo Data handle robotics data?",
+        answer:
+          "Welo Data is primarily a horizontal AI data services provider focused on multilingual annotation, LLM workflows, and evaluation services. While the company has broad capabilities across data types, robotics teams need specialized capture programs with wearable cameras, task-specific collection protocols, and enrichment pipelines that produce depth maps, pose estimations, and optical flow. For these specialized physical AI requirements, a capture-first provider like Claru is a better fit.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your bottleneck is acquiring new physical-world demonstrations with task-specific protocols and enriching them with depth estimation, pose detection, segmentation, and optical flow, Claru provides a purpose-built pipeline. Teams often use Welo Data for multilingual and NLP tasks while engaging Claru for physical AI capture and enrichment.",
       },
     ],
   },

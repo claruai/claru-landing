@@ -81,6 +81,8 @@ export const innodataComparison: ComparisonData = {
         its annotation offering. {" "}
         {sourceLink("https://solutions.innodata.com/data-annotation/", "[2]")}
       </>,
+      "Innodata is a publicly traded company (NASDAQ: INOD) with a long history in data services, originally founded in 1988 as a document processing and data entry company. Over the decades, Innodata has transformed itself from a traditional BPO provider into an AI data services company, leveraging its global workforce and operational expertise to serve the growing demand for training data. The company operates delivery centers across multiple countries and has deep experience in managing large-scale annotation operations with quality controls. Innodata has positioned itself as a trusted partner for enterprise AI teams that need annotation services with governance and compliance oversight.",
+      "For physical AI and robotics teams, Innodata's annotation capabilities serve the labeling layer well, but the fundamental challenge for most robotics programs is upstream: acquiring the physical-world data in the first place. Robotics models built on imitation learning, diffusion policies, and vision-language-action architectures need egocentric video of human demonstrations, task-specific manipulation recordings, and multi-sensor capture sequences that cannot be sourced from existing datasets or generated through annotation alone. The gap between data annotation and data capture is the key distinction when evaluating providers for physical AI use cases.",
       "If your bottleneck is general data annotation, Innodata is a strong fit. If your bottleneck is physical-world capture and robotics enrichment, you need a specialized pipeline.",
     ],
   },
@@ -280,10 +282,17 @@ export const innodataComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics AI data requirements",
+        paragraphs: [
+          "Frontier robotics AI models including imitation learning architectures, diffusion policies, and vision-language-action networks require training data with specific properties that annotation services alone cannot produce: egocentric viewpoints matching robot camera placements, manipulation sequences with hand-object interaction context, depth-aligned frames for spatial reasoning, and action-level temporal segmentation for policy learning.",
+          "Claru addresses these upstream requirements by providing capture protocols designed for robotics scenarios, deploying trained collectors with wearable cameras, and enriching every clip with depth estimation, pose detection, instance segmentation, and optical flow before delivery in robotics-native formats like RLDS, WebDataset, and HDF5.",
+        ],
+      },
+      {
         title: "Where each provider fits",
         paragraphs: [
-          "Innodata is a strong fit for teams needing general annotation services.",
-          "Claru is a better fit when you need physical-world capture and enrichment.",
+          "Innodata is a strong fit for teams needing general annotation services with enterprise governance, particularly organizations that require compliance oversight, quality controls, and the operational maturity of a publicly traded company with decades of data services experience.",
+          "Claru is a better fit when you need physical-world capture and enrichment, especially for robotics teams that need new task-specific data with multi-layer enrichment as a standard output rather than annotation of pre-existing datasets.",
         ],
       },
     ],
@@ -354,9 +363,9 @@ export const innodataComparison: ComparisonData = {
         question: "What is Innodata?",
         answer: (
           <>
-            Innodata provides data annotation services across text, image,
-            audio, and video. {" "}
-            {sourceLink("https://solutions.innodata.com/data-annotation/", "[1]")}
+            Innodata is a publicly traded AI data services company (NASDAQ: INOD) originally founded in 1988 as a document processing and data entry provider.{" "}
+            {sourceLink("https://solutions.innodata.com/data-annotation/", "[1]")}{" "}
+            Over the decades, the company has transformed into an AI data annotation provider, leveraging its global workforce and operational expertise to serve enterprise AI teams. Innodata provides annotation services across text, image, audio, and video, with delivery centers in multiple countries and deep experience in managing large-scale annotation operations with quality controls and compliance oversight.
           </>
         ),
       },
@@ -364,21 +373,21 @@ export const innodataComparison: ComparisonData = {
         question: "Does Innodata focus on quality workflows?",
         answer: (
           <>
-            Yes. Innodata highlights domain expertise and quality-focused
-            annotation workflows. {" "}
-            {sourceLink("https://solutions.innodata.com/data-annotation/", "[2]")}
+            Yes. Innodata highlights domain expertise and quality-focused annotation workflows as core differentiators.{" "}
+            {sourceLink("https://solutions.innodata.com/data-annotation/", "[2]")}{" "}
+            The company brings decades of operational experience from its BPO heritage to annotation quality management, including multi-tier review systems, annotator training programs, and statistical quality controls. This operational maturity appeals to enterprise customers that need governance, auditability, and consistent quality standards across large annotation projects.
           </>
         ),
       },
       {
         question: "Is Innodata a physical AI data provider?",
         answer:
-          "Innodata focuses on annotation services rather than capture-first physical-world data for robotics.",
+          "Innodata focuses on annotation services rather than capture-first physical-world data for robotics. The company excels at labeling existing data across standard modalities like text, image, audio, and video. However, physical AI teams working on robotics often face an upstream challenge: they need new data captured from the physical world with specialized equipment and task-specific protocols before any annotation can begin. This capture gap is the key distinction between annotation service providers and physical AI data pipelines.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your training pipeline requires new physical-world data such as egocentric video of human demonstrations, task-specific manipulation recordings, or depth-aligned multi-sensor capture, Claru provides the collection infrastructure and enrichment pipeline that annotation-only providers do not offer. Claru delivers depth maps, pose estimation, segmentation, and optical flow as standard enrichment layers, packaged in robotics-native formats like RLDS, WebDataset, and HDF5.",
       },
     ],
   },
