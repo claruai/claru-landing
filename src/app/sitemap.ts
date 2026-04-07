@@ -27,14 +27,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/jobs`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
     { url: `${BASE}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/for-annotators`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${BASE}/solutions`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     // GEO landing pages — physical AI / robotics keyword clusters
     { url: `${BASE}/training-data-for-robotics`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/physical-ai-training-data`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/egocentric-video-datasets`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/embodied-ai-datasets`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
-    // Glossary
-    { url: `${BASE}/glossary`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     // Tier 3 content pages — pillar guides, listicles, deep-dives
     { url: `${BASE}/vla-training-data-guide`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/blog/best-egocentric-data-providers`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
@@ -44,7 +41,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/blog/sim-to-real-gap`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/blog/physical-ai-stack`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     // Comparison pages
-    { url: `${BASE}/compare`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/compare/appen-alternatives`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/compare/scale-ai-alternatives`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/compare/claru-vs-luel`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
@@ -242,16 +238,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
   );
 
-  // ── Guides index ──────────────────────────────────────────────────
-  const guidesIndexEntry: MetadataRoute.Sitemap = [
-    {
-      url: `${BASE}/guides`,
-      lastModified: now,
-      changeFrequency: "weekly" as const,
-      priority: 0.8,
-    },
-  ];
-
   // ── Dynamic: Task Pages ────────────────────────────────────────
   const taskPages: MetadataRoute.Sitemap = getAllTaskSlugs().map((slug) => ({
     url: `${BASE}/training-data/${slug}`,
@@ -340,7 +326,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...blogPostPages,
     ...glossaryDeepPages,
     ...guidePages,
-    ...guidesIndexEntry,
     ...taskPages,
     ...modelPages,
     ...datasetPages,
