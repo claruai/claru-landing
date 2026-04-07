@@ -112,6 +112,23 @@ export const clarifaiComparison: ComparisonData = {
         self-managed VPC, on-premises, and full platform deployment,
         including air-gapped setups. {sourceLink("https://docs.clarifai.com/compute/overview/", "[7]")}
       </>,
+      <>
+        Clarifai was founded in 2013 by Matthew Zeiler, a PhD graduate in
+        Computer Science from New York University who studied under deep
+        learning pioneer Yann LeCun. Zeiler won top-5 placements in the 2013
+        ImageNet challenge, which served as a launching pad for the company.{" "}
+        {sourceLink("https://en.wikipedia.org/wiki/Clarifai", "[8]")}
+      </>,
+      <>
+        The company has raised $101 million in total funding across four
+        rounds, including a $10M Series A led by Union Square Ventures (2015),
+        a $30M Series B led by Menlo Ventures (2016), and a $60M Series C led
+        by New Enterprise Associates in 2021. This substantial backing has
+        allowed Clarifai to expand beyond its original computer vision roots
+        into a broader AI platform.{" "}
+        {sourceLink("https://www.clarifai.com/press-release/clarifai-raises-60-million-in-series-c-funding", "[9]")}
+      </>,
+      "For robotics teams, Clarifai offers powerful analysis tooling for existing visual data but does not provide capture infrastructure for collecting new physical-world data. Teams that need to label video they already have may find Clarifai useful, but teams whose bottleneck is data collection and enrichment for embodied AI need a different approach.",
       "If your bottleneck is AI platform tooling and labeling workflows, Clarifai is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -538,9 +555,23 @@ export const clarifaiComparison: ComparisonData = {
         ),
       },
       {
+        question: "Who founded Clarifai and how much funding has it raised?",
+        answer: (
+          <>
+            Clarifai was founded in 2013 by Matthew Zeiler, a PhD graduate from
+            NYU who studied under deep learning pioneer Yann LeCun. The company
+            gained early visibility by winning top-5 placements in the 2013
+            ImageNet challenge. It has raised $101 million in total funding
+            across four rounds from investors including Union Square Ventures,
+            Menlo Ventures, and New Enterprise Associates (NEA).
+            {sourceLink("https://en.wikipedia.org/wiki/Clarifai", "[8]")}
+          </>
+        ),
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. Clarifai provides powerful AI platform tooling for analyzing and labeling existing visual data, but it does not offer capture infrastructure for collecting new physical-world data. If your model needs custom egocentric video, manipulation recordings, or task-specific data with depth, pose, and motion enrichment, Claru provides the end-to-end pipeline from capture brief to training-ready delivery.",
       },
     ],
   },

@@ -60,6 +60,10 @@ export const keymakrComparison: ComparisonData = {
       </>
     ),
     lastUpdated: "April 2, 2026",
+    paragraphs: [
+      "Keymakr is a data annotation company headquartered in Baku, Azerbaijan, with operations serving computer vision and AI teams worldwide. The company combines its proprietary Keylabs annotation platform with in-house annotation teams to deliver managed labeling services across image, video, and 3D point cloud data. Keymakr has positioned itself as a vertically integrated annotation provider, controlling both the tooling and the workforce to maintain quality standards throughout the labeling process.",
+      "For physical AI teams, Keymakr offers relevant capabilities in video annotation and 3D point cloud labeling, including support for keypoint annotation and skeletal labeling that are useful for pose-related tasks. However, Keymakr operates primarily as a labeling services provider rather than a capture-first data pipeline. The company does not deploy wearable camera networks for egocentric video collection, does not generate enrichment layers such as depth estimation or optical flow, and does not deliver datasets in robotics-native training formats like RLDS or LeRobot. Teams building robotics foundation models need both capture and enrichment upstream of annotation, which is the gap that Claru fills.",
+    ],
   },
   tldr: {
     title: "TL;DR",
@@ -363,10 +367,17 @@ export const keymakrComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics AI implications",
+        paragraphs: [
+          "Robotics foundation models require training data that goes beyond labeled bounding boxes or keypoints. Models like RT-2, Octo, and pi0 need egocentric video paired with dense spatial signals including per-frame depth maps, full-body pose estimation, semantic segmentation, and optical flow. Keymakr's annotation services can produce high-quality labels on existing footage, but the upstream challenge of capturing task-specific video and generating these enrichment layers is outside their service scope.",
+          "Claru operates the full pipeline from field capture through enrichment to delivery. Operators wearing cameras record real-world manipulation, navigation, and activity tasks, and the enrichment pipeline then produces depth, pose, segmentation, and motion outputs automatically. Datasets ship in formats like RLDS, LeRobot, or HDF5 that plug directly into robotics training frameworks.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Keymakr is strong when you need managed labeling and QA.",
-          "Claru is stronger when physical-world capture is the bottleneck.",
+          "Keymakr is strong when you need managed labeling and QA for existing image, video, or point cloud data. The four-level QA process and custom sanity scripts help maintain annotation accuracy at scale.",
+          "Claru is stronger when physical-world capture is the bottleneck. If your team needs new task-specific recordings from real environments with aligned spatial enrichment signals, a capture-first provider addresses that need directly.",
         ],
       },
     ],
@@ -437,8 +448,7 @@ export const keymakrComparison: ComparisonData = {
         question: "What is Keymakr?",
         answer: (
           <>
-            Keymakr provides managed annotation services via the Keylabs
-            platform.
+            Keymakr is a data annotation company headquartered in Baku, Azerbaijan, that combines its proprietary Keylabs platform with in-house annotation teams to deliver managed labeling services. The company serves computer vision and AI teams globally, offering image, video, and 3D point cloud annotation with multi-level quality assurance processes. Keymakr positions itself as a vertically integrated provider that controls both the annotation tooling and the workforce.
             {sourceLink("https://keymakr.com/our-services.html", "[1]")}
           </>
         ),
@@ -447,7 +457,7 @@ export const keymakrComparison: ComparisonData = {
         question: "What data types does Keymakr support?",
         answer: (
           <>
-            Keymakr lists image, video, and 3D point cloud annotation services.
+            Keymakr lists image annotation, video annotation with object tracking and keypoint labeling, and 3D point cloud annotation for LiDAR, RADAR, and photogrammetry data. The Keylabs platform supports annotation types ranging from bounding boxes and polygons to skeletal labels and 3D cuboids. This coverage makes Keymakr relevant for autonomous driving, drone perception, and other computer vision applications that rely on labeled spatial data.
             {sourceLink("https://keymakr.com/our-services.html", "[2]")}
           </>
         ),
@@ -456,16 +466,20 @@ export const keymakrComparison: ComparisonData = {
         question: "Does Keymakr support automatic annotation?",
         answer: (
           <>
-            Yes. Keymakr describes ML auto-annotation with multiple levels of
-            human QA.
+            Yes. Keymakr describes ML-powered auto-annotation with four levels of human-led quality assurance and custom sanity scripts. This hybrid approach aims to combine the speed of automated pre-labeling with the accuracy of human review, reducing cost per label while maintaining precision. The QA pipeline includes automated checks followed by progressive human review stages to catch and correct errors before delivery.
             {sourceLink("https://keymakr.com/our-services.html", "[4]")}
           </>
         ),
       },
       {
+        question: "Can Keymakr handle robotics training data?",
+        answer:
+          "Keymakr can annotate existing robotics-related footage with bounding boxes, keypoints, skeletal labels, and 3D point cloud annotations. However, the company does not capture new physical-world video, deploy wearable camera operators, or generate enrichment layers like depth estimation, optical flow, or semantic segmentation. Teams building robotics foundation models typically need upstream capture and enrichment in addition to downstream annotation services.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your training pipeline requires new egocentric video from real-world environments paired with depth maps, human pose estimation, segmentation masks, and motion vectors, Claru addresses those upstream needs. Keymakr is better suited for teams that already have data and need high-quality annotation with multi-level QA.",
       },
     ],
   },

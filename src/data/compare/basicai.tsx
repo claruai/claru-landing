@@ -84,6 +84,9 @@ export const basicAiComparison: ComparisonData = {
         BasicAI also promotes an all-in-one smart data annotation platform with
         an AI-powered toolset and scalable workflows. {sourceLink("https://www.basic.ai/", "[3]")}
       </>,
+      "BasicAI was founded by Lin Du (CEO) and Aaron Chen (Co-founder) and has positioned itself as a leader in 3D LiDAR point cloud annotation. The company has assisted in delivering over 300,000 annotated datasets for commercial AI projects and research collaborations with leading partners including Stanford University, Intel, and HP. Their open-source community, Xtreme1, has grown to over 5,000 members from AI labs at universities and major technology companies.",
+      "The platform is described as capable of handling point cloud frames with up to 150 million points without performance issues, which positions it as particularly strong for autonomous vehicle perception and mapping use cases. BasicAI provides a human-centered AI training data infrastructure that combines its multi-modal annotation platform with global labeling teams spanning 50 or more languages. Their seed funding was directed toward doubling R&D efforts to further automate high-volume 3D point cloud annotation.",
+      "For physical AI and robotics teams, BasicAI's 3D annotation capabilities including LiDAR fusion and point cloud labeling are directly relevant. However, their platform is designed around annotating existing sensor data rather than capturing new physical-world data from scratch. Teams that need upstream data capture with wearable cameras, task-specific collection protocols for manipulation or navigation tasks, and enrichment layers beyond annotation like depth estimation, pose extraction, and optical flow will benefit from a provider like Claru that handles the full capture-to-delivery pipeline.",
       "If your bottleneck is annotation tooling and managed labeling services, BasicAI is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -370,7 +373,7 @@ export const basicAiComparison: ComparisonData = {
         question: "What is BasicAI?",
         answer: (
           <>
-            BasicAI provides data annotation services and a labeling platform.
+            BasicAI is a data annotation company founded by Lin Du (CEO) and Aaron Chen that provides both managed annotation services and an all-in-one labeling platform. The company has delivered over 300,000 annotated datasets for commercial AI projects and research collaborations with partners including Stanford University, Intel, and HP. Their open-source community Xtreme1 has grown to over 5,000 members from AI labs worldwide.{" "}
             {sourceLink("https://www.basic.ai/", "[1]")}
           </>
         ),
@@ -379,8 +382,8 @@ export const basicAiComparison: ComparisonData = {
         question: "What data types does BasicAI support?",
         answer: (
           <>
-            BasicAI highlights services for image/video, LiDAR fusion, and LLM/Gen
-            AI labeling. {sourceLink("https://www.basic.ai/", "[2]")}
+            BasicAI supports image and video annotation, LiDAR fusion annotation, 3D point cloud labeling, and LLM/Gen AI labeling. Their 3D annotation tools are particularly strong, with the platform capable of handling point cloud frames with up to 150 million points. They also provide a human-centered data infrastructure combining their platform with global labeling teams spanning 50 or more languages for multi-modal annotation needs.{" "}
+            {sourceLink("https://www.basic.ai/", "[2]")}
           </>
         ),
       },
@@ -388,15 +391,20 @@ export const basicAiComparison: ComparisonData = {
         question: "Does BasicAI offer a labeling platform?",
         answer: (
           <>
-            BasicAI promotes an all-in-one smart data annotation platform with
-            AI-powered tools. {sourceLink("https://www.basic.ai/", "[3]")}
+            Yes. BasicAI promotes an all-in-one smart data annotation platform with AI-powered tools and scalable workflows. The platform is positioned as a market leader for 3D LiDAR point cloud annotation and is particularly strong for autonomous vehicle perception and mapping use cases. Their seed funding was directed toward further automating high-volume 3D point cloud annotation through R&D investment.{" "}
+            {sourceLink("https://www.basic.ai/", "[3]")}
           </>
         ),
       },
       {
+        question: "Can BasicAI handle robotics data?",
+        answer:
+          "BasicAI's 3D annotation capabilities including LiDAR fusion and point cloud labeling are directly relevant for certain robotics use cases, particularly autonomous driving and navigation. However, their platform is designed around annotating existing sensor data rather than capturing new physical-world data. Teams that need upstream capture with wearable cameras, task-specific collection for manipulation tasks, and enrichment layers beyond annotation will benefit from a provider like Claru.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need the full pipeline from physical-world data capture through enrichment and delivery of robotics-ready datasets. If your team needs to create new data from scratch with wearable cameras, task-specific protocols, and enrichment layers like depth, pose, segmentation, and optical flow as standard outputs, Claru is purpose-built for that workflow. Choose BasicAI when you have existing data and need powerful annotation tooling.",
       },
     ],
   },

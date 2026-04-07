@@ -102,6 +102,8 @@ export const playmentComparison: ComparisonData = {
         raw or pre-annotated data.
         {sourceLink("https://playment.readme.io/reference/welcome", "[5]")}
       </>,
+      "Playment originated as an annotation platform focused on autonomous driving and computer vision use cases, building API-first tooling for image, video, and LiDAR labeling. The company was acquired by Flatiron Health parent company Roper Technologies through its subsidiary Qualifacts in a move that highlighted the value of structured data annotation in regulated industries. Playment's API documentation remains publicly available and continues to serve as a reference for teams evaluating annotation workflow automation.",
+      "For physical AI and robotics teams, the key consideration when evaluating Playment is whether API-driven annotation workflows address the full data pipeline requirement. Embodied AI models need task-specific data captured in real-world environments with dense enrichment layers like depth estimation, pose tracking, instance segmentation, and optical flow. These signals must be temporally aligned and delivered in formats compatible with robotics training frameworks. Annotation APIs handle the labeling step but do not provide the capture infrastructure or enrichment processing that physical AI training demands.",
       "If your bottleneck is annotation workflow automation, Playment is a strong fit. If your bottleneck is physical-world capture and enrichment for robotics, Claru is the better fit.",
     ],
   },
@@ -359,10 +361,17 @@ export const playmentComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics data requirements",
+        paragraphs: [
+          "Training embodied AI systems requires more than annotation API access. Physical AI models depend on dense enrichment layers including monocular depth, human pose estimation, instance segmentation, and optical flow. These signals serve as direct model inputs and must be generated alongside capture to ensure temporal alignment and format consistency across the full dataset.",
+          "Playment provides API-driven annotation for image, video, and LiDAR tasks. Claru addresses the full pipeline from physical-world capture through enrichment to delivery, ensuring that robotics teams receive training-ready datasets with all required enrichment signals included in robotics-native formats.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Playment is a strong fit for labeling workflow automation.",
-          "Claru is better when capture and enrichment are the bottleneck.",
+          "Playment is a strong fit when you need API-driven labeling workflows with support for image, video, and LiDAR annotation types. The platform's structured API makes it particularly useful for teams that want to automate annotation task management and integrate labeling into their existing data pipelines programmatically.",
+          "Claru is better when physical-world capture and enrichment are the bottleneck. If your model needs task-specific egocentric video with aligned depth, pose, and segmentation layers delivered in formats like WebDataset or HDF5, Claru is designed for that end-to-end pipeline.",
         ],
       },
     ],
@@ -433,8 +442,7 @@ export const playmentComparison: ComparisonData = {
         question: "What is Playment?",
         answer: (
           <>
-            Playment provides APIs for setting up annotation tasks and managing
-            labeling workflows.
+            Playment is an API-first annotation platform that provides endpoints for setting up tasks, creating jobs, uploading data, and fetching results. The platform supports annotation workflows across image, video, and LiDAR modalities with trained annotators completing tasks once data is uploaded. Playment's API-driven approach is particularly suited to teams that want to integrate annotation into their existing data pipelines programmatically rather than through manual UI-based workflows.
             {sourceLink("https://playment.readme.io/reference/welcome", "[1]")}
           </>
         ),
@@ -443,8 +451,7 @@ export const playmentComparison: ComparisonData = {
         question: "Does Playment support LiDAR annotation?",
         answer: (
           <>
-            Yes. The API lists LiDAR and sensor fusion tasks such as 3D cuboids,
-            3D-2D linking, and point-wise segmentation.
+            Yes. Playment's API lists LiDAR and sensor fusion tasks including 3D cuboids, 3D-2D linking, and point-wise segmentation. These annotation types are relevant for autonomous driving and 3D perception applications where teams need to label point cloud data alongside camera imagery. For robotics teams that also need enrichment layers like depth estimation and optical flow aligned to video capture, a provider with an integrated capture-and-enrichment pipeline may better serve the full data requirement.
             {sourceLink("https://playment.readme.io/reference/welcome", "[4]")}
           </>
         ),
@@ -453,16 +460,25 @@ export const playmentComparison: ComparisonData = {
         question: "Does Playment provide trained annotators?",
         answer: (
           <>
-            The docs note trained annotators can complete tasks once you provide
-            raw or pre-annotated data.
+            The documentation notes that trained annotators can complete tasks once you provide raw or pre-annotated data. This managed workforce component means teams do not need to recruit and train their own annotators for standard labeling tasks. The annotator workforce handles image, video, and LiDAR tasks based on the configuration specified through the API, with quality controls built into the workflow pipeline.
             {sourceLink("https://playment.readme.io/reference/welcome", "[5]")}
           </>
         ),
       },
       {
+        question: "Is Playment a fit for robotics data capture?",
+        answer:
+          "Playment is an annotation platform rather than a capture-first data provider. The platform expects you to bring your own data for labeling. Teams building embodied AI systems that need task-specific video capture in real-world environments, enrichment layers like depth and pose estimation, and delivery in robotics-native formats should evaluate providers specifically designed for physical AI data pipelines rather than annotation-only platforms.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when your primary need is capturing new physical-world data and enriching it for robotics training. This includes scenarios where you need egocentric video from specific environments, enrichment layers such as monocular depth, pose estimation, segmentation, and optical flow, and delivery in formats like WebDataset, HDF5, or RLDS. If you already have data and need API-driven labeling with multi-modal support, Playment may be the more appropriate choice.",
+      },
+      {
+        question: "Can teams use both Playment and Claru?",
+        answer:
+          "Yes. Some teams use Playment for API-driven annotation workflows on existing datasets while using Claru for capture-first physical AI data with enrichment layers. This combination allows teams to leverage Playment's structured API for standard labeling tasks while relying on Claru for the specialized capture, enrichment, and delivery pipeline needed for robotics and world model training.",
       },
     ],
   },

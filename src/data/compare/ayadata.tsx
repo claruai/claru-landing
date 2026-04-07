@@ -82,6 +82,9 @@ export const ayadataComparison: ComparisonData = {
         consulting and delivery support. {" "}
         {sourceLink("https://www.ayadata.ai/", "[2]")}
       </>,
+      "Aya Data was founded in 2021 by Freddie Monk and Ama Larbi-Siaw in Ghana. The company raised a 300,000 dollar pre-seed round from Microtraction, Savannah Fund, and UK-based investors, followed by a 900,000 dollar seed round led by 54Collective, bringing total funding to approximately 1.15 million dollars. With reported 2023 revenue of 500,000 dollars, the company counts clients including MIT, Unilever, Seedtag, and Labelbox.",
+      "Beyond annotation services, Aya Data has developed products including AyaGrow, a precision agriculture tool for crop monitoring with AI, and AyaSpeech, an end-to-end speech-to-speech solution for local African languages. This positions Aya Data as a company focused on building AI solutions for African markets while providing data services globally. Their workforce of annotators in Ghana provides cost-effective labeling services while creating employment in the region.",
+      "For physical AI and robotics teams, Aya Data's strengths lie in general data annotation and collection at competitive pricing rather than specialized physical-world capture. Teams that need egocentric video from wearable cameras, task-specific capture protocols for manipulation or navigation tasks, and enrichment layers like depth estimation, 3D pose extraction, and optical flow will need a provider like Claru that is purpose-built for the physical AI data pipeline from capture through delivery.",
       "If your bottleneck is general data annotation or collection, Aya Data can help. If your bottleneck is physical-world capture and robotics enrichment, you need a specialized pipeline.",
     ],
   },
@@ -356,8 +359,8 @@ export const ayadataComparison: ComparisonData = {
         question: "What is Aya Data?",
         answer: (
           <>
-            Aya Data provides data annotation and data collection services for
-            AI teams. {sourceLink("https://www.ayadata.ai/service/data-annotation/", "[1]")}
+            Aya Data is an AI consulting and data services firm founded in 2021 in Ghana by Freddie Monk and Ama Larbi-Siaw. The company provides data annotation and collection services across modalities, with clients including MIT, Unilever, Seedtag, and Labelbox. With approximately 1.15 million dollars in total funding from investors including 54Collective, Microtraction, and Savannah Fund, Aya Data has built a workforce in Ghana that provides cost-effective annotation services while creating local employment.{" "}
+            {sourceLink("https://www.ayadata.ai/service/data-annotation/", "[1]")}
           </>
         ),
       },
@@ -365,20 +368,25 @@ export const ayadataComparison: ComparisonData = {
         question: "Does Aya Data provide data collection?",
         answer: (
           <>
-            Yes. Aya Data highlights data collection services alongside data
-            annotation. {sourceLink("https://www.ayadata.ai/service/data-annotation/", "[2]")}
+            Yes. Aya Data highlights data collection services alongside data annotation as part of their end-to-end AI data offering. The company has also developed purpose-built products including AyaGrow for precision agriculture and AyaSpeech for African language speech-to-speech solutions, demonstrating capability beyond pure annotation. However, their collection services focus on general AI data rather than task-specific physical-world capture for robotics.{" "}
+            {sourceLink("https://www.ayadata.ai/service/data-annotation/", "[2]")}
           </>
         ),
       },
       {
         question: "Is Aya Data a physical AI data provider?",
         answer:
-          "Aya Data focuses on general data annotation and collection rather than physical-world capture for robotics.",
+          "Aya Data focuses on general data annotation and collection rather than physical-world capture for robotics. Their strength lies in providing high-quality annotation services at competitive pricing from their Ghana-based workforce, which is valuable for teams labeling existing datasets across standard modalities. Teams that need upstream capture of egocentric video, depth maps, and motion signals for robotics training will need a specialized provider like Claru.",
+      },
+      {
+        question: "Where is Aya Data based?",
+        answer:
+          "Aya Data is based in Ghana and was founded to provide AI data services while creating employment opportunities in Africa. Their team of annotators in Ghana delivers data labeling across industries including healthcare, retail, utilities, agriculture, and geospatial. The company has received backing from African and international investors and reported 2023 revenue of 500,000 dollars.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need the full pipeline from physical-world data capture through enrichment and delivery of robotics-ready datasets. If your team needs to create new data from scratch with wearable cameras, task-specific collection protocols, and enrichment layers like depth, pose, and optical flow, Claru is purpose-built for that workflow. Choose Aya Data when you need general annotation or collection at competitive pricing.",
       },
     ],
   },

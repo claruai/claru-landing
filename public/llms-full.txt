@@ -1,0 +1,357 @@
+# Claru
+
+> Claru provides purpose-built training data for physical AI, robotics, and embodied intelligence — 4M+ human annotations, 500K+ egocentric videos, 10K+ collectors across 100+ cities on 6 continents.
+
+Claru (operated by Reka AI Inc.) is the only training data company 100% focused on physical AI. Unlike generic data labeling platforms, Claru specializes in the data modalities robotics needs: egocentric video, teleoperation recordings, manipulation sequences, and multi-view captures. Every dataset ships enriched with depth maps (Depth Anything V2), pose estimation (ViTPose), segmentation masks (SAM3), optical flow (RAFT), and structured action labels.
+
+## Core Pages
+
+- [Training Data for Physical AI](https://claru.ai/): Homepage with company overview, key statistics (4M+ annotations, 500K+ videos, 10K+ collectors), service overview (capture, enrich, annotate, deliver), and contact form.
+- [Data Catalog](https://claru.ai/data-catalog): Browse 100+ datasets with filtering by modality, environment, annotation type. Includes egocentric video, teleoperation, game environments, and multi-view captures.
+- [Solutions Overview](https://claru.ai/solutions): Hub page linking to all data solutions — egocentric video, manipulation trajectories, teleoperation, RLHF, video annotation, red teaming.
+- [About Claru](https://claru.ai/about): Company background, founding story, team credentials (ex-FAANG engineers), mission to close the data gap for frontier robotics labs.
+- [Compare Data Providers](https://claru.ai/compare): Hub page with side-by-side comparisons of Claru vs 90+ data providers including Scale AI, Appen, Labelbox, Encord, V7, and iMerit.
+
+## Training Data Solutions
+
+- [Egocentric Video Data](https://claru.ai/solutions/egocentric-video-data): 500K+ first-person video clips from kitchen, workshop, warehouse, outdoor, and office environments. Collected by 10K+ workers with standardized camera rigs.
+- [Manipulation Trajectory Data](https://claru.ai/solutions/manipulation-trajectory-data): Teleoperation recordings with 6/7-DoF end-effector action labels at 10-50 Hz. Compatible with VLA models (OpenVLA, Octo, RT-2).
+- [Teleoperation Data](https://claru.ai/solutions/teleoperation-data): Remote-operated robot demonstrations with synchronized multi-camera + action + proprioceptive streams.
+- [RLHF Labeling](https://claru.ai/solutions/rlhf-labeling-data): Pairwise preference annotations and reward modeling data for robot behavior alignment.
+- [Video Annotation](https://claru.ai/solutions/video-annotation-data): Frame-level bounding boxes, segmentation masks, keypoints, temporal action labels, and object tracking annotations.
+- [Red Teaming](https://claru.ai/solutions/red-teaming-data): Adversarial prompt testing, safety boundary evaluation, and failure mode discovery for AI models.
+- [Synthetic Data Validation](https://claru.ai/solutions/synthetic-data-validation): Quality assessment of simulation-generated data against real-world baselines.
+
+## GEO Landing Pages
+
+- [Training Data for Robotics](https://claru.ai/training-data-for-robotics): Comprehensive guide to robotics training data — what it is, why quality matters, and how Claru provides it.
+- [Physical AI Training Data](https://claru.ai/physical-ai-training-data): Overview of training data needs for physical AI systems including robots, autonomous vehicles, and drones.
+- [Egocentric Video Datasets](https://claru.ai/egocentric-video-datasets): Guide to egocentric (first-person) video datasets for activity recognition, manipulation learning, and embodied AI.
+- [Embodied AI Datasets](https://claru.ai/embodied-ai-datasets): Training data for embodied AI agents — navigation, manipulation, and interaction in real-world environments.
+
+
+## Glossary (70 terms)
+
+- [6-DOF Grasp Planning: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/6-dof-grasp-planning): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Action Chunking: Multi-Step Action Prediction for Smoother Robot Control](https://claru.ai/glossary/action-chunking): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Action Segmentation: Temporal Parsing of Continuous Activity for Robot Learning](https://claru.ai/glossary/action-segmentation): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Action Space: How Action Representation Design Shapes Robot Learning](https://claru.ai/glossary/action-space): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Active Learning: Smarter Annotation for Robot Training Data](https://claru.ai/glossary/active-learning): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Activity Annotation: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/activity-annotation): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Behavioral Cloning: Supervised Imitation Learning for Robots](https://claru.ai/glossary/behavioral-cloning): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Benchmark Curation: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/benchmark-curation): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Bounding Box Annotation: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/bounding-box-annotation): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Contact-Rich Manipulation: Force-Sensitive Robot Skills and Their Data Requirements](https://claru.ai/glossary/contact-rich-manipulation): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Cross-Embodiment Data: Standardizing Robot Demonstrations Across Hardware Platforms](https://claru.ai/glossary/cross-embodiment-data): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Data Deduplication: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/data-deduplication): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Data Enrichment: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/data-enrichment): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Data Quality Scoring: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/data-quality-scoring): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Dataset Diversity: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/dataset-diversity): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Depth Anything V2: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/depth-anything-v2): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Depth Data: 3D Perception for Robot Manipulation and Navigation](https://claru.ai/glossary/depth-data): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Dexterous Manipulation: Multi-Finger Robot Hands and Their Training Data Demands](https://claru.ai/glossary/dexterous-manipulation): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Diffusion Policy: How Denoising Diffusion Models Control Robots](https://claru.ai/glossary/diffusion-policy): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Diffusion Transformer (DiT): Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/diffusion-transformer): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Domain Randomization: Training Robust Policies Through Simulation Diversity](https://claru.ai/glossary/domain-randomization): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Egocentric Video: First-Person Data for Robot and Embodied AI Training](https://claru.ai/glossary/egocentric-video): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Embodied AI: Intelligence That Lives in a Physical Body](https://claru.ai/glossary/embodied-ai): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Foundation Model for Robotics: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/foundation-model-robotics): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Grasping Dataset: Collection Methods, Annotation Standards, and Robot Training](https://claru.ai/glossary/grasping-dataset): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [GR00T N1: NVIDIA's Foundation Model for Humanoid Robots](https://claru.ai/glossary/groot-n1): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Hand-Object Interaction: Datasets, Annotation, and Training Data for Dexterous Robotics](https://claru.ai/glossary/hand-object-interaction): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Humanoid Robots: Training Data for Whole-Body Intelligent Machines](https://claru.ai/glossary/humanoid-robot): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Imitation Learning: Teaching Robots by Demonstration](https://claru.ai/glossary/imitation-learning): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Instance Segmentation: Pixel-Level Object Masks for Robotic Perception](https://claru.ai/glossary/instance-segmentation): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Inter-Annotator Agreement: Measuring and Ensuring Training Data Quality](https://claru.ai/glossary/inter-annotator-agreement): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Keypoint Annotation: Landmark Labeling for Pose Estimation and Robot Learning](https://claru.ai/glossary/keypoint-annotation): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Language-Conditioned Policy: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/language-conditioned-policy): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Manipulation Trajectories: The Core Training Signal for Robot Learning](https://claru.ai/glossary/manipulation-trajectory): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Monocular Depth Estimation: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/monocular-depth-estimation): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Multimodal Foundation Model: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/multimodal-foundation-model): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Object Tracking: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/object-tracking): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Open X-Embodiment: The Largest Open Cross-Robot Training Dataset](https://claru.ai/glossary/open-x-embodiment): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Optical Flow: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/optical-flow): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Panoptic Segmentation: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/panoptic-segmentation): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Physical AI: Models That Understand and Act in the Real World](https://claru.ai/glossary/physical-ai): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [pi-zero: Physical Intelligence's VLA Model for Dexterous Robot Control](https://claru.ai/glossary/pi-zero): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Point Cloud: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/point-cloud): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Pose Estimation: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/pose-estimation): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Preference Annotation: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/preference-annotation): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Proprioceptive Data: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/proprioceptive-data): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [RAFT (Optical Flow): Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/raft): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Reward Models: Learning What Good Robot Behavior Looks Like](https://claru.ai/glossary/reward-model): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [RGB-D Data: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/rgb-d-data): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [RLDS Format: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/rlds): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [RLHF: Aligning AI With Human Preferences Through Feedback](https://claru.ai/glossary/rlhf): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Robot Learning: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/robot-learning): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Segment Anything Model (SAM): Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/sam): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Scene Understanding: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/scene-understanding): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Semantic Segmentation: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/semantic-segmentation): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Sim-to-Real Gap: Why Simulated Robot Policies Fail on Real Hardware](https://claru.ai/glossary/sim-to-real-gap): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Spatial Action Maps: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/spatial-action-maps): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Synthetic Data for Robotics: Simulation, Domain Randomization, and Real-World Limits](https://claru.ai/glossary/synthetic-data): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Task and Motion Planning (TAMP): Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/task-and-motion-planning): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Teleoperation Data: Human-Guided Robot Demonstrations for Policy Training](https://claru.ai/glossary/teleoperation-data): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Temporal Annotation: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/temporal-annotation): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Trajectory Optimization: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/trajectory-optimization): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Transfer Learning for Robotics: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/transfer-learning-robotics): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Video Prediction: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/video-prediction): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Vision Transformer (ViT): Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/vision-transformer): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Visuomotor Policy: End-to-End Vision-to-Action Robot Control](https://claru.ai/glossary/visuomotor-policy): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [ViTPose: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/vitpose): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [VLA Model (Vision-Language-Action): Definition, Architecture, and Training Data](https://claru.ai/glossary/vla): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [World Models: Learned Simulators for Planning and Reasoning](https://claru.ai/glossary/world-model): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+- [Zero-Shot Generalization: Definition, Applications, and Training Data Requirements](https://claru.ai/glossary/zero-shot-generalization): In-depth definition, historical context, practical implications, common misconceptions, and key research papers.
+
+## Model Training Data (25 models)
+
+- [Training Data for ACT (Action Chunking with Transformers) / ALOHA](https://claru.ai/models/act-aloha): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for BridgeData V2](https://claru.ai/models/bridgedata-v2-model): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for CrossFormer](https://claru.ai/models/crossformer): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for Diffusion Policy](https://claru.ai/models/diffusion-policy-model): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for Gato](https://claru.ai/models/gato): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for GENIMA](https://claru.ai/models/genima): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for GR-2](https://claru.ai/models/gr2): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for GR00T N1](https://claru.ai/models/groot-n1): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for HPT](https://claru.ai/models/hpt): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for HumanPlus](https://claru.ai/models/humanplus-model): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for MVP (Masked Visual Pre-training)](https://claru.ai/models/mvp): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for Octo](https://claru.ai/models/octo): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for OpenVLA](https://claru.ai/models/openvla): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for PaLM-E](https://claru.ai/models/palm-e): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for Pi-0.5](https://claru.ai/models/pi-0-5): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for Pi-Zero (pi0)](https://claru.ai/models/pi-zero): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for R3M](https://claru.ai/models/r3m): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for RoboCat](https://claru.ai/models/robocat): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for RoboFlamingo](https://claru.ai/models/roboflamingo): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for RT-1](https://claru.ai/models/rt-1): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for RT-2](https://claru.ai/models/rt-2): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for SuSIE](https://claru.ai/models/susie): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for Theia](https://claru.ai/models/theia): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for VC-1](https://claru.ai/models/vc-1): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+- [Training Data for Voltron](https://claru.ai/models/voltron): Architecture details, input/output specification, data volume benchmarks, training recipe, and Claru integration.
+
+## How-To Guides (40 guides)
+
+- [How to Annotate Depth Maps for Robot Perception](https://claru.ai/guides/how-to-annotate-depth-maps): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Annotate Hand-Object Interactions in Video](https://claru.ai/guides/how-to-annotate-hand-object-interactions): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Annotate Manipulation Trajectories](https://claru.ai/guides/how-to-annotate-manipulation-trajectories): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Annotate Robot Failure Modes in Demonstration Data](https://claru.ai/guides/how-to-annotate-robot-failure-modes): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Bridge the Sim-to-Real Gap for Robot Policies](https://claru.ai/guides/how-to-bridge-sim-to-real-gap): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Build a Benchmark Dataset for Robot Evaluation](https://claru.ai/guides/how-to-build-a-benchmark-dataset): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Build a Contact-Rich Manipulation Dataset](https://claru.ai/guides/how-to-build-a-contact-rich-manipulation-dataset): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Build a Cross-Embodiment Robot Dataset](https://claru.ai/guides/how-to-build-a-cross-embodiment-dataset): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Build a Data Enrichment Pipeline for Robot Datasets](https://claru.ai/guides/how-to-build-a-data-enrichment-pipeline): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Build a Grasping Dataset for Robot Learning](https://claru.ai/guides/how-to-build-a-grasping-dataset): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Build a Language-Conditioned Robot Dataset](https://claru.ai/guides/how-to-build-a-language-conditioned-dataset): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Build a Manipulation Dataset for Robot Learning](https://claru.ai/guides/how-to-build-a-manipulation-dataset): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Build a Navigation Dataset for Mobile Robots](https://claru.ai/guides/how-to-build-a-navigation-dataset): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Build a Preference Dataset for Robot RLHF](https://claru.ai/guides/how-to-build-a-preference-dataset-for-rlhf): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Build an Egocentric Video Data Pipeline](https://claru.ai/guides/how-to-build-an-egocentric-data-pipeline): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Build an Object Tracking Dataset](https://claru.ai/guides/how-to-build-an-object-tracking-dataset): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Collect Dexterous Manipulation Data](https://claru.ai/guides/how-to-collect-dexterous-manipulation-data): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Collect Egocentric Video Data for AI Training](https://claru.ai/guides/how-to-collect-egocentric-video-data): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Collect Kitchen Activity Data for AI Training](https://claru.ai/guides/how-to-collect-kitchen-activity-data): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Collect Multimodal Robot Data](https://claru.ai/guides/how-to-collect-multimodal-robot-data): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Collect Teleoperation Data for Robot Learning](https://claru.ai/guides/how-to-collect-teleoperation-data): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Collect Warehouse Robot Data for Training](https://claru.ai/guides/how-to-collect-warehouse-robot-data): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Convert Robot Data to RLDS Format](https://claru.ai/guides/how-to-convert-data-to-rlds-format): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Create a Robot Demonstration Dataset from Scratch](https://claru.ai/guides/how-to-create-a-robot-demonstration-dataset): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Create an Action-Chunked Dataset for Policy Training](https://claru.ai/guides/how-to-create-action-chunked-dataset): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Create Action Labels for VLA Model Training](https://claru.ai/guides/how-to-create-action-labels-for-vla): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Create a Semantic Segmentation Dataset for Robotics](https://claru.ai/guides/how-to-create-semantic-segmentation-dataset): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Create Temporal Annotations for Video Data](https://claru.ai/guides/how-to-create-temporal-annotations-for-video): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Deduplicate Robot Training Data](https://claru.ai/guides/how-to-deduplicate-robot-training-data): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Design a Reward Function for Robot Learning](https://claru.ai/guides/how-to-design-a-reward-function-for-robot-learning): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Evaluate Sim-to-Real Transfer Performance](https://claru.ai/guides/how-to-evaluate-sim-to-real-transfer): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Evaluate Training Data Quality for Robot Learning](https://claru.ai/guides/how-to-evaluate-training-data-quality): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Implement Active Learning for Robot Data Collection](https://claru.ai/guides/how-to-implement-active-learning-for-robotics): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Label Robot Demonstrations for Policy Training](https://claru.ai/guides/how-to-label-robot-demonstrations): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Measure Inter-Annotator Agreement for Robot Data](https://claru.ai/guides/how-to-measure-inter-annotator-agreement): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Preprocess Point Clouds for Robot Training](https://claru.ai/guides/how-to-preprocess-point-clouds-for-training): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Set Up a Teleoperation Rig for Data Collection](https://claru.ai/guides/how-to-setup-a-teleoperation-rig): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Set Up a Data Quality Pipeline for Robot Datasets](https://claru.ai/guides/how-to-setup-data-quality-pipeline): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Set Up a Domain Randomization Pipeline](https://claru.ai/guides/how-to-setup-domain-randomization-pipeline): Step-by-step guide with prerequisites, tools, and practical tips.
+- [How to Train a Diffusion Policy from Demonstration Data](https://claru.ai/guides/how-to-train-a-diffusion-policy): Step-by-step guide with prerequisites, tools, and practical tips.
+
+## Task Training Data (30 tasks)
+
+- [aerial-manipulation Training Data](https://claru.ai/training-data/aerial-manipulation): Data requirements, modalities, volume benchmarks, and collection methodology for aerial-manipulation tasks.
+- [agricultural-robotics Training Data](https://claru.ai/training-data/agricultural-robotics): Data requirements, modalities, volume benchmarks, and collection methodology for agricultural-robotics tasks.
+- [assembly Training Data](https://claru.ai/training-data/assembly): Data requirements, modalities, volume benchmarks, and collection methodology for assembly tasks.
+- [bimanual-manipulation Training Data](https://claru.ai/training-data/bimanual-manipulation): Data requirements, modalities, volume benchmarks, and collection methodology for bimanual-manipulation tasks.
+- [bin-picking Training Data](https://claru.ai/training-data/bin-picking): Data requirements, modalities, volume benchmarks, and collection methodology for bin-picking tasks.
+- [cable-routing Training Data](https://claru.ai/training-data/cable-routing): Data requirements, modalities, volume benchmarks, and collection methodology for cable-routing tasks.
+- [cleaning-tasks Training Data](https://claru.ai/training-data/cleaning-tasks): Data requirements, modalities, volume benchmarks, and collection methodology for cleaning-tasks tasks.
+- [construction-robotics Training Data](https://claru.ai/training-data/construction-robotics): Data requirements, modalities, volume benchmarks, and collection methodology for construction-robotics tasks.
+- [dexterous-manipulation Training Data](https://claru.ai/training-data/dexterous-manipulation): Data requirements, modalities, volume benchmarks, and collection methodology for dexterous-manipulation tasks.
+- [door-cabinet-manipulation Training Data](https://claru.ai/training-data/door-cabinet-manipulation): Data requirements, modalities, volume benchmarks, and collection methodology for door-cabinet-manipulation tasks.
+- [folding-deformables Training Data](https://claru.ai/training-data/folding-deformables): Data requirements, modalities, volume benchmarks, and collection methodology for folding-deformables tasks.
+- [food-preparation Training Data](https://claru.ai/training-data/food-preparation): Data requirements, modalities, volume benchmarks, and collection methodology for food-preparation tasks.
+- [grasping Training Data](https://claru.ai/training-data/grasping): Data requirements, modalities, volume benchmarks, and collection methodology for grasping tasks.
+- [human-robot-handover Training Data](https://claru.ai/training-data/human-robot-handover): Data requirements, modalities, volume benchmarks, and collection methodology for human-robot-handover tasks.
+- [insertion-tasks Training Data](https://claru.ai/training-data/insertion-tasks): Data requirements, modalities, volume benchmarks, and collection methodology for insertion-tasks tasks.
+- [kitchen-tasks Training Data](https://claru.ai/training-data/kitchen-tasks): Data requirements, modalities, volume benchmarks, and collection methodology for kitchen-tasks tasks.
+- [locomotion Training Data](https://claru.ai/training-data/locomotion): Data requirements, modalities, volume benchmarks, and collection methodology for locomotion tasks.
+- [mobile-manipulation Training Data](https://claru.ai/training-data/mobile-manipulation): Data requirements, modalities, volume benchmarks, and collection methodology for mobile-manipulation tasks.
+- [navigation Training Data](https://claru.ai/training-data/navigation): Data requirements, modalities, volume benchmarks, and collection methodology for navigation tasks.
+- [object-manipulation Training Data](https://claru.ai/training-data/object-manipulation): Data requirements, modalities, volume benchmarks, and collection methodology for object-manipulation tasks.
+- [object-rearrangement Training Data](https://claru.ai/training-data/object-rearrangement): Data requirements, modalities, volume benchmarks, and collection methodology for object-rearrangement tasks.
+- [pouring-liquids Training Data](https://claru.ai/training-data/pouring-liquids): Data requirements, modalities, volume benchmarks, and collection methodology for pouring-liquids tasks.
+- [surgical-manipulation Training Data](https://claru.ai/training-data/surgical-manipulation): Data requirements, modalities, volume benchmarks, and collection methodology for surgical-manipulation tasks.
+- [table-setting Training Data](https://claru.ai/training-data/table-setting): Data requirements, modalities, volume benchmarks, and collection methodology for table-setting tasks.
+- [tactile-sensor-data Training Data](https://claru.ai/training-data/tactile-sensor-data): Data requirements, modalities, volume benchmarks, and collection methodology for tactile-sensor-data tasks.
+- [teleoperation Training Data](https://claru.ai/training-data/teleoperation): Data requirements, modalities, volume benchmarks, and collection methodology for teleoperation tasks.
+- [tool-use Training Data](https://claru.ai/training-data/tool-use): Data requirements, modalities, volume benchmarks, and collection methodology for tool-use tasks.
+- [underwater-manipulation Training Data](https://claru.ai/training-data/underwater-manipulation): Data requirements, modalities, volume benchmarks, and collection methodology for underwater-manipulation tasks.
+- [warehouse-automation Training Data](https://claru.ai/training-data/warehouse-automation): Data requirements, modalities, volume benchmarks, and collection methodology for warehouse-automation tasks.
+- [wrist-camera-data Training Data](https://claru.ai/training-data/wrist-camera-data): Data requirements, modalities, volume benchmarks, and collection methodology for wrist-camera-data tasks.
+
+## Dataset Profiles (25 datasets)
+
+- [aerial-agricultural Dataset](https://claru.ai/datasets/aerial-agricultural): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [dashcam-urban Dataset](https://claru.ai/datasets/dashcam-urban): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [egocentric-agricultural Dataset](https://claru.ai/datasets/egocentric-agricultural): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [egocentric-construction Dataset](https://claru.ai/datasets/egocentric-construction): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [egocentric-healthcare Dataset](https://claru.ai/datasets/egocentric-healthcare): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [egocentric-kitchen-video Dataset](https://claru.ai/datasets/egocentric-kitchen-video): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [egocentric-office-video Dataset](https://claru.ai/datasets/egocentric-office-video): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [egocentric-outdoor-urban Dataset](https://claru.ai/datasets/egocentric-outdoor-urban): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [egocentric-restaurant Dataset](https://claru.ai/datasets/egocentric-restaurant): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [egocentric-retail-video Dataset](https://claru.ai/datasets/egocentric-retail-video): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [egocentric-warehouse-video Dataset](https://claru.ai/datasets/egocentric-warehouse-video): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [egocentric-workshop Dataset](https://claru.ai/datasets/egocentric-workshop): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [game-environment-data Dataset](https://claru.ai/datasets/game-environment-data): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [multi-sensor-warehouse Dataset](https://claru.ai/datasets/multi-sensor-warehouse): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [multi-view-assembly Dataset](https://claru.ai/datasets/multi-view-assembly): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [multi-view-manipulation Dataset](https://claru.ai/datasets/multi-view-manipulation): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [point-cloud-indoor Dataset](https://claru.ai/datasets/point-cloud-indoor): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [rgbd-kitchen Dataset](https://claru.ai/datasets/rgbd-kitchen): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [rgbd-manipulation Dataset](https://claru.ai/datasets/rgbd-manipulation): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [stereo-outdoor Dataset](https://claru.ai/datasets/stereo-outdoor): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [synthetic-manipulation Dataset](https://claru.ai/datasets/synthetic-manipulation): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [teleoperation-kitchen Dataset](https://claru.ai/datasets/teleoperation-kitchen): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [teleoperation-tabletop Dataset](https://claru.ai/datasets/teleoperation-tabletop): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [teleoperation-warehouse Dataset](https://claru.ai/datasets/teleoperation-warehouse): Technical profile, modalities, annotation layers, comparison with public datasets.
+- [thermal-industrial Dataset](https://claru.ai/datasets/thermal-industrial): Technical profile, modalities, annotation layers, comparison with public datasets.
+
+## Robotics Benchmarks (15 benchmarks)
+
+- [calvin Benchmark](https://claru.ai/benchmarks/calvin): Task suite, evaluation protocol, and what real-world data you need to transfer benchmark results.
+- [colosseum Benchmark](https://claru.ai/benchmarks/colosseum): Task suite, evaluation protocol, and what real-world data you need to transfer benchmark results.
+- [dexart Benchmark](https://claru.ai/benchmarks/dexart): Task suite, evaluation protocol, and what real-world data you need to transfer benchmark results.
+- [furniture-bench Benchmark](https://claru.ai/benchmarks/furniture-bench): Task suite, evaluation protocol, and what real-world data you need to transfer benchmark results.
+- [habitat-benchmark Benchmark](https://claru.ai/benchmarks/habitat-benchmark): Task suite, evaluation protocol, and what real-world data you need to transfer benchmark results.
+- [libero Benchmark](https://claru.ai/benchmarks/libero): Task suite, evaluation protocol, and what real-world data you need to transfer benchmark results.
+- [maniskill Benchmark](https://claru.ai/benchmarks/maniskill): Task suite, evaluation protocol, and what real-world data you need to transfer benchmark results.
+- [metaworld Benchmark](https://claru.ai/benchmarks/metaworld): Task suite, evaluation protocol, and what real-world data you need to transfer benchmark results.
+- [real-robot-challenge Benchmark](https://claru.ai/benchmarks/real-robot-challenge): Task suite, evaluation protocol, and what real-world data you need to transfer benchmark results.
+- [rlbench Benchmark](https://claru.ai/benchmarks/rlbench): Task suite, evaluation protocol, and what real-world data you need to transfer benchmark results.
+- [robocasa Benchmark](https://claru.ai/benchmarks/robocasa): Task suite, evaluation protocol, and what real-world data you need to transfer benchmark results.
+- [robosuite Benchmark](https://claru.ai/benchmarks/robosuite): Task suite, evaluation protocol, and what real-world data you need to transfer benchmark results.
+- [sapien Benchmark](https://claru.ai/benchmarks/sapien): Task suite, evaluation protocol, and what real-world data you need to transfer benchmark results.
+- [simpler-env Benchmark](https://claru.ai/benchmarks/simpler-env): Task suite, evaluation protocol, and what real-world data you need to transfer benchmark results.
+- [vlabench Benchmark](https://claru.ai/benchmarks/vlabench): Task suite, evaluation protocol, and what real-world data you need to transfer benchmark results.
+
+## Data Formats (15 formats)
+
+- [arrow-format Format](https://claru.ai/formats/arrow-format): Technical specification, when to use, comparison with alternatives, and conversion guides.
+- [bop-format Format](https://claru.ai/formats/bop-format): Technical specification, when to use, comparison with alternatives, and conversion guides.
+- [coco-format Format](https://claru.ai/formats/coco-format): Technical specification, when to use, comparison with alternatives, and conversion guides.
+- [hdf5 Format](https://claru.ai/formats/hdf5): Technical specification, when to use, comparison with alternatives, and conversion guides.
+- [kitti-format Format](https://claru.ai/formats/kitti-format): Technical specification, when to use, comparison with alternatives, and conversion guides.
+- [lerobot-format Format](https://claru.ai/formats/lerobot-format): Technical specification, when to use, comparison with alternatives, and conversion guides.
+- [mcap Format](https://claru.ai/formats/mcap): Technical specification, when to use, comparison with alternatives, and conversion guides.
+- [nuscenes-format Format](https://claru.ai/formats/nuscenes-format): Technical specification, when to use, comparison with alternatives, and conversion guides.
+- [open3d-format Format](https://claru.ai/formats/open3d-format): Technical specification, when to use, comparison with alternatives, and conversion guides.
+- [protobuf-robotics Format](https://claru.ai/formats/protobuf-robotics): Technical specification, when to use, comparison with alternatives, and conversion guides.
+- [rlds Format](https://claru.ai/formats/rlds): Technical specification, when to use, comparison with alternatives, and conversion guides.
+- [ros-bag Format](https://claru.ai/formats/ros-bag): Technical specification, when to use, comparison with alternatives, and conversion guides.
+- [tfds Format](https://claru.ai/formats/tfds): Technical specification, when to use, comparison with alternatives, and conversion guides.
+- [webdataset Format](https://claru.ai/formats/webdataset): Technical specification, when to use, comparison with alternatives, and conversion guides.
+- [zarr Format](https://claru.ai/formats/zarr): Technical specification, when to use, comparison with alternatives, and conversion guides.
+
+## Industry Verticals (15 industries)
+
+- [agricultural-robotics](https://claru.ai/industries/agricultural-robotics): Regulatory requirements, robot types, data needs, and deployment challenges specific to this vertical.
+- [automotive-robotics](https://claru.ai/industries/automotive-robotics): Regulatory requirements, robot types, data needs, and deployment challenges specific to this vertical.
+- [construction-robotics](https://claru.ai/industries/construction-robotics): Regulatory requirements, robot types, data needs, and deployment challenges specific to this vertical.
+- [consumer-electronics](https://claru.ai/industries/consumer-electronics): Regulatory requirements, robot types, data needs, and deployment challenges specific to this vertical.
+- [defense-robotics](https://claru.ai/industries/defense-robotics): Regulatory requirements, robot types, data needs, and deployment challenges specific to this vertical.
+- [energy-robotics](https://claru.ai/industries/energy-robotics): Regulatory requirements, robot types, data needs, and deployment challenges specific to this vertical.
+- [food-service-robotics](https://claru.ai/industries/food-service-robotics): Regulatory requirements, robot types, data needs, and deployment challenges specific to this vertical.
+- [healthcare-robotics](https://claru.ai/industries/healthcare-robotics): Regulatory requirements, robot types, data needs, and deployment challenges specific to this vertical.
+- [hospitality-robotics](https://claru.ai/industries/hospitality-robotics): Regulatory requirements, robot types, data needs, and deployment challenges specific to this vertical.
+- [manufacturing-robotics](https://claru.ai/industries/manufacturing-robotics): Regulatory requirements, robot types, data needs, and deployment challenges specific to this vertical.
+- [mining-robotics](https://claru.ai/industries/mining-robotics): Regulatory requirements, robot types, data needs, and deployment challenges specific to this vertical.
+- [retail-automation](https://claru.ai/industries/retail-automation): Regulatory requirements, robot types, data needs, and deployment challenges specific to this vertical.
+- [space-robotics](https://claru.ai/industries/space-robotics): Regulatory requirements, robot types, data needs, and deployment challenges specific to this vertical.
+- [underwater-robotics](https://claru.ai/industries/underwater-robotics): Regulatory requirements, robot types, data needs, and deployment challenges specific to this vertical.
+- [warehouse-logistics](https://claru.ai/industries/warehouse-logistics): Regulatory requirements, robot types, data needs, and deployment challenges specific to this vertical.
+
+## Academic Dataset Alternatives (20 comparisons)
+
+- [bc-z-alternative](https://claru.ai/compare/bc-z-alternative): Detailed comparison with dataset statistics, limitations, and when commercial data complements academic data.
+- [bridgedata-v2-alternative](https://claru.ai/compare/bridgedata-v2-alternative): Detailed comparison with dataset statistics, limitations, and when commercial data complements academic data.
+- [calvin-alternative](https://claru.ai/compare/calvin-alternative): Detailed comparison with dataset statistics, limitations, and when commercial data complements academic data.
+- [droid-alternative](https://claru.ai/compare/droid-alternative): Detailed comparison with dataset statistics, limitations, and when commercial data complements academic data.
+- [ego4d-alternative](https://claru.ai/compare/ego4d-alternative): Detailed comparison with dataset statistics, limitations, and when commercial data complements academic data.
+- [epic-kitchens-alternative](https://claru.ai/compare/epic-kitchens-alternative): Detailed comparison with dataset statistics, limitations, and when commercial data complements academic data.
+- [fractal-alternative](https://claru.ai/compare/fractal-alternative): Detailed comparison with dataset statistics, limitations, and when commercial data complements academic data.
+- [habitat-alternative](https://claru.ai/compare/habitat-alternative): Detailed comparison with dataset statistics, limitations, and when commercial data complements academic data.
+- [kuka-alternative](https://claru.ai/compare/kuka-alternative): Detailed comparison with dataset statistics, limitations, and when commercial data complements academic data.
+- [language-table-alternative](https://claru.ai/compare/language-table-alternative): Detailed comparison with dataset statistics, limitations, and when commercial data complements academic data.
+- [libero-alternative](https://claru.ai/compare/libero-alternative): Detailed comparison with dataset statistics, limitations, and when commercial data complements academic data.
+- [maniskill-alternative](https://claru.ai/compare/maniskill-alternative): Detailed comparison with dataset statistics, limitations, and when commercial data complements academic data.
+- [open-x-embodiment-alternative](https://claru.ai/compare/open-x-embodiment-alternative): Detailed comparison with dataset statistics, limitations, and when commercial data complements academic data.
+- [rh20t-alternative](https://claru.ai/compare/rh20t-alternative): Detailed comparison with dataset statistics, limitations, and when commercial data complements academic data.
+- [rlbench-alternative](https://claru.ai/compare/rlbench-alternative): Detailed comparison with dataset statistics, limitations, and when commercial data complements academic data.
+- [robocasa-alternative](https://claru.ai/compare/robocasa-alternative): Detailed comparison with dataset statistics, limitations, and when commercial data complements academic data.
+- [robomimic-alternative](https://claru.ai/compare/robomimic-alternative): Detailed comparison with dataset statistics, limitations, and when commercial data complements academic data.
+- [robonet-alternative](https://claru.ai/compare/robonet-alternative): Detailed comparison with dataset statistics, limitations, and when commercial data complements academic data.
+- [something-something-v2-alternative](https://claru.ai/compare/something-something-v2-alternative): Detailed comparison with dataset statistics, limitations, and when commercial data complements academic data.
+- [toto-alternative](https://claru.ai/compare/toto-alternative): Detailed comparison with dataset statistics, limitations, and when commercial data complements academic data.
+
+## Lab-Specific Pages (20 labs)
+
+- [Training Data for 1x-technologies](https://claru.ai/for/1x-technologies): Research focus, data needs analysis, and how Claru data maps to this lab's requirements.
+- [Training Data for agility-robotics](https://claru.ai/for/agility-robotics): Research focus, data needs analysis, and how Claru data maps to this lab's requirements.
+- [Training Data for apptronik](https://claru.ai/for/apptronik): Research focus, data needs analysis, and how Claru data maps to this lab's requirements.
+- [Training Data for berkeley-autolab](https://claru.ai/for/berkeley-autolab): Research focus, data needs analysis, and how Claru data maps to this lab's requirements.
+- [Training Data for boston-dynamics](https://claru.ai/for/boston-dynamics): Research focus, data needs analysis, and how Claru data maps to this lab's requirements.
+- [Training Data for cmu-robotics](https://claru.ai/for/cmu-robotics): Research focus, data needs analysis, and how Claru data maps to this lab's requirements.
+- [Training Data for cobot](https://claru.ai/for/cobot): Research focus, data needs analysis, and how Claru data maps to this lab's requirements.
+- [Training Data for figure-ai](https://claru.ai/for/figure-ai): Research focus, data needs analysis, and how Claru data maps to this lab's requirements.
+- [Training Data for google-deepmind-robotics](https://claru.ai/for/google-deepmind-robotics): Research focus, data needs analysis, and how Claru data maps to this lab's requirements.
+- [Training Data for kaist-robotics](https://claru.ai/for/kaist-robotics): Research focus, data needs analysis, and how Claru data maps to this lab's requirements.
+- [Training Data for meta-fair-robotics](https://claru.ai/for/meta-fair-robotics): Research focus, data needs analysis, and how Claru data maps to this lab's requirements.
+- [Training Data for mit-csail-robotics](https://claru.ai/for/mit-csail-robotics): Research focus, data needs analysis, and how Claru data maps to this lab's requirements.
+- [Training Data for nvidia-isaac](https://claru.ai/for/nvidia-isaac): Research focus, data needs analysis, and how Claru data maps to this lab's requirements.
+- [Training Data for physical-intelligence](https://claru.ai/for/physical-intelligence): Research focus, data needs analysis, and how Claru data maps to this lab's requirements.
+- [Training Data for sanctuary-ai](https://claru.ai/for/sanctuary-ai): Research focus, data needs analysis, and how Claru data maps to this lab's requirements.
+- [Training Data for skild-ai](https://claru.ai/for/skild-ai): Research focus, data needs analysis, and how Claru data maps to this lab's requirements.
+- [Training Data for stanford-sail](https://claru.ai/for/stanford-sail): Research focus, data needs analysis, and how Claru data maps to this lab's requirements.
+- [Training Data for toyota-research](https://claru.ai/for/toyota-research): Research focus, data needs analysis, and how Claru data maps to this lab's requirements.
+- [Training Data for tsinghua-robotics](https://claru.ai/for/tsinghua-robotics): Research focus, data needs analysis, and how Claru data maps to this lab's requirements.
+- [Training Data for unitree](https://claru.ai/for/unitree): Research focus, data needs analysis, and how Claru data maps to this lab's requirements.
+
+## Key Facts
+
+- Founded: 2024
+- Legal entity: Reka AI Inc. (d/b/a Claru AI)
+- Focus: 100% physical AI and robotics training data (not general-purpose labeling)
+- Data scale: 4M+ human annotations, 500K+ egocentric video clips, 100+ active datasets
+- Workforce: 10,000+ data collectors across 100+ cities, 6 continents, 14+ countries
+- Partnerships: 5+ frontier AI lab partnerships
+- Key datasets: Egocentric video (kitchen, warehouse, workshop, outdoor), teleoperation recordings (tabletop, kitchen, warehouse), game environments, multi-view manipulation
+- Enrichment pipeline: Every clip automatically enriched with depth maps (Depth Anything V2), pose estimation (ViTPose), segmentation masks (SAM3), optical flow (RAFT), and structured action labels
+- Delivery formats: RLDS, HDF5, zarr, LeRobot, WebDataset, ROS bag, MCAP, Arrow, protobuf
+- Compatible models: OpenVLA, RT-2, Octo, pi-zero, ACT/ALOHA, GR00T N1, Diffusion Policy, HPT, CrossFormer
+- Contact: contact@claru.ai
+- Website: https://claru.ai
+
+## Contact
+
+- Website: https://claru.ai
+- Email: contact@claru.ai
+- Book a call: https://calendly.com/claru

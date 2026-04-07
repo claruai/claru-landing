@@ -100,6 +100,16 @@ export const datasaurComparison: ComparisonData = {
         Anthropic, OctoAI, and open-source models.
         {sourceLink("https://docs.datasaur.ai/assisted-labeling/ml-assisted-labeling", "[5]")}
       </>,
+      <>
+        Datasaur was founded in 2019 by Ivan Lee, a Stanford CS graduate who
+        spent 10 years building AI products at Yahoo and Apple before
+        identifying a gap in NLP data tooling. The company went through Y
+        Combinator and has raised $8 million in venture funding from
+        Initialized Capital, Greg Brockman (President of OpenAI), and Calvin
+        French-Owen (CTO of Segment).{" "}
+        {sourceLink("https://datasaur.ai/about", "[6]")}
+      </>,
+      "Datasaur operates with a team split between California and Indonesia, reflecting an intentional cross-cultural engineering model. The company positions itself as a secure foundation for enterprise AI and private LLMs, which differentiates it from general-purpose labeling platforms by focusing on the specific workflows that NLP and LLM teams need: ranking, evaluation, fine-tuning, and RLHF.",
       "If your bottleneck is text labeling and LLM evaluation, Datasaur is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -460,7 +470,21 @@ export const datasaurComparison: ComparisonData = {
       {
         question: "How is Datasaur different from Claru?",
         answer:
-          "Datasaur focuses on text labeling workflows, while Claru focuses on physical AI data capture and enrichment for robotics.",
+          "Datasaur focuses on text labeling workflows for NLP and LLM projects, including span labeling, classification, RLHF, and LLM evaluation. Claru focuses on physical AI data capture and enrichment for robotics. These are fundamentally different domains: Datasaur works with text data for language models, while Claru works with video, depth, pose, and motion data for embodied AI and world models. A team building a robotics system would use Claru; a team fine-tuning an LLM would use Datasaur.",
+      },
+      {
+        question: "Who founded Datasaur and how is the company funded?",
+        answer: (
+          <>
+            Datasaur was founded in 2019 by Ivan Lee, a Stanford CS graduate
+            who spent 10 years building AI products at Yahoo and Apple. The
+            company went through Y Combinator and has raised $8 million from
+            investors including Initialized Capital, Greg Brockman (President of
+            OpenAI), and Calvin French-Owen (CTO of Segment). The engineering
+            team is split between California and Indonesia.
+            {sourceLink("https://datasaur.ai/about", "[6]")}
+          </>
+        ),
       },
     ],
   },

@@ -59,6 +59,10 @@ export const wowAiComparison: ComparisonData = {
         day one.
       </>
     ),
+    paragraphs: [
+      "Wow AI is a Vietnam-based AI data company that positions itself as an end-to-end AI training partner with a global contributor network of over 170,000 people across 120+ languages. The company offers a diverse portfolio of AI data products including off-the-shelf datasets, custom data collection, data labeling, and crowdsourcing services. Wow AI has built particular strength in audio and medical datasets, with its OTS catalog featuring large-scale audio collections and healthcare-specific data products that serve teams working on speech recognition, medical imaging, and clinical NLP applications.",
+      "While Wow AI provides broad data products and crowdsourcing capabilities, the company operates as a general-purpose data provider serving many industries and modalities simultaneously. Robotics and embodied AI teams need a fundamentally different pipeline: task-specific capture programs with wearable cameras, structured demonstration protocols, and enrichment that produces depth maps, pose estimations, optical flow, and spatial annotations at the frame level. Off-the-shelf datasets and crowdsourced data collection may provide raw material for some AI applications, but physical AI models require carefully designed capture programs with specific sensor configurations and enrichment workflows. Claru provides this specialized pipeline for teams building robots, world models, and embodied AI agents.",
+    ],
     lastUpdated: "March 31, 2026",
   },
   tldr: {
@@ -473,8 +477,8 @@ export const wowAiComparison: ComparisonData = {
         question: "What is Wow AI?",
         answer: (
           <>
-            Wow AI positions itself as an end-to-end AI training partner with AI
-            data products. {sourceLink("https://wow-ai.com/", "[1]")}
+            Wow AI is a Vietnam-based AI data company that positions itself as an end-to-end AI training partner. The company offers a diverse portfolio of AI data products including off-the-shelf datasets, custom data collection, data labeling, and crowdsourcing services. With a global contributor network of over 170,000 people across 120+ languages, Wow AI serves teams that need scalable data acquisition and annotation for a variety of AI applications.
+            {sourceLink("https://wow-ai.com/", "[1]")}
           </>
         ),
       },
@@ -482,8 +486,8 @@ export const wowAiComparison: ComparisonData = {
         question: "What AI data products does Wow AI offer?",
         answer: (
           <>
-            Wow AI lists OTS datasets, custom data collection, data labeling,
-            and crowdsourcing services. {sourceLink("https://wow-ai.com/", "[1]")}
+            Wow AI lists OTS datasets, custom data collection, data labeling, and crowdsourcing services as its core product categories. The off-the-shelf catalog includes large audio collections and medical datasets, while custom collection spans text, image, audio, and video modalities. The annotation services cover audio, image, lidar, and text with a combination of automation and human-in-the-loop review, providing flexibility across different project types and quality requirements.
+            {sourceLink("https://wow-ai.com/", "[1]")}
           </>
         ),
       },
@@ -491,7 +495,7 @@ export const wowAiComparison: ComparisonData = {
         question: "How large is Wow AI's contributor network?",
         answer: (
           <>
-            Wow AI references 170,000+ global contributors and 120+ languages.
+            Wow AI references 170,000+ global contributors and 120+ languages. This distributed workforce enables the company to handle data collection and annotation tasks across many geographic regions and linguistic markets. The scale is particularly valuable for crowdsourced data acquisition where large numbers of participants are needed to collect diverse samples, though it is designed for digital data tasks rather than the structured physical capture programs that robotics requires.
             {sourceLink("https://wow-ai.com/data.html", "[2]")}
           </>
         ),
@@ -500,8 +504,8 @@ export const wowAiComparison: ComparisonData = {
         question: "What data types does Wow AI collect?",
         answer: (
           <>
-            Wow AI highlights custom collection across text, image, audio, and
-            video. {sourceLink("https://wow-ai.com/data.html", "[3]")}
+            Wow AI highlights custom collection across text, image, audio, and video data types with tailored datasets for specific use cases. The collection services support multiple modalities and can be configured for different quality standards, geographic requirements, and volume targets. However, the collection approach is crowdsourcing-based rather than the structured physical capture programs with wearable cameras and defined protocols that robotics and embodied AI applications require.
+            {sourceLink("https://wow-ai.com/data.html", "[3]")}
           </>
         ),
       },
@@ -509,8 +513,7 @@ export const wowAiComparison: ComparisonData = {
         question: "Does Wow AI provide annotation services?",
         answer: (
           <>
-            The platform lists annotation solutions with automation and
-            human-in-the-loop review across modalities.
+            The platform lists annotation solutions with automation and human-in-the-loop review across audio, image, lidar, and text modalities. The annotation workflow combines AI-powered pre-labeling with human quality review to balance speed and accuracy. These services are suitable for general computer vision and NLP annotation tasks, though robotics training data also requires computational enrichment layers like depth estimation and optical flow that go beyond manual annotation.
             {sourceLink("https://wow-ai.com/", "[4]")}
           </>
         ),
@@ -519,7 +522,7 @@ export const wowAiComparison: ComparisonData = {
         question: "Does Wow AI offer off-the-shelf datasets?",
         answer: (
           <>
-            Wow AI markets an OTS dataset catalog as part of its data products.
+            Wow AI markets an OTS dataset catalog as part of its data products, featuring large audio collections and medical datasets among other categories. Off-the-shelf datasets provide quick access to pre-built data for teams that need to start training models immediately without custom collection. However, robotics and physical AI applications typically require custom capture programs tailored to specific tasks, environments, and sensor configurations rather than general-purpose pre-built datasets.
             {sourceLink("https://wow-ai.com/", "[1]")}
           </>
         ),
@@ -527,12 +530,12 @@ export const wowAiComparison: ComparisonData = {
       {
         question: "Is Wow AI a fit for robotics data capture?",
         answer:
-          "Wow AI is a fit for broad data sourcing and crowdsourcing; Claru is a better fit when you need capture and enrichment for robotics-specific tasks.",
+          "Wow AI is a fit for broad data sourcing and crowdsourcing across text, image, audio, and video modalities. However, robotics teams need task-specific capture programs with wearable cameras, structured demonstration protocols, and enrichment pipelines that produce depth maps, pose estimations, optical flow, and spatial annotations. These requirements demand a specialized capture-first provider. Claru is a better fit when you need capture and enrichment for robotics-specific tasks.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your team is training physical AI systems that require egocentric video, depth maps, human pose estimation, and action-labeled demonstrations collected from real-world environments, Claru provides the complete pipeline from physical capture through multi-layer enrichment to training-ready delivery in formats compatible with robotics frameworks.",
       },
     ],
   },

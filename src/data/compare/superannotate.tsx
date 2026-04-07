@@ -58,6 +58,10 @@ export const superannotateComparison: ComparisonData = {
         Claru is built for physical AI from day one.
       </>
     ),
+    paragraphs: [
+      "SuperAnnotate was founded in 2018 and quickly established itself as a leading annotation platform for computer vision and NLP teams. The company raised over $40 million in venture funding and built its reputation on a combination of annotation tooling and managed data services that support image, video, text, audio, and LLM workflows. SuperAnnotate has attracted enterprise customers in automotive, healthcare, and technology sectors who need scalable annotation programs with compliance certifications including SOC 2 Type II and ISO 27001.",
+      "While SuperAnnotate provides strong annotation tooling across multiple modalities, the platform is designed to label data that already exists rather than capture new data from the physical world. Robotics and embodied AI teams face a different bottleneck: acquiring task-specific demonstrations, egocentric video, and manipulation sequences from real environments, then enriching that data with depth estimation, pose detection, segmentation, and optical flow. SuperAnnotate can label frames after capture, but it does not provide the upstream collection infrastructure, enrichment pipeline, or robotics-native delivery formats that physical AI systems require. Claru addresses this gap with a capture-first approach.",
+    ],
     lastUpdated: "April 2, 2026",
   },
   tldr: {
@@ -347,22 +351,29 @@ export const superannotateComparison: ComparisonData = {
       {
         title: "Platform vs pipeline",
         paragraphs: [
-          "SuperAnnotate provides a labeling platform with managed services and multimodal support.",
-          "Claru delivers capture, enrichment, and training-ready datasets.",
+          "SuperAnnotate provides a labeling platform with managed services and multimodal support. The platform excels at organizing annotation workflows across image, video, text, and audio modalities with built-in quality management and project coordination tools.",
+          "Claru delivers capture, enrichment, and training-ready datasets through an end-to-end pipeline. Rather than starting from existing data, Claru begins with task-specific collection programs that produce the raw material robotics models need to learn from.",
         ],
       },
       {
         title: "Data ownership",
         paragraphs: [
-          "SuperAnnotate assumes you already have data to annotate.",
-          "Claru acquires new physical-world data and enriches it for training.",
+          "SuperAnnotate assumes you already have data to annotate. The platform is designed to organize, label, and QA datasets that teams bring to the system from their own collection efforts or third-party sources.",
+          "Claru acquires new physical-world data and enriches it for training. The capture network operates in diverse real-world environments, collecting egocentric video, manipulation demonstrations, and task-specific sequences that do not exist until the collection program runs.",
+        ],
+      },
+      {
+        title: "Robotics annotation gaps",
+        paragraphs: [
+          "Annotation platforms like SuperAnnotate can label individual frames with bounding boxes, segmentation masks, and keypoints. However, robotics training requires enrichment layers that go beyond annotation: monocular depth estimation, 3D pose reconstruction, optical flow computation, and temporal action segmentation must be generated through computational pipelines rather than manual labeling.",
+          "Claru generates these enrichment layers automatically as part of its pipeline, producing training-ready datasets that combine human-captured demonstrations with machine-generated spatial and temporal signals aligned at the frame level.",
         ],
       },
       {
         title: "Where each wins",
         paragraphs: [
-          "SuperAnnotate is a strong fit for teams needing annotation tooling and services.",
-          "Claru is better when capture and enrichment are the bottleneck.",
+          "SuperAnnotate is a strong fit for teams needing annotation tooling and services across multiple data types, particularly when enterprise compliance and workflow management are priorities.",
+          "Claru is better when capture and enrichment are the bottleneck. Teams building physical AI systems benefit from a provider that handles the full lifecycle from collection through enrichment to delivery.",
         ],
       },
     ],
@@ -433,7 +444,7 @@ export const superannotateComparison: ComparisonData = {
         question: "What is SuperAnnotate?",
         answer: (
           <>
-            SuperAnnotate provides an annotation platform and AI data services.
+            SuperAnnotate provides an annotation platform and AI data services. Founded in 2018, the company has raised over $40 million in venture funding and serves enterprise customers in automotive, healthcare, and technology sectors. The platform combines annotation tooling for image, video, text, audio, and LLM workflows with managed data services backed by an expert talent network that can handle large-scale annotation programs.
             {sourceLink("https://www.superannotate.com/", "[1]")}
           </>
         ),
@@ -442,8 +453,7 @@ export const superannotateComparison: ComparisonData = {
         question: "What data types does SuperAnnotate support?",
         answer: (
           <>
-            SuperAnnotate lists multimodal support for image, video, NLP, and
-            audio.
+            SuperAnnotate lists multimodal support for image, video, NLP, and audio data types. The annotation tooling includes object detection, segmentation, tracking, and keypoint labeling for computer vision, along with text classification, named entity recognition, and sentiment analysis for NLP workflows. This broad coverage makes SuperAnnotate suitable for teams working across multiple data modalities, though it focuses on labeling existing data rather than capturing new physical-world data.
             {sourceLink("https://www.superannotate.com/", "[2]")}
           </>
         ),
@@ -452,16 +462,20 @@ export const superannotateComparison: ComparisonData = {
         question: "Does SuperAnnotate list compliance certifications?",
         answer: (
           <>
-            SuperAnnotate reports SOC 2 Type II and ISO/IEC 27001:2022 and lists
-            GDPR, CCPA, and HIPAA compliance claims.
+            SuperAnnotate reports SOC 2 Type II and ISO/IEC 27001:2022 and lists GDPR, CCPA, and HIPAA compliance claims. These certifications are important for enterprise customers in regulated industries like healthcare and finance who need to ensure their data annotation workflows meet strict security and privacy requirements. The compliance infrastructure supports audit-ready annotation programs at scale.
             {sourceLink("https://www.superannotate.com/", "[5]")}
           </>
         ),
       },
       {
+        question: "Can SuperAnnotate handle robotics data?",
+        answer:
+          "SuperAnnotate can label video frames with bounding boxes, segmentation masks, and keypoints, which is useful for some robotics workflows. However, robotics training data also requires enrichment layers like monocular depth estimation, 3D pose reconstruction, optical flow computation, and temporal action segmentation that are generated through computational pipelines rather than manual annotation. For capture-first robotics datasets with these enrichment layers, Claru provides a more complete solution.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your bottleneck is acquiring new physical-world data with task-specific demonstrations, egocentric perspectives, and multi-layer enrichment including depth, pose, and motion signals, Claru provides the end-to-end pipeline from collection through enrichment to delivery in formats compatible with robotics training frameworks.",
       },
     ],
   },

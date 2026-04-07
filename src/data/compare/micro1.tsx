@@ -84,6 +84,8 @@ export const micro1Comparison: ComparisonData = {
         micro1 also highlights high-fidelity real-world robotics data for
         training next-generation humanoids. {sourceLink("https://www.micro1.ai/", "[3]")}
       </>,
+      "micro1 emerged from the broader AI talent and data marketplace space, initially focused on connecting vetted AI engineers with companies. Over time the company expanded into training data operations, building a human data engine that combines workforce management with data collection and annotation tooling. The platform now positions itself at the intersection of human expertise and large-scale data programs for frontier AI labs.",
+      "In the context of physical AI and robotics, micro1 highlights its ability to collect and annotate real-world robotics data, particularly for humanoid training. However, the platform's roots are in human data operations rather than sensor-rich capture pipelines. Teams evaluating micro1 for robotics data should consider whether the primary bottleneck is workforce management and annotation throughput or whether it is the capture of new physical-world data with enrichment layers like depth estimation, pose tracking, and optical flow.",
       "If your bottleneck is human data operations or robotics data at scale, micro1 is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -284,22 +286,29 @@ export const micro1Comparison: ComparisonData = {
       {
         title: "Human data platform vs pipeline",
         paragraphs: [
-          "micro1 focuses on human data operations and domain experts.",
-          "Claru focuses on capture, enrichment, and training-ready datasets.",
+          "micro1 focuses on human data operations and domain experts. The platform handles workforce recruitment, vetting, and management alongside data collection and annotation workflows. This model works well when teams need to scale human labor for labeling or data creation tasks across multiple projects.",
+          "Claru focuses on capture, enrichment, and training-ready datasets. Rather than managing a general-purpose workforce, Claru operates a dedicated collector network equipped with wearable cameras and task-specific protocols designed for physical AI data capture.",
         ],
       },
       {
         title: "Data sourcing",
         paragraphs: [
-          "micro1 highlights expert-driven data programs.",
-          "Claru captures new physical-world data tailored to robotics tasks.",
+          "micro1 highlights expert-driven data programs that leverage its vetted workforce to collect and annotate robotics data. The emphasis is on human data engine capabilities that can be applied to various frontier AI use cases, including humanoid training.",
+          "Claru captures new physical-world data tailored to specific robotics tasks. Each capture brief defines the environment, actions, and sensor requirements so the resulting dataset aligns directly with the training objective. This task-specific approach reduces noise and improves data efficiency for embodied AI models.",
+        ],
+      },
+      {
+        title: "Robotics data requirements",
+        paragraphs: [
+          "Training robotics models requires more than labeled video. Physical AI systems depend on dense enrichment layers including monocular depth, human pose estimation, instance segmentation, and optical flow. These signals serve as direct model inputs during training and cannot be added as an afterthought.",
+          "micro1 focuses on collection and annotation. Claru builds enrichment into the pipeline so depth, pose, and motion signals are generated alongside capture, ensuring temporal alignment and format consistency across the entire dataset.",
         ],
       },
       {
         title: "Where each wins",
         paragraphs: [
-          "micro1 is strong when expert human data is the bottleneck.",
-          "Claru is stronger when physical-world capture is the bottleneck.",
+          "micro1 is strong when expert human data operations are the bottleneck. If you need to recruit, manage, and scale a workforce for diverse data tasks across frontier AI domains, the platform provides the infrastructure to do that efficiently.",
+          "Claru is stronger when physical-world capture and multi-layer enrichment are the bottleneck. If your model needs egocentric video with aligned depth maps, pose tracks, and segmentation masks delivered in robotics-native formats, Claru is built for that pipeline.",
         ],
       },
     ],
@@ -370,7 +379,7 @@ export const micro1Comparison: ComparisonData = {
         question: "What is micro1?",
         answer: (
           <>
-            micro1 positions itself as an end-to-end human data engine.
+            micro1 positions itself as an end-to-end human data engine for frontier AI. The platform combines workforce management, data collection, and annotation capabilities into a single offering. micro1 started in the AI talent marketplace space and expanded into training data operations, allowing teams to recruit vetted contributors and manage large-scale data programs for language models and robotics applications.
             {sourceLink("https://www.micro1.ai/", "[1]")}
           </>
         ),
@@ -379,8 +388,8 @@ export const micro1Comparison: ComparisonData = {
         question: "Does micro1 collect robotics data?",
         answer: (
           <>
-            micro1 highlights a data engine to collect and annotate real world
-            robotics data. {sourceLink("https://www.micro1.ai/", "[2]")}
+            micro1 highlights a data engine to collect and annotate real-world robotics data. The platform positions this capability as part of its broader human data engine offering, enabling teams to source high-fidelity data for humanoid and robotic systems. However, micro1 approaches robotics data primarily through its workforce management model rather than through a dedicated sensor-rich capture pipeline with enrichment layers like depth estimation or pose tracking.
+            {sourceLink("https://www.micro1.ai/", "[2]")}
           </>
         ),
       },
@@ -388,15 +397,25 @@ export const micro1Comparison: ComparisonData = {
         question: "What robotics focus does micro1 mention?",
         answer: (
           <>
-            The company highlights high-fidelity robotics data for humanoids.
+            The company highlights high-fidelity real-world robotics data for training next-generation humanoids. This includes data collection and annotation workflows designed around robotics use cases. For teams building embodied AI systems, the key question is whether the bottleneck is workforce management for annotation tasks or whether it is the physical-world capture pipeline itself, including sensor alignment, enrichment layers, and delivery in robotics-native formats.
             {sourceLink("https://www.micro1.ai/", "[3]")}
           </>
         ),
       },
       {
+        question: "How does micro1 compare to Claru for physical AI?",
+        answer:
+          "micro1 focuses on human data operations and workforce management for frontier AI, including robotics data programs. Claru focuses specifically on physical-world capture and enrichment, operating a dedicated collector network equipped with wearable cameras and generating enrichment layers like depth maps, pose tracks, and segmentation masks. Teams whose primary bottleneck is annotation workforce scaling may prefer micro1, while teams whose bottleneck is capturing new physical-world data with dense enrichment will find Claru a better fit.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when your primary need is capturing new physical-world data and enriching it for robotics training. This includes scenarios where you need egocentric video captured in specific environments, enrichment layers such as monocular depth, human pose estimation, and optical flow, and delivery in robotics-native formats like WebDataset, HDF5, or RLDS. If you already have data and need annotation at scale, micro1 may be the better starting point.",
+      },
+      {
+        question: "Can teams use both micro1 and Claru?",
+        answer:
+          "Yes. Some teams use micro1 for human data operations such as workforce-managed annotation and labeling programs, while using Claru for capture-first physical AI datasets. This combination works well when a team needs both large-scale annotation throughput for existing data and new physical-world capture with enrichment layers for robotics training. The two platforms address different parts of the data pipeline and can complement each other.",
       },
     ],
   },

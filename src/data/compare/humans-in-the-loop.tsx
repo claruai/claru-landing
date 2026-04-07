@@ -82,6 +82,8 @@ export const humansInTheLoopComparison: ComparisonData = {
         The company positions itself as a partner for high-quality AI data with
         ethical and secure datasets. {sourceLink("https://humansintheloop.org/", "[2]")}
       </>,
+      "Humans in the Loop is a social enterprise founded in Bulgaria with a distinctive mission: providing data annotation services while employing refugees and other conflict-affected individuals. The company has grown into a recognized player in the AI data annotation market, serving clients across computer vision, natural language processing, and document analysis. Humans in the Loop differentiates itself through its ethical positioning, combining high-quality annotation work with social impact, which appeals to organizations with responsible AI procurement policies.",
+      "For physical AI and robotics teams, Humans in the Loop's annotation capabilities cover standard computer vision tasks well. However, the core challenge for robotics training is not annotation of existing data but acquisition of new task-specific data from the physical world. Robotics models built on imitation learning, diffusion policies, and vision-language-action architectures need egocentric video demonstrations, manipulation sequences, and multi-sensor recordings that must be captured with specialized equipment and protocols before any annotation can begin. The gap between data capture and data labeling is the key consideration when evaluating annotation providers for physical AI use cases.",
       "If your bottleneck is managed CV annotation, Humans in the Loop is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -285,10 +287,17 @@ export const humansInTheLoopComparison: ComparisonData = {
         ],
       },
       {
+        title: "Physical AI data requirements",
+        paragraphs: [
+          "Frontier robotics AI models require training data with properties that standard annotation services cannot produce on their own: egocentric camera viewpoints matching robot sensor placements, hand-object manipulation sequences with spatial context, depth-aligned frames for 3D reasoning, and action-level temporal segmentation for policy learning. These data types must be captured from scratch using specialized equipment and structured collection protocols.",
+          "Claru addresses this upstream bottleneck by providing end-to-end capture programs with trained collectors using wearable cameras, then enriching every clip with depth estimation, human pose detection, instance segmentation, and optical flow before delivery in robotics-native formats like RLDS, WebDataset, and HDF5.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Humans in the Loop is strong when you need managed annotation capacity.",
-          "Claru is stronger when physical-world capture is the bottleneck.",
+          "Humans in the Loop is strong when you need managed annotation capacity with an ethical procurement model, particularly for teams that value social impact alongside data quality in their vendor selection.",
+          "Claru is stronger when physical-world capture is the bottleneck, especially for robotics teams that need new task-specific data with multi-layer enrichment as a standard output rather than annotation of pre-existing datasets.",
         ],
       },
     ],
@@ -359,8 +368,9 @@ export const humansInTheLoopComparison: ComparisonData = {
         question: "What is Humans in the Loop?",
         answer: (
           <>
-            Humans in the Loop provides managed annotation services across CV
-            tasks. {sourceLink("https://humansintheloop.org/", "[1]")}
+            Humans in the Loop is a social enterprise founded in Bulgaria that provides managed annotation services across computer vision tasks.{" "}
+            {sourceLink("https://humansintheloop.org/", "[1]")}{" "}
+            The company employs refugees and conflict-affected individuals as annotators, combining high-quality data labeling with social impact. Humans in the Loop has grown into a recognized provider in the AI data annotation market, serving clients in computer vision, NLP, and document analysis. The ethical positioning appeals to organizations with responsible AI procurement requirements.
           </>
         ),
       },
@@ -368,8 +378,9 @@ export const humansInTheLoopComparison: ComparisonData = {
         question: "What annotation types are supported?",
         answer: (
           <>
-            The company lists bounding box, polygon, keypoint, segmentation,
-            video, and 3D annotation. {sourceLink("https://humansintheloop.org/", "[1]")}
+            The company lists bounding box, polygon, keypoint, semantic segmentation, video, and 3D annotation across its services.{" "}
+            {sourceLink("https://humansintheloop.org/", "[1]")}{" "}
+            This breadth of annotation types covers the most common computer vision labeling tasks, from object detection and instance segmentation to pose estimation and volumetric labeling. The managed delivery model ensures quality oversight across projects, with dedicated teams that develop domain expertise over time.
           </>
         ),
       },
@@ -377,15 +388,16 @@ export const humansInTheLoopComparison: ComparisonData = {
         question: "Is Humans in the Loop focused on ethical AI data?",
         answer: (
           <>
-            Humans in the Loop highlights ethical and secure datasets.
-            {sourceLink("https://humansintheloop.org/", "[2]")}
+            Humans in the Loop highlights ethical data practices and social impact as core parts of its mission.{" "}
+            {sourceLink("https://humansintheloop.org/", "[2]")}{" "}
+            The company was founded with the explicit goal of providing meaningful employment to refugees and other conflict-affected populations through data annotation work. This ethical focus extends to data security and privacy practices, making Humans in the Loop attractive to organizations that need to demonstrate responsible sourcing in their AI supply chains.
           </>
         ),
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your team needs new physical-world data collected for specific robot tasks rather than annotation of existing datasets, Claru provides the capture infrastructure, trained collector network, and enrichment pipeline that annotation providers do not offer. Claru delivers depth maps, pose estimation, segmentation, and optical flow as standard enrichment layers, all temporally aligned and packaged in robotics-native formats like RLDS, WebDataset, and HDF5.",
       },
     ],
   },

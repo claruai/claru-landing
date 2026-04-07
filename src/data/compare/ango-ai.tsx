@@ -84,6 +84,9 @@ export const angoAiComparison: ComparisonData = {
         Ango AI emphasizes scalable data operations for AI programs.
         {sourceLink("https://ango.ai/", "[3]")}
       </>,
+      "Ango AI (now Ango Hub) was founded in 2020 by Gokhan Urul and Gokalp Urul, with offices in San Francisco and Ankara. The company raised 720 thousand dollars in seed funding led by 500 Global, with additional investment from QNBEYOND Ventures and e2vc. In October 2023, Ango Hub was acquired by iMerit, a larger data annotation company, bringing their annotation tooling under the iMerit umbrella.",
+      "The platform provides 2D and 3D annotation tools including bounding boxes, polylines, polygons, key points, landmarks, and semantic segmentation across text, image, audio, video, and 3D sensor data. Ango Hub also features sophisticated consensus and review capabilities that allow multiple annotators to work on the same asset while calculating inter-annotator agreement. Unique tooling includes rotated bounding boxes, nested conditional questions, label relations, and table-based labeling for complex annotation tasks.",
+      "For physical AI teams, Ango Hub provides capable annotation tooling that could be used to label robotics datasets. However, the platform is designed around managing and labeling existing data rather than capturing new physical-world data from scratch. Teams that need upstream data capture with wearable cameras, task-specific collection protocols, and enrichment layers like depth estimation and pose extraction will need a provider like Claru that specializes in the capture-to-delivery pipeline.",
       "If your bottleneck is annotation tooling and workflow management, Ango AI is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -372,7 +375,7 @@ export const angoAiComparison: ComparisonData = {
         question: "What is Ango AI?",
         answer: (
           <>
-            Ango AI provides a data annotation platform for AI teams.
+            Ango AI, now operating as Ango Hub under iMerit, is a data annotation platform founded in 2020 by Gokhan and Gokalp Urul. The company raised seed funding led by 500 Global and was acquired by iMerit in October 2023. The platform provides 2D and 3D annotation tools including bounding boxes, polylines, polygons, key points, and semantic segmentation across text, image, audio, video, and 3D sensor data.{" "}
             {sourceLink("https://ango.ai/", "[1]")}
           </>
         ),
@@ -381,16 +384,21 @@ export const angoAiComparison: ComparisonData = {
         question: "What workflows does Ango AI support?",
         answer: (
           <>
-            The platform highlights labeling, QA, and workforce orchestration.
+            The platform supports labeling, quality assurance, and workforce orchestration workflows. It features sophisticated consensus and review capabilities that allow multiple annotators to work on the same asset while calculating inter-annotator agreement. Unique tooling includes rotated bounding boxes, unlimited conditional nested questions, label relations, and table-based labeling for complex annotation tasks. The platform can handle point cloud frames with substantial data volumes.{" "}
             {sourceLink("https://ango.ai/", "[2]")}
           </>
         ),
       },
       {
+        question: "Was Ango AI acquired?",
+        answer:
+          "Yes. Ango Hub was acquired by iMerit in October 2023. iMerit is a larger data annotation company, and the acquisition brought Ango Hub's annotation tooling under the iMerit umbrella. This gives Ango Hub access to iMerit's managed workforce and enterprise relationships while maintaining its platform capabilities.",
+      },
+      {
         question: "Is Ango AI focused on data operations?",
         answer: (
           <>
-            Ango AI emphasizes scalable data operations for AI programs.
+            Ango AI emphasizes scalable data operations for AI programs, including support for 3D sensor data annotation. The platform is designed around managing and labeling existing data rather than capturing new physical-world data. For teams that already have raw data and need powerful annotation tooling with quality control workflows, Ango Hub is a strong option. For teams that need upstream data capture, a different provider is needed.{" "}
             {sourceLink("https://ango.ai/", "[3]")}
           </>
         ),
@@ -398,7 +406,7 @@ export const angoAiComparison: ComparisonData = {
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need the full pipeline from physical-world data capture through enrichment and delivery of robotics-ready datasets. If your team does not yet have raw data and needs to create it from scratch with wearable cameras, task-specific collection protocols, and enrichment layers like depth, pose, and optical flow, Claru is designed for that workflow.",
       },
     ],
   },

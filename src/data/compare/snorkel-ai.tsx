@@ -59,6 +59,10 @@ export const snorkelAiComparison: ComparisonData = {
         built for physical AI from day one.
       </>
     ),
+    paragraphs: [
+      "Snorkel AI was founded in 2019 by a team of Stanford researchers, including Alex Ratner, who led the Snorkel open-source project in the Stanford AI Lab. The company grew out of academic work on weak supervision and programmatic labeling, where labeling functions written in code replace manual annotation for large-scale dataset creation. Snorkel AI raised over $135 million in venture capital, including a $85 million Series C in 2021, and has attracted enterprise customers across financial services, healthcare, and government agencies seeking to accelerate training data development without proportionally scaling human annotation teams.",
+      "While Snorkel AI has strong capabilities for text-centric and structured data workflows, its platform is not designed for the physical-world data capture that robotics and embodied AI systems require. Robotics teams training manipulation policies or navigation models need egocentric video, depth maps, force-torque signals, and spatial annotations that originate from physical collection programs. Snorkel's programmatic labeling paradigm works best when data already exists and labels can be inferred from heuristics or existing knowledge bases. For teams whose bottleneck is acquiring new physical-world data and enriching it with layers like pose estimation, optical flow, and 3D reconstruction, Claru provides a purpose-built pipeline that starts at capture rather than curation.",
+    ],
     lastUpdated: "April 2, 2026",
   },
   tldr: {
@@ -344,22 +348,29 @@ export const snorkelAiComparison: ComparisonData = {
       {
         title: "Programmatic labeling vs capture",
         paragraphs: [
-          "Snorkel AI focuses on programmatic labeling and expert review to improve dataset quality.",
-          "Claru focuses on capturing new physical-world data and enriching it for robotics.",
+          "Snorkel AI focuses on programmatic labeling and expert review to improve dataset quality. The approach excels when large volumes of unlabeled data already exist and labeling functions can be composed from domain heuristics, knowledge bases, or pre-trained models. This paradigm reduces dependence on manual annotation for NLP and structured data tasks.",
+          "Claru focuses on capturing new physical-world data and enriching it for robotics. For embodied AI systems, the primary bottleneck is not labeling existing data but collecting task-specific demonstrations, viewpoints, and manipulation sequences from the real world with the right sensor modalities attached.",
         ],
       },
       {
         title: "Modern AI systems",
         paragraphs: [
-          "Snorkel Flow supports datasets and prompts for LLMs, RAG pipelines, and agents.",
-          "Claru focuses on robotics, world models, and embodied AI workloads.",
+          "Snorkel Flow supports datasets and prompts for LLMs, RAG pipelines, and agents. The platform is optimized for text-heavy and structured workflows where iterative data quality improvement drives model performance.",
+          "Claru focuses on robotics, world models, and embodied AI workloads. These systems require dense spatial data including depth, pose, segmentation, and optical flow that must be generated from physical capture rather than inferred from text-based heuristics.",
+        ],
+      },
+      {
+        title: "Robotics AI data requirements",
+        paragraphs: [
+          "Physical AI models like RT-2, Octo, and pi0 are trained on demonstrations that combine camera streams with robot state data. The training pipeline requires precise temporal alignment, calibrated camera intrinsics, and enrichment layers that encode 3D geometry. These requirements sit outside the scope of programmatic labeling platforms.",
+          "Claru addresses this gap with a capture-first approach that starts from task briefs, deploys a collector network, and produces training-ready datasets with depth, pose, and action labels aligned at the frame level.",
         ],
       },
       {
         title: "Where each provider fits",
         paragraphs: [
-          "Snorkel AI is a fit when data curation and labeling automation are the bottleneck.",
-          "Claru is a fit when capture and enrichment are the bottleneck.",
+          "Snorkel AI is a fit when data curation and labeling automation are the bottleneck. Teams with large existing corpora benefit from Snorkel's ability to rapidly create labeled datasets through code-driven workflows.",
+          "Claru is a fit when capture and enrichment are the bottleneck. Teams building physical AI systems benefit from Claru's end-to-end pipeline from real-world data collection through multi-layer enrichment to delivery.",
         ],
       },
     ],
@@ -430,8 +441,7 @@ export const snorkelAiComparison: ComparisonData = {
         question: "What is Snorkel AI?",
         answer: (
           <>
-            Snorkel AI provides a data development platform for modern AI
-            systems.
+            Snorkel AI provides a data development platform for modern AI systems. Founded by Stanford researchers in 2019, the company pioneered programmatic labeling where labeling functions written in code replace manual annotation. Snorkel AI has raised over $135 million in funding and serves enterprise customers across financial services, healthcare, and government who need to accelerate training data creation without proportionally scaling human annotation teams.
             {sourceLink("https://snorkel.ai/", "[1]")}
           </>
         ),
@@ -440,8 +450,7 @@ export const snorkelAiComparison: ComparisonData = {
         question: "What is programmatic labeling?",
         answer: (
           <>
-            Snorkel describes programmatic labeling as creating training data
-            using code rather than only manual labeling.
+            Snorkel describes programmatic labeling as creating training data using code rather than only manual labeling. In practice, this means writing labeling functions that encode domain heuristics, leverage existing knowledge bases, or use pre-trained models to automatically assign labels to large volumes of unlabeled data. The approach is particularly effective for text and structured data workflows where patterns can be captured in code, though it is less applicable to physical-world data that requires spatial annotations from capture programs.
             {sourceLink("https://snorkel.ai/programmatic-labeling/", "[4]")}
           </>
         ),
@@ -450,16 +459,20 @@ export const snorkelAiComparison: ComparisonData = {
         question: "Does Snorkel support LLM workflows?",
         answer: (
           <>
-            Snorkel Flow is documented for datasets and prompts supporting LLMs,
-            RAG, and AI agents.
+            Snorkel Flow is documented for datasets and prompts supporting LLMs, RAG, and AI agents. The platform provides tooling for curating and improving training data that powers large language models, retrieval-augmented generation systems, and agentic AI workflows. This positions Snorkel well for text-centric AI applications, though it does not address the capture and enrichment requirements of physical AI systems like robotics models and world models.
             {sourceLink("https://docs.snorkel.ai/docs/0.94.0/intro", "[3]")}
           </>
         ),
       },
       {
+        question: "Can Snorkel AI be used for robotics data?",
+        answer:
+          "Snorkel AI is optimized for text and structured data workflows where programmatic labeling functions can be written in code. Robotics and physical AI systems typically require spatial data capture with enrichment layers like depth estimation, pose detection, and optical flow that originate from physical collection programs rather than code-based labeling heuristics. For robotics data needs, a capture-first provider like Claru is a better fit.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. Specifically, if your team is training embodied AI models that require egocentric video, depth maps, human pose estimation, object segmentation, or action-labeled demonstrations, Claru provides the end-to-end pipeline from physical-world collection through multi-layer enrichment to training-ready delivery in formats compatible with robotics stacks.",
       },
     ],
   },

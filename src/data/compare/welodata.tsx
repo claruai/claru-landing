@@ -60,6 +60,10 @@ export const welodataComparison: ComparisonData = {
         built for physical AI from day one.
       </>
     ),
+    paragraphs: [
+      "Welo Data is a brand within Welocalize, a global localization company founded in 1997 that expanded into AI training data services. Welo Data leverages Welocalize's existing global infrastructure of 500,000+ experts across 250+ languages to deliver enterprise annotation programs with strong quality monitoring through its proprietary NIMO system. The company serves major technology firms and AI labs with annotation, data collection, evaluation, and LLM fine-tuning services, bringing decades of enterprise operational maturity to the rapidly growing AI data market.",
+      "While Welo Data provides comprehensive enterprise annotation services with robust QA and multilingual coverage, the platform is designed for teams that already have data and need it labeled, evaluated, or used for LLM training. Robotics and embodied AI teams face a different upstream challenge: acquiring task-specific demonstrations from physical environments with wearable cameras and structured capture protocols, then enriching that data with depth estimation, 3D pose reconstruction, optical flow, and temporal action labels. Welo Data excels at the annotation layer but does not provide the physical capture infrastructure or computational enrichment pipeline that physical AI training requires. Claru is purpose-built for this capture-to-delivery pipeline.",
+    ],
     lastUpdated: "April 2, 2026",
   },
   tldr: {
@@ -462,8 +466,8 @@ export const welodataComparison: ComparisonData = {
         question: "What is Welo Data?",
         answer: (
           <>
-            Welo Data provides enterprise data annotation services for AI and ML
-            models. {sourceLink("https://welodata.ai/data-annotation/", "[1]")}
+            Welo Data provides enterprise data annotation services for AI and ML models. A brand within Welocalize, a global localization company founded in 1997, Welo Data leverages a workforce of 500,000+ experts across 250+ languages to deliver large-scale annotation programs. The company brings decades of enterprise operational maturity to the AI data market, with established quality management systems, compliance frameworks, and the proprietary NIMO monitoring platform for data quality and workforce validation.
+            {sourceLink("https://welodata.ai/data-annotation/", "[1]")}
           </>
         ),
       },
@@ -471,8 +475,7 @@ export const welodataComparison: ComparisonData = {
         question: "What is NIMO?",
         answer: (
           <>
-            NIMO is Welo Data&apos;s monitoring, detection, and validation system
-            for data quality across the pipeline.
+            NIMO is Welo Data&apos;s proprietary monitoring, detection, and validation system for data quality across the annotation pipeline. The system tracks identity, location, qualification, and task attention across the global workforce, providing fraud detection and quality validation at scale. NIMO is designed to address the trust and consistency challenges inherent in large-scale distributed annotation programs, ensuring that data quality standards are maintained regardless of the size or geographic distribution of the workforce.
             {sourceLink("https://welodata.ai/nimo/", "[4]")}
           </>
         ),
@@ -481,16 +484,20 @@ export const welodataComparison: ComparisonData = {
         question: "How many languages does Welo Data cover?",
         answer: (
           <>
-            Welo Data cites 150+ languages and 300+ locales for multilingual
-            annotation programs.
+            Welo Data cites 150+ languages and 300+ locales for multilingual annotation programs. This extensive language coverage is a direct result of Welocalize&apos;s heritage as a global localization company, providing access to native speakers and cultural experts across a wide range of linguistic markets. The multilingual capability is particularly valuable for NLP training data, content moderation, and language model evaluation tasks.
             {sourceLink("https://welodata.ai/data-annotation/", "[5]")}
           </>
         ),
       },
       {
+        question: "Does Welo Data handle robotics data?",
+        answer:
+          "Welo Data lists robotics among its solution areas, but the company is primarily an enterprise annotation provider serving many industries and data types. Robotics teams that need task-specific capture programs with wearable cameras, structured demonstration protocols, and enrichment pipelines for depth, pose, and optical flow typically benefit from a specialized physical AI data provider. Claru is purpose-built for this capture-to-delivery pipeline.",
+      },
+      {
         question: "How is Welo Data different from Claru?",
         answer:
-          "Welo Data provides enterprise annotation with QA systems, while Claru provides capture and enrichment for physical AI datasets.",
+          "Welo Data provides enterprise annotation with QA systems, multilingual coverage, and LLM fine-tuning services, primarily for teams that already have data and need it labeled or evaluated. Claru provides capture and enrichment for physical AI datasets, starting from task-specific collection programs in real-world environments and producing training-ready datasets with depth, pose, segmentation, and optical flow layers. The two serve different stages of the data pipeline.",
       },
     ],
   },

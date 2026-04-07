@@ -84,6 +84,8 @@ export const hubXyzComparison: ComparisonData = {
         Hub.xyz highlights AI and human-in-the-loop annotation plus QA across
         modalities. {sourceLink("https://hub.xyz/", "[3]")}
       </>,
+      "Hub.xyz represents a newer generation of data infrastructure companies that approach AI training data through the lens of distributed systems and API-first design. The company positions itself at the intersection of crowd-sourced data collection and frontier AI requirements, aiming to turn real-world contributors into a real-time data pipeline. Hub.xyz has attracted attention from AI labs looking for fresh, diverse data sources that go beyond traditional annotation service providers and existing dataset marketplaces.",
+      "For physical AI and robotics teams, Hub.xyz's distributed collection model is conceptually aligned with the need for diverse real-world data. However, robotics training requires more than raw data access: it demands task-specific capture protocols, sensor alignment, egocentric viewpoints, and multi-layer enrichment including depth, pose, and segmentation. The question for robotics teams is whether API-driven data access provides the level of specificity and enrichment that embodied AI models require, or whether a purpose-built capture-and-enrichment pipeline is necessary.",
       "If your bottleneck is sourcing real-world data via API, Hub.xyz is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -296,10 +298,17 @@ export const hubXyzComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics AI data requirements",
+        paragraphs: [
+          "Modern robotics AI models such as vision-language-action architectures, diffusion policies, and world models require training data with specific properties that go beyond general real-world data access: egocentric viewpoints matching robot camera placements, manipulation sequences with hand-object interaction context, depth-aligned frames for spatial reasoning, and action-level temporal segmentation for policy learning.",
+          "Claru builds capture programs specifically around these requirements, deploying trained collectors with wearable cameras and structured task protocols, then enriching every clip with depth estimation, pose detection, segmentation, and optical flow before delivery in formats that plug directly into robotics training frameworks such as RLDS and WebDataset.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Hub.xyz is strong when API-driven data sourcing is the priority.",
-          "Claru is stronger when physical-world capture is the bottleneck.",
+          "Hub.xyz is strong when API-driven data sourcing and distributed real-time collection are the priority, particularly for frontier AI teams that need access to diverse, fresh data through programmatic interfaces.",
+          "Claru is stronger when physical-world capture with specific task protocols and multi-layer enrichment is the bottleneck, especially for robotics teams that need data designed for embodied AI training from the ground up.",
         ],
       },
     ],
@@ -370,8 +379,9 @@ export const hubXyzComparison: ComparisonData = {
         question: "What is Hub.xyz?",
         answer: (
           <>
-            Hub.xyz provides an API for real-world training data.
-            {sourceLink("https://hub.xyz/", "[1]")}
+            Hub.xyz provides an API for real-world training data, positioning itself as a distributed, real-time data pipeline for frontier AI.{" "}
+            {sourceLink("https://hub.xyz/", "[1]")}{" "}
+            The company represents a newer generation of data infrastructure focused on turning distributed real-world contributors into a programmatic data source. Hub.xyz targets frontier AI labs that need diverse, fresh data from the physical world delivered through API-first interfaces rather than traditional dataset procurement.
           </>
         ),
       },
@@ -379,8 +389,9 @@ export const hubXyzComparison: ComparisonData = {
         question: "How does Hub.xyz describe its data pipeline?",
         answer: (
           <>
-            Hub.xyz says it is a distributed, real-time data pipeline for
-            frontier AI. {sourceLink("https://hub.xyz/", "[2]")}
+            Hub.xyz positions itself as a distributed, real-time data pipeline that turns the world into a data source for frontier AI.{" "}
+            {sourceLink("https://hub.xyz/", "[2]")}{" "}
+            This framing emphasizes the distributed nature of data collection, where contributors around the world can capture and submit data that flows through the pipeline in near real-time. The approach is designed to provide AI teams with access to diverse, continuously updated data rather than static datasets assembled at a single point in time.
           </>
         ),
       },
@@ -388,15 +399,16 @@ export const hubXyzComparison: ComparisonData = {
         question: "Does Hub.xyz provide annotation and QA?",
         answer: (
           <>
-            The platform highlights AI + HITL annotation and QA across
-            modalities. {sourceLink("https://hub.xyz/", "[3]")}
+            The platform highlights AI plus human-in-the-loop annotation and QA across modalities as part of its data pipeline.{" "}
+            {sourceLink("https://hub.xyz/", "[3]")}{" "}
+            This combines automated AI-driven labeling with human review and quality assurance, creating a hybrid approach designed to balance annotation speed with accuracy. The HITL component ensures that human judgment is applied where automated systems may lack reliability, while AI pre-labeling accelerates the overall annotation process.
           </>
         ),
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets with specific task protocols. While Hub.xyz provides broad API access to real-world data, robotics teams often need data captured according to precise task specifications with controlled viewpoints, manipulation sequences, and sensor alignment. Claru provides capture infrastructure with trained collectors, enrichment layers including depth, pose, segmentation, and optical flow, and delivery in robotics-native formats like RLDS and WebDataset.",
       },
     ],
   },

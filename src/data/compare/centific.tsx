@@ -80,6 +80,16 @@ export const centificComparison: ComparisonData = {
         Data Canvas highlights end-to-end workflows from preprocessing through
         QA and post-processing. {sourceLink("https://www.centific.com/products/data-canvas", "[2]")}
       </>,
+      <>
+        Centific was formerly known as Pactera EDGE before rebranding in 2023.
+        The company was co-founded by CEO Venkat Rangapuram and is
+        headquartered in the Seattle area with nearly 3,000 employees, the
+        majority based in India. Centific is an NVIDIA partner and has raised
+        $60 million in funding.{" "}
+        {sourceLink("https://www.geekwire.com/2025/centific-a-seattle-area-ai-services-startup-and-nvidia-partner-lands-60m/", "[4]")}
+      </>,
+      "Centific serves a broad range of AI use cases across its services portfolio, including data annotation, model evaluation, and AI-assisted workflows. Its OneForma platform connects a global crowd of contributors for multilingual data tasks. The company positions itself at the intersection of human expertise and AI tooling for enterprise clients building production AI systems.",
+      "For physical AI teams, the key question is whether you need a services-plus-platform model for labeling existing data or whether you need a capture-first pipeline that collects new physical-world data and enriches it with robotics-specific signals. Centific excels at the former. Claru is purpose-built for the latter.",
       "If your bottleneck is labeling workflows and AI data services, Centific is a strong fit. If your bottleneck is capture and enrichment of physical-world data, Claru is the better fit.",
     ],
   },
@@ -255,6 +265,20 @@ export const centificComparison: ComparisonData = {
         },
       },
       {
+        dimension: "Team size",
+        values: {
+          centific: "Nearly 3,000 employees globally, NVIDIA partner",
+          claru: "Specialized team with 10,000+ collectors worldwide",
+        },
+      },
+      {
+        dimension: "Funding",
+        values: {
+          centific: "$60M raised, formerly Pactera EDGE",
+          claru: "Venture-backed physical AI data company",
+        },
+      },
+      {
         dimension: "Best fit",
         values: {
           centific: "Teams needing AI data services + annotation tooling",
@@ -271,22 +295,29 @@ export const centificComparison: ComparisonData = {
       {
         title: "Services vs pipeline",
         paragraphs: [
-          "Centific provides data services and tooling through Data Canvas.",
-          "Claru delivers capture, enrichment, and training-ready datasets.",
+          "Centific provides data services and tooling through Data Canvas, backed by a team of nearly 3,000 employees and its OneForma global contributor platform. The company handles the full annotation lifecycle from preprocessing through QA and post-processing, with AI-assisted workflows to speed labeling throughput.",
+          "Claru delivers capture, enrichment, and training-ready datasets through an end-to-end pipeline. Rather than labeling existing data, Claru starts by designing capture briefs and deploying collectors to gather new physical-world data, then enriches it with depth, pose, segmentation, and motion signals.",
         ],
       },
       {
-        title: "Data ownership",
+        title: "Data ownership and sourcing",
         paragraphs: [
-          "Centific assumes you already have data to annotate.",
-          "Claru acquires new physical-world data and enriches it for training.",
+          "Centific assumes you already have data to annotate and need services to label, curate, and manage it. This model works well for enterprise teams with existing data pipelines who need to scale labeling operations without building internal tooling.",
+          "Claru acquires new physical-world data and enriches it for training. For robotics teams, the data itself is often the bottleneck, not the labeling capacity. Claru addresses this by running task-specific capture programs that produce data matching the target domain.",
+        ],
+      },
+      {
+        title: "Enterprise scale vs domain specialization",
+        paragraphs: [
+          "Centific operates at enterprise scale with $60M in funding, an NVIDIA partnership, and a global workforce. This makes them a strong choice for large organizations that need a trusted services partner for diverse AI data needs across LLMs, computer vision, and NLP.",
+          "Claru is domain-specialized for physical AI, robotics, and world models. This specialization means deeper expertise in the specific data types, enrichment layers, and delivery formats that embodied AI teams need, but with a narrower scope than a general-purpose services provider.",
         ],
       },
       {
         title: "Where each wins",
         paragraphs: [
-          "Centific is a strong fit for teams needing data services plus platform tooling.",
-          "Claru is better when capture and enrichment are the bottleneck.",
+          "Centific is a strong fit for teams needing data services plus platform tooling, especially enterprise organizations with diverse AI data needs across multiple modalities and model types.",
+          "Claru is better when capture and enrichment of physical-world data are the bottleneck, particularly for robotics and embodied AI teams that need custom data collection programs.",
         ],
       },
     ],
@@ -354,32 +385,56 @@ export const centificComparison: ComparisonData = {
     title: "Frequently Asked Questions",
     items: [
       {
-        question: "What is Data Canvas?",
+        question: "What is Centific?",
         answer: (
           <>
-            Data Canvas is an annotation and data transformation platform from
-            Centific. {sourceLink("https://www.centific.com/products/data-canvas", "[1]")}
+            Centific, formerly known as Pactera EDGE, is a Seattle-area AI data
+            services company co-founded by CEO Venkat Rangapuram. The company
+            rebranded in 2023 and has raised $60 million in funding. With nearly
+            3,000 employees and an NVIDIA partnership, Centific provides AI data
+            services and annotation tooling through its Data Canvas platform and
+            OneForma global contributor network.
+            {sourceLink("https://www.centific.com/products/data-canvas", "[1]")}
           </>
         ),
       },
       {
-        question: "What workflows does Data Canvas support?",
+        question: "What is Data Canvas?",
         answer: (
           <>
-            Data Canvas highlights workflows from preprocessing through QA and
-            post-processing. {sourceLink("https://www.centific.com/products/data-canvas", "[2]")}
+            Data Canvas is Centific&apos;s annotation and data transformation
+            platform. It supports end-to-end workflows from preprocessing
+            through QA and post-processing, with AI-assisted labeling features
+            to accelerate throughput. The platform handles multiple data types
+            and integrates with Centific&apos;s managed services team to provide
+            both tooling and human annotation capacity in a single offering.
+            {sourceLink("https://www.centific.com/products/data-canvas", "[2]")}
           </>
         ),
       },
       {
         question: "Is Centific a physical AI data provider?",
         answer:
-          "Centific focuses on data services and annotation tooling rather than capture-first physical data pipelines.",
+          "Centific focuses on data services and annotation tooling rather than capture-first physical data pipelines. They are well-suited for teams that already have data and need labeling, curation, and QA services at scale. However, if your bottleneck is collecting new physical-world data for robotics training, you need a provider with capture infrastructure and enrichment capabilities.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your model needs to learn from specific physical tasks, environments, or manipulation sequences, Claru designs custom capture programs and delivers enriched datasets with depth, pose, segmentation, and motion signals that plug directly into robotics training pipelines.",
+      },
+      {
+        question: "How large is Centific?",
+        answer: (
+          <>
+            Centific has nearly 3,000 employees globally with a majority based
+            in India. The company is an NVIDIA partner and has raised $60
+            million in funding. Through its OneForma platform, Centific also
+            connects to a global crowd of contributors for multilingual and
+            multimodal data tasks, extending its capacity beyond its core
+            employee base.
+            {sourceLink("https://www.geekwire.com/2025/centific-a-seattle-area-ai-services-startup-and-nvidia-partner-lands-60m/", "[4]")}
+          </>
+        ),
       },
     ],
   },
@@ -393,5 +448,6 @@ export const centificComparison: ComparisonData = {
   sources: [
     { label: "Centific Data Canvas", url: "https://www.centific.com/products/data-canvas" },
     { label: "Centific", url: "https://www.centific.com/" },
+    { label: "Centific Funding", url: "https://www.geekwire.com/2025/centific-a-seattle-area-ai-services-startup-and-nvidia-partner-lands-60m/" },
   ],
 };

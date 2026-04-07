@@ -83,6 +83,8 @@ export const humanloopComparison: ComparisonData = {
         2025, following the team joining Anthropic. {sourceLink("https://humanloop.com/", "[1]")}{" "}
         {sourceLink("https://docs.humanloop.com/changelog", "[3]")}
       </>,
+      "Humanloop was founded in London and quickly established itself as a leading platform for LLM evaluation and prompt engineering. The company raised venture funding and built a customer base among enterprise teams deploying LLM-powered applications. Humanloop's platform enabled product teams to run systematic evaluations, iterate on prompts, and monitor LLM performance in production. In a notable industry move, the Humanloop team joined Anthropic, leading to the announcement that the Humanloop platform would be sunset by September 2025.",
+      "The Humanloop acquisition by Anthropic reflects a broader trend in the AI industry where specialized tooling companies are being absorbed by foundation model providers. For teams that relied on Humanloop for LLM evaluation workflows, this creates a need to evaluate alternatives within the eval tooling category. For physical AI teams, the comparison is less about direct substitution and more about understanding the different data infrastructure requirements: LLM teams need eval and prompt tooling, while robotics teams need capture, enrichment, and training-ready dataset delivery.",
       "If your work depends on physical-world data capture and enrichment, the requirements are different from LLM eval workflows.",
     ],
   },
@@ -367,8 +369,9 @@ export const humanloopComparison: ComparisonData = {
         question: "What is Humanloop?",
         answer: (
           <>
-            Humanloop is an LLM evaluation platform with prompt management and
-            observability features. {sourceLink("https://docs.humanloop.com/", "[2]")}
+            Humanloop is an LLM evaluation platform with prompt management and observability features, founded in London.{" "}
+            {sourceLink("https://docs.humanloop.com/", "[2]")}{" "}
+            The platform was built to help enterprise teams deploy and monitor LLM-powered applications. Humanloop enabled product teams to run systematic evaluations against rubrics, iterate on prompts through version-controlled experiments, and monitor model performance in production. The company raised venture funding and built a customer base among teams building AI-powered products before the team joined Anthropic.
           </>
         ),
       },
@@ -376,20 +379,21 @@ export const humanloopComparison: ComparisonData = {
         question: "Is the Humanloop platform being sunset?",
         answer: (
           <>
-            Yes. Humanloop has announced a platform sunset date of September 8,
-            2025. {sourceLink("https://docs.humanloop.com/changelog", "[3]")}
+            Yes. Humanloop has announced a platform sunset date of September 8, 2025, following the team joining Anthropic.{" "}
+            {sourceLink("https://docs.humanloop.com/changelog", "[3]")}{" "}
+            This means teams currently using Humanloop for LLM evaluation and prompt management need to plan a migration to alternative tooling before the shutdown date. The acquisition reflects a broader trend of specialized AI tooling companies being absorbed by foundation model providers, which consolidates capabilities but disrupts existing workflows for enterprise users.
           </>
         ),
       },
       {
         question: "How is Humanloop different from Claru?",
         answer:
-          "Humanloop focuses on LLM evaluation workflows, while Claru focuses on physical AI data capture and enrichment for robotics.",
+          "Humanloop and Claru serve fundamentally different parts of the AI stack. Humanloop focuses on LLM evaluation workflows, prompt management, and observability for teams building text-based AI applications. Claru focuses on physical AI data capture and enrichment for robotics and embodied AI teams. The two companies address different customer segments with different requirements: LLM teams need eval tooling, while robotics teams need physical-world data collection, depth and pose enrichment, and training-ready dataset delivery.",
       },
       {
         question: "What outputs does Claru deliver?",
         answer:
-          "Claru delivers training-ready datasets in WebDataset, HDF5, RLDS, Parquet, and COCO, with enrichment layers aligned as side-channels.",
+          "Claru delivers training-ready datasets in formats including WebDataset, HDF5, RLDS, Parquet, and COCO, with enrichment layers aligned as side-channels to each clip. These enrichment layers include depth maps from monocular depth estimation, human pose estimation, instance segmentation masks, optical flow fields, and AI-generated captions. Each output is temporally aligned to the source video, enabling robotics teams to use any combination of signals during model training without additional preprocessing.",
       },
     ],
   },

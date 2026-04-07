@@ -52,8 +52,12 @@ export const buildAiComparison: ComparisonData = {
           Build AI
         </a>{" "}
         highlights the Egocentric-100K dataset, presented as 100K hours and
-        10.8B frames of egocentric video. If you need physical-world capture and
-        enrichment for robotics, Claru is built for physical AI from day one.
+        10.8B frames of egocentric video. Founded by 18-year-old Columbia
+        dropout Eddy Xu and backed by $15M in total funding from Abstract
+        Ventures, Pear VC, and HF0, Build AI has quickly become a notable
+        player in egocentric data for robotics. If you need physical-world
+        capture and enrichment for robotics, Claru is built for physical AI
+        from day one.
       </>
     ),
     lastUpdated: "March 31, 2026",
@@ -66,6 +70,8 @@ export const buildAiComparison: ComparisonData = {
       "The dataset includes 2,010,759 video clips and a WebDataset format.",
       "Tags include egocentric, video, and robotics.",
       "The dataset is described as the largest dataset of manual labor.",
+      "Build AI was founded by Eddy Xu, an 18-year-old Columbia dropout, and has raised $15M from Abstract Ventures, Pear VC, and HF0.",
+      "The dataset was collected from 14,228 factory workers wearing camera glasses for an average of 7 hours each, licensed under Apache 2.0.",
       "Claru is purpose-built for physical AI capture and multi-layer enrichment.",
       "Choose Build AI for a large egocentric dataset; choose Claru for capture + enrichment of robotics data.",
     ],
@@ -94,6 +100,22 @@ export const buildAiComparison: ComparisonData = {
         The dataset card describes Egocentric-100K as the largest dataset of
         manual labor. {sourceLink("https://huggingface.co/datasets/builddotai/Egocentric-100K", "[5]")}
       </>,
+      <>
+        Build AI was founded by Eddy Xu, who dropped out of Columbia at age 18
+        to focus on egocentric data for robotics. The company has raised $15
+        million in total funding from Abstract Ventures, Pear VC, and HF0, with
+        additional support from ZFellows.{" "}
+        {sourceLink("https://www.startuphub.ai/ai-news/funding-round/2025/build-ais-5m-bet-on-human-view-robotics/", "[6]")}
+      </>,
+      <>
+        The Egocentric-100K dataset was collected from 14,228 factory workers
+        who each wore camera glasses for an average of 7 hours. Each clip
+        averages 180 seconds in length, and the entire dataset is licensed under
+        Apache 2.0, making it available for commercial use with minimal
+        restrictions.{" "}
+        {sourceLink("https://mikekalil.com/blog/build-ai-ecocentric-100k-dataset/", "[7]")}
+      </>,
+      "For robotics teams, the key consideration is whether you need a large pre-existing egocentric dataset or whether you need custom data captured and enriched for your specific tasks. Build AI provides the former at impressive scale. Claru provides the latter with a full pipeline from capture brief to training-ready delivery.",
       "If your bottleneck is accessing large-scale egocentric datasets, Build AI is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -138,6 +160,19 @@ export const buildAiComparison: ComparisonData = {
                 {sourceLink("https://huggingface.co/datasets/builddotai/Egocentric-100K", "[4]")}
               </>
             ),
+          },
+          {
+            label: "Funding",
+            value: (
+              <>
+                $15M total from Abstract Ventures, Pear VC, HF0, and ZFellows.
+                {sourceLink("https://www.startuphub.ai/ai-news/funding-round/2025/build-ais-5m-bet-on-human-view-robotics/", "[6]")}
+              </>
+            ),
+          },
+          {
+            label: "License",
+            value: "Apache 2.0, commercial use permitted",
           },
           {
             label: "Best fit",
@@ -338,6 +373,20 @@ export const buildAiComparison: ComparisonData = {
         },
       },
       {
+        dimension: "Data licensing",
+        values: {
+          build: "Apache 2.0 open license",
+          claru: "Custom licensing with full IP transfer options",
+        },
+      },
+      {
+        dimension: "Customization",
+        values: {
+          build: "Fixed dataset, no custom capture",
+          claru: "Task-specific capture briefs and custom environments",
+        },
+      },
+      {
         dimension: "Best fit",
         values: {
           build: "Teams needing large egocentric datasets",
@@ -354,22 +403,29 @@ export const buildAiComparison: ComparisonData = {
       {
         title: "Dataset vs pipeline",
         paragraphs: [
-          "Build AI focuses on a large, fixed egocentric dataset.",
-          "Claru focuses on capturing new data tailored to specific tasks.",
+          "Build AI focuses on a large, fixed egocentric dataset collected from over 14,000 factory workers wearing camera glasses. The dataset is pre-built and available for download in WebDataset format, which makes it straightforward to stream into training pipelines.",
+          "Claru focuses on capturing new data tailored to specific tasks and environments. Rather than offering a fixed corpus, Claru designs capture briefs around the specific robot behaviors and manipulation tasks a team needs to train, then enriches that data with depth, pose, segmentation, and motion signals.",
         ],
       },
       {
         title: "Scale vs specificity",
         paragraphs: [
-          "Egocentric-100K emphasizes scale with 100K+ hours and billions of frames.",
-          "Claru emphasizes task-specific capture and enrichment depth.",
+          "Egocentric-100K emphasizes scale with 100K+ hours and billions of frames. This is valuable for teams that need broad pre-training data or want to fine-tune on diverse manual labor scenarios without worrying about data volume.",
+          "Claru emphasizes task-specific capture and enrichment depth. For teams building models that need to handle specific objects, environments, or manipulation sequences, having data that precisely matches the target domain often matters more than sheer volume.",
+        ],
+      },
+      {
+        title: "Licensing and flexibility",
+        paragraphs: [
+          "Build AI releases Egocentric-100K under Apache 2.0, which allows commercial use with minimal restrictions. This open approach makes it easy for research teams and startups to experiment without licensing negotiations.",
+          "Claru offers custom licensing with options for full IP transfer, exclusive datasets, and tailored capture programs. This is important for teams building proprietary models where data exclusivity provides a competitive advantage.",
         ],
       },
       {
         title: "Where each wins",
         paragraphs: [
-          "Build AI is strong when scale of egocentric data is the bottleneck.",
-          "Claru is stronger when custom capture and enrichment are required.",
+          "Build AI is strong when scale of egocentric data is the bottleneck and you want an off-the-shelf dataset you can start training on immediately.",
+          "Claru is stronger when custom capture and enrichment are required, especially when your robotics application needs data from specific environments, objects, or task sequences that do not exist in public datasets.",
         ],
       },
     ],
@@ -442,7 +498,12 @@ export const buildAiComparison: ComparisonData = {
         question: "What is Build AI?",
         answer: (
           <>
-            Build AI highlights the Egocentric-100K dataset on its homepage.
+            Build AI is a robotics data company founded by Eddy Xu, who dropped
+            out of Columbia at age 18 to build large-scale egocentric datasets
+            for physical AI. The company has raised $15 million in total funding
+            from Abstract Ventures, Pear VC, HF0, and ZFellows. Its flagship
+            product is the Egocentric-100K dataset, which it highlights
+            prominently on its homepage as the largest dataset of manual labor.
             {sourceLink("https://www.build.ai/", "[1]")}
           </>
         ),
@@ -451,7 +512,12 @@ export const buildAiComparison: ComparisonData = {
         question: "How large is Egocentric-100K?",
         answer: (
           <>
-            The dataset card lists 100,405 total hours and 10.8 billion frames.
+            The dataset card lists 100,405 total hours and 10.8 billion frames
+            across 2,010,759 video clips. The data was captured from 14,228
+            factory workers who each wore camera glasses for an average of 7
+            hours. Each clip averages 180 seconds in length. This makes it one
+            of the largest publicly available egocentric video datasets,
+            particularly for manual labor and industrial tasks.
             {sourceLink("https://huggingface.co/datasets/builddotai/Egocentric-100K", "[2]")}
           </>
         ),
@@ -461,7 +527,12 @@ export const buildAiComparison: ComparisonData = {
         answer: (
           <>
             Egocentric-100K is provided in WebDataset format with 2,010,759
-            video clips. {sourceLink("https://huggingface.co/datasets/builddotai/Egocentric-100K", "[3]")}
+            video clips. WebDataset is a streaming-friendly format that makes it
+            efficient to load large-scale video data directly into training
+            pipelines without downloading the entire dataset first. This is
+            particularly useful for teams running distributed training across
+            multiple GPUs or nodes.
+            {sourceLink("https://huggingface.co/datasets/builddotai/Egocentric-100K", "[3]")}
           </>
         ),
       },
@@ -469,7 +540,13 @@ export const buildAiComparison: ComparisonData = {
         question: "Is the dataset relevant to robotics?",
         answer: (
           <>
-            The dataset tags include video, egocentric, and robotics.
+            The dataset tags include video, egocentric, and robotics. The
+            first-person perspective of workers performing manual labor tasks
+            makes it relevant for training manipulation policies and world
+            models that need to understand hand-object interactions in real
+            factory environments. However, it focuses on a single domain
+            (factory work) and does not cover other robotics scenarios like
+            household tasks, logistics, or outdoor navigation.
             {sourceLink("https://huggingface.co/datasets/builddotai/Egocentric-100K", "[4]")}
           </>
         ),
@@ -479,24 +556,29 @@ export const buildAiComparison: ComparisonData = {
         answer: (
           <>
             The dataset card describes it as the largest dataset of manual
-            labor. {sourceLink("https://huggingface.co/datasets/builddotai/Egocentric-100K", "[5]")}
+            labor. This positioning reflects the growing recognition that
+            robotics models need large volumes of real-world human activity data
+            for pre-training, similar to how LLMs benefit from web-scale text
+            corpora. The Apache 2.0 license makes it accessible for both
+            research and commercial use.
+            {sourceLink("https://huggingface.co/datasets/builddotai/Egocentric-100K", "[5]")}
           </>
         ),
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets tailored to your specific use case. If your model needs to learn manipulation tasks in specific environments with specific objects, a custom capture program will produce more relevant training data than a general-purpose egocentric dataset. Claru also adds enrichment layers like depth maps, body and hand pose estimation, segmentation masks, and optical flow that are not included in Egocentric-100K.",
       },
       {
         question: "Can teams use both Build AI and Claru?",
         answer:
-          "Some teams use Build AI for a large egocentric dataset and Claru for capture-first physical AI datasets.",
+          "Yes. Some teams use Build AI for broad pre-training on large-scale egocentric data and then use Claru for task-specific fine-tuning data captured in their target domain. This two-stage approach lets teams benefit from the scale of Egocentric-100K while getting the precision and enrichment depth that comes from a custom capture program.",
       },
       {
         question: "Is Build AI a fit for custom capture?",
         answer:
-          "Build AI highlights a fixed dataset. Claru is better for task-specific capture and enrichment.",
+          "Build AI highlights a fixed dataset rather than custom capture services. If you need data collected in specific environments, with specific objects, or following specific task protocols, you will need a provider that offers custom capture programs. Claru designs capture briefs around real robot behaviors and environments, then delivers enriched datasets ready for robotics training pipelines.",
       },
     ],
   },
@@ -510,5 +592,7 @@ export const buildAiComparison: ComparisonData = {
   sources: [
     { label: "Build AI", url: "https://www.build.ai/" },
     { label: "Egocentric-100K Dataset", url: "https://huggingface.co/datasets/builddotai/Egocentric-100K" },
+    { label: "Build AI Funding", url: "https://www.startuphub.ai/ai-news/funding-round/2025/build-ais-5m-bet-on-human-view-robotics/" },
+    { label: "Build AI Dataset Overview", url: "https://mikekalil.com/blog/build-ai-ecocentric-100k-dataset/" },
   ],
 };

@@ -101,6 +101,9 @@ export const appenComparison: ComparisonData = {
         The company highlights 25+ years of expertise in collection, curation,
         and annotation. {sourceLink("https://www.appen.com/ai-data", "[6]")}
       </>,
+      "Appen was founded in 1996 and is headquartered in Chatswood, Australia. The company is publicly traded on the Australian Securities Exchange under the ticker APX. With over 25 years in the AI data industry, Appen has built one of the largest crowd workforces in the market, with more than one million contributors operating across 170 or more countries. The company has historically counted major technology companies among its largest customers.",
+      "In recent years, Appen has navigated significant market challenges as AI labs increasingly shifted toward synthetic data and automated labeling pipelines. The company's revenue declined from peak levels but showed signs of stabilization in 2025, with approximately 135 to 145 million Australian dollars in half-year revenue. Despite these headwinds, Appen remains one of the most recognized brands in the AI data industry and continues to invest in its platform and services.",
+      "For physical AI and robotics teams, the key consideration is that Appen's strength lies in scale and breadth rather than domain specialization. Their crowd workforce can handle large-volume annotation across standard modalities, but robotics training data typically requires specialized capture protocols with wearable cameras, task-specific environments, and enrichment layers like depth estimation, 3D pose extraction, and optical flow that are not part of a generalized crowd annotation workflow.",
       "If your bottleneck is global data collection and annotation at scale, Appen is a strong fit. If your bottleneck is physical-world capture and enrichment, Claru is the better fit.",
     ],
   },

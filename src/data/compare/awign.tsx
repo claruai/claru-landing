@@ -100,6 +100,9 @@ export const awignComparison: ComparisonData = {
         vision model training and data collection.
         {sourceLink("https://apps.apple.com/fr/app/awign-metavision/id6755611813", "[5]")}
       </>,
+      "Awign was founded in 2016 in Bangalore, India, by IIT alumni Annanya Sarthak, Gurpreet Singh, and Praveen Sah. The company has raised approximately 27.5 million dollars in total funding from investors including Capria, Bertelsmann India Investments, and Michael and Susan Dell Foundation, with a 15 million dollar Series B round co-led by Bertelsmann India Investments and Amicus Capital Partners. In April 2024, Awign was acquired by Mynavi Corporation, a Japanese human resources company, with plans to generate one billion dollars in revenue by 2030.",
+      "Awign positions itself as India's largest work-as-a-service platform, connecting professionals with enterprise workstreams across auditing, assessments, new business development, and digital gigs. Their AI data operations division handles data annotation at scale with claims of 10 million or more labeled data points per month and 99 percent or higher accuracy checks. The MetaVision app enables first-person capture of video, audio, and sensor data including LiDAR for computer vision training data collection.",
+      "For physical AI teams, Awign's combination of egocentric video capture through MetaVision and large-scale annotation workforce is noteworthy. However, Awign's primary business remains a broader gig workforce platform rather than a purpose-built robotics data pipeline. Teams that need specialized enrichment layers like depth estimation, 3D pose extraction, and optical flow as standard outputs alongside capture may find that a provider like Claru, which is built specifically for the capture-to-enrichment-to-delivery workflow, is a better fit.",
       "If your bottleneck is large-scale data operations and annotation services, Awign is a strong fit. If your bottleneck is physical-world capture and enrichment for robotics, Claru is the better fit.",
     ],
   },
@@ -428,8 +431,7 @@ export const awignComparison: ComparisonData = {
         question: "What is Awign?",
         answer: (
           <>
-            Awign describes itself as a work-as-a-service provider supporting
-            enterprise workstreams.
+            Awign is India's largest work-as-a-service platform, founded in 2016 in Bangalore by IIT alumni Annanya Sarthak, Gurpreet Singh, and Praveen Sah. The company has raised approximately 27.5 million dollars in funding and was acquired by Japanese HR company Mynavi Corporation in April 2024. Awign connects professionals with enterprise workstreams across auditing, assessments, data operations, and digital gigs, with an AI data division handling annotation and egocentric video capture.{" "}
             {sourceLink("https://experts.awign.com/fraud-advisory", "[1]")}
           </>
         ),
@@ -438,8 +440,7 @@ export const awignComparison: ComparisonData = {
         question: "Does Awign offer robotics data services?",
         answer: (
           <>
-            Awign lists egocentric video data for robotics with 4K POV capture
-            and high-volume collection claims.
+            Yes. Awign lists egocentric video data for robotics with 4K first-person capture and claims of 1,000 or more hours per day, plus robotics-grade annotation accuracy. Their MetaVision app enables first-person capture of video, audio, and sensor data including LiDAR options. However, Awign's primary business is a broader gig workforce platform, with robotics data being one vertical among many rather than the core focus.{" "}
             {sourceLink("https://www.awign.com/", "[2]")}
           </>
         ),
@@ -448,15 +449,24 @@ export const awignComparison: ComparisonData = {
         question: "What compliance claims does Awign list?",
         answer: (
           <>
-            Awign reports ISO 27001 and ISO 9001 certifications.
+            Awign reports ISO 27001 certification for information security management and ISO 9001 certification for quality management systems. These enterprise-grade certifications are relevant for organizations with strict compliance requirements around data handling and quality processes. The certifications cover Awign's broader operations, not just their AI data division.{" "}
             {sourceLink("https://blogs.awign.com/awign-achieves-iso-27001-iso-9001-certificates/", "[4]")}
+          </>
+        ),
+      },
+      {
+        question: "What is the MetaVision app?",
+        answer: (
+          <>
+            MetaVision is Awign's mobile application for first-person data capture, published on the App Store. It captures video, audio, and sensor data including LiDAR options for computer vision model training and data collection. The app enables Awign's gig workers to collect egocentric data as part of their regular work tasks, creating a scalable collection infrastructure.{" "}
+            {sourceLink("https://apps.apple.com/fr/app/awign-metavision/id6755611813", "[5]")}
           </>
         ),
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need a purpose-built physical AI data pipeline with specialized enrichment layers like depth estimation, 3D pose extraction, segmentation, and optical flow as standard outputs. While Awign offers egocentric capture through MetaVision and large-scale annotation, Claru is designed from the ground up for the capture-to-enrichment-to-delivery workflow that robotics teams require.",
       },
     ],
   },

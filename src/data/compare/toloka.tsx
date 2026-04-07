@@ -58,6 +58,10 @@ export const tolokaComparison: ComparisonData = {
         for physical AI from day one.
       </>
     ),
+    paragraphs: [
+      "Toloka was originally developed within Yandex, Russia's largest technology company, and spun out as an independent company focused on AI data labeling at scale. The platform has grown to serve global AI teams with a combination of AI-guided automation and a large distributed workforce of human experts spanning over 90 domains. Toloka differentiates itself through its AI Assistant technology, which uses machine learning to optimize task routing, quality scoring, and labeling efficiency, while its LLM quality assurance system provides continuous monitoring of labeling accuracy.",
+      "While Toloka provides strong capabilities for AI-guided labeling across many domains, the platform is designed to process data that already exists rather than capture new physical-world data. Robotics and embodied AI teams face a distinct challenge: they need to collect task-specific demonstrations, egocentric video, and manipulation sequences from real environments using structured capture programs with wearable cameras and defined protocols. The resulting data must then be enriched with depth estimation, 3D pose reconstruction, optical flow, and temporal action labels. Toloka can label frames after capture, but it does not provide the upstream collection infrastructure or computational enrichment pipeline that physical AI training requires. Claru fills this gap with a purpose-built capture-to-delivery pipeline.",
+    ],
     lastUpdated: "March 31, 2026",
   },
   tldr: {
@@ -438,8 +442,8 @@ export const tolokaComparison: ComparisonData = {
         question: "What is Toloka?",
         answer: (
           <>
-            Toloka highlights an AI-guided data labeling platform with an AI
-            Assistant. {sourceLink("https://toloka.ai/data-labeling-platform/", "[1]")}
+            Toloka highlights an AI-guided data labeling platform with an AI Assistant. Originally developed within Yandex, Russia&apos;s largest technology company, Toloka spun out as an independent company focused on scalable data labeling. The platform combines AI-guided automation with a distributed human expert workforce spanning over 90 domains, optimizing task routing, quality scoring, and labeling efficiency through machine learning.
+            {sourceLink("https://toloka.ai/data-labeling-platform/", "[1]")}
           </>
         ),
       },
@@ -447,7 +451,7 @@ export const tolokaComparison: ComparisonData = {
         question: "How does Toloka handle quality?",
         answer: (
           <>
-            Toloka mentions always-on LLM quality assurance.
+            Toloka mentions always-on LLM quality assurance as part of its platform offering. This system provides continuous monitoring of labeling accuracy by using language models to evaluate annotator outputs in real time. The approach helps catch quality issues before they propagate through large-scale labeling programs, reducing the need for manual review passes and improving overall dataset consistency across distributed annotation teams.
             {sourceLink("https://toloka.ai/data-labeling-platform/", "[3]")}
           </>
         ),
@@ -456,7 +460,7 @@ export const tolokaComparison: ComparisonData = {
         question: "What workforce does Toloka mention?",
         answer: (
           <>
-            Toloka references human expert data across 90+ domains.
+            Toloka references human expert data across 90+ domains. The platform maintains a global workforce of annotators with verified expertise in specific subject areas, allowing it to match labeling tasks with appropriately skilled workers. This domain coverage is valuable for text, image, and general computer vision labeling, though robotics data capture requires specialized physical-world collectors rather than digital annotators.
             {sourceLink("https://toloka.ai/data-labeling-platform/", "[2]")}
           </>
         ),
@@ -465,31 +469,31 @@ export const tolokaComparison: ComparisonData = {
         question: "Is Toloka quick to start?",
         answer: (
           <>
-            The platform description emphasizes AI-guided setup and quick
-            start. {sourceLink("https://toloka.ai/data-labeling-platform/", "[4]")}
+            The platform description emphasizes AI-guided setup and quick start capabilities. Toloka uses its AI Assistant to help teams configure labeling projects, define quality parameters, and launch annotation programs without extensive manual setup. This reduces the time from project definition to labeling start, though it addresses the labeling phase rather than the upstream data capture and enrichment phases that physical AI teams need.
+            {sourceLink("https://toloka.ai/data-labeling-platform/", "[4]")}
           </>
         ),
       },
       {
         question: "Is Toloka a fit for robotics data capture?",
         answer:
-          "Toloka focuses on labeling platforms. Claru is better for capture-first robotics data collection and enrichment.",
+          "Toloka focuses on labeling platforms for existing data rather than physical-world data capture. Robotics teams need task-specific collection programs with wearable cameras, structured demonstration protocols, and enrichment pipelines that produce depth maps, pose estimations, optical flow, and spatial annotations. These requirements are fundamentally different from distributed annotation tasks. Claru is better suited for capture-first robotics data collection and enrichment.",
       },
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If your team is training embodied AI models that require egocentric video, depth maps, human pose estimation, and action-labeled demonstrations collected from real-world environments, Claru provides the complete pipeline from physical collection through multi-layer enrichment to training-ready delivery.",
       },
       {
         question: "Can teams use both Toloka and Claru?",
         answer:
-          "Some teams use Toloka for labeling workflows and Claru for capture-first physical AI datasets.",
+          "Some teams use Toloka for labeling workflows on text and image data while using Claru for capture-first physical AI datasets. In this setup, Toloka handles annotation tasks where data already exists and needs human labeling, while Claru handles the upstream pipeline of collecting new physical-world demonstrations and enriching them with depth, pose, and motion signals for robotics training.",
       },
       {
         question: "Does Toloka mention AI assistance?",
         answer: (
           <>
-            Toloka highlights an AI Assistant in its platform description.
+            Toloka highlights an AI Assistant in its platform description that helps optimize task routing, quality scoring, and project configuration. The AI-guided features use machine learning to improve labeling efficiency by matching tasks with appropriate annotators, predicting quality issues before they occur, and automating routine aspects of project setup and management.
             {sourceLink("https://toloka.ai/data-labeling-platform/", "[1]")}
           </>
         ),

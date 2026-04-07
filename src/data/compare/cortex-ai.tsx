@@ -85,6 +85,22 @@ export const cortexAiComparison: ComparisonData = {
         Cortex AI also provides robot trajectories for fine-tuning world models
         and robotics systems. {sourceLink("https://cortexrobot.ai/", "[3]")}
       </>,
+      <>
+        Cortex AI was founded in 2025 by Lucas Ngoo, who previously co-founded
+        and served as CTO of Carousell, scaling it to a $1B+ valuation
+        marketplace across Asia. The company is based in San Francisco and is
+        part of Y Combinator&apos;s Fall 2025 batch.{" "}
+        {sourceLink("https://www.ycombinator.com/companies/cortex-ai", "[4]")}
+      </>,
+      <>
+        Cortex AI has raised $6 million in seed funding from 500 Global. The
+        company collects data from real workplaces and industrial settings,
+        providing not just egocentric video but also robot trajectories from
+        manipulators and humanoids, as well as human-in-the-loop rollouts
+        where remote operators recover robots when they fail.{" "}
+        {sourceLink("https://cortexrobot.ai/", "[5]")}
+      </>,
+      "Cortex AI is one of the closest competitors to Claru in terms of domain focus, as both companies specialize in physical AI data. The key distinction is that Cortex AI focuses heavily on egocentric data from workplace settings, while Claru provides a broader capture-and-enrichment pipeline that can be tailored to any physical AI task, environment, or manipulation scenario.",
       "If your bottleneck is egocentric robotics data, Cortex AI is a strong fit. If your bottleneck is broader physical-world capture and enrichment, Claru is the better fit.",
     ],
   },
@@ -269,6 +285,20 @@ export const cortexAiComparison: ComparisonData = {
         },
       },
       {
+        dimension: "Founding",
+        values: {
+          cortex: "2025, YC F25, founded by former Carousell CTO Lucas Ngoo",
+          claru: "Purpose-built for physical AI from day one",
+        },
+      },
+      {
+        dimension: "Funding",
+        values: {
+          cortex: "$6M seed from 500 Global",
+          claru: "Venture-backed physical AI data company",
+        },
+      },
+      {
         dimension: "Best fit",
         values: {
           cortex: "Teams needing egocentric robotics datasets",
@@ -371,7 +401,13 @@ export const cortexAiComparison: ComparisonData = {
         question: "What is Cortex AI?",
         answer: (
           <>
-            Cortex AI focuses on egocentric data collection for robotics.
+            Cortex AI is a San Francisco-based company founded in 2025 by
+            Lucas Ngoo, the former co-founder and CTO of Carousell (a $1B+
+            marketplace). The company is part of Y Combinator&apos;s Fall 2025
+            batch and has raised $6 million in seed funding from 500 Global.
+            Cortex AI focuses on collecting large-scale egocentric data from
+            real workplaces for robotics and embodied AI training, including
+            hand/body pose, depth, subtask labels, and robot trajectories.
             {sourceLink("https://cortexrobot.ai/", "[1]")}
           </>
         ),
@@ -380,8 +416,14 @@ export const cortexAiComparison: ComparisonData = {
         question: "What annotations does Cortex AI provide?",
         answer: (
           <>
-            Cortex AI highlights hand pose, body pose, depth, and subtask
-            annotations. {sourceLink("https://cortexrobot.ai/", "[2]")}
+            Cortex AI provides rich annotations including hand pose, body pose,
+            depth maps, and subtask labels for egocentric video data. These
+            annotations are designed to be directly useful for training robotics
+            manipulation policies and world models. The company also provides
+            human-in-the-loop rollouts where remote operators recover robots
+            when they fail, generating additional training signal from recovery
+            behaviors.
+            {sourceLink("https://cortexrobot.ai/", "[2]")}
           </>
         ),
       },
@@ -389,7 +431,12 @@ export const cortexAiComparison: ComparisonData = {
         question: "Does Cortex AI provide robot trajectories?",
         answer: (
           <>
-            Cortex AI notes robot trajectories for fine-tuning world models.
+            Yes. Cortex AI collects robot trajectories from manipulators and
+            humanoids operating in real industrial settings. These trajectories
+            can be used for fine-tuning world models and policy training. This
+            distinguishes Cortex AI from pure data collection companies, as
+            they bridge the gap between human demonstration data and robot
+            execution data.
             {sourceLink("https://cortexrobot.ai/", "[3]")}
           </>
         ),
@@ -397,7 +444,12 @@ export const cortexAiComparison: ComparisonData = {
       {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets across multiple task types.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets across multiple task types. While Cortex AI focuses primarily on workplace egocentric data, Claru provides a broader pipeline that can be tailored to any physical AI task, environment, or manipulation scenario. Claru also adds enrichment layers like segmentation masks and optical flow that complement the depth and pose signals both companies provide.",
+      },
+      {
+        question: "How do Cortex AI and Claru compare as physical AI data providers?",
+        answer:
+          "Both companies specialize in physical AI data, making them among the most directly comparable providers in this space. Cortex AI is newer (founded 2025, YC F25) and focuses on egocentric workplace data with robot trajectories. Claru provides a broader capture-and-enrichment pipeline that can be customized for any robotics use case. Some teams may evaluate both providers depending on whether they need workplace-specific egocentric data or custom capture programs for their target domain.",
       },
     ],
   },

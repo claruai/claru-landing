@@ -57,6 +57,10 @@ export const lightlyAiComparison: ComparisonData = {
       </>
     ),
     lastUpdated: "March 31, 2026",
+    paragraphs: [
+      "Lightly is a Zurich-based company that focuses on intelligent data curation for computer vision. Founded in 2020, the company has built a platform that helps CV teams select the most informative subsets from large pools of unlabeled data, reducing annotation costs while maintaining or improving model performance. Lightly's approach uses self-supervised learning and active learning techniques to identify which frames or images are most valuable to label next. The company has raised venture funding and serves customers in autonomous driving, manufacturing inspection, and other CV-heavy verticals.",
+      "For physical AI teams, Lightly's data curation capabilities are interesting but address a different bottleneck than what most robotics labs face. LightlyEdge, which runs on edge devices to select valuable data at the point of capture, is conceptually relevant to field data collection. However, Lightly does not operate its own capture network, does not deploy wearable camera operators for egocentric video collection, and does not produce enrichment layers such as depth estimation, human pose extraction, or optical flow. Teams building robotics foundation models need to generate new task-specific physical-world recordings with aligned spatial signals, which is a data generation challenge rather than a data curation challenge.",
+    ],
   },
   tldr: {
     title: "TL;DR",
@@ -299,10 +303,17 @@ export const lightlyAiComparison: ComparisonData = {
         ],
       },
       {
+        title: "Robotics AI data challenges",
+        paragraphs: [
+          "Robotics foundation models like RT-2, Octo, and pi0 require training datasets that pair egocentric video with dense spatial signals: per-frame depth maps, full-body and hand pose skeletons, semantic segmentation masks, and optical flow. These datasets often do not exist yet. The challenge is generating them, not curating existing pools of data to find the most informative samples.",
+          "Claru addresses this generation challenge by deploying trained operators with wearable cameras to capture task-specific video in real environments and then applying automated enrichment pipelines that produce depth, pose, segmentation, and motion outputs aligned to each frame. Datasets ship in robotics-native formats like RLDS, LeRobot, or HDF5 for direct ingestion into training pipelines.",
+        ],
+      },
+      {
         title: "Where each wins",
         paragraphs: [
-          "Lightly is strong when you need to curate and prioritize CV datasets.",
-          "Claru is stronger when physical-world capture is the bottleneck.",
+          "Lightly is strong when you need to curate and prioritize CV datasets. If you have massive pools of unlabeled images or video from edge devices and need to identify which subsets to label first for maximum model improvement, Lightly's active learning and curation approach is well-suited.",
+          "Claru is stronger when physical-world capture is the bottleneck. If the data you need does not exist yet and you need task-specific recordings from real environments with aligned spatial enrichment signals, Claru addresses that data generation challenge directly.",
         ],
       },
     ],
@@ -373,8 +384,8 @@ export const lightlyAiComparison: ComparisonData = {
         question: "What is Lightly?",
         answer: (
           <>
-            Lightly focuses on data curation and labeling workflows for computer
-            vision teams. {sourceLink("https://www.lightly.ai/", "[1]")}
+            Lightly is a Zurich-based company founded in 2020 that focuses on intelligent data curation for computer vision. The platform uses self-supervised learning and active learning techniques to help CV teams identify which frames or images from large unlabeled pools are most valuable to annotate. Lightly has raised venture funding and serves customers in autonomous driving, manufacturing inspection, and other computer vision verticals where data selection efficiency directly impacts model performance and annotation costs.
+            {sourceLink("https://www.lightly.ai/", "[1]")}
           </>
         ),
       },
@@ -382,8 +393,8 @@ export const lightlyAiComparison: ComparisonData = {
         question: "What is LightlyStudio?",
         answer: (
           <>
-            LightlyStudio combines labeling, curation, QA, and dataset
-            management in a single platform. {sourceLink("https://www.lightly.ai/", "[2]")}
+            LightlyStudio combines labeling, curation, QA, and dataset management in a single integrated platform. It allows teams to explore datasets visually, identify data quality issues, select informative subsets for labeling, and manage annotation workflows without switching between tools. The integration of curation and labeling in one interface is Lightly's core differentiator, enabling data-centric ML workflows where teams focus on improving data quality rather than just model architecture.
+            {sourceLink("https://www.lightly.ai/", "[2]")}
           </>
         ),
       },
@@ -391,15 +402,20 @@ export const lightlyAiComparison: ComparisonData = {
         question: "What is LightlyEdge used for?",
         answer: (
           <>
-            LightlyEdge provides data selection for edge devices to capture the
-            most useful data. {sourceLink("https://docs.lightly.ai/edge/cpp/", "[3]")}
+            LightlyEdge provides on-device data selection for edge cameras and IoT devices to capture only the most useful data. Rather than uploading all captured frames to the cloud for later curation, LightlyEdge runs lightweight selection algorithms directly on the device to filter out redundant or uninformative data at the point of capture. This reduces bandwidth costs and storage requirements while ensuring that the most valuable observations are retained for labeling and model training.
+            {sourceLink("https://docs.lightly.ai/edge/cpp/", "[3]")}
           </>
         ),
       },
       {
+        question: "Is Lightly relevant for robotics AI?",
+        answer:
+          "Lightly's data curation approach is relevant for teams that already have large pools of robotics-adjacent data and need to prioritize which samples to label. However, Lightly does not capture new physical-world data, deploy wearable camera operators, or generate enrichment layers like depth estimation or optical flow. For robotics teams where the core challenge is generating new task-specific training data with spatial signals, a capture-first provider like Claru is more directly applicable.",
+      },
+      {
         question: "When is Claru a better fit?",
         answer:
-          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets.",
+          "Claru is a better fit when you need capture, enrichment, and delivery of robotics-ready datasets. If the training data you need does not exist yet and you require new physical-world recordings from real environments with aligned depth, pose, segmentation, and motion signals, Claru addresses that data generation challenge. Lightly is better suited for teams that already have large datasets and need intelligent curation to maximize labeling ROI.",
       },
     ],
   },
