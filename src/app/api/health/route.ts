@@ -10,23 +10,36 @@ export async function GET() {
 
   // Supabase connectivity
   const sbStart = Date.now();
-  try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    );
-    const { error } = await supabase.from("datasets").select("id", { count: "exact", head: true });
-    checks.supabase = {
-      status: error ? "fail" : "ok",
-      latency_ms: Date.now() - sbStart,
-      ...(error && { error: error.message }),
-    };
-  } catch (e) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) {
     checks.supabase = {
       status: "fail",
       latency_ms: Date.now() - sbStart,
-      error: e instanceof Error ? e.message : "Unknown error",
+      error: "Missing SUPABASE env vars",
     };
+  } else {
+    try {
+      const supabase = createClient(url, key);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000);
+      const { error } = await supabase
+        .from("datasets")
+        .select("id", { count: "exact", head: true })
+        .abortSignal(controller.signal);
+      clearTimeout(timeout);
+      checks.supabase = {
+        status: error ? "fail" : "ok",
+        latency_ms: Date.now() - sbStart,
+        ...(error && { error: error.message }),
+      };
+    } catch (e) {
+      checks.supabase = {
+        status: "fail",
+        latency_ms: Date.now() - sbStart,
+        error: e instanceof Error ? e.message : "Unknown error",
+      };
+    }
   }
 
   const allOk = Object.values(checks).every((c) => c.status === "ok");
