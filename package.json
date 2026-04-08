@@ -37,6 +37,7 @@
     "@react-three/postprocessing": "^3.0.4",
     "@remotion/player": "^4.0.443",
     "@remotion/three": "^4.0.443",
+    "@sentry/nextjs": "^10.47.0",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.97.0",
     "@trigger.dev/sdk": "^4.4.3",
@@ -69,11 +70,11 @@
     "@rspack/binding-darwin-arm64": "npm:@rspack/binding-linux-x64-gnu@1.7.6"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@remotion/bundler": "^4.0.443",
     "@remotion/cli": "^4.0.443",
     "@remotion/lambda": "^4.0.443",
     "@remotion/renderer": "^4.0.443",
-    "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/papaparse": "^5.5.2",
