@@ -5,7 +5,16 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 import { usePostHog } from "posthog-js/react";
-import { LogOut, FolderOpen, Home, Sun, Moon } from "lucide-react";
+import {
+  LogOut,
+  FolderOpen,
+  Home,
+  Sun,
+  Moon,
+  Inbox,
+  GitBranch,
+  Search,
+} from "lucide-react";
 import { useTheme } from "next-themes";
 
 function getSupabaseBrowserClient() {
@@ -15,12 +24,22 @@ function getSupabaseBrowserClient() {
   );
 }
 
-const navItems = [
+const portalNavItems = [
   { href: "/portal", label: "Dashboard", icon: Home, exact: true },
-  { href: "/portal/catalog", label: "Catalog", icon: FolderOpen, exact: false },
+  {
+    href: "/portal/catalog",
+    label: "Catalog",
+    icon: FolderOpen,
+    exact: false,
+  },
 ];
 
-export function PortalNav() {
+interface PortalNavProps {
+  isAdmin?: boolean;
+  pendingCount?: number;
+}
+
+export function PortalNav({ isAdmin = false, pendingCount = 0 }: PortalNavProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
@@ -40,6 +59,9 @@ export function PortalNav() {
     router.replace("/portal/login");
   }
 
+  const isNavActive = (href: string, exact: boolean) =>
+    exact ? pathname === href : pathname === href || pathname.startsWith(href + "/");
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-[var(--bg-primary)]/90 backdrop-blur-md border-b border-[var(--border-subtle)]">
       <div className="mx-auto flex h-full max-w-[var(--container-max)] items-center justify-between px-[var(--container-padding)]">
@@ -53,16 +75,15 @@ export function PortalNav() {
 
         {/* Navigation */}
         <nav className="flex items-center gap-1">
-          {navItems.map((item) => {
-            const isActive = item.exact
-              ? pathname === item.href
-              : pathname === item.href || pathname.startsWith(item.href + "/");
+          {/* Portal tabs */}
+          {portalNavItems.map((item) => {
+            const active = isNavActive(item.href, item.exact);
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-mono transition-colors duration-200 ${
-                  isActive
+                  active
                     ? "text-[var(--accent-primary)] bg-[var(--accent-primary)]/10"
                     : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
                 }`}
@@ -73,14 +94,71 @@ export function PortalNav() {
             );
           })}
 
+          {/* Admin tabs — only rendered for admins */}
+          {isAdmin && (
+            <>
+              <div className="mx-2 h-5 w-px bg-[var(--border-subtle)]" />
+
+              {/* Queue */}
+              <Link
+                href="/admin/queue"
+                className={`relative flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-mono transition-colors duration-200 ${
+                  pathname.startsWith("/admin/queue")
+                    ? "text-[var(--accent-primary)] bg-[var(--accent-primary)]/10"
+                    : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
+                }`}
+              >
+                <Inbox className="h-4 w-4" strokeWidth={1.5} />
+                <span className="hidden sm:inline">Queue</span>
+                {pendingCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#92B090] px-1 text-[10px] font-bold text-black">
+                    {pendingCount > 99 ? "99+" : pendingCount}
+                  </span>
+                )}
+              </Link>
+
+              {/* Pipeline */}
+              <Link
+                href="/admin/pipeline"
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-mono transition-colors duration-200 ${
+                  pathname.startsWith("/admin/pipeline")
+                    ? "text-[var(--accent-primary)] bg-[var(--accent-primary)]/10"
+                    : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
+                }`}
+              >
+                <GitBranch className="h-4 w-4" strokeWidth={1.5} />
+                <span className="hidden sm:inline">Pipeline</span>
+              </Link>
+
+              {/* Prospects */}
+              <Link
+                href="/admin/prospects"
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-mono transition-colors duration-200 ${
+                  pathname.startsWith("/admin/prospects")
+                    ? "text-[var(--accent-primary)] bg-[var(--accent-primary)]/10"
+                    : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
+                }`}
+              >
+                <Search className="h-4 w-4" strokeWidth={1.5} />
+                <span className="hidden sm:inline">Prospects</span>
+              </Link>
+            </>
+          )}
+
           {/* Divider */}
           <div className="mx-2 h-5 w-px bg-[var(--border-subtle)]" />
 
           {/* Theme Toggle */}
           <button
-            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+            onClick={() =>
+              setTheme(resolvedTheme === "dark" ? "light" : "dark")
+            }
             className="flex items-center justify-center p-2 rounded-md text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-colors duration-200"
-            aria-label={mounted && resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            aria-label={
+              mounted && resolvedTheme === "dark"
+                ? "Switch to light mode"
+                : "Switch to dark mode"
+            }
           >
             {!mounted ? (
               <div className="h-4 w-4" />
