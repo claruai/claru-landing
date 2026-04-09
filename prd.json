@@ -1,359 +1,476 @@
 {
   "project": "Claru Landing",
-  "branchName": "ralph/unified-clip-architecture",
-  "description": "Unified Clip Architecture — single clips table, dataset_clips join table, one search mode, structured enrichment columns. Staging DB first.",
+  "branchName": "ralph/reply-queue",
+  "description": "Agent-First CRM Phase 1: Three-Mode Admin Panel \u2014 (1) Inbox Queue at /admin/queue (inbox watcher, reply classification, draft responses, approval UI), (2) Active Pipeline at /admin/pipeline (all active convos, who owes what, days silent, Smartlead campaign + step), (3) Prospect Discovery at /admin/prospects (signal scanning from knowledge graph, queue new leads into Smartlead).",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Create clips table DDL on staging",
-      "description": "As a developer, I need the clips table created on staging with all structured columns.",
+      "title": "Create reply_queue table migration",
+      "description": "As a developer, I need the reply_queue table created in Supabase with all columns, constraints, RLS, and indexes.",
       "acceptanceCriteria": [
-        "Create clips table with: id (uuid PK), s3_bucket (text NOT NULL), s3_key (text NOT NULL), mime_type, filename, UNIQUE(s3_bucket, s3_key)",
-        "Add annotation columns: ann_metadata (jsonb), ann_annotation_key (text), ann_specs_key (text)",
-        "Add technical columns: tech_file_size_bytes (bigint), tech_duration_seconds (numeric), tech_resolution_width (int), tech_resolution_height (int), tech_fps (numeric), tech_codec (text), tech_bit_depth (int)",
-        "Add AI columns: ai_caption (text), ai_agent_context (jsonb), ai_enrichment_source (text), ai_enrichment_json (jsonb)",
-        "Add derived fields: caption_text (text), embedding vector(768), caption_rebuilt_at (timestamptz)",
-        "Add timestamps: created_at, updated_at with auto-update trigger",
-        "Create HNSW index on embedding column",
-        "Create GIN index on ann_metadata",
-        "Create btree index on s3_bucket",
-        "Enable RLS with service-role-only policy",
-        "Apply via Supabase MCP on staging DB (kpjcbemvwxffibiohmvi)",
-        "Verify table exists with correct columns",
+        "Create reply_queue table with columns: id (uuid PK), lead_id (uuid FK nullable to leads), inbox (text NOT NULL CHECK claru/moonvalley), sender_email (text NOT NULL), sender_name (text), gmail_message_id (text NOT NULL), gmail_thread_id (text), received_at (timestamptz NOT NULL), subject (text), body_full (text), body_snippet (text GENERATED ALWAYS AS left(body_full, 500) STORED), classification (text NOT NULL CHECK IN interested/question/requirements/not_interested/bounce/internal_forward/unsubscribe/unknown), draft_response (text), draft_status (text NOT NULL DEFAULT pending CHECK IN pending/approved/dismissed/sent/snoozed/needs_manual_draft), snoozed_until (timestamptz), approved_at (timestamptz), sent_at (timestamptz), created_at (timestamptz DEFAULT now()), updated_at (timestamptz DEFAULT now())",
+        "Add composite unique constraint: ALTER TABLE reply_queue ADD CONSTRAINT reply_queue_inbox_message_unique UNIQUE (inbox, gmail_message_id)",
+        "Add partial index: CREATE INDEX idx_reply_queue_pending ON reply_queue (draft_status, received_at DESC) WHERE draft_status IN ('pending', 'snoozed', 'needs_manual_draft')",
+        "Enable RLS with no policies (default deny): ALTER TABLE reply_queue ENABLE ROW LEVEL SECURITY",
+        "Add updated_at trigger: CREATE TRIGGER set_updated_at BEFORE UPDATE ON reply_queue FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()",
+        "Migration file created at supabase/migrations/ with timestamped name",
         "Typecheck passes"
       ],
       "priority": 1,
       "passes": true,
-      "notes": "Use HNSW not IVFFlat. Service role bypasses RLS. Ref: PRD canonical schema section."
+      "notes": "Service-role key bypasses RLS. No policies = only service-role client can read/write."
     },
     {
       "id": "US-002",
-      "title": "Create dataset_clips join table on staging",
-      "description": "As a developer, I need the dataset_clips join table on staging.",
+      "title": "Create lead_crm_data table migration",
+      "description": "As a developer, I need a separate lead_crm_data table for admin-only CRM fields that must stay hidden from portal users.",
       "acceptanceCriteria": [
-        "Create dataset_clips: id (uuid PK), dataset_id (FK datasets), clip_id (FK clips), lead_id (FK leads nullable), added_by (text), note (text), created_at (timestamptz)",
-        "CREATE UNIQUE INDEX idx_dataset_clips_unique ON dataset_clips (dataset_id, clip_id, COALESCE(lead_id, '00000000-0000-0000-0000-000000000000'))",
-        "Enable RLS with service-role-only policy",
-        "Apply via Supabase MCP on staging",
+        "Create lead_crm_data table with columns: lead_id (uuid PK FK to leads), type (text CHECK demand/supply DEFAULT demand), icp_score (int CHECK 1-10), last_touch_at (timestamptz), last_touch_by (text), thread_state (text CHECK cold/warm/hot/negotiating/closed/dead DEFAULT cold), smartlead_campaign_id (bigint), created_at (timestamptz DEFAULT now()), updated_at (timestamptz DEFAULT now())",
+        "Enable RLS with no policies: ALTER TABLE lead_crm_data ENABLE ROW LEVEL SECURITY",
+        "Add updated_at trigger using existing update_updated_at_column() function",
+        "Migration file created at supabase/migrations/",
         "Typecheck passes"
       ],
       "priority": 2,
       "passes": true,
-      "notes": "Expression-based unique INDEX, not UNIQUE constraint."
+      "notes": "Separate from leads table because leads has authenticated user RLS policy \u2014 portal users must NOT see CRM fields. Note: US-018 adds pipeline columns via a separate ALTER TABLE migration."
     },
     {
       "id": "US-003",
-      "title": "Create match_clips RPC on staging",
-      "description": "As a developer, I need the unified vector search RPC.",
+      "title": "Create inbox_sync_state table migration",
+      "description": "As a developer, I need an inbox_sync_state checkpoint table for the agent watermark.",
       "acceptanceCriteria": [
-        "Create match_clips(query_embedding vector(768), match_count int, filter_dataset_id uuid, filter_bucket text, match_threshold float)",
-        "Returns: id, s3_bucket, s3_key, ai_caption, caption_text, similarity, ai_enrichment_source, ai_agent_context, mime_type, tech_resolution_width, tech_resolution_height, tech_fps, tech_duration_seconds, tech_codec, ann_metadata",
-        "JOIN dataset_clips when filter_dataset_id provided",
-        "SECURITY DEFINER, SET search_path TO public, extensions",
-        "Apply via Supabase MCP on staging",
+        "Create inbox_sync_state table with columns: inbox (text PK CHECK claru/moonvalley), last_processed_at (timestamptz NOT NULL DEFAULT 1970-01-01), last_message_id (text), last_error (text nullable), updated_at (timestamptz DEFAULT now())",
+        "Enable RLS with no policies",
+        "Add updated_at trigger using existing update_updated_at_column() function",
+        "Seed rows: INSERT INTO inbox_sync_state (inbox) VALUES ('claru'), ('moonvalley')",
+        "Migration file created at supabase/migrations/",
         "Typecheck passes"
       ],
       "priority": 3,
       "passes": true,
-      "notes": ""
+      "notes": "last_error is set when Gmail MCP fails, cleared on next successful run. Agent reads last_processed_at to derive after:YYYY/MM/DD Gmail query."
     },
     {
       "id": "US-004",
-      "title": "Migrate video_index to clips on staging",
-      "description": "As a developer, I need 47k video_index rows migrated into clips.",
+      "title": "Create assertAdmin helper and ADMIN_EMAILS config",
+      "description": "As a developer, I need a reusable assertAdmin() helper that checks the current Supabase session user against an ADMIN_EMAILS allowlist.",
       "acceptanceCriteria": [
-        "Create scripts/migrate-video-index-to-clips.py",
-        "Map: s3_bucket, s3_key, caption_text -> ai_caption AND caption_text, enrichment_source -> ai_enrichment_source, embedding -> embedding, indexed_at -> created_at",
-        "Set caption_rebuilt_at = NOW() for rows with valid embeddings",
-        "INSERT ON CONFLICT DO NOTHING",
-        "Batch 500 rows, 0.1s throttle",
-        "Idempotent",
-        "Validate: clips count matches video_index count",
+        "Create src/lib/auth/admin.ts with assertAdmin() function",
+        "assertAdmin reads Supabase session via createSupabaseServerClient(), gets user email, checks against ADMIN_EMAILS",
+        "ADMIN_EMAILS parsed from ADMIN_EMAILS env var (NO NEXT_PUBLIC_ prefix \u2014 server-only, must NOT be exposed to client bundle), comma-separated, defaults to john@claru.ai,john@moonvalley.com,chad@claru.ai",
+        "assertAdmin throws Error('unauthorized') if user email not in list or no session",
+        "Export isAdmin(email: string): boolean helper for use in Server Components",
+        "Add ADMIN_EMAILS=john@claru.ai,john@moonvalley.com,chad@claru.ai to .env.example with comment: '# Admin email allowlist \u2014 server-only, do NOT use NEXT_PUBLIC_ prefix'",
         "Typecheck passes"
       ],
       "priority": 4,
       "passes": true,
-      "notes": ""
+      "notes": "ADMIN_EMAILS must NOT have NEXT_PUBLIC_ prefix \u2014 that would expose the admin email list in the client JS bundle to all portal visitors. Used in every Server Action AND in portal layout for PortalNav admin check. The isAdmin(email) helper is called server-side only."
     },
     {
       "id": "US-005",
-      "title": "Migrate dataset_samples to clips + dataset_clips on staging",
-      "description": "As a developer, I need 714 dataset_samples merged into clips with re-embedding and relationships preserved.",
+      "title": "Update portal layout to pass isAdmin and add 3-tab admin nav",
+      "description": "As an admin, I need the portal layout to detect my admin status and render three admin nav tabs: Queue (with pending badge), Pipeline, and Prospects.",
       "acceptanceCriteria": [
-        "Create scripts/migrate-dataset-samples-to-clips.py",
-        "Upsert into clips matching on s3_bucket + s3_object_key -> s3_key",
-        "Map: enrichment_json -> ai_enrichment_json, agent_context -> ai_agent_context, metadata_json -> ann_metadata, s3_annotation_key -> ann_annotation_key, s3_specs_key -> ann_specs_key, tech fields",
-        "Re-embed at 768 dims for rows needing embeddings (631 of 714)",
-        "Create dataset_clips rows preserving dataset_id + lead_id",
-        "Deduplicate: GROUP BY s3 key -> one clips row + multiple dataset_clips",
-        "Skip 20 rows with NULL s3_object_key (log them)",
-        "Idempotent",
-        "Typecheck passes"
+        "Update src/app/portal/layout.tsx to fetch Supabase user session server-side via createSupabaseServerClient()",
+        "Import isAdmin helper from src/lib/auth/admin.ts \u2014 reads ADMIN_EMAILS env var (server-only, no NEXT_PUBLIC_ prefix)",
+        "Fetch pending queue count for badge: SELECT COUNT(*) FROM reply_queue WHERE draft_status IN ('pending', 'needs_manual_draft') using service-role client",
+        "Pass isAdmin boolean and pendingCount as props to PortalNav component",
+        "PortalNav accepts isAdmin and pendingCount props and renders three admin tabs only when isAdmin=true: Queue (link /admin/queue, pending badge), Pipeline (link /admin/pipeline), Prospects (link /admin/prospects)",
+        "Non-admin users see no admin tabs in nav",
+        "Existing portal functionality (data catalog, prospect pages) unchanged",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 5,
       "passes": true,
-      "notes": "Uses OpenAI API. ~$0.50 cost."
+      "notes": "Current layout.tsx is a pure wrapper with no session fetching \u2014 this adds createSupabaseServerClient() + getUser() call. ADMIN_EMAILS is server-only (no NEXT_PUBLIC_ prefix). Client component PortalNav receives isAdmin: boolean as a prop, never the email list itself."
     },
     {
       "id": "US-006",
-      "title": "Add Clip and DatasetClip TypeScript types",
-      "description": "As a developer, I need types matching the new schema.",
+      "title": "Create queue Server Actions",
+      "description": "As an admin, I need server actions to approve, dismiss, and snooze queue items.",
       "acceptanceCriteria": [
-        "Add Clip interface to src/types/data-catalog.ts matching canonical schema",
-        "Add DatasetClip interface",
-        "Add ClipSearchResult interface (no source discriminator)",
-        "Add field mapping comments in code",
-        "Mark DatasetSample, VideoIndexRecord, LeadCustomSample as @deprecated",
-        "DO NOT change generateEmbedding() default — add explicit 768 to new call sites",
+        "Create src/app/admin/queue/actions.ts with Server Actions",
+        "approveItem(id: string): calls assertAdmin(), updates draft_status to 'approved', sets approved_at to now(), ALSO updates lead_crm_data SET waiting_on='them', last_touch_at=now() for the linked lead_id (skip crm update if lead_id IS NULL), revalidates /admin/queue",
+        "dismissItem(id: string): calls assertAdmin(), updates draft_status to 'dismissed', revalidates /admin/queue",
+        "snoozeItem(id: string, until: Date): calls assertAdmin(), updates draft_status to 'snoozed', sets snoozed_until, revalidates /admin/queue",
+        "updateDraft(id: string, newDraft: string): calls assertAdmin(), updates draft_response text, revalidates /admin/queue",
+        "All actions use createSupabaseAdminClient() (service-role key), NOT user session client",
+        "All actions call assertAdmin() as first line \u2014 throws unauthorized for non-admins",
         "Typecheck passes"
       ],
       "priority": 6,
       "passes": true,
-      "notes": "Embedding default changes AFTER US-007 and US-015."
+      "notes": "approveItem must update lead_crm_data.waiting_on='them' so the Pipeline mode shows the correct ball-in-their-court status after approval. Service-role client bypasses RLS."
     },
     {
       "id": "US-007",
-      "title": "Rewrite search API for clips",
-      "description": "As a developer, the search API must query clips via match_clips.",
+      "title": "Create queue page Server Component",
+      "description": "As an admin, I need a /admin/queue page that shows pending reply queue items.",
       "acceptanceCriteria": [
-        "Rewrite src/app/api/admin/catalog/search/route.ts to use match_clips only",
-        "Remove 3-mode logic — single code path",
-        "Use generateEmbedding(query, 768) explicitly",
-        "Browse mode: clips JOIN dataset_clips when dataset filter set",
-        "Return ClipSearchResult shape",
-        "Lead assignment: single dataset_clips query (collapse two queries into one)",
+        "Create src/app/admin/queue/page.tsx as Server Component",
+        "Page checks admin status: if not admin, call notFound()",
+        "Fetch pending queue items using service-role client: SELECT * FROM reply_queue WHERE draft_status IN ('pending', 'needs_manual_draft') OR (draft_status = 'snoozed' AND snoozed_until < now()) ORDER BY received_at DESC",
+        "Join with leads table to get lead name and company",
+        "Check inbox_sync_state for last_error \u2014 pass to client for error banner",
+        "Pass items + sync state to QueueList client component",
         "Typecheck passes"
       ],
       "priority": 7,
       "passes": true,
-      "notes": ""
+      "notes": "Data fetching happens server-side with service-role key. Client component handles interactivity."
     },
     {
       "id": "US-008",
-      "title": "Rewrite admin search UI — remove mode toggle",
-      "description": "As an admin, one unified search across all clips.",
+      "title": "Create QueueList client component",
+      "description": "As an admin, I need an interactive list of queue items that auto-refreshes.",
       "acceptanceCriteria": [
-        "Remove mode toggle from CatalogSearchClient.tsx",
-        "Update server component: bucket list and clip count from clips table",
-        "ResultCard renders ClipSearchResult",
-        "Update AddToLeadButton: videoIndexId/datasetSampleId -> clipId",
-        "Remove all source: catalog | full_corpus logic",
+        "Create src/app/admin/queue/QueueList.tsx as 'use client' component",
+        "Renders list of QueueItem components",
+        "Auto-polls via router.refresh() every 60 seconds to get fresh server data",
+        "Shows inbox sync error banner if inbox_sync_state.last_error is non-null: 'Gmail sync failed at [timestamp]: [error message]'",
+        "Empty state: 'No queue items \u2014 you're caught up' with checkmark icon",
+        "Matches existing portal design system (dark theme, monospace accents, sage green accent)",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 8,
       "passes": true,
-      "notes": ""
+      "notes": "Design system: bg #0a0908, card #121210, border #2a2a28, accent #92B090 (sage green), monospace JetBrains Mono."
     },
     {
       "id": "US-009",
-      "title": "Add admin search filters and structured detail modal",
-      "description": "As an admin, structured detail modal tabs and new filters.",
+      "title": "Create QueueItem client component",
+      "description": "As an admin, I need each queue item to show the email details, classification, editable draft, and action buttons.",
       "acceptanceCriteria": [
-        "ResultDetailModal: structured sections for Annotation, AI enrichment, Technical",
-        "Add resolution filter dropdown (All / 720p+ / 1080p+ / 4K)",
-        "Add Has AI description toggle",
+        "Create src/app/admin/queue/QueueItem.tsx as 'use client' component",
+        "Shows: sender name + email, company name (from lead), classification badge (colored by type), received_at relative time, email subject, body_snippet",
+        "Draft response in editable monospace textarea with auto-resize",
+        "For needs_manual_draft items: show 'Needs manual draft' label, empty textarea ready for input",
+        "For lead_id=NULL items: show 'Unmatched sender \u2014 assign to a lead' prompt",
+        "Action buttons: Approve (calls approveItem, copies draft_response to clipboard), Dismiss (calls dismissItem), Snooze (calls snoozeItem with 24h default)",
+        "Classification badge colors: interested=green, question=blue, requirements=purple, not_interested=gray, bounce=red, internal_forward=yellow, unknown=orange",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 9,
       "passes": true,
-      "notes": "3-tab detail modal (AI Enrichment, Annotation, Technical) with entry counts. Resolution filter and AI description toggle are client-side filters. CopyPortalLinkButton uses clip ID."
+      "notes": "Approve copies to clipboard for pasting into Spark/Gmail. Phase 1 does not send emails automatically."
     },
     {
       "id": "US-010",
-      "title": "Rewrite bulk actions for dataset_clips",
-      "description": "As an admin, adding clips to datasets inserts dataset_clips rows.",
+      "title": "Add loading skeleton and error boundary for queue page",
+      "description": "As an admin, I need loading and error states for the queue page.",
       "acceptanceCriteria": [
-        "Bulk bar: Add to Dataset + Create New Dataset tabs",
-        "Rewrite POST /api/admin/catalog/custom for dataset_clips inserts",
-        "Remove all data-copy logic from bulk actions",
+        "Create src/app/admin/queue/loading.tsx with skeleton cards matching QueueItem layout",
+        "Create src/app/admin/queue/error.tsx with error boundary that shows error message and retry button",
+        "Skeleton uses pulse animation matching portal design system",
+        "Error boundary calls reset() on retry click",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 10,
       "passes": true,
-      "notes": "Bulk bar simplified to 2 tabs. API accepts clip_ids array. AddToLeadButton uses clipId prop."
+      "notes": ""
     },
     {
       "id": "US-011",
-      "title": "Rewrite portal dataset detail for clips",
-      "description": "As a lead, see clip data from unified table.",
+      "title": "Add pending count badge to PortalNav Queue link",
+      "description": "As an admin, I want to see how many items need attention without navigating to the queue page.",
       "acceptanceCriteria": [
-        "Query clips via dataset_clips JOIN",
-        "Field renames: s3_object_key -> s3_key, remove media_url/storage_path fallback",
-        "Lead filter with DISTINCT ON (clip_id) to prevent duplicates",
-        "Update GalleryCard field names",
-        "Deep-link ?clip= param",
+        "PortalNav Queue link shows count badge with number of pending + needs_manual_draft items",
+        "Badge count fetched server-side in portal layout.tsx via service-role client: SELECT COUNT(*) FROM reply_queue WHERE draft_status IN ('pending', 'needs_manual_draft')",
+        "Badge only renders when count > 0",
+        "Badge styled as small circle with count, sage green background, positioned top-right of Queue link",
+        "Pass pendingCount as prop alongside isAdmin to PortalNav",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 11,
       "passes": true,
-      "notes": "Queries dataset_clips with clips(*) join. Dedup by clip_id in JS. GalleryCard accepts ClipLike union type. Legacy ?sample= still works."
+      "notes": "Depends on US-005 (PortalNav already accepts isAdmin prop and all three admin tabs)."
     },
     {
       "id": "US-012",
-      "title": "Add clip detail modal tabs",
-      "description": "As a user, structured tabs: Annotation | AI | Technical.",
+      "title": "Attio CSV backfill migration script",
+      "description": "As a developer, I need a one-time migration script that seeds lead_crm_data from an Attio CSV export.",
       "acceptanceCriteria": [
-        "3 tabs: Annotation, AI Enrichment, Technical",
-        "Annotation tab: live S3 fetch via ann_annotation_key",
-        "AI tab: ai_caption, ai_agent_context fields",
-        "Technical tab: resolution, fps, duration, codec",
-        "Hidden from portal: ai_enrichment_source, internal IDs",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Create scripts/backfill-attio-crm.ts",
+        "Script reads Attio export CSV (path as CLI arg)",
+        "For each Attio contact: match to existing leads table by email, insert lead_crm_data row with type=demand/supply (from Attio tags), thread_state based on Attio status",
+        "Also query Smartlead API GET /api/v1/campaigns/lead?email={email}&api_key={SMARTLEAD_API_KEY} to find the lead's Smartlead campaign_id and populate smartlead_lead_id (Smartlead's internal lead record ID) for each matched lead",
+        "Smartlead API key read from SMARTLEAD_API_KEY env var (passed as ?api_key= query param)",
+        "Script is idempotent: uses INSERT ... ON CONFLICT (lead_id) DO UPDATE",
+        "Logs: matched N leads, skipped N (no match), created N lead_crm_data rows, found N Smartlead lead IDs",
+        "Uses service-role key from .env.local",
+        "Typecheck passes"
       ],
       "priority": 12,
       "passes": true,
-      "notes": "ClipDetailModal replaces SampleDetailModal. New DataPanelRegistry entries: ai_enrichment (Bot icon), technical (Cpu icon). Legacy SampleDetailModal re-exported for backward compat."
+      "notes": "Run BEFORE agent starts. Also populates smartlead_lead_id needed for US-020 Smartlead sync. Smartlead auth: all API calls append ?api_key={SMARTLEAD_API_KEY} as a query param (not a header)."
     },
     {
       "id": "US-013",
-      "title": "Rewrite portal catalog index for dataset_clips",
-      "description": "As a lead, catalog browser uses dataset_clips.",
+      "title": "Feasibility spike: Remote Task reads Gmail and writes Supabase",
+      "description": "As a developer, I need to validate that Claude Code Remote Tasks can access Gmail MCP and write to Supabase before building the agent loop.",
       "acceptanceCriteria": [
-        "Sample counts from dataset_clips",
-        "Curated samples: dataset_clips WHERE lead_id = current_lead (replaces lead_custom_samples query)",
-        "Enrich curated from clips table",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Create a test Remote Task (via /schedule) that: queries Gmail via Google Workspace MCP for 3 recent emails, writes a test row to inbox_sync_state, reads it back",
+        "Document whether Google Workspace MCP is available in Remote Task environment",
+        "Test Composio GMAIL_FETCH_EMAILS action for john@moonvalley.com from Remote Task",
+        "If Gmail MCP fails: document fallback plan (Edge Function + googleapis npm package)",
+        "If Composio fails: document REST API fallback (POST /api/v1/actions/GMAIL_FETCH_EMAILS/execute)",
+        "Test Smartlead API access from Remote Task: GET /api/v1/campaigns/lead?email=test@example.com&api_key={SMARTLEAD_API_KEY} \u2014 verify the SMARTLEAD_API_KEY env var is accessible from Remote Task env",
+        "Results documented in tasks/spike-remote-task-results.md",
+        "Typecheck passes"
       ],
       "priority": 13,
       "passes": true,
-      "notes": "Curated samples now query dataset_clips WHERE lead_id + JOIN clips for ai_caption, s3_bucket, s3_key. No more lead_custom_samples or video_index queries."
+      "notes": "BLOCKING for US-014 (inbox reader) and US-020 (Smartlead sync). SMARTLEAD_API_KEY must be in Remote Task environment \u2014 verify this. If Smartlead API is inaccessible from Remote Task, US-020 must use Smartlead CLI instead."
     },
     {
       "id": "US-014",
-      "title": "Update S3 annotation API for clips",
-      "description": "As a developer, annotation fetch works with clips table.",
+      "title": "Agent: inbox reader with date-based checkpoint",
+      "description": "As the system, I need the agent to read both inboxes using date-based filters and checkpoint correctly.",
       "acceptanceCriteria": [
-        "Look up clip by ID from clips table using admin client",
-        "Use ann_annotation_key for S3 fetch",
-        "Cache to clips.ann_metadata (not dataset_samples.metadata_json)",
-        "Apply scrubbing",
+        "Create src/lib/agent/inbox-reader.ts (or equivalent agent prompt/script)",
+        "Reads inbox_sync_state.last_processed_at for each inbox",
+        "Queries claru.ai inbox via Google Workspace MCP with query: after:YYYY/MM/DD (derived from last_processed_at)",
+        "For each message: calls gmail_get_message_details to fetch full body",
+        "Queries moonvalley.com inbox via Composio (or REST API fallback per spike results)",
+        "Inserts into reply_queue with ON CONFLICT ON CONSTRAINT reply_queue_inbox_message_unique DO NOTHING",
+        "After processing: advances inbox_sync_state.last_processed_at to newest message timestamp",
+        "On success: clears inbox_sync_state.last_error to NULL",
+        "On failure: sets inbox_sync_state.last_error with error message",
+        "When a new reply is processed: updates lead_crm_data SET waiting_on='us' for the matched lead_id (if not null)",
         "Typecheck passes"
       ],
       "priority": 14,
       "passes": true,
-      "notes": "Removed legacy dataset_samples path. Uses admin client for clips lookup. fetchAnnotationJson now accepts bucketOverride."
+      "notes": "Depends on spike results (US-013). Sets waiting_on='us' on new replies so Pipeline mode immediately shows ball is in our court."
     },
     {
       "id": "US-015",
-      "title": "Update MCP search tools",
-      "description": "As an MCP agent, unified search_clips tool.",
+      "title": "Agent: sender matching and reply classification",
+      "description": "As the system, I need incoming emails matched to leads and classified by intent.",
       "acceptanceCriteria": [
-        "Replace search_catalog + search_full_catalog with search_clips",
-        "build_lead_brief: collapse TWO embedding+RPC calls into ONE",
-        "Update get_dataset_overview, download_clips, get_corpus_stats for clips",
-        "Test via curl",
+        "Match sender to leads table by email address (exact match on email column)",
+        "If no exact match: try domain match (extract domain from sender_email, find leads with same domain)",
+        "If no match: set lead_id=NULL, classification='unknown'",
+        "Classify reply intent into one of: interested, question, requirements, not_interested, bounce, internal_forward, unsubscribe, unknown",
+        "Classification uses email body content, subject, and sender context",
+        "Write classification to reply_queue.classification column",
         "Typecheck passes"
       ],
       "priority": 15,
       "passes": true,
-      "notes": "search_clips uses 768-dim embedding + match_clips RPC. build_lead_brief collapsed from 2 embed calls to 1."
+      "notes": "Classification is done by Claude in the Remote Task \u2014 this is LLM-based, not rule-based."
     },
     {
       "id": "US-016",
-      "title": "Update MCP catalog management tools",
-      "description": "As an MCP agent, catalog tools use dataset_clips.",
+      "title": "Agent: draft response generation per GTM playbook",
+      "description": "As the system, I need draft responses generated following the GTM playbook rules.",
       "acceptanceCriteria": [
-        "create_custom_catalog: dataset + dataset_clips inserts",
-        "add_clips_to_catalog: dataset_clips inserts only",
-        "remove_clips_from_catalog: delete dataset_clips (not clips)",
-        "list_lead_catalogs via dataset_clips",
-        "update_dataset: total_samples from dataset_clips count",
-        "Test via curl",
+        "For non-bounce, non-unsubscribe replies: generate a draft response",
+        "Draft follows GTM playbook rules from gtm/strategy/messaging.md: no em-dashes, founder posture, appropriate CTA",
+        "For demand-side interested replies: include relevant dataset/clip context from clips table",
+        "For supply-side replies: use partnership tone per supply-side CTA rules",
+        "Draft written to reply_queue.draft_response column",
+        "If draft generation fails: set draft_status='needs_manual_draft', draft_response=NULL",
+        "Update lead_crm_data.last_touch_at and thread_state based on classification",
         "Typecheck passes"
       ],
       "priority": 16,
       "passes": true,
-      "notes": "All catalog tools now use dataset_clips. No data copying. get_lead also updated."
+      "notes": "GTM playbook is the agent's rulebook. Draft quality is critical \u2014 this is what the founder reviews."
     },
     {
       "id": "US-017",
-      "title": "Update loader scripts for clips",
-      "description": "As a developer, loaders write to their own clips columns.",
+      "title": "Schedule inbox reader as recurring Remote Task (every 30 min)",
+      "description": "As a developer, I need the inbox reader agent loop scheduled to run every 30 minutes autonomously.",
       "acceptanceCriteria": [
-        "load-annotation-metadata.py: writes ann_*, tech_* on clips, sets caption_rebuilt_at = NULL",
-        "load_cobry_captions.py: writes ai_caption, ai_enrichment_source on clips, sets caption_rebuilt_at = NULL",
-        "re-enrich-annotation-frames.py: writes ai_caption, ai_enrichment_source on clips, sets caption_rebuilt_at = NULL",
-        "Each writes ONLY its own columns",
-        "All use INSERT ON CONFLICT DO NOTHING",
+        "Configure Claude Code Remote Task (or /schedule cron) running every 30 minutes",
+        "Task prompt includes: read both inboxes, match senders, classify, draft responses, write to reply_queue, update waiting_on",
+        "Task has access to: Google Workspace MCP, Composio, Supabase service-role key, GTM playbook files",
+        "Task runs independently without requiring a local Claude Code session",
+        "First run processes all recent emails and populates reply_queue",
+        "Document the scheduled task configuration in tasks/agent-schedule.md",
         "Typecheck passes"
       ],
       "priority": 17,
       "passes": true,
-      "notes": "Loaders no longer embed. Rebuild script handles that."
+      "notes": "Inbox reader runs every 30 min. Smartlead sync (US-020) runs every 1 hour as a separate task. Signal scanner (US-021) runs daily."
     },
     {
       "id": "US-018",
-      "title": "Create caption rebuild script",
-      "description": "As a developer, derives caption_text + embedding from all sources.",
+      "title": "Add Active Pipeline columns to lead_crm_data",
+      "description": "As a developer, I need four new columns on lead_crm_data to power the Pipeline mode: smartlead_lead_id, waiting_on, smartlead_campaign_name, smartlead_sequence_step.",
       "acceptanceCriteria": [
-        "Create scripts/rebuild-clip-captions.py",
-        "Select clips WHERE caption_rebuilt_at IS NULL",
-        "Build caption_text from: ann_metadata + tech specs + ai_caption",
-        "Handle varying ann_metadata shapes",
-        "Generate 768-dim embedding",
-        "Update caption_text, embedding, caption_rebuilt_at",
-        "Batch 100, idempotent",
+        "Create a new migration file (after US-002 migration) with ALTER TABLE lead_crm_data ADD COLUMN",
+        "ADD COLUMN smartlead_lead_id bigint \u2014 Smartlead internal lead ID for API queries",
+        "ADD COLUMN waiting_on text CHECK (waiting_on IN ('us', 'them', 'unknown')) DEFAULT 'unknown'",
+        "ADD COLUMN smartlead_campaign_name text \u2014 human-readable campaign name, synced hourly by US-020",
+        "ADD COLUMN smartlead_sequence_step int \u2014 which step (1, 2, 3) of the sequence they're currently on, synced hourly by US-020",
+        "Migration file created at supabase/migrations/ with timestamp after US-002",
         "Typecheck passes"
       ],
       "priority": 18,
       "passes": true,
-      "notes": ""
+      "notes": "No smartlead_next_touch_at column \u2014 Smartlead's public API does not expose per-lead next scheduled send date. Instead show campaign_name + sequence_step in the Pipeline UI. waiting_on lifecycle: inbox reader sets 'us' on new reply, approveItem sets 'them' on approval. All new columns nullable \u2014 existing rows from Attio backfill start with NULLs, which is correct."
     },
     {
       "id": "US-019",
-      "title": "Update admin catalog detail pages",
-      "description": "As an admin, catalog detail reads from clips via dataset_clips.",
+      "title": "Create prospect_signals table migration",
+      "description": "As a developer, I need a prospect_signals table to store flagged opportunities from the signal scanner agent.",
       "acceptanceCriteria": [
-        "Admin catalog [id] page queries clips via dataset_clips",
-        "SamplesList renders clip data",
-        "SamplePreviewModal shows structured tabs",
-        "Lead-specific clips show badge",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Create prospect_signals table with columns: id (uuid PK), company_name (text NOT NULL), contact_name (text), contact_email (text), signal_type (text NOT NULL CHECK hiring/funding/product_launch/gtm_file/news), signal_description (text NOT NULL), source_url (text), status (text CHECK new/queued/skipped DEFAULT new), created_at (timestamptz DEFAULT now()), updated_at (timestamptz DEFAULT now())",
+        "Add unique constraint: ALTER TABLE prospect_signals ADD CONSTRAINT prospect_signals_company_signal_unique UNIQUE (company_name, signal_type)",
+        "Use ON CONFLICT ON CONSTRAINT prospect_signals_company_signal_unique DO UPDATE SET updated_at = now() (NOT DO NOTHING) \u2014 ensures signal refreshes if re-scanned, and allows status to be reset manually",
+        "Enable RLS with no policies: ALTER TABLE prospect_signals ENABLE ROW LEVEL SECURITY",
+        "Add updated_at trigger: CREATE TRIGGER set_updated_at BEFORE UPDATE ON prospect_signals FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()",
+        "Migration file created at supabase/migrations/",
+        "Typecheck passes"
       ],
       "priority": 19,
       "passes": true,
-      "notes": "All admin catalog pages now query dataset_clips JOIN clips. Field renames: s3_object_key->s3_key, metadata_json->ann_metadata, enrichment_json->ai_enrichment_json, s3_annotation_key->ann_annotation_key, s3_specs_key->ann_specs_key. SamplePreviewModal passes Clip objects to ClipDetailModal for structured tabs. Delete removes dataset_clips row (preserves clip). Catalog list page counts from dataset_clips."
+      "notes": "DO UPDATE SET updated_at (not DO NOTHING) allows re-scanning to refresh signals and enables a future 'reset to new' admin action. updated_at is needed because status mutates (new\u2192queued/skipped) and we need an audit trail. contact_name and contact_email are nullable \u2014 scanner populates them via LLM extraction from the company file body; admin can also fill in manually from the UI."
     },
     {
       "id": "US-020",
-      "title": "Drop legacy tables",
-      "description": "As a developer, remove old tables after staging validation.",
+      "title": "Smartlead sync agent (hourly) \u2014 campaign name and sequence step",
+      "description": "As the system, I need an hourly agent that syncs each active lead's Smartlead campaign name and sequence step into lead_crm_data.",
       "acceptanceCriteria": [
-        "All surfaces confirmed working on staging",
-        "Drop dataset_samples, video_index, lead_custom_samples tables",
-        "Drop match_samples, match_video_index RPCs",
-        "Remove deprecated TypeScript types",
+        "Create src/lib/agent/smartlead-sync.ts (or equivalent agent prompt/script)",
+        "Reads SMARTLEAD_API_KEY from env (server-only var, added in US-004's .env.example). All API calls append ?api_key={SMARTLEAD_API_KEY} as query param (Smartlead's auth mechanism)",
+        "Reads all leads from lead_crm_data WHERE thread_state NOT IN ('cold', 'dead') AND smartlead_lead_id IS NOT NULL",
+        "For each lead: calls Smartlead API GET /api/v1/campaigns/lead?email={lead_email}&api_key={key} to get campaign assignment and sequence step number. BEFORE IMPLEMENTING: inspect the actual API response JSON for a test lead (e.g., curl this endpoint with a real lead email) and confirm the exact field name for sequence step \u2014 common field names in Smartlead responses include 'seq_number', 'sequence_number', 'email_step_seq_number'. Use the actual field name from the response, not an assumed name.",
+        "Updates lead_crm_data SET smartlead_campaign_name = [campaign.name from API response], smartlead_sequence_step = [confirmed sequence step field name from API response]",
+        "Rate limiting: 200ms delay between each API call. On HTTP 429 response: log 'rate limited', abort the remaining leads for this run (not just skip one lead), write error to a log table or stdout",
+        "On non-429 error for a single lead: log error, skip that lead, continue with others",
+        "Scheduled as a separate Remote Task running every 1 hour",
+        "SMARTLEAD_API_KEY added to .env.example with comment: '# Smartlead API key \u2014 get from Smartlead dashboard \u2192 Settings \u2192 API. Used as ?api_key= query param.'",
+        "Configuration documented in tasks/agent-schedule.md",
         "Typecheck passes"
       ],
       "priority": 20,
       "passes": true,
-      "notes": "Migration file created. Deprecated TS types removed. Actual DROP deferred until staging validation."
+      "notes": "Depends on US-013 spike confirming Smartlead API and SMARTLEAD_API_KEY access from Remote Task env. Note: Smartlead API does NOT expose per-lead next scheduled send date \u2014 do not attempt to fetch or display it. Campaign name + sequence step is what's available and is sufficient for the Pipeline view."
     },
     {
       "id": "US-021",
-      "title": "Replicate migration to production",
-      "description": "As a developer, apply validated migration to prod.",
+      "title": "Signal scanner agent (daily at 8am ET)",
+      "description": "As the system, I need a daily agent that scans gtm/knowledge-graph/companies/ for high-ICP companies not yet in the leads table and writes them to prospect_signals.",
       "acceptanceCriteria": [
-        "Switch to prod Supabase credentials",
-        "Apply DDL (clips, dataset_clips, match_clips, indexes)",
-        "Run video_index -> clips migration (145k rows)",
-        "Run dataset_samples -> clips + dataset_clips (714 rows)",
-        "Run caption rebuild",
-        "Validate search, portal, MCP on prod",
-        "Deploy to Vercel (push to main)",
-        "Drop legacy tables after 24h soak",
+        "Create src/lib/agent/signal-scanner.ts (or equivalent agent prompt/script)",
+        "Reads all .md files in gtm/knowledge-graph/companies/",
+        "Parses frontmatter: extracts icp_score (0-100 scale \u2014 note: this is different from lead_crm_data.icp_score which uses 1-10 scale), company name (from 'name' field), domain",
+        "For each file with icp_score >= 80 (0-100 scale, meaning high-confidence ICP targets): check if company domain already in leads table (domain match on lead email domain)",
+        "If NOT in leads: extract primary contact using LLM \u2014 read the '## Key People' table from the file body, extract the first row marked as the planned contact (highest confidence email), extract contact name and email",
+        "Insert into prospect_signals with signal_type='gtm_file', contact_name and contact_email from LLM extraction (nullable if extraction fails), signal_description = 1-2 sentence summary of why this company is a target (extracted from file overview)",
+        "Uses ON CONFLICT ON CONSTRAINT prospect_signals_company_signal_unique DO UPDATE SET updated_at = now() \u2014 safe to run multiple times",
+        "Scheduled as a Remote Task running daily at 8am ET (cron: 0 13 * * *)",
+        "Configuration documented in tasks/agent-schedule.md",
         "Typecheck passes"
       ],
       "priority": 21,
       "passes": true,
-      "notes": "Production runbook created. All scripts ready. Execution requires human operator."
+      "notes": "CRITICAL: icp_score in knowledge graph files uses 0-100 scale (e.g., Sama=95, iMerit=92). Threshold is >= 80, not >= 8. The lead_crm_data.icp_score column uses 1-10 scale \u2014 these are DIFFERENT scales, do not confuse them. Contact info (name, email) is NOT in frontmatter \u2014 it is in the '## Key People' markdown table in the file body. Use LLM extraction, not frontmatter parsing, for contact fields."
+    },
+    {
+      "id": "US-022",
+      "title": "Create pipeline page Server Component",
+      "description": "As an admin, I need a /admin/pipeline page that shows all active leads sorted by days silent.",
+      "acceptanceCriteria": [
+        "Create src/app/admin/pipeline/page.tsx as Server Component",
+        "Page checks admin status: if not admin, call notFound()",
+        "Fetch active leads using service-role client with this query: SELECT lcd.*, l.email, l.name, l.company, COALESCE(EXTRACT(EPOCH FROM (now() - lcd.last_touch_at)) / 86400, 9999) AS days_silent FROM lead_crm_data lcd JOIN leads l ON lcd.lead_id = l.id WHERE lcd.thread_state IN ('warm', 'hot', 'negotiating') ORDER BY days_silent DESC",
+        "COALESCE ensures leads with NULL last_touch_at (never contacted) appear at top with days_silent=9999 and render as 'Never contacted' in the UI \u2014 do NOT omit them",
+        "Fetch last 3 reply_queue events per lead using a SINGLE CTE with ROW_NUMBER() window function \u2014 no separate per-lead queries and no programmatic IN list: WITH active_leads AS (SELECT lead_id FROM lead_crm_data WHERE thread_state IN ('warm','hot','negotiating')), ranked AS (SELECT rq.*, ROW_NUMBER() OVER (PARTITION BY rq.lead_id ORDER BY rq.received_at DESC) AS rn FROM reply_queue rq JOIN active_leads al ON rq.lead_id = al.lead_id) SELECT * FROM ranked WHERE rn <= 3. This is one round trip, no IN list construction.",
+        "Pass leads + activity data to PipelineList client component",
+        "Add loading.tsx and error.tsx for the pipeline route",
+        "Typecheck passes"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": "COALESCE is critical \u2014 NULL days_silent for never-contacted leads breaks client-side sort (NaN comparisons) and the red-highlight logic. 9999 as sentinel value pushes them to the top. ROW_NUMBER window function is specified explicitly to prevent N+1 query implementation."
+    },
+    {
+      "id": "US-023",
+      "title": "Create PipelineList and PipelineRow client components",
+      "description": "As an admin, I need an interactive pipeline table with sortable columns, demand/supply filter, and expandable rows showing activity history.",
+      "acceptanceCriteria": [
+        "Create src/app/admin/pipeline/PipelineList.tsx as 'use client' component",
+        "Renders sortable table with columns: Contact (name + email), Company, Type (demand/supply badge), Thread State (colored badge), Days Silent (shows 'Never contacted' if days_silent=9999; highlights red if days_silent > 3), Waiting On (US badge in orange / THEM badge in gray / UNKNOWN badge), Smartlead (shows '[campaign_name] \u2014 Step [N]' if set, or '\u2014' if not in campaign)",
+        "Default sort: days_silent DESC. User can click column headers to re-sort client-side",
+        "Filter toggle buttons: All / Demand / Supply \u2014 filters by type field",
+        "Create src/app/admin/pipeline/PipelineRow.tsx as 'use client' component",
+        "Clicking a row expands to show last 3 activity events (subject line, date, classification badge)",
+        "If waiting_on='us' AND lead has a pending queue item (draft_status IN pending/needs_manual_draft \u2014 NOT snoozed): show 'Draft response \u2192' link to /admin/queue#[item-id]. If the item is snoozed: show 'Snoozed until [date]' instead of the link",
+        "Matches portal design system (dark theme, monospace, sage green accent)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 23,
+      "passes": false,
+      "notes": "Smartlead column shows campaign_name + sequence_step (not a date). 'Draft response' link must check draft_status \u2014 do not show the link if the queue item is snoozed, as the item won't appear on the queue page until snoozed_until passes."
+    },
+    {
+      "id": "US-024",
+      "title": "Create pipeline Server Actions",
+      "description": "As an admin, I need server actions to update thread state and waiting_on directly from the Pipeline view.",
+      "acceptanceCriteria": [
+        "Create src/app/admin/pipeline/actions.ts with Server Actions",
+        "updateThreadState(leadId: string, state: 'cold' | 'warm' | 'hot' | 'negotiating' | 'closed' | 'dead'): calls assertAdmin(), updates lead_crm_data.thread_state, revalidates /admin/pipeline",
+        "updateWaitingOn(leadId: string, value: 'us' | 'them' | 'unknown'): calls assertAdmin(), updates lead_crm_data.waiting_on, revalidates /admin/pipeline",
+        "All actions use createSupabaseAdminClient() (service-role key)",
+        "All actions call assertAdmin() as first line",
+        "PipelineRow renders a thread state dropdown that calls updateThreadState on change",
+        "Typecheck passes"
+      ],
+      "priority": 24,
+      "passes": false,
+      "notes": "Admin can manually override thread_state and waiting_on from the pipeline view without opening the queue."
+    },
+    {
+      "id": "US-025",
+      "title": "Create prospect discovery page Server Component",
+      "description": "As an admin, I need a /admin/prospects page that shows new prospect signals from the signal scanner.",
+      "acceptanceCriteria": [
+        "Create src/app/admin/prospects/page.tsx as Server Component",
+        "Page checks admin status: if not admin, call notFound()",
+        "Fetch new signals: SELECT * FROM prospect_signals WHERE status = 'new' ORDER BY created_at DESC",
+        "Pass signals to ProspectList client component \u2014 do NOT fetch Smartlead campaigns in the Server Component (this would block the entire page if Smartlead API is slow or down)",
+        "ProspectList fetches the Smartlead campaign list client-side on component mount (GET /api/v1/campaigns?limit=50&status=active&api_key={key} via a Next.js API route at /api/admin/smartlead-campaigns). This keeps Smartlead availability separate from page rendering",
+        "Create /api/admin/smartlead-campaigns/route.ts: Next.js Route Handler. IMPORTANT: Route Handlers do NOT automatically have session context \u2014 unlike Server Components. Must explicitly plumb: (1) import { createSupabaseServerClient } from src/lib/supabase/server, (2) call createSupabaseServerClient() with the request cookies, (3) call assertAdmin() with that client \u2014 throw 401 if not admin. Then proxy GET /api/v1/campaigns?limit=50&status=active&api_key={SMARTLEAD_API_KEY} to Smartlead and return the campaign list as JSON. Reads SMARTLEAD_API_KEY from env (server-only var).",
+        "Add loading.tsx and error.tsx for the prospects route",
+        "Typecheck passes"
+      ],
+      "priority": 25,
+      "passes": false,
+      "notes": "Smartlead campaign fetch moved client-side to prevent Smartlead API latency/downtime from blocking the entire Server Component page render. The signals (from Supabase) load instantly; the campaign dropdown in ProspectCard can show a loading state independently."
+    },
+    {
+      "id": "US-026",
+      "title": "Create ProspectList, ProspectCard components and prospect Server Actions",
+      "description": "As an admin, I need interactive prospect signal cards with Queue in Smartlead and Skip actions.",
+      "acceptanceCriteria": [
+        "Create src/app/admin/prospects/ProspectList.tsx as 'use client' component \u2014 renders list of ProspectCard components, fetches campaign list from /api/admin/smartlead-campaigns on mount, passes campaigns to each card",
+        "Create src/app/admin/prospects/ProspectCard.tsx as 'use client' component",
+        "ProspectCard shows: company name, contact name + email (or 'Contact unknown \u2014 fill in before queuing' if NULL), signal type badge (hiring=green, funding=blue, gtm_file=sage, news=gray), signal description, source URL link, created_at date",
+        "If contact_email is NULL: show an inline form with name + email fields that admin fills before queuing",
+        "'Queue in Smartlead' shows a campaign dropdown (from ProspectList campaigns prop) then calls queueInSmartlead Server Action",
+        "Create src/app/admin/prospects/actions.ts",
+        "queueInSmartlead(signalId: string, campaignId: string, contactEmail: string, contactName: string, companyName: string): calls assertAdmin(), validates contactEmail is non-empty (throw if missing), calls Smartlead API POST /api/v1/leads to add the contact to the campaign (auth: ?api_key={SMARTLEAD_API_KEY}), creates a leads table row in Supabase using INSERT INTO leads (name, email, company) VALUES (contactName, contactEmail, companyName) ON CONFLICT (email) DO UPDATE SET email=EXCLUDED.email RETURNING id \u2014 using DO UPDATE SET email=EXCLUDED.email (a no-op update) instead of DO NOTHING ensures the RETURNING id clause always yields the lead_id whether the row was inserted or already existed; capture lead_id from that result, ALSO INSERT INTO lead_crm_data (lead_id, type, thread_state, smartlead_campaign_id) VALUES ([lead_id], 'demand', 'cold', [campaignId]) ON CONFLICT (lead_id) DO NOTHING \u2014 this ensures the new lead appears in the Pipeline view and Smartlead sync from day 1, updates prospect_signals.status='queued', revalidates /admin/prospects",
+        "skipSignal(signalId: string): calls assertAdmin(), updates prospect_signals.status='skipped', revalidates /admin/prospects",
+        "Empty state: 'No new prospect signals \u2014 scanner runs daily at 8am ET'",
+        "Matches portal design system",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 26,
+      "passes": false,
+      "notes": "queueInSmartlead requires non-null contactEmail \u2014 validated server-side. leads table INSERT uses contactName as name (NOT NULL on leads table), with companyName as company. If contact info was NULL on the signal, admin fills it in via the inline form before the action is callable. SMARTLEAD_API_KEY used as query param per Smartlead auth pattern."
     }
   ]
 }
