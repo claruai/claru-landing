@@ -392,7 +392,7 @@
         "Typecheck passes"
       ],
       "priority": 22,
-      "passes": false,
+      "passes": true,
       "notes": "COALESCE is critical \u2014 NULL days_silent for never-contacted leads breaks client-side sort (NaN comparisons) and the red-highlight logic. 9999 as sentinel value pushes them to the top. ROW_NUMBER window function is specified explicitly to prevent N+1 query implementation."
     },
     {
@@ -412,7 +412,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 23,
-      "passes": false,
+      "passes": true,
       "notes": "Smartlead column shows campaign_name + sequence_step (not a date). 'Draft response' link must check draft_status \u2014 do not show the link if the queue item is snoozed, as the item won't appear on the queue page until snoozed_until passes."
     },
     {
@@ -429,7 +429,7 @@
         "Typecheck passes"
       ],
       "priority": 24,
-      "passes": false,
+      "passes": true,
       "notes": "Admin can manually override thread_state and waiting_on from the pipeline view without opening the queue."
     },
     {
@@ -447,7 +447,7 @@
         "Typecheck passes"
       ],
       "priority": 25,
-      "passes": false,
+      "passes": true,
       "notes": "Smartlead campaign fetch moved client-side to prevent Smartlead API latency/downtime from blocking the entire Server Component page render. The signals (from Supabase) load instantly; the campaign dropdown in ProspectCard can show a loading state independently."
     },
     {
@@ -469,7 +469,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 26,
-      "passes": false,
+      "passes": true,
       "notes": "queueInSmartlead requires non-null contactEmail \u2014 validated server-side. leads table INSERT uses contactName as name (NOT NULL on leads table), with companyName as company. If contact info was NULL on the signal, admin fills it in via the inline form before the action is callable. SMARTLEAD_API_KEY used as query param per Smartlead auth pattern."
     }
   ]

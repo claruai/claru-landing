@@ -6,7 +6,7 @@
  * It reads both inboxes using date-based checkpoint filters and writes
  * new replies to the reply_queue table.
  *
- * Deployment: /schedule cron "*/30 * * * *" <AGENT_PROMPT>
+ * Deployment: /schedule cron "* /30 * * * *" <AGENT_PROMPT>
  * See: tasks/agent-schedule.md for full schedule configuration
  *
  * US-015 (sender matching + classification) and US-016 (draft generation)
