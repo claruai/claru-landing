@@ -149,6 +149,18 @@ async function handlePortalAuth(request: NextRequest): Promise<NextResponse> {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // --- New CRM admin routes (Supabase portal session auth) ---
+  // These pages use assertAdmin() which checks Supabase session,
+  // so they go through portal auth, not the legacy JWT admin auth.
+  if (
+    pathname.startsWith("/admin/queue") ||
+    pathname.startsWith("/admin/pipeline") ||
+    pathname.startsWith("/admin/prospects") ||
+    pathname.startsWith("/api/admin/smartlead-campaigns")
+  ) {
+    return handlePortalAuth(request);
+  }
+
   // --- Admin routes (existing JWT-based auth) ---
   if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
     return handleAdminAuth(request);
