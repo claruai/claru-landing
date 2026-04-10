@@ -1,173 +1,178 @@
 {
   "project": "Claru Landing",
-  "branchName": "ralph/reply-queue",
-  "description": "Agent-First CRM Phase 1: Three-Mode Admin Panel \u2014 (1) Inbox Queue at /admin/queue (inbox watcher, reply classification, draft responses, approval UI), (2) Active Pipeline at /admin/pipeline (all active convos, who owes what, days silent, Smartlead campaign + step), (3) Prospect Discovery at /admin/prospects (signal scanning from knowledge graph, queue new leads into Smartlead).",
+  "branchName": "ralph/unified-crm",
+  "description": "Unified AI-Powered CRM View \u2014 replaces the split Pipeline Kanban + Queue tabs with a single vertical page: Respond Now, Waiting on Them, Nurturing, Cold. Each card is expandable with email context and inline AI draft. 'Draft with Claude' button triggers Anthropic to read the reply, pull relevant clips, and generate a personalized response.",
   "userStories": [
     {
-      "id": "US-001",
-      "title": "Create reply_queue table migration",
-      "description": "As a developer, I need the reply_queue table created in Supabase with all columns, constraints, RLS, and indexes.",
+      "id": "US-009",
+      "title": "Update server actions: error propagation + dual revalidation",
+      "description": "As the CRM system, I need approve/dismiss/snooze/update-draft actions to throw on DB errors and revalidate both pages so useOptimistic can revert on failure and both views stay in sync.",
       "acceptanceCriteria": [
-        "Create reply_queue table with columns: id (uuid PK), lead_id (uuid FK nullable to leads), inbox (text NOT NULL CHECK claru/moonvalley), sender_email (text NOT NULL), sender_name (text), gmail_message_id (text NOT NULL), gmail_thread_id (text), received_at (timestamptz NOT NULL), subject (text), body_full (text), body_snippet (text GENERATED ALWAYS AS left(body_full, 500) STORED), classification (text NOT NULL CHECK IN interested/question/requirements/not_interested/bounce/internal_forward/unsubscribe/unknown), draft_response (text), draft_status (text NOT NULL DEFAULT pending CHECK IN pending/approved/dismissed/sent/snoozed/needs_manual_draft), snoozed_until (timestamptz), approved_at (timestamptz), sent_at (timestamptz), created_at (timestamptz DEFAULT now()), updated_at (timestamptz DEFAULT now())",
-        "Add composite unique constraint: ALTER TABLE reply_queue ADD CONSTRAINT reply_queue_inbox_message_unique UNIQUE (inbox, gmail_message_id)",
-        "Add partial index: CREATE INDEX idx_reply_queue_pending ON reply_queue (draft_status, received_at DESC) WHERE draft_status IN ('pending', 'snoozed', 'needs_manual_draft')",
-        "Enable RLS with no policies (default deny): ALTER TABLE reply_queue ENABLE ROW LEVEL SECURITY",
-        "Add updated_at trigger: CREATE TRIGGER set_updated_at BEFORE UPDATE ON reply_queue FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()",
-        "Migration file created at supabase/migrations/ with timestamped name",
+        "In queue/actions.ts: approveItem, dismissItem, snoozeItem, updateDraft each check Supabase result and throw on error: const { error } = await db...; if (error) throw new Error(error.message)",
+        "approveItem: if the initial .single() fetch returns null (no matching queue item), throw new Error('Queue item not found') before any update \u2014 the approve .update().eq() on a missing row returns no error from Supabase, so only the explicit null-check prevents the silent no-op",
+        "approveItem: after approving the queue item, also writes waiting_on = 'them' to lead_crm_data for the associated lead_id so the lead moves to Waiting on Them on refresh",
+        "In pipeline/actions.ts: moveLeadToColumn checks and throws on Supabase errors; adds revalidatePath('/admin/queue') alongside the existing revalidatePath('/admin/pipeline')",
+        "All five actions (approveItem, dismissItem, snoozeItem, updateDraft, moveLeadToColumn) revalidate both /admin/pipeline AND /admin/queue on success",
         "Typecheck passes"
       ],
       "priority": 1,
       "passes": true,
-      "notes": "Service-role key bypasses RLS. No policies = only service-role client can read/write."
+      "notes": "This must be done first \u2014 all UI stories depend on actions that throw correctly so useOptimistic can revert."
     },
     {
-      "id": "US-002",
-      "title": "Create lead_crm_data table migration",
-      "description": "As a developer, I need a separate lead_crm_data table for admin-only CRM fields that must stay hidden from portal users.",
+      "id": "US-001",
+      "title": "Extend pipeline page data fetching + define EnrichedLead types",
+      "description": "As the pipeline page server component, I need to fetch leads and pending queue items in parallel and merge them so each card knows its reply state in a single render pass.",
       "acceptanceCriteria": [
-        "Create lead_crm_data table with columns: lead_id (uuid PK FK to leads), type (text CHECK demand/supply DEFAULT demand), icp_score (int CHECK 1-10), last_touch_at (timestamptz), last_touch_by (text), thread_state (text CHECK cold/warm/hot/negotiating/closed/dead DEFAULT cold), smartlead_campaign_id (bigint), created_at (timestamptz DEFAULT now()), updated_at (timestamptz DEFAULT now())",
-        "Enable RLS with no policies: ALTER TABLE lead_crm_data ENABLE ROW LEVEL SECURITY",
-        "Add updated_at trigger using existing update_updated_at_column() function",
-        "Migration file created at supabase/migrations/",
-        "Typecheck passes"
+        "pipeline/page.tsx fetches leads (via get_pipeline_leads RPC with fallback) AND pending queue items in parallel using Promise.all",
+        "Queue item fetch: SELECT id, lead_id, inbox, sender_email, sender_name, gmail_message_id, gmail_thread_id, subject, body_snippet, received_at, draft_status, draft_response, snoozed_until, classification FROM reply_queue WHERE draft_status IN ('pending','needs_manual_draft') OR (draft_status='snoozed' AND snoozed_until < now()) ORDER BY received_at DESC",
+        "Server-side merge: EnrichedLead[] = leads.map(l => ({ ...l, queueItem: queueMap[l.lead_id] ?? null })) where queueMap is keyed by lead_id",
+        "unmatchedItems = queue items where lead_id is null or not found in leads array",
+        "Fallback query (when RPC fails): remove the existing .not('thread_state', 'in', '(\"cold\",\"dead\")') filter so ColdSection is populated; change leads!inner join to plain leads join (left join) to avoid silently dropping lead_crm_data rows",
+        "If queue fetch fails independently, page still renders with all queueItem: null \u2014 wrap queue fetch in try/catch",
+        "Types defined and exported: QueueItem, EnrichedLead (PipelineLead & { queueItem: QueueItem | null }), UnmatchedQueueItem = QueueItem",
+        "Typecheck passes with no 'as any' casts"
       ],
       "priority": 2,
       "passes": true,
-      "notes": "Separate from leads table because leads has authenticated user RLS policy \u2014 portal users must NOT see CRM fields. Note: US-018 adds pipeline columns via a separate ALTER TABLE migration."
+      "notes": "Types defined here are imported by all downstream UI stories. UnmatchedQueueItem must NOT render lead metadata fields (company, ICP score, campaign) \u2014 only sender_email, subject, body_snippet, inbox, received_at, classification."
     },
     {
-      "id": "US-003",
-      "title": "Create inbox_sync_state table migration",
-      "description": "As a developer, I need an inbox_sync_state checkpoint table for the agent watermark.",
+      "id": "US-011",
+      "title": "Add error.tsx boundary for pipeline route",
+      "description": "As the pipeline page, I need an error boundary so unexpected fetch failures show a recoverable error state instead of a blank page.",
       "acceptanceCriteria": [
-        "Create inbox_sync_state table with columns: inbox (text PK CHECK claru/moonvalley), last_processed_at (timestamptz NOT NULL DEFAULT 1970-01-01), last_message_id (text), last_error (text nullable), updated_at (timestamptz DEFAULT now())",
-        "Enable RLS with no policies",
-        "Add updated_at trigger using existing update_updated_at_column() function",
-        "Seed rows: INSERT INTO inbox_sync_state (inbox) VALUES ('claru'), ('moonvalley')",
-        "Migration file created at supabase/migrations/",
+        "src/app/admin/pipeline/error.tsx exists",
+        "Error page renders: error message, 'Try again' button (calls router.refresh()), and a back link to /admin",
+        "Mirror the existing pattern from src/app/admin/queue/error.tsx if it exists",
         "Typecheck passes"
       ],
       "priority": 3,
       "passes": true,
-      "notes": "last_error is set when Gmail MCP fails, cleared on next successful run. Agent reads last_processed_at to derive after:YYYY/MM/DD Gmail query."
+      "notes": "Must exist before page can fail gracefully. Queue fetch failures are handled inside page.tsx with try/catch and do NOT hit this boundary."
     },
     {
-      "id": "US-004",
-      "title": "Create assertAdmin helper and ADMIN_EMAILS config",
-      "description": "As a developer, I need a reusable assertAdmin() helper that checks the current Supabase session user against an ADMIN_EMAILS allowlist.",
+      "id": "US-010",
+      "title": "UnifiedCRMView shell \u2014 wire all sections together",
+      "description": "As the admin pipeline page, I need a single UnifiedCRMView client component that accepts EnrichedLead[] and UnmatchedQueueItem[] and renders all section placeholders so the page has one clear entry point.",
       "acceptanceCriteria": [
-        "Create src/lib/auth/admin.ts with assertAdmin() function",
-        "assertAdmin reads Supabase session via createSupabaseServerClient(), gets user email, checks against ADMIN_EMAILS",
-        "ADMIN_EMAILS parsed from ADMIN_EMAILS env var (NO NEXT_PUBLIC_ prefix \u2014 server-only, must NOT be exposed to client bundle), comma-separated, defaults to john@claru.ai,john@moonvalley.com,chad@claru.ai",
-        "assertAdmin throws Error('unauthorized') if user email not in list or no session",
-        "Export isAdmin(email: string): boolean helper for use in Server Components",
-        "Add ADMIN_EMAILS=john@claru.ai,john@moonvalley.com,chad@claru.ai to .env.example with comment: '# Admin email allowlist \u2014 server-only, do NOT use NEXT_PUBLIC_ prefix'",
-        "Typecheck passes"
+        "src/app/admin/pipeline/UnifiedCRMView.tsx created as a 'use client' component",
+        "Accepts props: { leads: EnrichedLead[]; unmatchedItems: UnmatchedQueueItem[] }",
+        "All useOptimistic state (optimisticLeads, expandedId, pendingId) lives at UnifiedCRMView level \u2014 section components receive state and callbacks as props",
+        "mutationCountRef = useRef(0) defined here \u2014 incremented before each mutation, decremented in finally block",
+        "Auto-refresh: setInterval calls router.refresh() every 60 seconds, but skips if expandedId !== null || mutationCountRef.current > 0 || isDrafting",
+        "Renders sections in order: ProspectsBar \u2192 RespondNowSection \u2192 WaitingSection \u2192 NurturingSection \u2192 ColdSection (each as a placeholder div or stub component initially)",
+        "pipeline/page.tsx passes EnrichedLead[] and UnmatchedQueueItem[] to UnifiedCRMView instead of PipelineList",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill \u2014 page loads at localhost:3080/admin/pipeline?admin_preview=true without errors"
       ],
       "priority": 4,
       "passes": true,
-      "notes": "ADMIN_EMAILS must NOT have NEXT_PUBLIC_ prefix \u2014 that would expose the admin email list in the client JS bundle to all portal visitors. Used in every Server Action AND in portal layout for PortalNav admin check. The isAdmin(email) helper is called server-side only."
+      "notes": "Sections can be stubs at this stage \u2014 the goal is wiring the data flow and state ownership."
     },
     {
-      "id": "US-005",
-      "title": "Update portal layout to pass isAdmin and add 3-tab admin nav",
-      "description": "As an admin, I need the portal layout to detect my admin status and render three admin nav tabs: Queue (with pending badge), Pipeline, and Prospects.",
+      "id": "US-002",
+      "title": "ProspectsBar \u2014 demand/supply filter and counts",
+      "description": "As John, I need a header bar showing demand/supply counts and a filter so I can see the shape of my pipeline at a glance.",
       "acceptanceCriteria": [
-        "Update src/app/portal/layout.tsx to fetch Supabase user session server-side via createSupabaseServerClient()",
-        "Import isAdmin helper from src/lib/auth/admin.ts \u2014 reads ADMIN_EMAILS env var (server-only, no NEXT_PUBLIC_ prefix)",
-        "Fetch pending queue count for badge: SELECT COUNT(*) FROM reply_queue WHERE draft_status IN ('pending', 'needs_manual_draft') using service-role client",
-        "Pass isAdmin boolean and pendingCount as props to PortalNav component",
-        "PortalNav accepts isAdmin and pendingCount props and renders three admin tabs only when isAdmin=true: Queue (link /admin/queue, pending badge), Pipeline (link /admin/pipeline), Prospects (link /admin/prospects)",
-        "Non-admin users see no admin tabs in nav",
-        "Existing portal functionality (data catalog, prospect pages) unchanged",
+        "ProspectsBar component renders three filter tabs: 'All', 'Demand', 'Supply' \u2014 active tab highlighted in #92B090/20 bg with #92B090 text",
+        "Live counts shown: '{N} demand \u00b7 {M} supply \u00b7 {K} need response' \u2014 K = count of leads with a pending queue item",
+        "Selecting 'Demand' filters all sections to demand leads only; 'Supply' to supply leads only; 'All' shows everything",
+        "Filter state lifted to UnifiedCRMView, passed down as prop to all sections",
+        "'Signal monitoring \u2014 coming soon' text appears right-aligned in var(--text-muted)",
+        "When a filter produces zero leads, a page-level empty state shows: 'No {type} leads'",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 5,
       "passes": true,
-      "notes": "Current layout.tsx is a pure wrapper with no session fetching \u2014 this adds createSupabaseServerClient() + getUser() call. ADMIN_EMAILS is server-only (no NEXT_PUBLIC_ prefix). Client component PortalNav receives isAdmin: boolean as a prop, never the email list itself."
+      "notes": ""
     },
     {
-      "id": "US-006",
-      "title": "Create queue Server Actions",
-      "description": "As an admin, I need server actions to approve, dismiss, and snooze queue items.",
+      "id": "US-003",
+      "title": "RespondNowSection \u2014 section header and card list",
+      "description": "As John, I need a Respond Now section that surfaces leads needing action so I never miss a reply.",
       "acceptanceCriteria": [
-        "Create src/app/admin/queue/actions.ts with Server Actions",
-        "approveItem(id: string): calls assertAdmin(), updates draft_status to 'approved', sets approved_at to now(), ALSO updates lead_crm_data SET waiting_on='them', last_touch_at=now() for the linked lead_id (skip crm update if lead_id IS NULL), revalidates /admin/queue",
-        "dismissItem(id: string): calls assertAdmin(), updates draft_status to 'dismissed', revalidates /admin/queue",
-        "snoozeItem(id: string, until: Date): calls assertAdmin(), updates draft_status to 'snoozed', sets snoozed_until, revalidates /admin/queue",
-        "updateDraft(id: string, newDraft: string): calls assertAdmin(), updates draft_response text, revalidates /admin/queue",
-        "All actions use createSupabaseAdminClient() (service-role key), NOT user session client",
-        "All actions call assertAdmin() as first line \u2014 throws unauthorized for non-admins",
-        "Typecheck passes"
+        "Section header reads 'Respond Now (N)' where N = count of visible cards after filter",
+        "Shows leads where waiting_on='us' AND thread_state!='dead', plus any lead with a pending queue item, plus unmatched queue items",
+        "Cards with a queue item show a colored classification badge and inbox label \u2014 inbox display mapping: 'claru' \u2192 'claru.ai', 'moonvalley' \u2192 'moonvalley.com'",
+        "Cards without a queue item show a muted 'no reply yet' label in badge position",
+        "Sort: queue items first by received_at DESC, then manual 'waiting on us' leads by days_silent DESC",
+        "Unmatched queue items (no matching lead) shown with orange 'unmatched sender' badge \u2014 do NOT render lead metadata (company, ICP score, campaign) for these cards",
+        "Empty state: 'All clear \u2014 nothing needs a response \u2713' with check icon",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 6,
       "passes": true,
-      "notes": "approveItem must update lead_crm_data.waiting_on='them' so the Pipeline mode shows the correct ball-in-their-court status after approval. Service-role client bypasses RLS."
+      "notes": ""
     },
     {
-      "id": "US-007",
-      "title": "Create queue page Server Component",
-      "description": "As an admin, I need a /admin/queue page that shows pending reply queue items.",
+      "id": "US-004a",
+      "title": "RespondCard accordion \u2014 expand/collapse with email display",
+      "description": "As John, I need to click a Respond Now card and see the email context inline so I can read the reply without navigating away.",
       "acceptanceCriteria": [
-        "Create src/app/admin/queue/page.tsx as Server Component",
-        "Page checks admin status: if not admin, call notFound()",
-        "Fetch pending queue items using service-role client: SELECT * FROM reply_queue WHERE draft_status IN ('pending', 'needs_manual_draft') OR (draft_status = 'snoozed' AND snoozed_until < now()) ORDER BY received_at DESC",
-        "Join with leads table to get lead name and company",
-        "Check inbox_sync_state for last_error \u2014 pass to client for error banner",
-        "Pass items + sync state to QueueList client component",
-        "Typecheck passes"
+        "Clicking a card expands it in place; clicking again collapses \u2014 only one card expanded at a time across ALL sections (expandedId state at UnifiedCRMView level enforces this)",
+        "Expanded card shows: lead company, contact name/email, ICP score, campaign name + step",
+        "If card has queue item: subject line rendered as clickable link (opens Gmail thread in new tab via gmail_thread_id), body_snippet in muted monospace text below",
+        "If card has no queue item: 'No reply received \u2014 compose outreach' in muted text",
+        "Lead metadata and email content readable without scrolling on a typical laptop screen",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill \u2014 expand a card, confirm email content shows"
       ],
       "priority": 7,
       "passes": true,
-      "notes": "Data fetching happens server-side with service-role key. Client component handles interactivity."
+      "notes": ""
     },
     {
-      "id": "US-008",
-      "title": "Create QueueList client component",
-      "description": "As an admin, I need an interactive list of queue items that auto-refreshes.",
+      "id": "US-004b",
+      "title": "RespondCard draft textarea with auto-save on blur",
+      "description": "As John, I need a draft textarea that persists my edits automatically so I don't lose work.",
       "acceptanceCriteria": [
-        "Create src/app/admin/queue/QueueList.tsx as 'use client' component",
-        "Renders list of QueueItem components",
-        "Auto-polls via router.refresh() every 60 seconds to get fresh server data",
-        "Shows inbox sync error banner if inbox_sync_state.last_error is non-null: 'Gmail sync failed at [timestamp]: [error message]'",
-        "Empty state: 'No queue items \u2014 you're caught up' with checkmark icon",
-        "Matches existing portal design system (dark theme, monospace accents, sage green accent)",
+        "Expanded card shows textarea pre-filled with draft_response if one exists, else empty with placeholder 'Draft your outreach...'",
+        "onBlur: calls updateDraft server action from queue/actions.ts to write value to reply_queue.draft_response",
+        "Local React state holds current textarea value before blur; persistence is server-side only",
+        "While save is in flight: textarea border shows subtle highlight (border-[#92B090]/40); once saved returns to normal",
+        "After editing and clicking elsewhere, collapsing and re-expanding the card shows the saved draft",
         "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Verify in browser using dev-browser skill \u2014 edit textarea, click away, collapse/reopen card, confirm draft persists"
       ],
       "priority": 8,
       "passes": true,
-      "notes": "Design system: bg #0a0908, card #121210, border #2a2a28, accent #92B090 (sage green), monospace JetBrains Mono."
+      "notes": "US-004a must be complete before this story."
     },
     {
-      "id": "US-009",
-      "title": "Create QueueItem client component",
-      "description": "As an admin, I need each queue item to show the email details, classification, editable draft, and action buttons.",
+      "id": "US-004c",
+      "title": "RespondCard action buttons \u2014 Approve, Dismiss, Snooze",
+      "description": "As John, I need Approve, Dismiss, and Snooze buttons on each expanded card so I can take action on a reply inline.",
       "acceptanceCriteria": [
-        "Create src/app/admin/queue/QueueItem.tsx as 'use client' component",
-        "Shows: sender name + email, company name (from lead), classification badge (colored by type), received_at relative time, email subject, body_snippet",
-        "Draft response in editable monospace textarea with auto-resize",
-        "For needs_manual_draft items: show 'Needs manual draft' label, empty textarea ready for input",
-        "For lead_id=NULL items: show 'Unmatched sender \u2014 assign to a lead' prompt",
-        "Action buttons: Approve (calls approveItem, copies draft_response to clipboard), Dismiss (calls dismissItem), Snooze (calls snoozeItem with 24h default)",
-        "Classification badge colors: interested=green, question=blue, requirements=purple, not_interested=gray, bounce=red, internal_forward=yellow, unknown=orange",
+        "Expanded card shows three buttons: 'Approve & copy', 'Dismiss', 'Snooze 24h'",
+        "'Approve & copy': reads textarea current React state value, calls updateDraft to flush unsaved edits, copies to clipboard (best-effort), then calls approveItem \u2014 card disappears from Respond Now and lead appears in Waiting on Them",
+        "'Dismiss': calls dismissItem \u2014 card removed from list; lead section placement unchanged",
+        "'Snooze 24h': calls snoozeItem \u2014 card removed; reappears when snoozed_until < now() on next page load",
+        "While any action is in flight: all three buttons disabled, card at 50% opacity (useOptimistic optimistic removal)",
+        "If action fails (server throws): card returns to full opacity, buttons re-enable, no removal",
+        "mutationCountRef incremented before startTransition, decremented in finally block",
+        "Imports from both @/app/admin/queue/actions AND @/app/admin/pipeline/actions \u2014 both are 'use server' modules, cross-segment import is legal",
         "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Verify in browser using dev-browser skill \u2014 click Dismiss, confirm card disappears; click Snooze, confirm card disappears"
       ],
       "priority": 9,
       "passes": true,
-      "notes": "Approve copies to clipboard for pasting into Spark/Gmail. Phase 1 does not send emails automatically."
+      "notes": "US-004b and US-009 must be complete before this story."
     },
     {
-      "id": "US-010",
-      "title": "Add loading skeleton and error boundary for queue page",
-      "description": "As an admin, I need loading and error states for the queue page.",
+      "id": "US-005",
+      "title": "WaitingSection \u2014 compact lead rows with 3-dot move menu",
+      "description": "As John, I need a compact Waiting on Them section so I can see outstanding threads and detect when something is going cold.",
       "acceptanceCriteria": [
-        "Create src/app/admin/queue/loading.tsx with skeleton cards matching QueueItem layout",
-        "Create src/app/admin/queue/error.tsx with error boundary that shows error message and retry button",
-        "Skeleton uses pulse animation matching portal design system",
-        "Error boundary calls reset() on retry click",
+        "Section header reads 'Waiting on Them (N)'",
+        "Compact LeadRow per lead: company, contact, thread state chip (hot=orange/text-orange-400, warm=yellow/text-yellow-400, negotiating=sage/#92B090), days_silent (red if >14d, yellow if >7d), campaign step if present",
+        "On row hover: 3-dot menu button appears; clicking shows options: 'Move to Respond Now', 'Move to Nurturing', 'Move to Cold'",
+        "Move calls moveLeadToColumn with column IDs: 'Move to Respond Now' \u2192 'respond', 'Move to Nurturing' \u2192 'nurturing', 'Move to Cold' \u2192 'cold'",
+        "Move is optimistic: card disappears immediately; if server fails, card snaps back with brief error indicator; mutationCountRef incremented/decremented",
+        "Filter: waiting_on='them' AND thread_state IN ('hot','warm','negotiating')",
+        "Empty state: 'No leads waiting on them' in muted text",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
@@ -176,301 +181,98 @@
       "notes": ""
     },
     {
-      "id": "US-011",
-      "title": "Add pending count badge to PortalNav Queue link",
-      "description": "As an admin, I want to see how many items need attention without navigating to the queue page.",
+      "id": "US-006",
+      "title": "NurturingSection \u2014 compact lead rows with 3-dot move menu",
+      "description": "As John, I need a Nurturing section for warm leads with no active ball.",
       "acceptanceCriteria": [
-        "PortalNav Queue link shows count badge with number of pending + needs_manual_draft items",
-        "Badge count fetched server-side in portal layout.tsx via service-role client: SELECT COUNT(*) FROM reply_queue WHERE draft_status IN ('pending', 'needs_manual_draft')",
-        "Badge only renders when count > 0",
-        "Badge styled as small circle with count, sage green background, positioned top-right of Queue link",
-        "Pass pendingCount as prop alongside isAdmin to PortalNav",
+        "Section header reads 'Nurturing (N)'",
+        "Same compact LeadRow component as US-005",
+        "Filter: waiting_on='unknown' AND thread_state='warm'",
+        "3-dot menu options: 'Move to Respond Now' \u2192 'respond', 'Move to Waiting on Them' \u2192 'their-court', 'Move to Cold' \u2192 'cold'",
+        "Same optimistic move behavior and rollback as US-005",
+        "Empty state: 'No leads in nurturing' in muted text",
+        "Section header count updates when filter changes",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 11,
       "passes": true,
-      "notes": "Depends on US-005 (PortalNav already accepts isAdmin prop and all three admin tabs)."
+      "notes": ""
     },
     {
-      "id": "US-012",
-      "title": "Attio CSV backfill migration script",
-      "description": "As a developer, I need a one-time migration script that seeds lead_crm_data from an Attio CSV export.",
+      "id": "US-007",
+      "title": "ColdSection \u2014 collapsed by default",
+      "description": "As John, I need a Cold section that starts collapsed so cold leads don't dominate my working view.",
       "acceptanceCriteria": [
-        "Create scripts/backfill-attio-crm.ts",
-        "Script reads Attio export CSV (path as CLI arg)",
-        "For each Attio contact: match to existing leads table by email, insert lead_crm_data row with type=demand/supply (from Attio tags), thread_state based on Attio status",
-        "Also query Smartlead API GET /api/v1/campaigns/lead?email={email}&api_key={SMARTLEAD_API_KEY} to find the lead's Smartlead campaign_id and populate smartlead_lead_id (Smartlead's internal lead record ID) for each matched lead",
-        "Smartlead API key read from SMARTLEAD_API_KEY env var (passed as ?api_key= query param)",
-        "Script is idempotent: uses INSERT ... ON CONFLICT (lead_id) DO UPDATE",
-        "Logs: matched N leads, skipped N (no match), created N lead_crm_data rows, found N Smartlead lead IDs",
-        "Uses service-role key from .env.local",
-        "Typecheck passes"
+        "Page loads with ColdSection collapsed \u2014 only 'Cold (N) \u25b8' header visible",
+        "Clicking header expands section; clicking again collapses",
+        "Filter: thread_state='cold'",
+        "Expanded: same compact LeadRow with company name at 60% opacity (text-[var(--text-primary)]/60)",
+        "3-dot menu options: 'Move to Respond Now' \u2192 'respond', 'Move to Nurturing' \u2192 'nurturing'",
+        "Empty state when expanded: 'No cold leads' in muted text",
+        "Section header count (N) visible even when collapsed",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill \u2014 confirm section starts collapsed"
       ],
       "priority": 12,
       "passes": true,
-      "notes": "Run BEFORE agent starts. Also populates smartlead_lead_id needed for US-020 Smartlead sync. Smartlead auth: all API calls append ?api_key={SMARTLEAD_API_KEY} as a query param (not a header)."
+      "notes": ""
     },
     {
-      "id": "US-013",
-      "title": "Feasibility spike: Remote Task reads Gmail and writes Supabase",
-      "description": "As a developer, I need to validate that Claude Code Remote Tasks can access Gmail MCP and write to Supabase before building the agent loop.",
+      "id": "US-008a",
+      "title": "POST /api/admin/ai-draft route",
+      "description": "As the AI draft system, I need a protected API route that generates a reply draft using Claude so the client can trigger AI-assisted drafts without storing API keys in the browser.",
       "acceptanceCriteria": [
-        "Create a test Remote Task (via /schedule) that: queries Gmail via Google Workspace MCP for 3 recent emails, writes a test row to inbox_sync_state, reads it back",
-        "Document whether Google Workspace MCP is available in Remote Task environment",
-        "Test Composio GMAIL_FETCH_EMAILS action for john@moonvalley.com from Remote Task",
-        "If Gmail MCP fails: document fallback plan (Edge Function + googleapis npm package)",
-        "If Composio fails: document REST API fallback (POST /api/v1/actions/GMAIL_FETCH_EMAILS/execute)",
-        "Test Smartlead API access from Remote Task: GET /api/v1/campaigns/lead?email=test@example.com&api_key={SMARTLEAD_API_KEY} \u2014 verify the SMARTLEAD_API_KEY env var is accessible from Remote Task env",
-        "Results documented in tasks/spike-remote-task-results.md",
+        "Route file: src/app/api/admin/ai-draft/route.ts with export const maxDuration = 60",
+        "Auth: do NOT use assertAdmin() \u2014 it trusts x-admin-preview header which any caller can spoof. Use inline check: const supabase = await createSupabaseServerClient(); const { data: { user } } = await supabase.auth.getUser(); if (!user?.email || !isAdmin(user.email)) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })",
+        "Input validation: both leadId and queueItemId required \u2014 missing either returns 400",
+        "Fetches lead context + queue item body in parallel (Promise.all)",
+        "Clip search: clips JOIN dataset_clips ON dataset_clips.clip_id = clips.id JOIN datasets ON datasets.id = dataset_clips.dataset_id; branch on lead.type: 'demand' \u2192 datasets.type IN ('game_capture','short_form','long_form'), 'supply' \u2192 datasets.type IN ('annotation','classification','instruction'); filter clips.ai_caption IS NOT NULL, LIMIT 5",
+        "Calls Anthropic SDK claude-sonnet-4-6 non-streaming max_tokens=300 with system prompt containing: company context, lead.type, thread_state, campaign, ICP score, body_snippet, up to 5 clip captions, and voice rules (under 80 words, no em-dashes, CTA = their behavior question, open with Hey [first name], sign John)",
+        "Error handling: 429 \u2192 { error: 'rate_limited' } HTTP 503; 529 \u2192 { error: 'overloaded' } HTTP 503; 401 (Anthropic key invalid) \u2192 { error: 'api_key_error' } HTTP 500; other \u2192 { error: 'unknown' } HTTP 503. Note: platform timeout is not catchable server-side.",
+        "On success: writes draft to reply_queue.draft_response; revalidates /admin/pipeline AND /admin/queue; returns { draft: string } HTTP 200",
+        "SDK does NOT auto-retry 529 (unlike 429) \u2014 client handles retry UX",
         "Typecheck passes"
       ],
       "priority": 13,
       "passes": true,
-      "notes": "BLOCKING for US-014 (inbox reader) and US-020 (Smartlead sync). SMARTLEAD_API_KEY must be in Remote Task environment \u2014 verify this. If Smartlead API is inaccessible from Remote Task, US-020 must use Smartlead CLI instead."
+      "notes": "ANTHROPIC_API_KEY must be set in .env.local. The route must use createSupabaseServerClient (not assertAdmin) for auth."
     },
     {
-      "id": "US-014",
-      "title": "Agent: inbox reader with date-based checkpoint",
-      "description": "As the system, I need the agent to read both inboxes using date-based filters and checkpoint correctly.",
+      "id": "US-008b",
+      "title": "'Draft with Claude' button in RespondCard",
+      "description": "As John, I need a button on each expanded Respond Now card that triggers Claude to draft a reply so I don't have to write from scratch.",
       "acceptanceCriteria": [
-        "Create src/lib/agent/inbox-reader.ts (or equivalent agent prompt/script)",
-        "Reads inbox_sync_state.last_processed_at for each inbox",
-        "Queries claru.ai inbox via Google Workspace MCP with query: after:YYYY/MM/DD (derived from last_processed_at)",
-        "For each message: calls gmail_get_message_details to fetch full body",
-        "Queries moonvalley.com inbox via Composio (or REST API fallback per spike results)",
-        "Inserts into reply_queue with ON CONFLICT ON CONSTRAINT reply_queue_inbox_message_unique DO NOTHING",
-        "After processing: advances inbox_sync_state.last_processed_at to newest message timestamp",
-        "On success: clears inbox_sync_state.last_error to NULL",
-        "On failure: sets inbox_sync_state.last_error with error message",
-        "When a new reply is processed: updates lead_crm_data SET waiting_on='us' for the matched lead_id (if not null)",
-        "Typecheck passes"
+        "'Draft with Claude' button appears only when card is expanded AND has a queue item (queueItem !== null)",
+        "Clicking button: sets isDrafting = true, sends POST to /api/admin/ai-draft with leadId and queueItemId",
+        "While in flight: button shows 'Drafting...' with a spinner; button disabled; Approve/Dismiss/Snooze buttons also disabled",
+        "On success: textarea fills with returned draft text; button calls router.refresh() to sync server tree; isDrafting = false; button returns to normal",
+        "On error (fetch throws or response.ok is false): button shows user-readable message for 3s ('Rate limited \u2014 try in 30s', 'Claude is busy \u2014 try again', 'Request timed out \u2014 try again', 'Unknown error \u2014 try again') then returns to normal",
+        "isDrafting is a plain useState boolean \u2014 auto-refresh interval checks isDrafting and skips router.refresh() while true",
+        "Button does not appear if queueItem is null",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill \u2014 click 'Draft with Claude', confirm loading state, confirm draft fills textarea"
       ],
       "priority": 14,
       "passes": true,
-      "notes": "Depends on spike results (US-013). Sets waiting_on='us' on new replies so Pipeline mode immediately shows ball is in our court."
+      "notes": "US-008a must be complete before this story. Requires a real Anthropic API key in .env.local and a real queue item in the DB."
     },
     {
-      "id": "US-015",
-      "title": "Agent: sender matching and reply classification",
-      "description": "As the system, I need incoming emails matched to leads and classified by intent.",
+      "id": "US-012",
+      "title": "Remove old Kanban and table code",
+      "description": "As the codebase, I need the old Kanban and table split removed so there is one CRM view to maintain.",
       "acceptanceCriteria": [
-        "Match sender to leads table by email address (exact match on email column)",
-        "If no exact match: try domain match (extract domain from sender_email, find leads with same domain)",
-        "If no match: set lead_id=NULL, classification='unknown'",
-        "Classify reply intent into one of: interested, question, requirements, not_interested, bounce, internal_forward, unsubscribe, unknown",
-        "Classification uses email body content, subject, and sender context",
-        "Write classification to reply_queue.classification column",
-        "Typecheck passes"
+        "This story is only attempted after US-001 through US-011 are verified working in the browser",
+        "PipelineKanban.tsx deleted",
+        "PipelineList.tsx deleted",
+        "Any imports of PipelineKanban or PipelineList removed",
+        "pipeline/page.tsx renders UnifiedCRMView only",
+        "Typecheck passes with no orphaned imports",
+        "Verify in browser using dev-browser skill \u2014 pipeline page loads without errors"
       ],
       "priority": 15,
       "passes": true,
-      "notes": "Classification is done by Claude in the Remote Task \u2014 this is LLM-based, not rule-based."
-    },
-    {
-      "id": "US-016",
-      "title": "Agent: draft response generation per GTM playbook",
-      "description": "As the system, I need draft responses generated following the GTM playbook rules.",
-      "acceptanceCriteria": [
-        "For non-bounce, non-unsubscribe replies: generate a draft response",
-        "Draft follows GTM playbook rules from gtm/strategy/messaging.md: no em-dashes, founder posture, appropriate CTA",
-        "For demand-side interested replies: include relevant dataset/clip context from clips table",
-        "For supply-side replies: use partnership tone per supply-side CTA rules",
-        "Draft written to reply_queue.draft_response column",
-        "If draft generation fails: set draft_status='needs_manual_draft', draft_response=NULL",
-        "Update lead_crm_data.last_touch_at and thread_state based on classification",
-        "Typecheck passes"
-      ],
-      "priority": 16,
-      "passes": true,
-      "notes": "GTM playbook is the agent's rulebook. Draft quality is critical \u2014 this is what the founder reviews."
-    },
-    {
-      "id": "US-017",
-      "title": "Schedule inbox reader as recurring Remote Task (every 30 min)",
-      "description": "As a developer, I need the inbox reader agent loop scheduled to run every 30 minutes autonomously.",
-      "acceptanceCriteria": [
-        "Configure Claude Code Remote Task (or /schedule cron) running every 30 minutes",
-        "Task prompt includes: read both inboxes, match senders, classify, draft responses, write to reply_queue, update waiting_on",
-        "Task has access to: Google Workspace MCP, Composio, Supabase service-role key, GTM playbook files",
-        "Task runs independently without requiring a local Claude Code session",
-        "First run processes all recent emails and populates reply_queue",
-        "Document the scheduled task configuration in tasks/agent-schedule.md",
-        "Typecheck passes"
-      ],
-      "priority": 17,
-      "passes": true,
-      "notes": "Inbox reader runs every 30 min. Smartlead sync (US-020) runs every 1 hour as a separate task. Signal scanner (US-021) runs daily."
-    },
-    {
-      "id": "US-018",
-      "title": "Add Active Pipeline columns to lead_crm_data",
-      "description": "As a developer, I need four new columns on lead_crm_data to power the Pipeline mode: smartlead_lead_id, waiting_on, smartlead_campaign_name, smartlead_sequence_step.",
-      "acceptanceCriteria": [
-        "Create a new migration file (after US-002 migration) with ALTER TABLE lead_crm_data ADD COLUMN",
-        "ADD COLUMN smartlead_lead_id bigint \u2014 Smartlead internal lead ID for API queries",
-        "ADD COLUMN waiting_on text CHECK (waiting_on IN ('us', 'them', 'unknown')) DEFAULT 'unknown'",
-        "ADD COLUMN smartlead_campaign_name text \u2014 human-readable campaign name, synced hourly by US-020",
-        "ADD COLUMN smartlead_sequence_step int \u2014 which step (1, 2, 3) of the sequence they're currently on, synced hourly by US-020",
-        "Migration file created at supabase/migrations/ with timestamp after US-002",
-        "Typecheck passes"
-      ],
-      "priority": 18,
-      "passes": true,
-      "notes": "No smartlead_next_touch_at column \u2014 Smartlead's public API does not expose per-lead next scheduled send date. Instead show campaign_name + sequence_step in the Pipeline UI. waiting_on lifecycle: inbox reader sets 'us' on new reply, approveItem sets 'them' on approval. All new columns nullable \u2014 existing rows from Attio backfill start with NULLs, which is correct."
-    },
-    {
-      "id": "US-019",
-      "title": "Create prospect_signals table migration",
-      "description": "As a developer, I need a prospect_signals table to store flagged opportunities from the signal scanner agent.",
-      "acceptanceCriteria": [
-        "Create prospect_signals table with columns: id (uuid PK), company_name (text NOT NULL), contact_name (text), contact_email (text), signal_type (text NOT NULL CHECK hiring/funding/product_launch/gtm_file/news), signal_description (text NOT NULL), source_url (text), status (text CHECK new/queued/skipped DEFAULT new), created_at (timestamptz DEFAULT now()), updated_at (timestamptz DEFAULT now())",
-        "Add unique constraint: ALTER TABLE prospect_signals ADD CONSTRAINT prospect_signals_company_signal_unique UNIQUE (company_name, signal_type)",
-        "Use ON CONFLICT ON CONSTRAINT prospect_signals_company_signal_unique DO UPDATE SET updated_at = now() (NOT DO NOTHING) \u2014 ensures signal refreshes if re-scanned, and allows status to be reset manually",
-        "Enable RLS with no policies: ALTER TABLE prospect_signals ENABLE ROW LEVEL SECURITY",
-        "Add updated_at trigger: CREATE TRIGGER set_updated_at BEFORE UPDATE ON prospect_signals FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()",
-        "Migration file created at supabase/migrations/",
-        "Typecheck passes"
-      ],
-      "priority": 19,
-      "passes": true,
-      "notes": "DO UPDATE SET updated_at (not DO NOTHING) allows re-scanning to refresh signals and enables a future 'reset to new' admin action. updated_at is needed because status mutates (new\u2192queued/skipped) and we need an audit trail. contact_name and contact_email are nullable \u2014 scanner populates them via LLM extraction from the company file body; admin can also fill in manually from the UI."
-    },
-    {
-      "id": "US-020",
-      "title": "Smartlead sync agent (hourly) \u2014 campaign name and sequence step",
-      "description": "As the system, I need an hourly agent that syncs each active lead's Smartlead campaign name and sequence step into lead_crm_data.",
-      "acceptanceCriteria": [
-        "Create src/lib/agent/smartlead-sync.ts (or equivalent agent prompt/script)",
-        "Reads SMARTLEAD_API_KEY from env (server-only var, added in US-004's .env.example). All API calls append ?api_key={SMARTLEAD_API_KEY} as query param (Smartlead's auth mechanism)",
-        "Reads all leads from lead_crm_data WHERE thread_state NOT IN ('cold', 'dead') AND smartlead_lead_id IS NOT NULL",
-        "For each lead: calls Smartlead API GET /api/v1/campaigns/lead?email={lead_email}&api_key={key} to get campaign assignment and sequence step number. BEFORE IMPLEMENTING: inspect the actual API response JSON for a test lead (e.g., curl this endpoint with a real lead email) and confirm the exact field name for sequence step \u2014 common field names in Smartlead responses include 'seq_number', 'sequence_number', 'email_step_seq_number'. Use the actual field name from the response, not an assumed name.",
-        "Updates lead_crm_data SET smartlead_campaign_name = [campaign.name from API response], smartlead_sequence_step = [confirmed sequence step field name from API response]",
-        "Rate limiting: 200ms delay between each API call. On HTTP 429 response: log 'rate limited', abort the remaining leads for this run (not just skip one lead), write error to a log table or stdout",
-        "On non-429 error for a single lead: log error, skip that lead, continue with others",
-        "Scheduled as a separate Remote Task running every 1 hour",
-        "SMARTLEAD_API_KEY added to .env.example with comment: '# Smartlead API key \u2014 get from Smartlead dashboard \u2192 Settings \u2192 API. Used as ?api_key= query param.'",
-        "Configuration documented in tasks/agent-schedule.md",
-        "Typecheck passes"
-      ],
-      "priority": 20,
-      "passes": true,
-      "notes": "Depends on US-013 spike confirming Smartlead API and SMARTLEAD_API_KEY access from Remote Task env. Note: Smartlead API does NOT expose per-lead next scheduled send date \u2014 do not attempt to fetch or display it. Campaign name + sequence step is what's available and is sufficient for the Pipeline view."
-    },
-    {
-      "id": "US-021",
-      "title": "Signal scanner agent (daily at 8am ET)",
-      "description": "As the system, I need a daily agent that scans gtm/knowledge-graph/companies/ for high-ICP companies not yet in the leads table and writes them to prospect_signals.",
-      "acceptanceCriteria": [
-        "Create src/lib/agent/signal-scanner.ts (or equivalent agent prompt/script)",
-        "Reads all .md files in gtm/knowledge-graph/companies/",
-        "Parses frontmatter: extracts icp_score (0-100 scale \u2014 note: this is different from lead_crm_data.icp_score which uses 1-10 scale), company name (from 'name' field), domain",
-        "For each file with icp_score >= 80 (0-100 scale, meaning high-confidence ICP targets): check if company domain already in leads table (domain match on lead email domain)",
-        "If NOT in leads: extract primary contact using LLM \u2014 read the '## Key People' table from the file body, extract the first row marked as the planned contact (highest confidence email), extract contact name and email",
-        "Insert into prospect_signals with signal_type='gtm_file', contact_name and contact_email from LLM extraction (nullable if extraction fails), signal_description = 1-2 sentence summary of why this company is a target (extracted from file overview)",
-        "Uses ON CONFLICT ON CONSTRAINT prospect_signals_company_signal_unique DO UPDATE SET updated_at = now() \u2014 safe to run multiple times",
-        "Scheduled as a Remote Task running daily at 8am ET (cron: 0 13 * * *)",
-        "Configuration documented in tasks/agent-schedule.md",
-        "Typecheck passes"
-      ],
-      "priority": 21,
-      "passes": true,
-      "notes": "CRITICAL: icp_score in knowledge graph files uses 0-100 scale (e.g., Sama=95, iMerit=92). Threshold is >= 80, not >= 8. The lead_crm_data.icp_score column uses 1-10 scale \u2014 these are DIFFERENT scales, do not confuse them. Contact info (name, email) is NOT in frontmatter \u2014 it is in the '## Key People' markdown table in the file body. Use LLM extraction, not frontmatter parsing, for contact fields."
-    },
-    {
-      "id": "US-022",
-      "title": "Create pipeline page Server Component",
-      "description": "As an admin, I need a /admin/pipeline page that shows all active leads sorted by days silent.",
-      "acceptanceCriteria": [
-        "Create src/app/admin/pipeline/page.tsx as Server Component",
-        "Page checks admin status: if not admin, call notFound()",
-        "Fetch active leads using service-role client with this query: SELECT lcd.*, l.email, l.name, l.company, COALESCE(EXTRACT(EPOCH FROM (now() - lcd.last_touch_at)) / 86400, 9999) AS days_silent FROM lead_crm_data lcd JOIN leads l ON lcd.lead_id = l.id WHERE lcd.thread_state IN ('warm', 'hot', 'negotiating') ORDER BY days_silent DESC",
-        "COALESCE ensures leads with NULL last_touch_at (never contacted) appear at top with days_silent=9999 and render as 'Never contacted' in the UI \u2014 do NOT omit them",
-        "Fetch last 3 reply_queue events per lead using a SINGLE CTE with ROW_NUMBER() window function \u2014 no separate per-lead queries and no programmatic IN list: WITH active_leads AS (SELECT lead_id FROM lead_crm_data WHERE thread_state IN ('warm','hot','negotiating')), ranked AS (SELECT rq.*, ROW_NUMBER() OVER (PARTITION BY rq.lead_id ORDER BY rq.received_at DESC) AS rn FROM reply_queue rq JOIN active_leads al ON rq.lead_id = al.lead_id) SELECT * FROM ranked WHERE rn <= 3. This is one round trip, no IN list construction.",
-        "Pass leads + activity data to PipelineList client component",
-        "Add loading.tsx and error.tsx for the pipeline route",
-        "Typecheck passes"
-      ],
-      "priority": 22,
-      "passes": true,
-      "notes": "COALESCE is critical \u2014 NULL days_silent for never-contacted leads breaks client-side sort (NaN comparisons) and the red-highlight logic. 9999 as sentinel value pushes them to the top. ROW_NUMBER window function is specified explicitly to prevent N+1 query implementation."
-    },
-    {
-      "id": "US-023",
-      "title": "Create PipelineList and PipelineRow client components",
-      "description": "As an admin, I need an interactive pipeline table with sortable columns, demand/supply filter, and expandable rows showing activity history.",
-      "acceptanceCriteria": [
-        "Create src/app/admin/pipeline/PipelineList.tsx as 'use client' component",
-        "Renders sortable table with columns: Contact (name + email), Company, Type (demand/supply badge), Thread State (colored badge), Days Silent (shows 'Never contacted' if days_silent=9999; highlights red if days_silent > 3), Waiting On (US badge in orange / THEM badge in gray / UNKNOWN badge), Smartlead (shows '[campaign_name] \u2014 Step [N]' if set, or '\u2014' if not in campaign)",
-        "Default sort: days_silent DESC. User can click column headers to re-sort client-side",
-        "Filter toggle buttons: All / Demand / Supply \u2014 filters by type field",
-        "Create src/app/admin/pipeline/PipelineRow.tsx as 'use client' component",
-        "Clicking a row expands to show last 3 activity events (subject line, date, classification badge)",
-        "If waiting_on='us' AND lead has a pending queue item (draft_status IN pending/needs_manual_draft \u2014 NOT snoozed): show 'Draft response \u2192' link to /admin/queue#[item-id]. If the item is snoozed: show 'Snoozed until [date]' instead of the link",
-        "Matches portal design system (dark theme, monospace, sage green accent)",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 23,
-      "passes": true,
-      "notes": "Smartlead column shows campaign_name + sequence_step (not a date). 'Draft response' link must check draft_status \u2014 do not show the link if the queue item is snoozed, as the item won't appear on the queue page until snoozed_until passes."
-    },
-    {
-      "id": "US-024",
-      "title": "Create pipeline Server Actions",
-      "description": "As an admin, I need server actions to update thread state and waiting_on directly from the Pipeline view.",
-      "acceptanceCriteria": [
-        "Create src/app/admin/pipeline/actions.ts with Server Actions",
-        "updateThreadState(leadId: string, state: 'cold' | 'warm' | 'hot' | 'negotiating' | 'closed' | 'dead'): calls assertAdmin(), updates lead_crm_data.thread_state, revalidates /admin/pipeline",
-        "updateWaitingOn(leadId: string, value: 'us' | 'them' | 'unknown'): calls assertAdmin(), updates lead_crm_data.waiting_on, revalidates /admin/pipeline",
-        "All actions use createSupabaseAdminClient() (service-role key)",
-        "All actions call assertAdmin() as first line",
-        "PipelineRow renders a thread state dropdown that calls updateThreadState on change",
-        "Typecheck passes"
-      ],
-      "priority": 24,
-      "passes": true,
-      "notes": "Admin can manually override thread_state and waiting_on from the pipeline view without opening the queue."
-    },
-    {
-      "id": "US-025",
-      "title": "Create prospect discovery page Server Component",
-      "description": "As an admin, I need a /admin/prospects page that shows new prospect signals from the signal scanner.",
-      "acceptanceCriteria": [
-        "Create src/app/admin/prospects/page.tsx as Server Component",
-        "Page checks admin status: if not admin, call notFound()",
-        "Fetch new signals: SELECT * FROM prospect_signals WHERE status = 'new' ORDER BY created_at DESC",
-        "Pass signals to ProspectList client component \u2014 do NOT fetch Smartlead campaigns in the Server Component (this would block the entire page if Smartlead API is slow or down)",
-        "ProspectList fetches the Smartlead campaign list client-side on component mount (GET /api/v1/campaigns?limit=50&status=active&api_key={key} via a Next.js API route at /api/admin/smartlead-campaigns). This keeps Smartlead availability separate from page rendering",
-        "Create /api/admin/smartlead-campaigns/route.ts: Next.js Route Handler. IMPORTANT: Route Handlers do NOT automatically have session context \u2014 unlike Server Components. Must explicitly plumb: (1) import { createSupabaseServerClient } from src/lib/supabase/server, (2) call createSupabaseServerClient() with the request cookies, (3) call assertAdmin() with that client \u2014 throw 401 if not admin. Then proxy GET /api/v1/campaigns?limit=50&status=active&api_key={SMARTLEAD_API_KEY} to Smartlead and return the campaign list as JSON. Reads SMARTLEAD_API_KEY from env (server-only var).",
-        "Add loading.tsx and error.tsx for the prospects route",
-        "Typecheck passes"
-      ],
-      "priority": 25,
-      "passes": true,
-      "notes": "Smartlead campaign fetch moved client-side to prevent Smartlead API latency/downtime from blocking the entire Server Component page render. The signals (from Supabase) load instantly; the campaign dropdown in ProspectCard can show a loading state independently."
-    },
-    {
-      "id": "US-026",
-      "title": "Create ProspectList, ProspectCard components and prospect Server Actions",
-      "description": "As an admin, I need interactive prospect signal cards with Queue in Smartlead and Skip actions.",
-      "acceptanceCriteria": [
-        "Create src/app/admin/prospects/ProspectList.tsx as 'use client' component \u2014 renders list of ProspectCard components, fetches campaign list from /api/admin/smartlead-campaigns on mount, passes campaigns to each card",
-        "Create src/app/admin/prospects/ProspectCard.tsx as 'use client' component",
-        "ProspectCard shows: company name, contact name + email (or 'Contact unknown \u2014 fill in before queuing' if NULL), signal type badge (hiring=green, funding=blue, gtm_file=sage, news=gray), signal description, source URL link, created_at date",
-        "If contact_email is NULL: show an inline form with name + email fields that admin fills before queuing",
-        "'Queue in Smartlead' shows a campaign dropdown (from ProspectList campaigns prop) then calls queueInSmartlead Server Action",
-        "Create src/app/admin/prospects/actions.ts",
-        "queueInSmartlead(signalId: string, campaignId: string, contactEmail: string, contactName: string, companyName: string): calls assertAdmin(), validates contactEmail is non-empty (throw if missing), calls Smartlead API POST /api/v1/leads to add the contact to the campaign (auth: ?api_key={SMARTLEAD_API_KEY}), creates a leads table row in Supabase using INSERT INTO leads (name, email, company) VALUES (contactName, contactEmail, companyName) ON CONFLICT (email) DO UPDATE SET email=EXCLUDED.email RETURNING id \u2014 using DO UPDATE SET email=EXCLUDED.email (a no-op update) instead of DO NOTHING ensures the RETURNING id clause always yields the lead_id whether the row was inserted or already existed; capture lead_id from that result, ALSO INSERT INTO lead_crm_data (lead_id, type, thread_state, smartlead_campaign_id) VALUES ([lead_id], 'demand', 'cold', [campaignId]) ON CONFLICT (lead_id) DO NOTHING \u2014 this ensures the new lead appears in the Pipeline view and Smartlead sync from day 1, updates prospect_signals.status='queued', revalidates /admin/prospects",
-        "skipSignal(signalId: string): calls assertAdmin(), updates prospect_signals.status='skipped', revalidates /admin/prospects",
-        "Empty state: 'No new prospect signals \u2014 scanner runs daily at 8am ET'",
-        "Matches portal design system",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 26,
-      "passes": true,
-      "notes": "queueInSmartlead requires non-null contactEmail \u2014 validated server-side. leads table INSERT uses contactName as name (NOT NULL on leads table), with companyName as company. If contact info was NULL on the signal, admin fills it in via the inline form before the action is callable. SMARTLEAD_API_KEY used as query param per Smartlead auth pattern."
+      "notes": "LAST story \u2014 only clean up dead code after the new view is live."
     }
   ]
 }
