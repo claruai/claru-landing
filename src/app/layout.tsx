@@ -128,7 +128,7 @@ const globalJsonLd = {
       image: { "@id": "https://claru.ai/#logo" },
       description:
         "Purpose-built human annotation data for frontier AI labs, specializing in text, vision, video, and robotics modalities.",
-      foundingDate: "2024",
+      foundingDate: "2024-01-01",
       contactPoint: {
         "@type": "ContactPoint",
         contactType: "sales",
@@ -138,6 +138,9 @@ const globalJsonLd = {
       sameAs: [
         "https://github.com/claruai",
         "https://www.linkedin.com/company/claruai",
+        "https://twitter.com/claruai",
+        "https://www.crunchbase.com/organization/claru-ai",
+        "https://www.wikidata.org/wiki/Q130520850",
       ],
       knowsAbout: [
         "AI training data",

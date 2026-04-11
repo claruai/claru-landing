@@ -66,18 +66,7 @@ const faqJsonLd = {
   ],
 };
 
-// ---------------------------------------------------------------------------
-// Organization JSON-LD
-// ---------------------------------------------------------------------------
-const orgJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "Claru",
-  url: "https://claru.ai",
-  description:
-    "Purpose-built training data for frontier robotics, embodied AI, and world models. 4M+ annotations, 100+ datasets, 10,000+ collectors worldwide.",
-  sameAs: [],
-};
+// Organization JSON-LD is rendered globally via layout.tsx
 
 // ---------------------------------------------------------------------------
 // Server-rendered SEO shell
@@ -156,10 +145,6 @@ export default function Home() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
       />
       <SEOShell />
       <HomeLoader />

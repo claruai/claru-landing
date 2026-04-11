@@ -64,9 +64,15 @@ const articleJsonLd = {
   description:
     "Everything robotics teams need to know about Vision-Language-Action (VLA) training data. Covers OpenVLA, RT-2, pi-zero, GR00T N1, open datasets, data gaps, and how to build production-ready VLA datasets.",
   author: {
-    "@type": "Organization",
-    name: "Claru AI",
-    url: "https://claru.ai",
+    "@type": "Person",
+    name: "John Thomas",
+    url: "https://www.linkedin.com/in/jonkthomas",
+    jobTitle: "Co-founder, Claru AI",
+    worksFor: {
+      "@type": "Organization",
+      name: "Claru AI",
+      url: "https://claru.ai",
+    },
   },
   publisher: {
     "@type": "Organization",
