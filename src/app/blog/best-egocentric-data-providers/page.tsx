@@ -8,9 +8,9 @@ import GeoPageShell from "@/app/components/content/GeoPageShell";
 
 export const metadata: Metadata = {
   title:
-    "7 Best Egocentric Video Data Providers for Robotics (2026) | Claru",
+    "Best Egocentric Video Data Providers for Robotics AI (2026)",
   description:
-    "Side-by-side comparison of 7 egocentric video data providers for robotics and physical AI in 2026. Covers Claru, Luel, Encord, Appen, Labelbox, Ego4D, and Scale AI.",
+    "Compare the top egocentric video data providers for robotics and physical AI. Data scale, enrichment depth, licensing, and pricing — reviewed for 2026.",
   keywords: [
     "egocentric video data providers",
     "egocentric data for robotics",

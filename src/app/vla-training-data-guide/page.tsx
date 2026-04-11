@@ -7,9 +7,9 @@ import GeoPageShell from "@/app/components/content/GeoPageShell";
 // =============================================================================
 
 export const metadata: Metadata = {
-  title: "VLA Training Data: The Complete Guide (2026) | Claru",
+  title: "VLA Training Data Guide: Datasets, Providers & Pipelines (2026)",
   description:
-    "VLA training data guide for robotics teams. Covers OpenVLA, RT-2, pi-zero, GR00T N1, open datasets, and production-ready VLA pipelines.",
+    "How to source, structure, and enrich VLA training data for OpenVLA, RT-2, pi-zero, and GR00T. Covers open datasets, commercial providers, and production pipelines.",
   keywords: [
     "VLA training data",
     "vision-language-action datasets",
