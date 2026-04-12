@@ -8,6 +8,7 @@ import { getAllGuideSlugs } from "@/data/programmatic/guides/index";
 import { getAllTaskSlugs } from "@/data/programmatic/tasks/index";
 import { getAllModelSlugs } from "@/data/programmatic/models/index";
 import { getAllDatasetSlugs } from "@/data/programmatic/datasets/index";
+import { fetchAllOSSSlugs } from "@/lib/oss-datasets";
 import { getAllFormatSlugs } from "@/data/programmatic/formats/index";
 import { getAllIndustrySlugs } from "@/data/programmatic/industries/index";
 import { getAllLabSlugs } from "@/data/programmatic/labs/index";
@@ -254,13 +255,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  // ── Dynamic: Dataset Pages ─────────────────────────────────────
-  const datasetPages: MetadataRoute.Sitemap = getAllDatasetSlugs().map((slug) => ({
-    url: `${BASE}/datasets/${slug}`,
-    lastModified: now,
-    changeFrequency: "monthly" as const,
-    priority: 0.7,
-  }));
+  // ── Dynamic: Dataset Pages (Static Claru + OSS from Supabase) ──
+  const staticDatasetSlugs = new Set(getAllDatasetSlugs());
+  let ossSlugs: string[] = [];
+  try {
+    ossSlugs = await fetchAllOSSSlugs();
+  } catch {
+    // Graceful degradation
+  }
+
+  const datasetPages: MetadataRoute.Sitemap = [
+    ...getAllDatasetSlugs().map((slug) => ({
+      url: `${BASE}/datasets/${slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
+    ...ossSlugs
+      .filter((slug) => !staticDatasetSlugs.has(slug))
+      .map((slug) => ({
+        url: `${BASE}/datasets/${slug}`,
+        lastModified: now,
+        changeFrequency: "monthly" as const,
+        priority: 0.6,
+      })),
+  ];
 
   // ── Dynamic: Format Pages ──────────────────────────────────────
   const formatPages: MetadataRoute.Sitemap = getAllFormatSlugs().map((slug) => ({
