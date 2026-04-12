@@ -1,0 +1,40 @@
+#!/bin/bash
+set -e
+cd "$(dirname "$0")"
+source .venv/bin/activate
+# Inject API key from .env.local if not already in environment (local dev only)
+if [ -z "$ANTHROPIC_API_KEY" ]; then
+  ENV_FILE="$(dirname "$0")/../../.env.local"
+  if [ -f "$ENV_FILE" ]; then
+    export ANTHROPIC_API_KEY=$(grep '^ANTHROPIC_API_KEY=' "$ENV_FILE" | cut -d= -f2-)
+  fi
+fi
+mkdir -p output
+
+echo "=== Step 1: Crawling HuggingFace (v2 — downloads + recent) ==="
+python crawl_hf.py --limit 300 --output output/hf_robotics_raw_v2.json
+
+echo ""
+echo "=== Step 2: Extracting metadata (incremental — reuses v1 extractions) ==="
+python extract_metadata.py --input output/hf_robotics_raw_v2.json --output output/enriched_v2.json --existing output/enriched_datasets.json
+
+echo ""
+echo "=== Step 3: Social signals (Reddit + HN + Semantic Scholar) ==="
+python social_signals.py --input output/enriched_v2.json --output output/enriched_with_social.json
+
+echo ""
+echo "=== Step 4: QA scoring ==="
+python qa_score.py --input output/enriched_with_social.json
+
+echo ""
+echo "=== Step 5: Generating report ==="
+python report.py --input output/enriched_with_social.json --output output/dataset_report_v2.md
+
+echo ""
+echo "=== Pipeline v2 complete ==="
+echo "Outputs:"
+echo "  output/hf_robotics_raw_v2.json    — raw crawl data"
+echo "  output/enriched_v2.json           — extracted metadata"
+echo "  output/enriched_with_social.json  — with social signals"
+echo "  output/qa_report.md               — QA scoring report"
+echo "  output/dataset_report_v2.md       — final report"
