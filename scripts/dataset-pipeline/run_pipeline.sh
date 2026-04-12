@@ -2,7 +2,13 @@
 set -e
 cd "$(dirname "$0")"
 source .venv/bin/activate
-export ANTHROPIC_API_KEY=$(grep ANTHROPIC_API_KEY /Users/johnthomas/Desktop/important-coding-projects/claru-landing/.env.local | cut -d= -f2)
+# Inject API key from .env.local if not already in environment (local dev only)
+if [ -z "$ANTHROPIC_API_KEY" ]; then
+  ENV_FILE="$(dirname "$0")/../../.env.local"
+  if [ -f "$ENV_FILE" ]; then
+    export ANTHROPIC_API_KEY=$(grep '^ANTHROPIC_API_KEY=' "$ENV_FILE" | cut -d= -f2-)
+  fi
+fi
 mkdir -p output
 
 echo "=== Step 1: Crawling HuggingFace (v2 — downloads + recent) ==="

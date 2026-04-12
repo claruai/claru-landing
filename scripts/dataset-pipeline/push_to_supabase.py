@@ -182,9 +182,10 @@ def main():
     slug_set = set()
     for raw in raw_data:
         row = transform_record(raw)
-        # Handle slug collisions (rare but possible)
+        # Handle slug collisions (rare but possible); author may be None
         if row["slug"] in slug_set:
-            row["slug"] = row["slug"] + "-" + row["author"]
+            suffix = row.get("author") or row["dataset_id"].split("/")[0]
+            row["slug"] = row["slug"] + "-" + suffix
         slug_set.add(row["slug"])
         rows.append(row)
 

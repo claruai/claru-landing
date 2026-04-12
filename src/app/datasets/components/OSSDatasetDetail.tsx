@@ -417,7 +417,7 @@ export default function OSSDatasetDetail({
                 </div>
                 {(dataset.citing_papers_sample?.length ?? 0) > 0 && (
                   <ul className="space-y-2">
-                    {dataset.citing_papers_sample!.map((paper, i) => (
+                    {(dataset.citing_papers_sample ?? []).map((paper, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <span className="mt-1.5 flex-shrink-0 h-1 w-1 rounded-full bg-white/20" />
                         <div>
@@ -468,7 +468,7 @@ export default function OSSDatasetDetail({
                 </div>
                 {(dataset.hf_discussions_sample?.length ?? 0) > 0 && (
                   <ul className="space-y-2">
-                    {dataset.hf_discussions_sample!.map((disc, i) => (
+                    {(dataset.hf_discussions_sample ?? []).map((disc, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <span className="mt-1.5 flex-shrink-0 h-1 w-1 rounded-full bg-white/20" />
                         <div className="flex items-center gap-2 min-w-0">
