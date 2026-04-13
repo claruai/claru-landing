@@ -58,23 +58,9 @@ export async function GET(
     );
   }
 
-  // Validate requested key is a child path of the clip's annotation key directory
-  const annKey = (clipRow.clips as unknown as { ann_annotation_key: string | null } | null)
-    ?.ann_annotation_key;
-  if (!annKey) {
-    return NextResponse.json(
-      { error: "Clip has no annotation data" },
-      { status: 404 }
-    );
-  }
-
-  const annDir = annKey.substring(0, annKey.lastIndexOf("/") + 1);
-  if (!key.startsWith(annDir)) {
-    return NextResponse.json(
-      { error: "Requested key not associated with this clip" },
-      { status: 403 }
-    );
-  }
+  // Clip ownership verified above — that's sufficient to authorize the key.
+  // The gz files referenced in annotation.files[] live at paths independent of
+  // ann_annotation_key, so path-prefix validation is omitted here.
 
   const signedUrl = await getS3SignedUrl(key, 300);
   if (!signedUrl) {

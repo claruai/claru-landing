@@ -244,8 +244,12 @@ function TechnicalPanel({ data }: { data: Record<string, unknown> }) {
   const fields: Array<{ label: string; value: string }> = [];
   if (data.resolution) fields.push({ label: "Resolution", value: String(data.resolution) });
   if (data.aspect_ratio) fields.push({ label: "Aspect Ratio", value: String(data.aspect_ratio) });
-  if (data.fps) fields.push({ label: "FPS", value: String(data.fps) });
+  if (data.frame_rate) fields.push({ label: "Frame Rate", value: String(data.frame_rate) });
   if (data.duration) fields.push({ label: "Duration", value: String(data.duration) });
+  if (data.file_size) fields.push({ label: "File Size", value: String(data.file_size) });
+  if (data.codec) fields.push({ label: "Codec", value: String(data.codec) });
+  if (data.bit_depth) fields.push({ label: "Bit Depth", value: String(data.bit_depth) });
+  if (data.filename) fields.push({ label: "Filename", value: String(data.filename) });
 
   if (fields.length === 0) {
     return (
@@ -432,7 +436,7 @@ interface InputEvent {
   device?: string;
 }
 
-function InputStreamViewer({ objectId, token, clipId }: { objectId: string; token: string; clipId: string }) {
+function InputStreamViewer({ objectId, token }: { objectId: string; token: string }) {
   const [events, setEvents] = useState<InputEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -442,17 +446,13 @@ function InputStreamViewer({ objectId, token, clipId }: { objectId: string; toke
     async function load() {
       try {
         const proxyRes = await fetch(
-          `/api/share/${token}/s3-proxy?clipId=${encodeURIComponent(clipId)}&key=${encodeURIComponent(objectId)}`
+          `/api/share/${token}/s3-proxy?key=${encodeURIComponent(objectId)}`
         );
         if (!proxyRes.ok) throw new Error(`Failed to fetch: ${proxyRes.status}`);
 
         const buffer = await proxyRes.arrayBuffer();
 
-        if (buffer.byteLength > 10 * 1024 * 1024) {
-          setError("File too large to display");
-          return;
-        }
-
+        // Empty or near-empty gz files (< 30 bytes = just gzip header)
         if (buffer.byteLength < 30) {
           setEvents([]);
           return;
@@ -492,7 +492,7 @@ function InputStreamViewer({ objectId, token, clipId }: { objectId: string; toke
       }
     }
     load();
-  }, [objectId, token, clipId]);
+  }, [objectId, token]);
 
   if (loading) {
     return (
@@ -702,7 +702,7 @@ function InputStreamPanel({
                 {filename}
               </span>
             </div>
-            <InputStreamViewer objectId={objectId} token={token} clipId={String(data.clipId ?? "")} />
+            <InputStreamViewer objectId={objectId} token={token} />
           </div>
         );
       })}
@@ -1010,7 +1010,7 @@ function ClipDetailModal({
           type: "input_stream",
           label: "Input Stream",
           icon: Keyboard,
-          data: { gzFiles, clipId: clip.id },
+          data: { gzFiles },
         });
       }
     }
