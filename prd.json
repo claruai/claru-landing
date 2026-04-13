@@ -108,7 +108,7 @@
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "This is the largest batch (~140+ files). Process alphabetically. Use defaults unless file content clearly indicates otherwise. Speed over precision — scores can be refined later."
     },
     {
