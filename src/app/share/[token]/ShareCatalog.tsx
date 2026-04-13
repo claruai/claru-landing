@@ -436,7 +436,7 @@ interface InputEvent {
   device?: string;
 }
 
-function InputStreamViewer({ objectId, token }: { objectId: string; token: string }) {
+function InputStreamViewer({ objectId, token, clipId }: { objectId: string; token: string; clipId: string }) {
   const [events, setEvents] = useState<InputEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -446,7 +446,7 @@ function InputStreamViewer({ objectId, token }: { objectId: string; token: strin
     async function load() {
       try {
         const proxyRes = await fetch(
-          `/api/share/${token}/s3-proxy?key=${encodeURIComponent(objectId)}`
+          `/api/share/${token}/s3-proxy?clipId=${encodeURIComponent(clipId)}&key=${encodeURIComponent(objectId)}`
         );
         if (!proxyRes.ok) throw new Error(`Failed to fetch: ${proxyRes.status}`);
 
@@ -658,6 +658,7 @@ function InputStreamPanel({
   token: string;
 }) {
   const gzFiles = data.gzFiles as Array<Record<string, unknown>> | undefined;
+  const clipId = String(data.clipId ?? "");
 
   if (!gzFiles || gzFiles.length === 0) {
     return (
@@ -702,7 +703,7 @@ function InputStreamPanel({
                 {filename}
               </span>
             </div>
-            <InputStreamViewer objectId={objectId} token={token} />
+            <InputStreamViewer objectId={objectId} token={token} clipId={clipId} />
           </div>
         );
       })}
@@ -1010,7 +1011,7 @@ function ClipDetailModal({
           type: "input_stream",
           label: "Input Stream",
           icon: Keyboard,
-          data: { gzFiles },
+          data: { gzFiles, clipId: clip.id },
         });
       }
     }
