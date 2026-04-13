@@ -103,7 +103,7 @@ export default async function SharePage({ params }: SharePageProps) {
   const { data: rows } = await supabase
     .from("dataset_clips")
     .select(
-      "clip_id, clips(id, filename, mime_type, s3_bucket, s3_key, ann_metadata, ai_enrichment_json, ai_caption, tech_duration_seconds, tech_resolution_width, tech_resolution_height, tech_fps, tech_file_size_bytes, tech_codec, tech_bit_depth)"
+      "clip_id, clips(id, filename, mime_type, s3_bucket, s3_key, ann_metadata, ann_annotation_key, ai_enrichment_json, ai_caption, tech_duration_seconds, tech_resolution_width, tech_resolution_height, tech_fps, tech_file_size_bytes, tech_codec, tech_bit_depth)"
     )
     .eq("dataset_id", dataset.id)
     .order("created_at", { ascending: true });
@@ -117,6 +117,7 @@ export default async function SharePage({ params }: SharePageProps) {
     s3_bucket: string;
     s3_key: string;
     ann_metadata: Record<string, unknown> | null;
+    ann_annotation_key: string | null;
     ai_enrichment_json: Record<string, unknown> | null;
     ai_caption: string | null;
     tech_duration_seconds: number | null;
@@ -154,6 +155,7 @@ export default async function SharePage({ params }: SharePageProps) {
         id: clip.id,
         filename: clip.filename,
         signedUrl,
+        hasAnnotation: !!clip.ann_annotation_key,
         caption: clip.ai_caption,
         metadata: scrubS3Urls(clip.ann_metadata) as Record<
           string,
