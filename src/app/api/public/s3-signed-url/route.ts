@@ -4,13 +4,16 @@ import { getS3SignedUrl } from "@/lib/s3/presigner";
 const ALLOWED_PREFIXES = [
   "egocentric-capture/",
   "game-capture/",
+  "video-game-capture/",
   "cinematic/",
   "workplace/",
   "traffic/",
 ];
 
 function isAllowedKey(key: string): boolean {
-  if (key.includes("..") || key.startsWith("/")) return false;
+  const decoded = decodeURIComponent(key);
+  if (decoded !== key) return false;
+  if (key.includes("..") || key.includes("\\") || key.startsWith("/")) return false;
   return ALLOWED_PREFIXES.some((prefix) => key.startsWith(prefix));
 }
 

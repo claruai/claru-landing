@@ -67,6 +67,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Missing key" }, { status: 400 });
   }
 
+  // Path traversal + double-encoding guard
+  const decoded = decodeURIComponent(key);
+  if (decoded !== key || key.includes("..") || key.includes("\\") || key.startsWith("/")) {
+    return NextResponse.json({ error: "Invalid key" }, { status: 400 });
+  }
+
   // Only allow annotation-data.json and data.json files
   if (!key.endsWith("/annotation-data.json") && !key.endsWith("/data.json")) {
     return NextResponse.json({ error: "Invalid key" }, { status: 400 });

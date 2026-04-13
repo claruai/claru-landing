@@ -53,12 +53,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Not configured" }, { status: 503 });
   }
 
-  {
-    const signatureHeader = request.headers.get("Calendly-Webhook-Signature");
-    if (!verifySignature(rawBody, signatureHeader, webhookSecret)) {
-      console.warn("[calendly-webhook] Invalid signature");
-      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
-    }
+  const signatureHeader = request.headers.get("Calendly-Webhook-Signature");
+  if (!verifySignature(rawBody, signatureHeader, webhookSecret)) {
+    console.warn("[calendly-webhook] Invalid signature");
+    return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
   let payload: Record<string, unknown>;

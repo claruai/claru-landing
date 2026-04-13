@@ -94,7 +94,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://us.i.posthog.com https://vercel.live; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' blob: https:; font-src 'self' data:; connect-src 'self' https: wss:; frame-src 'self' https://calendly.com https://vercel.live; frame-ancestors 'none';",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://us.i.posthog.com https://vercel.live; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://us.i.posthog.com https://*.ingest.us.sentry.io https://vercel.live https://*.amazonaws.com https://*.cloudfront.net wss://vercel.live; frame-src 'self' https://calendly.com https://vercel.live; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://calendly.com;",
           },
         ],
       },
