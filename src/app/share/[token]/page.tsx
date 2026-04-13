@@ -104,7 +104,7 @@ export default async function SharePage({ params }: SharePageProps) {
   const { data: rows } = await supabase
     .from("dataset_clips")
     .select(
-      "clip_id, clips(id, filename, mime_type, s3_bucket, s3_key, ann_metadata, ai_enrichment_json, ai_caption, tech_duration_seconds, tech_resolution_width, tech_resolution_height, tech_fps)"
+      "clip_id, clips(id, filename, mime_type, s3_bucket, s3_key, ann_metadata, ai_enrichment_json, ai_caption, tech_duration_seconds, tech_resolution_width, tech_resolution_height, tech_fps, tech_file_size_bytes, tech_codec, tech_bit_depth)"
     )
     .eq("dataset_id", dataset.id)
     .order("created_at", { ascending: true });
@@ -126,6 +126,9 @@ export default async function SharePage({ params }: SharePageProps) {
       tech_resolution_width: number | null;
       tech_resolution_height: number | null;
       tech_fps: number | null;
+      tech_file_size_bytes: number | null;
+      tech_codec: string | null;
+      tech_bit_depth: number | null;
     } | null;
 
     if (!clip?.s3_key || seen.has(clip.id)) continue;
@@ -161,6 +164,9 @@ export default async function SharePage({ params }: SharePageProps) {
         width: clip.tech_resolution_width,
         height: clip.tech_resolution_height,
         fps: clip.tech_fps,
+        fileSize: clip.tech_file_size_bytes,
+        codec: clip.tech_codec,
+        bitDepth: clip.tech_bit_depth,
       },
     });
   }

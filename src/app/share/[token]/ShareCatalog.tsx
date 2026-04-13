@@ -33,6 +33,9 @@ export interface ShareClip {
     width: number | null;
     height: number | null;
     fps: number | null;
+    fileSize: number | null;
+    codec: string | null;
+    bitDepth: number | null;
   };
 }
 
@@ -55,6 +58,14 @@ interface TabDefinition {
 // =============================================================================
 // Helpers
 // =============================================================================
+
+function formatBytes(bytes: number | null): string {
+  if (!bytes || bytes <= 0) return "--";
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+}
 
 function formatDuration(seconds: number | null): string {
   if (!seconds) return "--";
@@ -564,7 +575,7 @@ function ClipDetailModal({
     if (clip.enrichment && Object.keys(clip.enrichment).length > 0) {
       result.push({
         type: "enrichment",
-        label: "AI Enrichment",
+        label: "Enrichment",
         icon: Bot,
         data: clip.enrichment,
       });
@@ -582,9 +593,13 @@ function ClipDetailModal({
         clip.techSpecs.height
       );
     }
-    if (clip.techSpecs.fps) techData.fps = clip.techSpecs.fps;
+    if (clip.techSpecs.fps) techData.frame_rate = `${clip.techSpecs.fps} fps`;
     if (clip.techSpecs.duration)
       techData.duration = formatDuration(clip.techSpecs.duration);
+    if (clip.techSpecs.fileSize) techData.file_size = formatBytes(clip.techSpecs.fileSize);
+    if (clip.techSpecs.codec) techData.codec = clip.techSpecs.codec;
+    if (clip.techSpecs.bitDepth) techData.bit_depth = `${clip.techSpecs.bitDepth}-bit`;
+    if (clip.filename) techData.filename = clip.filename;
     if (Object.keys(techData).length > 0) {
       result.push({
         type: "technical",
@@ -609,6 +624,9 @@ function ClipDetailModal({
           ? `${clip.techSpecs.width}x${clip.techSpecs.height}`
           : null,
       fps: clip.techSpecs.fps,
+      file_size_bytes: clip.techSpecs.fileSize,
+      codec: clip.techSpecs.codec,
+      bit_depth: clip.techSpecs.bitDepth,
     };
     return merged;
   }, [clip]);
