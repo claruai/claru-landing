@@ -125,7 +125,7 @@
         "Typecheck passes"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "Check gtm/playbooks/copy.md which references tasks/campaign-drafts-scored.md and similar. Update those refs after moving."
     },
     {
