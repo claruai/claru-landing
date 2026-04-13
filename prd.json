@@ -1,116 +1,153 @@
 {
   "project": "claru-landing",
-  "branchName": "ralph/shareable-sample-catalog",
-  "description": "Shareable Sample Catalog — public /share/[token] page for leads to view curated clips without auth, plus publish_share_link MCP tool",
+  "branchName": "ralph/gtm-optimization-tier1",
+  "description": "GTM System Optimization Tier 1 — Knowledge architecture: CLAUDE.md, index.md, log.md, frontmatter on company files, tasks cleanup",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Add share columns to datasets table",
-      "description": "As a developer, I need share_token, share_expires_at, share_first_viewed_at, and share_view_count columns on the datasets table so datasets can be made publicly viewable.",
+      "title": "Create gtm/CLAUDE.md auto-loading context file",
+      "description": "As a GTM agent entering the gtm/ directory, I need an auto-loading CLAUDE.md so I get the GTM brain injected without re-orientation every session.",
       "acceptanceCriteria": [
-        "Create migration file supabase/migrations/20260412_share_token.sql",
-        "ALTER TABLE adds share_token (text UNIQUE), share_expires_at (timestamptz), share_first_viewed_at (timestamptz), share_view_count (int NOT NULL DEFAULT 0)",
-        "Partial index on share_token WHERE share_token IS NOT NULL",
+        "File exists at gtm/CLAUDE.md",
+        "Under 100 lines total",
+        "Contains inline one-liner versions of all 10 rules from gtm/RULES.md (no hallucinated hooks, no auto-drafting, Attio source of truth, dedup before prospecting, no remote push, supply-side moonvalley only, immutable sequences, copy scoring >=9.5, check both inboxes+sent, founder posture)",
+        "Contains @./index.md import line",
+        "Contains @./pipeline/PIPELINE.md import line",
+        "Contains @./strategy/messaging.md import line",
+        "Contains @./log.md import line",
+        "All @import paths resolve to files that actually exist (verify with ls for each)",
+        "No content beyond: summary, rules, and @imports — everything else lives in indexed files",
         "Typecheck passes"
       ],
       "priority": 1,
       "passes": true,
-      "notes": ""
+      "notes": "Rules numbered 1-10 after PI confidentiality removal. See gtm/GTM-HARDENED-IMPLEMENTATION-SPEC.md Task 1.1 for exact content template."
     },
     {
       "id": "US-002",
-      "title": "Add publish_share_link MCP tool",
-      "description": "As an admin using MCP tools, I want to generate a public share link for a dataset so I can send it to prospects.",
+      "title": "Create gtm/index.md navigation map",
+      "description": "As a GTM agent, I need a single index file that tells me what every file in gtm/ covers so I can fetch only what I need.",
       "acceptanceCriteria": [
-        "Register publish_share_link tool in src/lib/mcp/server.ts following existing tool pattern",
-        "Parameters: dataset_id (uuid, required), expires_in_days (number, default 30)",
-        "Idempotent: if share_token already exists on the dataset, return existing token without regenerating",
-        "If no token exists, generate 64-char hex token via crypto.randomBytes(32).toString('hex')",
-        "Set share_expires_at to now + expires_in_days",
-        "Return JSON with share_url (https://claru.ai/share/[token]), dataset name, and token",
-        "Register the tool in createMcpServer function",
+        "File exists at gtm/index.md",
+        "Under 60 lines total",
+        "One line per .md file in gtm/ directories, grouped by: Strategy, Playbooks, Pipeline, Campaigns, Contacts, Knowledge Graph, Supply Side, Agent Architecture, Tools, Sessions",
+        "Each entry format: - [filename](relative-path) — description under 150 chars",
+        "Every .md file in gtm/ subdirectories (excluding CLAUDE.md, index.md, log.md, GTM-OPTIMIZATION-PLAN.md, GTM-HARDENED-IMPLEMENTATION-SPEC.md) has an entry",
+        "No broken links — verify each path resolves to an existing file",
+        "Grouped by update frequency: stable then living then active then reference",
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": true,
-      "notes": ""
+      "passes": false,
+      "notes": "Use find gtm/ -name '*.md' -not -path '*/knowledge-graph/companies/*' to enumerate top-level files. Knowledge graph gets one entry pointing to its INDEX.md."
     },
     {
       "id": "US-003",
-      "title": "Create share page server component",
-      "description": "As a lead who received a share link, I can open /share/[token] without logging in and see a branded catalog page.",
+      "title": "Create gtm/log.md append-only changelog",
+      "description": "As a GTM agent, I need a changelog of recent state changes so I can catch up on what happened without reading every file.",
       "acceptanceCriteria": [
-        "Create src/app/share/[token]/page.tsx as a server component with export const dynamic = 'force-dynamic'",
-        "Query datasets by share_token using admin client with parameterized query (never string interpolation)",
-        "Validate: token found AND (share_expires_at is null OR share_expires_at > now)",
-        "If invalid/expired, render styled 'This link is no longer available' page",
-        "Query clips with explicit column list: id, filename, mime_type, s3_bucket, s3_key, ann_metadata, ai_enrichment_json, ai_caption, tech_duration_seconds, tech_resolution_width, tech_resolution_height, tech_fps — never SELECT *",
-        "Generate CloudFront signed URLs server-side for each clip using existing signer",
-        "Do NOT pass s3_bucket, s3_key, or embedding to the client component",
-        "Atomic view tracking: UPDATE datasets SET share_view_count = share_view_count + 1, share_first_viewed_at = COALESCE(share_first_viewed_at, now()) WHERE share_token = $1",
-        "Get company name via lead_dataset_access JOIN to leads table (LIMIT 1)",
-        "Set Cache-Control: private, no-store header",
-        "Set robots noindex/nofollow meta tags and X-Robots-Tag header",
-        "Set og:title and og:description meta tags for Slack/email link previews",
-        "Pass sanitized clip data to ShareCatalog client component",
+        "File exists at gtm/log.md",
+        "Title line: '# GTM Changelog' with comment: '<!-- Newest first. One line per state change. -->'",
+        "Seeded with historical entries from pipeline/PIPELINE.md and pipeline/snapshots/W16-2026-04-13.md",
+        "At least 10 historical entries covering key events: HackerRank to Customer, Troveo to Negotiating, Ropedia NDA, Mirelo call, Rhoda pricing, Supply Wave 1 loaded, Wave 5 loaded, Wave 4 loaded, HackerRank MSA signed",
+        "Newest entry at top, oldest at bottom",
+        "Every entry has absolute date prefix (YYYY-MM-DD format)",
+        "No relative dates (no 'yesterday' or 'last week')",
+        "Under 50 lines for initial seed",
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": true,
-      "notes": "s3_bucket and s3_key are used server-side ONLY for CloudFront URL generation. The client component receives signedUrl instead."
+      "passes": false,
+      "notes": "See gtm/GTM-HARDENED-IMPLEMENTATION-SPEC.md Task 1.3 for seed content."
     },
     {
       "id": "US-004",
-      "title": "Create ShareCatalog client component",
-      "description": "As a lead viewing the shared catalog, I can see clips in a responsive grid, play videos inline, and expand annotation details.",
+      "title": "Add YAML frontmatter to knowledge-graph company files — batch 1 (active deals)",
+      "description": "As a GTM agent, I need frontmatter on active deal company files so I can grep by state, side, stage, and ICP score.",
       "acceptanceCriteria": [
-        "Create src/app/share/[token]/ShareCatalog.tsx as a client component",
-        "Props: clips array (id, filename, signedUrl, caption, metadata, techSpecs), datasetName, companyName, token",
-        "Header: Claru logo + 'Prepared for [Company Name]' + dataset name",
-        "Responsive grid of clip cards (1 col mobile, 2 col tablet, 3 col desktop)",
-        "Each card: video element with poster frame, controlsList='nodownload', plays on click",
-        "Each card: expandable panel showing ann_metadata, ai_enrichment_json, tech specs as formatted JSON",
-        "Video onError handler calls /api/share/[token]/urls to refresh expired signed URLs",
-        "Use existing design system: dark theme (--bg-primary), sage accent (--accent-primary), JetBrains Mono for labels",
-        "Loading skeleton while videos load poster frames",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "All company files listed in knowledge-graph/INDEX.md under 'Active Deals' have YAML frontmatter added",
+        "Frontmatter uses schema: type: company, state: active, side: demand|supply|both, icp_score: 0-100, stage: per pipeline, last_contact: YYYY-MM-DD or blank, last_updated: 2026-04-13",
+        "Active deal companies include at minimum: perceptron-ai, rhoda-ai, getreal-labs, mirelo, decart, hackerrank, troveo, zencastr, introspector, media-shippers, hub-xyz",
+        "side values correctly set per channel: troveo=supply, zencastr=supply, introspector=supply, media-shippers=supply, hub-xyz=supply/both, others=demand",
+        "stage values match pipeline/PIPELINE.md current stages",
+        "Existing file content below the frontmatter closing --- is completely unchanged",
+        "Typecheck passes"
       ],
       "priority": 4,
-      "passes": true,
-      "notes": ""
+      "passes": false,
+      "notes": "Only active deals in this story (~11 files). Read each file, read pipeline/PIPELINE.md for current stage, add frontmatter at top."
     },
     {
       "id": "US-005",
-      "title": "Create signed URL refresh API route",
-      "description": "As a lead with a tab open for >1hr, I need expired CloudFront URLs to refresh automatically when I try to play a video.",
+      "title": "Add YAML frontmatter to knowledge-graph company files — batch 2 (supply-side targets)",
+      "description": "As a GTM agent, I need frontmatter on supply-side target files so grep 'side: supply' returns the correct set.",
       "acceptanceCriteria": [
-        "Create src/app/api/share/[token]/urls/route.ts as a POST route",
-        "Validate share_token same as page (exists, not expired, active)",
-        "Fetch clips for dataset with explicit column list (same as page)",
-        "Generate fresh CloudFront signed URLs",
-        "Return JSON: { clips: [{ id, signedUrl }] }",
-        "Return 404 for invalid/expired tokens",
-        "Set Cache-Control: private, no-store",
+        "All company files listed in knowledge-graph/INDEX.md under 'Supply-Side Subcontractor Targets' have YAML frontmatter",
+        "Supply-side targets include at minimum: mecka-ai, cortex-ai, luel, build-ai, sama, lxt, centific, smartone-ai, objectways, cogito-tech, sigma-ai, alegion, imerit, cloudfactory, ropedia, deepen-ai",
+        "All have side: supply in frontmatter",
+        "state: prospect for most, state: active for any currently in Smartlead campaigns",
+        "icp_score values taken from knowledge-graph/INDEX.md where listed, 0 if not scored",
+        "Existing file content below frontmatter closing --- is completely unchanged",
+        "grep 'side: supply' gtm/knowledge-graph/companies/*.md returns all supply-side targets",
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": true,
-      "notes": ""
+      "passes": false,
+      "notes": "~16 files. Check knowledge-graph/INDEX.md 'Supply-Side Subcontractor Targets' table for the full list and ICP scores."
     },
     {
       "id": "US-006",
-      "title": "SEO prevention — robots.txt, sitemap exclusion",
-      "description": "As the site owner, I need share pages completely invisible to search engines and AI crawlers.",
+      "title": "Add YAML frontmatter to knowledge-graph company files — batch 3 (remaining demand-side)",
+      "description": "As a GTM agent, I need frontmatter on all remaining company files for complete grep coverage across the knowledge graph.",
       "acceptanceCriteria": [
-        "Create or update public/robots.txt (or Next.js robots() metadata) with Disallow: /share/",
-        "Update src/app/sitemap.ts to exclude /share/* paths",
-        "Verify: no internal <a href> links point to /share/ from any indexed page",
+        "All remaining company files in gtm/knowledge-graph/companies/ that do not already have frontmatter get it added",
+        "Default values: type: company, state: prospect, side: demand, icp_score: 0, stage: researched, last_updated: 2026-04-13",
+        "If file content mentions supply-side or annotation company context, set side: supply instead",
+        "Existing file content below frontmatter closing --- is completely unchanged",
+        "Verify complete coverage: grep -rL '^---' gtm/knowledge-graph/companies/ returns no results (every file has frontmatter)",
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": true,
-      "notes": "The noindex meta tag and X-Robots-Tag header are already handled in US-003 (page component)."
+      "passes": false,
+      "notes": "This is the largest batch (~140+ files). Process alphabetically. Use defaults unless file content clearly indicates otherwise. Speed over precision — scores can be refined later."
+    },
+    {
+      "id": "US-007",
+      "title": "Create tasks/index.md and archive completed wave files",
+      "description": "As a GTM agent, I need the tasks/ folder indexed so I can find active tasks without listing 30+ files.",
+      "acceptanceCriteria": [
+        "Directory tasks/archive/ exists",
+        "Completed wave draft files moved to tasks/archive/: campaign-drafts-v2.md, campaign-drafts-scored.md, supply-side-drafts.md",
+        "tasks/index.md exists with one-line entries for every remaining active task file in tasks/",
+        "Each entry format: - [filename](filename) — description and current status",
+        "No broken references from gtm/ or other files pointing to moved files (grep for moved filenames across the project)",
+        "If any broken refs found in gtm/ files, update the reference to point to tasks/archive/ path",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": "Check gtm/playbooks/copy.md which references tasks/campaign-drafts-scored.md and similar. Update those refs after moving."
+    },
+    {
+      "id": "US-008",
+      "title": "Validation pass — verify all Tier 1 files are consistent",
+      "description": "As the GTM system owner, I need a final validation confirming all new files are internally consistent with no broken links.",
+      "acceptanceCriteria": [
+        "gtm/CLAUDE.md exists and is under 100 lines with all @imports resolving to real files",
+        "gtm/index.md exists and is under 60 lines with no broken links (verify each path with ls)",
+        "gtm/log.md exists with newest-first entries and all dates in YYYY-MM-DD format",
+        "Every file in gtm/knowledge-graph/companies/ has YAML frontmatter (grep -rL '^---' returns empty)",
+        "grep 'side: supply' returns only supply-side companies (spot-check 5 results)",
+        "grep 'state: active' returns companies that match pipeline/PIPELINE.md active deals (spot-check 5 results)",
+        "tasks/index.md exists with all entries pointing to real files",
+        "tasks/archive/ contains the moved completed wave files",
+        "No orphaned references to moved files found anywhere in gtm/ directory",
+        "gtm/README.md content is not contradicted by new files (no conflicting navigation instructions)",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": "This is the QA story. Run all grep and ls verification commands listed above. Fix any issues found before marking complete."
     }
   ]
 }
