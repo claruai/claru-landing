@@ -57,7 +57,7 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "See gtm/GTM-HARDENED-IMPLEMENTATION-SPEC.md Task 1.3 for seed content."
     },
     {
