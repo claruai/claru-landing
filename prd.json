@@ -38,7 +38,7 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "notes": "Use find gtm/ -name '*.md' -not -path '*/knowledge-graph/companies/*' to enumerate top-level files. Knowledge graph gets one entry pointing to its INDEX.md."
     },
     {
