@@ -1,317 +1,116 @@
 {
   "project": "claru-landing",
-  "branchName": "ralph/content-team-pipeline",
-  "description": "Content Team Agent Pipeline — multi-agent blog post generation with research, adversarial editing, SEO/GEO optimization, and Remotion Lambda video visualization for all 3 post types",
+  "branchName": "ralph/shareable-sample-catalog",
+  "description": "Shareable Sample Catalog — public /share/[token] page for leads to view curated clips without auth, plus publish_share_link MCP tool",
   "userStories": [
     {
       "id": "US-001",
-      "title": "DB migration: blog_posts columns + blog_pipeline_runs table",
-      "description": "As a developer, I need the database schema updated to store pipeline metadata (scores, video URL, post type) and track pipeline run state.",
+      "title": "Add share columns to datasets table",
+      "description": "As a developer, I need share_token, share_expires_at, share_first_viewed_at, and share_view_count columns on the datasets table so datasets can be made publicly viewable.",
       "acceptanceCriteria": [
-        "Create supabase/migrations/20260403_blog_pipeline_schema.sql",
-        "ALTER TABLE blog_posts adds: video_url text, slop_score smallint, seo_score smallint, geo_score smallint, citability_score smallint, post_type text, editorial_notes jsonb DEFAULT '[]', research_sources jsonb DEFAULT '[]' — all IF NOT EXISTS",
-        "CREATE TABLE blog_pipeline_runs: id uuid PK, post_type text NOT NULL, backlog_id uuid, status text DEFAULT 'running', phase text, blog_post_id uuid, error text, started_at timestamptz DEFAULT now(), completed_at timestamptz",
-        "RLS enabled on blog_pipeline_runs with no public policies (service role only)",
-        "Migration applied to Supabase project usmgbihcevnvrkyvrlju via MCP",
+        "Create migration file supabase/migrations/20260412_share_token.sql",
+        "ALTER TABLE adds share_token (text UNIQUE), share_expires_at (timestamptz), share_first_viewed_at (timestamptz), share_view_count (int NOT NULL DEFAULT 0)",
+        "Partial index on share_token WHERE share_token IS NOT NULL",
         "Typecheck passes"
       ],
       "priority": 1,
       "passes": true,
-      "notes": "Applied via Supabase MCP. Also fixed CrawledItem urlHash/score fields in generate-timely-post.ts."
+      "notes": ""
     },
     {
       "id": "US-002",
-      "title": "Install @remotion/lambda and create trigger.config.ts",
-      "description": "As a developer, I need @remotion/lambda installed and trigger.config.ts created so the pipeline can render videos via Lambda and deploy to Trigger.dev.",
+      "title": "Add publish_share_link MCP tool",
+      "description": "As an admin using MCP tools, I want to generate a public share link for a dataset so I can send it to prospects.",
       "acceptanceCriteria": [
-        "@remotion/lambda added to package.json dependencies via npm install",
-        "Create trigger.config.ts at project root importing defineConfig from '@trigger.dev/sdk/v3' using relative imports only (no @/ alias — c12/jiti does not read tsconfig paths)",
-        "trigger.config.ts sets: tsconfig: 'tsconfig.json', runtime: 'node', maxDuration: 600, retries default 2, dirs: ['src/trigger'], legacyDevProcessCwdBehaviour: false (makes process.cwd() consistent between dev and production — both point to build dir), build.additionalFiles: ['src/lib/blog-pipeline/skills/**/*.md']",
+        "Register publish_share_link tool in src/lib/mcp/server.ts following existing tool pattern",
+        "Parameters: dataset_id (uuid, required), expires_in_days (number, default 30)",
+        "Idempotent: if share_token already exists on the dataset, return existing token without regenerating",
+        "If no token exists, generate 64-char hex token via crypto.randomBytes(32).toString('hex')",
+        "Set share_expires_at to now + expires_in_days",
+        "Return JSON with share_url (https://claru.ai/share/[token]), dataset name, and token",
+        "Register the tool in createMcpServer function",
         "Typecheck passes"
       ],
       "priority": 2,
       "passes": true,
-      "notes": "additionalFiles is top-level (deprecated but functional); retries.default is RetryOptions object {maxAttempts:2}, not number."
+      "notes": ""
     },
     {
       "id": "US-003",
-      "title": "Bundle skill files into repo and create loadSkill() utility",
-      "description": "As a developer, I need skill content available at runtime in cloud workers since ~/.claude/skills/ doesn't exist there.",
+      "title": "Create share page server component",
+      "description": "As a lead who received a share link, I can open /share/[token] without logging in and see a branded catalog page.",
       "acceptanceCriteria": [
-        "Directory src/lib/blog-pipeline/skills/ created",
-        "src/lib/blog-pipeline/skills/humanizer.md contains full content of ~/.claude/skills/humanizer/SKILL.md",
-        "src/lib/blog-pipeline/skills/stop-slop.md contains full content of ~/.claude/skills/stop-slop/SKILL.md",
-        "src/lib/blog-pipeline/skills/geo-content.md contains full content of ~/.claude/skills/geo-content/SKILL.md",
-        "src/lib/blog-pipeline/skills/geo-citability.md contains full content of ~/.claude/skills/geo-citability/SKILL.md",
-        "src/lib/blog-pipeline/skills/on-page.md contains full content of ~/.claude/skills/on-page/SKILL.md",
-        "Create src/lib/blog-pipeline/skills.ts with loadSkill(name: string): string using readFileSync(join(process.cwd(), 'src/lib/blog-pipeline/skills', name + '.md'), 'utf-8')",
+        "Create src/app/share/[token]/page.tsx as a server component with export const dynamic = 'force-dynamic'",
+        "Query datasets by share_token using admin client with parameterized query (never string interpolation)",
+        "Validate: token found AND (share_expires_at is null OR share_expires_at > now)",
+        "If invalid/expired, render styled 'This link is no longer available' page",
+        "Query clips with explicit column list: id, filename, mime_type, s3_bucket, s3_key, ann_metadata, ai_enrichment_json, ai_caption, tech_duration_seconds, tech_resolution_width, tech_resolution_height, tech_fps — never SELECT *",
+        "Generate CloudFront signed URLs server-side for each clip using existing signer",
+        "Do NOT pass s3_bucket, s3_key, or embedding to the client component",
+        "Atomic view tracking: UPDATE datasets SET share_view_count = share_view_count + 1, share_first_viewed_at = COALESCE(share_first_viewed_at, now()) WHERE share_token = $1",
+        "Get company name via lead_dataset_access JOIN to leads table (LIMIT 1)",
+        "Set Cache-Control: private, no-store header",
+        "Set robots noindex/nofollow meta tags and X-Robots-Tag header",
+        "Set og:title and og:description meta tags for Slack/email link previews",
+        "Pass sanitized clip data to ShareCatalog client component",
         "Typecheck passes"
       ],
       "priority": 3,
       "passes": true,
-      "notes": "All 5 skills copied from ~/.claude/skills/*/SKILL.md. loadSkill() utility created."
+      "notes": "s3_bucket and s3_key are used server-side ONLY for CloudFront URL generation. The client component receives signedUrl instead."
     },
     {
       "id": "US-004",
-      "title": "Extended TypeScript types for pipeline phases",
-      "description": "As a developer, I need typed interfaces for each pipeline phase so handoffs between agents are type-safe.",
+      "title": "Create ShareCatalog client component",
+      "description": "As a lead viewing the shared catalog, I can see clips in a responsive grid, play videos inline, and expand annotation details.",
       "acceptanceCriteria": [
-        "Update src/lib/blog-pipeline/types.ts adding: AnalystResult, ResearchFindings, ResearchBrief, EditorOutput, SeoOutput, VisualDesignerOutput, AssemblyInput, PipelineResult interfaces",
-        "AnalystResult includes: query, angle, postType ('keyword'|'timely'|'case_study'), competitorGaps?, serpFAQs?, twitterHook?, researchBriefing, backlogId?",
-        "ResearchBrief includes: topInsights, keyNumbers, citableSources, faqQuestions, recommendedAngle, internalLinks — all string arrays",
-        "EditorOutput includes: revisedBodyMdx string, editorialNotes string[], slopScore number",
-        "SeoOutput includes: revisedBodyMdx string, revisedExcerpt string, seoNotes string[], geoScore number, citabilityScore number",
-        "VisualDesignerOutput includes: videoUrl string|null, compositionId string|null, inputProps Record<string,unknown>|null, visualConcept string",
-        "Existing types (BlogDraft, CrawledItem, TopicSelection) unchanged",
-        "Typecheck passes"
+        "Create src/app/share/[token]/ShareCatalog.tsx as a client component",
+        "Props: clips array (id, filename, signedUrl, caption, metadata, techSpecs), datasetName, companyName, token",
+        "Header: Claru logo + 'Prepared for [Company Name]' + dataset name",
+        "Responsive grid of clip cards (1 col mobile, 2 col tablet, 3 col desktop)",
+        "Each card: video element with poster frame, controlsList='nodownload', plays on click",
+        "Each card: expandable panel showing ann_metadata, ai_enrichment_json, tech specs as formatted JSON",
+        "Video onError handler calls /api/share/[token]/urls to refresh expired signed URLs",
+        "Use existing design system: dark theme (--bg-primary), sage accent (--accent-primary), JetBrains Mono for labels",
+        "Loading skeleton while videos load poster frames",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 4,
       "passes": true,
-      "notes": "All phase interfaces added. AssemblyInput and PipelineResult added for orchestrator handoff."
+      "notes": ""
     },
     {
       "id": "US-005",
-      "title": "Analyst module (Phase 1)",
-      "description": "As the pipeline orchestrator, I need an analyst that selects the right topic and angle based on post type.",
+      "title": "Create signed URL refresh API route",
+      "description": "As a lead with a tab open for >1hr, I need expired CloudFront URLs to refresh automatically when I try to play a video.",
       "acceptanceCriteria": [
-        "Create src/lib/blog-pipeline/analyst.ts exporting runAnalyst(postType, context?): Promise<AnalystResult | null>",
-        "Keyword path: pulls top-priority queued blog_topic_backlog row ordered by priority ASC then created_at ASC, marks status='in_progress', calls DataForSEO for SERP top-5 and PAA questions, identifies content gap, returns AnalystResult",
-        "Timely path: accepts context.crawledItems array, scores by recency + physical AI relevance via Claude API call, picks highest-signal item, sets twitterHook",
-        "Case study path: pulls next queued blog_case_studies row ordered by created_at ASC, returns AnalystResult",
-        "Returns null (never throws) when no eligible content found",
+        "Create src/app/api/share/[token]/urls/route.ts as a POST route",
+        "Validate share_token same as page (exists, not expired, active)",
+        "Fetch clips for dataset with explicit column list (same as page)",
+        "Generate fresh CloudFront signed URLs",
+        "Return JSON: { clips: [{ id, signedUrl }] }",
+        "Return 404 for invalid/expired tokens",
+        "Set Cache-Control: private, no-store",
         "Typecheck passes"
       ],
       "priority": 5,
       "passes": true,
-      "notes": "DataForSEO called via direct HTTP (Basic auth). Gap analysis via Claude sonnet. Never throws — try/catch at top level."
+      "notes": ""
     },
     {
       "id": "US-006",
-      "title": "Research team module (Phase 2)",
-      "description": "As the pipeline orchestrator, I need 4 parallel research agents that ground the writer in real sources.",
+      "title": "SEO prevention — robots.txt, sitemap exclusion",
+      "description": "As the site owner, I need share pages completely invisible to search engines and AI crawlers.",
       "acceptanceCriteria": [
-        "Create src/lib/blog-pipeline/research.ts exporting runResearchTeam(analystResult: AnalystResult): Promise<ResearchBrief>",
-        "4 agents run via Promise.allSettled: arXiv (WebFetch arxiv.org search URL), HN (uses crawlHackerNews()), web (WebFetch on search results), SERP Analyst (DataForSEO, keyword only — skipped for timely/case_study returning empty)",
-        "arXiv agent returns { sources: [], keyInsights: ['No relevant arXiv papers found'] } when 0 papers match — never fabricates citations",
-        "Each agent caps output at 10 items per array",
-        "Individual agent failures are caught and logged — synthesizer proceeds with available data",
-        "Synthesizer API call merges all ResearchFindings into ResearchBrief",
+        "Create or update public/robots.txt (or Next.js robots() metadata) with Disallow: /share/",
+        "Update src/app/sitemap.ts to exclude /share/* paths",
+        "Verify: no internal <a href> links point to /share/ from any indexed page",
         "Typecheck passes"
       ],
       "priority": 6,
       "passes": true,
-      "notes": "All 4 agents use Promise.allSettled. arXiv never fabricates — explicit fallback text. Web uses DuckDuckGo HTML. SERP skipped for timely/case_study."
-    },
-    {
-      "id": "US-007",
-      "title": "Writer module (Phase 3)",
-      "description": "As the pipeline orchestrator, I need a writer that produces a grounded first draft using the research brief.",
-      "acceptanceCriteria": [
-        "Create src/lib/blog-pipeline/writer.ts exporting runWriter(analystResult: AnalystResult, brief: ResearchBrief): Promise<BlogDraft | null>",
-        "Imports VOICE_SYSTEM_PROMPT from generate.ts — does not duplicate it",
-        "User prompt includes analystResult.angle, brief.citableSources formatted as a sources list, and brief.faqQuestions",
-        "Returns BlogDraft (title, slug, excerpt, tags, body_mdx, source_urls, mentions) or null on parse failure",
-        "Typecheck passes"
-      ],
-      "priority": 7,
-      "passes": true,
-      "notes": "VOICE_SYSTEM_PROMPT exported from generate.ts. Writer injects all brief fields. Opus-4-6 for quality."
-    },
-    {
-      "id": "US-008",
-      "title": "Adversarial editor module (Phase 4A)",
-      "description": "As the pipeline orchestrator, I need an editor that strips AI writing patterns from the draft.",
-      "acceptanceCriteria": [
-        "Create src/lib/blog-pipeline/editor.ts exporting runEditor(bodyMdx: string): Promise<EditorOutput>",
-        "System prompt concatenates: editor role description + loadSkill('humanizer') + loadSkill('stop-slop')",
-        "Prompt instructs three passes: stop-slop checklist, humanizer rewrite of flagged passages, adversarial 'what makes this AI-generated?' question + rewrites top 3 answers, then scores 1-10",
-        "If slopScore < 7: runs one additional Claude call for a retry pass",
-        "If still < 7 after retry: appends 'slopScore below threshold after 2 passes' to editorialNotes and proceeds",
-        "Always returns EditorOutput — never throws",
-        "Typecheck passes"
-      ],
-      "priority": 8,
-      "passes": true,
-      "notes": "3-pass system: stop-slop flag, humanizer rewrite, adversarial question. Retry pass if slopScore < 7. Never throws."
-    },
-    {
-      "id": "US-009",
-      "title": "SEO/GEO optimizer module (Phase 4B)",
-      "description": "As the pipeline orchestrator, I need an SEO/GEO agent that ensures the post ranks and gets cited by AI systems.",
-      "acceptanceCriteria": [
-        "Create src/lib/blog-pipeline/seo-optimizer.ts exporting runSeoOptimizer(bodyMdx: string, excerpt: string, analystResult: AnalystResult): Promise<SeoOutput>",
-        "System prompt: SEO role + loadSkill('geo-content') + loadSkill('geo-citability') + loadSkill('on-page')",
-        "Prompt instructs: H1 exact-match check, rewrite sections with citability < 50 to open with direct answer, E-E-A-T check, replace FAQ headings with analystResult.serpFAQs verbatim, rewrite excerpt to start with number or named entity",
-        "If geoScore < 65: one retry pass",
-        "If still < 65: proceeds, appends flag to seoNotes",
-        "Returns SeoOutput — this body is the final body used in assembly",
-        "Typecheck passes"
-      ],
-      "priority": 9,
-      "passes": true,
-      "notes": "geo-content + geo-citability + on-page skills loaded. Retry on geoScore < 65. Never throws."
-    },
-    {
-      "id": "US-010",
-      "title": "Remotion blog-visuals compositions (5 parameterized templates)",
-      "description": "As the visual designer, I need 5 pre-built Remotion compositions covering the visual types for all 3 post types.",
-      "acceptanceCriteria": [
-        "Create src/remotion/blog-visuals/shared/colors.ts: export const BG='#0a0908', ACCENT='#92B090', TEXT='#FFFFFF'",
-        "Create BlogStatCallout.tsx: Zod schema { stat: z.string(), label: z.string(), context: z.string() }, stat animates up with spring, 8s at 30fps",
-        "Create BlogDataComparison.tsx: Zod schema { title: z.string(), rows: z.array(z.object({ label: z.string(), a: z.string(), b: z.string() })) }, rows stagger in, 10s",
-        "Create BlogTimeline.tsx: Zod schema { events: z.array(z.object({ date: z.string(), label: z.string() })).max(5) }, events appear sequentially, 12s",
-        "Create BlogMetricReveal.tsx: Zod schema { before: z.string(), after: z.string(), metric: z.string() }, before fades to after, 8s",
-        "Create BlogProcessSteps.tsx: Zod schema { steps: z.array(z.string()).max(5) }, steps build up with numbered reveal, 10s",
-        "Create src/remotion/blog-visuals/index.ts exporting BLOG_VISUAL_COMPOSITION_IDS as const string array of all 5 IDs",
-        "All 5 compositions registered in src/remotion/Root.tsx under a 'blog-visuals' folder",
-        "All compositions use colors from shared/colors.ts",
-        "Typecheck passes"
-      ],
-      "priority": 10,
-      "passes": true,
-      "notes": "All 5 compositions with Zod schemas, registered in Root.tsx with schema prop. Terminal aesthetic matching brand colors."
-    },
-    {
-      "id": "US-011",
-      "title": "Visual designer module (Phase 4C)",
-      "description": "As the pipeline orchestrator, I need a visual designer that selects a composition and triggers Remotion Lambda rendering.",
-      "acceptanceCriteria": [
-        "Create src/lib/blog-pipeline/visual-designer.ts exporting runVisualDesigner(bodyMdx: string, slug: string, postType: string): Promise<VisualDesignerOutput>",
-        "If process.env.SKIP_REMOTION === 'true': returns { videoUrl: null, compositionId: null, inputProps: null, visualConcept: 'skipped' } immediately",
-        "API call selects compositionId from BLOG_VISUAL_COMPOSITION_IDS and extracts typed inputProps matching that composition's Zod schema from the post body",
-        "Calls renderMediaOnLambda from '@remotion/lambda/client' with: region 'us-east-1', functionName: REMOTION_LAMBDA_FUNCTION_NAME env, serveUrl: REMOTION_SERVE_URL env, outName: { key: 'blog-visuals/{slug}.mp4', bucketName: 'moonvalley-annotation-platform' }",
-        "Polls getRenderProgress every 3000ms, throws after 90 attempts (270s timeout)",
-        "On Lambda fatalErrorEncountered: throws error",
-        "On any error: catches, logs, returns { videoUrl: null, compositionId, inputProps, visualConcept } — never rethrows to caller",
-        "On success: returns videoUrl as 'https://d301h7ygdmxuux.cloudfront.net/blog-visuals/{slug}.mp4'",
-        "Typecheck passes"
-      ],
-      "priority": 11,
-      "passes": true,
-      "notes": "Dynamic import of @remotion/lambda/client avoids SSR issues. Validates compositionId against BLOG_VISUAL_COMPOSITION_IDS. Never rethrows."
-    },
-    {
-      "id": "US-012",
-      "title": "Assembler module (Phase 5)",
-      "description": "As the pipeline orchestrator, I need an assembler that merges all phase outputs into a final blog_posts record.",
-      "acceptanceCriteria": [
-        "Create src/lib/blog-pipeline/assembler.ts exporting runAssembler(input: AssemblyInput): Promise<{ postId: string } | null>",
-        "Inserts video embed '<video src=\"{videoUrl}\" autoPlay loop muted playsInline />' after first '---' or first '## ' in body, before second '## ' — skips entirely if videoUrl is null",
-        "For postType='timely': makes Claude API call to generate 5-7 tweet Twitter thread from final body using analystResult.twitterHook as tweet 1; stores in twitter_thread",
-        "Inserts to blog_posts with status='pending_review' and columns: slop_score, seo_score (maps from geoScore), geo_score, citability_score, post_type, editorial_notes (JSON array), research_sources (top 5 citableSources from ResearchBrief), video_url, twitter_thread",
-        "If visualConcept mentions a number not present in the final body: appends 'visual may reference outdated stat — review before publishing' to editorialNotes",
-        "Returns { postId } on success, null on insert failure",
-        "Typecheck passes"
-      ],
-      "priority": 12,
-      "passes": true,
-      "notes": "Video embed injected after first '---' or before second '##'. Stat alignment check uses regex. Twitter thread for timely only."
-    },
-    {
-      "id": "US-013",
-      "title": "Update notify.ts with scores and video",
-      "description": "As a content reviewer, I want the Slack notification to show quality scores and video link so I can assess the post before opening the admin queue.",
-      "acceptanceCriteria": [
-        "Update notifySlack in src/lib/blog-pipeline/notify.ts to accept optional 5th arg: scores?: { slopScore?: number, geoScore?: number, citabilityScore?: number, videoUrl?: string|null, editorialNotes?: string[], researchSources?: string[] }",
-        "Slack message adds a section with fields: 'Slop: {slopScore}/10', 'GEO: {geoScore}/100', 'Citability: {citabilityScore}/100' when scores provided",
-        "If videoUrl non-null: adds button element '🎬 Preview Video' linking to videoUrl",
-        "If videoUrl null and scores provided: adds context block text '⚠️ No video rendered'",
-        "If editorialNotes non-empty: adds section with first 3 notes joined by newline",
-        "Existing 4-argument calls to notifySlack still compile and work unchanged",
-        "Typecheck passes"
-      ],
-      "priority": 13,
-      "passes": true,
-      "notes": "Optional 5th arg is additive — existing 4-arg calls unaffected. Score fields, video button, editorial notes added conditionally."
-    },
-    {
-      "id": "US-014",
-      "title": "Orchestrator module",
-      "description": "As the Trigger.dev task, I need an orchestrator that runs all pipeline phases with proper state tracking, error isolation, and parallel execution.",
-      "acceptanceCriteria": [
-        "Create src/lib/blog-pipeline/orchestrator.ts exporting runPipeline(postType, context?): Promise<PipelineResult>",
-        "Creates blog_pipeline_runs row at start with status='running'",
-        "Updates phase field at each transition: 'analyst', 'research', 'writer', 'editor', 'seo', 'visual', 'assembly', 'complete'",
-        "Idempotency: if blog_pipeline_runs row exists with same backlog_id and status='complete', returns early with success:true",
-        "Phase 4A (editor) and 4B (SEO) run sequentially; Phase 4C (visual) runs concurrently via Promise.allSettled alongside the 4A→4B chain",
-        "Each phase failure caught and logged individually; pipeline continues where possible",
-        "If writer returns null: marks run status='failed' and returns PipelineResult { success: false, error: 'writer returned null' }",
-        "On complete: updates blog_pipeline_runs.status='complete', blog_post_id, completed_at",
-        "Calls notifySlack with all scores from SeoOutput, EditorOutput, VisualDesignerOutput",
-        "Typecheck passes"
-      ],
-      "priority": 14,
-      "passes": true,
-      "notes": "4A/4B sequential inside Promise.allSettled alongside 4C. Idempotency check on backlog_id. Phase updates at each transition."
-    },
-    {
-      "id": "US-015",
-      "title": "Update weeklyBlogPipeline to use orchestrator",
-      "description": "As the weekly cron job, I need to delegate to the new orchestrator for all 3 post types.",
-      "acceptanceCriteria": [
-        "Update src/trigger/blog-pipeline.ts to import runPipeline from orchestrator",
-        "Keyword post: calls runPipeline('keyword') — orchestrator selects backlog internally",
-        "Timely post: pre-crawls using existing crawlArxiv/crawlHackerNews/crawlRedditRss/crawlRssFeeds, deduplicates via deduplicateAndStore, passes new items as context.crawledItems to runPipeline('timely', { crawledItems: newItems })",
-        "Case study post: calls runPipeline('case_study')",
-        "Each post type in independent try/catch — one failure does not block others",
-        "generate.ts exports (generateKeywordDraft, generateDraft, selectTopics) remain unchanged and still compile",
-        "Typecheck passes"
-      ],
-      "priority": 15,
-      "passes": true,
-      "notes": "generate.ts exports kept for backward compat. orphanCleanup added as second schedules.task in same file."
-    },
-    {
-      "id": "US-016",
-      "title": "Orphan cleanup scheduled task",
-      "description": "As the system, I need a cron job that resets stuck in_progress rows so the pipeline can retry them.",
-      "acceptanceCriteria": [
-        "Add second schedules.task to src/trigger/blog-pipeline.ts with id='blog-pipeline-orphan-cleanup', cron='*/30 * * * *', maxDuration: 30",
-        "Resets blog_topic_backlog rows where status='in_progress' AND updated_at < now() - interval '2 hours' back to status='queued'",
-        "Resets blog_case_studies rows with same condition",
-        "Updates blog_pipeline_runs rows where status='running' AND started_at < now() - interval '2 hours' to status='failed', error='orphan cleanup'",
-        "Logs count of each table's reset rows",
-        "Typecheck passes"
-      ],
-      "priority": 16,
-      "passes": true,
-      "notes": "Implemented in same file as weeklyBlogPipeline (US-015). Uses .select('id') after update to count affected rows."
-    },
-    {
-      "id": "US-017",
-      "title": "Seed script for content team testing",
-      "description": "As a developer, I need idempotent seed data to exercise the full pipeline without manual DB setup.",
-      "acceptanceCriteria": [
-        "Create scripts/seed-content-team-test.ts",
-        "Upserts blog_topic_backlog row { query: 'diffusion policy training data', priority: 1, status: 'queued', post_type: 'keyword' } — checks existing by query before insert",
-        "Upserts blog_case_studies row { company: 'Test Lab', headline: '10,000 episodes collected in 2 weeks', challenge: 'Needed diverse manipulation data at scale', solution: 'Deployed 50 egocentric collectors across 3 cities', results: 'Policy achieved 78% success rate on held-out tasks', data_types: ['egocentric_video', 'teleop'], status: 'queued' }",
-        "Deletes blog_pipeline_runs rows where started_at < now() - interval '10 minutes' AND status='running'",
-        "Add to package.json scripts: 'seed:content-team': 'tsx scripts/seed-content-team-test.ts'",
-        "Typecheck passes"
-      ],
-      "priority": 17,
-      "passes": true,
-      "notes": "Check-before-insert pattern. Resets existing rows to queued. Cleans stale runs with delete. test:content-team script also added."
-    },
-    {
-      "id": "US-018",
-      "title": "End-to-end test script",
-      "description": "As a developer, I need a test script that runs the full pipeline with SKIP_REMOTION=true and verifies all acceptance criteria.",
-      "acceptanceCriteria": [
-        "Create scripts/test-content-team.ts that sets process.env.SKIP_REMOTION='true' before any imports",
-        "Calls seed logic to ensure test data exists",
-        "Calls runPipeline('keyword') and captures result",
-        "Asserts: result.success === true",
-        "Asserts: blog_posts row with returned postId has status='pending_review', body_mdx.length >= 1200, slop_score >= 1, geo_score >= 1",
-        "Asserts: blog_pipeline_runs row with status='complete'",
-        "Asserts: editor output body does not contain the string 'game-changing' or 'comprehensive'",
-        "Logs 'PASS' or 'FAIL: {actual}' for each assertion",
-        "Add to package.json scripts: 'test:content-team': 'SKIP_REMOTION=true tsx scripts/test-content-team.ts'",
-        "Typecheck passes"
-      ],
-      "priority": 18,
-      "passes": true,
-      "notes": "SKIP_REMOTION set before imports via process.env. Dynamic import of orchestrator after env setup. 8 assertions covering all AC."
+      "notes": "The noindex meta tag and X-Robots-Tag header are already handled in US-003 (page component)."
     }
   ]
 }
