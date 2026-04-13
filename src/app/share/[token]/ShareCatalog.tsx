@@ -11,8 +11,12 @@ import {
   FileJson,
   Bot,
   Cpu,
+  Gamepad2,
+  Keyboard,
+  Loader2,
   Maximize2,
   Moon,
+  Mouse,
   Sun,
   X,
 } from "lucide-react";
@@ -25,6 +29,7 @@ export interface ShareClip {
   id: string;
   filename: string | null;
   signedUrl: string;
+  annotationUrl: string | null;
   caption: string | null;
   metadata: Record<string, unknown> | null;
   enrichment: Record<string, unknown> | null;
@@ -46,7 +51,7 @@ interface ShareCatalogProps {
   token: string;
 }
 
-type TabType = "annotation" | "enrichment" | "technical";
+type TabType = "annotation" | "enrichment" | "technical" | "input_stream";
 
 interface TabDefinition {
   type: TabType;
@@ -124,7 +129,7 @@ function ThemeToggle({
 // DataPanelTabs — self-contained tab UI for the share page
 // =============================================================================
 
-function DataPanelTabs({ tabs }: { tabs: TabDefinition[] }) {
+function DataPanelTabs({ tabs, token }: { tabs: TabDefinition[]; token: string }) {
   const [activeType, setActiveType] = useState<TabType>(
     tabs[0]?.type ?? "annotation"
   );
@@ -208,7 +213,7 @@ function DataPanelTabs({ tabs }: { tabs: TabDefinition[] }) {
         aria-label={`${activeTab?.label ?? activeType} panel`}
         className="p-4"
       >
-        {activeTab && <PanelContent tab={activeTab} />}
+        {activeTab && <PanelContent tab={activeTab} token={token} />}
       </div>
     </div>
   );
@@ -218,14 +223,20 @@ function DataPanelTabs({ tabs }: { tabs: TabDefinition[] }) {
 // PanelContent — renders content for each tab type
 // =============================================================================
 
-function PanelContent({ tab }: { tab: TabDefinition }) {
+function PanelContent({ tab, token }: { tab: TabDefinition; token: string }) {
   if (tab.type === "technical") {
     return <TechnicalPanel data={tab.data} />;
   }
   if (tab.type === "enrichment") {
     return <EnrichmentPanel data={tab.data} />;
   }
-  // annotation or fallback
+  if (tab.type === "input_stream") {
+    return <InputStreamPanel data={tab.data} token={token} />;
+  }
+  if (tab.type === "annotation") {
+    return <AnnotationPanel data={tab.data} />;
+  }
+  // fallback
   return <JsonPanel data={tab.data} />;
 }
 
@@ -409,6 +420,383 @@ function TagSection({
   );
 }
 
+// =============================================================================
+// InputStreamViewer — renders gz keyboard/mouse data inline (ported from
+// portal DataFilesPanel). Uses the share s3-proxy endpoint.
+// =============================================================================
+
+interface InputEvent {
+  timeUs: number;
+  event: string;
+  value: string;
+  device?: string;
+}
+
+function InputStreamViewer({ objectId, token }: { objectId: string; token: string }) {
+  const [events, setEvents] = useState<InputEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const proxyRes = await fetch(
+          `/api/share/${token}/s3-proxy?key=${encodeURIComponent(objectId)}`
+        );
+        if (!proxyRes.ok) throw new Error(`Failed to fetch: ${proxyRes.status}`);
+
+        const buffer = await proxyRes.arrayBuffer();
+
+        // Empty or near-empty gz files (< 30 bytes = just gzip header)
+        if (buffer.byteLength < 30) {
+          setEvents([]);
+          return;
+        }
+
+        const ds = new DecompressionStream("gzip");
+        const decompressed = new Response(
+          new Blob([buffer]).stream().pipeThrough(ds)
+        );
+        const text = await decompressed.text();
+
+        if (!text.trim()) {
+          setEvents([]);
+          return;
+        }
+
+        const parsed = text
+          .trim()
+          .split("\n")
+          .filter((l) => l.trim())
+          .map((l) => {
+            try {
+              return JSON.parse(l) as InputEvent;
+            } catch {
+              return null;
+            }
+          })
+          .filter((e): e is InputEvent => e !== null);
+
+        setEvents(parsed);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Failed to load";
+        console.error("[InputStreamViewer]", msg, e);
+        setError(msg);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [objectId, token]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 py-4 justify-center">
+        <Loader2
+          className="w-3 h-3 animate-spin"
+          style={{ color: "var(--accent-primary)" }}
+        />
+        <span
+          className="font-mono text-xs"
+          style={{ color: "var(--text-muted)" }}
+        >
+          Loading input stream...
+        </span>
+      </div>
+    );
+  }
+
+  if (error || events.length === 0) {
+    return (
+      <div className="py-3 text-center">
+        <span
+          className="font-mono text-xs"
+          style={{ color: "var(--text-muted)" }}
+        >
+          {error ?? "No input data available"}
+        </span>
+      </div>
+    );
+  }
+
+  // Compute stats
+  const keydowns = events.filter((e) => e.event === "keydown");
+  const mousedowns = events.filter((e) => e.event === "mousedown");
+  const mousemoves = events.filter((e) => e.event === "mousemove");
+  const uniqueKeys = new Set(keydowns.map((e) => e.value));
+  const durationMs = (events[events.length - 1].timeUs - events[0].timeUs) / 1000;
+  const durationSec = Math.round(durationMs / 1000);
+
+  // Show first N events
+  const displayEvents = showAll ? events.slice(0, 500) : events.slice(0, 30);
+
+  return (
+    <div className="space-y-3">
+      {/* Stats bar */}
+      <div className="flex flex-wrap gap-3 text-[10px] font-mono">
+        <div className="flex items-center gap-1" style={{ color: "var(--accent-primary)" }}>
+          <Keyboard className="w-3 h-3" />
+          <span>{keydowns.length} key presses</span>
+        </div>
+        <div className="flex items-center gap-1" style={{ color: "var(--accent-primary)" }}>
+          <Mouse className="w-3 h-3" />
+          <span>{mousedowns.length} clicks</span>
+        </div>
+        <span style={{ color: "var(--text-muted)" }}>{mousemoves.length} mouse moves</span>
+        <span style={{ color: "var(--text-muted)" }}>{uniqueKeys.size} unique keys</span>
+        <span style={{ color: "var(--text-muted)" }}>{durationSec}s duration</span>
+      </div>
+
+      {/* Unique keys used */}
+      <div className="flex flex-wrap gap-1">
+        {Array.from(uniqueKeys)
+          .sort()
+          .map((key) => (
+            <span
+              key={key}
+              className="inline-block px-1.5 py-0.5 rounded font-mono text-[10px] border"
+              style={{
+                background: "var(--bg-tertiary)",
+                borderColor: "var(--border-subtle)",
+                color: "var(--text-secondary)",
+              }}
+            >
+              {key}
+            </span>
+          ))}
+      </div>
+
+      {/* Event stream */}
+      <div
+        className="max-h-[300px] overflow-y-auto rounded border"
+        style={{
+          borderColor: "var(--border-subtle)",
+          background: "var(--bg-primary)",
+        }}
+      >
+        <table className="w-full text-[10px] font-mono">
+          <thead
+            className="sticky top-0"
+            style={{ background: "var(--bg-secondary)" }}
+          >
+            <tr style={{ color: "var(--text-muted)" }}>
+              <th className="text-left px-2 py-1.5">Time</th>
+              <th className="text-left px-2 py-1.5">Event</th>
+              <th className="text-left px-2 py-1.5">Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {displayEvents.map((ev, i) => {
+              const timeSec = (
+                (ev.timeUs - events[0].timeUs) /
+                1_000_000
+              ).toFixed(2);
+              const isKey =
+                ev.event === "keydown" || ev.event === "keyup";
+              const isMouse =
+                ev.event === "mousedown" || ev.event === "mouseup";
+              return (
+                <tr
+                  key={i}
+                  className="border-t"
+                  style={{
+                    borderColor: "var(--border-subtle)",
+                    color: isKey
+                      ? "var(--accent-primary)"
+                      : isMouse
+                        ? "var(--text-secondary)"
+                        : "var(--text-muted)",
+                  }}
+                >
+                  <td className="px-2 py-1 tabular-nums opacity-60">
+                    {timeSec}s
+                  </td>
+                  <td className="px-2 py-1">{ev.event}</td>
+                  <td className="px-2 py-1">{ev.value}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {events.length > 30 && !showAll && (
+        <button
+          onClick={() => setShowAll(true)}
+          className="text-[10px] font-mono hover:underline"
+          style={{ color: "var(--accent-primary)" }}
+        >
+          Show more ({events.length.toLocaleString()} total events) &rarr;
+        </button>
+      )}
+      {showAll && events.length > 500 && (
+        <span
+          className="text-[10px] font-mono"
+          style={{ color: "var(--text-muted)" }}
+        >
+          Showing first 500 of {events.length.toLocaleString()} events
+        </span>
+      )}
+    </div>
+  );
+}
+
+// =============================================================================
+// InputStreamPanel — wraps InputStreamViewer for tab integration
+// =============================================================================
+
+function InputStreamPanel({
+  data,
+  token,
+}: {
+  data: Record<string, unknown>;
+  token: string;
+}) {
+  const gzFiles = data.gzFiles as Array<Record<string, unknown>> | undefined;
+
+  if (!gzFiles || gzFiles.length === 0) {
+    return (
+      <div
+        className="font-mono text-xs text-center py-4"
+        style={{ color: "var(--text-muted)" }}
+      >
+        No input stream data available.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {gzFiles.map((file, idx) => {
+        const objectId = String(file.objectId ?? "");
+        const filename = objectId.split("/").pop() ?? objectId;
+        return (
+          <div
+            key={objectId || idx}
+            className="border rounded-lg p-3"
+            style={{
+              borderColor: "var(--border-subtle)",
+              background: "var(--bg-primary)",
+            }}
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <Keyboard
+                className="w-4 h-4 flex-shrink-0"
+                style={{ color: "var(--accent-primary)" }}
+              />
+              <span
+                className="font-mono text-xs"
+                style={{ color: "var(--accent-primary)" }}
+              >
+                Input Stream
+              </span>
+              <span
+                className="font-mono text-[10px]"
+                style={{ color: "var(--text-muted)" }}
+              >
+                {filename}
+              </span>
+            </div>
+            <InputStreamViewer objectId={objectId} token={token} />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// =============================================================================
+// AnnotationPanel — structured display with game info and filtered fields
+// =============================================================================
+
+/** Internal / sensitive fields to hide from annotation display */
+const ANNOTATION_HIDDEN_KEYS = new Set([
+  "userId",
+  "reviewerId",
+  "payoutId",
+  "amount",
+  "paymentStatus",
+  "paymentDate",
+  "cost",
+  "browserMetadata",
+  "rejectionReason",
+  "rejectionCount",
+  "isTestTemplate",
+  "files",
+]);
+
+function AnnotationPanel({ data }: { data: Record<string, unknown> }) {
+  // Extract game info from generalData.selectedGame
+  const generalData = data.generalData as Record<string, unknown> | undefined;
+  const selectedGame = generalData?.selectedGame as string | undefined;
+
+  // Filter out hidden keys
+  const filteredData: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (!ANNOTATION_HIDDEN_KEYS.has(key)) {
+      filteredData[key] = value;
+    }
+  }
+
+  const hasFilteredData = Object.keys(filteredData).length > 0;
+
+  return (
+    <div className="space-y-4">
+      {/* Game info highlight */}
+      {selectedGame && (
+        <div
+          className="flex items-center gap-2.5 p-3 rounded-lg border"
+          style={{
+            background: "var(--accent-glow)",
+            borderColor: "var(--border-accent)",
+          }}
+        >
+          <Gamepad2
+            className="w-4 h-4 flex-shrink-0"
+            style={{ color: "var(--accent-primary)" }}
+          />
+          <div>
+            <span
+              className="block text-[10px] font-mono uppercase tracking-wider"
+              style={{ color: "var(--accent-primary)" }}
+            >
+              Game
+            </span>
+            <span
+              className="font-mono text-sm font-medium"
+              style={{ color: "var(--text-primary)" }}
+            >
+              {selectedGame}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Filtered JSON dump */}
+      {hasFilteredData ? (
+        <pre
+          className="font-mono text-[11px] whitespace-pre-wrap break-all max-h-[60vh] overflow-y-auto rounded-md p-3 border"
+          style={{
+            color: "var(--text-secondary)",
+            background: "var(--bg-tertiary)",
+            borderColor: "var(--border-subtle)",
+          }}
+        >
+          {JSON.stringify(filteredData, null, 2)}
+        </pre>
+      ) : (
+        <div
+          className="font-mono text-xs text-center py-4"
+          style={{ color: "var(--text-muted)" }}
+        >
+          No annotation data available.
+        </div>
+      )}
+    </div>
+  );
+}
+
 function JsonPanel({ data }: { data: Record<string, unknown> }) {
   return (
     <pre
@@ -534,6 +922,7 @@ function ClipDetailModal({
   onNavigate,
   clipUrls,
   onRefreshUrls,
+  token,
 }: {
   clips: ShareClip[];
   selectedIndex: number;
@@ -541,15 +930,46 @@ function ClipDetailModal({
   onNavigate: (index: number) => void;
   clipUrls: Map<string, string>;
   onRefreshUrls: () => Promise<Map<string, string>>;
+  token: string;
 }) {
   const [copied, setCopied] = useState(false);
   const backdropRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoError, setVideoError] = useState(false);
 
+  // Annotation JSON fetched from S3 (keystroke/input data)
+  const [annotationData, setAnnotationData] = useState<Record<string, unknown> | null>(null);
+  const [annotationLoading, setAnnotationLoading] = useState(false);
+
   const clip = clips[selectedIndex];
   const hasPrev = selectedIndex > 0;
   const hasNext = selectedIndex < clips.length - 1;
+
+  // Fetch annotation JSON via server-side proxy (avoids S3 CORS)
+  useEffect(() => {
+    if (!clip.annotationUrl) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setAnnotationData(null);
+      return;
+    }
+    let cancelled = false;
+    setAnnotationLoading(true);
+    setAnnotationData(null);
+    fetch(`/api/share/${token}/annotation?clipId=${clip.id}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!cancelled) {
+          setAnnotationData(data as Record<string, unknown> | null);
+          setAnnotationLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setAnnotationLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [clip.annotationUrl, clip.id, token]);
 
   // Get current URL for this clip (may have been refreshed)
   const currentUrl = clipUrls.get(clip.id) ?? clip.signedUrl;
@@ -558,14 +978,37 @@ function ClipDetailModal({
   const tabs = useMemo<TabDefinition[]>(() => {
     const result: TabDefinition[] = [];
 
-    // Annotation panel
-    if (clip.metadata && Object.keys(clip.metadata).length > 0) {
+    // Annotation panel — merge inline metadata with fetched S3 annotation data
+    const mergedAnnotation: Record<string, unknown> = {
+      ...(clip.metadata ?? {}),
+      ...(annotationData ?? {}),
+    };
+    if (Object.keys(mergedAnnotation).length > 0) {
       result.push({
         type: "annotation",
-        label: "Annotation",
+        label: annotationLoading ? "Annotation..." : "Annotation",
         icon: FileJson,
-        data: clip.metadata,
+        data: mergedAnnotation,
       });
+    }
+
+    // Input Stream tab — if annotation files[] has .gz files
+    const rawFiles = annotationData?.files;
+    if (Array.isArray(rawFiles)) {
+      const gzFiles = (rawFiles as Array<Record<string, unknown>>).filter(
+        (f) => {
+          const oid = String(f.objectId ?? "").toLowerCase();
+          return oid.endsWith(".gz");
+        }
+      );
+      if (gzFiles.length > 0) {
+        result.push({
+          type: "input_stream",
+          label: "Input Stream",
+          icon: Keyboard,
+          data: { gzFiles },
+        });
+      }
     }
 
     // AI Enrichment panel
@@ -607,12 +1050,16 @@ function ClipDetailModal({
     }
 
     return result;
-  }, [clip]);
+  }, [clip, annotationData, annotationLoading]);
 
-  // Merged JSON for copy
+  // Merged JSON for copy — includes fetched annotation data
   const mergedJson = useMemo(() => {
     const merged: Record<string, unknown> = {};
-    if (clip.metadata) merged.annotation = clip.metadata;
+    const mergedAnnotation: Record<string, unknown> = {
+      ...(clip.metadata ?? {}),
+      ...(annotationData ?? {}),
+    };
+    if (Object.keys(mergedAnnotation).length > 0) merged.annotation = mergedAnnotation;
     if (clip.enrichment) merged.enrichment = clip.enrichment;
     merged.technical = {
       duration: clip.techSpecs.duration,
@@ -626,7 +1073,7 @@ function ClipDetailModal({
       bit_depth: clip.techSpecs.bitDepth,
     };
     return merged;
-  }, [clip]);
+  }, [clip, annotationData]);
 
   const jsonString = JSON.stringify(mergedJson, null, 2);
 
@@ -861,7 +1308,7 @@ function ClipDetailModal({
           {/* Scrollable panel content */}
           <div className="flex-1 overflow-y-auto min-h-0 p-4">
             {tabs.length > 0 ? (
-              <DataPanelTabs tabs={tabs} />
+              <DataPanelTabs tabs={tabs} token={token} />
             ) : (
               <div
                 className="font-mono text-xs text-center py-6"
@@ -1109,6 +1556,7 @@ export default function ShareCatalog({
           onNavigate={setSelectedIndex}
           clipUrls={clipUrls}
           onRefreshUrls={refreshUrls}
+          token={token}
         />
       )}
     </div>
