@@ -7,6 +7,56 @@ import { getS3SignedUrl } from "@/lib/s3/presigner";
 import { scrubS3Urls } from "@/lib/scrub-s3-urls";
 import type { AgentContext } from "@/lib/enrichment/types";
 import { getAllCaseStudies, getCaseStudyBySlug } from "@/lib/case-studies";
+import { GoogleGenAI } from "@google/genai";
+
+// ---------------------------------------------------------------------------
+// Client Spec system — reusable QA specs for different customers
+// ---------------------------------------------------------------------------
+
+interface ClipSpec {
+  name: string;
+  description: string;
+  min_duration_seconds: number;
+  max_duration_seconds: number;
+  min_resolution_height: number;
+  min_fps: number;
+  orientation: "landscape" | "portrait" | "any";
+  content_requirements: string[];
+}
+
+async function loadSpec(specName: string): Promise<ClipSpec | null> {
+  const supabase = createSupabaseAdminClient();
+  const { data } = await supabase
+    .from("client_specs")
+    .select("name, description, min_duration_seconds, max_duration_seconds, min_resolution_height, min_fps, orientation, content_requirements")
+    .eq("name", specName)
+    .single();
+
+  if (!data) return null;
+  return data as ClipSpec;
+}
+
+async function listSpecs(): Promise<Array<{ name: string; description: string }>> {
+  const supabase = createSupabaseAdminClient();
+  const { data } = await supabase
+    .from("client_specs")
+    .select("name, description")
+    .order("created_at", { ascending: true });
+  return (data ?? []) as Array<{ name: string; description: string }>;
+}
+
+interface AuditResult {
+  clip_id: string;
+  pass: boolean;
+  technical_checks: Record<string, { pass: boolean; actual: string; required: string }>;
+  content_assessment: {
+    score: number;
+    pass: boolean;
+    issues: string[];
+    summary: string;
+  };
+  overall_score: number;
+}
 
 /**
  * Create and configure the MCP server with all catalog tools.
@@ -40,6 +90,11 @@ export function createMcpServer(): McpServer {
   registerRevokeLeadAccess(server);
   registerCreateLeadAuthUser(server);
   registerPublishShareLink(server);
+  registerAuditClip(server);
+  registerAuditCatalog(server);
+  registerFindClipsForSpec(server);
+  registerRegisterSpec(server);
+  registerListSpecs(server);
 
   return server;
 }
@@ -1810,6 +1865,484 @@ function registerPublishShareLink(server: McpServer) {
             expires_at: expiresAt,
             message: `Share link created for "${dataset.name}", expires in ${expires_in_days} days`,
           }),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// audit_clip tool — QA a single clip against a client spec
+// ---------------------------------------------------------------------------
+
+async function analyzeContentWithGemini(
+  caption: string,
+  metadata: Record<string, unknown> | null,
+  spec: ClipSpec,
+): Promise<{ score: number; issues: string[]; summary: string }> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return { score: 0, issues: ["GEMINI_API_KEY not configured — cannot run content analysis"], summary: "Skipped" };
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+
+  const prompt = `You are a video QA auditor. Given a clip's caption/description and metadata, evaluate whether it meets the following content requirements for the "${spec.name}" spec.
+
+CONTENT REQUIREMENTS:
+${spec.content_requirements.map((r, i) => `${i + 1}. ${r}`).join("\n")}
+
+CLIP CAPTION:
+${caption || "(no caption available)"}
+
+CLIP METADATA:
+${metadata ? JSON.stringify(metadata, null, 2) : "(no metadata)"}
+
+Respond with valid JSON only (no markdown):
+{
+  "score": <0-10 integer>,
+  "issues": ["list of specific requirement violations found"],
+  "summary": "one sentence assessment"
+}
+
+Score guide: 10 = clearly passes all requirements, 7-9 = minor concerns, 4-6 = some requirements not met, 0-3 = clearly fails.
+If the caption is too vague to assess, say so in issues and give score 5.`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: prompt,
+    });
+
+    const text = response.text?.trim() ?? "";
+    const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    const parsed = JSON.parse(cleaned);
+    return {
+      score: Math.min(10, Math.max(0, Number(parsed.score) || 0)),
+      issues: Array.isArray(parsed.issues) ? parsed.issues : [],
+      summary: String(parsed.summary || ""),
+    };
+  } catch (e) {
+    return { score: 5, issues: [`Gemini analysis error: ${e instanceof Error ? e.message : "unknown"}`], summary: "Analysis failed" };
+  }
+}
+
+function runTechnicalChecks(
+  clip: {
+    tech_duration_seconds: number | null;
+    tech_resolution_width: number | null;
+    tech_resolution_height: number | null;
+    tech_fps: number | null;
+  },
+  spec: ClipSpec,
+): Record<string, { pass: boolean; actual: string; required: string }> {
+  const checks: Record<string, { pass: boolean; actual: string; required: string }> = {};
+
+  const dur = clip.tech_duration_seconds;
+  checks.duration = {
+    pass: dur != null && dur >= spec.min_duration_seconds && dur <= spec.max_duration_seconds,
+    actual: dur != null ? `${Math.round(dur)}s` : "unknown",
+    required: `${spec.min_duration_seconds}-${spec.max_duration_seconds}s`,
+  };
+
+  const h = clip.tech_resolution_height;
+  checks.resolution = {
+    pass: h != null && h >= spec.min_resolution_height,
+    actual: h != null ? `${clip.tech_resolution_width}x${h}` : "unknown",
+    required: `>=${spec.min_resolution_height}p`,
+  };
+
+  const fps = clip.tech_fps;
+  checks.fps = {
+    pass: fps != null && fps >= spec.min_fps,
+    actual: fps != null ? `${fps}fps` : "unknown",
+    required: `>=${spec.min_fps}fps`,
+  };
+
+  if (spec.orientation !== "any") {
+    const w = clip.tech_resolution_width;
+    const isLandscape = w != null && h != null && w > h;
+    const isPortrait = w != null && h != null && h > w;
+    checks.orientation = {
+      pass: spec.orientation === "landscape" ? isLandscape : isPortrait,
+      actual: w != null && h != null ? (w > h ? "landscape" : "portrait") : "unknown",
+      required: spec.orientation,
+    };
+  }
+
+  return checks;
+}
+
+function registerAuditClip(server: McpServer) {
+  server.tool(
+    "audit_clip",
+    "QA-audit a single clip against a client spec (e.g. 'sieve'). Checks technical metadata (duration, resolution, fps, orientation) and uses Gemini to assess content requirements from existing captions/enrichment data. Returns pass/fail with detailed scores.",
+    {
+      clip_id: z.string().uuid().describe("Clip UUID from the clips table"),
+      spec_name: z.string().default("sieve").describe("Spec name from client_specs table (default: 'sieve'). Use list_specs to see available specs."),
+    },
+    async ({ clip_id, spec_name }) => {
+      const spec = await loadSpec(spec_name);
+      if (!spec) {
+        const available = await listSpecs();
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: `Unknown spec: ${spec_name}. Available: ${available.map((s) => s.name).join(", ")}` }) }],
+        };
+      }
+
+      const supabase = createSupabaseAdminClient();
+      const { data: clip, error } = await supabase
+        .from("clips")
+        .select("id, s3_key, s3_bucket, mime_type, filename, tech_duration_seconds, tech_resolution_width, tech_resolution_height, tech_fps, tech_codec, ai_caption, caption_text, ai_agent_context, ai_enrichment_source")
+        .eq("id", clip_id)
+        .single();
+
+      if (error || !clip) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "Clip not found" }) }],
+        };
+      }
+
+      const techChecks = runTechnicalChecks(clip, spec);
+      const allTechPass = Object.values(techChecks).every((c) => c.pass);
+
+      const caption = clip.ai_caption || clip.caption_text || "";
+      const contentResult = await analyzeContentWithGemini(
+        caption,
+        clip.ai_agent_context as Record<string, unknown> | null,
+        spec,
+      );
+
+      const contentPass = contentResult.score >= 7;
+      const overallScore = allTechPass ? contentResult.score : Math.min(contentResult.score, 3);
+
+      const result: AuditResult = {
+        clip_id,
+        pass: allTechPass && contentPass,
+        technical_checks: techChecks,
+        content_assessment: { ...contentResult, pass: contentPass },
+        overall_score: overallScore,
+      };
+
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify(result) }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// audit_catalog tool — batch QA all clips in a dataset
+// ---------------------------------------------------------------------------
+
+function registerAuditCatalog(server: McpServer) {
+  server.tool(
+    "audit_catalog",
+    "Batch QA-audit every clip in a dataset against a client spec. Returns per-clip results plus a summary with pass/fail counts, clips to cut, and clips to keep.",
+    {
+      dataset_id: z.string().uuid().describe("Dataset UUID to audit"),
+      spec_name: z.string().default("sieve").describe("Spec name from client_specs table (default: 'sieve')"),
+    },
+    async ({ dataset_id, spec_name }) => {
+      const spec = await loadSpec(spec_name);
+      if (!spec) {
+        const available = await listSpecs();
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: `Unknown spec: ${spec_name}. Available: ${available.map((s) => s.name).join(", ")}` }) }],
+        };
+      }
+
+      const supabase = createSupabaseAdminClient();
+
+      const { data: dcRows } = await supabase
+        .from("dataset_clips")
+        .select("clip_id")
+        .eq("dataset_id", dataset_id);
+
+      if (!dcRows || dcRows.length === 0) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "No clips found in dataset" }) }],
+        };
+      }
+
+      const clipIds = dcRows.map((r) => r.clip_id);
+
+      const { data: clips } = await supabase
+        .from("clips")
+        .select("id, s3_key, filename, tech_duration_seconds, tech_resolution_width, tech_resolution_height, tech_fps, ai_caption, caption_text, ai_agent_context")
+        .in("id", clipIds);
+
+      if (!clips || clips.length === 0) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "Clips not found" }) }],
+        };
+      }
+
+      const results: Array<AuditResult & { filename: string }> = [];
+
+      // Process sequentially to avoid Gemini rate limits
+      for (const clip of clips) {
+        const techChecks = runTechnicalChecks(clip, spec);
+        const allTechPass = Object.values(techChecks).every((c) => c.pass);
+
+        const caption = clip.ai_caption || clip.caption_text || "";
+        const contentResult = await analyzeContentWithGemini(
+          caption,
+          clip.ai_agent_context as Record<string, unknown> | null,
+          spec,
+        );
+
+        const contentPass = contentResult.score >= 7;
+        const overallScore = allTechPass ? contentResult.score : Math.min(contentResult.score, 3);
+
+        results.push({
+          clip_id: clip.id,
+          filename: clip.filename || clip.s3_key?.split("/").pop() || "unknown",
+          pass: allTechPass && contentPass,
+          technical_checks: techChecks,
+          content_assessment: { ...contentResult, pass: contentPass },
+          overall_score: overallScore,
+        });
+      }
+
+      const passed = results.filter((r) => r.pass);
+      const failed = results.filter((r) => !r.pass);
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({
+            spec: spec_name,
+            dataset_id,
+            total_clips: results.length,
+            passed_count: passed.length,
+            failed_count: failed.length,
+            keep: passed.map((r) => ({ clip_id: r.clip_id, filename: r.filename, score: r.overall_score })),
+            cut: failed.map((r) => ({
+              clip_id: r.clip_id,
+              filename: r.filename,
+              score: r.overall_score,
+              reasons: [
+                ...Object.entries(r.technical_checks)
+                  .filter(([, v]) => !v.pass)
+                  .map(([k, v]) => `${k}: ${v.actual} (need ${v.required})`),
+                ...r.content_assessment.issues,
+              ],
+            })),
+            results,
+          }),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// find_clips_for_spec tool — search corpus for clips matching a client spec
+// ---------------------------------------------------------------------------
+
+function registerFindClipsForSpec(server: McpServer) {
+  server.tool(
+    "find_clips_for_spec",
+    "Search the 1M+ clip corpus for clips that match a client spec's technical and content requirements. Pre-filters by duration, resolution, fps, and orientation using DB metadata, then ranks by semantic similarity to the environment/activity description.",
+    {
+      spec_name: z.string().default("sieve").describe("Spec name from client_specs table (default: 'sieve')"),
+      environment_query: z.string().describe("Natural language description of the environment/activity to find (e.g. 'woodworking in a shop with hand tools', 'pharmacist filling prescriptions')"),
+      count: z.number().min(1).max(50).default(10).describe("Number of candidates to return (default 10)"),
+      exclude_dataset_id: z.string().uuid().optional().describe("Optional: exclude clips already in this dataset"),
+    },
+    async ({ spec_name, environment_query, count, exclude_dataset_id }) => {
+      const spec = await loadSpec(spec_name);
+      if (!spec) {
+        const available = await listSpecs();
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: `Unknown spec: ${spec_name}. Available: ${available.map((s) => s.name).join(", ")}` }) }],
+        };
+      }
+
+      const supabase = createSupabaseAdminClient();
+
+      // Build a search query that includes the spec's content needs
+      const enrichedQuery = `${environment_query}, first-person POV, hands visible, active manipulation`;
+      const queryEmbedding = await generateEmbedding(enrichedQuery, 768);
+
+      // First: semantic search to get candidates
+      const { data: matches, error } = await supabase.rpc("match_clips", {
+        query_embedding: queryEmbedding,
+        match_count: count * 5, // over-fetch to filter
+        filter_dataset_id: null,
+        filter_bucket: null,
+        match_threshold: 0.35,
+      });
+
+      if (error || !matches || matches.length === 0) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ results: [], message: "No matching clips found" }) }],
+        };
+      }
+
+      // Get exclude set if specified
+      let excludeIds = new Set<string>();
+      if (exclude_dataset_id) {
+        const { data: excl } = await supabase
+          .from("dataset_clips")
+          .select("clip_id")
+          .eq("dataset_id", exclude_dataset_id);
+        excludeIds = new Set((excl ?? []).map((r) => r.clip_id));
+      }
+
+      // Filter by technical requirements + exclusion
+      const filtered = (matches as Array<{
+        id: string;
+        s3_bucket: string;
+        s3_key: string;
+        mime_type: string | null;
+        similarity: number;
+        ai_caption: string | null;
+        caption_text: string | null;
+        tech_duration_seconds: number | null;
+        tech_resolution_width: number | null;
+        tech_resolution_height: number | null;
+        tech_fps: number | null;
+      }>).filter((m) => {
+        if (excludeIds.has(m.id)) return false;
+
+        const dur = m.tech_duration_seconds;
+        if (dur != null && (dur < spec.min_duration_seconds || dur > spec.max_duration_seconds)) return false;
+
+        const h = m.tech_resolution_height;
+        if (h != null && h < spec.min_resolution_height) return false;
+
+        const fps = m.tech_fps;
+        if (fps != null && fps < spec.min_fps) return false;
+
+        if (spec.orientation === "landscape") {
+          const w = m.tech_resolution_width;
+          if (w != null && h != null && w <= h) return false;
+        }
+
+        return true;
+      }).slice(0, count);
+
+      const results = await Promise.all(
+        filtered.map(async (m) => {
+          const signed_url = await getS3SignedUrl(m.s3_key, 600, m.s3_bucket);
+          return {
+            id: m.id,
+            similarity: Math.round(m.similarity * 1000) / 1000,
+            signed_url,
+            s3_key: m.s3_key,
+            mime_type: m.mime_type,
+            duration_seconds: m.tech_duration_seconds,
+            resolution: m.tech_resolution_width && m.tech_resolution_height
+              ? `${m.tech_resolution_width}x${m.tech_resolution_height}`
+              : null,
+            fps: m.tech_fps,
+            caption: m.ai_caption ?? m.caption_text ?? null,
+          };
+        }),
+      );
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify(scrubS3Urls({
+            spec: spec_name,
+            query: environment_query,
+            count: results.length,
+            results,
+          })),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// register_spec tool — create or update a client QA spec
+// ---------------------------------------------------------------------------
+
+function registerRegisterSpec(server: McpServer) {
+  server.tool(
+    "register_spec",
+    "Create or update a reusable QA spec for a client. Specs define the technical and content requirements that clips must meet. Once registered, use the spec name with audit_clip, audit_catalog, and find_clips_for_spec.",
+    {
+      name: z.string().min(1).max(50).describe("Unique spec name (lowercase, e.g. 'sieve', 'waymo', 'figure-ai')"),
+      description: z.string().describe("One-line description of the spec and client"),
+      min_duration_seconds: z.number().min(0).default(60).describe("Minimum clip duration in seconds (default 60)"),
+      max_duration_seconds: z.number().min(1).default(180).describe("Maximum clip duration in seconds (default 180)"),
+      min_resolution_height: z.number().min(0).default(1080).describe("Minimum vertical resolution (default 1080)"),
+      min_fps: z.number().min(0).default(30).describe("Minimum frames per second (default 30)"),
+      orientation: z.enum(["landscape", "portrait", "any"]).default("landscape").describe("Required orientation (default 'landscape')"),
+      content_requirements: z.array(z.string()).min(1).describe("List of content requirements the clip must meet (evaluated by Gemini vision)"),
+      lead_id: z.string().uuid().optional().describe("Optional: link spec to a lead record"),
+    },
+    async ({ name, description, min_duration_seconds, max_duration_seconds, min_resolution_height, min_fps, orientation, content_requirements, lead_id }) => {
+      const supabase = createSupabaseAdminClient();
+
+      const { data, error } = await supabase
+        .from("client_specs")
+        .upsert({
+          name: name.toLowerCase().trim(),
+          description,
+          min_duration_seconds,
+          max_duration_seconds,
+          min_resolution_height,
+          min_fps,
+          orientation,
+          content_requirements,
+          lead_id: lead_id ?? null,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: "name" })
+        .select("id, name, description, created_at, updated_at")
+        .single();
+
+      if (error) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: error.message }) }],
+        };
+      }
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({
+            ...data,
+            content_requirements,
+            message: `Spec "${name}" registered. Use it with audit_clip, audit_catalog, or find_clips_for_spec.`,
+          }),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// list_specs tool — list all available QA specs
+// ---------------------------------------------------------------------------
+
+function registerListSpecs(server: McpServer) {
+  server.tool(
+    "list_specs",
+    "List all registered client QA specs. Use the spec name with audit_clip, audit_catalog, and find_clips_for_spec.",
+    {},
+    async () => {
+      const supabase = createSupabaseAdminClient();
+      const { data, error } = await supabase
+        .from("client_specs")
+        .select("name, description, min_duration_seconds, max_duration_seconds, min_resolution_height, min_fps, orientation, content_requirements, lead_id, created_at, updated_at")
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: error.message }) }],
+        };
+      }
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({ specs: data ?? [], count: data?.length ?? 0 }),
         }],
       };
     },

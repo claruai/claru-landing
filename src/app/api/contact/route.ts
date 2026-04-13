@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getPostHogServer } from "@/lib/posthog-server";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let _resend: Resend | null = null;
+function getResend() {
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY);
+  return _resend;
+}
 
 function escapeHtml(str: string): string {
   return str
@@ -39,7 +43,7 @@ export async function POST(request: NextRequest) {
     });
 
     // 1. Send notification email to team
-    await resend.emails.send({
+    await getResend().emails.send({
       from: `Claru AI <${process.env.RESEND_FROM_EMAIL || "team@claru.ai"}>`,
       to: "contact@claru.ai",
       bcc: "claru@attio.email",
@@ -64,7 +68,7 @@ export async function POST(request: NextRequest) {
 
     // 2. Add submitter as a Resend contact (for audience/remarketing)
     try {
-      await resend.contacts.create({
+      await getResend().contacts.create({
         audienceId: process.env.RESEND_AUDIENCE_ID || "e33492fa-da3f-495e-a699-c054e0e5f27a",
         email,
         firstName: name.split(" ")[0],
