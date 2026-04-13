@@ -29,7 +29,7 @@ export interface ShareClip {
   id: string;
   filename: string | null;
   signedUrl: string;
-  annotationUrl: string | null;
+  hasAnnotation: boolean;
   caption: string | null;
   metadata: Record<string, unknown> | null;
   enrichment: Record<string, unknown> | null;
@@ -951,7 +951,7 @@ function ClipDetailModal({
 
   // Fetch annotation JSON via server-side proxy (avoids S3 CORS)
   useEffect(() => {
-    if (!clip.annotationUrl) {
+    if (!clip.hasAnnotation) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setAnnotationData(null);
       return;
@@ -973,7 +973,7 @@ function ClipDetailModal({
     return () => {
       cancelled = true;
     };
-  }, [clip.annotationUrl, clip.id, token]);
+  }, [clip.hasAnnotation, clip.id, token]);
 
   // Get current URL for this clip (may have been refreshed)
   const currentUrl = clipUrls.get(clip.id) ?? clip.signedUrl;
