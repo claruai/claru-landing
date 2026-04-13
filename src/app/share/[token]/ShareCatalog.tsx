@@ -29,7 +29,7 @@ export interface ShareClip {
   id: string;
   filename: string | null;
   signedUrl: string;
-  annotationUrl: string | null;
+  hasAnnotation: boolean;
   caption: string | null;
   metadata: Record<string, unknown> | null;
   enrichment: Record<string, unknown> | null;
@@ -432,7 +432,7 @@ interface InputEvent {
   device?: string;
 }
 
-function InputStreamViewer({ objectId, token }: { objectId: string; token: string }) {
+function InputStreamViewer({ objectId, token, clipId }: { objectId: string; token: string; clipId: string }) {
   const [events, setEvents] = useState<InputEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -442,13 +442,17 @@ function InputStreamViewer({ objectId, token }: { objectId: string; token: strin
     async function load() {
       try {
         const proxyRes = await fetch(
-          `/api/share/${token}/s3-proxy?key=${encodeURIComponent(objectId)}`
+          `/api/share/${token}/s3-proxy?clipId=${encodeURIComponent(clipId)}&key=${encodeURIComponent(objectId)}`
         );
         if (!proxyRes.ok) throw new Error(`Failed to fetch: ${proxyRes.status}`);
 
         const buffer = await proxyRes.arrayBuffer();
 
-        // Empty or near-empty gz files (< 30 bytes = just gzip header)
+        if (buffer.byteLength > 10 * 1024 * 1024) {
+          setError("File too large to display");
+          return;
+        }
+
         if (buffer.byteLength < 30) {
           setEvents([]);
           return;
@@ -488,7 +492,7 @@ function InputStreamViewer({ objectId, token }: { objectId: string; token: strin
       }
     }
     load();
-  }, [objectId, token]);
+  }, [objectId, token, clipId]);
 
   if (loading) {
     return (
@@ -698,7 +702,7 @@ function InputStreamPanel({
                 {filename}
               </span>
             </div>
-            <InputStreamViewer objectId={objectId} token={token} />
+            <InputStreamViewer objectId={objectId} token={token} clipId={String(data.clipId ?? "")} />
           </div>
         );
       })}
@@ -947,7 +951,7 @@ function ClipDetailModal({
 
   // Fetch annotation JSON via server-side proxy (avoids S3 CORS)
   useEffect(() => {
-    if (!clip.annotationUrl) {
+    if (!clip.hasAnnotation) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setAnnotationData(null);
       return;
@@ -969,7 +973,7 @@ function ClipDetailModal({
     return () => {
       cancelled = true;
     };
-  }, [clip.annotationUrl, clip.id, token]);
+  }, [clip.hasAnnotation, clip.id, token]);
 
   // Get current URL for this clip (may have been refreshed)
   const currentUrl = clipUrls.get(clip.id) ?? clip.signedUrl;
@@ -1006,7 +1010,7 @@ function ClipDetailModal({
           type: "input_stream",
           label: "Input Stream",
           icon: Keyboard,
-          data: { gzFiles },
+          data: { gzFiles, clipId: clip.id },
         });
       }
     }
