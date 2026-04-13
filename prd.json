@@ -56,7 +56,7 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "s3_bucket and s3_key are used server-side ONLY for CloudFront URL generation. The client component receives signedUrl instead."
     },
     {
