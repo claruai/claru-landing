@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { cache } from "react";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getS3SignedUrl } from "@/lib/s3/presigner";
 import { scrubS3Urls } from "@/lib/scrub-s3-urls";
@@ -65,8 +66,12 @@ export async function generateMetadata({
   };
 }
 
+const TOKEN_RE = /^[a-f0-9]{64}$/;
+
 export default async function SharePage({ params }: SharePageProps) {
   const { token } = await params;
+  if (!TOKEN_RE.test(token)) return notFound();
+
   const data = await getShareData(token);
 
   if (!data) {
@@ -91,15 +96,9 @@ export default async function SharePage({ params }: SharePageProps) {
   const { dataset, companyName } = data;
   const supabase = createSupabaseAdminClient();
 
-  // View tracking — read-then-write is acceptable for low-traffic share pages
-  await supabase
-    .from("datasets")
-    .update({
-      share_view_count: (dataset.share_view_count ?? 0) + 1,
-      share_first_viewed_at:
-        dataset.share_first_viewed_at ?? new Date().toISOString(),
-    })
-    .eq("id", dataset.id);
+  // Atomic view tracking via Postgres RPC — increments share_view_count and
+  // sets share_first_viewed_at = COALESCE(share_first_viewed_at, now()) in one shot
+  await supabase.rpc("increment_share_view", { p_dataset_id: dataset.id });
 
   const { data: rows } = await supabase
     .from("dataset_clips")
@@ -109,67 +108,73 @@ export default async function SharePage({ params }: SharePageProps) {
     .eq("dataset_id", dataset.id)
     .order("created_at", { ascending: true });
 
+  // Deduplicate rows first, then sign URLs in parallel
   const seen = new Set<string>();
-  const clips: ShareClip[] = [];
+  type ClipRow = {
+    id: string;
+    filename: string | null;
+    mime_type: string | null;
+    s3_bucket: string;
+    s3_key: string;
+    ann_metadata: Record<string, unknown> | null;
+    ai_enrichment_json: Record<string, unknown> | null;
+    ai_caption: string | null;
+    tech_duration_seconds: number | null;
+    tech_resolution_width: number | null;
+    tech_resolution_height: number | null;
+    tech_fps: number | null;
+    tech_file_size_bytes: number | null;
+    tech_codec: string | null;
+    tech_bit_depth: number | null;
+  };
+  const uniqueClips: ClipRow[] = [];
 
   for (const row of rows ?? []) {
-    const clip = row.clips as unknown as {
-      id: string;
-      filename: string | null;
-      mime_type: string | null;
-      s3_bucket: string;
-      s3_key: string;
-      ann_metadata: Record<string, unknown> | null;
-      ai_enrichment_json: Record<string, unknown> | null;
-      ai_caption: string | null;
-      tech_duration_seconds: number | null;
-      tech_resolution_width: number | null;
-      tech_resolution_height: number | null;
-      tech_fps: number | null;
-      tech_file_size_bytes: number | null;
-      tech_codec: string | null;
-      tech_bit_depth: number | null;
-    } | null;
-
+    const clip = row.clips as unknown as ClipRow | null;
     if (!clip?.s3_key || seen.has(clip.id)) continue;
     seen.add(clip.id);
-
-    const bucket =
-      clip.s3_bucket &&
-      clip.s3_bucket !== "moonvalley-annotation-platform"
-        ? clip.s3_bucket
-        : dataset.s3_bucket &&
-            dataset.s3_bucket !== "moonvalley-annotation-platform"
-          ? dataset.s3_bucket
-          : undefined;
-
-    const signedUrl =
-      (await getS3SignedUrl(clip.s3_key, 3600, bucket ?? undefined)) ?? "";
-
-    clips.push({
-      id: clip.id,
-      filename: clip.filename,
-      signedUrl,
-      caption: clip.ai_caption,
-      metadata: scrubS3Urls(clip.ann_metadata) as Record<
-        string,
-        unknown
-      > | null,
-      enrichment: scrubS3Urls(clip.ai_enrichment_json) as Record<
-        string,
-        unknown
-      > | null,
-      techSpecs: {
-        duration: clip.tech_duration_seconds,
-        width: clip.tech_resolution_width,
-        height: clip.tech_resolution_height,
-        fps: clip.tech_fps,
-        fileSize: clip.tech_file_size_bytes,
-        codec: clip.tech_codec,
-        bitDepth: clip.tech_bit_depth,
-      },
-    });
+    uniqueClips.push(clip);
   }
+
+  const clips: ShareClip[] = await Promise.all(
+    uniqueClips.map(async (clip) => {
+      const bucket =
+        clip.s3_bucket &&
+        clip.s3_bucket !== "moonvalley-annotation-platform"
+          ? clip.s3_bucket
+          : dataset.s3_bucket &&
+              dataset.s3_bucket !== "moonvalley-annotation-platform"
+            ? dataset.s3_bucket
+            : undefined;
+
+      const signedUrl =
+        (await getS3SignedUrl(clip.s3_key, 3600, bucket ?? undefined)) ?? "";
+
+      return {
+        id: clip.id,
+        filename: clip.filename,
+        signedUrl,
+        caption: clip.ai_caption,
+        metadata: scrubS3Urls(clip.ann_metadata) as Record<
+          string,
+          unknown
+        > | null,
+        enrichment: scrubS3Urls(clip.ai_enrichment_json) as Record<
+          string,
+          unknown
+        > | null,
+        techSpecs: {
+          duration: clip.tech_duration_seconds,
+          width: clip.tech_resolution_width,
+          height: clip.tech_resolution_height,
+          fps: clip.tech_fps,
+          fileSize: clip.tech_file_size_bytes,
+          codec: clip.tech_codec,
+          bitDepth: clip.tech_bit_depth,
+        },
+      };
+    })
+  );
 
   return (
     <ShareCatalog

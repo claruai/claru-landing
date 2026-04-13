@@ -184,9 +184,6 @@ function DataPanelTabs({ tabs }: { tabs: TabDefinition[] }) {
                   background: isActive
                     ? "var(--bg-secondary)"
                     : "transparent",
-                  ...(isActive
-                    ? {}
-                    : {}),
                 }}
               >
                 <Icon className="w-3.5 h-3.5" />
