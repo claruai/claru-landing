@@ -92,7 +92,8 @@ export async function POST(request: NextRequest) {
             email,
             company,
             use_case: project_description || null,
-            status: "pending",
+            // Intentionally omit `status` — do not overwrite an existing
+            // 'approved'/'rejected' lead if they re-submit the contact form.
           },
           { onConflict: "email" },
         )
@@ -100,7 +101,8 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (leadRow?.id) {
-        // Create CRM record so the lead appears in /admin/pipeline immediately
+        // Create CRM record only if one doesn't exist — do not overwrite
+        // pipeline state (icp_score, thread_state, waiting_on) for existing leads.
         await supabase.from("lead_crm_data").upsert(
           {
             lead_id: leadRow.id,
@@ -110,7 +112,7 @@ export async function POST(request: NextRequest) {
             waiting_on: "us",
             last_touch_at: new Date().toISOString(),
           },
-          { onConflict: "lead_id" },
+          { onConflict: "lead_id", ignoreDuplicates: true },
         );
       }
     } catch {

@@ -26,13 +26,14 @@ export async function updateThreadState(
   }
 
   const db = createSupabaseAdminClient();
-  await db
+  const { error } = await db
     .from("lead_crm_data")
     .update({
       thread_state: threadState,
       last_touch_at: new Date().toISOString(),
     })
     .eq("lead_id", leadId);
+  if (error) throw new Error(error.message);
 
   revalidatePath("/admin/pipeline");
 }
@@ -123,10 +124,11 @@ export async function updateDealStage(
     throw new Error(`Invalid deal_stage: ${stage}`);
   }
   const db = createSupabaseAdminClient();
-  await db
+  const { error } = await db
     .from("lead_crm_data")
     .update({ deal_stage: stage })
     .eq("lead_id", leadId);
+  if (error) throw new Error(error.message);
   revalidatePath("/admin/pipeline");
 }
 
@@ -140,13 +142,14 @@ export async function updateSamplePackStatus(
     throw new Error(`Invalid sample_pack_status: ${status}`);
   }
   const db = createSupabaseAdminClient();
-  await db
+  const { error } = await db
     .from("lead_crm_data")
     .update({
       sample_pack_status: status,
       ...(clipIds !== undefined ? { sample_pack_clips: clipIds } : {}),
     })
     .eq("lead_id", leadId);
+  if (error) throw new Error(error.message);
   revalidatePath("/admin/pipeline");
 }
 
@@ -156,10 +159,11 @@ export async function setFollowUpDate(
 ): Promise<void> {
   await assertAdmin();
   const db = createSupabaseAdminClient();
-  await db
+  const { error } = await db
     .from("lead_crm_data")
     .update({ follow_up_at: date?.toISOString() ?? null })
     .eq("lead_id", leadId);
+  if (error) throw new Error(error.message);
   revalidatePath("/admin/pipeline");
 }
 
@@ -174,10 +178,11 @@ export async function updateWaitingOn(
   }
 
   const db = createSupabaseAdminClient();
-  await db
+  const { error } = await db
     .from("lead_crm_data")
     .update({ waiting_on: waitingOn })
     .eq("lead_id", leadId);
+  if (error) throw new Error(error.message);
 
   revalidatePath("/admin/pipeline");
 }

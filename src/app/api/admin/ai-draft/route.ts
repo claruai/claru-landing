@@ -96,6 +96,10 @@ async function executeTool(
   // ── read_guideline ──
   if (name === "read_guideline") {
     const doc = input.doc as string;
+    const ALLOWED_DOCS = new Set(["voice", "company", "strategy"]);
+    if (!ALLOWED_DOCS.has(doc)) {
+      return `(Invalid guideline doc '${doc}' — must be one of: voice, company, strategy)`;
+    }
     try {
       return await readFile(join(CONTEXT_DIR, `${doc}.md`), "utf-8");
     } catch {
@@ -142,7 +146,7 @@ async function executeTool(
     const { data } = await db
       .from("reply_queue")
       .select(
-        "subject, body_snippet, classification, received_at, draft_response, actioned_at"
+        "subject, body_snippet, classification, received_at, draft_response, approved_at, sent_at"
       )
       .eq("lead_id", leadId)
       .order("received_at", { ascending: true });
@@ -157,7 +161,7 @@ Subject: ${item.subject ?? "(no subject)"}
 Classification: ${item.classification}
 Snippet: ${item.body_snippet ?? "(empty)"}
 ${item.draft_response ? `Draft/sent: ${item.draft_response.slice(0, 300)}` : "No draft sent"}
-Status: ${item.actioned_at ? "Actioned" : "Pending"}`
+Status: ${item.approved_at || item.sent_at ? "Actioned" : "Pending"}`
       )
       .join("\n\n---\n\n");
   }

@@ -119,9 +119,14 @@ async function handlePortalAuth(request: NextRequest): Promise<NextResponse> {
     }
   }
 
+  // Strip x-admin-preview from all non-privileged requests to prevent
+  // client spoofing — portal users must not be able to bypass assertAdmin().
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.delete("x-admin-preview");
+
   // Create a response we can modify (for cookie refresh)
   const response = NextResponse.next({
-    request: { headers: request.headers },
+    request: { headers: requestHeaders },
   });
 
   const supabase = createSupabaseMiddlewareClient(request, response);
