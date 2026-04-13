@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  const { name, email, company, project_description, heard_about } = body;
+  const { name, email, company, project_description } = body;
 
   if (!name || !email || !company) {
     return NextResponse.json(
@@ -35,11 +35,7 @@ export async function POST(request: NextRequest) {
     ph?.capture({
       distinctId: email,
       event: "contact_form_server",
-      properties: {
-        company,
-        has_project_description: !!project_description,
-        heard_about: heard_about || null,
-      },
+      properties: { company, has_project_description: !!project_description },
     });
 
     // 1. Send notification email to team
@@ -54,11 +50,10 @@ export async function POST(request: NextRequest) {
             <h2 style="margin: 0; color: #92B090; font-size: 14px; letter-spacing: 0.05em;">// NEW CONSULTATION REQUEST</h2>
           </div>
           <table style="width: 100%; border-collapse: collapse;">
-            <tr><td style="padding: 8px 0; color: #92B090; width: 140px; vertical-align: top;">Name</td><td style="padding: 8px 0;">${escapeHtml(name)}</td></tr>
+            <tr><td style="padding: 8px 0; color: #92B090; width: 120px; vertical-align: top;">Name</td><td style="padding: 8px 0;">${escapeHtml(name)}</td></tr>
             <tr><td style="padding: 8px 0; color: #92B090; vertical-align: top;">Email</td><td style="padding: 8px 0;"><a href="mailto:${escapeHtml(email)}" style="color: #a8c4a6;">${escapeHtml(email)}</a></td></tr>
             <tr><td style="padding: 8px 0; color: #92B090; vertical-align: top;">Company</td><td style="padding: 8px 0;">${escapeHtml(company)}</td></tr>
             ${project_description ? `<tr><td style="padding: 8px 0; color: #92B090; vertical-align: top;">Project</td><td style="padding: 8px 0;">${escapeHtml(project_description)}</td></tr>` : ""}
-            ${heard_about ? `<tr><td style="padding: 8px 0; color: #92B090; vertical-align: top;">Heard about</td><td style="padding: 8px 0;">${escapeHtml(heard_about)}</td></tr>` : ""}
           </table>
           <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 12px; color: rgba(255,255,255,0.4);">
             Claru AI — Consultation Request
@@ -81,25 +76,45 @@ export async function POST(request: NextRequest) {
       console.warn("[POST /api/contact] Failed to create Resend contact", email);
     }
 
-    // 3. Insert as a lead in Supabase (if not already exists)
+    // 3. Insert as a lead in Supabase and create CRM record
     try {
       const { createClient } = await import("@supabase/supabase-js");
       const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!,
       );
-      await supabase.from("leads").upsert(
-        {
-          name,
-          email,
-          company,
-          use_case: project_description || null,
-          heard_about: heard_about || null,
-          // status intentionally omitted — DB default is 'pending' for new rows;
-          // omitting it prevents overwriting qualified/approved leads on re-submit
-        },
-        { onConflict: "email" },
-      );
+
+      const { data: leadRow } = await supabase
+        .from("leads")
+        .upsert(
+          {
+            name,
+            email,
+            company,
+            use_case: project_description || null,
+            // Intentionally omit `status` — do not overwrite an existing
+            // 'approved'/'rejected' lead if they re-submit the contact form.
+          },
+          { onConflict: "email" },
+        )
+        .select("id")
+        .single();
+
+      if (leadRow?.id) {
+        // Create CRM record only if one doesn't exist — do not overwrite
+        // pipeline state (icp_score, thread_state, waiting_on) for existing leads.
+        await supabase.from("lead_crm_data").upsert(
+          {
+            lead_id: leadRow.id,
+            type: "demand",
+            icp_score: 7, // Inbound form — interested but funding unknown
+            thread_state: "warm",
+            waiting_on: "us",
+            last_touch_at: new Date().toISOString(),
+          },
+          { onConflict: "lead_id", ignoreDuplicates: true },
+        );
+      }
     } catch {
       // Non-fatal — don't block form submission on DB errors
       console.warn("[POST /api/contact] Failed to upsert lead", email);

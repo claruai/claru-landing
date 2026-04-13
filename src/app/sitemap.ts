@@ -32,6 +32,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/training-data-for-robotics`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/physical-ai-training-data`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/egocentric-video-datasets`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/egocentric-video-data`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/embodied-ai-datasets`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     // Tier 3 content pages — pillar guides, listicles, deep-dives
     { url: `${BASE}/vla-training-data-guide`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
