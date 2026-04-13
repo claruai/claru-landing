@@ -651,9 +651,9 @@ export default function EgocentricVideoDatasetsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
                 {
-                  href: "/solutions/egocentric-video-data",
-                  title: "Egocentric Video Data for Embodied AI",
-                  desc: "Deep dive into Claru's egocentric collection methodology and pipelines.",
+                  href: "/egocentric-video-data",
+                  title: "Egocentric Video Data for Physical AI",
+                  desc: "Buyer's guide: environments covered, annotation types, sample pack pricing, and turnaround.",
                 },
                 {
                   href: "/training-data-for-robotics",

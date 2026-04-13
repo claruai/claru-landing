@@ -1,47 +1,57 @@
 import { notFound } from "next/navigation";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { isAdmin } from "@/lib/auth/admin";
+import { getAdminSession } from "@/lib/admin-auth";
 import { QueueList } from "./QueueList";
 
 export const dynamic = "force-dynamic";
 
 export default async function QueuePage() {
-  // Auth check — non-admins get 404
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user?.email || !isAdmin(user.email)) {
+  // Auth: admin-token cookie only
+  const cookieStore = await cookies();
+  if (!(await getAdminSession(cookieStore))) {
     notFound();
   }
 
   const db = createSupabaseAdminClient();
 
-  // Fetch pending queue items with lead info
-  const { data: items } = await db
-    .from("reply_queue")
-    .select(
+  // Parallel fetch — queue items + sync error state
+  const [{ data: items }, { data: syncState }] = await Promise.all([
+    db
+      .from("reply_queue")
+      .select(
+        `
+        id,
+        lead_id,
+        inbox,
+        sender_email,
+        sender_name,
+        gmail_message_id,
+        gmail_thread_id,
+        subject,
+        body_snippet,
+        received_at,
+        draft_status,
+        draft_response,
+        snoozed_until,
+        classification,
+        leads (
+          name,
+          company,
+          email
+        )
       `
-      *,
-      leads (
-        name,
-        company,
-        email
       )
-    `
-    )
-    .or(
-      "draft_status.in.(pending,needs_manual_draft),and(draft_status.eq.snoozed,snoozed_until.lt.now())"
-    )
-    .order("received_at", { ascending: false });
+      .or(
+        "draft_status.in.(pending,needs_manual_draft),and(draft_status.eq.snoozed,snoozed_until.lt.now())"
+      )
+      .order("received_at", { ascending: false }),
 
-  // Check inbox sync state for errors
-  const { data: syncState } = await db
-    .from("inbox_sync_state")
-    .select("inbox, last_error, updated_at")
-    .not("last_error", "is", null);
+    db
+      .from("inbox_sync_state")
+      .select("inbox, last_error, updated_at")
+      .not("last_error", "is", null),
+  ]);
 
   const syncErrors = syncState ?? [];
 
@@ -57,7 +67,7 @@ export default async function QueuePage() {
       </div>
 
       <QueueList
-        items={(items ?? []) as Parameters<typeof QueueList>[0]["items"]}
+        items={(items ?? []) as unknown as Parameters<typeof QueueList>[0]["items"]}
         syncErrors={syncErrors}
       />
     </div>

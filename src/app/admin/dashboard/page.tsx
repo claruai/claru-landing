@@ -5,7 +5,9 @@ import {
   Database,
   Settings,
   ArrowRight,
-  FileText,
+  Inbox,
+  GitBranch,
+  Radar,
 } from "lucide-react";
 import { getAllJobs } from "@/lib/jobs";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -20,7 +22,9 @@ export default async function AdminDashboardPage() {
   let leadTotal = 0;
   let leadPending = 0;
   let datasetCount = 0;
-  let blogPending = 0;
+  let queueCount = 0;
+  let pipelineCount = 0;
+  let prospectsCount = 0;
 
   try {
     const supabase = createSupabaseAdminClient();
@@ -41,11 +45,22 @@ export default async function AdminDashboardPage() {
       .select("*", { count: "exact", head: true });
     datasetCount = dCount ?? 0;
 
-    const { count: bPending } = await supabase
-      .from("blog_posts")
+    const { count: qCount } = await supabase
+      .from("reply_queue")
       .select("*", { count: "exact", head: true })
-      .eq("status", "pending_review");
-    blogPending = bPending ?? 0;
+      .in("draft_status", ["pending", "needs_manual_draft"]);
+    queueCount = qCount ?? 0;
+
+    const { count: pCount } = await supabase
+      .from("lead_crm_data")
+      .select("*", { count: "exact", head: true });
+    pipelineCount = pCount ?? 0;
+
+    const { count: prCount } = await supabase
+      .from("prospect_signals")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "new");
+    prospectsCount = prCount ?? 0;
   } catch {
     // Supabase may not be set up yet — graceful fallback
   }
@@ -78,15 +93,6 @@ export default async function AdminDashboardPage() {
       color: "text-[var(--accent-primary)]",
     },
     {
-      href: "/admin/blog-queue",
-      icon: FileText,
-      title: "Blog Queue",
-      description: "Review AI-generated blog posts before publishing",
-      stat: blogPending > 0 ? `${blogPending} pending review` : "no drafts",
-      highlight: blogPending > 0,
-      color: "text-[var(--accent-primary)]",
-    },
-    {
       href: "/admin/settings",
       icon: Settings,
       title: "Settings",
@@ -113,6 +119,70 @@ export default async function AdminDashboardPage() {
           <p className="text-[var(--text-secondary)] text-sm">
             Manage your job board, data catalog, leads, and settings.
           </p>
+        </div>
+
+        {/* CRM Section */}
+        <div className="mb-8">
+          <p className="font-mono text-xs text-[var(--text-muted)] uppercase tracking-wider mb-3">
+            {"// AGENT-FIRST CRM"}
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {[
+              {
+                href: "/admin/queue?admin_preview=true",
+                icon: Inbox,
+                title: "Reply Queue",
+                description: "Drafts awaiting review and send",
+                stat: queueCount > 0 ? `${queueCount} pending` : "0 pending",
+                highlight: queueCount > 0,
+              },
+              {
+                href: "/admin/pipeline?admin_preview=true",
+                icon: GitBranch,
+                title: "Pipeline",
+                description: "Active leads and thread state",
+                stat: `${pipelineCount} leads`,
+                highlight: false,
+              },
+              {
+                href: "/admin/prospects?admin_preview=true",
+                icon: Radar,
+                title: "Prospects",
+                description: "New signals from daily scanner",
+                stat: prospectsCount > 0 ? `${prospectsCount} new` : "0 new",
+                highlight: prospectsCount > 0,
+              },
+            ].map((crm) => {
+              const Icon = crm.icon;
+              return (
+                <Link
+                  key={crm.href}
+                  href={crm.href}
+                  className="group block rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5 hover:border-[var(--accent-primary)]/40 transition-all duration-300 hover:translate-y-[-2px]"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="w-9 h-9 rounded-lg bg-[var(--bg-tertiary)] flex items-center justify-center text-[var(--accent-primary)]">
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-[var(--text-muted)] group-hover:text-[var(--accent-primary)] group-hover:translate-x-1 transition-all" />
+                  </div>
+                  <h3 className="font-semibold text-sm mb-1">{crm.title}</h3>
+                  <p className="text-[var(--text-tertiary)] text-xs mb-3 leading-relaxed">
+                    {crm.description}
+                  </p>
+                  <span
+                    className={`font-mono text-xs ${
+                      crm.highlight
+                        ? "text-[var(--accent-primary)]"
+                        : "text-[var(--text-muted)]"
+                    }`}
+                  >
+                    {crm.stat}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
         </div>
 
         {/* Module Cards */}

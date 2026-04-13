@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useTransition } from "react";
-import { Check, X, Clock, User } from "lucide-react";
+import { Check, X, Clock, User, ExternalLink } from "lucide-react";
 
 function relativeTime(dateStr: string): string {
   const diffMs = Date.now() - new Date(dateStr).getTime();
@@ -139,9 +139,15 @@ export function QueueItem({ item }: { item: QueueEntry }) {
             {item.classification.replace(/_/g, " ")}
           </span>
 
-          {/* Inbox badge */}
-          <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--bg-primary)] px-2 py-0.5 text-xs font-mono text-[var(--text-tertiary)]">
-            {item.inbox}
+          {/* Inbox badge — colored by account */}
+          <span
+            className={`rounded-full border px-2 py-0.5 text-xs font-mono ${
+              item.inbox === "claru"
+                ? "border-[#92B090]/40 bg-[#92B090]/10 text-[#92B090]"
+                : "border-blue-800/40 bg-blue-900/20 text-blue-300"
+            }`}
+          >
+            {item.inbox === "claru" ? "claru.ai" : "moonvalley.com"}
           </span>
 
           {/* Relative time */}
@@ -151,11 +157,17 @@ export function QueueItem({ item }: { item: QueueEntry }) {
         </div>
       </div>
 
-      {/* Subject */}
+      {/* Subject — links to original Gmail thread */}
       {item.subject && (
-        <p className="mb-2 text-sm font-mono font-medium text-[var(--text-primary)]">
+        <a
+          href={`https://mail.google.com/mail/#all/${item.gmail_thread_id ?? item.gmail_message_id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mb-2 flex items-center gap-1.5 text-sm font-mono font-medium text-[var(--text-primary)] hover:text-[#92B090] transition-colors group"
+        >
+          <ExternalLink className="h-3 w-3 shrink-0 opacity-0 group-hover:opacity-60 transition-opacity" strokeWidth={2} />
           {item.subject}
-        </p>
+        </a>
       )}
 
       {/* Body snippet */}

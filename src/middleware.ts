@@ -104,8 +104,12 @@ async function handlePortalAuth(request: NextRequest): Promise<NextResponse> {
       const secret = process.env.JWT_SECRET;
       if (secret) {
         await jwtVerify(adminToken, new TextEncoder().encode(secret));
+        // Clone request headers and inject x-admin-preview so server
+        // components can read it via headers() and skip Supabase auth.
+        const requestHeaders = new Headers(request.headers);
+        requestHeaders.set("x-admin-preview", "true");
         const response = NextResponse.next({
-          request: { headers: request.headers },
+          request: { headers: requestHeaders },
         });
         response.headers.set("x-admin-preview", "true");
         return response;

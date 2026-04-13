@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { isAdmin } from "@/lib/auth/admin";
+import { getAdminSession } from "@/lib/admin-auth";
 import { ProspectList } from "./ProspectList";
 
 export const dynamic = "force-dynamic";
@@ -20,13 +20,9 @@ export type ProspectSignal = {
 };
 
 export default async function ProspectsPage() {
-  // Auth check
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user?.email || !isAdmin(user.email)) {
+  // Auth: admin-token cookie only
+  const cookieStore = await cookies();
+  if (!(await getAdminSession(cookieStore))) {
     notFound();
   }
 

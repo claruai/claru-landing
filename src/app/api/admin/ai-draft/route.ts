@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { readFile } from "fs/promises";
+import { join } from "path";
 import Anthropic from "@anthropic-ai/sdk";
 import { verifyAdminToken } from "@/lib/admin-auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -13,45 +15,179 @@ const anthropic = new Anthropic({
 
 function mapAnthropicError(err: unknown): NextResponse {
   if (err instanceof Anthropic.APIError) {
-    if (err.status === 429) {
-      return NextResponse.json(
-        { error: "rate_limited" },
-        { status: 429 }
-      );
-    }
-    if (err.status === 529) {
-      return NextResponse.json(
-        { error: "overloaded" },
-        { status: 503 }
-      );
-    }
-    if (err.status === 401) {
-      return NextResponse.json(
-        { error: "api_key_error" },
-        { status: 500 }
-      );
-    }
+    if (err.status === 429)
+      return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+    if (err.status === 529)
+      return NextResponse.json({ error: "overloaded" }, { status: 503 });
+    if (err.status === 401)
+      return NextResponse.json({ error: "api_key_error" }, { status: 500 });
   }
   return NextResponse.json({ error: "unknown" }, { status: 500 });
 }
 
+// ─── Tools the drafting agent can call ───────────────────────────────────────
+
+const TOOLS: Anthropic.Tool[] = [
+  {
+    name: "read_guideline",
+    description:
+      "Read a copy guideline before drafting. Always call 'voice' (hard rules) and 'strategy' (classification approach) before writing. Call 'company' to check what Claru offers.",
+    input_schema: {
+      type: "object",
+      properties: {
+        doc: {
+          type: "string",
+          enum: ["voice", "company", "strategy"],
+          description: "Which guideline doc to read",
+        },
+      },
+      required: ["doc"],
+    },
+  },
+  {
+    name: "search_catalog",
+    description:
+      "Search Claru's video clip catalog for relevant samples. Only call when the lead's use case is specific enough that mentioning concrete data we have would strengthen the reply (e.g. they need kitchen manipulation — search for it).",
+    input_schema: {
+      type: "object",
+      properties: {
+        query: {
+          type: "string",
+          description:
+            "What to search for — e.g. 'kitchen manipulation', 'outdoor traffic', 'egocentric warehouse'",
+        },
+        limit: {
+          type: "number",
+          description: "Max results to return (default 5)",
+        },
+      },
+      required: ["query"],
+    },
+  },
+  {
+    name: "get_lead_history",
+    description:
+      "Get prior email thread history for this lead. Call this to see what has already been sent, what was promised, and what tone was established. Avoid repeating anything already covered.",
+    input_schema: {
+      type: "object",
+      properties: {
+        lead_id: {
+          type: "string",
+          description: "The lead's ID",
+        },
+      },
+      required: ["lead_id"],
+    },
+  },
+];
+
+// ─── Tool execution ───────────────────────────────────────────────────────────
+
+const CONTEXT_DIR = join(
+  process.cwd(),
+  "src/app/api/admin/ai-draft/context"
+);
+
+async function executeTool(
+  name: string,
+  input: Record<string, unknown>,
+  db: ReturnType<typeof createSupabaseAdminClient>
+): Promise<string> {
+  // ── read_guideline ──
+  if (name === "read_guideline") {
+    const doc = input.doc as string;
+    try {
+      return await readFile(join(CONTEXT_DIR, `${doc}.md`), "utf-8");
+    } catch {
+      return `(Guideline '${doc}' not found — proceeding without it)`;
+    }
+  }
+
+  // ── search_catalog ──
+  if (name === "search_catalog") {
+    const query = (input.query as string).trim();
+    const limit = Math.min(Number(input.limit ?? 5), 10);
+
+    // Keyword search on ai_caption
+    const { data: kw } = await db
+      .from("clips")
+      .select("ai_caption")
+      .not("ai_caption", "is", null)
+      .ilike("ai_caption", `%${query}%`)
+      .limit(limit);
+
+    if (kw && kw.length > 0) {
+      return kw
+        .map((c, i) => `Clip ${i + 1}: ${c.ai_caption}`)
+        .join("\n");
+    }
+
+    // Fallback: any captioned clips
+    const { data: fallback } = await db
+      .from("clips")
+      .select("ai_caption")
+      .not("ai_caption", "is", null)
+      .limit(limit);
+
+    if (!fallback?.length) return "No clips found in catalog for this query.";
+    return (
+      `(No exact match for "${query}" — sample clips from catalog)\n` +
+      fallback.map((c, i) => `Clip ${i + 1}: ${c.ai_caption}`).join("\n")
+    );
+  }
+
+  // ── get_lead_history ──
+  if (name === "get_lead_history") {
+    const leadId = input.lead_id as string;
+    const { data } = await db
+      .from("reply_queue")
+      .select(
+        "subject, body_snippet, classification, received_at, draft_response, actioned_at"
+      )
+      .eq("lead_id", leadId)
+      .order("received_at", { ascending: true });
+
+    if (!data?.length) return "No prior email history for this lead.";
+
+    return data
+      .map(
+        (item, i) =>
+          `Email ${i + 1} (${new Date(item.received_at).toLocaleDateString()}):
+Subject: ${item.subject ?? "(no subject)"}
+Classification: ${item.classification}
+Snippet: ${item.body_snippet ?? "(empty)"}
+${item.draft_response ? `Draft/sent: ${item.draft_response.slice(0, 300)}` : "No draft sent"}
+Status: ${item.actioned_at ? "Actioned" : "Pending"}`
+      )
+      .join("\n\n---\n\n");
+  }
+
+  return "(Unknown tool)";
+}
+
+// ─── Main handler ─────────────────────────────────────────────────────────────
+
 /**
  * POST /api/admin/ai-draft
  *
- * Generates an AI draft reply for a queue item using lead + clip catalog context.
- * Writes the draft to reply_queue.draft_response and returns { draft: string }.
+ * Runs an agentic drafting loop: the agent reads guidelines, searches the clip
+ * catalog, and pulls lead history via tools before writing the reply.
  *
  * Body: { leadId: string, queueItemId: string }
  */
 export async function POST(request: NextRequest) {
-  // Auth: inline JWT check — NOT assertAdmin() (which trusts spoofable headers)
   const cookieStore = await cookies();
   const token = cookieStore.get("admin-token");
   if (!token?.value || !(await verifyAdminToken(token.value))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: { leadId?: string; queueItemId?: string };
+  let body: {
+    leadId?: string;
+    queueItemId?: string;
+    previousDraft?: string;
+    feedback?: string;
+  };
   try {
     body = await request.json();
   } catch {
@@ -68,8 +204,7 @@ export async function POST(request: NextRequest) {
 
   const db = createSupabaseAdminClient();
 
-  // Parallel fetch: lead context + queue item + sample clips
-  const [leadResult, queueResult, clipsResult] = await Promise.all([
+  const [leadResult, queueResult] = await Promise.all([
     db
       .from("leads")
       .select("name, email, company, data_needs, use_case")
@@ -82,90 +217,102 @@ export async function POST(request: NextRequest) {
       )
       .eq("id", queueItemId)
       .single(),
-    // Pull clips with ai captions via dataset_clips join (ensures catalogued clips only)
-    db
-      .from("clips")
-      .select(
-        "id, ai_caption, caption_text, dataset_clips!inner(datasets!inner(type))"
-      )
-      .not("ai_caption", "is", null)
-      .limit(5),
   ]);
 
   if (leadResult.error || !leadResult.data) {
     return NextResponse.json({ error: "Lead not found" }, { status: 404 });
   }
   if (queueResult.error || !queueResult.data) {
-    return NextResponse.json(
-      { error: "Queue item not found" },
-      { status: 404 }
-    );
+    return NextResponse.json({ error: "Queue item not found" }, { status: 404 });
   }
 
   const lead = leadResult.data;
   const queueItem = queueResult.data;
-
-  // Build clip catalog context snippet (graceful if no clips)
-  const clips = (clipsResult.data ?? []) as Array<{
-    id: string;
-    ai_caption: string | null;
-    caption_text: string | null;
-  }>;
-  const clipContext =
-    clips.length > 0
-      ? clips
-          .map(
-            (c, i) =>
-              `Clip ${i + 1}: ${c.ai_caption ?? c.caption_text ?? "(no caption)"}`
-          )
-          .join("\n")
-      : "No clip catalog context available.";
-
   const inboxDisplay =
     queueItem.inbox === "moonvalley" ? "moonvalley.com" : "claru.ai";
 
-  const systemPrompt = `You are John, writing from john@${inboxDisplay} for Claru AI — a field video collection and annotation company that builds physical AI training data (robotics, embodied AI, egocentric video, world models). We spun out of Moonvalley (backed by GC, Khosla, YC).
+  // Minimal system prompt — agent gathers the rest via tools
+  const systemPrompt = `You are John Thomas, founder of Claru AI, writing from john@${inboxDisplay}.
 
-Write a short, personalized email reply in John's voice. Rules:
-- Under 80 words
-- No em-dashes (—), no "I'd love to", no "impressive", no filler phrases
-- Direct, confident, startup founder tone
-- Greet by first name ("Hey [name],")
-- Sign off: "John"
-- If they asked a specific question, answer it concisely
-- If they expressed interest, move toward a concrete next step (call, sample pack, pricing)
-- Do not invent facts not in the context below
+Your job: draft a reply to the email below.
+
+Before drafting, use your tools to gather context:
+1. read_guideline("voice") — hard rules you must not violate
+2. read_guideline("strategy") — how to handle this classification
+3. get_lead_history({"lead_id": "${leadId}"}) — see what has already been said
+4. If their use case is specific enough, search_catalog() for relevant data we have
 
 Lead context:
-- Name: ${lead.name ?? "Unknown"}
-- Email: ${lead.email}
-- Company: ${lead.company ?? "Unknown"}
-- Data needs: ${lead.data_needs ?? "Not specified"}
-- Use case: ${lead.use_case ?? "Not specified"}
+Name: ${lead.name ?? "Unknown"}
+Company: ${lead.company ?? "Unknown"}
+Email: ${lead.email}
+Data needs: ${lead.data_needs ?? "not specified"}
+Use case: ${lead.use_case ?? "not specified"}
 
-Incoming message:
-- Subject: ${queueItem.subject ?? "(no subject)"}
-- Classification: ${queueItem.classification}
-- Snippet: ${queueItem.body_snippet ?? "(no body)"}
+Incoming email:
+Subject: ${queueItem.subject ?? "(no subject)"}
+Classification: ${queueItem.classification}
+Snippet: ${queueItem.body_snippet ?? "(no body)"}
 
-Sample clips from our catalog (for reference if relevant):
-${clipContext}`;
+After reading guidelines and context, output the email body only — no subject line, no metadata, no preamble.`;
 
   try {
-    const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 300,
-      messages: [
-        {
-          role: "user",
-          content: "Write the reply email body only — no subject line, no metadata.",
-        },
-      ],
-      system: systemPrompt,
-    });
+    const isRefinement = !!(body.previousDraft && body.feedback);
+    const messages: Anthropic.MessageParam[] = [
+      {
+        role: "user",
+        content: isRefinement
+          ? `Previous draft:\n---\n${body.previousDraft}\n---\n\nThe user wants: ${body.feedback}\n\nRevise the draft accordingly. Apply the same voice and strategy guidelines.`
+          : "Draft the reply email.",
+      },
+    ];
 
-    const draft =
-      message.content[0]?.type === "text" ? message.content[0].text.trim() : "";
+    let draft = "";
+    const MAX_TURNS = 8;
+
+    for (let turn = 0; turn < MAX_TURNS; turn++) {
+      const response = await anthropic.messages.create({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1024,
+        system: systemPrompt,
+        tools: TOOLS,
+        messages,
+      });
+
+      if (response.stop_reason === "end_turn") {
+        const textBlock = response.content.find((b) => b.type === "text");
+        draft = textBlock?.type === "text" ? textBlock.text.trim() : "";
+        break;
+      }
+
+      if (response.stop_reason === "tool_use") {
+        // Execute all tool calls in this turn in parallel
+        const toolUseBlocks = response.content.filter(
+          (b): b is Anthropic.ToolUseBlock => b.type === "tool_use"
+        );
+
+        const toolResults = await Promise.all(
+          toolUseBlocks.map(async (block) => {
+            const result = await executeTool(
+              block.name,
+              block.input as Record<string, unknown>,
+              db
+            );
+            return {
+              type: "tool_result" as const,
+              tool_use_id: block.id,
+              content: result,
+            };
+          })
+        );
+
+        messages.push({ role: "assistant", content: response.content });
+        messages.push({ role: "user", content: toolResults });
+      } else {
+        // Unexpected stop reason — bail
+        break;
+      }
+    }
 
     if (!draft) {
       return NextResponse.json(
@@ -182,7 +329,6 @@ ${clipContext}`;
 
     if (updateError) {
       console.error("[ai-draft] failed to persist draft:", updateError);
-      // Return the draft even if DB write fails — client can still use it
     }
 
     revalidatePath("/admin/pipeline");

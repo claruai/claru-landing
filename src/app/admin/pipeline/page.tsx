@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
-import { headers } from "next/headers";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
+import Link from "next/link";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { isAdmin } from "@/lib/auth/admin";
+import { getAdminSession } from "@/lib/admin-auth";
 import { UnifiedCRMView } from "./UnifiedCRMView";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +20,11 @@ export type PipelineLead = {
   days_silent: number;
   smartlead_campaign_name: string | null;
   smartlead_sequence_step: number | null;
+  deal_stage: string | null;
+  sample_pack_status: string | null;
+  follow_up_at: string | null;
+  data_needs: string | null;
+  use_case: string | null;
 };
 
 export type QueueItem = {
@@ -64,10 +69,15 @@ async function fetchLeads(db: ReturnType<typeof createSupabaseAdminClient>): Pro
       last_touch_at,
       smartlead_campaign_name,
       smartlead_sequence_step,
+      deal_stage,
+      sample_pack_status,
+      follow_up_at,
       leads (
         name,
         email,
-        company
+        company,
+        data_needs,
+        use_case
       )
     `
     )
@@ -75,7 +85,13 @@ async function fetchLeads(db: ReturnType<typeof createSupabaseAdminClient>): Pro
     .order("last_touch_at", { ascending: true, nullsFirst: true });
 
   return (fallback ?? []).map((r: Record<string, unknown>) => {
-    const lead = r.leads as { name: string | null; email: string; company: string | null } | null;
+    const lead = r.leads as {
+      name: string | null;
+      email: string;
+      company: string | null;
+      data_needs: string | null;
+      use_case: string | null;
+    } | null;
     const lastTouch = r.last_touch_at as string | null;
     const daysSilent = lastTouch
       ? Math.floor((Date.now() - new Date(lastTouch).getTime()) / 86_400_000)
@@ -94,6 +110,11 @@ async function fetchLeads(db: ReturnType<typeof createSupabaseAdminClient>): Pro
       days_silent: daysSilent,
       smartlead_campaign_name: r.smartlead_campaign_name as string | null,
       smartlead_sequence_step: r.smartlead_sequence_step as number | null,
+      deal_stage: r.deal_stage as string | null,
+      sample_pack_status: r.sample_pack_status as string | null,
+      follow_up_at: r.follow_up_at as string | null,
+      data_needs: lead?.data_needs ?? null,
+      use_case: lead?.use_case ?? null,
     };
   });
 }
@@ -113,19 +134,10 @@ async function fetchQueueItems(db: ReturnType<typeof createSupabaseAdminClient>)
 }
 
 export default async function PipelinePage() {
-  // Auth check — accept Supabase session OR admin JWT preview bypass
-  const headersList = await headers();
-  const isAdminPreview = headersList.get("x-admin-preview") === "true";
-
-  if (!isAdminPreview) {
-    const supabase = await createSupabaseServerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user?.email || !isAdmin(user.email)) {
-      notFound();
-    }
+  // Auth: admin-token cookie only (local JWT verify — no network call)
+  const cookieStore = await cookies();
+  if (!(await getAdminSession(cookieStore))) {
+    notFound();
   }
 
   const db = createSupabaseAdminClient();
@@ -162,13 +174,21 @@ export default async function PipelinePage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-mono font-semibold text-[var(--text-primary)]">
-          Pipeline
-        </h1>
-        <p className="mt-1 text-sm font-mono text-[var(--text-tertiary)]">
-          Active leads in motion
-        </p>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-mono font-semibold text-[var(--text-primary)]">
+            Pipeline
+          </h1>
+          <p className="mt-1 text-sm font-mono text-[var(--text-tertiary)]">
+            Active leads in motion
+          </p>
+        </div>
+        <Link
+          href="/admin/brief"
+          className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-4 py-2 font-mono text-sm text-[var(--text-secondary)] transition-colors hover:border-[#92B090]/40 hover:text-[#92B090]"
+        >
+          Daily Brief →
+        </Link>
       </div>
       <UnifiedCRMView leads={enrichedLeads} unmatchedItems={unmatchedItems} />
     </div>

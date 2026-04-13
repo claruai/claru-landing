@@ -151,11 +151,15 @@ export default async function SharePage({ params }: SharePageProps) {
       const signedUrl =
         (await getS3SignedUrl(clip.s3_key, 3600, bucket ?? undefined)) ?? "";
 
+      const annotationUrl = clip.ann_annotation_key
+        ? (await getS3SignedUrl(clip.ann_annotation_key, 3600)) ?? null
+        : null;
+
       return {
         id: clip.id,
         filename: clip.filename,
         signedUrl,
-        hasAnnotation: !!clip.ann_annotation_key,
+        annotationUrl,
         caption: clip.ai_caption,
         metadata: scrubS3Urls(clip.ann_metadata) as Record<
           string,

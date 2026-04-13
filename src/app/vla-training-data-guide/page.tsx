@@ -1263,6 +1263,11 @@ export default function VLATrainingDataGuidePage() {
                   desc: "Real-world datasets for models that understand physics.",
                 },
                 {
+                  href: "/egocentric-video-data",
+                  title: "Egocentric Video Data for Physical AI",
+                  desc: "20+ environments, hand detection, depth maps, sample packs from $500.",
+                },
+                {
                   href: "/egocentric-video-datasets",
                   title: "Egocentric Video Datasets",
                   desc: "First-person video data for robot perception and VLA pretraining.",

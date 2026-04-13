@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 /**
@@ -28,6 +29,12 @@ export function isAdmin(email: string): boolean {
  * Call as the first line of every admin Server Action.
  */
 export async function assertAdmin(): Promise<void> {
+  // Allow admin-preview bypass (JWT-authenticated admin accessing CRM via ?admin_preview=true)
+  const headersList = await headers();
+  if (headersList.get("x-admin-preview") === "true") {
+    return;
+  }
+
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },

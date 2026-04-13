@@ -9,6 +9,7 @@ interface ProspectsBarProps {
   unmatchedCount: number;
   filterType: FilterType;
   setFilterType: (t: FilterType) => void;
+  newTodayCount?: number;
 }
 
 export function ProspectsBar({
@@ -16,6 +17,7 @@ export function ProspectsBar({
   unmatchedCount,
   filterType,
   setFilterType,
+  newTodayCount,
 }: ProspectsBarProps) {
   const demandCount = leads.filter((l) => l.type === "demand").length;
   const supplyCount = leads.filter((l) => l.type === "supply").length;
@@ -53,10 +55,16 @@ export function ProspectsBar({
         response
       </span>
 
-      {/* Right side: signal monitoring placeholder */}
-      <span className="ml-auto font-mono text-xs text-[var(--text-muted)]">
-        Signal monitoring — coming soon
-      </span>
+      {/* New today badge */}
+      {newTodayCount != null && newTodayCount > 0 && (
+        <span className="flex items-center gap-1 rounded-full bg-[#92B090]/10 px-2.5 py-0.5 font-mono text-xs text-[#92B090]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#92B090]" />
+          {newTodayCount} new today
+        </span>
+      )}
+
+      {/* Spacer */}
+      <span className="ml-auto" />
     </div>
   );
 }

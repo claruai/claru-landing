@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
+  // Exclude large media dirs from the dev server's file watcher.
+  // Watching 343MB of videos in public/ adds significant startup + HMR overhead.
+  watchOptions: {
+    ignored: ["**/public/videos/**", "**/public/remotion-assets/**", "**/public/qa-frames/**"],
+  },
   // Exclude large media files from serverless function bundles.
   // Videos and remotion samples are served as static assets — never needed server-side.
   outputFileTracingExcludes: {
