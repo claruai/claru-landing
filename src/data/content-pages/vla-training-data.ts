@@ -4,9 +4,9 @@ const vlaTrainingData: ContentPageData = {
   // -- Identity & SEO --
   slug: "vla-training-data",
   title: "VLA Training Data: From Collection to Policy",
-  metaTitle: "VLA Training Data: Collection to Policy | Claru",
+  metaTitle: "VLA Training Data for Robot Policies | Claru",
   metaDescription:
-    "VLA training data for vision-language-action models. Compare Open X-Embodiment, DROID, and AgiBot World. Claru delivers custom data with 386K+ clips and 10K+ hours.",
+    "Custom vision-language-action datasets with paired video and action labels. 386K+ clips, sub-16ms sync. Built for OpenVLA, RT-2, and pi-zero architectures.",
   primaryKeyword: "VLA training data",
   secondaryKeywords: [
     "vision-language-action model data",

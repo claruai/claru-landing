@@ -1,0 +1,67 @@
+[
+  {
+    "filename": "Safari Sample.MP4",
+    "s3_object_key": "Samples Egocentric Videos/Cinematic Data/Safari Sample.MP4",
+    "s3_annotation_key": null,
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Cinematic Licensed Data",
+      "type": "Cinematic",
+      "category": "Travel & Exploration",
+      "subcategory": "Safari & Wildlife Tours",
+      "annotation_id": null
+    }
+  },
+  {
+    "filename": "Skiing 2.MP4",
+    "s3_object_key": "Samples Egocentric Videos/Cinematic Data/Skiing 2.MP4",
+    "s3_annotation_key": null,
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Cinematic Licensed Data",
+      "type": "Cinematic",
+      "category": "Action Sports",
+      "subcategory": "Skiing",
+      "annotation_id": null
+    }
+  },
+  {
+    "filename": "Skiing Sample.MP4",
+    "s3_object_key": "Samples Egocentric Videos/Cinematic Data/Skiing Sample.MP4",
+    "s3_annotation_key": null,
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Cinematic Licensed Data",
+      "type": "Cinematic",
+      "category": "Action Sports",
+      "subcategory": "Skiing",
+      "annotation_id": null
+    }
+  },
+  {
+    "filename": "Snowboarding Sample.MP4",
+    "s3_object_key": "Samples Egocentric Videos/Cinematic Data/Snowboarding Sample.MP4",
+    "s3_annotation_key": null,
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Cinematic Licensed Data",
+      "type": "Cinematic",
+      "category": "Action Sports",
+      "subcategory": "Snowboarding",
+      "annotation_id": null
+    }
+  },
+  {
+    "filename": "Mountain Biking.MP4",
+    "s3_object_key": "Samples Egocentric Videos/Cinematic Data/Mountain Biking.MP4",
+    "s3_annotation_key": null,
+    "mime_type": "video/mp4",
+    "metadata_json": {
+      "section": "Cinematic Licensed Data",
+      "type": "Cinematic",
+      "category": "Action Sports",
+      "subcategory": "Mountain Biking (Drone Shot)",
+      "annotation_id": null
+    }
+  }
+]

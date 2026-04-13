@@ -341,14 +341,14 @@ export default function CatalogPreview() {
             transition={{ duration: 0.6 }}
           >
             <StatItem
-              target={3.7}
+              target={4}
               suffix="M+"
               label="human annotations"
-              decimals={1}
+              decimals={0}
               isInView={isInView}
             />
             <StatItem
-              target={25}
+              target={100}
               suffix="+"
               label="datasets"
               isInView={isInView}

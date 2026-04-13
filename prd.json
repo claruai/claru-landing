@@ -1,278 +1,116 @@
 {
-  "project": "Claru Landing",
-  "branchName": "ralph/unified-crm",
-  "description": "Unified AI-Powered CRM View \u2014 replaces the split Pipeline Kanban + Queue tabs with a single vertical page: Respond Now, Waiting on Them, Nurturing, Cold. Each card is expandable with email context and inline AI draft. 'Draft with Claude' button triggers Anthropic to read the reply, pull relevant clips, and generate a personalized response.",
+  "project": "claru-landing",
+  "branchName": "ralph/shareable-sample-catalog",
+  "description": "Shareable Sample Catalog — public /share/[token] page for leads to view curated clips without auth, plus publish_share_link MCP tool",
   "userStories": [
     {
-      "id": "US-009",
-      "title": "Update server actions: error propagation + dual revalidation",
-      "description": "As the CRM system, I need approve/dismiss/snooze/update-draft actions to throw on DB errors and revalidate both pages so useOptimistic can revert on failure and both views stay in sync.",
+      "id": "US-001",
+      "title": "Add share columns to datasets table",
+      "description": "As a developer, I need share_token, share_expires_at, share_first_viewed_at, and share_view_count columns on the datasets table so datasets can be made publicly viewable.",
       "acceptanceCriteria": [
-        "In queue/actions.ts: approveItem, dismissItem, snoozeItem, updateDraft each check Supabase result and throw on error: const { error } = await db...; if (error) throw new Error(error.message)",
-        "approveItem: if the initial .single() fetch returns null (no matching queue item), throw new Error('Queue item not found') before any update \u2014 the approve .update().eq() on a missing row returns no error from Supabase, so only the explicit null-check prevents the silent no-op",
-        "approveItem: after approving the queue item, also writes waiting_on = 'them' to lead_crm_data for the associated lead_id so the lead moves to Waiting on Them on refresh",
-        "In pipeline/actions.ts: moveLeadToColumn checks and throws on Supabase errors; adds revalidatePath('/admin/queue') alongside the existing revalidatePath('/admin/pipeline')",
-        "All five actions (approveItem, dismissItem, snoozeItem, updateDraft, moveLeadToColumn) revalidate both /admin/pipeline AND /admin/queue on success",
+        "Create migration file supabase/migrations/20260412_share_token.sql",
+        "ALTER TABLE adds share_token (text UNIQUE), share_expires_at (timestamptz), share_first_viewed_at (timestamptz), share_view_count (int NOT NULL DEFAULT 0)",
+        "Partial index on share_token WHERE share_token IS NOT NULL",
         "Typecheck passes"
       ],
       "priority": 1,
       "passes": true,
-      "notes": "This must be done first \u2014 all UI stories depend on actions that throw correctly so useOptimistic can revert."
+      "notes": ""
     },
     {
-      "id": "US-001",
-      "title": "Extend pipeline page data fetching + define EnrichedLead types",
-      "description": "As the pipeline page server component, I need to fetch leads and pending queue items in parallel and merge them so each card knows its reply state in a single render pass.",
+      "id": "US-002",
+      "title": "Add publish_share_link MCP tool",
+      "description": "As an admin using MCP tools, I want to generate a public share link for a dataset so I can send it to prospects.",
       "acceptanceCriteria": [
-        "pipeline/page.tsx fetches leads (via get_pipeline_leads RPC with fallback) AND pending queue items in parallel using Promise.all",
-        "Queue item fetch: SELECT id, lead_id, inbox, sender_email, sender_name, gmail_message_id, gmail_thread_id, subject, body_snippet, received_at, draft_status, draft_response, snoozed_until, classification FROM reply_queue WHERE draft_status IN ('pending','needs_manual_draft') OR (draft_status='snoozed' AND snoozed_until < now()) ORDER BY received_at DESC",
-        "Server-side merge: EnrichedLead[] = leads.map(l => ({ ...l, queueItem: queueMap[l.lead_id] ?? null })) where queueMap is keyed by lead_id",
-        "unmatchedItems = queue items where lead_id is null or not found in leads array",
-        "Fallback query (when RPC fails): remove the existing .not('thread_state', 'in', '(\"cold\",\"dead\")') filter so ColdSection is populated; change leads!inner join to plain leads join (left join) to avoid silently dropping lead_crm_data rows",
-        "If queue fetch fails independently, page still renders with all queueItem: null \u2014 wrap queue fetch in try/catch",
-        "Types defined and exported: QueueItem, EnrichedLead (PipelineLead & { queueItem: QueueItem | null }), UnmatchedQueueItem = QueueItem",
-        "Typecheck passes with no 'as any' casts"
+        "Register publish_share_link tool in src/lib/mcp/server.ts following existing tool pattern",
+        "Parameters: dataset_id (uuid, required), expires_in_days (number, default 30)",
+        "Idempotent: if share_token already exists on the dataset, return existing token without regenerating",
+        "If no token exists, generate 64-char hex token via crypto.randomBytes(32).toString('hex')",
+        "Set share_expires_at to now + expires_in_days",
+        "Return JSON with share_url (https://claru.ai/share/[token]), dataset name, and token",
+        "Register the tool in createMcpServer function",
+        "Typecheck passes"
       ],
       "priority": 2,
       "passes": true,
-      "notes": "Types defined here are imported by all downstream UI stories. UnmatchedQueueItem must NOT render lead metadata fields (company, ICP score, campaign) \u2014 only sender_email, subject, body_snippet, inbox, received_at, classification."
+      "notes": ""
     },
     {
-      "id": "US-011",
-      "title": "Add error.tsx boundary for pipeline route",
-      "description": "As the pipeline page, I need an error boundary so unexpected fetch failures show a recoverable error state instead of a blank page.",
+      "id": "US-003",
+      "title": "Create share page server component",
+      "description": "As a lead who received a share link, I can open /share/[token] without logging in and see a branded catalog page.",
       "acceptanceCriteria": [
-        "src/app/admin/pipeline/error.tsx exists",
-        "Error page renders: error message, 'Try again' button (calls router.refresh()), and a back link to /admin",
-        "Mirror the existing pattern from src/app/admin/queue/error.tsx if it exists",
+        "Create src/app/share/[token]/page.tsx as a server component with export const dynamic = 'force-dynamic'",
+        "Query datasets by share_token using admin client with parameterized query (never string interpolation)",
+        "Validate: token found AND (share_expires_at is null OR share_expires_at > now)",
+        "If invalid/expired, render styled 'This link is no longer available' page",
+        "Query clips with explicit column list: id, filename, mime_type, s3_bucket, s3_key, ann_metadata, ai_enrichment_json, ai_caption, tech_duration_seconds, tech_resolution_width, tech_resolution_height, tech_fps — never SELECT *",
+        "Generate CloudFront signed URLs server-side for each clip using existing signer",
+        "Do NOT pass s3_bucket, s3_key, or embedding to the client component",
+        "Atomic view tracking: UPDATE datasets SET share_view_count = share_view_count + 1, share_first_viewed_at = COALESCE(share_first_viewed_at, now()) WHERE share_token = $1",
+        "Get company name via lead_dataset_access JOIN to leads table (LIMIT 1)",
+        "Set Cache-Control: private, no-store header",
+        "Set robots noindex/nofollow meta tags and X-Robots-Tag header",
+        "Set og:title and og:description meta tags for Slack/email link previews",
+        "Pass sanitized clip data to ShareCatalog client component",
         "Typecheck passes"
       ],
       "priority": 3,
       "passes": true,
-      "notes": "Must exist before page can fail gracefully. Queue fetch failures are handled inside page.tsx with try/catch and do NOT hit this boundary."
+      "notes": "s3_bucket and s3_key are used server-side ONLY for CloudFront URL generation. The client component receives signedUrl instead."
     },
     {
-      "id": "US-010",
-      "title": "UnifiedCRMView shell \u2014 wire all sections together",
-      "description": "As the admin pipeline page, I need a single UnifiedCRMView client component that accepts EnrichedLead[] and UnmatchedQueueItem[] and renders all section placeholders so the page has one clear entry point.",
+      "id": "US-004",
+      "title": "Create ShareCatalog client component",
+      "description": "As a lead viewing the shared catalog, I can see clips in a responsive grid, play videos inline, and expand annotation details.",
       "acceptanceCriteria": [
-        "src/app/admin/pipeline/UnifiedCRMView.tsx created as a 'use client' component",
-        "Accepts props: { leads: EnrichedLead[]; unmatchedItems: UnmatchedQueueItem[] }",
-        "All useOptimistic state (optimisticLeads, expandedId, pendingId) lives at UnifiedCRMView level \u2014 section components receive state and callbacks as props",
-        "mutationCountRef = useRef(0) defined here \u2014 incremented before each mutation, decremented in finally block",
-        "Auto-refresh: setInterval calls router.refresh() every 60 seconds, but skips if expandedId !== null || mutationCountRef.current > 0 || isDrafting",
-        "Renders sections in order: ProspectsBar \u2192 RespondNowSection \u2192 WaitingSection \u2192 NurturingSection \u2192 ColdSection (each as a placeholder div or stub component initially)",
-        "pipeline/page.tsx passes EnrichedLead[] and UnmatchedQueueItem[] to UnifiedCRMView instead of PipelineList",
+        "Create src/app/share/[token]/ShareCatalog.tsx as a client component",
+        "Props: clips array (id, filename, signedUrl, caption, metadata, techSpecs), datasetName, companyName, token",
+        "Header: Claru logo + 'Prepared for [Company Name]' + dataset name",
+        "Responsive grid of clip cards (1 col mobile, 2 col tablet, 3 col desktop)",
+        "Each card: video element with poster frame, controlsList='nodownload', plays on click",
+        "Each card: expandable panel showing ann_metadata, ai_enrichment_json, tech specs as formatted JSON",
+        "Video onError handler calls /api/share/[token]/urls to refresh expired signed URLs",
+        "Use existing design system: dark theme (--bg-primary), sage accent (--accent-primary), JetBrains Mono for labels",
+        "Loading skeleton while videos load poster frames",
         "Typecheck passes",
-        "Verify in browser using dev-browser skill \u2014 page loads at localhost:3080/admin/pipeline?admin_preview=true without errors"
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 4,
       "passes": true,
-      "notes": "Sections can be stubs at this stage \u2014 the goal is wiring the data flow and state ownership."
+      "notes": ""
     },
     {
-      "id": "US-002",
-      "title": "ProspectsBar \u2014 demand/supply filter and counts",
-      "description": "As John, I need a header bar showing demand/supply counts and a filter so I can see the shape of my pipeline at a glance.",
+      "id": "US-005",
+      "title": "Create signed URL refresh API route",
+      "description": "As a lead with a tab open for >1hr, I need expired CloudFront URLs to refresh automatically when I try to play a video.",
       "acceptanceCriteria": [
-        "ProspectsBar component renders three filter tabs: 'All', 'Demand', 'Supply' \u2014 active tab highlighted in #92B090/20 bg with #92B090 text",
-        "Live counts shown: '{N} demand \u00b7 {M} supply \u00b7 {K} need response' \u2014 K = count of leads with a pending queue item",
-        "Selecting 'Demand' filters all sections to demand leads only; 'Supply' to supply leads only; 'All' shows everything",
-        "Filter state lifted to UnifiedCRMView, passed down as prop to all sections",
-        "'Signal monitoring \u2014 coming soon' text appears right-aligned in var(--text-muted)",
-        "When a filter produces zero leads, a page-level empty state shows: 'No {type} leads'",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Create src/app/api/share/[token]/urls/route.ts as a POST route",
+        "Validate share_token same as page (exists, not expired, active)",
+        "Fetch clips for dataset with explicit column list (same as page)",
+        "Generate fresh CloudFront signed URLs",
+        "Return JSON: { clips: [{ id, signedUrl }] }",
+        "Return 404 for invalid/expired tokens",
+        "Set Cache-Control: private, no-store",
+        "Typecheck passes"
       ],
       "priority": 5,
       "passes": true,
       "notes": ""
     },
     {
-      "id": "US-003",
-      "title": "RespondNowSection \u2014 section header and card list",
-      "description": "As John, I need a Respond Now section that surfaces leads needing action so I never miss a reply.",
+      "id": "US-006",
+      "title": "SEO prevention — robots.txt, sitemap exclusion",
+      "description": "As the site owner, I need share pages completely invisible to search engines and AI crawlers.",
       "acceptanceCriteria": [
-        "Section header reads 'Respond Now (N)' where N = count of visible cards after filter",
-        "Shows leads where waiting_on='us' AND thread_state!='dead', plus any lead with a pending queue item, plus unmatched queue items",
-        "Cards with a queue item show a colored classification badge and inbox label \u2014 inbox display mapping: 'claru' \u2192 'claru.ai', 'moonvalley' \u2192 'moonvalley.com'",
-        "Cards without a queue item show a muted 'no reply yet' label in badge position",
-        "Sort: queue items first by received_at DESC, then manual 'waiting on us' leads by days_silent DESC",
-        "Unmatched queue items (no matching lead) shown with orange 'unmatched sender' badge \u2014 do NOT render lead metadata (company, ICP score, campaign) for these cards",
-        "Empty state: 'All clear \u2014 nothing needs a response \u2713' with check icon",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Create or update public/robots.txt (or Next.js robots() metadata) with Disallow: /share/",
+        "Update src/app/sitemap.ts to exclude /share/* paths",
+        "Verify: no internal <a href> links point to /share/ from any indexed page",
+        "Typecheck passes"
       ],
       "priority": 6,
       "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-004a",
-      "title": "RespondCard accordion \u2014 expand/collapse with email display",
-      "description": "As John, I need to click a Respond Now card and see the email context inline so I can read the reply without navigating away.",
-      "acceptanceCriteria": [
-        "Clicking a card expands it in place; clicking again collapses \u2014 only one card expanded at a time across ALL sections (expandedId state at UnifiedCRMView level enforces this)",
-        "Expanded card shows: lead company, contact name/email, ICP score, campaign name + step",
-        "If card has queue item: subject line rendered as clickable link (opens Gmail thread in new tab via gmail_thread_id), body_snippet in muted monospace text below",
-        "If card has no queue item: 'No reply received \u2014 compose outreach' in muted text",
-        "Lead metadata and email content readable without scrolling on a typical laptop screen",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill \u2014 expand a card, confirm email content shows"
-      ],
-      "priority": 7,
-      "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-004b",
-      "title": "RespondCard draft textarea with auto-save on blur",
-      "description": "As John, I need a draft textarea that persists my edits automatically so I don't lose work.",
-      "acceptanceCriteria": [
-        "Expanded card shows textarea pre-filled with draft_response if one exists, else empty with placeholder 'Draft your outreach...'",
-        "onBlur: calls updateDraft server action from queue/actions.ts to write value to reply_queue.draft_response",
-        "Local React state holds current textarea value before blur; persistence is server-side only",
-        "While save is in flight: textarea border shows subtle highlight (border-[#92B090]/40); once saved returns to normal",
-        "After editing and clicking elsewhere, collapsing and re-expanding the card shows the saved draft",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill \u2014 edit textarea, click away, collapse/reopen card, confirm draft persists"
-      ],
-      "priority": 8,
-      "passes": true,
-      "notes": "US-004a must be complete before this story."
-    },
-    {
-      "id": "US-004c",
-      "title": "RespondCard action buttons \u2014 Approve, Dismiss, Snooze",
-      "description": "As John, I need Approve, Dismiss, and Snooze buttons on each expanded card so I can take action on a reply inline.",
-      "acceptanceCriteria": [
-        "Expanded card shows three buttons: 'Approve & copy', 'Dismiss', 'Snooze 24h'",
-        "'Approve & copy': reads textarea current React state value, calls updateDraft to flush unsaved edits, copies to clipboard (best-effort), then calls approveItem \u2014 card disappears from Respond Now and lead appears in Waiting on Them",
-        "'Dismiss': calls dismissItem \u2014 card removed from list; lead section placement unchanged",
-        "'Snooze 24h': calls snoozeItem \u2014 card removed; reappears when snoozed_until < now() on next page load",
-        "While any action is in flight: all three buttons disabled, card at 50% opacity (useOptimistic optimistic removal)",
-        "If action fails (server throws): card returns to full opacity, buttons re-enable, no removal",
-        "mutationCountRef incremented before startTransition, decremented in finally block",
-        "Imports from both @/app/admin/queue/actions AND @/app/admin/pipeline/actions \u2014 both are 'use server' modules, cross-segment import is legal",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill \u2014 click Dismiss, confirm card disappears; click Snooze, confirm card disappears"
-      ],
-      "priority": 9,
-      "passes": true,
-      "notes": "US-004b and US-009 must be complete before this story."
-    },
-    {
-      "id": "US-005",
-      "title": "WaitingSection \u2014 compact lead rows with 3-dot move menu",
-      "description": "As John, I need a compact Waiting on Them section so I can see outstanding threads and detect when something is going cold.",
-      "acceptanceCriteria": [
-        "Section header reads 'Waiting on Them (N)'",
-        "Compact LeadRow per lead: company, contact, thread state chip (hot=orange/text-orange-400, warm=yellow/text-yellow-400, negotiating=sage/#92B090), days_silent (red if >14d, yellow if >7d), campaign step if present",
-        "On row hover: 3-dot menu button appears; clicking shows options: 'Move to Respond Now', 'Move to Nurturing', 'Move to Cold'",
-        "Move calls moveLeadToColumn with column IDs: 'Move to Respond Now' \u2192 'respond', 'Move to Nurturing' \u2192 'nurturing', 'Move to Cold' \u2192 'cold'",
-        "Move is optimistic: card disappears immediately; if server fails, card snaps back with brief error indicator; mutationCountRef incremented/decremented",
-        "Filter: waiting_on='them' AND thread_state IN ('hot','warm','negotiating')",
-        "Empty state: 'No leads waiting on them' in muted text",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 10,
-      "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-006",
-      "title": "NurturingSection \u2014 compact lead rows with 3-dot move menu",
-      "description": "As John, I need a Nurturing section for warm leads with no active ball.",
-      "acceptanceCriteria": [
-        "Section header reads 'Nurturing (N)'",
-        "Same compact LeadRow component as US-005",
-        "Filter: waiting_on='unknown' AND thread_state='warm'",
-        "3-dot menu options: 'Move to Respond Now' \u2192 'respond', 'Move to Waiting on Them' \u2192 'their-court', 'Move to Cold' \u2192 'cold'",
-        "Same optimistic move behavior and rollback as US-005",
-        "Empty state: 'No leads in nurturing' in muted text",
-        "Section header count updates when filter changes",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 11,
-      "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-007",
-      "title": "ColdSection \u2014 collapsed by default",
-      "description": "As John, I need a Cold section that starts collapsed so cold leads don't dominate my working view.",
-      "acceptanceCriteria": [
-        "Page loads with ColdSection collapsed \u2014 only 'Cold (N) \u25b8' header visible",
-        "Clicking header expands section; clicking again collapses",
-        "Filter: thread_state='cold'",
-        "Expanded: same compact LeadRow with company name at 60% opacity (text-[var(--text-primary)]/60)",
-        "3-dot menu options: 'Move to Respond Now' \u2192 'respond', 'Move to Nurturing' \u2192 'nurturing'",
-        "Empty state when expanded: 'No cold leads' in muted text",
-        "Section header count (N) visible even when collapsed",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill \u2014 confirm section starts collapsed"
-      ],
-      "priority": 12,
-      "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-008a",
-      "title": "POST /api/admin/ai-draft route",
-      "description": "As the AI draft system, I need a protected API route that generates a reply draft using Claude so the client can trigger AI-assisted drafts without storing API keys in the browser.",
-      "acceptanceCriteria": [
-        "Route file: src/app/api/admin/ai-draft/route.ts with export const maxDuration = 60",
-        "Auth: do NOT use assertAdmin() \u2014 it trusts x-admin-preview header which any caller can spoof. Use inline check: const supabase = await createSupabaseServerClient(); const { data: { user } } = await supabase.auth.getUser(); if (!user?.email || !isAdmin(user.email)) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })",
-        "Input validation: both leadId and queueItemId required \u2014 missing either returns 400",
-        "Fetches lead context + queue item body in parallel (Promise.all)",
-        "Clip search: clips JOIN dataset_clips ON dataset_clips.clip_id = clips.id JOIN datasets ON datasets.id = dataset_clips.dataset_id; branch on lead.type: 'demand' \u2192 datasets.type IN ('game_capture','short_form','long_form'), 'supply' \u2192 datasets.type IN ('annotation','classification','instruction'); filter clips.ai_caption IS NOT NULL, LIMIT 5",
-        "Calls Anthropic SDK claude-sonnet-4-6 non-streaming max_tokens=300 with system prompt containing: company context, lead.type, thread_state, campaign, ICP score, body_snippet, up to 5 clip captions, and voice rules (under 80 words, no em-dashes, CTA = their behavior question, open with Hey [first name], sign John)",
-        "Error handling: 429 \u2192 { error: 'rate_limited' } HTTP 503; 529 \u2192 { error: 'overloaded' } HTTP 503; 401 (Anthropic key invalid) \u2192 { error: 'api_key_error' } HTTP 500; other \u2192 { error: 'unknown' } HTTP 503. Note: platform timeout is not catchable server-side.",
-        "On success: writes draft to reply_queue.draft_response; revalidates /admin/pipeline AND /admin/queue; returns { draft: string } HTTP 200",
-        "SDK does NOT auto-retry 529 (unlike 429) \u2014 client handles retry UX",
-        "Typecheck passes"
-      ],
-      "priority": 13,
-      "passes": true,
-      "notes": "ANTHROPIC_API_KEY must be set in .env.local. The route must use createSupabaseServerClient (not assertAdmin) for auth."
-    },
-    {
-      "id": "US-008b",
-      "title": "'Draft with Claude' button in RespondCard",
-      "description": "As John, I need a button on each expanded Respond Now card that triggers Claude to draft a reply so I don't have to write from scratch.",
-      "acceptanceCriteria": [
-        "'Draft with Claude' button appears only when card is expanded AND has a queue item (queueItem !== null)",
-        "Clicking button: sets isDrafting = true, sends POST to /api/admin/ai-draft with leadId and queueItemId",
-        "While in flight: button shows 'Drafting...' with a spinner; button disabled; Approve/Dismiss/Snooze buttons also disabled",
-        "On success: textarea fills with returned draft text; button calls router.refresh() to sync server tree; isDrafting = false; button returns to normal",
-        "On error (fetch throws or response.ok is false): button shows user-readable message for 3s ('Rate limited \u2014 try in 30s', 'Claude is busy \u2014 try again', 'Request timed out \u2014 try again', 'Unknown error \u2014 try again') then returns to normal",
-        "isDrafting is a plain useState boolean \u2014 auto-refresh interval checks isDrafting and skips router.refresh() while true",
-        "Button does not appear if queueItem is null",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill \u2014 click 'Draft with Claude', confirm loading state, confirm draft fills textarea"
-      ],
-      "priority": 14,
-      "passes": true,
-      "notes": "US-008a must be complete before this story. Requires a real Anthropic API key in .env.local and a real queue item in the DB."
-    },
-    {
-      "id": "US-012",
-      "title": "Remove old Kanban and table code",
-      "description": "As the codebase, I need the old Kanban and table split removed so there is one CRM view to maintain.",
-      "acceptanceCriteria": [
-        "This story is only attempted after US-001 through US-011 are verified working in the browser",
-        "PipelineKanban.tsx deleted",
-        "PipelineList.tsx deleted",
-        "Any imports of PipelineKanban or PipelineList removed",
-        "pipeline/page.tsx renders UnifiedCRMView only",
-        "Typecheck passes with no orphaned imports",
-        "Verify in browser using dev-browser skill \u2014 pipeline page loads without errors"
-      ],
-      "priority": 15,
-      "passes": true,
-      "notes": "LAST story \u2014 only clean up dead code after the new view is live."
+      "notes": "The noindex meta tag and X-Robots-Tag header are already handled in US-003 (page component)."
     }
   ]
 }

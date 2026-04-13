@@ -1,0 +1,73 @@
+import type { GlossaryDeepPageData } from "../types";
+const data: GlossaryDeepPageData = {
+  slug: "joint-space-control", termSlug: "joint-space-control", category: "robotics-fundamentals",
+  metaTitle: "Joint-Space Control — Definition & Training Data | Claru",
+  metaDescription: "Joint-space control commands robot joints directly using position, velocity, or torque targets. Learn how it relates to learned manipulation policies.",
+  primaryKeyword: "joint-space control",
+  secondaryKeywords: ["joint position control", "robot joint-level commands", "configuration space control", "joint torque control"],
+  canonicalPath: "/glossary/joint-space-control",
+  h1: "Joint-Space Control: Direct Command of Robot Joint Configurations",
+  heroSubtitle: "Joint-space control operates on the robot's internal degrees of freedom — commanding specific joint angles, velocities, or torques directly. This is the lowest-level control interface for most robot arms and the action space used by many learned manipulation policies when maximum single-embodiment performance is required.",
+  breadcrumbs: [{ label: "Home", href: "/" }, { label: "Glossary", href: "/glossary" }, { label: "Joint-Space Control", href: "/glossary/joint-space-control" }],
+  sections: [
+    { type: "prose", heading: "What Is Joint-Space Control?", paragraphs: [
+      "Joint-space control refers to controlling a robot by directly specifying target values for each joint in the kinematic chain. For a 7-DoF robot arm like the Franka Panda, this means commanding 7 joint positions (angles in radians), 7 joint velocities (radians per second), or 7 joint torques (Newton-meters) at each control timestep. The robot's low-level controllers then track these targets using PID control, impedance control, or torque-feedforward control at the hardware level.",
+      "Joint-space control contrasts with task-space (Cartesian) control, where the commands specify end-effector position and orientation. Task-space commands are more intuitive — 'move the gripper 5cm forward' — but require an inverse kinematics solver to convert to joint commands. Joint-space commands are less intuitive but provide direct, unambiguous control over the robot's configuration with no IK ambiguity.",
+      "In learned manipulation, the choice between joint-space and task-space action representations has significant implications. Joint-space actions are embodiment-specific — the same joint angles produce entirely different end-effector motions on different robots. Task-space actions are more transferable but introduce IK-related complexities. Many high-performance single-embodiment policies (ACT, Diffusion Policy on specific hardware) use joint-space actions because they eliminate IK artifacts and provide the learning algorithm with the most direct control signal.",
+    ]},
+    { type: "stats", heading: "Joint-Space Control at a Glance", stats: [
+      { value: "7-DoF", label: "Standard arm configuration" },
+      { value: "1 kHz", label: "Typical control loop rate" },
+      { value: "Position", label: "Most common mode for BC" },
+      { value: "Torque", label: "Most flexible mode" },
+      { value: "ACT", label: "Uses joint-space actions" },
+      { value: "No IK", label: "Direct joint commands" },
+    ]},
+    { type: "prose", heading: "Joint-Space Actions in Learned Policies", paragraphs: [
+      "When a learned policy outputs joint-space actions, the training data must contain joint-position or joint-velocity labels at each timestep. During teleoperation, the robot's joint encoders record the actual joint angles at each control cycle, providing ground-truth joint-space labels. These labels are typically recorded at the robot's native control frequency (100-1000 Hz) and may be downsampled to match the policy's inference frequency (10-50 Hz).",
+      "Joint-space policies learn smooth motion directly — the policy predicts joint angle trajectories that the robot follows without any intermediate conversion. This is why ACT (Action Chunking with Transformers) and many Diffusion Policy implementations use joint-space actions: the predicted trajectories are directly executable, and temporal smoothness in joint space maps to smooth Cartesian motions. The downside is that the policy is locked to the specific robot it was trained on.",
+      "For datasets that support joint-space training, the key quality requirements are accurate joint encoder readings (which are standard on modern robots), consistent zero-positions across demonstrations (the robot must be homed identically before each session), and documentation of joint limits and control mode. Claru's datasets include joint-space labels at the native control frequency alongside end-effector labels, with documented joint limits and control configurations.",
+    ]},
+    { type: "comparison-table", heading: "Joint-Space vs. Task-Space Actions", description: "Trade-offs between joint-space and task-space action representations for learned manipulation policies.", columns: ["Property", "Joint-Space", "Task-Space (EEF)"], rows: [
+      { Property: "Ambiguity", "Joint-Space": "None — direct joint commands", "Task-Space (EEF)": "IK may have multiple solutions" },
+      { Property: "Cross-embodiment", "Joint-Space": "Not transferable", "Task-Space (EEF)": "Transferable across robots" },
+      { Property: "Smoothness", "Joint-Space": "Direct control over smoothness", "Task-Space (EEF)": "Depends on IK solver" },
+      { Property: "Dimension", "Joint-Space": "N joints (typically 7)", "Task-Space (EEF)": "6-DoF + gripper" },
+    ]},
+    { type: "prose", heading: "Data Collection for Joint-Space Policies", paragraphs: [
+      "Collecting high-quality joint-space training data requires attention to the robot's control mode during teleoperation. If the robot is controlled in joint-position mode, the recorded joint angles represent the commanded targets. If controlled in Cartesian mode (which is common for teleoperation interfaces), the recorded joint angles are the result of the IK solver's choices, which may include discontinuities at singularities or near joint limits.",
+      "Consistency in the robot's initial configuration across demonstrations is important for joint-space policies. If the robot starts in different configurations for different demonstrations of the same task, the joint-space trajectories will differ significantly even when the Cartesian motions are identical. Standard practice is to define a fixed home configuration and return the robot to this position before each demonstration.",
+      "Claru ensures consistent homing procedures, calibrated joint encoders, and documented control modes across all demonstration sessions. Joint-space labels are recorded at the robot's native control frequency and provided alongside Cartesian labels for maximum flexibility in downstream training.",
+    ]},
+    { type: "citation-list", heading: "Key References", citations: [
+      { id: "zhao-act-2023", title: "Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware", authors: "Zhao et al.", venue: "RSS 2023", year: 2023, url: "https://arxiv.org/abs/2304.13705" },
+      { id: "chi-diffusion-policy-2023", title: "Diffusion Policy: Visuomotor Policy Learning via Action Diffusion", authors: "Chi et al.", venue: "RSS 2023", year: 2023, url: "https://arxiv.org/abs/2303.04137" },
+      { id: "khatib-1987", title: "A Unified Approach for Motion and Force Control of Robot Manipulators", authors: "Khatib", venue: "IEEE RA 1987", year: 1987, url: "https://ieeexplore.ieee.org/document/1087068" },
+    ]}
+  ],
+  faqs: [
+    { question: "Should I use joint-space or task-space actions for my manipulation policy?", answer: "Use joint-space actions when training a single-embodiment policy for maximum performance. Use task-space (end-effector) actions when you need cross-embodiment transfer or when your training data comes from multiple robot platforms. Many datasets include both representations, allowing you to choose at training time." },
+    { question: "What is the typical control frequency for joint-space commands?", answer: "Most robot arms accept joint-space commands at 100-1000 Hz. For learned policies, the inference frequency is typically 10-50 Hz, with the robot's internal controller interpolating between policy outputs. The mismatch between policy frequency and control frequency is handled by the robot's servo-level controller." },
+    { question: "Can joint-space policies handle tasks near singularities?", answer: "Yes — this is an advantage of joint-space policies. Singularities are a task-space concept where the Jacobian loses rank, causing IK solvers to produce extreme joint velocities. Joint-space policies bypass IK entirely, so they can learn smooth joint motions through singularity configurations that would cause task-space controllers to fail." },
+  ],
+  ctaHeading: "Need Joint-Space Training Data?",
+  ctaDescription: "Claru provides demonstration datasets with high-frequency joint-space labels alongside Cartesian labels for flexible policy training.",
+  relatedGlossaryTerms: ["inverse-kinematics", "action-space", "proprioceptive-data", "motion-planning", "visuomotor-policy"],
+  relatedGuidePages: ["how-to-collect-teleoperation-data"],
+  relatedSolutionSlugs: ["manipulation-trajectory-data"],
+  longDefinition: "Joint-space control is a robot control paradigm that operates directly on the robot's joint-level degrees of freedom. For a serial manipulator with n joints, the control input is an n-dimensional vector specifying target joint positions (angles), velocities, or torques at each control timestep. This contrasts with task-space control, which specifies targets in the end-effector's Cartesian frame.\n\nThe three main joint-space control modes are position control (commanding target joint angles, with the low-level controller tracking these targets via PID), velocity control (commanding target joint velocities), and torque control (commanding joint torques directly, enabling the most flexible but most demanding control). Position control is dominant in learned manipulation because it is the most stable and the most natural output for behavioral cloning — the policy predicts the joint configuration the robot should be in.\n\nFor learned policies, joint-space actions have the advantage of being unambiguous (no IK solver needed, no redundancy resolution), directly executable (the robot's servo-level controller tracks the commanded joint angles), and smooth (the policy can be trained to output smooth joint trajectories). The disadvantage is embodiment specificity — a policy trained with Franka Panda joint-space actions cannot be deployed on a UR5 without retraining.",
+  historicalContext: "Joint-space control is the original control paradigm for robot arms. The earliest industrial robots (Unimate, 1960s) were controlled exclusively in joint space — the programmer specified joint angles for each waypoint, and the robot moved between them using point-to-point joint interpolation. Task-space control was introduced later by Khatib (1987) with the operational space formulation, enabling intuitive Cartesian control.\n\nIn robot learning, the choice between joint-space and task-space actions has oscillated. Early work (Levine et al., 2016) used task-space actions for simplicity. The ACT paper (Zhao et al., 2023) demonstrated superior results with joint-space actions and action chunking, arguing that joint-space representations avoid IK artifacts. The cross-embodiment movement (Open X-Embodiment, 2023) pushed back toward task-space for transferability. Current best practice is to record both representations and choose based on the deployment scenario.",
+  practicalImplications: "For teams collecting manipulation data, joint-space labels are automatically available from the robot's joint encoders — they require no additional computation or instrumentation. The practical concerns are encoder accuracy (which is excellent on modern robots, typically sub-degree resolution), consistent homing (the robot must start from the same configuration across sessions), and documentation of joint ordering conventions (different robots may number their joints differently).\n\nClaru's data collection protocols include standardized homing procedures, verified encoder calibration, and documented joint conventions. Each dataset ships with both joint-space and task-space action labels, enabling downstream teams to train in either space without re-collection.",
+  commonMisconceptions: [
+    { misconception: "Joint-space control is less precise than Cartesian control.", correction: "Joint-space control is actually more precise at the joint level because there is no IK conversion introducing numerical error. Cartesian precision depends on the accuracy of both the IK solver and the robot's kinematic model. Joint-space control bypasses both sources of error." },
+    { misconception: "Torque control is always better than position control for learned policies.", correction: "Torque control offers the most flexibility but is also the most unstable and hardest to learn. Most successful learned manipulation policies use position control because it provides a stable, forgiving control interface. Torque control is primarily used for force-sensitive tasks where compliance is essential." },
+    { misconception: "Joint-space data is inherently lower quality than Cartesian data.", correction: "Joint-space data from encoders is the rawest, most direct measurement available. Cartesian data is derived from joint data via forward kinematics, introducing model-dependent errors. If anything, joint-space data is the higher-fidelity representation." },
+  ],
+  keyPapers: [
+    { id: "zhao-act-2023", title: "Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware", authors: "Zhao et al.", venue: "RSS 2023", year: 2023, url: "https://arxiv.org/abs/2304.13705" },
+    { id: "chi-diffusion-policy-2023", title: "Diffusion Policy: Visuomotor Policy Learning via Action Diffusion", authors: "Chi et al.", venue: "RSS 2023", year: 2023, url: "https://arxiv.org/abs/2303.04137" },
+    { id: "khatib-1987", title: "A Unified Approach for Motion and Force Control of Robot Manipulators", authors: "Khatib", venue: "IEEE RA 1987", year: 1987, url: "https://ieeexplore.ieee.org/document/1087068" },
+  ],
+  claruRelevance: "Claru records joint-space labels at native control frequency alongside Cartesian labels in every demonstration dataset, with documented homing procedures and joint conventions for each robot platform.",
+};
+export default data;

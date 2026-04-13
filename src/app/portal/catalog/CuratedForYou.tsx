@@ -18,7 +18,7 @@ export function CuratedForYou({ samples }: { samples: CuratedSample[] }) {
   return (
     <section className="mb-10">
       <h2 className="text-lg font-semibold tracking-tight text-[var(--text-primary)] mb-4">
-        <span className="text-[var(--accent-primary)]">//</span> Curated for You
+        <span className="text-[var(--accent-primary)]">{"// "}</span>Curated for You
       </h2>
 
       <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-[var(--border-subtle)]">

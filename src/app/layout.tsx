@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
-import { ogImageUrl } from "@/lib/og";
 import "./globals.css";
 import "lenis/dist/lenis.css";
 import MotionProvider from "./components/providers/MotionProvider";
@@ -54,19 +53,21 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://claru.ai"),
   title:
-    "Claru | Purpose-Built Training Data for Frontier AI Labs",
+    "Claru \u2014 Training Data for Physical AI",
   description:
-    "Training data built to your model's exact specifications. From raw capture to production-ready dataset — sourced, labeled, and validated for frontier video, vision, and robotics AI.",
+    "500K+ egocentric videos. 4M+ annotations. The only training data company 100% focused on physical AI.",
   keywords: [
     "AI training data",
+    "physical AI",
+    "robotics training data",
+    "embodied AI data",
+    "world models",
     "frontier AI data",
     "video generation training data",
-    "robotics training data",
     "vision model annotation",
     "egocentric video data",
     "RLHF annotation",
     "manipulation trajectory data",
-    "embodied AI data",
     "synthetic data generation",
     "expert annotation",
     "multimodal AI data",
@@ -78,24 +79,24 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://claru.ai",
     siteName: "Claru",
-    title: "Claru | Purpose-Built Training Data for Frontier AI Labs",
+    title: "Claru \u2014 Training Data for Physical AI",
     description:
-      "Training data built to your model's exact specifications. Sourced, labeled, and validated for frontier video, vision, and robotics AI.",
+      "500K+ egocentric videos. 4M+ annotations. The only training data company 100% focused on physical AI.",
     images: [
       {
-        url: ogImageUrl("Purpose-Built Training Data for Frontier AI Labs"),
+        url: "/images/og-v3.png",
         width: 1200,
         height: 630,
-        alt: "Claru - Purpose-Built Training Data for Frontier AI Labs",
+        alt: "Claru \u2014 Training Data for Physical AI",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Claru | Purpose-Built Training Data for Frontier AI Labs",
+    title: "Claru \u2014 Training Data for Physical AI",
     description:
-      "Training data built to your model's exact specifications. From raw capture to production-ready dataset for video, vision, and robotics AI.",
-    images: [ogImageUrl("Purpose-Built Training Data for Frontier AI Labs")],
+      "500K+ egocentric videos. 4M+ annotations. The only training data company 100% focused on physical AI.",
+    images: ["/images/og-v3.png"],
   },
   alternates: {
     canonical: "/",
@@ -127,16 +128,19 @@ const globalJsonLd = {
       image: { "@id": "https://claru.ai/#logo" },
       description:
         "Purpose-built human annotation data for frontier AI labs, specializing in text, vision, video, and robotics modalities.",
-      foundingDate: "2024",
+      foundingDate: "2024-01-01",
       contactPoint: {
         "@type": "ContactPoint",
         contactType: "sales",
-        email: "team@claru.ai",
+        email: "contact@claru.ai",
         url: "https://claru.ai/#contact",
       },
       sameAs: [
         "https://github.com/claruai",
         "https://www.linkedin.com/company/claruai",
+        "https://twitter.com/claruai",
+        "https://www.crunchbase.com/organization/claru-ai",
+        "https://www.wikidata.org/wiki/Q130520850",
       ],
       knowsAbout: [
         "AI training data",

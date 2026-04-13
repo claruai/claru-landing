@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck - Experimental component with incomplete type definitions from shaders/react
 "use client";
 
@@ -74,6 +75,7 @@ export function SectionAsciiShader({ className = "" }: { className?: string }) {
   const [shaderSupported, setShaderSupported] = useState(true);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     // Check if WebGL is supported
     try {

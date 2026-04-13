@@ -14,8 +14,12 @@ function redirectToAdminLogin(request: NextRequest): NextResponse {
 async function handleAdminAuth(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
 
-  // Allow the login page and login API endpoint without authentication
-  if (pathname === "/admin" || pathname === "/api/admin/login") {
+  // Allow the login page, login API, and social-feed preview without authentication
+  if (
+    pathname === "/admin" ||
+    pathname === "/api/admin/login" ||
+    pathname === "/admin/social-feed"
+  ) {
     return NextResponse.next();
   }
 

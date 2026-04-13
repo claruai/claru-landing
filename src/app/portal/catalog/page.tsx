@@ -15,6 +15,7 @@ import type {
 import { CatalogBrowser } from "./CatalogBrowser";
 import { OtherDatasets } from "./OtherDatasets";
 import { CuratedForYou } from "./CuratedForYou";
+import Link from "next/link";
 
 // ---------------------------------------------------------------------------
 // Data Fetching
@@ -265,7 +266,7 @@ export default async function PortalCatalogPage() {
         <div className="mb-6 px-4 py-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center gap-3 font-mono text-xs">
           <span className="text-amber-400 font-semibold">ADMIN PREVIEW</span>
           <span className="text-amber-400/70">Showing all published datasets</span>
-          <a href="/admin/catalog" className="ml-auto text-amber-400 hover:text-amber-300">[back to admin]</a>
+          <Link href="/admin/catalog" className="ml-auto text-amber-400 hover:text-amber-300">[back to admin]</Link>
         </div>
       )}
 

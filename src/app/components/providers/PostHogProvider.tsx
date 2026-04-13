@@ -9,14 +9,21 @@ if (
   typeof window !== "undefined" &&
   process.env.NEXT_PUBLIC_POSTHOG_KEY
 ) {
-  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
-    api_host: "/ingest",
-    ui_host: "https://us.posthog.com",
-    person_profiles: "identified_only",
-    capture_pageview: false, // We capture manually for SPA route changes
-    capture_pageleave: true,
-    autocapture: true,
-  });
+  // Skip tracking on localhost, Vercel previews, and non-production domains
+  const hostname = window.location.hostname;
+  const isProduction =
+    hostname === "claru.ai" || hostname === "www.claru.ai";
+
+  if (isProduction) {
+    posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
+      api_host: "/ingest",
+      ui_host: "https://us.posthog.com",
+      person_profiles: "identified_only",
+      capture_pageview: false, // We capture manually for SPA route changes
+      capture_pageleave: true,
+      autocapture: true,
+    });
+  }
 }
 
 function PostHogPageView() {

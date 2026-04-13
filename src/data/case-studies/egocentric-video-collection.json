@@ -55,8 +55,8 @@
     "label": "Egocentric Video Collection"
   },
   "targetKeyword": "egocentric video data collection robotics",
-  "metaTitle": "Egocentric Video Collection for Robotics | Claru",
-  "metaDescription": "How Claru captured 386K+ first-person video clips across three parallel pipelines for world modeling and robotics research. Methodology, QA, and results.",
+  "metaTitle": "386K First-Person Video Clips for Robotics | Claru",
+  "metaDescription": "Case study: 386K+ egocentric video clips collected across 3 pipelines with same-day QA. Built for a frontier robotics lab's world model training.",
   "processSteps": [
     { "step": "01", "title": "Spec", "description": "Translate research requirements into 3 pipeline-specific task protocols" },
     { "step": "02", "title": "Activate", "description": "Onboard ~500 contributors with GoPro, DJI, and smartphone kits" },

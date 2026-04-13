@@ -1,86 +1,66 @@
-<!-- Last updated: 2026-03-16 -->
 # Claru
 
-> Purpose-built training data for frontier AI labs. From raw capture to production-ready dataset -- sourced, labeled, and validated for video, vision, and robotics AI.
+> Claru provides purpose-built training data for physical AI, robotics, and embodied intelligence — 4M+ human annotations, 500K+ egocentric videos, 10K+ collectors across 100+ cities.
 
-Claru (operated by Reka AI Inc.) provides end-to-end data services for frontier AI research companies building video generation, vision-language, robotics, and embodied AI models. Claru specializes in text, vision, video, and robotics modalities.
+## Core Pages
 
-## Core Services
+- [Training Data for Physical AI](https://claru.ai/): Homepage. Claru is the only training data company 100% focused on physical AI. 4M+ annotations, 500K+ egocentric videos, 10K+ collectors in 100+ cities across 6 continents.
+- [Data Catalog](https://claru.ai/data-catalog): Browse 100+ datasets spanning egocentric video, teleoperation recordings, game environments, and multi-view captures with annotation layers.
+- [Solutions](https://claru.ai/solutions): Overview of data solutions for robotics, embodied AI, VLA models, and world models — from raw capture to enriched, annotated datasets.
+- [About Claru](https://claru.ai/about): Company background, team, mission. Founded 2024, focused on closing the data gap for frontier robotics labs.
+- [Compare Data Providers](https://claru.ai/compare): Side-by-side comparisons of Claru vs Scale AI, Appen, Labelbox, and 90+ other data providers for robotics use cases.
 
-- [Data Acquisition](https://claru.ai/pillars/acquire): Egocentric video capture, web-scale harvesting, synthetic data generation, and data licensing for AI training.
-- [Data Enrichment](https://claru.ai/pillars/enrich): Expert annotation, RLHF preference labeling, and video annotation by domain specialists.
-- [Data Preparation](https://claru.ai/pillars/prepare): Deduplication, multimodal alignment, and quality scoring pipelines.
-- [Data Validation](https://claru.ai/pillars/validate): Benchmark curation, bias detection, and red teaming for AI safety.
+## Training Data Solutions
 
-## Sub-Services
+- [Egocentric Video Data](https://claru.ai/solutions/egocentric-video-data): 500K+ first-person video clips from real-world activities. Kitchen, workshop, warehouse, outdoor, and office environments.
+- [Manipulation Trajectory Data](https://claru.ai/solutions/manipulation-trajectory-data): Teleoperation recordings with 6/7-DoF action labels for training robot manipulation policies.
+- [Teleoperation Data](https://claru.ai/solutions/teleoperation-data): Remote-operated robot demonstrations with synchronized camera + action streams for VLA and behavioral cloning training.
+- [RLHF Labeling](https://claru.ai/solutions/rlhf-labeling-data): Human preference annotations for reinforcement learning from human feedback on robot behaviors.
+- [Video Annotation](https://claru.ai/solutions/video-annotation-data): Frame-level and temporal annotations for video understanding — bounding boxes, segmentation masks, action labels.
+- [Red Teaming](https://claru.ai/solutions/red-teaming-data): Adversarial evaluation and safety testing for AI models with human evaluators.
 
-### Acquire
-- [Egocentric Video Collection](https://claru.ai/pillars/acquire/egocentric-video): First-person video capture for robotics and embodied AI.
-- [Data Licensing](https://claru.ai/pillars/acquire/data-licensing): Copyright-safe, properly licensed training data.
-- [Synthetic Data Generation](https://claru.ai/pillars/acquire/synthetic-data): AI-augmented data creation with human validation.
+## Robotics Knowledge Base
 
-### Enrich
-- [Expert Annotation](https://claru.ai/pillars/enrich/expert-annotation): Domain-expert labeling for complex AI tasks.
-- [RLHF & Preference Data](https://claru.ai/pillars/enrich/rlhf): Human preference annotation for reinforcement learning.
-- [Video Annotation](https://claru.ai/pillars/enrich/video-annotation): Frame-level and temporal annotation for video AI.
+- [Glossary](https://claru.ai/glossary): 70+ technical terms defined in depth — VLA, behavioral cloning, action space, diffusion policy, sim-to-real, and more.
+- [How-To Guides](https://claru.ai/guides): 40 step-by-step guides for robotics data — collecting teleoperation data, training diffusion policies, building datasets.
+- [Model Pages](https://claru.ai/models): Training data requirements for 25 robot learning models — OpenVLA, RT-2, Octo, pi-zero, ACT/ALOHA, GR00T N1, and more.
+- [Task Pages](https://claru.ai/training-data): Data requirements for 30 robotics tasks — grasping, assembly, navigation, dexterous manipulation, and more.
+- [Dataset Pages](https://claru.ai/datasets): 25 dataset profiles with technical specs, modalities, annotation layers, and comparison tables.
+- [Benchmark Pages](https://claru.ai/benchmarks): 15 robotics benchmarks — RLBench, CALVIN, ManiSkill, MetaWorld — with sim-to-real data bridging guides.
+- [Format Guides](https://claru.ai/formats): 15 robotics data formats — RLDS, HDF5, LeRobot, zarr, ROS bag, MCAP — with specs and conversion guides.
+- [Industry Pages](https://claru.ai/industries): Training data needs by vertical — healthcare, warehouse, defense, automotive, manufacturing, agriculture, and more.
 
-### Prepare
-- [Deduplication](https://claru.ai/pillars/prepare/deduplication): Remove redundant samples to improve training efficiency.
-- [Multimodal Alignment](https://claru.ai/pillars/prepare/multimodal-alignment): Align text, image, video, and audio modalities.
-- [Quality Scoring](https://claru.ai/pillars/prepare/quality-scoring): Automated and human quality assessment pipelines.
+## Blog
 
-### Validate
-- [Benchmark Curation](https://claru.ai/pillars/validate/benchmark-curation): Build evaluation benchmarks for model assessment.
-- [Bias Detection](https://claru.ai/pillars/validate/bias-detection): Identify and mitigate bias in training data.
-- [Red Teaming](https://claru.ai/pillars/validate/red-teaming): Adversarial testing for AI safety and robustness.
+- [VLA Training Data Volume Guide](https://claru.ai/blog/vla-training-data-volume): How much demonstration data VLA models need — numbers from RT-2, OpenVLA, Octo, and pi-zero papers.
+- [VLM vs VLA Explained](https://claru.ai/blog/vlm-vs-vla): Technical comparison of vision-language models and vision-language-action models for robotics.
+- [Sim-to-Real Gap](https://claru.ai/blog/sim-to-real-gap): Why simulation data alone cannot replace real-world demonstrations for robot manipulation policies.
+- [Physical AI Stack](https://claru.ai/blog/physical-ai-stack): The full technology stack for building physical AI systems — data, models, simulation, deployment.
+- [Data Enrichment Pipeline](https://claru.ai/blog/data-enrichment-pipeline-physical-ai): How Claru enriches raw video with depth maps, pose estimation, segmentation, and optical flow.
+- [VLA Training Data Guide](https://claru.ai/vla-training-data-guide): Comprehensive guide to building datasets for vision-language-action model training.
 
-## Solutions Pages
+## Academic Dataset Alternatives
 
-- [Egocentric Video Data for Embodied AI](https://claru.ai/solutions/egocentric-video-data): Custom egocentric video data collection at scale for robotics and world models. 386K+ clips across three parallel pipelines (GoPro wearable, smartphone, activity-specific) with same-day QA. Compares Ego4D, EgoScale, EgoDex, DROID, and Claru custom collection.
-- [VLA Training Data: From Collection to Policy](https://claru.ai/solutions/vla-training-data): Vision-language-action model training data including action-labeled demonstrations with sub-16ms temporal alignment. Compares Open X-Embodiment, DROID, AgiBot World, and Claru custom collection for robot policy training.
-- [Human Red Teaming Data for AI Safety and EU AI Act Compliance](https://claru.ai/solutions/red-teaming-data): Expert human red teaming for AI models with structured adversarial testing satisfying EU AI Act Articles 55 and 99. 241K+ safety annotations with 92%+ annotator calibration. Compares automated tools, crowdsourced testers, and Claru expert red teaming.
-- [Expert Preference Data for Video Generation Models](https://claru.ai/solutions/video-generation-training-data): Multi-dimensional human preference data for video generation RLHF. 976K+ quality assessments across four axes (motion, fidelity, viewer interest, text-video alignment), 39K pairwise evaluations across 51 model configurations, Swiss-style ELO tournament ranking.
-- [Custom Manipulation Trajectory Data Collection for Robotics](https://claru.ai/solutions/manipulation-trajectory-data): Custom trajectory datasets for robot manipulation policies. Three-pipeline capture architecture delivering 386K+ clips and 10,000+ hours of synchronized observation-action data. Compares AgiBot World, DROID, Open X-Embodiment, and Claru custom collection.
-- [Expert RLHF Annotation for Code and Specialized Domains](https://claru.ai/solutions/expert-rlhf-annotation): Expert preference annotation for reward model training in code, video generation, and specialized domains. 976K+ assessments delivered with 85%+ calibration threshold and Krippendorff's alpha monitoring. RLTHF framework reduces annotation volume needed by 93-94%.
-- [Closing the Sim-to-Real Gap with Real-World Data Collection](https://claru.ai/solutions/sim-to-real-data): Real-world data collection to bridge simulation-to-deployment performance gaps. 386K+ first-person clips across diverse environments. Game-based capture producing 10,000+ hours of synchronized data with sub-16ms alignment.
-- [Teleoperation Dataset Collection for Robot Learning](https://claru.ai/solutions/teleoperation-data): Scaled human demonstration capture as a complement to robot teleoperation. 386K+ clips from 500 global contributors across 10 workplace categories including barista, carpentry, tailoring, and phone repair. Compares VR-based, exoskeleton, camera-based, and Claru managed collection approaches.
-- [Open Robotics Datasets vs Custom Collection: When Open Isn't Enough](https://claru.ai/solutions/open-datasets-vs-custom): Structured comparison of Open X-Embodiment (1M+ trajectories, 22 robots), DROID (76K trajectories, Franka-only), and AgiBot World (1M+ trajectories, 217 tasks) against custom data collection for frontier robotics research. Claru custom collection covers 12+ environment types.
-- [Why Crowdsourced RLHF Fails for Code and Math Models](https://claru.ai/solutions/crowdsourced-vs-expert-rlhf): Analysis of how incorrect preference pairs from crowdsourced annotation degrade reward models in technical domains. Expert annotation requires only 6-7% of crowdsourced volume for equivalent quality. Reward hacking debugging costs $50,000-$200,000 per cycle.
-- [EU AI Act Red Teaming Requirements: What Data You Actually Need](https://claru.ai/solutions/eu-ai-act-red-teaming): Complete breakdown of EU AI Act Articles 5, 55, and 99 adversarial testing obligations. Enforcement timeline: Article 5 (Feb 2025), Article 55 new GPAI (Aug 2025), Article 99 full enforcement (Aug 2026), existing GPAI deadline (Aug 2027). Fines up to 35M euros or 7% global turnover.
+- [Ego4D Alternative](https://claru.ai/compare/ego4d-alternative): Commercial alternative to Meta's Ego4D with broader environments and commercial licensing.
+- [Open X-Embodiment Alternative](https://claru.ai/compare/open-x-embodiment-alternative): Commercial data for cross-embodiment robot learning beyond the OXE academic dataset.
+- [EPIC-KITCHENS Alternative](https://claru.ai/compare/epic-kitchens-alternative): Kitchen activity data with commercial licensing and broader task coverage.
+- [RLBench Alternative](https://claru.ai/compare/rlbench-alternative): Real-world manipulation data to bridge RLBench simulation policies to physical robots.
 
-## Case Studies
+## Key Facts
 
-- [Case Studies Index](https://claru.ai/case-studies): Real-world examples of data projects for frontier AI teams.
-- [Egocentric Video Data Collection for Robotics and World Modeling](https://claru.ai/case-studies/egocentric-video-collection): Large-scale first-person video capture across 500 contributors for robotics training.
-- [Large-Scale Image Annotation for Fashion AI](https://claru.ai/case-studies/fashion-ai-annotation): 395K product images annotated with multi-label classification and rich text descriptions.
-- [Game-Based Data Capture for Real-World Simulation](https://claru.ai/case-studies/game-based-data-capture): Custom capture application logging simultaneous video and raw input for simulation training.
-- [Scaling Generative AI Safety Through Human-Led Data Labeling](https://claru.ai/case-studies/generative-ai-safety): 241K safety annotations with binary labeling and continuous violation-rate monitoring.
-- [Preserving Object Identity Across Video Time](https://claru.ai/case-studies/object-identity-persistence): 1.07M+ identity-persistence training examples via human-validated temporal pairing.
-- [Benchmarking Prompt Enhancement Quality Across Leading LLMs](https://claru.ai/case-studies/prompt-enhancement-benchmark): Side-by-side human evaluation of prompt enhancement across multiple LLMs.
-- [Building and Red-Teaming an AI Content Moderation System](https://claru.ai/case-studies/red-teaming-moderation): Adversarial testing via pentesting and jailbreaking for content moderation pipelines.
-- [High-Confidence Video Content Classification at Scale](https://claru.ai/case-studies/video-content-classification): 105K video clips classified with automated confidence tiers and pre-production quality checks.
-- [Human Evaluation of Video Generation Model Configurations](https://claru.ai/case-studies/video-model-evaluation): ELO-based pairwise human evaluation of video generation model quality.
-- [Video Quality Annotation at Scale for RLHF and Model Selection](https://claru.ai/case-studies/video-quality-at-scale): 976K video quality annotations scored across motion, fidelity, interest, and alignment dimensions.
-- [Workplace Egocentric Video Data for General-Purpose Robotics](https://claru.ai/case-studies/workplace-egocentric-data): Egocentric video from 10 workplace categories for general-purpose robotics training.
-
-## Additional Pages
-
-- [Homepage](https://claru.ai): Purpose-built data for frontier AI labs -- overview of Claru's end-to-end data services.
-- [Data Catalog](https://claru.ai/data-catalog): Browse available datasets across video, robotics, and annotation categories.
-- [Expert Labeling](https://claru.ai/labeling): Dedicated expert labeling service page.
-- [Data](https://claru.ai/data): Overview of Claru's data offerings and capabilities.
-- [Jobs](https://claru.ai/jobs): Open positions for annotators and data specialists. Approximately 50 active job listings.
-- [For Annotators](https://claru.ai/for-annotators): Information for prospective annotators joining the Claru workforce.
-
-## Legal
-
-- [Privacy Policy](https://claru.ai/privacy): How Claru collects, uses, and protects personal data.
-- [Terms of Service](https://claru.ai/terms): Terms governing use of the Claru platform.
-- [Prohibited Use Policy](https://claru.ai/prohibited-use): Restrictions on how Claru services and data may be used.
-- [Job Applicant Privacy](https://claru.ai/job-applicant-privacy): Privacy notice for job applicants.
+- Founded: 2024
+- Legal entity: Reka AI Inc. (d/b/a Claru AI)
+- Focus: 100% physical AI and robotics training data (not general-purpose labeling)
+- Data scale: 4M+ human annotations, 500K+ egocentric video clips, 100+ datasets
+- Workforce: 10,000+ data collectors across 100+ cities, 6 continents, 14+ countries
+- Partnerships: 5+ frontier AI lab partnerships
+- Key datasets: Egocentric video (kitchen, warehouse, workshop, outdoor), teleoperation recordings, game environments, multi-view manipulation
+- Enrichment: Every clip ships with depth maps (Depth Anything V2), pose estimation (ViTPose), segmentation (SAM3), optical flow (RAFT), action labels
+- Delivery formats: RLDS, HDF5, zarr, LeRobot, WebDataset, ROS bag, MCAP
+- Contact: contact@claru.ai
 
 ## Contact
 
 - Website: https://claru.ai
-- Contact form: https://claru.ai/#contact
-- Email: team@claru.ai
+- Email: contact@claru.ai
+- Book a call: https://calendly.com/claru

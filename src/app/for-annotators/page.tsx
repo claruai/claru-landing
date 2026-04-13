@@ -308,6 +308,7 @@ export default function WorkWithUsPage() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -576,7 +577,7 @@ export default function WorkWithUsPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                 <div className="absolute bottom-4 left-4 z-10">
                   <span className="font-mono text-xs text-[var(--accent-primary)] uppercase tracking-wider opacity-70">
-                    // ANNOTATION INTERFACE
+                    {"// ANNOTATION INTERFACE"}
                   </span>
                 </div>
               </motion.div>
@@ -604,7 +605,7 @@ export default function WorkWithUsPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                 <div className="absolute bottom-4 left-4 z-10">
                   <span className="font-mono text-xs text-[var(--accent-primary)] uppercase tracking-wider opacity-70">
-                    // FRAME TRACKING
+                    {"// FRAME TRACKING"}
                   </span>
                 </div>
               </motion.div>
@@ -723,7 +724,7 @@ export default function WorkWithUsPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
               <div className="absolute bottom-4 left-4 z-10">
                 <span className="font-mono text-xs text-[var(--accent-primary)] uppercase tracking-wider opacity-70">
-                  // ROBOTICS &amp; MANIPULATION
+                  {"// ROBOTICS & MANIPULATION"}
                 </span>
               </div>
             </motion.div>
@@ -897,7 +898,7 @@ export default function WorkWithUsPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                 <div className="absolute bottom-4 left-4 z-10">
                   <span className="font-mono text-xs text-[var(--accent-primary)] uppercase tracking-wider opacity-70">
-                    // AUTONOMOUS SYSTEMS
+                    {"// AUTONOMOUS SYSTEMS"}
                   </span>
                 </div>
               </motion.div>

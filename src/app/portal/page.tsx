@@ -384,7 +384,7 @@ function NavCard({
   external = false,
 }: {
   href: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
   title: string;
   description: string;
   external?: boolean;

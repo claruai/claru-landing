@@ -9,7 +9,7 @@ export const CALENDLY_THEME_PARAMS =
   "background_color=0a0908&text_color=e8e8e8&primary_color=92B090&hide_gdpr_banner=1";
 
 // Fallback booking URL used when the database setting isn't configured yet.
-export const DEFAULT_BOOKING_URL = "https://calendly.com/claru-ai/30min";
+export const DEFAULT_BOOKING_URL = "https://calendly.com/claru";
 
 /** Append Calendly theme params to a base booking URL for iframe embedding. */
 export function buildCalendlyEmbedUrl(

@@ -16,6 +16,7 @@ export interface LeadData {
   email: string;
   company: string;
   projectDescription?: string;
+  heardAbout?: string;
 }
 
 interface CalendlyContextValue {
@@ -65,7 +66,7 @@ export default function CalendlyProvider({
     setStep(1);
     setLeadData(null);
     setIsOpen(true);
-    posthog?.capture("calendly_modal_opened");
+    posthog?.capture("contact_modal_opened");
   }, []);
 
   const advanceToCalendly = useCallback((data: LeadData) => {

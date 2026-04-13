@@ -1,0 +1,180 @@
+import type { AcademicAltPageData } from "../types";
+
+const data: AcademicAltPageData = {
+  slug: "bridgedata-v2-alternative",
+  metaTitle: "BridgeData V2 Alternative for Production Robotics | Claru",
+  metaDescription:
+    "Compare BridgeData V2's 60K trajectories on WidowX with Claru's multi-platform real-world data. Scale, modalities, licensing, and production readiness compared.",
+  primaryKeyword: "bridgedata v2 alternative",
+  secondaryKeywords: [
+    "bridgedata v2 vs claru",
+    "bridgedata v2 dataset limitations",
+    "bridge data commercial alternative",
+    "widowx robot training data",
+    "robot manipulation dataset",
+    "bridgedata v2 production alternative",
+  ],
+  canonicalPath: "/compare/bridgedata-v2-alternative",
+  h1: "BridgeData V2 Alternative: Real-World Training Data for Production Robotics",
+  heroSubtitle:
+    "BridgeData V2 set a new standard for affordable, diverse robot manipulation data with 60K trajectories across 24 environments. But its single low-cost arm and limited sensor suite create gaps when scaling to production. Compare BridgeData V2 with Claru's commercial data collection service.",
+  breadcrumbs: [
+    { label: "Home", href: "/" },
+    { label: "Compare", href: "/compare" },
+    { label: "BridgeData V2 Alternative", href: "/compare/bridgedata-v2-alternative" },
+  ],
+  sections: [
+    {
+      type: "prose",
+      heading: "What Is BridgeData V2?",
+      paragraphs: [
+        "BridgeData V2 is a large-scale robot manipulation dataset published by Homer Walke, Kevin Black, Abraham Lee, Laura Smith, and colleagues at UC Berkeley's RAIL lab in 2023 (arXiv:2308.12952, presented at CoRL 2023). It contains 60,096 trajectories -- 50,365 teleoperated demonstrations and 9,731 autonomous rollouts -- collected across 24 environments on a WidowX 250 6-DoF robot arm. Each trajectory is labeled with a natural language instruction describing the task the robot performs, making it one of the largest language-annotated real-robot manipulation datasets publicly available.",
+        "Data collection involved teleoperating the WidowX with a VR controller (Meta Quest 2), primarily in toy kitchen environments that include sinks, stoves, and microwaves. Tasks span 13 foundational manipulation skills: pick-and-place, pushing, sweeping, stacking blocks, folding cloth, sweeping granular media, opening and closing doors, drawers, and a microwave, as well as flipping a switch and turning a faucet. The 24 environments are grouped into four categories, with the majority coming from seven distinct toy kitchen setups that vary in object placement, lighting, and background configuration.",
+        "BridgeData V2 is a direct successor to the original Bridge dataset (Ebert et al., 2021), expanding from approximately 7,200 demonstrations to 60,096 -- an 8x increase. The scaling was achieved by distributing data collection across multiple operators over several months, demonstrating that large-scale robot data collection is feasible with affordable hardware and distributed labor. The cost per trajectory was roughly $2-3, establishing an important economic benchmark for the field.",
+        "BridgeData V2 has become a critical component of the robot learning ecosystem. It is a core dataset in the Open X-Embodiment (OXE) collection and has been used to train generalist policies including Octo, OpenVLA, and RT-X. The WidowX 250 is a commercially available, low-cost arm (~$3,500), making it possible for many research labs to replicate the data collection setup and contribute additional data. The dataset is distributed in RLDS format and is openly available for research use, establishing both the data and the hardware as a community standard for accessible robot learning research.",
+      ],
+    },
+    {
+      type: "stats",
+      heading: "BridgeData V2 at a Glance",
+      stats: [
+        { value: "60,096", label: "Total Trajectories" },
+        { value: "50,365", label: "Teleoperated Demos" },
+        { value: "24", label: "Environments" },
+        { value: "13", label: "Manipulation Skills" },
+        { value: "6-DoF", label: "WidowX 250 Arm" },
+        { value: "RLDS", label: "Data Format" },
+      ],
+    },
+    {
+      type: "comparison-table",
+      heading: "BridgeData V2 vs. Claru: Side-by-Side Comparison",
+      description:
+        "A detailed comparison across the dimensions that matter most when moving from research pretraining to production deployment.",
+      columns: ["Dimension", "BridgeData V2", "Claru"],
+      rows: [
+        { Dimension: "Data Source", "BridgeData V2": "VR-teleoperated on WidowX 250", Claru: "Teleoperated on your physical robot" },
+        { Dimension: "Scale", "BridgeData V2": "60,096 trajectories across 24 environments", Claru: "1K to 1M+ trajectories, scaled to your needs" },
+        { Dimension: "Robot Platform", "BridgeData V2": "WidowX 250 6-DoF arm only", Claru: "Any robot platform you deploy" },
+        { Dimension: "Payload / Reach", "BridgeData V2": "WidowX: ~300g payload, 55cm reach", Claru: "Matched to your production arm capabilities" },
+        { Dimension: "Sensor Modalities", "BridgeData V2": "Single RGB camera, joint positions, gripper state", Claru: "RGB + depth + force/torque + proprioception + tactile" },
+        { Dimension: "Camera Configuration", "BridgeData V2": "Single overhead USB camera at fixed position", Claru: "Multi-view with configurable cameras matched to deployment" },
+        { Dimension: "Environment Types", "BridgeData V2": "Primarily toy kitchen setups in research labs", Claru: "Real kitchens, warehouses, factories, labs" },
+        { Dimension: "Object Scale", "BridgeData V2": "Small toy objects (kitchen accessories, blocks)", Claru: "Real-world objects at production scale and weight" },
+        { Dimension: "Language Annotations", "BridgeData V2": "Natural language instruction per trajectory", Claru: "Free-form language with multi-annotator agreement and diversity" },
+        { Dimension: "Action Space", "BridgeData V2": "6-DoF end-effector deltas", Claru: "7-DoF or higher, matched to your arm" },
+        { Dimension: "License", "BridgeData V2": "Open research use", Claru: "Commercial license with IP assignment" },
+        { Dimension: "Ongoing Collection", "BridgeData V2": "Community-contributed additions", Claru: "Continuous collection tailored to your requirements" },
+      ],
+    },
+    {
+      type: "prose",
+      heading: "BridgeData V2's Role in the Robot Learning Ecosystem",
+      paragraphs: [
+        "BridgeData V2 occupies a unique and important position in robot learning. It demonstrated that large-scale, language-annotated real-robot data could be collected at low cost (approximately $2-3 per trajectory) using commercially available hardware. This economic model proved that data collection for robot learning does not require million-dollar fleets of research robots -- a WidowX arm, a VR headset, and distributed operators can produce datasets of sufficient scale and quality to train generalist policies.",
+        "Within the Open X-Embodiment ecosystem, BridgeData V2 is the single largest real-robot contribution from a non-Google institution. It constitutes approximately 6% of the total OXE dataset by trajectory count, but its influence is disproportionate because the WidowX embodiment has become the most common evaluation platform for open-source generalist policies. When Octo and OpenVLA report fine-tuning results, they frequently use WidowX tasks from BridgeData V2 as primary benchmarks, making Bridge data de facto evaluation standard for the field.",
+        "The dataset has also spawned an active community of contributors. Research groups at Stanford, CMU, NYU, and other institutions have collected additional WidowX data using the Bridge data collection pipeline, expanding the total WidowX data available beyond BridgeData V2's original 60K trajectories. This community-driven expansion model is a significant methodological contribution -- it shows that standardizing on affordable hardware and open data formats can create network effects where each new contributor's data benefits all users.",
+        "BridgeData V2 also introduced the practice of including autonomous rollouts (9,731 trajectories from partially-trained policies) alongside teleoperated demonstrations. This mixed-quality data proved useful for training policies that are robust to imperfect execution, and established a precedent for including both expert and non-expert demonstrations in robot learning datasets.",
+      ],
+    },
+    {
+      type: "prose",
+      heading: "Key Limitations of BridgeData V2 for Production Use",
+      paragraphs: [
+        "BridgeData V2's most significant limitation is the WidowX 250's hardware constraints. With a maximum payload of approximately 300 grams and a reach of about 55 centimeters, the WidowX is fundamentally a research platform. Policies trained on BridgeData V2 learn manipulation behaviors calibrated to lightweight toy objects on a small tabletop -- behaviors that do not transfer to industrial arms handling heavier, larger objects in production environments. The WidowX's position control accuracy (approximately 2-3mm repeatability) also falls below the sub-millimeter precision that many production tasks require.",
+        "The dataset captures only RGB images from a single overhead camera (Logitech C920 USB webcam). There is no depth sensing, no wrist camera, and no force/torque feedback. For production tasks that require contact-rich manipulation -- insertion, assembly, packing -- the absence of haptic and depth modalities means BridgeData V2 cannot provide a complete training signal. The single-camera limitation is particularly restrictive for tasks requiring precise depth estimation or where the end-effector occludes the manipulated object from the overhead view.",
+        "Environmental diversity, while impressive for a research dataset (24 environments), is concentrated on toy kitchen setups. The lighting, surface properties, background clutter, and spatial layouts are characteristic of lab bench configurations. Policies pretrained on this data may not generalize to the visual complexity of real warehouses, manufacturing floors, or residential spaces where lighting varies throughout the day, surfaces are diverse (metal, wood, fabric, plastic), and the background is uncontrolled.",
+        "The 6-DoF action space of the WidowX does not match the 7-DoF action spaces common in production arms like Franka Panda, UR5, or Kuka iiwa. This kinematic mismatch requires non-trivial adaptation when transferring learned behaviors to higher-DoF systems, especially for tasks requiring independent wrist rotation that the WidowX cannot perform. The missing degree of freedom means an entire class of manipulation strategies (wrist-rotation-dependent grasps, screw-driving motions, rolling objects) is absent from BridgeData V2.",
+        "Finally, BridgeData V2's task vocabulary is anchored in small-scale tabletop manipulation. Production requirements often include tasks at larger scales, with heavier objects, in constrained spaces, or involving tool use -- domains where BridgeData V2 provides no training signal. The maximum object weight in the dataset is limited by the WidowX's 300g payload, and all tasks occur within a 55cm radius workspace.",
+      ],
+    },
+    {
+      type: "prose",
+      heading: "When to Use BridgeData V2 vs. Commercial Data",
+      paragraphs: [
+        "BridgeData V2 is the right choice for pretraining generalist policies when you want broad manipulation priors at low cost. Its 60K trajectories across diverse tasks provide a strong foundation for learning grasp primitives, approach strategies, and object interaction patterns. If you are training an RT-X or Octo-style model and need a large-scale pretraining corpus, BridgeData V2 is one of the most valuable open datasets available -- and its integration into OXE means it can be combined with data from 21 other embodiments in a single training run.",
+        "It is also ideal for rapid prototyping on affordable hardware. If your team is exploring policy architectures, reward shaping, or representation learning and wants to iterate quickly without expensive hardware, the WidowX + BridgeData V2 ecosystem provides a complete, reproducible research platform. The low barrier to entry (approximately $5,000 for a complete setup including the arm, camera, and VR controller) makes it accessible to most academic labs and startups.",
+        "Switch to Claru when you have committed to a production robot platform and need deployment-grade data. If your deployment involves a 7-DoF arm handling real products in a warehouse, the kinematic mismatch, object scale difference, and missing sensor modalities make BridgeData V2 insufficient as the sole training source. Claru collects demonstrations on your hardware, in your environment, with the full sensor suite your policy needs.",
+        "Many teams achieve the best results by combining both: pretrain on BridgeData V2 plus other Open X-Embodiment datasets for broad manipulation capability, then fine-tune on Claru's domain-specific demonstrations to reach production reliability. This two-stage approach captures the broad manipulation priors from Bridge's 60K trajectories while grounding policy behavior in the specific kinematics, objects, and environments of the deployment domain.",
+      ],
+    },
+    {
+      type: "prose",
+      heading: "How Claru Complements BridgeData V2",
+      paragraphs: [
+        "Claru's data collection service directly addresses the gaps that BridgeData V2 leaves open. Where BridgeData V2 provides 60K trajectories on a low-cost 6-DoF arm with toy objects, Claru deploys trained teleoperators to collect demonstrations on whatever production robot you are shipping -- with the full sensor suite, object inventory, and environmental conditions your deployment requires.",
+        "For teams that have built initial policies using BridgeData V2 as a pretraining corpus, Claru provides the fine-tuning data layer that bridges the gap from research to production. Our demonstrations include multi-view RGB, calibrated depth, synchronized force/torque, and high-frequency proprioceptive logging -- modalities that BridgeData V2 does not capture but that production policies increasingly require. The addition of depth and force/torque data enables contact-rich manipulation strategies (insertion, assembly, compliant grasping) that RGB-only training cannot learn.",
+        "Claru also addresses the object scale and environment gap. Rather than toy kitchens with lightweight accessories, we collect data in your actual deployment environments with the real objects your robot will manipulate in production. Object weights range from grams to kilograms, workspaces range from tabletop to full warehouse aisles, and environmental conditions include the variable lighting, backgrounds, and clutter that real deployment entails.",
+        "Data is delivered in RLDS, HDF5, zarr, or LeRobot format, compatible with the same training pipelines you use for BridgeData V2 and Open X-Embodiment. The action space, observation space, and control frequency are standardized to your robot's specifications from the start -- no action normalization pipeline required. Every demonstration passes our multi-stage quality control process, with automated kinematic validation and human review ensuring that only successful, well-executed demonstrations enter your training set.",
+      ],
+    },
+    {
+      type: "citation-list",
+      heading: "References",
+      citations: [
+        { id: "walke-bridge-2023", title: "BridgeData V2: A Dataset for Robot Learning at Scale", authors: "Walke, H., Black, K., Lee, A., Kim, M. J., et al.", venue: "CoRL 2023 / arXiv 2308.12952", year: 2023, url: "https://arxiv.org/abs/2308.12952" },
+        { id: "ebert-bridge-2021", title: "Bridge Data: Boosting Generalization of Robotic Skills with Cross-Domain Datasets", authors: "Ebert, F., Yang, Y., Schmeckpeper, K., et al.", venue: "RSS 2022 / arXiv 2109.13396", year: 2021, url: "https://arxiv.org/abs/2109.13396" },
+        { id: "oneill-oxe-2024", title: "Open X-Embodiment: Robotic Learning Datasets and RT-X Models", authors: "Open X-Embodiment Collaboration", venue: "ICRA 2024 / arXiv 2310.08864", year: 2024, url: "https://arxiv.org/abs/2310.08864" },
+        { id: "team-octo-2024", title: "Octo: An Open-Source Generalist Robot Policy", authors: "Octo Model Team", venue: "RSS 2024 / arXiv 2405.12213", year: 2024, url: "https://arxiv.org/abs/2405.12213" },
+        { id: "kim-openvla-2024", title: "OpenVLA: An Open-Source Vision-Language-Action Model", authors: "Kim, M. J., Pertsch, K., Karamcheti, S., et al.", venue: "CoRL 2024 / arXiv 2406.09246", year: 2024, url: "https://arxiv.org/abs/2406.09246" },
+        { id: "khazatsky-droid-2024", title: "DROID: A Large-Scale In-the-Wild Robot Manipulation Dataset", authors: "Khazatsky, A., Pertsch, K., Nair, S., et al.", venue: "RSS 2024 / arXiv 2403.12945", year: 2024, url: "https://arxiv.org/abs/2403.12945" },
+      ],
+    },
+  ],
+  faqs: [
+    { question: "Is BridgeData V2 suitable for training production robot policies?", answer: "BridgeData V2 is excellent for pretraining and research but has significant limitations for production deployment. It is collected on a low-cost WidowX 250 arm with approximately 300g maximum payload and 55cm reach -- fundamentally a research platform, not a production arm. The dataset captures only single-camera RGB with no depth, force/torque, or wrist camera data. All manipulated objects are toy-scale and lightweight. For production deployment, teams need domain-specific demonstrations on their target hardware with the full sensor suite their policy requires. The recommended approach is to use BridgeData V2 for pretraining to establish broad manipulation priors, then fine-tune on production-grade data from Claru." },
+    { question: "Can I use BridgeData V2 commercially?", answer: "BridgeData V2 is openly available for research use and is part of the Open X-Embodiment collection. The dataset does not carry explicit commercial-use restrictions, but the practical limitation is more important than the licensing question: data collected on a WidowX 250 with toy objects in lab kitchens differs substantially from what production arms need in terms of kinematics (6-DoF vs. 7-DoF), payload (300g vs. 5-15kg), sensor modalities (single RGB vs. multi-modal), and object properties (toys vs. real products). The licensing allows commercial use, but the domain gap makes it insufficient as a sole data source for production systems." },
+    { question: "How does BridgeData V2 compare to DROID?", answer: "BridgeData V2 and DROID (Khazatsky et al., 2024) are complementary but different in scope. BridgeData V2 offers 60K trajectories on a WidowX 250 (6-DoF, ~$3,500), focused on kitchen manipulation with a single overhead camera. DROID provides 76K demonstrations on Franka Panda (7-DoF, ~$30,000) across 564 unique scenes and 86 tasks, with dual cameras (third-person + wrist) and wrist force/torque sensing. DROID has greater visual diversity and uses a more capable arm with richer sensor data, but both are limited to a single robot platform. For pretraining, combining both datasets through OXE provides broader coverage. For production, Claru collects on your specific deployment hardware, eliminating the embodiment transfer gap entirely." },
+    { question: "What is the best way to combine BridgeData V2 with custom data?", answer: "The most effective approach is pretrain-then-fine-tune. Use BridgeData V2 as part of a broad pretraining mixture alongside other Open X-Embodiment datasets (DROID, RT-1, Fractal, etc.) to learn general manipulation priors -- approach strategies, grasp primitives, object affordances. Then fine-tune on Claru demonstrations collected on your specific robot in your deployment environment. This two-stage approach leverages Bridge's 60K trajectories for broad capability while using targeted commercial data for deployment-specific performance. The Octo and OpenVLA papers both demonstrate that OXE pretraining (which includes BridgeData V2) followed by domain-specific fine-tuning produces substantially better results than either pretraining or fine-tuning alone." },
+    { question: "Why does the WidowX's 6-DoF action space matter?", answer: "Most production arms operate with 7 degrees of freedom, with the 7th DoF providing independent wrist rotation around the approach axis. This extra degree of freedom enables manipulation strategies that are geometrically impossible with 6-DoF: rotating an object in the gripper to achieve a specific orientation, screwing motions, rolling objects along surfaces, and approaching objects from arbitrary angles. Policies trained on BridgeData V2's 6-DoF trajectories never observe these wrist-rotation-dependent strategies, creating a capability gap when transferring to 7-DoF systems. The missing strategies often correspond to the most dexterous and precise manipulation behaviors that production tasks require." },
+    { question: "How much does BridgeData V2 data cost to replicate?", answer: "The BridgeData V2 team reported a collection cost of approximately $2-3 per trajectory using student operators with VR controllers. The hardware setup costs approximately $5,000 (WidowX 250 arm ~$3,500, Meta Quest 2 ~$300, USB camera ~$100, workspace materials ~$1,000). Replicating the full 60K trajectory dataset would cost roughly $120,000-180,000 in operator labor at the reported rate. Claru's commercial data collection operates at different economics because we collect on production hardware with professional teleoperators and multi-modal sensors, but we handle the full collection pipeline -- you do not need to build and maintain your own teleoperation infrastructure." },
+  ],
+  ctaHeading: "Scale from Research to Production",
+  ctaDescription:
+    "Get demonstrations on your production robot, in your deployment environment, with the full sensor suite your policy needs. Talk to our team about complementing your BridgeData V2 pretraining with production-grade data.",
+  relatedGlossaryTerms: ["cross-embodiment-data", "imitation-learning", "rlds", "open-x-embodiment"],
+  relatedGuidePages: ["how-to-build-a-cross-embodiment-dataset", "how-to-evaluate-training-data-quality"],
+  relatedSolutionSlugs: ["vla-training-data"],
+  datasetName: "BridgeData V2",
+  academicProfile: {
+    institution: "UC Berkeley (RAIL Lab)",
+    year: 2023,
+    scale: "60,096 trajectories (50,365 teleoperated + 9,731 autonomous rollouts) across 24 environments, 13 manipulation skills",
+    license: "Open research use",
+    modalities: ["RGB images (single overhead USB camera)", "6-DoF end-effector positions", "Gripper state", "Natural language task instructions"],
+  },
+  limitations: [
+    "WidowX 250 has ~300g payload and 55cm reach -- fundamentally a research arm, not production hardware",
+    "Single overhead RGB camera (Logitech C920) with no depth, force/torque, or wrist camera data",
+    "6-DoF action space does not match the 7-DoF arms common in production (Franka, UR5, Kuka)",
+    "Environments are primarily toy kitchen setups with small-scale, lightweight objects",
+    "No contact-rich manipulation data (insertion, assembly, tool use, compliant grasping)",
+    "Task vocabulary anchored in lightweight tabletop manipulation with maximum ~300g object weight",
+    "Visual diversity limited to lab bench configurations despite 24 environment count",
+    "Static dataset scope -- cannot customize for your specific domain, objects, or environments",
+    "Autonomous rollout subset (9,731 trajectories) contains imperfect executions that add noise to training",
+  ],
+  claruAdvantages: [
+    "Demonstrations on your production robot -- no kinematic or payload mismatch",
+    "Multi-view RGB + calibrated depth + force/torque + tactile sensor coverage",
+    "Real deployment environments: warehouses, factories, kitchens, retail, manufacturing floors",
+    "Production-scale objects at real weights (grams to kilograms) and dimensions",
+    "7-DoF and higher action spaces matching your deployment arm, including wrist rotation strategies",
+    "Contact-rich manipulation data for insertion, assembly, compliant grasping, and tool use",
+    "Commercial license with full IP assignment for production deployment",
+    "Continuous collection that scales with your evolving requirements and new task additions",
+    "Multi-stage quality control with automated kinematic validation and human review",
+  ],
+  keyPapers: [
+    { id: "walke-bridge-2023", title: "BridgeData V2: A Dataset for Robot Learning at Scale", authors: "Walke, H., Black, K., Lee, A., Kim, M. J., et al.", venue: "CoRL 2023 / arXiv 2308.12952", year: 2023, url: "https://arxiv.org/abs/2308.12952" },
+    { id: "ebert-bridge-2021", title: "Bridge Data: Boosting Generalization of Robotic Skills with Cross-Domain Datasets", authors: "Ebert, F., Yang, Y., Schmeckpeper, K., et al.", venue: "RSS 2022 / arXiv 2109.13396", year: 2021, url: "https://arxiv.org/abs/2109.13396" },
+    { id: "oneill-oxe-2024", title: "Open X-Embodiment: Robotic Learning Datasets and RT-X Models", authors: "Open X-Embodiment Collaboration", venue: "ICRA 2024 / arXiv 2310.08864", year: 2024, url: "https://arxiv.org/abs/2310.08864" },
+    { id: "team-octo-2024", title: "Octo: An Open-Source Generalist Robot Policy", authors: "Octo Model Team", venue: "RSS 2024 / arXiv 2405.12213", year: 2024, url: "https://arxiv.org/abs/2405.12213" },
+    { id: "kim-openvla-2024", title: "OpenVLA: An Open-Source Vision-Language-Action Model", authors: "Kim, M. J., Pertsch, K., Karamcheti, S., et al.", venue: "CoRL 2024 / arXiv 2406.09246", year: 2024, url: "https://arxiv.org/abs/2406.09246" },
+    { id: "khazatsky-droid-2024", title: "DROID: A Large-Scale In-the-Wild Robot Manipulation Dataset", authors: "Khazatsky, A., Pertsch, K., Nair, S., et al.", venue: "RSS 2024 / arXiv 2403.12945", year: 2024, url: "https://arxiv.org/abs/2403.12945" },
+  ],
+  claruRelevance:
+    "BridgeData V2 has been instrumental in democratizing robot learning research. Its combination of accessible hardware (~$3,500 WidowX arm), large-scale data (60K trajectories at ~$2-3 per trajectory), and integration with the Open X-Embodiment ecosystem has made it a default pretraining dataset for generalist robot policies like Octo and OpenVLA. The community-driven expansion model it established -- standardizing on affordable hardware and open data formats so multiple labs can contribute compatible data -- is a methodological contribution that extends well beyond the dataset itself. However, the gap between the WidowX 250 and production robot arms is substantial across every dimension that affects policy transfer: payload capacity (300g vs. 5-15kg), reach (55cm vs. 80-130cm), degrees of freedom (6-DoF vs. 7-DoF), position accuracy (2-3mm vs. sub-millimeter), and sensor suite (single RGB vs. multi-modal). Policies pretrained on BridgeData V2 learn useful manipulation primitives -- approach trajectories, basic grasp strategies, object interaction patterns -- but these primitives are calibrated to lightweight toy objects on small tabletops, not to the heavier objects, larger workspaces, and contact-rich tasks that production demands. Claru bridges this gap by collecting teleoperated demonstrations on your actual production hardware, in the environments where your robot will operate, with the full sensor suite your policy requires including depth, force/torque, and tactile feedback. Teams that have validated their architecture using BridgeData V2 can use Claru for the critical fine-tuning phase that adapts broad manipulation priors to deployment-specific requirements. We deliver data in RLDS format compatible with the same Open X-Embodiment training pipelines, making integration straightforward and ensuring your pretrain-then-fine-tune workflow proceeds without format conversion overhead.",
+};
+
+export default data;

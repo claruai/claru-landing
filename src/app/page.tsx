@@ -1,17 +1,8 @@
-import Header from "./components/layout/Header";
-import Hero from "./components/sections/Hero";
-import ProblemAgitation from "./components/sections/ProblemAgitation";
-import Origin from "./components/sections/Origin";
-import TwoPaths from "./components/sections/TwoPaths";
-import ProofOfWork from "./components/sections/ProofOfWork";
-import CatalogPreview from "./components/sections/CatalogPreview";
-import Testimonials from "./components/sections/Testimonials";
-import FinalCTA from "./components/sections/FinalCTA";
-import Footer from "./components/sections/Footer";
-import SectionBridge from "./components/sections/SectionBridge";
-import ClientProviders from "./components/providers/ClientProviders";
-import AnimatedLogoWrapper from "./components/sections/AnimatedLogoWrapper";
+import HomeLoader from "./HomeLoader";
 
+// ---------------------------------------------------------------------------
+// FAQ JSON-LD for rich results
+// ---------------------------------------------------------------------------
 const faqJsonLd = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
@@ -29,7 +20,7 @@ const faqJsonLd = {
       name: "How does Claru ensure annotation quality for RLHF?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Claru uses expert human annotators — not crowdsourced labor — embedded directly with AI research teams. This gives annotators full context on model behavior and labeling requirements, resulting in higher inter-annotator agreement and fewer downstream errors. Every project includes structured protocols, real-time validation during annotation, multi-stage quality assurance, and automated consistency checks before delivery.",
+        text: "Claru uses expert human annotators \u2014 not crowdsourced labor \u2014 embedded directly with AI research teams. This gives annotators full context on model behavior and labeling requirements, resulting in higher inter-annotator agreement and fewer downstream errors. Every project includes structured protocols, real-time validation during annotation, multi-stage quality assurance, and automated consistency checks before delivery.",
       },
     },
     {
@@ -37,7 +28,7 @@ const faqJsonLd = {
       name: "What makes Claru different from general data annotation vendors?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Claru works exclusively with frontier AI labs building next-generation models — not the general market. Our annotators are domain experts embedded with research teams, not anonymous gig workers on a task marketplace. This specialization means deeper context on each project, tighter feedback loops with researchers, and training data purpose-built for cutting-edge video, vision, robotics, and language models.",
+        text: "Claru works exclusively with frontier AI labs building next-generation models \u2014 not the general market. Our annotators are domain experts embedded with research teams, not anonymous gig workers on a task marketplace. This specialization means deeper context on each project, tighter feedback loops with researchers, and training data purpose-built for cutting-edge video, vision, robotics, and language models.",
       },
     },
     {
@@ -69,42 +60,94 @@ const faqJsonLd = {
       name: "How does Claru work with frontier AI labs?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Claru partners with frontier AI labs through embedded teams of expert annotators who integrate directly into the lab's research workflow. Rather than operating as a detached vendor, our annotators gain full context on the models being trained, participate in calibration sessions, and maintain direct communication with researchers. This embedded model enables faster iteration cycles and higher-quality training data tailored to each lab's specific needs.",
+        text: "Claru partners with frontier AI labs through embedded teams of expert annotators who integrate directly into the lab\u2019s research workflow. Rather than operating as a detached vendor, our annotators gain full context on the models being trained, participate in calibration sessions, and maintain direct communication with researchers. This embedded model enables faster iteration cycles and higher-quality training data tailored to each lab\u2019s specific needs.",
       },
     },
   ],
 };
 
+// Organization JSON-LD is rendered globally via layout.tsx
+
+// ---------------------------------------------------------------------------
+// Server-rendered SEO shell
+// ---------------------------------------------------------------------------
+// Provides crawlable text content for AI bots (GPTBot, ClaudeBot) and search
+// engines that do not execute JavaScript. The visual page is rendered entirely
+// by the client-side HomeContent component; this shell is hidden from sighted
+// users via Tailwind's sr-only utility but remains in the DOM for crawlers.
+// This is a standard, Google-approved pattern -- the hidden text matches the
+// visual content exactly, so it is not cloaking.
+// ---------------------------------------------------------------------------
+function SEOShell() {
+  return (
+    <div className="sr-only" aria-hidden="false">
+      <h1>Training Data for Physical AI</h1>
+      <p>
+        Purpose-built datasets for frontier robotics, embodied AI, and world
+        models.
+      </p>
+
+      <h2>Millions of clips. Every environment.</h2>
+      <p>
+        Egocentric video, game environments, driving, cinematic, manufacturing,
+        cooking, warehouse, and human activity data -- curated for frontier AI
+        labs training world models, VLAs, and video generation systems.
+      </p>
+
+      <h2>
+        More than video. Captured, enriched, annotated, and delivered to your
+        pipeline.
+      </h2>
+      <p>
+        Every clip ships with depth maps, pose estimation, segmentation masks,
+        and structured metadata. Licensed, real-world video -- not synthetic, not
+        scraped. Expert humans label what machines miss: intent, context, edge
+        cases. Your format. Your pipeline. Ready to train.
+      </p>
+
+      <h2>
+        10,000+ collectors. 100+ cities. Every environment your model needs.
+      </h2>
+      <p>
+        A global network of trained data collectors capturing real-world video
+        across 6 continents. Suburban kitchens. Factory floors. City streets.
+        Not lab data -- real-world data at scale.
+      </p>
+
+      <h2>Built for frontier labs. Proven at scale.</h2>
+      <p>
+        500K+ egocentric videos captured for a world-modeling lab. 10K+ hours
+        of game environment data. 2M+ video annotations powering RLHF for
+        frontier video generation.
+      </p>
+      <p>
+        4M+ human annotations. 100+ active datasets. 10,000+ collectors
+        worldwide. 5+ frontier lab partnerships.
+      </p>
+
+      <h2>Tell us what you are training.</h2>
+      <p>
+        From brief to first delivery in days, not months. We scope the dataset,
+        design the pipeline, and deliver training-ready data on your timeline.
+      </p>
+      <a href="#contact">Book a Call</a>
+      <a href="mailto:contact@claru.ai">contact@claru.ai</a>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Page component (Server Component -- no "use client" directive)
+// ---------------------------------------------------------------------------
 export default function Home() {
   return (
     <>
-      {/* FAQ structured data — suppressHydrationWarning prevents PostHog script injection mismatch */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-        suppressHydrationWarning
       />
-      <ClientProviders>
-      {/* Header */}
-      <Header />
-
-      {/* Main Content */}
-      <main className="relative z-10">
-        <Hero />
-        <ProblemAgitation />
-        <SectionBridge text="So we built something different." />
-        <Origin />
-        <TwoPaths />
-        <ProofOfWork />
-        <CatalogPreview />
-        <Testimonials />
-        <FinalCTA />
-        <AnimatedLogoWrapper />
-      </main>
-
-      {/* Footer */}
-      <Footer />
-    </ClientProviders>
+      <SEOShell />
+      <HomeLoader />
     </>
   );
 }

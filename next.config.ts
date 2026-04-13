@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   // Exclude large media files from serverless function bundles.
@@ -31,6 +32,39 @@ const nextConfig: NextConfig = {
         destination: "/for-annotators",
         permanent: true,
       },
+      {
+        source: "/v2",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/v2/review",
+        destination: "/",
+        permanent: false,
+      },
+      // GSC indexing error fixes — legacy pillar pages → current pages
+      // /solutions is kept as-is (it's a working SSR listing page)
+      {
+        source: "/data",
+        destination: "/data-catalog",
+        permanent: true,
+      },
+      {
+        source: "/labeling",
+        destination: "/#services",
+        permanent: true,
+      },
+      {
+        source: "/catalog",
+        destination: "/data-catalog",
+        permanent: true,
+      },
+      // Also redirect nested data-catalog paths
+      {
+        source: "/data-catalog/request",
+        destination: "/data-catalog",
+        permanent: true,
+      },
     ];
   },
   async headers() {
@@ -56,6 +90,19 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        source: "/share/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "private, no-store",
+          },
+          {
+            key: "X-Robots-Tag",
+            value: "noindex, nofollow",
+          },
+        ],
+      },
     ];
   },
   images: {
@@ -72,4 +119,12 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+  sourcemaps: {
+    deleteSourcemapsAfterUpload: true,
+  },
+});

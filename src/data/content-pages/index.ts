@@ -31,6 +31,14 @@ import vlaTrainingData from "./vla-training-data";
 import openDatasetsVsCustom from "./open-datasets-vs-custom";
 import crowdsourcedVsExpertRlhf from "./crowdsourced-vs-expert-rlhf";
 import euAiActRedTeaming from "./eu-ai-act-red-teaming";
+import humanoidRobotTrainingData from "./humanoid-robot-training-data";
+import graspingDatasetCommercial from "./grasping-dataset-commercial";
+import kitchenManipulationData from "./kitchen-manipulation-data";
+import warehouseRoboticsData from "./warehouse-robotics-data";
+import multiRobotTrainingData from "./multi-robot-training-data";
+import languageConditionedRobotData from "./language-conditioned-robot-data";
+import depthSensingTrainingData from "./depth-sensing-training-data";
+import safetyCriticalRobotData from "./safety-critical-robot-data";
 
 // ---------------------------------------------------------------------------
 // Page Map — add one entry per page file
@@ -50,6 +58,14 @@ const PAGE_MAP: Record<string, ContentPageData> = {
   "open-datasets-vs-custom": openDatasetsVsCustom,
   "crowdsourced-vs-expert-rlhf": crowdsourcedVsExpertRlhf,
   "eu-ai-act-red-teaming": euAiActRedTeaming,
+  "humanoid-robot-training-data": humanoidRobotTrainingData,
+  "grasping-dataset-commercial": graspingDatasetCommercial,
+  "kitchen-manipulation-data": kitchenManipulationData,
+  "warehouse-robotics-data": warehouseRoboticsData,
+  "multi-robot-training-data": multiRobotTrainingData,
+  "language-conditioned-robot-data": languageConditionedRobotData,
+  "depth-sensing-training-data": depthSensingTrainingData,
+  "safety-critical-robot-data": safetyCriticalRobotData,
 };
 
 // ---------------------------------------------------------------------------
