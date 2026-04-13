@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "crypto";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let _resend: Resend | null = null;
+function getResend() {
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY);
+  return _resend;
+}
 
 function escapeHtml(str: string): string {
   return str
@@ -92,7 +96,7 @@ export async function POST(request: NextRequest) {
     : "";
 
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: `Claru AI <${process.env.RESEND_FROM_EMAIL || "team@claru.ai"}>`,
       to: "contact@claru.ai",
       subject: `Call booked — ${escapeHtml(name)} (${escapeHtml(eventName)})`,
