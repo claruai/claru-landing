@@ -92,7 +92,7 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "~16 files. Check knowledge-graph/INDEX.md 'Supply-Side Subcontractor Targets' table for the full list and ICP scores."
     },
     {
