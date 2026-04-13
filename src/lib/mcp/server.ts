@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -38,6 +39,7 @@ export function createMcpServer(): McpServer {
   registerGrantLeadAccess(server);
   registerRevokeLeadAccess(server);
   registerCreateLeadAuthUser(server);
+  registerPublishShareLink(server);
 
   return server;
 }
@@ -1732,6 +1734,81 @@ function registerCreateLeadAuthUser(server: McpServer) {
             password_set: passwordSet,
             portal_url: `${siteUrl}/portal/login`,
             message: `Auth account ready. Lead can log in with email: ${lead.email} and the temp password.`,
+          }),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// publish_share_link tool
+// ---------------------------------------------------------------------------
+
+function registerPublishShareLink(server: McpServer) {
+  server.tool(
+    "publish_share_link",
+    "Generate a public share link for a dataset so prospects can view curated clips without logging in. Idempotent: returns existing token if one already exists.",
+    {
+      dataset_id: z.string().uuid().describe("Dataset UUID to share"),
+      expires_in_days: z.number().min(1).max(365).default(30).describe("Days until the share link expires (default 30)"),
+    },
+    async ({ dataset_id, expires_in_days }) => {
+      const supabase = createSupabaseAdminClient();
+
+      const { data: dataset, error: fetchErr } = await supabase
+        .from("datasets")
+        .select("id, name, share_token, share_expires_at")
+        .eq("id", dataset_id)
+        .single();
+
+      if (fetchErr || !dataset) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "Dataset not found" }) }],
+        };
+      }
+
+      if (dataset.share_token) {
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://claru.ai";
+        return {
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({
+              share_url: `${siteUrl}/share/${dataset.share_token}`,
+              token: dataset.share_token,
+              dataset_name: dataset.name,
+              expires_at: dataset.share_expires_at,
+              message: `Existing share link for "${dataset.name}"`,
+            }),
+          }],
+        };
+      }
+
+      const token = randomBytes(32).toString("hex");
+      const expiresAt = new Date(Date.now() + expires_in_days * 24 * 60 * 60 * 1000).toISOString();
+
+      const { error: updateErr } = await supabase
+        .from("datasets")
+        .update({ share_token: token, share_expires_at: expiresAt })
+        .eq("id", dataset_id);
+
+      if (updateErr) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: updateErr.message }) }],
+        };
+      }
+
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://claru.ai";
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({
+            share_url: `${siteUrl}/share/${token}`,
+            token,
+            dataset_name: dataset.name,
+            expires_at: expiresAt,
+            message: `Share link created for "${dataset.name}", expires in ${expires_in_days} days`,
           }),
         }],
       };

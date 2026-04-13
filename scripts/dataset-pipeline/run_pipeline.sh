@@ -2,12 +2,17 @@
 set -e
 cd "$(dirname "$0")"
 source .venv/bin/activate
-# Inject API key from .env.local if not already in environment (local dev only)
-if [ -z "$ANTHROPIC_API_KEY" ]; then
-  ENV_FILE="$(dirname "$0")/../../.env.local"
-  if [ -f "$ENV_FILE" ]; then
-    export ANTHROPIC_API_KEY=$(grep '^ANTHROPIC_API_KEY=' "$ENV_FILE" | cut -d= -f2-)
-  fi
+# Inject env vars from .env.local if not already in environment (local dev only)
+ENV_FILE="$(dirname "$0")/../../.env.local"
+if [ -f "$ENV_FILE" ]; then
+  for var in ANTHROPIC_API_KEY SUPABASE_URL NEXT_PUBLIC_SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY REVALIDATION_SECRET; do
+    if [ -z "${!var}" ]; then
+      val=$(grep "^${var}=" "$ENV_FILE" | cut -d= -f2-)
+      if [ -n "$val" ]; then
+        export "$var=$val"
+      fi
+    fi
+  done
 fi
 mkdir -p output
 
@@ -29,6 +34,26 @@ python qa_score.py --input output/enriched_with_social.json
 echo ""
 echo "=== Step 5: Generating report ==="
 python report.py --input output/enriched_with_social.json --output output/dataset_report_v2.md
+
+echo ""
+echo "=== Step 6: Push to Supabase ==="
+if [ "${SKIP_PUSH:-}" = "1" ]; then
+  echo "  Skipped (SKIP_PUSH=1)"
+else
+  python push_to_supabase.py
+fi
+
+echo ""
+echo "=== Step 7: Revalidate ISR pages ==="
+SITE_URL="${SITE_URL:-https://claru.ai}"
+if [ -n "$REVALIDATION_SECRET" ] && [ "${SKIP_PUSH:-}" != "1" ]; then
+  curl -sf -X POST "$SITE_URL/api/revalidate" \
+    -H "Content-Type: application/json" \
+    -H "x-revalidation-secret: $REVALIDATION_SECRET" \
+    -d '{"path": "/datasets"}' && echo "  Revalidated /datasets" || echo "  Warning: revalidation failed"
+else
+  echo "  Skipped (no REVALIDATION_SECRET or SKIP_PUSH=1)"
+fi
 
 echo ""
 echo "=== Pipeline v2 complete ==="
