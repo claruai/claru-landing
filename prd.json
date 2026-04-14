@@ -36,7 +36,7 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "notes": "From GTM-HARDENED-IMPLEMENTATION-SPEC.md Task 3.2. This sits between the copywriter and the QA supervisor in the pipeline. Update gtm/agents.md to include the verifier role."
     },
     {
