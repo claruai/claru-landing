@@ -42,20 +42,31 @@ def main():
     rows = []
     offset = 0
     batch = 1000
-    while True:
-        resp = client.table("oss_datasets").select(
-            "dataset_id, name, description, modalities, robot_embodiments, "
-            "environment_type, task_types, license, data_format, "
-            "extraction_completeness"
-        ).eq("is_active", True).range(offset, offset + batch - 1).execute()
-        rows.extend(resp.data)
-        if len(resp.data) < batch:
-            break
-        offset += batch
+    try:
+        while True:
+            resp = client.table("oss_datasets").select(
+                "dataset_id, name, description, modalities, robot_embodiments, "
+                "environment_type, task_types, license, data_format, "
+                "extraction_completeness"
+            ).eq("is_active", True).range(offset, offset + batch - 1).execute()
+            rows.extend(resp.data)
+            if len(resp.data) < batch:
+                break
+            offset += batch
+    except Exception as e:
+        print(f"WARNING: Supabase query failed: {e}")
+        print("Falling back to full extraction (no existing data)")
+        rows = []
 
+    MIN_COMPLETENESS = 0.4
     existing = []
+    skipped_low = 0
     for row in rows:
         if not row.get("dataset_id"):
+            continue
+        completeness = row.get("extraction_completeness") or 0
+        if completeness < MIN_COMPLETENESS:
+            skipped_low += 1
             continue
         extraction = {
             "name": row.get("name"),
@@ -72,6 +83,8 @@ def main():
             "extraction": extraction,
             "extraction_success": True,
         })
+    if skipped_low:
+        print(f"  Skipped {skipped_low} datasets below {MIN_COMPLETENESS:.0%} completeness (will re-extract)")
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with open(args.output, "w") as f:
