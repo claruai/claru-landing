@@ -34,17 +34,24 @@ jobs:
       - name: Install dependencies
         run: pip install -r scripts/dataset-pipeline/requirements.txt
 
-      - name: Crawl HuggingFace
+      - name: Fetch existing from Supabase
         working-directory: scripts/dataset-pipeline
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           mkdir -p output
-          python crawl_hf.py --limit 300 --output output/hf_robotics_raw_v2.json
+          python fetch_existing.py --output output/existing_from_supabase.json
 
-      - name: Extract metadata
+      - name: Crawl HuggingFace
+        working-directory: scripts/dataset-pipeline
+        run: python crawl_hf.py --limit 500 --output output/hf_robotics_raw_v2.json
+
+      - name: Extract metadata (incremental)
         working-directory: scripts/dataset-pipeline
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python extract_metadata.py --input output/hf_robotics_raw_v2.json --output output/enriched_v2.json
+        run: python extract_metadata.py --input output/hf_robotics_raw_v2.json --output output/enriched_v2.json --existing output/existing_from_supabase.json
 
       - name: Social signals
         working-directory: scripts/dataset-pipeline
