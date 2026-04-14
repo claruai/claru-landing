@@ -4,15 +4,17 @@ import GameCaptureSampleCard from "./GameCaptureSampleCard";
 // Sample definitions — each has an S3 video key and local input JSON
 // ---------------------------------------------------------------------------
 
+const CDN = "https://d301h7ygdmxuux.cloudfront.net";
+
 const SAMPLES = [
   {
     gameTitle: "Red Dead Redemption 2",
-    videoPath: "/remotion-assets/samples/cs-game-capture.mp4",
+    videoPath: `${CDN}/video-game-capture/completed/00117a2e-7775-40b5-9770-acbd8109e46b/ffe0e6d7-e670-4e47-b783-0758c4d0fc60.mp4`,
     inputJsonPath: "/remotion-assets/annotations/cs-game-capture-input.json",
   },
   {
     gameTitle: "PUBG: Battlegrounds",
-    videoPath: "/remotion-assets/samples/game-pubg.mp4",
+    videoPath: `${CDN}/video-game-capture/completed/00164dd0-8a07-4b74-a23a-3b66aaa7f031/b55a50e1-835d-4819-be56-c4a228d5e9b7.mp4`,
     inputJsonPath: "/remotion-assets/annotations/game-pubg-input.json",
   },
 ] as const;
