@@ -17,6 +17,7 @@ import {
   Maximize2,
   Moon,
   Mouse,
+  Search,
   Sun,
   X,
 } from "lucide-react";
@@ -823,12 +824,27 @@ function JsonPanel({ data }: { data: Record<string, unknown> }) {
 
 function ClipCard({
   clip,
+  clipRef,
   onClick,
 }: {
   clip: ShareClip;
   currentUrl: string;
+  clipRef: string;
   onClick: () => void;
 }) {
+  const [refCopied, setRefCopied] = useState(false);
+
+  const handleCopyRef = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      navigator.clipboard.writeText(clipRef).then(() => {
+        setRefCopied(true);
+        setTimeout(() => setRefCopied(false), 1500);
+      }).catch(() => {});
+    },
+    [clipRef]
+  );
+
   return (
     <button
       onClick={onClick}
@@ -880,14 +896,40 @@ function ClipCard({
 
       {/* Card info */}
       <div className="p-3">
-        {clip.filename && (
-          <p
-            className="font-mono text-xs truncate mb-1"
-            style={{ color: "var(--text-primary)" }}
+        <div className="flex items-center gap-2 mb-1">
+          <span
+            role="button"
+            tabIndex={0}
+            onClick={handleCopyRef}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") handleCopyRef(e as unknown as React.MouseEvent);
+            }}
+            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-mono text-[10px] border cursor-pointer transition-colors duration-150 select-none flex-shrink-0"
+            style={{
+              background: refCopied ? "var(--accent-glow)" : "var(--bg-tertiary)",
+              borderColor: refCopied ? "var(--border-accent)" : "var(--border-subtle)",
+              color: refCopied ? "var(--accent-primary)" : "var(--text-muted)",
+            }}
+            title="Click to copy reference ID"
           >
-            {clip.filename}
-          </p>
-        )}
+            {refCopied ? (
+              <>
+                <Check className="w-2.5 h-2.5" />
+                Copied
+              </>
+            ) : (
+              clipRef
+            )}
+          </span>
+          {clip.filename && (
+            <p
+              className="font-mono text-xs truncate"
+              style={{ color: "var(--text-primary)" }}
+            >
+              {clip.filename}
+            </p>
+          )}
+        </div>
         {clip.caption && (
           <p
             className="font-mono text-[11px] line-clamp-2 mb-2"
@@ -923,6 +965,7 @@ function ClipCard({
 function ClipDetailModal({
   clips,
   selectedIndex,
+  clipRef,
   onClose,
   onNavigate,
   clipUrls,
@@ -931,6 +974,7 @@ function ClipDetailModal({
 }: {
   clips: ShareClip[];
   selectedIndex: number;
+  clipRef: string;
   onClose: () => void;
   onNavigate: (index: number) => void;
   clipUrls: Map<string, string>;
@@ -938,6 +982,7 @@ function ClipDetailModal({
   token: string;
 }) {
   const [copied, setCopied] = useState(false);
+  const [refCopied, setRefCopied] = useState(false);
   const backdropRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoError, setVideoError] = useState(false);
@@ -1096,6 +1141,7 @@ function ClipDetailModal({
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setCopied(false);
+    setRefCopied(false);
     setVideoError(false);
   }, [selectedIndex]);
 
@@ -1164,11 +1210,11 @@ function ClipDetailModal({
       {/* Close button */}
       <button
         onClick={onClose}
-        className="absolute top-3 right-3 sm:top-4 sm:right-4 z-[60] w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-sm border transition-colors duration-200"
+        className="absolute top-3 right-3 sm:top-4 sm:right-4 z-[60] w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md border transition-all duration-200 hover:scale-105 hover:bg-white/20"
         style={{
-          background: "rgba(26, 24, 22, 0.8)",
-          borderColor: "var(--border-subtle)",
-          color: "var(--text-muted)",
+          background: "rgba(0, 0, 0, 0.6)",
+          borderColor: "rgba(255, 255, 255, 0.2)",
+          color: "rgba(255, 255, 255, 0.9)",
         }}
         aria-label="Close detail view"
       >
@@ -1182,11 +1228,11 @@ function ClipDetailModal({
             e.stopPropagation();
             onNavigate(selectedIndex - 1);
           }}
-          className="absolute left-1 sm:left-2 md:left-4 top-1/2 -translate-y-1/2 z-[60] w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-sm border transition-colors duration-200"
+          className="absolute left-1 sm:left-2 md:left-4 top-1/2 -translate-y-1/2 z-[60] w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md border transition-all duration-200 hover:scale-105 hover:bg-white/20"
           style={{
-            background: "rgba(26, 24, 22, 0.8)",
-            borderColor: "var(--border-subtle)",
-            color: "var(--text-muted)",
+            background: "rgba(0, 0, 0, 0.6)",
+            borderColor: "rgba(255, 255, 255, 0.2)",
+            color: "rgba(255, 255, 255, 0.9)",
           }}
           aria-label="Previous clip"
         >
@@ -1201,11 +1247,11 @@ function ClipDetailModal({
             e.stopPropagation();
             onNavigate(selectedIndex + 1);
           }}
-          className="absolute right-1 sm:right-2 md:right-4 top-1/2 -translate-y-1/2 z-[60] w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-sm border transition-colors duration-200"
+          className="absolute right-1 sm:right-2 md:right-4 top-1/2 -translate-y-1/2 z-[60] w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md border transition-all duration-200 hover:scale-105 hover:bg-white/20"
           style={{
-            background: "rgba(26, 24, 22, 0.8)",
-            borderColor: "var(--border-subtle)",
-            color: "var(--text-muted)",
+            background: "rgba(0, 0, 0, 0.6)",
+            borderColor: "rgba(255, 255, 255, 0.2)",
+            color: "rgba(255, 255, 255, 0.9)",
           }}
           aria-label="Next clip"
         >
@@ -1263,10 +1309,38 @@ function ClipDetailModal({
                 {"// CLIP DATA"}
               </span>
               <span
-                className="font-mono text-[10px] truncate"
-                style={{ color: "var(--text-muted)" }}
+                role="button"
+                tabIndex={0}
+                onClick={() => {
+                  navigator.clipboard.writeText(clipRef).then(() => {
+                    setRefCopied(true);
+                    setTimeout(() => setRefCopied(false), 1500);
+                  }).catch(() => {});
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    navigator.clipboard.writeText(clipRef).then(() => {
+                      setRefCopied(true);
+                      setTimeout(() => setRefCopied(false), 1500);
+                    }).catch(() => {});
+                  }
+                }}
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-mono text-[10px] border cursor-pointer transition-colors duration-150 select-none flex-shrink-0"
+                style={{
+                  background: refCopied ? "var(--accent-glow)" : "var(--bg-tertiary)",
+                  borderColor: refCopied ? "var(--border-accent)" : "var(--border-subtle)",
+                  color: refCopied ? "var(--accent-primary)" : "var(--text-muted)",
+                }}
+                title="Click to copy reference ID"
               >
-                clip_{String(selectedIndex + 1).padStart(3, "0")}
+                {refCopied ? (
+                  <>
+                    <Check className="w-2.5 h-2.5" />
+                    Copied
+                  </>
+                ) : (
+                  clipRef
+                )}
               </span>
             </div>
             <button
@@ -1362,6 +1436,7 @@ export default function ShareCatalog({
   token,
 }: ShareCatalogProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [clipUrls, setClipUrls] = useState<Map<string, string>>(() => {
     const map = new Map<string, string>();
     for (const c of clips) {
@@ -1369,6 +1444,88 @@ export default function ShareCatalog({
     }
     return map;
   });
+
+  // Build a stable map from clip.id -> 1-indexed reference string
+  const clipRefMap = useMemo(() => {
+    const m = new Map<string, string>();
+    clips.forEach((c, i) => {
+      m.set(c.id, `CLIP-${String(i + 1).padStart(3, "0")}`);
+    });
+    return m;
+  }, [clips]);
+
+  // Client-side search filter
+  const filteredClips = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return clips;
+    return clips.filter((clip) => {
+      const filename = (clip.filename ?? "").toLowerCase();
+      const caption = (clip.caption ?? "").toLowerCase();
+      const environment = String(
+        (clip.metadata as Record<string, unknown> | null)?.environment ?? ""
+      ).toLowerCase();
+      const activities = String(
+        (clip.metadata as Record<string, unknown> | null)?.activities ?? ""
+      ).toLowerCase();
+      return (
+        filename.includes(q) ||
+        caption.includes(q) ||
+        environment.includes(q) ||
+        activities.includes(q)
+      );
+    });
+  }, [clips, searchQuery]);
+
+  // Deep link: on mount, check hash and open matching clip
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash || !hash.startsWith("#clip-")) return;
+    const shortId = hash.slice(6); // strip "#clip-"
+    const idx = clips.findIndex((c) => c.id.startsWith(shortId));
+    if (idx >= 0) {
+      setSelectedIndex(idx);
+    }
+  }, [clips]);
+
+  // Deep link: update hash when modal opens/closes/navigates
+  const openClipModal = useCallback(
+    (index: number) => {
+      setSelectedIndex(index);
+      const clip = clips[index];
+      if (clip) {
+        window.history.replaceState(
+          null,
+          "",
+          `${window.location.pathname}${window.location.search}#clip-${clip.id.slice(0, 8)}`
+        );
+      }
+    },
+    [clips]
+  );
+
+  const closeClipModal = useCallback(() => {
+    setSelectedIndex(null);
+    window.history.replaceState(
+      null,
+      "",
+      window.location.pathname + window.location.search
+    );
+  }, []);
+
+  const navigateClipModal = useCallback(
+    (index: number) => {
+      setSelectedIndex(index);
+      const clip = clips[index];
+      if (clip) {
+        window.history.replaceState(
+          null,
+          "",
+          `${window.location.pathname}${window.location.search}#clip-${clip.id.slice(0, 8)}`
+        );
+      }
+    },
+    [clips]
+  );
 
   // Theme state: default dark, persist to localStorage
   const [isDark, setIsDark] = useState(true);
@@ -1504,9 +1661,55 @@ export default function ShareCatalog({
             className="font-mono text-sm mt-2"
             style={{ color: "var(--text-muted)" }}
           >
-            {clips.length} {clips.length === 1 ? "clip" : "clips"}
+            {searchQuery.trim()
+              ? `${filteredClips.length} of ${clips.length} clips`
+              : `${clips.length} ${clips.length === 1 ? "clip" : "clips"}`}
           </p>
         </div>
+
+        {/* Search bar */}
+        {clips.length > 0 && (
+          <div className="mb-6">
+            <div
+              className="relative max-w-md"
+            >
+              <Search
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+                style={{ color: "var(--text-muted)" }}
+              />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search filename, caption, environment..."
+                className="w-full pl-9 pr-8 py-2 rounded-lg border font-mono text-xs outline-none transition-colors duration-200 focus:ring-1"
+                style={{
+                  background: "var(--bg-secondary)",
+                  borderColor: "var(--border-subtle)",
+                  color: "var(--text-primary)",
+                }}
+                onFocus={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = "var(--border-accent)";
+                  (e.currentTarget as HTMLElement).style.boxShadow = "0 0 0 1px var(--border-accent)";
+                }}
+                onBlur={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = "var(--border-subtle)";
+                  (e.currentTarget as HTMLElement).style.boxShadow = "none";
+                }}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 rounded flex items-center justify-center transition-colors duration-150"
+                  style={{ color: "var(--text-muted)" }}
+                  aria-label="Clear search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Grid */}
         {clips.length === 0 ? (
@@ -1525,16 +1728,36 @@ export default function ShareCatalog({
               No clips available in this catalog.
             </p>
           </div>
+        ) : filteredClips.length === 0 ? (
+          <div
+            className="rounded-xl border p-12 text-center"
+            style={{
+              background: "var(--bg-secondary)",
+              borderColor: "var(--border-subtle)",
+            }}
+          >
+            <Search
+              className="w-10 h-10 mx-auto mb-3"
+              style={{ color: "var(--text-muted)" }}
+            />
+            <p className="font-mono text-sm" style={{ color: "var(--text-muted)" }}>
+              No clips match &ldquo;{searchQuery}&rdquo;
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {clips.map((clip, index) => (
-              <ClipCard
-                key={clip.id}
-                clip={clip}
-                currentUrl={clipUrls.get(clip.id) ?? clip.signedUrl}
-                onClick={() => setSelectedIndex(index)}
-              />
-            ))}
+            {filteredClips.map((clip) => {
+              const globalIndex = clips.indexOf(clip);
+              return (
+                <ClipCard
+                  key={clip.id}
+                  clip={clip}
+                  clipRef={clipRefMap.get(clip.id) ?? `CLIP-${String(globalIndex + 1).padStart(3, "0")}`}
+                  currentUrl={clipUrls.get(clip.id) ?? clip.signedUrl}
+                  onClick={() => openClipModal(globalIndex)}
+                />
+              );
+            })}
           </div>
         )}
 
@@ -1557,8 +1780,9 @@ export default function ShareCatalog({
         <ClipDetailModal
           clips={clips}
           selectedIndex={selectedIndex}
-          onClose={() => setSelectedIndex(null)}
-          onNavigate={setSelectedIndex}
+          clipRef={clipRefMap.get(clips[selectedIndex]?.id ?? "") ?? `CLIP-${String(selectedIndex + 1).padStart(3, "0")}`}
+          onClose={closeClipModal}
+          onNavigate={navigateClipModal}
           clipUrls={clipUrls}
           onRefreshUrls={refreshUrls}
           token={token}
