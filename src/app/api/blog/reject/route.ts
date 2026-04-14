@@ -88,6 +88,21 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Mark the corresponding backlog item as rejected so the pipeline doesn't re-pick it
+  const { data: pipelineRun } = await supabase
+    .from('blog_pipeline_runs')
+    .select('backlog_id')
+    .eq('blog_post_id', id)
+    .limit(1)
+    .single();
+
+  if (pipelineRun?.backlog_id) {
+    await supabase
+      .from('blog_topic_backlog')
+      .update({ status: 'rejected' })
+      .eq('id', pipelineRun.backlog_id);
+  }
+
   if (reason) {
     console.info(
       `[api/blog/reject] Post ${id} rejected. Reason: ${reason}`

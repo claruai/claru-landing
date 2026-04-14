@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { writeFileSync } from 'fs';
-import { join } from 'path';
+import { mkdirSync, writeFileSync } from 'fs';
+import { dirname, join } from 'path';
 import type { VisualDesignerOutput } from './types';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -208,6 +208,7 @@ export async function runVisualDesigner(
 
   // Write to the well-known DynamicVisual.tsx file
   try {
+    mkdirSync(dirname(DYNAMIC_VISUAL_PATH), { recursive: true });
     writeFileSync(DYNAMIC_VISUAL_PATH, code, 'utf-8');
     console.log('[visual-designer] Wrote DynamicVisual.tsx');
   } catch (err) {

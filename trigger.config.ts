@@ -16,12 +16,17 @@ export default defineConfig({
     extensions: [
       ffmpeg({ version: '7' }),
       {
-        name: 'skip-optional-deps',
+        name: 'skip-platform-deps',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onBuildStart(context: any) {
           context.addLayer({
-            id: 'skip-optional-deps',
-            image: { instructions: ['ENV NPM_CONFIG_OMIT=optional'] },
+            id: 'skip-platform-deps',
+            image: {
+              instructions: [
+                'ENV npm_config_force=true',
+                'RUN echo "force=true" > /home/node/.npmrc',
+              ],
+            },
           });
         },
       },
