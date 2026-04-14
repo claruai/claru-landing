@@ -72,7 +72,7 @@
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "This modifies the skill documentation, not application code. The skill at ~/.claude/skills/claru-outbound/SKILL.md is the instruction set for the /claru-outbound slash command. Existing campaigns cannot be retrofitted (Smartlead limitation) — this applies to all NEW campaigns only."
     },
     {
