@@ -1,116 +1,115 @@
 {
   "project": "claru-landing",
-  "branchName": "ralph/shareable-sample-catalog",
-  "description": "Shareable Sample Catalog — public /share/[token] page for leads to view curated clips without auth, plus publish_share_link MCP tool",
+  "branchName": "ralph/gtm-pipeline-infra",
+  "description": "GTM Optimization Tier 2 — Pipeline infrastructure: Attio ID in Smartlead, reply webhook pipeline, campaign_leads table, Smartlead MCP",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Add share columns to datasets table",
-      "description": "As a developer, I need share_token, share_expires_at, share_first_viewed_at, and share_view_count columns on the datasets table so datasets can be made publicly viewable.",
+      "title": "Create reply_events Supabase table",
+      "description": "As the GTM system, I need a durable event store for Smartlead reply webhooks so no reply is lost even if downstream processing fails.",
       "acceptanceCriteria": [
-        "Create migration file supabase/migrations/20260412_share_token.sql",
-        "ALTER TABLE adds share_token (text UNIQUE), share_expires_at (timestamptz), share_first_viewed_at (timestamptz), share_view_count (int NOT NULL DEFAULT 0)",
-        "Partial index on share_token WHERE share_token IS NOT NULL",
+        "Create Supabase migration file supabase/migrations/20260413_reply_events.sql",
+        "Table reply_events with columns: id (uuid PK default gen_random_uuid()), smartlead_message_id (text UNIQUE NOT NULL), campaign_id (text NOT NULL), lead_email (text NOT NULL), attio_record_id (text), reply_body (text), classification (text), confidence (numeric), attio_synced (boolean DEFAULT false), slack_notified (boolean DEFAULT false), created_at (timestamptz DEFAULT now()), processed_at (timestamptz)",
+        "Partial index: CREATE INDEX idx_reply_events_unsynced ON reply_events (attio_synced) WHERE attio_synced = false",
+        "Migration applies successfully via Supabase MCP apply_migration tool",
+        "Verify table exists: SELECT count(*) FROM reply_events returns 0",
         "Typecheck passes"
       ],
       "priority": 1,
       "passes": true,
-      "notes": ""
+      "notes": "Schema from gtm/GTM-HARDENED-IMPLEMENTATION-SPEC.md Task 2.2. The UNIQUE on smartlead_message_id enables idempotent upsert — critical because Smartlead only retries 3 times."
     },
     {
       "id": "US-002",
-      "title": "Add publish_share_link MCP tool",
-      "description": "As an admin using MCP tools, I want to generate a public share link for a dataset so I can send it to prospects.",
+      "title": "Create campaign_leads Supabase table",
+      "description": "As the agent swarm orchestrator, I need a shared blackboard table with atomic claim locking so parallel agents cannot claim the same lead.",
       "acceptanceCriteria": [
-        "Register publish_share_link tool in src/lib/mcp/server.ts following existing tool pattern",
-        "Parameters: dataset_id (uuid, required), expires_in_days (number, default 30)",
-        "Idempotent: if share_token already exists on the dataset, return existing token without regenerating",
-        "If no token exists, generate 64-char hex token via crypto.randomBytes(32).toString('hex')",
-        "Set share_expires_at to now + expires_in_days",
-        "Return JSON with share_url (https://claru.ai/share/[token]), dataset name, and token",
-        "Register the tool in createMcpServer function",
+        "Create Supabase migration file supabase/migrations/20260413_campaign_leads.sql",
+        "Table campaign_leads with columns: id (uuid PK), campaign_id (text NOT NULL), lead_email (text NOT NULL), attio_record_id (text), channel (text NOT NULL CHECK channel IN 'demand','supply'), status (text NOT NULL DEFAULT 'pending'), claimed_by (text), claimed_at (timestamptz), research_output (jsonb), draft_output (jsonb), qa_score (numeric), qa_failures (jsonb DEFAULT '[]'), smartlead_campaign_id (text), smartlead_lead_id (text), error_log (jsonb DEFAULT '[]'), retry_count (int DEFAULT 0), created_at (timestamptz DEFAULT now()), updated_at (timestamptz DEFAULT now())",
+        "UNIQUE constraint on (campaign_id, lead_email)",
+        "Comment in migration documenting the atomic claim pattern: SELECT FOR UPDATE SKIP LOCKED",
+        "Migration applies successfully",
+        "Verify: INSERT a test row with channel='demand', then INSERT same campaign_id+lead_email again — should fail with unique violation",
+        "Verify: INSERT a row with channel='invalid' — should fail with CHECK constraint",
         "Typecheck passes"
       ],
       "priority": 2,
       "passes": true,
-      "notes": ""
+      "notes": "Schema from gtm/GTM-HARDENED-IMPLEMENTATION-SPEC.md Task 2.3. The channel column enforces supply/demand separation (Rule #7). Status state machine: pending → dedup_checked → researching → research_done → writing → draft_done → qa → human_approved → loaded → failed."
     },
     {
       "id": "US-003",
-      "title": "Create share page server component",
-      "description": "As a lead who received a share link, I can open /share/[token] without logging in and see a branded catalog page.",
+      "title": "Create handle-smartlead-reply Supabase Edge Function",
+      "description": "As the GTM system, I need a webhook endpoint that receives Smartlead EMAIL_REPLIED events, persists them durably, classifies replies, and syncs to Attio.",
       "acceptanceCriteria": [
-        "Create src/app/share/[token]/page.tsx as a server component with export const dynamic = 'force-dynamic'",
-        "Query datasets by share_token using admin client with parameterized query (never string interpolation)",
-        "Validate: token found AND (share_expires_at is null OR share_expires_at > now)",
-        "If invalid/expired, render styled 'This link is no longer available' page",
-        "Query clips with explicit column list: id, filename, mime_type, s3_bucket, s3_key, ann_metadata, ai_enrichment_json, ai_caption, tech_duration_seconds, tech_resolution_width, tech_resolution_height, tech_fps — never SELECT *",
-        "Generate CloudFront signed URLs server-side for each clip using existing signer",
-        "Do NOT pass s3_bucket, s3_key, or embedding to the client component",
-        "Atomic view tracking: UPDATE datasets SET share_view_count = share_view_count + 1, share_first_viewed_at = COALESCE(share_first_viewed_at, now()) WHERE share_token = $1",
-        "Get company name via lead_dataset_access JOIN to leads table (LIMIT 1)",
-        "Set Cache-Control: private, no-store header",
-        "Set robots noindex/nofollow meta tags and X-Robots-Tag header",
-        "Set og:title and og:description meta tags for Slack/email link previews",
-        "Pass sanitized clip data to ShareCatalog client component",
+        "Edge Function exists at supabase/functions/handle-smartlead-reply/index.ts",
+        "Accepts POST with Smartlead webhook payload (lead_email, reply body, campaign_id, message_id)",
+        "Step 1: Upsert into reply_events table keyed on smartlead_message_id (idempotent — same message_id = no duplicate)",
+        "Step 2: Classify reply into one of 7 categories (interested, question, objection, ooo, unsubscribe, referral, not_interested) using Claude Haiku via Anthropic SDK",
+        "Step 3: Update reply_events row with classification and confidence score",
+        "Step 4: If attio_record_id is available, create Attio note via REST API with format: '[CATEGORY] reply: [first 200 chars]'",
+        "Step 5: For interested or question categories, send Slack webhook notification with lead_email, company, and classification",
+        "Step 6: Mark attio_synced=true and slack_notified=true after successful delivery",
+        "If Attio API fails, reply_events row is preserved with attio_synced=false for later retry",
+        "Classification prompt must NEVER generate response content — classify and route only (Rule #1)",
+        "Returns 200 on success, 500 on unrecoverable error",
         "Typecheck passes"
       ],
       "priority": 3,
       "passes": true,
-      "notes": "s3_bucket and s3_key are used server-side ONLY for CloudFront URL generation. The client component receives signedUrl instead."
+      "notes": "Smartlead retries failed webhooks only 3 times then drops permanently. The idempotent upsert on smartlead_message_id is the safety net. Attio REST API docs: PATCH /v2/objects/people/records/{id}/notes. Slack webhook URL should come from environment variable SLACK_WEBHOOK_URL. Anthropic API key from ANTHROPIC_API_KEY env var."
     },
     {
       "id": "US-004",
-      "title": "Create ShareCatalog client component",
-      "description": "As a lead viewing the shared catalog, I can see clips in a responsive grid, play videos inline, and expand annotation details.",
+      "title": "Update claru-outbound skill to include attio_record_id in Smartlead loads",
+      "description": "As the outbound orchestrator, I need every lead loaded to Smartlead to carry its Attio record ID so downstream webhook events can be matched back to CRM records without fuzzy matching.",
       "acceptanceCriteria": [
-        "Create src/app/share/[token]/ShareCatalog.tsx as a client component",
-        "Props: clips array (id, filename, signedUrl, caption, metadata, techSpecs), datasetName, companyName, token",
-        "Header: Claru logo + 'Prepared for [Company Name]' + dataset name",
-        "Responsive grid of clip cards (1 col mobile, 2 col tablet, 3 col desktop)",
-        "Each card: video element with poster frame, controlsList='nodownload', plays on click",
-        "Each card: expandable panel showing ann_metadata, ai_enrichment_json, tech specs as formatted JSON",
-        "Video onError handler calls /api/share/[token]/urls to refresh expired signed URLs",
-        "Use existing design system: dark theme (--bg-primary), sage accent (--accent-primary), JetBrains Mono for labels",
-        "Loading skeleton while videos load poster frames",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Read ~/.claude/skills/claru-outbound/SKILL.md and identify the loader/campaign-loading section",
+        "Add a documented requirement: before loading any lead to Smartlead, look up or create the Attio record and store its ID",
+        "Add attio_record_id to the custom_fields specification in the Smartlead lead payload example",
+        "Add a section documenting the dedup check order: Attio search first, if exists use that ID, if not create new record then use new ID",
+        "The attio_record_id field must be populated for every lead — loading without it should be flagged as a violation",
+        "Typecheck passes"
       ],
       "priority": 4,
       "passes": true,
-      "notes": ""
+      "notes": "This modifies the skill documentation, not application code. The skill at ~/.claude/skills/claru-outbound/SKILL.md is the instruction set for the /claru-outbound slash command. Existing campaigns cannot be retrofitted (Smartlead limitation) — this applies to all NEW campaigns only."
     },
     {
       "id": "US-005",
-      "title": "Create signed URL refresh API route",
-      "description": "As a lead with a tab open for >1hr, I need expired CloudFront URLs to refresh automatically when I try to play a video.",
+      "title": "Install Smartlead MCP server in project config",
+      "description": "As an agent operating GTM workflows, I need Smartlead available as an MCP tool so I can list campaigns, get stats, and manage leads without CLI friction.",
       "acceptanceCriteria": [
-        "Create src/app/api/share/[token]/urls/route.ts as a POST route",
-        "Validate share_token same as page (exists, not expired, active)",
-        "Fetch clips for dataset with explicit column list (same as page)",
-        "Generate fresh CloudFront signed URLs",
-        "Return JSON: { clips: [{ id, signedUrl }] }",
-        "Return 404 for invalid/expired tokens",
-        "Set Cache-Control: private, no-store",
+        "Read current .mcp.json to understand existing MCP server configuration",
+        "Add smartlead MCP server entry with command: npx, args: [@smartlead/mcp], env: SMARTLEAD_API_KEY from environment",
+        "The API key must NOT be hardcoded — must reference an environment variable",
+        ".mcp.json is gitignored (verify with: grep '.mcp.json' .gitignore)",
+        "Document the new MCP server in gtm/tools/mcps.md with: server name, what it does, key tools available, any gotchas (rate limit: 60 req/60s, sequences immutable on live campaigns)",
         "Typecheck passes"
       ],
       "priority": 5,
       "passes": true,
-      "notes": ""
+      "notes": "The Smartlead MCP server exposes 116 tools. Key ones: campaign CRUD, lead management, webhook config, analytics. Rate limit is 60 requests per 60 seconds. Important constraint from Rule #7: sequence modification tools must ONLY be used on DRAFTED campaigns, never live ones."
     },
     {
       "id": "US-006",
-      "title": "SEO prevention — robots.txt, sitemap exclusion",
-      "description": "As the site owner, I need share pages completely invisible to search engines and AI crawlers.",
+      "title": "Validation — test reply pipeline end-to-end",
+      "description": "As the GTM system owner, I need to verify the entire reply handling pipeline works: webhook received → event persisted → classified → Attio noted → Slack notified.",
       "acceptanceCriteria": [
-        "Create or update public/robots.txt (or Next.js robots() metadata) with Disallow: /share/",
-        "Update src/app/sitemap.ts to exclude /share/* paths",
-        "Verify: no internal <a href> links point to /share/ from any indexed page",
+        "reply_events table exists and accepts inserts",
+        "campaign_leads table exists with proper constraints (test: unique violation on duplicate, CHECK violation on bad channel)",
+        "Edge Function handle-smartlead-reply is deployed (verify via Supabase dashboard or CLI)",
+        "Simulate a webhook POST to the Edge Function with a test payload — verify reply_events row created",
+        "Verify classification field is populated with one of the 7 valid categories",
+        "If Slack webhook is configured, verify notification arrives for interested category",
+        "Smartlead MCP server entry exists in .mcp.json",
+        "claru-outbound SKILL.md documents attio_record_id requirement",
+        "gtm/tools/mcps.md documents the Smartlead MCP server",
         "Typecheck passes"
       ],
       "priority": 6,
       "passes": true,
-      "notes": "The noindex meta tag and X-Robots-Tag header are already handled in US-003 (page component)."
+      "notes": "This is the QA story. Run all verification steps. The Edge Function can be tested locally with: supabase functions serve handle-smartlead-reply --env-file .env.local, then curl POST to localhost. NOTE: Full e2e test requires ANTHROPIC_API_KEY set in Supabase Edge Function secrets (Dashboard → Settings → Edge Functions). Function is deployed and responding but returns 500 without the key."
     }
   ]
 }
