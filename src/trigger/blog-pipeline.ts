@@ -64,7 +64,7 @@ export const weeklyBlogPipeline = schedules.task({
       if (!result.success) {
         console.warn('[blog-pipeline] Keyword pipeline failed:', result.error);
       } else {
-        console.log(`[blog-pipeline] Keyword done — post ${result.postId}`);
+        console.log(`[blog-pipeline] Keyword done — "${result.title}" (${result.slug})`);
       }
     } catch (err) {
       console.error('[blog-pipeline] Keyword pipeline threw:', err);
@@ -101,7 +101,7 @@ export const weeklyBlogPipeline = schedules.task({
       if (!result.success) {
         console.warn('[blog-pipeline] Timely pipeline failed:', result.error);
       } else {
-        console.log(`[blog-pipeline] Timely done — post ${result.postId}`);
+        console.log(`[blog-pipeline] Timely done — "${result.title}" (${result.slug})`);
       }
     } catch (err) {
       console.error('[blog-pipeline] Timely pipeline threw:', err);
@@ -115,7 +115,7 @@ export const weeklyBlogPipeline = schedules.task({
       if (!result.success) {
         console.warn('[blog-pipeline] Case study pipeline failed:', result.error);
       } else {
-        console.log(`[blog-pipeline] Case study done — post ${result.postId}`);
+        console.log(`[blog-pipeline] Case study done — "${result.title}" (${result.slug})`);
       }
     } catch (err) {
       console.error('[blog-pipeline] Case study pipeline threw:', err);

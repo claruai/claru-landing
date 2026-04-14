@@ -85,6 +85,8 @@ export interface AssemblyInput {
 export interface PipelineResult {
   success: boolean;
   postId?: string;
+  slug?: string;
+  title?: string;
   error?: string;
   runId?: string;
 }

@@ -161,7 +161,7 @@ export async function runPipeline(
       console.error('[orchestrator] Slack notification failed:', notifyErr);
     }
 
-    return { success: true, postId: assemblyResult.postId, runId };
+    return { success: true, postId: assemblyResult.postId, slug: draft.slug, title: draft.title, runId };
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err);
     console.error('[orchestrator] Unexpected error:', errMsg);
