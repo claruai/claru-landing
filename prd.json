@@ -1,153 +1,115 @@
 {
   "project": "claru-landing",
-  "branchName": "ralph/gtm-optimization-tier1",
-  "description": "GTM System Optimization Tier 1 — Knowledge architecture: CLAUDE.md, index.md, log.md, frontmatter on company files, tasks cleanup",
+  "branchName": "ralph/gtm-pipeline-infra",
+  "description": "GTM Optimization Tier 2 — Pipeline infrastructure: Attio ID in Smartlead, reply webhook pipeline, campaign_leads table, Smartlead MCP",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Create gtm/CLAUDE.md auto-loading context file",
-      "description": "As a GTM agent entering the gtm/ directory, I need an auto-loading CLAUDE.md so I get the GTM brain injected without re-orientation every session.",
+      "title": "Create reply_events Supabase table",
+      "description": "As the GTM system, I need a durable event store for Smartlead reply webhooks so no reply is lost even if downstream processing fails.",
       "acceptanceCriteria": [
-        "File exists at gtm/CLAUDE.md",
-        "Under 100 lines total",
-        "Contains inline one-liner versions of all 10 rules from gtm/RULES.md (no hallucinated hooks, no auto-drafting, Attio source of truth, dedup before prospecting, no remote push, supply-side moonvalley only, immutable sequences, copy scoring >=9.5, check both inboxes+sent, founder posture)",
-        "Contains @./index.md import line",
-        "Contains @./pipeline/PIPELINE.md import line",
-        "Contains @./strategy/messaging.md import line",
-        "Contains @./log.md import line",
-        "All @import paths resolve to files that actually exist (verify with ls for each)",
-        "No content beyond: summary, rules, and @imports — everything else lives in indexed files",
+        "Create Supabase migration file supabase/migrations/20260413_reply_events.sql",
+        "Table reply_events with columns: id (uuid PK default gen_random_uuid()), smartlead_message_id (text UNIQUE NOT NULL), campaign_id (text NOT NULL), lead_email (text NOT NULL), attio_record_id (text), reply_body (text), classification (text), confidence (numeric), attio_synced (boolean DEFAULT false), slack_notified (boolean DEFAULT false), created_at (timestamptz DEFAULT now()), processed_at (timestamptz)",
+        "Partial index: CREATE INDEX idx_reply_events_unsynced ON reply_events (attio_synced) WHERE attio_synced = false",
+        "Migration applies successfully via Supabase MCP apply_migration tool",
+        "Verify table exists: SELECT count(*) FROM reply_events returns 0",
         "Typecheck passes"
       ],
       "priority": 1,
       "passes": true,
-      "notes": "Rules numbered 1-10 after PI confidentiality removal. See gtm/GTM-HARDENED-IMPLEMENTATION-SPEC.md Task 1.1 for exact content template."
+      "notes": "Schema from gtm/GTM-HARDENED-IMPLEMENTATION-SPEC.md Task 2.2. The UNIQUE on smartlead_message_id enables idempotent upsert — critical because Smartlead only retries 3 times."
     },
     {
       "id": "US-002",
-      "title": "Create gtm/index.md navigation map",
-      "description": "As a GTM agent, I need a single index file that tells me what every file in gtm/ covers so I can fetch only what I need.",
+      "title": "Create campaign_leads Supabase table",
+      "description": "As the agent swarm orchestrator, I need a shared blackboard table with atomic claim locking so parallel agents cannot claim the same lead.",
       "acceptanceCriteria": [
-        "File exists at gtm/index.md",
-        "Under 60 lines total",
-        "One line per .md file in gtm/ directories, grouped by: Strategy, Playbooks, Pipeline, Campaigns, Contacts, Knowledge Graph, Supply Side, Agent Architecture, Tools, Sessions",
-        "Each entry format: - [filename](relative-path) — description under 150 chars",
-        "Every .md file in gtm/ subdirectories (excluding CLAUDE.md, index.md, log.md, GTM-OPTIMIZATION-PLAN.md, GTM-HARDENED-IMPLEMENTATION-SPEC.md) has an entry",
-        "No broken links — verify each path resolves to an existing file",
-        "Grouped by update frequency: stable then living then active then reference",
+        "Create Supabase migration file supabase/migrations/20260413_campaign_leads.sql",
+        "Table campaign_leads with columns: id (uuid PK), campaign_id (text NOT NULL), lead_email (text NOT NULL), attio_record_id (text), channel (text NOT NULL CHECK channel IN 'demand','supply'), status (text NOT NULL DEFAULT 'pending'), claimed_by (text), claimed_at (timestamptz), research_output (jsonb), draft_output (jsonb), qa_score (numeric), qa_failures (jsonb DEFAULT '[]'), smartlead_campaign_id (text), smartlead_lead_id (text), error_log (jsonb DEFAULT '[]'), retry_count (int DEFAULT 0), created_at (timestamptz DEFAULT now()), updated_at (timestamptz DEFAULT now())",
+        "UNIQUE constraint on (campaign_id, lead_email)",
+        "Comment in migration documenting the atomic claim pattern: SELECT FOR UPDATE SKIP LOCKED",
+        "Migration applies successfully",
+        "Verify: INSERT a test row with channel='demand', then INSERT same campaign_id+lead_email again — should fail with unique violation",
+        "Verify: INSERT a row with channel='invalid' — should fail with CHECK constraint",
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": true,
-      "notes": "Use find gtm/ -name '*.md' -not -path '*/knowledge-graph/companies/*' to enumerate top-level files. Knowledge graph gets one entry pointing to its INDEX.md."
+      "passes": false,
+      "notes": "Schema from gtm/GTM-HARDENED-IMPLEMENTATION-SPEC.md Task 2.3. The channel column enforces supply/demand separation (Rule #7). Status state machine: pending → dedup_checked → researching → research_done → writing → draft_done → qa → human_approved → loaded → failed."
     },
     {
       "id": "US-003",
-      "title": "Create gtm/log.md append-only changelog",
-      "description": "As a GTM agent, I need a changelog of recent state changes so I can catch up on what happened without reading every file.",
+      "title": "Create handle-smartlead-reply Supabase Edge Function",
+      "description": "As the GTM system, I need a webhook endpoint that receives Smartlead EMAIL_REPLIED events, persists them durably, classifies replies, and syncs to Attio.",
       "acceptanceCriteria": [
-        "File exists at gtm/log.md",
-        "Title line: '# GTM Changelog' with comment: '<!-- Newest first. One line per state change. -->'",
-        "Seeded with historical entries from pipeline/PIPELINE.md and pipeline/snapshots/W16-2026-04-13.md",
-        "At least 10 historical entries covering key events: HackerRank to Customer, Troveo to Negotiating, Ropedia NDA, Mirelo call, Rhoda pricing, Supply Wave 1 loaded, Wave 5 loaded, Wave 4 loaded, HackerRank MSA signed",
-        "Newest entry at top, oldest at bottom",
-        "Every entry has absolute date prefix (YYYY-MM-DD format)",
-        "No relative dates (no 'yesterday' or 'last week')",
-        "Under 50 lines for initial seed",
+        "Edge Function exists at supabase/functions/handle-smartlead-reply/index.ts",
+        "Accepts POST with Smartlead webhook payload (lead_email, reply body, campaign_id, message_id)",
+        "Step 1: Upsert into reply_events table keyed on smartlead_message_id (idempotent — same message_id = no duplicate)",
+        "Step 2: Classify reply into one of 7 categories (interested, question, objection, ooo, unsubscribe, referral, not_interested) using Claude Haiku via Anthropic SDK",
+        "Step 3: Update reply_events row with classification and confidence score",
+        "Step 4: If attio_record_id is available, create Attio note via REST API with format: '[CATEGORY] reply: [first 200 chars]'",
+        "Step 5: For interested or question categories, send Slack webhook notification with lead_email, company, and classification",
+        "Step 6: Mark attio_synced=true and slack_notified=true after successful delivery",
+        "If Attio API fails, reply_events row is preserved with attio_synced=false for later retry",
+        "Classification prompt must NEVER generate response content — classify and route only (Rule #1)",
+        "Returns 200 on success, 500 on unrecoverable error",
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": true,
-      "notes": "See gtm/GTM-HARDENED-IMPLEMENTATION-SPEC.md Task 1.3 for seed content."
+      "passes": false,
+      "notes": "Smartlead retries failed webhooks only 3 times then drops permanently. The idempotent upsert on smartlead_message_id is the safety net. Attio REST API docs: PATCH /v2/objects/people/records/{id}/notes. Slack webhook URL should come from environment variable SLACK_WEBHOOK_URL. Anthropic API key from ANTHROPIC_API_KEY env var."
     },
     {
       "id": "US-004",
-      "title": "Add YAML frontmatter to knowledge-graph company files — batch 1 (active deals)",
-      "description": "As a GTM agent, I need frontmatter on active deal company files so I can grep by state, side, stage, and ICP score.",
+      "title": "Update claru-outbound skill to include attio_record_id in Smartlead loads",
+      "description": "As the outbound orchestrator, I need every lead loaded to Smartlead to carry its Attio record ID so downstream webhook events can be matched back to CRM records without fuzzy matching.",
       "acceptanceCriteria": [
-        "All company files listed in knowledge-graph/INDEX.md under 'Active Deals' have YAML frontmatter added",
-        "Frontmatter uses schema: type: company, state: active, side: demand|supply|both, icp_score: 0-100, stage: per pipeline, last_contact: YYYY-MM-DD or blank, last_updated: 2026-04-13",
-        "Active deal companies include at minimum: perceptron-ai, rhoda-ai, getreal-labs, mirelo, decart, hackerrank, troveo, zencastr, introspector, media-shippers, hub-xyz",
-        "side values correctly set per channel: troveo=supply, zencastr=supply, introspector=supply, media-shippers=supply, hub-xyz=supply/both, others=demand",
-        "stage values match pipeline/PIPELINE.md current stages",
-        "Existing file content below the frontmatter closing --- is completely unchanged",
+        "Read ~/.claude/skills/claru-outbound/SKILL.md and identify the loader/campaign-loading section",
+        "Add a documented requirement: before loading any lead to Smartlead, look up or create the Attio record and store its ID",
+        "Add attio_record_id to the custom_fields specification in the Smartlead lead payload example",
+        "Add a section documenting the dedup check order: Attio search first, if exists use that ID, if not create new record then use new ID",
+        "The attio_record_id field must be populated for every lead — loading without it should be flagged as a violation",
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": true,
-      "notes": "Only active deals in this story (~11 files). Read each file, read pipeline/PIPELINE.md for current stage, add frontmatter at top."
+      "passes": false,
+      "notes": "This modifies the skill documentation, not application code. The skill at ~/.claude/skills/claru-outbound/SKILL.md is the instruction set for the /claru-outbound slash command. Existing campaigns cannot be retrofitted (Smartlead limitation) — this applies to all NEW campaigns only."
     },
     {
       "id": "US-005",
-      "title": "Add YAML frontmatter to knowledge-graph company files — batch 2 (supply-side targets)",
-      "description": "As a GTM agent, I need frontmatter on supply-side target files so grep 'side: supply' returns the correct set.",
+      "title": "Install Smartlead MCP server in project config",
+      "description": "As an agent operating GTM workflows, I need Smartlead available as an MCP tool so I can list campaigns, get stats, and manage leads without CLI friction.",
       "acceptanceCriteria": [
-        "All company files listed in knowledge-graph/INDEX.md under 'Supply-Side Subcontractor Targets' have YAML frontmatter",
-        "Supply-side targets include at minimum: mecka-ai, cortex-ai, luel, build-ai, sama, lxt, centific, smartone-ai, objectways, cogito-tech, sigma-ai, alegion, imerit, cloudfactory, ropedia, deepen-ai",
-        "All have side: supply in frontmatter",
-        "state: prospect for most, state: active for any currently in Smartlead campaigns",
-        "icp_score values taken from knowledge-graph/INDEX.md where listed, 0 if not scored",
-        "Existing file content below frontmatter closing --- is completely unchanged",
-        "grep 'side: supply' gtm/knowledge-graph/companies/*.md returns all supply-side targets",
+        "Read current .mcp.json to understand existing MCP server configuration",
+        "Add smartlead MCP server entry with command: npx, args: [@smartlead/mcp], env: SMARTLEAD_API_KEY from environment",
+        "The API key must NOT be hardcoded — must reference an environment variable",
+        ".mcp.json is gitignored (verify with: grep '.mcp.json' .gitignore)",
+        "Document the new MCP server in gtm/tools/mcps.md with: server name, what it does, key tools available, any gotchas (rate limit: 60 req/60s, sequences immutable on live campaigns)",
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": true,
-      "notes": "~16 files. Check knowledge-graph/INDEX.md 'Supply-Side Subcontractor Targets' table for the full list and ICP scores."
+      "passes": false,
+      "notes": "The Smartlead MCP server exposes 116 tools. Key ones: campaign CRUD, lead management, webhook config, analytics. Rate limit is 60 requests per 60 seconds. Important constraint from Rule #7: sequence modification tools must ONLY be used on DRAFTED campaigns, never live ones."
     },
     {
       "id": "US-006",
-      "title": "Add YAML frontmatter to knowledge-graph company files — batch 3 (remaining demand-side)",
-      "description": "As a GTM agent, I need frontmatter on all remaining company files for complete grep coverage across the knowledge graph.",
+      "title": "Validation — test reply pipeline end-to-end",
+      "description": "As the GTM system owner, I need to verify the entire reply handling pipeline works: webhook received → event persisted → classified → Attio noted → Slack notified.",
       "acceptanceCriteria": [
-        "All remaining company files in gtm/knowledge-graph/companies/ that do not already have frontmatter get it added",
-        "Default values: type: company, state: prospect, side: demand, icp_score: 0, stage: researched, last_updated: 2026-04-13",
-        "If file content mentions supply-side or annotation company context, set side: supply instead",
-        "Existing file content below frontmatter closing --- is completely unchanged",
-        "Verify complete coverage: grep -rL '^---' gtm/knowledge-graph/companies/ returns no results (every file has frontmatter)",
+        "reply_events table exists and accepts inserts",
+        "campaign_leads table exists with proper constraints (test: unique violation on duplicate, CHECK violation on bad channel)",
+        "Edge Function handle-smartlead-reply is deployed (verify via Supabase dashboard or CLI)",
+        "Simulate a webhook POST to the Edge Function with a test payload — verify reply_events row created",
+        "Verify classification field is populated with one of the 7 valid categories",
+        "If Slack webhook is configured, verify notification arrives for interested category",
+        "Smartlead MCP server entry exists in .mcp.json",
+        "claru-outbound SKILL.md documents attio_record_id requirement",
+        "gtm/tools/mcps.md documents the Smartlead MCP server",
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": true,
-      "notes": "This is the largest batch (~140+ files). Process alphabetically. Use defaults unless file content clearly indicates otherwise. Speed over precision — scores can be refined later."
-    },
-    {
-      "id": "US-007",
-      "title": "Create tasks/index.md and archive completed wave files",
-      "description": "As a GTM agent, I need the tasks/ folder indexed so I can find active tasks without listing 30+ files.",
-      "acceptanceCriteria": [
-        "Directory tasks/archive/ exists",
-        "Completed wave draft files moved to tasks/archive/: campaign-drafts-v2.md, campaign-drafts-scored.md, supply-side-drafts.md",
-        "tasks/index.md exists with one-line entries for every remaining active task file in tasks/",
-        "Each entry format: - [filename](filename) — description and current status",
-        "No broken references from gtm/ or other files pointing to moved files (grep for moved filenames across the project)",
-        "If any broken refs found in gtm/ files, update the reference to point to tasks/archive/ path",
-        "Typecheck passes"
-      ],
-      "priority": 7,
-      "passes": true,
-      "notes": "Check gtm/playbooks/copy.md which references tasks/campaign-drafts-scored.md and similar. Update those refs after moving."
-    },
-    {
-      "id": "US-008",
-      "title": "Validation pass — verify all Tier 1 files are consistent",
-      "description": "As the GTM system owner, I need a final validation confirming all new files are internally consistent with no broken links.",
-      "acceptanceCriteria": [
-        "gtm/CLAUDE.md exists and is under 100 lines with all @imports resolving to real files",
-        "gtm/index.md exists and is under 60 lines with no broken links (verify each path with ls)",
-        "gtm/log.md exists with newest-first entries and all dates in YYYY-MM-DD format",
-        "Every file in gtm/knowledge-graph/companies/ has YAML frontmatter (grep -rL '^---' returns empty)",
-        "grep 'side: supply' returns only supply-side companies (spot-check 5 results)",
-        "grep 'state: active' returns companies that match pipeline/PIPELINE.md active deals (spot-check 5 results)",
-        "tasks/index.md exists with all entries pointing to real files",
-        "tasks/archive/ contains the moved completed wave files",
-        "No orphaned references to moved files found anywhere in gtm/ directory",
-        "gtm/README.md content is not contradicted by new files (no conflicting navigation instructions)",
-        "Typecheck passes"
-      ],
-      "priority": 8,
-      "passes": true,
-      "notes": "This is the QA story. Run all grep and ls verification commands listed above. Fix any issues found before marking complete."
+      "passes": false,
+      "notes": "This is the QA story. Run all verification steps. The Edge Function can be tested locally with: supabase functions serve handle-smartlead-reply --env-file .env.local, then curl POST to localhost."
     }
   ]
 }
