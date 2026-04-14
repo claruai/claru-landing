@@ -4,8 +4,6 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { generateEmbedding } from "@/lib/embeddings/openai";
 import { getS3SignedUrl } from "@/lib/s3/presigner";
 import { scrubS3Urls } from "@/lib/scrub-s3-urls";
-import { tasks, runs } from "@trigger.dev/sdk/v3";
-import type { analyzeVideo } from "@/trigger/analyze-video";
 import {
   loadSpec,
   listSpecs,
@@ -395,13 +393,15 @@ function registerListSpecsTool(server: McpServer) {
 }
 
 // ---------------------------------------------------------------------------
-// submit_video_analysis -- dispatch async video QA via Trigger.dev
+// submit_video_analysis -- dispatch async video QA via Railway worker
 // ---------------------------------------------------------------------------
+
+const VIDEO_QA_URL = process.env.VIDEO_QA_URL ?? "https://video-qa-production-5372.up.railway.app";
 
 function registerSubmitVideoAnalysis(server: McpServer) {
   server.tool(
     "submit_video_analysis",
-    "Submit a video URL for async QA analysis via Trigger.dev. Downloads the video, runs ffprobe for metadata, extracts frames, and uses Gemini vision to evaluate against a client spec. Returns a job ID to poll with get_analysis_status. Works with any HTTP video URL (S3 signed URLs, Google Drive direct links, etc).",
+    "Submit a video URL for async QA analysis. Downloads the video on a Railway worker, runs ffprobe for metadata, extracts frames, and uses Gemini vision to evaluate against a client spec. Returns a job ID to poll with get_analysis_status. Works with any HTTP video URL (S3 signed URLs, Google Drive direct links, etc).",
     {
       video_url: z.string().url().describe("Direct HTTP URL to the video file (must be downloadable)"),
       spec_name: z.string().default("sieve").describe("Spec name from client_specs table"),
@@ -436,33 +436,35 @@ function registerSubmitVideoAnalysis(server: McpServer) {
       }
 
       try {
-        const handle = await tasks.trigger<typeof analyzeVideo>("analyze-video", {
-          jobId: job.id,
-          videoUrl: video_url,
-          specName: spec_name,
+        const resp = await fetch(`${VIDEO_QA_URL}/analyze`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            job_id: job.id,
+            video_url,
+            spec_name,
+          }),
         });
 
-        await supabase
-          .from("video_analysis_jobs")
-          .update({ trigger_run_id: handle.id })
-          .eq("id", job.id);
+        if (!resp.ok) {
+          throw new Error(`Railway worker returned ${resp.status}: ${await resp.text()}`);
+        }
 
         return {
           content: [{
             type: "text" as const,
             text: JSON.stringify({
               job_id: job.id,
-              trigger_run_id: handle.id,
               status: "pending",
               spec: spec_name,
-              message: "Video analysis job submitted. Poll with get_analysis_status to check progress.",
+              message: "Video analysis job submitted to Railway worker. Poll with get_analysis_status to check progress.",
             }),
           }],
         };
       } catch (e) {
         await supabase
           .from("video_analysis_jobs")
-          .update({ status: "failed", error: e instanceof Error ? e.message : "Trigger dispatch failed" })
+          .update({ status: "failed", error: e instanceof Error ? e.message : "Dispatch failed" })
           .eq("id", job.id);
 
         return {
@@ -530,22 +532,12 @@ function registerGetAnalysisStatus(server: McpServer) {
         };
       }
 
-      let triggerStatus = job.status;
-      if (job.trigger_run_id) {
-        try {
-          const run = await runs.retrieve(job.trigger_run_id);
-          triggerStatus = run.status ?? job.status;
-        } catch {
-          // fallback to DB status
-        }
-      }
-
       return {
         content: [{
           type: "text" as const,
           text: JSON.stringify({
             job_id: job.id,
-            status: triggerStatus,
+            status: job.status,
             spec: job.spec_name,
             message: "Job is still processing. Poll again in a few seconds.",
             created_at: job.created_at,
