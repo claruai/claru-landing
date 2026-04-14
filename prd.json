@@ -110,7 +110,7 @@
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "QA story. Run the banned pattern gate tests, verify all file cross-references, and spot-check playbook content against the hardened spec."
     }
   ]
