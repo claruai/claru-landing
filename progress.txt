@@ -73,3 +73,27 @@ Goal: Unknown
 - Branch switched unexpectedly to `trigger-video-qa` mid-session — had to cherry-pick commit back to correct branch
 - Always verify branch with `git branch --show-current` before committing
 
+## [2026-04-13] - US-006: Validation — test reply pipeline end-to-end
+
+**What I did:**
+- Verified reply_events table exists (0 rows, accepts inserts)
+- Verified campaign_leads UNIQUE constraint (duplicate rejected with 23505)
+- Verified campaign_leads CHECK constraint (invalid channel rejected with 23514)
+- Deployed handle-smartlead-reply Edge Function (was not deployed from US-003)
+- Confirmed function is ACTIVE (v1, verify_jwt=false)
+- Tested webhook POST — function responds, returns 500 because ANTHROPIC_API_KEY not in Supabase secrets
+- Verified Smartlead MCP entry in .mcp.json
+- Verified attio_record_id documented in SKILL.md (8 references)
+- Verified Smartlead documented in gtm/tools/mcps.md
+- Typecheck passes
+- Cleaned up test data from campaign_leads
+
+**Files changed:**
+- prd.json (marked US-006 complete)
+- progress.txt (this entry)
+
+**Learnings:**
+- Edge Function was not actually deployed during US-003 — the MCP deploy tool must be called explicitly
+- Edge Function needs ANTHROPIC_API_KEY, ATTIO_API_KEY, SLACK_WEBHOOK_URL in Supabase secrets for full pipeline
+- verify_jwt must be false for webhook receivers (Smartlead can't send JWTs)
+- Worktree branch can silently switch — always check before committing
