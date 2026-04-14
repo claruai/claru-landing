@@ -870,7 +870,7 @@ function ClipCard({
         <video
           src={clip.signedUrl}
           className="w-full h-full object-cover"
-          preload="metadata"
+          preload="auto"
           muted
           playsInline
         />
@@ -891,6 +891,12 @@ function ClipCard({
               <path d="M8 5v14l11-7z" />
             </svg>
           </div>
+        </div>
+        {/* Mobile gradient caption fallback for iOS Safari cellular */}
+        <div className="absolute inset-0 flex items-end p-3 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none sm:hidden">
+          <span className="text-xs text-white/70 line-clamp-2 font-mono">
+            {clip.caption || clip.filename || "Video clip"}
+          </span>
         </div>
       </div>
 
