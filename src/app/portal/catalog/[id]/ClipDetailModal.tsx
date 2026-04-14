@@ -8,6 +8,7 @@ import { DownloadLink } from "./DownloadLink";
 import { VideoPlayer } from "./VideoPlayer";
 import { DataPanelTabs } from "./DataPanels";
 import type { PanelDescriptor } from "./DataPanels";
+import { stripHiddenKeys } from "@/lib/strip-hidden-keys";
 
 // =============================================================================
 // ClipDetailModal -- Split-view modal: media left, data panels right
@@ -78,8 +79,6 @@ function computeAspectRatio(w: number | null | undefined, h: number | null | und
   const d = gcd(w, h);
   return `${w / d}:${h / d}`;
 }
-
-import { stripHiddenKeys } from "@/lib/strip-hidden-keys";
 
 // ---------------------------------------------------------------------------
 // Component
