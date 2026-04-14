@@ -55,3 +55,21 @@ Goal: Unknown
 - SKILL.md is outside the repo, so no git commit needed for the skill file itself
 - Only prd.json marking needs committing
 
+## [2026-04-13] - US-005: Install Smartlead MCP server in project config
+
+**What I did:**
+- Added smartlead entry to .mcp.json with `@smartlead/mcp` package, env var `SMARTLEAD_API_KEY`
+- API key references `${SMARTLEAD_API_KEY}` — not hardcoded
+- Added comprehensive Smartlead section to `gtm/tools/mcps.md` with key tools table, rate limit, 5 gotchas
+- Added Smartlead to session start checklist in mcps.md
+
+**Files changed:**
+- .mcp.json (gitignored — not committed)
+- gtm/tools/mcps.md
+
+**Learnings:**
+- .mcp.json is gitignored, confirmed with grep
+- SMARTLEAD_API_KEY is empty in .env.local — user needs to fill it in
+- Branch switched unexpectedly to `trigger-video-qa` mid-session — had to cherry-pick commit back to correct branch
+- Always verify branch with `git branch --show-current` before committing
+

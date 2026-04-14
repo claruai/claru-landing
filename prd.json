@@ -88,7 +88,7 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "The Smartlead MCP server exposes 116 tools. Key ones: campaign CRUD, lead management, webhook config, analytics. Rate limit is 60 requests per 60 seconds. Important constraint from Rule #7: sequence modification tools must ONLY be used on DRAFTED campaigns, never live ones."
     },
     {
