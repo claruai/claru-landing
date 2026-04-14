@@ -1,92 +1,81 @@
 # Progress Log
 
-Started: Wed Mar 25 15:25:37 EDT 2026
-Project: Claru Landing V2
+Started: Mon Apr 13 19:49:04 EDT 2026
+Project: claru-landing
 Goal: Unknown
 
 ---
 
-## 2026-03-25 - US-001: Project scaffolding and data population
+## 2026-04-13 - US-001: Create gtm/CLAUDE.md auto-loading context file
 
 **What I did:**
-- Created /v2 route with hydration-safe shell using next/dynamic ssr:false
-- Created 10 section stubs: HeroV2, DataGap, ThreeModes, CatalogShowcase, EnrichmentPipeline, CollectionNetwork, GameCapture, WhyClaru, SocialProofV2, FinalCTAV2
-- Created 4 UI component stubs: Globe, DatasetCard, PipelineNode, EnrichmentOverlay
-- Created datasets.ts with Dataset interface and 6 entries (real counts)
-- Created useReducedMotion (useSyncExternalStore) and useGlobe hooks
-- Added OKLCH CSS custom properties with 0.01 sage chroma neutrals to globals.css
-- Applied dot grid background via .v2-dot-grid class
-- Wrapped V2 page with existing LenisProvider
-- Created placeholder solid-color WebP images via ImageMagick
-- Installed cobe package (shaders already present)
+- Created gtm/CLAUDE.md with 10 inline rules (PI confidentiality excluded) and 4 @imports
+- Created stub gtm/index.md and gtm/log.md so imports resolve
 
 **Files changed:**
-- src/app/v2/page.tsx (dynamic import shell)
-- src/app/v2/V2Content.tsx (all sections composed)
-- src/app/v2/components/sections/*.tsx (10 stubs)
-- src/app/v2/components/ui/*.tsx (4 stubs)
-- src/app/v2/data/datasets.ts
-- src/app/v2/hooks/useReducedMotion.ts
-- src/app/v2/hooks/useGlobe.ts
-- src/app/globals.css (OKLCH V2 section + dot grid)
-- public/images/hero-poster.webp
-- public/images/datasets/*.webp (6 placeholders)
-- package.json (cobe dependency)
+- gtm/CLAUDE.md (new)
+- gtm/index.md (new stub)
+- gtm/log.md (new stub)
 
 **Learnings:**
-- Existing LenisProvider already integrates GSAP ScrollTrigger — reuse it, don't create a new one
-- .next/types/validator.ts can get stale references to deleted routes — rm -rf .next/types fixes it
-- Lint rule catches setState-in-useEffect — use useSyncExternalStore for media queries, next/dynamic ssr:false for hydration guards
-- shaders package exports DotGrid, CRTScreen, Glitch among others from 'shaders/react'
-- useDeviceCapability hook already exists at src/app/hooks/ with prefersReducedMotion — V2 hook is simpler standalone version
-- ImageMagick (magick convert) available on macOS for generating placeholder WebP images
+- PI confidentiality rule (#6 in RULES.md) excluded from CLAUDE.md per spec — sensitive context shouldn't auto-load
+- Stale .next/dev/types/ cache causes false TS errors — delete it before running typecheck
 
-## 2026-03-25 - US-002: Hero section with video background and text scramble
+## 2026-04-13 - US-002: Create gtm/index.md navigation map
 
 **What I did:**
-- Built full HeroV2 with video background, poster fallback, dark gradient overlay
-- Integrated shaders/react DotGrid at low opacity over video for terminal aesthetic
-- Created useTextScramble hook for per-character scramble reveal animation
-- Added headline, subheadline, stats bar, trust signal, and dual CTAs
-- All text animations respect prefers-reduced-motion (instant display, poster-only bg)
+- Populated gtm/index.md with 31 entries across 12 sections, 57 lines total
+- Every .md file in gtm/ (excluding CLAUDE.md, index.md, log.md, optimization plan files) has an entry
 
 **Files changed:**
-- src/app/v2/components/sections/HeroV2.tsx (full implementation)
+- gtm/index.md (populated)
 
 **Learnings:**
-- shaders/react DotGrid must be dynamically imported with ssr:false — it uses WebGL
-- The existing TextScramble component (V1) uses dangerouslySetInnerHTML — V2 version uses plain text state to avoid XSS risk
-- Video sources point to poster.webp as placeholder — will need real .webm/.mp4 videos later
+- macOS grep doesn't support -P flag — use -E or grep -o instead
+- Link verification needs to extract only markdown link targets `](...)`, not all parenthetical text
 
-## 2026-03-25 - US-003 through US-014: All remaining sections
+## 2026-04-13 - US-003: Create gtm/log.md append-only changelog
 
 **What I did:**
-- US-003: DataGap with GSAP ScrollTrigger pin, CRTScreen shader, split layout
-- US-004: ThreeModes 3-column cards with Framer Motion stagger
-- US-005: CatalogShowcase with GSAP stacked pinned cards, CountUp
-- US-006: EnrichmentPipeline with range slider, pipeline nodes, AnimatePresence
-- US-007: CollectionNetwork with COBE globe, arcs, floating labels, environment grid
-- US-008: GameCapture with 4-sec animated toggle, 2x2 enrichment grid
-- US-009: WhyClaru comparison table with animated SVG checkmarks
-- US-010: SocialProofV2 metrics + horizontal scroll testimonials
-- US-011: FinalCTAV2 with reused V1 ContactForm
-- US-012: /catalog page with email gate, expand/collapse, EmailCaptureModal
-- US-013: Responsive audit and fixes (DataGap mobile guard, flex-col stacking)
-- US-014: V2 layout with metadata, OG image, JSON-LD, robots noindex
+- Seeded gtm/log.md with 12 historical entries from pipeline/PIPELINE.md and W16 snapshot
 
-**Key files created:**
-- src/app/v2/layout.tsx (SEO metadata)
-- src/app/v2/V2Content.tsx (section composition)
-- src/app/v2/components/sections/* (10 full implementations)
-- src/app/catalog/page.tsx + layout.tsx
-- public/images/og-v2.webp
+**Files changed:**
+- gtm/log.md (seeded)
+
+## 2026-04-13 - US-004 through US-006: Add YAML frontmatter to knowledge-graph company files
+
+**What I did:**
+- US-004: Added frontmatter to 11 active deal files with type/state/side/stage/attio_id/last_contact/last_updated
+- US-005: Added frontmatter to 16 supply-side target files
+- US-006: Added frontmatter to remaining 170 company files via Python script
+
+**Files changed:**
+- 197 files in gtm/knowledge-graph/companies/
 
 **Learnings:**
-- COBE v2 removed onRender callback — use globe.update() in RAF loop instead
-- COBE v2 has native arc support (from/to with arcColor, arcWidth, arcHeight)
-- GSAP ScrollTrigger pin must be guarded on mobile (check window.innerWidth)
-- Framer Motion whileInView + viewport: { once: true } is cleaner than IntersectionObserver for simple animations
-- AnimatePresence mode="wait" for toggle animations (GameCapture, EnrichmentPipeline)
-- useSyncExternalStore is the lint-clean way to read media queries in React
-- next/dynamic with ssr:false is the lint-clean way to do hydration guards (vs useState+useEffect)
+- Edit tool requires Read tool to be called first on each file — use Bash+Python for batch operations
+- Existing frontmatter had relationship/email_status/tags fields — new fields added alongside, existing preserved
+- decart company file is `decart-ai.md` not `decart.md` — always verify actual filenames
+- Python script approach most efficient for 170+ file batch updates
+
+## 2026-04-13 - US-007: Create tasks/index.md and archive completed wave files
+
+**What I did:**
+- Moved 3 completed files to tasks/archive/
+- Created tasks/index.md with 50 entries across 4 sections
+- Updated 2 broken references in gtm/supply-side/partners.md and gtm/playbooks/copy.md
+
+**Files changed:**
+- tasks/archive/campaign-drafts-v2.md (moved)
+- tasks/archive/campaign-drafts-scored.md (moved)
+- tasks/archive/supply-side-drafts.md (moved)
+- tasks/index.md (new)
+- gtm/supply-side/partners.md (ref fix)
+- gtm/playbooks/copy.md (ref fix)
+
+## 2026-04-13 - US-008: Validation pass
+
+**What I did:**
+- Ran all 11 acceptance criteria checks — all pass
+- 0 TS errors, 0 broken links, 0 orphaned references, 197/197 company files with frontmatter
 
