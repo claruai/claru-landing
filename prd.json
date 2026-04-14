@@ -56,7 +56,7 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "Smartlead retries failed webhooks only 3 times then drops permanently. The idempotent upsert on smartlead_message_id is the safety net. Attio REST API docs: PATCH /v2/objects/people/records/{id}/notes. Slack webhook URL should come from environment variable SLACK_WEBHOOK_URL. Anthropic API key from ANTHROPIC_API_KEY env var."
     },
     {
