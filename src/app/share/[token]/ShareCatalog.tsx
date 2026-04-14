@@ -9,7 +9,7 @@ import {
   Check,
   Film,
   FileJson,
-  Bot,
+  Eye,
   Cpu,
   Gamepad2,
   Keyboard,
@@ -340,7 +340,7 @@ function EnrichmentPanel({ data }: { data: Record<string, unknown> }) {
             className="block text-[10px] font-mono uppercase tracking-wider mb-1.5"
             style={{ color: "var(--accent-primary)" }}
           >
-            Additional AI Data
+            Additional Data
           </span>
           <pre
             className="font-mono text-[11px] whitespace-pre-wrap break-all max-h-60 overflow-y-auto rounded-md p-3 border"
@@ -1065,8 +1065,8 @@ function ClipDetailModal({
     if (clip.enrichment && Object.keys(clip.enrichment).length > 0) {
       result.push({
         type: "enrichment",
-        label: "Enrichment",
-        icon: Bot,
+        label: "Scene",
+        icon: Eye,
         data: clip.enrichment,
       });
     }
