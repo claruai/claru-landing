@@ -34,7 +34,7 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "notes": "Schema from gtm/GTM-HARDENED-IMPLEMENTATION-SPEC.md Task 2.3. The channel column enforces supply/demand separation (Rule #7). Status state machine: pending → dedup_checked → researching → research_done → writing → draft_done → qa → human_approved → loaded → failed."
     },
     {
