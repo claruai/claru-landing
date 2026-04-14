@@ -13,6 +13,7 @@ import type { Dataset, DatasetCategory, Clip } from "@/types/data-catalog";
 import { SampleGallery } from "./SampleGallery";
 import { DatasetViewTracker } from "@/app/components/portal/DatasetViewTracker";
 import { scrubS3Urls } from "@/lib/scrub-s3-urls";
+import { stripHiddenKeys } from "@/lib/strip-hidden-keys";
 
 // =============================================================================
 // Dataset Detail Page (Server Component)
@@ -36,32 +37,6 @@ function formatDatasetType(type: string): string {
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
-}
-
-/** Keys to strip entirely from metadata before sending to portal clients. */
-const PORTAL_HIDDEN_KEYS = new Set([
-  "userId", "reviewerId", "payoutId", "amount", "paymentStatus",
-  "paymentDate", "cost", "browserMetadata", "rejectionReason",
-  "rejectionCount", "rejectedAt", "isTestTemplate", "annotationIndex",
-  "source_bucket", "source_storage_key", "source_url", "delivery", "tranche",
-  "annotationCost", "reviewCost", "projectGuideLink", "slackChannel",
-  // Hide internal AI fields from portal clients
-  "ai_enrichment_source",
-]);
-
-/** Recursively strip hidden keys from a value. */
-function stripHiddenKeys(value: unknown, key?: string): unknown {
-  if (key && PORTAL_HIDDEN_KEYS.has(key)) return undefined;
-  if (Array.isArray(value)) return value.map((v) => stripHiddenKeys(v));
-  if (value !== null && typeof value === "object") {
-    const result: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
-      const stripped = stripHiddenKeys(v, k);
-      if (stripped !== undefined) result[k] = stripped;
-    }
-    return result;
-  }
-  return value;
 }
 
 // ---------------------------------------------------------------------------

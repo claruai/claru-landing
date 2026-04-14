@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getS3SignedUrl } from "@/lib/s3/presigner";
+import { stripHiddenKeys } from "@/lib/strip-hidden-keys";
+import { scrubS3Urls } from "@/lib/scrub-s3-urls";
 
 const TOKEN_RE = /^[a-f0-9]{64}$/;
 
@@ -71,7 +73,8 @@ export async function GET(
     );
   }
 
-  const data = await res.json();
+  const raw = await res.json();
+  const data = scrubS3Urls(stripHiddenKeys(raw));
 
   return NextResponse.json(data, {
     headers: { "Cache-Control": "private, max-age=300, no-transform" },

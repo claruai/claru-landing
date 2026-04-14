@@ -43,7 +43,7 @@ const SENSITIVE_KEYS = new Set([
   "userId", "reviewerId", "payoutId", "amount", "paymentStatus",
   "paymentDate", "cost", "browserMetadata", "rejectionReason",
   "rejectionCount", "rejectedAt", "isTestTemplate", "annotationIndex",
-  "source_bucket", "source_torage_key", "source_url", "delivery", "tranche",
+  "source_bucket", "source_storage_key", "source_url", "delivery", "tranche",
 ]);
 const SENSITIVE_PROJECT_KEYS = new Set([
   "annotationCost", "annotationCostType", "reviewCost", "isCompleted",

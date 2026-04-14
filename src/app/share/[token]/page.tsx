@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getS3SignedUrl } from "@/lib/s3/presigner";
 import { scrubS3Urls } from "@/lib/scrub-s3-urls";
+import { stripHiddenKeys } from "@/lib/strip-hidden-keys";
 import ShareCatalog, { type ShareClip } from "./ShareCatalog";
 
 interface SharePageProps {
@@ -157,11 +158,11 @@ export default async function SharePage({ params }: SharePageProps) {
         signedUrl,
         hasAnnotation: !!clip.ann_annotation_key,
         caption: clip.ai_caption,
-        metadata: scrubS3Urls(clip.ann_metadata) as Record<
+        metadata: scrubS3Urls(stripHiddenKeys(clip.ann_metadata)) as Record<
           string,
           unknown
         > | null,
-        enrichment: scrubS3Urls(clip.ai_enrichment_json) as Record<
+        enrichment: scrubS3Urls(stripHiddenKeys(clip.ai_enrichment_json)) as Record<
           string,
           unknown
         > | null,
