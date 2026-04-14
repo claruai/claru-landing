@@ -12,6 +12,9 @@
 - [playbooks/enrichment.md](playbooks/enrichment.md) — Deep prospect research before copy
 - [playbooks/anti-accusatory-openers.md](playbooks/anti-accusatory-openers.md) — Observable signals only, never declare gaps
 - [playbooks/clip-curation.md](playbooks/clip-curation.md) — 7-step sample pack pipeline
+- [playbooks/research-fact-sheet-schema.md](playbooks/research-fact-sheet-schema.md) — JSON schema for research agent output
+- [playbooks/verifier-agent.md](playbooks/verifier-agent.md) — 6-check draft verifier (hallucination, signal, channel, copy, posture, dedup)
+- [playbooks/reply-classifier.md](playbooks/reply-classifier.md) — 7-category reply classification prompt + test suite
 
 ## Pipeline (active — update every sweep)
 - [pipeline/PIPELINE.md](pipeline/PIPELINE.md) — Living pipeline state, ~24 deals tracked
@@ -34,7 +37,7 @@
 - [supply-side/partners.md](supply-side/partners.md) — Active supply pipeline + India workforce
 
 ## Agent Architecture
-- [agents.md](agents.md) — Swarm design: prospector, conflict, copywriter, QA, loader
+- [agents.md](agents.md) — Full pipeline: prospect, conflict, copy, banned gate, verify, QA, reply classify, load
 
 ## Tools
 - [tools/README.md](tools/README.md) — Tool overview + quick start
