@@ -73,7 +73,13 @@ def extract_metadata(client: anthropic.Anthropic, card_text: str) -> dict | None
             lines = [line for line in lines if not line.strip().startswith("```")]
             raw = "\n".join(lines)
 
-        return json.loads(raw)
+        parsed = json.loads(raw)
+        if isinstance(parsed, list):
+            parsed = parsed[0] if parsed else None
+        if not isinstance(parsed, dict):
+            print(f"    Unexpected response type: {type(parsed).__name__}")
+            return None
+        return parsed
     except json.JSONDecodeError as e:
         print(f"    JSON parse error: {e}")
         return None
