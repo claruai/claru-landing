@@ -55,7 +55,7 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "From GTM-HARDENED-IMPLEMENTATION-SPEC.md Task 3.3. The Edge Function already uses a simple classification prompt — this creates the canonical reference version with test cases."
     },
     {
