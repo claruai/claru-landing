@@ -73,7 +73,7 @@
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "From GTM-HARDENED-IMPLEMENTATION-SPEC.md Task 4.1. This runs BEFORE the LLM adversarial scoring to save tokens on obviously bad copy. Python preferred since the outbound skill already uses Python scripts."
     },
     {
