@@ -111,6 +111,19 @@ export async function runAssembler(input: AssemblyInput): Promise<{ postId: stri
     }
   }
 
+  // Skip if a post with this slug already exists (any status)
+  const { data: existing } = await supabase
+    .from('blog_posts')
+    .select('id, status')
+    .eq('slug', draft.slug)
+    .limit(1)
+    .single();
+
+  if (existing) {
+    console.log(`[assembler] Slug "${draft.slug}" already exists (status: ${existing.status}) — skipping insert`);
+    return { postId: existing.id as string };
+  }
+
   // Insert to blog_posts
   const { data, error } = await supabase
     .from('blog_posts')
