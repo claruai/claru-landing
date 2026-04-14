@@ -854,16 +854,10 @@ function ClipCard({
         <video
           src={clip.signedUrl}
           className="w-full h-full object-cover"
-          preload="auto"
+          preload="metadata"
           muted
           playsInline
         />
-        {/* Fallback for mobile Safari which doesn't preload video metadata on cellular */}
-        <div className="absolute inset-0 flex items-end p-3 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none sm:hidden">
-          <span className="text-xs text-white/70 line-clamp-2 font-mono">
-            {clip.caption || clip.filename || "Video clip"}
-          </span>
-        </div>
         {/* Play icon overlay */}
         <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <div
