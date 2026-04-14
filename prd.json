@@ -91,7 +91,7 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "This is the keystone story that ties Tiers 1-3 together. agents.md becomes the single reference for how the entire agent sales team operates."
     },
     {
