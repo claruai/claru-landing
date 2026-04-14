@@ -44,7 +44,7 @@ def main():
     batch = 1000
     while True:
         resp = client.table("oss_datasets").select(
-            "hf_id, name, description, modalities, robot_embodiments, "
+            "dataset_id, name, description, modalities, robot_embodiments, "
             "environment_type, task_types, license, data_format, "
             "extraction_completeness"
         ).eq("is_active", True).range(offset, offset + batch - 1).execute()
@@ -55,7 +55,7 @@ def main():
 
     existing = []
     for row in rows:
-        if not row.get("hf_id"):
+        if not row.get("dataset_id"):
             continue
         extraction = {
             "name": row.get("name"),
@@ -68,7 +68,7 @@ def main():
             "data_format": row.get("data_format"),
         }
         existing.append({
-            "dataset_id": row["hf_id"],
+            "dataset_id": row["dataset_id"],
             "extraction": extraction,
             "extraction_success": True,
         })
