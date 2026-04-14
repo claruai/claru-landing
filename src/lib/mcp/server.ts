@@ -8,6 +8,8 @@ import { scrubS3Urls } from "@/lib/scrub-s3-urls";
 import type { AgentContext } from "@/lib/enrichment/types";
 import { getAllCaseStudies, getCaseStudyBySlug } from "@/lib/case-studies";
 import { GoogleGenAI } from "@google/genai";
+import { tasks, runs } from "@trigger.dev/sdk/v3";
+import type { analyzeVideo } from "@/trigger/analyze-video";
 
 // ---------------------------------------------------------------------------
 // Client Spec system — reusable QA specs for different customers
@@ -95,6 +97,8 @@ export function createMcpServer(): McpServer {
   registerFindClipsForSpec(server);
   registerRegisterSpec(server);
   registerListSpecs(server);
+  registerSubmitVideoAnalysis(server);
+  registerGetAnalysisStatus(server);
 
   return server;
 }
@@ -2343,6 +2347,168 @@ function registerListSpecs(server: McpServer) {
         content: [{
           type: "text" as const,
           text: JSON.stringify({ specs: data ?? [], count: data?.length ?? 0 }),
+        }],
+      };
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// submit_video_analysis — dispatch async video QA via Trigger.dev
+// ---------------------------------------------------------------------------
+
+function registerSubmitVideoAnalysis(server: McpServer) {
+  server.tool(
+    "submit_video_analysis",
+    "Submit a video URL for async QA analysis via Trigger.dev. Downloads the video, runs ffprobe for metadata, extracts frames, and uses Gemini vision to evaluate against a client spec. Returns a job ID to poll with get_analysis_status. Works with any HTTP video URL (S3 signed URLs, Google Drive direct links, etc).",
+    {
+      video_url: z.string().url().describe("Direct HTTP URL to the video file (must be downloadable)"),
+      spec_name: z.string().default("sieve").describe("Spec name from client_specs table"),
+      clip_id: z.string().uuid().optional().describe("Optional: link results to an existing clip record"),
+    },
+    async ({ video_url, spec_name, clip_id }) => {
+      const spec = await loadSpec(spec_name);
+      if (!spec) {
+        const available = await listSpecs();
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: `Unknown spec: ${spec_name}. Available: ${available.map((s) => s.name).join(", ")}` }) }],
+        };
+      }
+
+      const supabase = createSupabaseAdminClient();
+
+      const { data: job, error: insertErr } = await supabase
+        .from("video_analysis_jobs")
+        .insert({
+          video_url,
+          spec_name,
+          clip_id: clip_id ?? null,
+          status: "pending",
+        })
+        .select("id")
+        .single();
+
+      if (insertErr || !job) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: insertErr?.message ?? "Failed to create job" }) }],
+        };
+      }
+
+      try {
+        const handle = await tasks.trigger<typeof analyzeVideo>("analyze-video", {
+          jobId: job.id,
+          videoUrl: video_url,
+          specName: spec_name,
+        });
+
+        await supabase
+          .from("video_analysis_jobs")
+          .update({ trigger_run_id: handle.id })
+          .eq("id", job.id);
+
+        return {
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({
+              job_id: job.id,
+              trigger_run_id: handle.id,
+              status: "pending",
+              spec: spec_name,
+              message: "Video analysis job submitted. Poll with get_analysis_status to check progress.",
+            }),
+          }],
+        };
+      } catch (e) {
+        await supabase
+          .from("video_analysis_jobs")
+          .update({ status: "failed", error: e instanceof Error ? e.message : "Trigger dispatch failed" })
+          .eq("id", job.id);
+
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: `Failed to dispatch: ${e instanceof Error ? e.message : "unknown"}`, job_id: job.id }) }],
+        };
+      }
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// get_analysis_status — poll async video QA job results
+// ---------------------------------------------------------------------------
+
+function registerGetAnalysisStatus(server: McpServer) {
+  server.tool(
+    "get_analysis_status",
+    "Check the status and results of an async video analysis job. Returns pending/running/completed/failed status. When completed, includes full QA results with technical metadata, content analysis, and pass/fail verdict.",
+    {
+      job_id: z.string().uuid().describe("Job ID returned by submit_video_analysis"),
+    },
+    async ({ job_id }) => {
+      const supabase = createSupabaseAdminClient();
+
+      const { data: job, error } = await supabase
+        .from("video_analysis_jobs")
+        .select("*")
+        .eq("id", job_id)
+        .single();
+
+      if (error || !job) {
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify({ error: "Job not found" }) }],
+        };
+      }
+
+      if (job.status === "completed") {
+        return {
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({
+              job_id: job.id,
+              status: "completed",
+              spec: job.spec_name,
+              result: job.overall_result,
+              technical_metadata: job.technical_metadata,
+              content_analysis: job.content_analysis,
+              completed_at: job.completed_at,
+            }),
+          }],
+        };
+      }
+
+      if (job.status === "failed") {
+        return {
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({
+              job_id: job.id,
+              status: "failed",
+              error: job.error,
+              spec: job.spec_name,
+            }),
+          }],
+        };
+      }
+
+      let triggerStatus = job.status;
+      if (job.trigger_run_id) {
+        try {
+          const run = await runs.retrieve(job.trigger_run_id);
+          triggerStatus = run.status ?? job.status;
+        } catch {
+          // fallback to DB status
+        }
+      }
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({
+            job_id: job.id,
+            status: triggerStatus,
+            spec: job.spec_name,
+            message: "Job is still processing. Poll again in a few seconds.",
+            created_at: job.created_at,
+          }),
         }],
       };
     },
