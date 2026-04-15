@@ -62,7 +62,7 @@ export default function DigestSubscribeForm() {
               Physical AI Dataset Radar
             </h3>
             <p className="mt-0.5 text-sm text-white/50">
-              The 5 most notable new robotics datasets every Monday.
+              Top new datasets for physical AI, robotics, and vision models — every Monday.
             </p>
           </div>
 
