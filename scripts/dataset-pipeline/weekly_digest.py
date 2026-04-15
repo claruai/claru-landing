@@ -330,7 +330,9 @@ def send_broadcast(subject: str, html: str) -> dict:
             "name": f"Dataset Radar — {subject}",
         },
     )
-    create_resp.raise_for_status()
+    if not create_resp.ok:
+        print(f"  Broadcast create failed ({create_resp.status_code}): {create_resp.text}")
+        create_resp.raise_for_status()
     broadcast = create_resp.json()
     broadcast_id = broadcast["id"]
     print(f"  Created broadcast {broadcast_id}")
@@ -340,7 +342,9 @@ def send_broadcast(subject: str, html: str) -> dict:
         f"{RESEND_BASE}/broadcasts/{broadcast_id}/send",
         headers=headers,
     )
-    send_resp.raise_for_status()
+    if not send_resp.ok:
+        print(f"  Broadcast send failed ({send_resp.status_code}): {send_resp.text}")
+        send_resp.raise_for_status()
     print(f"  Sent broadcast {broadcast_id}")
 
     return {"broadcast_id": broadcast_id, "status": "sent"}
