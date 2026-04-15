@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Header from "../components/layout/Header";
 import Footer from "../components/sections/Footer";
-import { FileText, Shield, Lock, Users, Briefcase } from "lucide-react";
+import { FileText, Shield, Lock, Users, Briefcase, Camera } from "lucide-react";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -59,6 +59,14 @@ const legalDocs = [
       "Master services agreement for annotators and service providers on the Claru AI platform.",
     icon: Briefcase,
     updated: "March 2026",
+  },
+  {
+    href: "/image-submission-terms",
+    title: "Image Submission & Likeness Release Terms",
+    description:
+      "Terms governing image uploads, likeness rights, consent requirements, and indemnification for submitted content.",
+    icon: Camera,
+    updated: "April 2026",
   },
 ];
 
