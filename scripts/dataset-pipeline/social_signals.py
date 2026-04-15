@@ -262,6 +262,13 @@ def get_hf_discussions(dataset: dict) -> dict:
         else:
             discussions = body.get("discussions", [])
 
+        # Filter out bot-generated discussions (e.g. "[bot] Conversion to Parquet")
+        discussions = [
+            d for d in discussions
+            if not (d.get("title") or "").strip().lower().startswith("[bot]")
+            and not (d.get("author") or "").endswith("-bot")
+        ]
+
         count = len(discussions)
         # Top 3 by upvotes
         top = sorted(discussions, key=lambda d: d.get("upvotes", 0), reverse=True)[:3]
