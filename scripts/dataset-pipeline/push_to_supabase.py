@@ -130,6 +130,7 @@ def transform_record(raw: dict) -> dict:
         "hf_downloads": raw.get("downloads", 0),
         "hf_likes": raw.get("likes", 0),
         "hf_last_modified": hf_last_modified,
+        "hf_created_at": raw.get("created_at"),
         "hf_tags": safe_array(raw.get("tags")),
         "is_active": True,
         "is_gated": False,

@@ -4,6 +4,17 @@ import Link from "next/link";
 import type { OSSDataset } from "@/types/oss-datasets";
 import { formatCount } from "@/app/lib/utils";
 
+function formatDatasetDate(dataset: OSSDataset): string | null {
+  const raw = dataset.hf_created_at ?? dataset.hf_last_modified;
+  if (raw) {
+    const d = new Date(raw);
+    if (!isNaN(d.getTime()))
+      return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+  }
+  if (dataset.year_released) return String(dataset.year_released);
+  return null;
+}
+
 interface OSSDatasetCardProps {
   dataset: OSSDataset;
   onCompareToggle?: (slug: string) => void;
@@ -92,7 +103,7 @@ export default function OSSDatasetCard({
           style={{ fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)" }}
         >
           <span title="HuggingFace downloads">{formatCount(dataset.hf_downloads)} downloads</span>
-          {dataset.year_released && <span>{dataset.year_released}</span>}
+          {(() => { const d = formatDatasetDate(dataset); return d ? <span>{d}</span> : null; })()}
           {dataset.license && (
             <span className="rounded border border-white/10 px-1.5 py-0.5 text-white/50">
               {dataset.license}

@@ -10,7 +10,7 @@ const COLUMNS = `
   modalities, robot_embodiments, action_space, environment_type,
   task_types, num_episodes, total_hours, license, annotation_types,
   data_format, year_released, paper_url, paper_title,
-  physical_ai_relevance, hf_downloads, hf_likes, hf_last_modified,
+  physical_ai_relevance, hf_downloads, hf_likes, hf_last_modified, hf_created_at,
   hf_tags, citation_count, citing_papers_sample,
   hf_discussion_count, hf_discussions_sample, hf_downloads_rank,
   reddit_posts, hn_posts,
@@ -246,12 +246,10 @@ export function filterAndSortDatasets(
       break;
     case "recent":
       result.sort((a, b) => {
-        const ya = a.year_released ?? 0;
-        const yb = b.year_released ?? 0;
-        if (yb !== ya) return yb - ya;
-        const da = a.hf_last_modified ?? "";
-        const db = b.hf_last_modified ?? "";
-        return db.localeCompare(da);
+        const da = a.hf_created_at ?? a.hf_last_modified ?? "";
+        const db = b.hf_created_at ?? b.hf_last_modified ?? "";
+        if (da || db) return db.localeCompare(da);
+        return (b.year_released ?? 0) - (a.year_released ?? 0);
       });
       break;
     case "citations":

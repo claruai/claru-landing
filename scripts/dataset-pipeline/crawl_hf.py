@@ -81,6 +81,7 @@ def download_readmes(api: HfApi, datasets: list) -> list[dict]:
             "downloads": ds.downloads,
             "likes": ds.likes,
             "last_modified": ds.lastModified.isoformat() if ds.lastModified else None,
+            "created_at": ds.created_at.isoformat() if hasattr(ds, 'created_at') and ds.created_at else None,
             "tags": ds.tags or [],
             "card_text": None,
             "card_text_source": None,  # "readme" or "fallback"

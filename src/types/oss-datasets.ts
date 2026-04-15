@@ -27,6 +27,7 @@ export interface OSSDataset {
   hf_downloads: number;
   hf_likes: number;
   hf_last_modified: string | null;
+  hf_created_at: string | null;
   hf_tags: string[];
   // Community Signals
   citation_count: number | null;

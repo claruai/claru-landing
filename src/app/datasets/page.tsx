@@ -5,6 +5,7 @@ import GeoPageShell from "@/app/components/content/GeoPageShell";
 import { getAllDatasetPages } from "@/data/programmatic/datasets/index";
 import { fetchAllOSSDatasets } from "@/lib/oss-datasets";
 import DatasetsHubClient from "./components/DatasetsHubClient";
+import DigestSubscribeForm from "./components/DigestSubscribeForm";
 
 export const revalidate = 3600; // ISR: 1 hour
 
@@ -111,6 +112,13 @@ export default async function DatasetsHubPage() {
           >
             {ossDatasets.length} open-source datasets
           </p>
+        </div>
+      </section>
+
+      {/* Digest Subscribe Banner */}
+      <section className="w-full pb-6 md:pb-8">
+        <div className="mx-auto max-w-6xl px-6">
+          <DigestSubscribeForm />
         </div>
       </section>
 
