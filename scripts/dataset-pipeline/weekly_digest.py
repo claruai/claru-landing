@@ -289,7 +289,7 @@ def build_email_html(picks: list[dict], week_label: str, weekly_summary: str, to
                 Claru AI &mdash; Expert Human Intelligence for AI Labs
               </p>
               <p style="margin:0;">
-                <a href="{{{{RESEND_UNSUBSCRIBE_URL}}}}"
+                <a href="{{{{{{RESEND_UNSUBSCRIBE_URL}}}}}}"
                    style="font-size:11px;color:#555555;text-decoration:underline;">
                   Unsubscribe
                 </a>
