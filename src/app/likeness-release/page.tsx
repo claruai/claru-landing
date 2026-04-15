@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ImageSubmissionTerms() {
+export default function ContentSubmissionTerms() {
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
       <Header opaque />
@@ -40,16 +40,16 @@ export default function ImageSubmissionTerms() {
           {/* Acceptance Notice */}
           <div className="mb-10 p-4 uppercase font-mono text-sm bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg">
             <p className="text-[var(--text-secondary)] leading-relaxed">
-              I CERTIFY THAT FOR EVERY IMAGE I UPLOAD, I HAVE OBTAINED AND WILL
-              MAINTAIN ALL RIGHTS, PERMISSIONS, AND LEGALLY REQUIRED CONSENTS
-              FOR THE IMAGE ITSELF AND FROM EVERY IDENTIFIABLE PERSON APPEARING
-              IN IT, INCLUDING PARENT/GUARDIAN CONSENT FOR MINORS, SUFFICIENT TO
-              AUTHORIZE REKA AI INC. D/B/A CLARU AI, ITS AFFILIATES, CUSTOMERS,
-              PARTNERS, LICENSEES, SUBLICENSEES, AND OTHER DATA RECIPIENTS TO
-              USE THE IMAGE AND EACH PERSON&apos;S LIKENESS FOR AI TRAINING,
-              EVALUATION, DEVELOPMENT, LICENSING, COMMERCIALIZATION, AND OTHER
-              LAWFUL PURPOSES, AND I AGREE TO THE IMAGE SUBMISSION, LIKENESS
-              RELEASE, AND INDEMNITY TERMS.
+              I CERTIFY THAT FOR ALL CONTENT I UPLOAD OR SUBMIT, I HAVE OBTAINED
+              AND WILL MAINTAIN ALL RIGHTS, PERMISSIONS, AND LEGALLY REQUIRED
+              CONSENTS FOR THE CONTENT ITSELF AND FROM EVERY IDENTIFIABLE PERSON
+              APPEARING IN IT, INCLUDING PARENT/GUARDIAN CONSENT FOR MINORS,
+              SUFFICIENT TO AUTHORIZE REKA AI INC. D/B/A CLARU AI, ITS
+              AFFILIATES, CUSTOMERS, PARTNERS, LICENSEES, SUBLICENSEES, AND
+              OTHER DATA RECIPIENTS TO USE THE CONTENT AND EACH PERSON&apos;S
+              LIKENESS FOR AI TRAINING, EVALUATION, DEVELOPMENT, LICENSING,
+              COMMERCIALIZATION, AND OTHER LAWFUL PURPOSES, AND I AGREE TO THE
+              CONTENT SUBMISSION, LIKENESS RELEASE, AND INDEMNITY TERMS.
             </p>
           </div>
 
@@ -71,14 +71,15 @@ export default function ImageSubmissionTerms() {
                   licensees, sublicensees, strategic partners, acquirers,
                   successors, assigns, distributors, resellers, data recipients,
                   model recipients, and other downstream recipients or users of
-                  any submitted image, derivative data, dataset, model, output,
-                  or related product or service.
+                  any submitted content, derivative data, dataset, model,
+                  output, or related product or service.
                 </li>
                 <li>
                   <strong>&ldquo;Submitted Content&rdquo;</strong> means any
-                  image, photo, video frame, metadata, caption, tag, label,
-                  annotation, submission data, or related material you upload or
-                  provide.
+                  image, photograph, video, video clip, video frame, audio
+                  recording, text, document, metadata, caption, tag, label,
+                  annotation, submission data, or any other material you upload,
+                  record, or provide through the platform.
                 </li>
                 <li>
                   <strong>&ldquo;Identifiable Individual&rdquo;</strong> means
@@ -108,8 +109,8 @@ export default function ImageSubmissionTerms() {
               <ul className="list-disc list-inside text-[var(--text-secondary)] space-y-2 ml-4">
                 <li>
                   all rights in and to the Submitted Content itself, including
-                  from the photographer, copyright owner, or other rights
-                  holder;
+                  from the creator, photographer, videographer, recording
+                  artist, copyright owner, or other rights holder;
                 </li>
                 <li>
                   valid, enforceable, legally sufficient consent from every
@@ -185,22 +186,23 @@ export default function ImageSubmissionTerms() {
               </ul>
             </section>
 
-            {/* Section 4: Group Images and Third Parties */}
+            {/* Section 4: Group Content and Third Parties */}
             <section>
               <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4 font-mono">
-                4. Group Images and Third Parties
+                4. Group Content and Third Parties
               </h2>
               <p className="text-[var(--text-secondary)] leading-relaxed mb-4">
                 For any Submitted Content containing multiple persons, you
                 expressly represent, warrant, and covenant that you obtained the
                 required rights and consents from each and every Identifiable
                 Individual appearing in the Submitted Content, not merely from
-                the primary subject, the person who supplied the photo, or the
-                account holder.
+                the primary subject, the person who supplied or recorded the
+                content, or the account holder.
               </p>
               <p className="text-[var(--text-secondary)] leading-relaxed">
-                You acknowledge that group images, background persons, partially
-                visible persons, and other third parties may still qualify as
+                You acknowledge that group scenes, background persons, partially
+                visible persons, bystanders, overheard voices, and other third
+                parties may still qualify as
                 Identifiable Individuals, and you assume full responsibility for
                 determining whether consent is required and obtaining it.
               </p>
@@ -359,9 +361,9 @@ export default function ImageSubmissionTerms() {
                 </li>
                 <li>
                   any actual or alleged claim by any person appearing in
-                  Submitted Content, or by any parent, guardian, photographer,
-                  copyright owner, employer, agency, or representative of such
-                  person;
+                  Submitted Content, or by any parent, guardian, creator,
+                  photographer, videographer, copyright owner, employer, agency,
+                  or representative of such person;
                 </li>
                 <li>
                   any claim involving privacy, publicity, likeness, portrait,
@@ -418,10 +420,10 @@ export default function ImageSubmissionTerms() {
             <section className="border-t border-[var(--border-subtle)] pt-8">
               <div className="p-4 border border-[var(--accent-primary)] rounded-lg bg-[var(--accent-glow)]">
                 <p className="text-[var(--text-primary)] font-semibold">
-                  By checking the certification box or uploading any image, you
-                  acknowledge that you have read, understand, and agree to be
-                  bound by all terms and conditions of these Image Submission,
-                  Likeness Release, and Indemnity Terms.
+                  By checking the certification box or uploading any content,
+                  you acknowledge that you have read, understand, and agree to
+                  be bound by all terms and conditions of these Content
+                  Submission, Likeness Release, and Indemnity Terms.
                 </p>
               </div>
             </section>
