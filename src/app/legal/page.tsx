@@ -61,10 +61,10 @@ const legalDocs = [
     updated: "March 2026",
   },
   {
-    href: "/image-submission-terms",
-    title: "Image Submission & Likeness Release Terms",
+    href: "/likeness-release",
+    title: "Content Submission & Likeness Release Terms",
     description:
-      "Terms governing image uploads, likeness rights, consent requirements, and indemnification for submitted content.",
+      "Terms governing content uploads, likeness rights, consent requirements, and indemnification for submitted content.",
     icon: Camera,
     updated: "April 2026",
   },

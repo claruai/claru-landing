@@ -4,16 +4,16 @@ import Footer from "../components/sections/Footer";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Image Submission, Likeness Release, and Indemnity Terms - Claru",
+  title: "Content Submission, Likeness Release, and Indemnity Terms - Claru",
   description:
-    "Terms governing image uploads, likeness rights, consent requirements, and indemnification for submitted content on the Claru AI platform.",
+    "Terms governing content uploads, likeness rights, consent requirements, and indemnification for submitted content on the Claru AI platform.",
   alternates: {
-    canonical: "/image-submission-terms",
+    canonical: "/likeness-release",
   },
   openGraph: {
-    title: "Image Submission, Likeness Release, and Indemnity Terms - Claru",
+    title: "Content Submission, Likeness Release, and Indemnity Terms - Claru",
     description:
-      "Terms governing image uploads, likeness rights, consent requirements, and indemnification for submitted content on the Claru AI platform.",
+      "Terms governing content uploads, likeness rights, consent requirements, and indemnification for submitted content on the Claru AI platform.",
     type: "website",
   },
 };
@@ -28,7 +28,7 @@ export default function ImageSubmissionTerms() {
         <div className="container">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-4xl font-bold mb-4">
-            Image Submission, Likeness Release, and Indemnity Terms
+            Content Submission, Likeness Release, and Indemnity Terms
           </h1>
           <p className="text-[var(--text-tertiary)] font-mono text-sm mb-2">
             Reka AI, Inc. (d/b/a Claru AI)
