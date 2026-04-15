@@ -365,7 +365,7 @@ def compute_downloads_ranks(datasets: list[dict]) -> dict[str, str]:
                         "top_25_pct", "top_50_pct", "bottom_50_pct"}
     """
     ordered = sorted(
-        [(d["dataset_id"], d.get("downloads", 0)) for d in datasets],
+        [(d["dataset_id"], d.get("downloads") or 0) for d in datasets],
         key=lambda x: x[1],
         reverse=True,
     )
