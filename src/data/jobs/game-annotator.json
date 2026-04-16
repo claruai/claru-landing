@@ -1,0 +1,41 @@
+{
+  "slug": "game-annotator",
+  "title": "Game Annotator",
+  "category": "gaming",
+  "description": "We hire game annotators to label gameplay footage and input data for AI training. You will watch recorded gameplay sessions, identify actions and events, and tag them using our annotation platform. Some projects involve labeling object interactions, player decisions, and environment changes frame-by-frame. Others focus on classifying gameplay strategies, movement patterns, and combat sequences across different game genres.\n\nThis role is a good fit if you play games regularly and can describe what is happening on screen with precision. You need to distinguish between different types of in-game actions (movement, combat, inventory management, exploration) and apply consistent labels across hundreds of clips. Previous annotation or QA experience is helpful but not required.\n\nMost projects involve popular titles like Valorant, Minecraft, GTA V, Counter-Strike, and Genshin Impact. Sessions are self-paced and can be completed on your own schedule. We provide detailed annotation guidelines and calibration sessions before each new project.",
+  "skills": [
+    "Active PC or console gamer familiar with multiple genres",
+    "Ability to identify and label in-game actions consistently",
+    "Attention to detail across long annotation sessions",
+    "Comfortable using web-based annotation tools",
+    "Strong written English for labeling and note-taking",
+    "Reliable internet connection for streaming video clips"
+  ],
+  "compensationMin": 18,
+  "compensationMax": 28,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "Worldwide",
+  "datePosted": "2026-04-16",
+  "validThrough": "2026-07-15",
+  "featured": true,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "What does a game annotator do?",
+      "answer": "A game annotator watches recorded gameplay footage and labels in-game events, actions, and objects. These labels are used to train AI models that understand game environments, player behavior, and spatial reasoning."
+    },
+    {
+      "question": "What games will I annotate?",
+      "answer": "Current projects span FPS titles (Valorant, Counter-Strike 2, Call of Duty), open-world games (GTA V, Red Dead Redemption 2, Minecraft), and other genres. New game titles are added regularly based on client needs."
+    },
+    {
+      "question": "Do I need prior annotation experience?",
+      "answer": "No. We provide training and calibration sessions. What matters most is that you play games regularly and can describe on-screen events accurately and consistently."
+    },
+    {
+      "question": "How many hours per week can I work?",
+      "answer": "Most annotators work 10-20 hours per week. Sessions are self-paced and available on a rolling basis. High-quality annotators get priority access to new projects."
+    }
+  ]
+}

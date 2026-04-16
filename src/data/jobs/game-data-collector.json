@@ -1,0 +1,45 @@
+{
+  "slug": "game-data-collector",
+  "title": "Game Data Collector",
+  "category": "gaming",
+  "description": "We are hiring game data collectors to play video games while our software records your gameplay footage and keyboard/mouse inputs simultaneously. The recordings are used to train AI models that learn from human gameplay demonstrations. You play normally while our capture tool runs in the background, logging every keystroke, mouse movement, and click with microsecond precision alongside the video feed.\n\nWe need players across a range of skill levels, from casual to competitive. Some AI training methods work best with expert gameplay. Others need diverse demonstrations from many skill levels. Either way, you just play the game and we handle the data pipeline.\n\nCurrent collection campaigns cover Valorant, Counter-Strike 2, Minecraft, GTA V, Roblox, Genshin Impact, Euro Truck Simulator 2, Marvel Rivals, and other titles. New games are added based on client demand. Sessions last 1-3 hours and you pick your own schedule.",
+  "skills": [
+    "Regular PC gamer with experience in one or more target titles",
+    "Comfortable installing a lightweight capture application",
+    "PC with at least 16GB RAM and a discrete GPU from the last 4 years",
+    "Stable internet connection for uploading session recordings",
+    "Willingness to play specific scenarios or maps when requested",
+    "Available for at least 5 hours per week"
+  ],
+  "compensationMin": 15,
+  "compensationMax": 25,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "Worldwide",
+  "datePosted": "2026-04-16",
+  "validThrough": "2026-07-15",
+  "featured": true,
+  "archived": false,
+  "faqs": [
+    {
+      "question": "What data gets collected while I play?",
+      "answer": "Our capture tool records your screen (gameplay video) and your keyboard and mouse inputs with precise timestamps. No personal data, webcam footage, or audio is collected. The data is used exclusively for AI training."
+    },
+    {
+      "question": "Will the capture tool affect my game performance?",
+      "answer": "The tool is lightweight and runs in the background. Most players see no noticeable FPS impact. We test on a range of hardware configurations and provide minimum specs during onboarding."
+    },
+    {
+      "question": "Do I need to be a skilled player?",
+      "answer": "No. We collect data from players of all skill levels. AI models trained on diverse gameplay learn more generalizable behaviors. Both casual and competitive players are valuable."
+    },
+    {
+      "question": "Which games are currently in demand?",
+      "answer": "Active campaigns include Valorant, Counter-Strike 2, Minecraft, GTA V, Roblox, Genshin Impact, Euro Truck Simulator 2, and Marvel Rivals. We add new titles regularly and notify collectors when new games become available."
+    },
+    {
+      "question": "How does payment work?",
+      "answer": "Payment is per accepted session, based on session length and game complexity. Rates range from $15 to $25 per hour. Payments are processed weekly."
+    }
+  ]
+}
