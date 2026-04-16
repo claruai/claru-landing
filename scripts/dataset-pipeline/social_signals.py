@@ -233,6 +233,11 @@ def get_openalex_citations(dataset: dict) -> dict:
 # Source 2: HuggingFace Discussions
 # ---------------------------------------------------------------------------
 
+def _author_name(author) -> str:
+    if isinstance(author, dict):
+        return str(author.get("name") or author.get("id") or "")
+    return str(author) if author else ""
+
 def get_hf_discussions(dataset: dict) -> dict:
     """
     Fetch HuggingFace discussion count + top 3 discussions.
@@ -266,12 +271,12 @@ def get_hf_discussions(dataset: dict) -> dict:
         discussions = [
             d for d in discussions
             if not (d.get("title") or "").strip().lower().startswith("[bot]")
-            and not (d.get("author") or "").endswith("-bot")
+            and not _author_name(d.get("author")).endswith("-bot")
         ]
 
         count = len(discussions)
-        # Top 3 by upvotes
-        top = sorted(discussions, key=lambda d: d.get("upvotes", 0), reverse=True)[:3]
+        # Top 3 by upvotes (field can be None)
+        top = sorted(discussions, key=lambda d: d.get("upvotes") or 0, reverse=True)[:3]
         sample = []
         for d in top:
             num = d.get("num")
@@ -280,8 +285,8 @@ def get_hf_discussions(dataset: dict) -> dict:
                 if num else None
             )
             sample.append({
-                "title": d.get("title", ""),
-                "upvotes": d.get("upvotes", 0),
+                "title": d.get("title") or "",
+                "upvotes": d.get("upvotes") or 0,
                 "url": disc_url,
             })
 
