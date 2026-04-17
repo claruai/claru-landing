@@ -3,58 +3,9 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getS3SignedUrl } from "@/lib/s3/presigner";
 import { stripHiddenKeys } from "@/lib/strip-hidden-keys";
 import { scrubS3Urls } from "@/lib/scrub-s3-urls";
-import { parquetReadObjects } from "hyparquet";
+import { fetchAnnotationParquet } from "@/lib/s3/annotation-parquet";
 
 const TOKEN_RE = /^[a-f0-9]{64}$/;
-
-/**
- * Parse a parquet buffer into a JSON-serialisable object.
- * Returns the top-level scalar fields plus a summary of frame_data
- * (too large to send raw — thousands of per-frame action records).
- */
-async function parseParquetAnnotation(
-  buffer: ArrayBuffer
-): Promise<Record<string, unknown>> {
-  const rows = await parquetReadObjects({ file: buffer });
-
-  if (rows.length === 0) return {};
-
-  const row = rows[0];
-  const result: Record<string, unknown> = {};
-
-  for (const [key, value] of Object.entries(row)) {
-    if (key === "frame_data" && Array.isArray(value)) {
-      // Summarise frame_data instead of sending all frames
-      const frames = value as Record<string, unknown>[];
-      const actionCounts: Record<string, number> = {};
-      let framesWithExtrinsics = 0;
-
-      for (const frame of frames) {
-        const actions = String(frame.actions ?? "");
-        for (const ch of actions) {
-          if (ch !== "-") actionCounts[ch] = (actionCounts[ch] || 0) + 1;
-        }
-        if (frame.camera_extrinsics_defined) framesWithExtrinsics++;
-      }
-
-      result.frame_count = frames.length;
-      result.action_distribution = actionCounts;
-      result.frames_with_extrinsics = framesWithExtrinsics;
-      result.extrinsics_coverage =
-        frames.length > 0
-          ? Number((framesWithExtrinsics / frames.length).toFixed(3))
-          : 0;
-
-      // Include first 3 frames as a preview
-      result.frame_preview = frames.slice(0, 3);
-    } else {
-      // Convert BigInt to number for JSON serialisation
-      result[key] = typeof value === "bigint" ? Number(value) : value;
-    }
-  }
-
-  return result;
-}
 
 export async function GET(
   request: NextRequest,
@@ -116,6 +67,21 @@ export async function GET(
   const bucketOverride =
     clipBucket && clipBucket !== defaultBucket ? clipBucket : undefined;
 
+  // Parquet annotations: use shared utility (handles its own S3 fetch)
+  if (annKey.endsWith(".parquet")) {
+    const data = await fetchAnnotationParquet(annKey, bucketOverride);
+    if (!data) {
+      return NextResponse.json(
+        { error: "Failed to parse parquet annotation" },
+        { status: 502 }
+      );
+    }
+    return NextResponse.json(data, {
+      headers: { "Cache-Control": "private, max-age=300, no-transform" },
+    });
+  }
+
+  // JSON annotations: sign URL, fetch, strip sensitive fields
   const signedUrl = await getS3SignedUrl(annKey, 300, bucketOverride);
   if (!signedUrl) {
     return NextResponse.json(
@@ -132,18 +98,6 @@ export async function GET(
     );
   }
 
-  const isParquet = annKey.endsWith(".parquet");
-
-  if (isParquet) {
-    const buffer = await res.arrayBuffer();
-    const data = await parseParquetAnnotation(buffer);
-
-    return NextResponse.json(data, {
-      headers: { "Cache-Control": "private, max-age=300, no-transform" },
-    });
-  }
-
-  // Default: JSON annotation
   const raw = await res.json();
   const data = scrubS3Urls(stripHiddenKeys(raw));
 
