@@ -293,6 +293,7 @@ export function ClipDetailModal({
         objectKey: annotationKey,
         sampleId: id,
         clipId: id,
+        bucket: currentItem?.clip?.s3_bucket,
       }),
     })
       .then((res) => (res.ok ? res.json() : null))

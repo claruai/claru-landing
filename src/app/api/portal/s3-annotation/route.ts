@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { fetchAnnotationJson } from "@/lib/s3/annotation";
+import { fetchAnnotationParquet } from "@/lib/s3/annotation-parquet";
 import { scrubS3Urls } from "@/lib/scrub-s3-urls";
 
 // =============================================================================
@@ -178,11 +179,11 @@ export async function POST(request: NextRequest) {
     // If clip not found or cache miss, fall through to S3 fetch
   }
 
-  // 4. Fetch annotation JSON from S3, using the clip's s3_bucket for the correct bucket
-  const annotationData = await fetchAnnotationJson(
-    objectKey,
-    clipBucket ?? undefined
-  );
+  // 4. Fetch annotation from S3 — parquet or JSON
+  const isParquet = objectKey.endsWith(".parquet");
+  const annotationData = isParquet
+    ? await fetchAnnotationParquet(objectKey, clipBucket ?? undefined)
+    : await fetchAnnotationJson(objectKey, clipBucket ?? undefined);
 
   if (!annotationData) {
     return NextResponse.json(

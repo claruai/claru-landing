@@ -3,19 +3,16 @@ import { cookies } from "next/headers";
 import { z } from "zod";
 import { verifyAdminToken } from "@/lib/admin-auth";
 import { fetchAnnotationJson } from "@/lib/s3/annotation";
+import { fetchAnnotationParquet } from "@/lib/s3/annotation-parquet";
 
 // =============================================================================
 // POST /api/admin/s3-annotation
 //
 // Admin variant of the portal s3-annotation route. Fetches an annotation JSON
-// (or specs JSON) from an S3 object key (full URL).
+// (or parquet) from an S3 object key. Supports both JSON and parquet formats,
+// and cross-bucket signing for datasets in non-default buckets.
 //
 // Auth: admin token cookie (same pattern as other admin routes).
-//
-// No Supabase cache lookup — admin callers are infrequent enough that the
-// direct S3 fetch is acceptable. The logic is otherwise identical to the
-// portal route: validate objectKey, reject path-traversal attempts, fetch
-// from S3, return parsed JSON.
 // =============================================================================
 
 // ---------------------------------------------------------------------------
@@ -23,15 +20,13 @@ import { fetchAnnotationJson } from "@/lib/s3/annotation";
 // ---------------------------------------------------------------------------
 
 const requestSchema = z.object({
-  /** The S3 object key / URL to fetch the annotation JSON from. */
+  /** The S3 object key / URL to fetch the annotation from. */
   objectKey: z.string().min(1, "objectKey is required"),
   /** Optional sample ID — accepted for interface compatibility, not used. */
   sampleId: z.string().uuid().optional(),
+  /** Optional bucket override for cross-bucket datasets. */
+  bucket: z.string().optional(),
 });
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
 // Route handler
@@ -61,7 +56,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { objectKey } = parsed.data;
+  const { objectKey, bucket } = parsed.data;
 
   // 3. Reject path-traversal attempts
   if (objectKey.includes("..")) {
@@ -71,8 +66,29 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // 4. Fetch annotation JSON from S3
-  const annotationData = await fetchAnnotationJson(objectKey);
+  // 4. Determine bucket override
+  const defaultBucket = process.env.S3_BUCKET_NAME;
+  const bucketOverride =
+    bucket && bucket !== defaultBucket ? bucket : undefined;
+
+  // 5. Fetch annotation — parquet or JSON
+  const isParquet = objectKey.endsWith(".parquet");
+
+  if (isParquet) {
+    const annotationData = await fetchAnnotationParquet(
+      objectKey,
+      bucketOverride
+    );
+    if (!annotationData) {
+      return NextResponse.json(
+        { error: "Failed to fetch parquet annotation from S3" },
+        { status: 502 }
+      );
+    }
+    return NextResponse.json({ annotation: annotationData, cached: false });
+  }
+
+  const annotationData = await fetchAnnotationJson(objectKey, bucketOverride);
 
   if (!annotationData) {
     return NextResponse.json(
@@ -81,6 +97,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // 5. Return the annotation data
+  // 6. Return the annotation data
   return NextResponse.json({ annotation: annotationData, cached: false });
 }
