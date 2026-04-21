@@ -20,6 +20,13 @@ import {
   Search,
   Sun,
   X,
+  Archive,
+  Download,
+  Table as TableIcon,
+  File as FileIcon,
+  Subtitles,
+  Activity,
+  Video,
 } from "lucide-react";
 
 // =============================================================================
@@ -52,7 +59,7 @@ interface ShareCatalogProps {
   token: string;
 }
 
-type TabType = "annotation" | "enrichment" | "technical" | "input_stream";
+type TabType = "annotation" | "enrichment" | "technical" | "input_stream" | "data_files";
 
 interface TabDefinition {
   type: TabType;
@@ -233,6 +240,9 @@ function PanelContent({ tab, token }: { tab: TabDefinition; token: string }) {
   }
   if (tab.type === "input_stream") {
     return <InputStreamPanel data={tab.data} token={token} />;
+  }
+  if (tab.type === "data_files") {
+    return <DataFilesPanel data={tab.data} token={token} />;
   }
   if (tab.type === "annotation") {
     return <AnnotationPanel data={tab.data} />;
@@ -819,6 +829,143 @@ function JsonPanel({ data }: { data: Record<string, unknown> }) {
 }
 
 // =============================================================================
+// DataFilesPanel — lists non-video data attachments (IMU JSONL/CSV, activity
+// SRT, etc.) with download buttons wired through the share s3-proxy route.
+// Ported from portal DataFilesPanel with IMU-aware file type metadata.
+// =============================================================================
+
+interface DataFileEntry {
+  objectId?: string;
+  filename?: string;
+  kind?: string;
+  label?: string;
+  description?: string;
+  // When set, overrides the share s3-proxy URL. Used for assets that exceed
+  // the proxy's size cap (e.g. source videos) — points at a direct presigned
+  // S3 URL fetched elsewhere in the page.
+  downloadUrl?: string;
+}
+
+function getDataFileMeta(entry: DataFileEntry): {
+  label: string;
+  description: string;
+  Icon: typeof FileIcon;
+} {
+  const filename = String(entry.filename ?? entry.objectId ?? "").toLowerCase();
+  if (entry.label) {
+    const desc = entry.description ?? "Attached data file";
+    if (filename.endsWith(".jsonl")) return { label: entry.label, description: desc, Icon: Activity };
+    if (filename.endsWith(".csv")) return { label: entry.label, description: desc, Icon: TableIcon };
+    if (filename.endsWith(".srt")) return { label: entry.label, description: desc, Icon: Subtitles };
+    if (filename.endsWith(".json")) return { label: entry.label, description: desc, Icon: FileJson };
+    if (filename.endsWith(".mp4") || filename.endsWith(".mov") || filename.endsWith(".webm"))
+      return { label: entry.label, description: desc, Icon: Video };
+    return { label: entry.label, description: desc, Icon: FileIcon };
+  }
+  if (filename.endsWith(".jsonl"))
+    return { label: "IMU Stream (JSONL)", description: "6-DOF IMU samples, one per line", Icon: Activity };
+  if (filename.endsWith(".csv"))
+    return { label: "IMU Stream (CSV)", description: "6-DOF IMU samples in CSV form", Icon: TableIcon };
+  if (filename.endsWith(".srt"))
+    return { label: "Activity Labels (SRT)", description: "Time-segmented activity labels", Icon: Subtitles };
+  if (filename.endsWith(".json"))
+    return { label: "JSON Data", description: "Annotation metadata", Icon: FileJson };
+  return { label: "Data File", description: "Attached file", Icon: FileIcon };
+}
+
+function DataFilesPanel({
+  data,
+  token,
+}: {
+  data: Record<string, unknown>;
+  token: string;
+}) {
+  const files = (data.files as DataFileEntry[] | undefined) ?? [];
+  const clipId = String(data.clipId ?? "");
+
+  if (files.length === 0) {
+    return (
+      <div className="font-mono text-xs text-center py-4" style={{ color: "var(--text-muted)" }}>
+        No data files attached.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {files.map((file, i) => {
+        const objectId = String(file.objectId ?? "");
+        const filename = file.filename ?? objectId.split("/").pop() ?? "file";
+        const { label, description, Icon } = getDataFileMeta(file);
+        // Prefer an inline direct URL (used for assets larger than the s3-proxy
+        // 10MB cap, e.g. source videos). Fall back to the share s3-proxy for
+        // everything else.
+        const downloadHref = file.downloadUrl
+          ? file.downloadUrl
+          : `/api/share/${token}/s3-proxy?clipId=${encodeURIComponent(clipId)}&key=${encodeURIComponent(objectId)}`;
+
+        return (
+          <div
+            key={objectId || i}
+            className="flex items-center justify-between gap-3 rounded-lg p-3 border"
+            style={{
+              background: "var(--bg-primary)",
+              borderColor: "var(--border-subtle)",
+            }}
+          >
+            <div className="flex items-start gap-2.5 min-w-0">
+              <Icon
+                className="w-4 h-4 flex-shrink-0 mt-0.5"
+                style={{ color: "var(--accent-primary)" }}
+              />
+              <div className="min-w-0">
+                <div
+                  className="font-mono text-xs leading-tight"
+                  style={{ color: "var(--accent-primary)" }}
+                >
+                  {label}
+                </div>
+                <div
+                  className="font-mono text-[10px] mt-0.5 truncate"
+                  style={{ color: "var(--text-secondary)" }}
+                  title={filename}
+                >
+                  {filename}
+                </div>
+                {description && (
+                  <div
+                    className="font-mono text-[10px] mt-0.5"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    {description}
+                  </div>
+                )}
+              </div>
+            </div>
+            <a
+              href={downloadHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              download={filename}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md font-mono text-[10px] border transition-colors duration-200 hover:border-[var(--accent-primary)]/40 hover:text-[var(--accent-primary)]"
+              style={{
+                background: "var(--bg-tertiary)",
+                borderColor: "var(--border-subtle)",
+                color: "var(--text-muted)",
+              }}
+              aria-label={`Download ${filename}`}
+            >
+              <Download className="w-3 h-3" />
+              Download
+            </a>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// =============================================================================
 // ClipCard — thumbnail card in the grid
 // =============================================================================
 
@@ -1048,23 +1195,56 @@ function ClipDetailModal({
       });
     }
 
-    // Input Stream tab — if annotation files[] has .gz files
+    // Data Files tab — any non-video attachments in annotation.files[]
+    // (IMU JSONL / CSV, activity SRT, other data artifacts). Gaming datasets
+    // still get an Input Stream tab for .gz keystroke files.
     const rawFiles = annotationData?.files;
-    if (Array.isArray(rawFiles)) {
-      const gzFiles = (rawFiles as Array<Record<string, unknown>>).filter(
-        (f) => {
-          const oid = String(f.objectId ?? "").toLowerCase();
-          return oid.endsWith(".gz");
-        }
-      );
-      if (gzFiles.length > 0) {
-        result.push({
-          type: "input_stream",
-          label: "Input Stream",
-          icon: Keyboard,
-          data: { gzFiles, clipId: clip.id },
-        });
-      }
+    const entries = Array.isArray(rawFiles)
+      ? (rawFiles as Array<Record<string, unknown>>)
+      : [];
+    const isVideo = (oid: string) =>
+      oid.endsWith(".mp4") || oid.endsWith(".mov") || oid.endsWith(".webm");
+    const nonVideo = entries.filter(
+      (f) => !isVideo(String(f.objectId ?? "").toLowerCase()),
+    );
+    const gzFiles = nonVideo.filter((f) =>
+      String(f.objectId ?? "").toLowerCase().endsWith(".gz"),
+    );
+    const otherFiles = nonVideo.filter(
+      (f) => !String(f.objectId ?? "").toLowerCase().endsWith(".gz"),
+    );
+
+    // Always expose the source video as a downloadable in Data Files. Uses the
+    // direct presigned S3 URL (not the s3-proxy) because videos exceed the
+    // proxy's 10MB cap. This also gives users an escape hatch when the inline
+    // player can't decode the codec (e.g. HEVC in Chrome).
+    if (currentUrl) {
+      const videoFilename = clip.filename ?? "source.mp4";
+      otherFiles.push({
+        objectId: videoFilename,
+        filename: videoFilename,
+        kind: "source_video",
+        label: "Source Video (MP4)",
+        description: "Original head-mounted camera recording",
+        downloadUrl: currentUrl,
+      });
+    }
+
+    if (gzFiles.length > 0) {
+      result.push({
+        type: "input_stream",
+        label: "Input Stream",
+        icon: Keyboard,
+        data: { gzFiles, clipId: clip.id },
+      });
+    }
+    if (otherFiles.length > 0) {
+      result.push({
+        type: "data_files",
+        label: "Data Files",
+        icon: Archive,
+        data: { files: otherFiles, clipId: clip.id },
+      });
     }
 
     // AI Enrichment panel
@@ -1106,7 +1286,7 @@ function ClipDetailModal({
     }
 
     return result;
-  }, [clip, annotationData, annotationLoading]);
+  }, [clip, annotationData, annotationLoading, currentUrl]);
 
   // Merged JSON for copy — includes fetched annotation data
   const mergedJson = useMemo(() => {
