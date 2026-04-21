@@ -15,9 +15,9 @@ if (typeof window !== "undefined") {
 /* ─── Data ──────────────────────────────────────────── */
 
 const investors = [
+  "NVIDIA",
   "Khosla Ventures",
   "General Catalyst",
-  "Bessemer Venture Partners",
   "Y Combinator",
 ];
 
