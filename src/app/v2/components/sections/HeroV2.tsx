@@ -541,9 +541,9 @@ function RotatingModality({ reducedMotion }: { reducedMotion: boolean }) {
 // ---------------------------------------------------------------------------
 
 const INVESTORS = [
+  "NVIDIA",
   "Khosla Ventures",
   "General Catalyst",
-  "Bessemer Venture Partners",
   "Y Combinator",
 ];
 
