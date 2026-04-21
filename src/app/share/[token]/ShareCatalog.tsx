@@ -897,12 +897,22 @@ function DataFilesPanel({
         const objectId = String(file.objectId ?? "");
         const filename = file.filename ?? objectId.split("/").pop() ?? "file";
         const { label, description, Icon } = getDataFileMeta(file);
-        // Prefer an inline direct URL (used for assets larger than the s3-proxy
-        // 10MB cap, e.g. source videos). Fall back to the share s3-proxy for
-        // everything else.
-        const downloadHref = file.downloadUrl
-          ? file.downloadUrl
-          : `/api/share/${token}/s3-proxy?clipId=${encodeURIComponent(clipId)}&key=${encodeURIComponent(objectId)}`;
+        // Prefer an inline direct URL (used for assets larger than the
+        // 10MB s3-proxy cap in src/app/api/share/[token]/s3-proxy/route.ts —
+        // notably source videos). Fall back to the share s3-proxy for
+        // everything else. Reject non-http(s) URLs to close off any future
+        // pathway that pipes attacker-controlled data into `downloadUrl`.
+        // Note: browsers ignore the `download` attribute for cross-origin
+        // hrefs, so direct S3/CloudFront URLs may open in a new tab rather
+        // than triggering a save — users can still right-click → Save As.
+        const safeDirect =
+          file.downloadUrl &&
+          /^https?:\/\//i.test(file.downloadUrl)
+            ? file.downloadUrl
+            : undefined;
+        const downloadHref =
+          safeDirect ??
+          `/api/share/${token}/s3-proxy?clipId=${encodeURIComponent(clipId)}&key=${encodeURIComponent(objectId)}`;
 
         return (
           <div
@@ -1218,10 +1228,14 @@ function ClipDetailModal({
     // direct presigned S3 URL (not the s3-proxy) because videos exceed the
     // proxy's 10MB cap. This also gives users an escape hatch when the inline
     // player can't decode the codec (e.g. HEVC in Chrome).
+    //
+    // `objectId` is namespaced with the clip id so the synthetic entry never
+    // collides with a real S3 key — it isn't passed to the proxy (downloadUrl
+    // takes precedence), it's only used as the React list key.
     if (currentUrl) {
       const videoFilename = clip.filename ?? "source.mp4";
       otherFiles.push({
-        objectId: videoFilename,
+        objectId: `__synthetic_video__${clip.id}`,
         filename: videoFilename,
         kind: "source_video",
         label: "Source Video (MP4)",
