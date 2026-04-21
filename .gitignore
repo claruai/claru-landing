@@ -90,3 +90,15 @@ tmp/
 scripts/fal-wham/.venv*/
 scripts/fal-hawor/
 sessions-context/
+
+# Local tooling state
+.claude/scheduled_tasks.lock
+.gstack/
+qa-screenshots/
+
+# Trigger.dev build cache (huge, deploy-only artifacts)
+trigger/.trigger/
+trigger/node_modules/
+
+# Video candidate comparison artifacts (local QA, not shipped)
+public/videos/synthetic/robotics/candidates/

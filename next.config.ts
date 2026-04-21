@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
+const isDev =
+  process.env.NODE_ENV !== "production" ||
+  process.argv.includes("dev") ||
+  process.argv.some((a) => a.includes("next-dev"));
+
 const nextConfig: NextConfig = {
   // Exclude large media files from serverless function bundles.
   // Videos and remotion samples are served as static assets — never needed server-side.
@@ -94,7 +99,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://us.i.posthog.com https://vercel.live; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://us.i.posthog.com https://*.ingest.us.sentry.io https://vercel.live https://*.amazonaws.com https://*.cloudfront.net wss://vercel.live; frame-src 'self' https://calendly.com https://vercel.live; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://calendly.com;",
+            value: `default-src 'self'; script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://us.i.posthog.com https://vercel.live; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://us.i.posthog.com https://*.ingest.us.sentry.io https://vercel.live https://*.amazonaws.com https://*.cloudfront.net wss://vercel.live; frame-src 'self' https://calendly.com https://vercel.live; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://calendly.com;`,
           },
         ],
       },
