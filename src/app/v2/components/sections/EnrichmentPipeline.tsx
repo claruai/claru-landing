@@ -16,19 +16,38 @@ interface EnrichmentCard {
   tagline: string;
   description: string;
   color: string;
-  media: { type: "video"; src: string } | { type: "json" };
+  media:
+    | { type: "video"; src: string }
+    | { type: "json" }
+    | { type: "quadrant"; clips: [string, string, string, string] };
 }
 
 const CARDS: EnrichmentCard[] = [
   {
     id: "capture",
     label: "CAPTURED",
-    tagline: "Licensed, real-world video — not synthetic, not scraped.",
+    tagline: "Licensed, real-world video — our foundation.",
     description: "",
     color: "#4A9EDE",
     media: {
       type: "video",
       src: "/enrichment-assets/depth-video/90b2c5b4_depth_only.mp4",
+    },
+  },
+  {
+    id: "synthetic",
+    label: "SYNTHETIC",
+    tagline: "Augment real capture with sim-to-real video when coverage or volume matters.",
+    description: "",
+    color: "#E859D6",
+    media: {
+      type: "quadrant",
+      clips: [
+        "/videos/catalog/egocentric/clip_1.mp4",
+        "/videos/synthetic/ego/ego_synthetic.mp4",
+        "/videos/synthetic/robotics/robot_captured.mp4",
+        "/videos/synthetic/robotics/robot_synthetic.mp4",
+      ],
     },
   },
   {
@@ -389,8 +408,38 @@ function colorizeJsonLine(text: string): React.ReactNode {
 /*  Card media renderer                                                        */
 /* -------------------------------------------------------------------------- */
 
+const QUADRANT_LABELS: [string, string, string, string] = [
+  "EGO · REAL",
+  "EGO · SYNTHETIC",
+  "ROBOTICS · REAL",
+  "ROBOTICS · SYNTHETIC",
+];
+
+function QuadrantPanel({ clips }: { clips: [string, string, string, string] }) {
+  return (
+    <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 gap-[1px] bg-[#1a1a18]">
+      {clips.map((src, i) => (
+        <div key={i} className="relative overflow-hidden bg-black">
+          <CardVideo src={src} />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(10,9,8,0.55) 0%, rgba(10,9,8,0.05) 40%, rgba(10,9,8,0.05) 70%, rgba(10,9,8,0.5) 100%)",
+            }}
+          />
+          <span className="absolute left-2.5 top-2.5 z-10 font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-white/70 md:text-[10px]">
+            {QUADRANT_LABELS[i]}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function CardMedia({ card }: { card: EnrichmentCard }) {
   if (card.media.type === "video") return <CardVideo src={card.media.src} />;
+  if (card.media.type === "quadrant") return <QuadrantPanel clips={card.media.clips} />;
   return <RichJsonPanel />;
 }
 
@@ -411,10 +460,9 @@ function PipelineCard({
 }) {
   return (
     <motion.div
-      className="group relative overflow-hidden rounded-xl border border-white/[0.06]"
+      className="group relative h-full min-h-[340px] overflow-hidden rounded-xl border border-white/[0.06] sm:min-h-0"
       style={{
         background: "linear-gradient(165deg, #121110 0%, #0e0d0c 100%)",
-        minHeight: card.media.type === "json" ? 380 : 320,
       }}
       initial={reducedMotion ? {} : { opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -520,16 +568,21 @@ export default function EnrichmentPipeline() {
           </span>
         </motion.h2>
 
-        {/* Cards — 2x2 grid on desktop, stacked on mobile */}
-        <div className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {CARDS.map((card, i) => (
-            <PipelineCard
-              key={card.id}
-              card={card}
-              index={i}
-              reducedMotion={reducedMotion}
-            />
-          ))}
+        {/* Bento grid — SYNTHETIC is the tall feature tile (spans 2 rows), others are 1x1. */}
+        <div className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:auto-rows-[320px]">
+          {CARDS.map((card, i) => {
+            const spanClass =
+              card.id === "synthetic" ? "sm:row-span-2" : "";
+            return (
+              <div key={card.id} className={`h-full ${spanClass}`}>
+                <PipelineCard
+                  card={card}
+                  index={i}
+                  reducedMotion={reducedMotion}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
