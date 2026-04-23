@@ -17,11 +17,11 @@ import AdminCatalogTable from "./AdminCatalogTable";
 export default async function AdminCatalogPage() {
   const supabase = createSupabaseAdminClient();
 
-  const [datasetsResult, categoriesResult, clipCountsResult] = await Promise.all([
+  const [datasetsResult, categoriesResult, clipCountsResult, leadAccessResult] = await Promise.all([
     supabase
       .from("datasets")
       .select("*, dataset_categories(name)")
-      .order("name"),
+      .order("updated_at", { ascending: false }),
     supabase
       .from("dataset_categories")
       .select("*")
@@ -31,12 +31,34 @@ export default async function AdminCatalogPage() {
       .from("dataset_clips")
       .select("dataset_id")
       .is("lead_id", null),
+    supabase
+      .from("lead_dataset_access")
+      .select("dataset_id, leads(id, name, company)"),
   ]);
 
   // Count clips per dataset (excluding lead-specific ones)
   const sampleCounts: Record<string, number> = {};
   for (const row of clipCountsResult.data ?? []) {
     sampleCounts[row.dataset_id] = (sampleCounts[row.dataset_id] ?? 0) + 1;
+  }
+
+  // Map each dataset_id -> list of leads that have access
+  const leadsByDataset: Record<
+    string,
+    { id: string; name: string; company: string }[]
+  > = {};
+  for (const row of (leadAccessResult.data ?? []) as unknown as Array<{
+    dataset_id: string;
+    leads:
+      | { id: string; name: string; company: string }
+      | { id: string; name: string; company: string }[]
+      | null;
+  }>) {
+    if (!row.leads) continue;
+    const leadList = Array.isArray(row.leads) ? row.leads : [row.leads];
+    for (const lead of leadList) {
+      (leadsByDataset[row.dataset_id] ??= []).push(lead);
+    }
   }
 
   if (datasetsResult.error) {
@@ -60,6 +82,7 @@ export default async function AdminCatalogPage() {
         datasets={datasetsResult.data ?? []}
         categories={(categoriesResult.data as DatasetCategory[]) ?? []}
         sampleCounts={sampleCounts}
+        leadsByDataset={leadsByDataset}
       />
     </div>
   );

@@ -8,17 +8,44 @@ import type { Dataset, DatasetCategory, DatasetType } from "@/types/data-catalog
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
-type SortKey = "name" | "category" | "type" | "subcategory" | "total_samples" | "is_published";
+type SortKey =
+  | "name"
+  | "category"
+  | "type"
+  | "subcategory"
+  | "total_samples"
+  | "is_published"
+  | "updated_at"
+  | "created_at";
 type SortDirection = "asc" | "desc";
+type ScopeFilter = "all" | "general" | "lead";
 
 interface DatasetWithCategory extends Dataset {
   dataset_categories: { name: string } | null;
 }
 
+type LeadRef = { id: string; name: string; company: string };
+
 interface AdminCatalogTableProps {
   datasets: DatasetWithCategory[];
   categories: DatasetCategory[];
   sampleCounts?: Record<string, number>;
+  leadsByDataset?: Record<string, LeadRef[]>;
+}
+
+function isLeadSpecific(d: DatasetWithCategory): boolean {
+  return d.source_type === "curated";
+}
+
+function formatDate(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -72,29 +99,42 @@ export default function AdminCatalogTable({
   datasets,
   categories,
   sampleCounts = {},
+  leadsByDataset = {},
 }: AdminCatalogTableProps) {
   /* ----- state ---------------------------------------------------- */
   const [search, setSearch] = useState("");
-  const [sortKey, setSortKey] = useState<SortKey>("name");
-  const [sortDir, setSortDir] = useState<SortDirection>("asc");
+  const [sortKey, setSortKey] = useState<SortKey>("updated_at");
+  const [sortDir, setSortDir] = useState<SortDirection>("desc");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [scopeFilter, setScopeFilter] = useState<ScopeFilter>("all");
 
   /* ----- counts --------------------------------------------------- */
   const counts = useMemo(() => {
     let published = 0;
     let draft = 0;
+    let general = 0;
+    let lead = 0;
     for (const d of datasets) {
       if (d.is_published) published++;
       else draft++;
+      if (isLeadSpecific(d)) lead++;
+      else general++;
     }
-    return { total: datasets.length, published, draft };
+    return { total: datasets.length, published, draft, general, lead };
   }, [datasets]);
+
+  /* ----- derived: filter by scope (general / lead-specific) -------- */
+  const scopeFiltered = useMemo(() => {
+    if (scopeFilter === "all") return datasets;
+    if (scopeFilter === "lead") return datasets.filter(isLeadSpecific);
+    return datasets.filter((d) => !isLeadSpecific(d));
+  }, [datasets, scopeFilter]);
 
   /* ----- derived: filter by category ------------------------------ */
   const categoryFiltered = useMemo(() => {
-    if (categoryFilter === "all") return datasets;
-    return datasets.filter((d) => d.category_id === categoryFilter);
-  }, [datasets, categoryFilter]);
+    if (categoryFilter === "all") return scopeFiltered;
+    return scopeFiltered.filter((d) => d.category_id === categoryFilter);
+  }, [scopeFiltered, categoryFilter]);
 
   /* ----- derived: filter by search -------------------------------- */
   const searchFiltered = useMemo(() => {
@@ -130,6 +170,16 @@ export default function AdminCatalogTable({
           break;
         case "is_published":
           cmp = Number(a.is_published) - Number(b.is_published);
+          break;
+        case "updated_at":
+          cmp =
+            new Date(a.updated_at ?? 0).getTime() -
+            new Date(b.updated_at ?? 0).getTime();
+          break;
+        case "created_at":
+          cmp =
+            new Date(a.created_at ?? 0).getTime() -
+            new Date(b.created_at ?? 0).getTime();
           break;
       }
       return sortDir === "asc" ? cmp : -cmp;
@@ -201,6 +251,49 @@ export default function AdminCatalogTable({
             {counts.draft}
           </p>
         </div>
+        <div className="font-mono text-sm">
+          <span className="text-[var(--text-muted)] text-xs uppercase tracking-wider">
+            General
+          </span>
+          <p className="text-lg text-[var(--text-primary)] font-semibold">
+            {counts.general}
+          </p>
+        </div>
+        <div className="font-mono text-sm">
+          <span className="text-[var(--text-muted)] text-xs uppercase tracking-wider">
+            Lead-specific
+          </span>
+          <p className="text-lg text-[var(--text-primary)] font-semibold">
+            {counts.lead}
+          </p>
+        </div>
+      </div>
+
+      {/* Scope tabs: All / General / Lead-specific */}
+      <div className="flex items-center gap-1 p-1 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] w-fit">
+        {(
+          [
+            { key: "all", label: `All (${counts.total})` },
+            { key: "general", label: `General (${counts.general})` },
+            { key: "lead", label: `Lead-specific (${counts.lead})` },
+          ] as const
+        ).map((tab) => {
+          const active = scopeFilter === tab.key;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setScopeFilter(tab.key)}
+              className={`px-3 py-1.5 rounded-md font-mono text-xs uppercase tracking-wider transition-colors duration-150 ${
+                active
+                  ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/20"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-secondary)] border border-transparent"
+              }`}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Filters: Category dropdown + Search */}
@@ -256,14 +349,18 @@ export default function AdminCatalogTable({
 
       {/* Table wrapper -- horizontal scroll on mobile */}
       <div className="overflow-x-auto rounded-lg border border-[var(--border-subtle)]">
-        <table className="w-full min-w-[960px] font-mono text-sm">
+        <table className="w-full min-w-[1200px] font-mono text-sm">
           <thead className="border-b border-[var(--border-subtle)] bg-[var(--bg-secondary)]">
             <tr>
               {th("Name", "name")}
               {th("Category", "category")}
               {th("Type", "type")}
-              {th("Subcategory", "subcategory")}
               {th("Size", "total_samples")}
+              <th className="px-4 py-3 text-left text-xs font-mono uppercase tracking-wider text-[var(--text-tertiary)]">
+                Lead
+              </th>
+              {th("Uploaded", "created_at")}
+              {th("Updated", "updated_at")}
               {th("Published", "is_published")}
               <th className="px-4 py-3 text-left text-xs font-mono uppercase tracking-wider text-[var(--text-tertiary)]">
                 Actions
@@ -275,7 +372,7 @@ export default function AdminCatalogTable({
             {sorted.length === 0 ? (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={9}
                   className="px-4 py-12 text-center text-sm text-[var(--text-muted)]"
                 >
                   {search.trim()
@@ -284,7 +381,10 @@ export default function AdminCatalogTable({
                 </td>
               </tr>
             ) : (
-              sorted.map((dataset) => (
+              sorted.map((dataset) => {
+                const leads = leadsByDataset[dataset.id] ?? [];
+                const leadSpecific = isLeadSpecific(dataset);
+                return (
                 <tr
                   key={dataset.id}
                   className="hover:bg-[var(--bg-secondary)] transition-colors duration-150"
@@ -297,6 +397,11 @@ export default function AdminCatalogTable({
                     >
                       {dataset.name}
                     </Link>
+                    {leadSpecific && (
+                      <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono uppercase tracking-wider bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/20">
+                        curated
+                      </span>
+                    )}
                   </td>
 
                   {/* Category */}
@@ -307,11 +412,6 @@ export default function AdminCatalogTable({
                   {/* Type */}
                   <td className="px-4 py-3 text-[var(--text-secondary)]">
                     {TYPE_LABELS[dataset.type] ?? dataset.type}
-                  </td>
-
-                  {/* Subcategory */}
-                  <td className="px-4 py-3 text-[var(--text-muted)]">
-                    {dataset.subcategory || "\u2014"}
                   </td>
 
                   {/* Dataset Size + actual sample count */}
@@ -329,6 +429,52 @@ export default function AdminCatalogTable({
                     </span>
                   </td>
 
+                  {/* Lead(s) */}
+                  <td className="px-4 py-3 text-xs">
+                    {leads.length === 0 ? (
+                      <span className="text-[var(--text-muted)]">{"\u2014"}</span>
+                    ) : (
+                      <div className="flex flex-col gap-0.5">
+                        {leads.slice(0, 2).map((l) => (
+                          <span
+                            key={l.id}
+                            className="text-[var(--text-secondary)] truncate max-w-[180px]"
+                            title={`${l.name} \u2014 ${l.company}`}
+                          >
+                            {l.name}
+                            {l.company ? (
+                              <span className="text-[var(--text-muted)]">
+                                {" \u00b7 "}
+                                {l.company}
+                              </span>
+                            ) : null}
+                          </span>
+                        ))}
+                        {leads.length > 2 && (
+                          <span className="text-[var(--text-muted)]">
+                            +{leads.length - 2} more
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </td>
+
+                  {/* Uploaded / created */}
+                  <td
+                    className="px-4 py-3 text-xs text-[var(--text-muted)] tabular-nums whitespace-nowrap"
+                    title={dataset.created_at ?? ""}
+                  >
+                    {formatDate(dataset.created_at)}
+                  </td>
+
+                  {/* Updated */}
+                  <td
+                    className="px-4 py-3 text-xs text-[var(--text-muted)] tabular-nums whitespace-nowrap"
+                    title={dataset.updated_at ?? ""}
+                  >
+                    {formatDate(dataset.updated_at)}
+                  </td>
+
                   {/* Published badge */}
                   <td className="px-4 py-3">
                     {publishedBadge(dataset.is_published)}
@@ -344,7 +490,8 @@ export default function AdminCatalogTable({
                     </Link>
                   </td>
                 </tr>
-              ))
+                );
+              })
             )}
           </tbody>
         </table>
