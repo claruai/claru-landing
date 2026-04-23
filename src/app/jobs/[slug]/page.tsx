@@ -110,16 +110,18 @@ export default async function JobDetailPage({
       sameAs: "https://claru.ai",
     },
     jobLocationType: "TELECOMMUTE",
-    ...(job.locationRequirements && {
-      applicantLocationRequirements: (() => {
-        const countries = job.locationRequirements
-          .split(",")
-          .map((c) => c.trim())
-          .filter(Boolean);
-        const toEntry = (name: string) => ({ "@type": "Country" as const, name });
-        return countries.length > 1 ? countries.map(toEntry) : toEntry(countries[0]);
-      })(),
-    }),
+    ...(() => {
+      const countries = (job.locationRequirements ?? "")
+        .split(",")
+        .map((c) => c.trim())
+        .filter(Boolean);
+      if (countries.length === 0) return {};
+      const toEntry = (name: string) => ({ "@type": "Country" as const, name });
+      return {
+        applicantLocationRequirements:
+          countries.length > 1 ? countries.map(toEntry) : toEntry(countries[0]),
+      };
+    })(),
     baseSalary: {
       "@type": "MonetaryAmount",
       currency: "USD",
