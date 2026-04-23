@@ -2,14 +2,13 @@
   "slug": "first-person-video-data-collector",
   "title": "First-Person Video Data Collector",
   "category": "video-capture",
-  "description": "You will record first-person (egocentric) video of everyday activities using a head-mounted smartphone. The footage trains embodied AI and computer vision models on human activity recognition and hand-object interaction -- these systems need thousands of hours of people doing ordinary things in both residential and commercial environments. Each clip is short (1-4 minutes) and must show your hands clearly as you interact with objects. Recording sessions are scheduled around your own routine.\n\nWe collect in a wide range of settings. Residential: kitchen (cooking, washing dishes, using appliances), cleaning (sweeping, vacuuming, dusting), laundry (sorting, folding, ironing), bedroom (making the bed, organizing the wardrobe, packing). Commercial: retail stocking, restaurant and cafe prep, warehouse handling, hospitality and cleaning services, light assembly, and similar workplace tasks. You pick the activity areas you have reliable access to.\n\nEquipment is simple. All you need is a smartphone with an ultrawide (0.5x zoom) camera -- most iPhones from the iPhone 11 onward and most recent Samsung, Google Pixel, and other flagship Android phones have this built in. You also need an inexpensive phone head-strap or chest mount (around $10-20 on Amazon) so the camera sits roughly at eye level while your hands stay free. A dedicated action camera like a GoPro is a nice-to-have but not required. No filmmaking experience is needed; we care about following the protocol, not cinematic quality.\n\nScheduling is up to you within weekly targets. On the current ROW 715 project, most contributors deliver around 5 hours of accepted footage per week, recorded as short 1-4 minute clips. Program-wide, we ask for a minimum of 10 hours of accepted footage per week to stay active across future projects. Open to collectors based anywhere in the United States or Canada.",
+  "description": "Get paid by the hour to record first-person (egocentric) video of everyday activities using your smartphone. The footage trains embodied AI and computer vision models on human activity recognition and hand-object interaction. Simple setup, flexible schedule, paid weekly for accepted footage. Record as little or as much as you want -- collectors who deliver more good footage earn more.\n\nWork on your own time. You pick when you record, what activities you capture, and how many hours you put in. Some collectors record an hour here and there between other things; others batch sessions into full recording days. There is no minimum weekly commitment to get started and no cap on how much you can deliver.\n\nWe record in a wide range of settings and projects rotate regularly. Residential: cooking, washing dishes, using appliances, cleaning, laundry, making the bed, organizing, packing, and similar household activities. Commercial (with permission from your workplace): retail stocking, restaurant and cafe prep, warehouse handling, hospitality, light assembly, and similar workplace tasks. You pick the settings you have reliable access to.\n\nEquipment is simple. All you need is a smartphone with an ultrawide (0.5x zoom) camera -- most iPhones from the iPhone 11 onward and most recent Samsung, Google Pixel, and other flagship Android phones have this built in. You also need an inexpensive phone head-strap or chest mount (around $10-20 on Amazon) so the camera sits at eye level while your hands stay free. A dedicated action camera like a GoPro is a nice-to-have but not required. No filmmaking experience is needed; we care about following the protocol, not cinematic quality.\n\nApply now to get on the roster. Approved collectors are invited to active projects as they launch. Open to anyone based in the United States or Canada.",
   "skills": [
     "Own a smartphone with an ultrawide (0.5x zoom) rear camera -- iPhone 11 or newer, Samsung Galaxy S10 or newer, Google Pixel 4 or newer, and most recent flagship Android phones qualify",
     "Willingness to use an inexpensive phone head-strap or chest mount (around $10-20) to capture hands-free footage",
     "Comfort operating a smartphone camera app and managing large video files",
-    "Availability for at least 10-15 hours per week",
     "Ability to follow detailed recording protocols",
-    "Ability to record short 1-4 minute clips with hands and objects clearly in frame",
+    "Ability to record hands-and-objects footage with everything clearly in frame",
     "Access to residential settings (kitchen, laundry, bedroom) and/or commercial settings (retail, food service, warehouse, hospitality)",
     "Based in the United States or Canada",
     "Strong attention to detail and consistency"
@@ -49,12 +48,20 @@
       "answer": "Wherever you already are day to day. Residential settings like your own kitchen, laundry area, and bedroom work well. Commercial settings like retail, food service, warehouse, and hospitality also work if you have permission to record."
     },
     {
-      "question": "How long is each video clip?",
-      "answer": "Each clip is 1-4 minutes long and focuses on a single activity (for example, making coffee, folding laundry, or making the bed). Your hands and the objects you are handling must be clearly visible throughout."
+      "question": "How much can I record?",
+      "answer": "As much as you want, within the requirements of the active project. There is no cap on accepted footage -- collectors who deliver more good footage earn more. There is also no minimum to get started; apply, get approved, and record at your own pace."
     },
     {
-      "question": "How much footage will I record in total?",
-      "answer": "Most contributors collect around 5 hours of accepted footage across a week on the current project, recorded as short 1-4 minute clips spread throughout normal household routines."
+      "question": "How long is each video clip?",
+      "answer": "Clip length depends on the project, typically 1-4 minutes per clip focused on a single activity. Your hands and the objects you are handling must be clearly visible throughout."
+    },
+    {
+      "question": "How am I paid?",
+      "answer": "Hourly for accepted footage, paid weekly. The rate sits between \\$15 and \\$30 per hour depending on the complexity of the activity, the setting (residential vs commercial), and your track record of accepted submissions."
+    },
+    {
+      "question": "When will I start recording?",
+      "answer": "Apply now to get on the roster. Once approved, you are invited to active projects as they launch. We run multiple projects at a time and new ones start on a rolling basis."
     }
   ]
 }
