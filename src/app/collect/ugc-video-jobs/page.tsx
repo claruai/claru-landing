@@ -406,7 +406,7 @@ function PageInner() {
             />
             <FaqItem
               q="Where does the footage go? Is my face or address exposed?"
-              a="Footage is used to train household robots — loading dishwashers, folding towels, tidying rooms. It's only used for manipulation and activity models, never face recognition or identity. You film your hands and the tasks, not your face."
+              a="Footage is used to train household robots — loading dishwashers, folding towels, tidying rooms. It's used for manipulation and activity models, not face recognition or identity. You film your hands and the tasks, not your face."
             />
           </div>
         </div>
@@ -697,7 +697,7 @@ function FaqItem({ q, a }: { q: React.ReactNode; a: React.ReactNode }) {
   );
 }
 
-export default function HouseholdUsaPage() {
+export default function UgcVideoJobsPage() {
   return (
     <Suspense fallback={null}>
       <PageInner />
