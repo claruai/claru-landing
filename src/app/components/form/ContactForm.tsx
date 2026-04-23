@@ -20,6 +20,9 @@ const HEARD_ABOUT_OPTIONS = [
   { value: "other", label: "Other" },
 ] as const;
 
+// localStorage key for contact form conversion idempotency — "fire only once per user" per the Google Ads brief.
+const LEAD_CONVERSION_FIRED_KEY = "claru_gads_lead_conversion_fired";
+
 const formSchema = z.object({
   name: z.string().min(2, "Name is required"),
   email: z.string().email("Please enter a valid email"),
@@ -60,7 +63,7 @@ export default function ContactForm() {
     });
 
     try {
-      await fetch("/api/contact", {
+      const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -71,6 +74,25 @@ export default function ContactForm() {
           heard_about: data.heardAbout,
         }),
       });
+
+      // Fire analytics only on confirmed server success AND only once per browser.
+      // Firing on submit (incl. failures) or on refresh would poison Smart Bidding.
+      if (response.ok && !localStorage.getItem(LEAD_CONVERSION_FIRED_KEY)) {
+        window.gtag?.("event", "conversion", {
+          send_to: "AW-16922029729/kmelCJ6Ss6EcEKHdhoU_",
+          value: 1.0,
+          currency: "USD",
+        });
+        window.gtag?.("event", "generate_lead", {
+          form_name: "contact",
+          page_location: typeof window !== "undefined" ? window.location.href : undefined,
+        });
+        try {
+          localStorage.setItem(LEAD_CONVERSION_FIRED_KEY, String(Date.now()));
+        } catch {
+          // localStorage may be unavailable (Safari private mode) — non-fatal
+        }
+      }
     } catch {
       // Silently handle — still advance to confirmation
     }
