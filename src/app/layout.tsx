@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import "lenis/dist/lenis.css";
@@ -186,6 +187,20 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${jetbrainsMono.variable} antialiased`}
       >
+        {/* Google tag (gtag.js) — cross-domain linker keeps claru.ai ↔ app.claru.ai as one session */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-98MREQY4D1"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-98MREQY4D1', { linker: { domains: ['claru.ai', 'app.claru.ai'] } });
+            gtag('config', 'AW-16922029729');
+          `}
+        </Script>
         <PostHogProvider>
           <MotionProvider>
             <CalendlyProvider>
