@@ -2,37 +2,59 @@
   "slug": "first-person-video-data-collector",
   "title": "First-Person Video Data Collector",
   "category": "video-capture",
-  "description": "You will record first-person video of everyday activities using wearable cameras that we ship to you. The footage trains embodied AI and computer vision models -- these systems need thousands of hours of people doing ordinary things like cooking, tidying, assembling furniture, and moving through rooms. Each recording session follows a detailed protocol that specifies the activity, camera angle, lighting requirements, and duration. Typical sessions last 1-2 hours.\n\nYou need a reliable indoor space where you can control lighting -- a kitchen, home office, or workshop works well. We provide all camera equipment and ship it to your address at no cost. Basic tech comfort is important: you should be able to charge a device, pair it via Bluetooth, and upload large files. No filmmaking experience is needed; we care about following the protocol, not cinematic quality.\n\nScheduling is up to you within weekly targets. Some contributors record daily in short bursts; others batch sessions into two or three longer days. We ask for a minimum of 10 hours of accepted footage per week to stay active on the project.",
+  "description": "You will record first-person (egocentric) video of everyday activities using a head-mounted smartphone. The footage trains embodied AI and computer vision models on human activity recognition and hand-object interaction -- these systems need thousands of hours of people doing ordinary things in both residential and commercial environments. Each clip is short (1-4 minutes) and must show your hands clearly as you interact with objects. Recording sessions are scheduled around your own routine.\n\nWe collect in a wide range of settings. Residential: kitchen (cooking, washing dishes, using appliances), cleaning (sweeping, vacuuming, dusting), laundry (sorting, folding, ironing), bedroom (making the bed, organizing the wardrobe, packing). Commercial: retail stocking, restaurant and cafe prep, warehouse handling, hospitality and cleaning services, light assembly, and similar workplace tasks. You pick the activity areas you have reliable access to.\n\nEquipment is simple. All you need is a smartphone with an ultrawide (0.5x zoom) camera -- most iPhones from the iPhone 11 onward and most recent Samsung, Google Pixel, and other flagship Android phones have this built in. You also need an inexpensive phone head-strap or chest mount (around $10-20 on Amazon) so the camera sits roughly at eye level while your hands stay free. A dedicated action camera like a GoPro is a nice-to-have but not required. No filmmaking experience is needed; we care about following the protocol, not cinematic quality.\n\nScheduling is up to you within weekly targets. On the current ROW 715 project, most contributors deliver around 5 hours of accepted footage per week, recorded as short 1-4 minute clips. Program-wide, we ask for a minimum of 10 hours of accepted footage per week to stay active across future projects. Open to collectors based anywhere in the United States or Canada.",
   "skills": [
-    "Comfort wearing and operating body-mounted cameras",
+    "Own a smartphone with an ultrawide (0.5x zoom) rear camera -- iPhone 11 or newer, Samsung Galaxy S10 or newer, Google Pixel 4 or newer, and most recent flagship Android phones qualify",
+    "Willingness to use an inexpensive phone head-strap or chest mount (around $10-20) to capture hands-free footage",
+    "Comfort operating a smartphone camera app and managing large video files",
     "Availability for at least 10-15 hours per week",
     "Ability to follow detailed recording protocols",
-    "Basic video file management skills (uploading, naming)",
-    "Basic technical literacy (Bluetooth pairing, device charging)",
-    "Access to a kitchen or workshop environment",
+    "Ability to record short 1-4 minute clips with hands and objects clearly in frame",
+    "Access to residential settings (kitchen, laundry, bedroom) and/or commercial settings (retail, food service, warehouse, hospitality)",
+    "Based in the United States or Canada",
     "Strong attention to detail and consistency"
   ],
-  "compensationMin": 35,
-  "compensationMax": 55,
+  "compensationMin": 15,
+  "compensationMax": 30,
   "employmentType": "CONTRACTOR",
   "locationType": "TELECOMMUTE",
-  "locationRequirements": "US",
-  "datePosted": "2026-02-06",
-  "validThrough": "2026-05-05",
+  "locationRequirements": "US, CA",
+  "datePosted": "2026-04-23",
+  "validThrough": "2026-07-23",
   "featured": true,
   "archived": false,
   "faqs": [
     {
       "question": "How long does onboarding take?",
-      "answer": "About one hour. A data collection lead will walk you through equipment setup and your first practice recording on a video call."
+      "answer": "About one hour. A data collection lead will walk you through smartphone setup, mount positioning, and your first practice recording on a video call."
     },
     {
       "question": "Do I need my own camera equipment?",
-      "answer": "No. We ship all cameras and accessories to you at no charge. Equipment must be returned when the engagement ends."
+      "answer": "All you need is a smartphone with an ultrawide (0.5x zoom) camera and an inexpensive phone head-strap or chest mount (around $10-20 on Amazon). Most iPhones from the iPhone 11 onward, and most recent Samsung, Google Pixel, and other flagship Android phones, have a built-in ultrawide lens. A dedicated action camera like a GoPro is nice to have but not required."
+    },
+    {
+      "question": "How do I know if my phone has an ultrawide camera?",
+      "answer": "Open your camera app and look for a 0.5x zoom option near the shutter button. If tapping 0.5x pulls the view noticeably wider, you are set. If the widest option is 1x, the phone will not work for this project."
+    },
+    {
+      "question": "Can I apply from Canada?",
+      "answer": "Yes. This role is open to collectors based anywhere in the United States or Canada."
+    },
+    {
+      "question": "Can I record at my workplace?",
+      "answer": "Yes, provided you have permission from the business owner or manager and no customers or sensitive information are captured on camera. Common commercial settings include retail stocking, cafe and restaurant prep, warehouse handling, hospitality, and light assembly."
     },
     {
       "question": "Where do recordings take place?",
-      "answer": "Mostly in your home or a similar everyday environment. You will need access to spaces like a kitchen, living room, or home office depending on the recording protocol for that session."
+      "answer": "Wherever you already are day to day. Residential settings like your own kitchen, laundry area, and bedroom work well. Commercial settings like retail, food service, warehouse, and hospitality also work if you have permission to record."
+    },
+    {
+      "question": "How long is each video clip?",
+      "answer": "Each clip is 1-4 minutes long and focuses on a single activity (for example, making coffee, folding laundry, or making the bed). Your hands and the objects you are handling must be clearly visible throughout."
+    },
+    {
+      "question": "How much footage will I record in total?",
+      "answer": "Most contributors collect around 5 hours of accepted footage across a week on the current project, recorded as short 1-4 minute clips spread throughout normal household routines."
     }
   ]
 }
