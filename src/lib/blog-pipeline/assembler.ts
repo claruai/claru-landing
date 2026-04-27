@@ -144,8 +144,12 @@ export async function runAssembler(input: AssemblyInput): Promise<{ postId: stri
       editorial_notes: editorialNotes,
       research_sources: brief.citableSources.slice(0, 5),
       video_url: visualOutput.videoUrl ?? null,
-      composition_id: visualOutput.compositionId ?? null,
-      input_props: visualOutput.inputProps ?? null,
+      // Only persist composition_id when a unique video_url exists.
+      // DynamicVisual.tsx is a single shared file overwritten on every pipeline run,
+      // so referencing it without a per-post rendered video makes every post show
+      // the latest generated visual.
+      composition_id: visualOutput.videoUrl ? (visualOutput.compositionId ?? null) : null,
+      input_props: visualOutput.videoUrl ? (visualOutput.inputProps ?? null) : null,
       composition_code: visualOutput.compositionCode ?? null,
       twitter_thread: twitterThread,
     })

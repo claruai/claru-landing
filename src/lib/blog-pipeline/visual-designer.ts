@@ -222,25 +222,31 @@ export async function runVisualDesigner(
     };
   }
 
-  // Phase 2: Skip Lambda render (SKIP_REMOTION=true) — Player will render in browser
+  // Phase 2: Skip Lambda render (SKIP_REMOTION=true)
+  // Do NOT set compositionId — DynamicVisual.tsx is a single shared file overwritten
+  // by every run, so all posts that reference it would render the latest generated visual.
+  // No video for this post; composition_code is preserved for debugging.
   if (process.env.SKIP_REMOTION === 'true') {
     return {
       videoUrl: null,
-      compositionId: 'DynamicVisual',
+      compositionId: null,
       inputProps: null,
       compositionCode: code,
-      visualConcept: 'generated (render skipped — use Remotion Player for preview)',
+      visualConcept: 'generated (render skipped — no embed)',
     };
   }
 
   // Phase 3: Bundle → render → upload → return video URL
   const videoUrl = await renderToVideo(slug);
 
+  // Only set compositionId when we actually have a unique rendered S3 URL.
+  // The DynamicVisual.tsx file is shared across runs — pointing posts at it
+  // without a per-post video URL would show every post the latest visual.
   return {
     videoUrl,
-    compositionId: 'DynamicVisual',
+    compositionId: videoUrl ? 'DynamicVisual' : null,
     inputProps: null,
     compositionCode: code,
-    visualConcept: videoUrl ? 'rendered and uploaded' : 'render failed — code stored for Player fallback',
+    visualConcept: videoUrl ? 'rendered and uploaded' : 'render failed — no embed',
   };
 }
