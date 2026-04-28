@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  const { name, email, company, project_description } = body;
+  const { name, email, company, project_description, heard_about } = body;
 
   if (!name || !email || !company) {
     return NextResponse.json(
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     ph?.capture({
       distinctId: email,
       event: "contact_form_server",
-      properties: { company, has_project_description: !!project_description },
+      properties: { company, has_project_description: !!project_description, heard_about },
     });
 
     // 1. Send notification email to team
@@ -58,6 +58,7 @@ export async function POST(request: NextRequest) {
             <tr><td style="padding: 8px 0; color: #92B090; vertical-align: top;">Email</td><td style="padding: 8px 0;"><a href="mailto:${escapeHtml(email)}" style="color: #a8c4a6;">${escapeHtml(email)}</a></td></tr>
             <tr><td style="padding: 8px 0; color: #92B090; vertical-align: top;">Company</td><td style="padding: 8px 0;">${escapeHtml(company)}</td></tr>
             ${project_description ? `<tr><td style="padding: 8px 0; color: #92B090; vertical-align: top;">Project</td><td style="padding: 8px 0;">${escapeHtml(project_description)}</td></tr>` : ""}
+            ${heard_about ? `<tr><td style="padding: 8px 0; color: #92B090; vertical-align: top;">Heard via</td><td style="padding: 8px 0;">${escapeHtml(heard_about)}</td></tr>` : ""}
           </table>
           <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 12px; color: rgba(255,255,255,0.4);">
             Claru AI — Consultation Request
@@ -96,6 +97,7 @@ export async function POST(request: NextRequest) {
             email,
             company,
             use_case: project_description || null,
+            heard_about: heard_about || null,
             // Intentionally omit `status` — do not overwrite an existing
             // 'approved'/'rejected' lead if they re-submit the contact form.
           },
