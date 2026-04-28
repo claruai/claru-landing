@@ -1024,10 +1024,15 @@ function ClipCard({
         className="relative aspect-video overflow-hidden"
         style={{ background: "var(--bg-primary)" }}
       >
+        {/* `#t=0.1` forces iOS Safari to seek to that timestamp and render
+            it as the preview frame. Without this and without a poster, mobile
+            Safari shows a black box until the user taps to play. `metadata`
+            is the most we can ask for over cellular — `auto` is silently
+            downgraded by Safari and produces the same black-box behavior. */}
         <video
-          src={clip.signedUrl}
+          src={`${clip.signedUrl}#t=0.1`}
           className="w-full h-full object-cover"
-          preload="auto"
+          preload="metadata"
           muted
           playsInline
         />
