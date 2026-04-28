@@ -91,7 +91,6 @@ const ACTIVE_VIDEO_FILES = new Set<string>([
   "robot-arm.mp4",
   "mosaic-teleop.mp4",
   "pancake-cooking.mp4",
-  "kling-robot.mp4",
   "kling-simlab.mp4",
   "annotated-bbox-01.mp4",
   "annotated-depth-01.mp4",
