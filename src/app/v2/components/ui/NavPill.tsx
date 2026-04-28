@@ -4,24 +4,19 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 export default function NavPill() {
-  const [visible, setVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      // Show after scrolling past ~80vh (hero area)
-      setVisible(window.scrollY > window.innerHeight * 0.8);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+    // Single fade-in on mount; nav stays visible from then on so re-entering
+    // the hero on scroll-up doesn't trigger a flicker.
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
   }, []);
 
   return (
     <div
-      className={`fixed left-1/2 top-4 z-50 -translate-x-1/2 transition-all duration-500 ${
-        visible
-          ? "translate-y-0 opacity-100"
-          : "-translate-y-4 opacity-0 pointer-events-none"
+      className={`fixed left-1/2 top-4 z-50 -translate-x-1/2 transition-opacity duration-500 ${
+        mounted ? "opacity-100" : "opacity-0"
       }`}
     >
       <nav className="flex items-center gap-3 rounded-full border border-white/[0.08] bg-[#0a0908]/80 px-3 py-1.5 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.4)] sm:gap-6 sm:px-6 sm:py-2.5">
@@ -35,23 +30,11 @@ export default function NavPill() {
 
         {/* Section links — hidden on mobile to prevent overflow */}
         <div className="hidden items-center gap-4 sm:flex">
-          <a
-            href="#catalog"
-            className="min-h-[44px] flex items-center font-mono text-[11px] text-white/35 transition-colors hover:text-white/60"
-          >
-            Data
-          </a>
-          <a
-            href="#enrichment"
-            className="min-h-[44px] flex items-center font-mono text-[11px] text-white/35 transition-colors hover:text-white/60"
-          >
-            Enrichment
-          </a>
           <Link
             href="/for-annotators"
             className="min-h-[44px] flex items-center font-mono text-[11px] text-white/35 transition-colors hover:text-white/60"
           >
-            Annotators
+            For Annotators
           </Link>
         </div>
 
