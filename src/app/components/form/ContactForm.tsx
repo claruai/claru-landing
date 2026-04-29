@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,6 +37,7 @@ export default function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState<FormData | null>(null);
   const posthog = usePostHog();
+  const startedFiredRef = useRef(false);
 
   const {
     register,
@@ -47,12 +48,21 @@ export default function ContactForm() {
     mode: "onChange",
   });
 
+  // Fire `contact_form_started` once per mount when any field first receives focus.
+  // Captured at the form element so a single handler covers all fields.
+  const handleFormFocus = () => {
+    if (startedFiredRef.current) return;
+    startedFiredRef.current = true;
+    posthog?.capture("contact_form_started", { source: "inline" });
+  };
+
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
 
     posthog?.capture("contact_form_submitted", {
       company: data.company,
       heard_about: data.heardAbout,
+      source: "inline",
     });
 
     posthog?.identify(data.email, {
@@ -75,6 +85,14 @@ export default function ContactForm() {
         }),
       });
 
+      if (!response.ok) {
+        posthog?.capture("contact_form_error", {
+          source: "inline",
+          status: response.status,
+          stage: "api_response",
+        });
+      }
+
       // Fire analytics only on confirmed server success AND only once per browser.
       // Firing on submit (incl. failures) or on refresh would poison Smart Bidding.
       if (response.ok && !localStorage.getItem(LEAD_CONVERSION_FIRED_KEY)) {
@@ -93,8 +111,13 @@ export default function ContactForm() {
           // localStorage may be unavailable (Safari private mode) — non-fatal
         }
       }
-    } catch {
-      // Silently handle — still advance to confirmation
+    } catch (err) {
+      posthog?.capture("contact_form_error", {
+        source: "inline",
+        stage: "network",
+        message: err instanceof Error ? err.message : String(err),
+      });
+      // Still advance to confirmation — server may have actually received it.
     }
 
     setIsSubmitting(false);
@@ -137,7 +160,7 @@ export default function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl mx-auto">
+    <form onSubmit={handleSubmit(onSubmit)} onFocus={handleFormFocus} className="max-w-2xl mx-auto">
       {/* Terminal Window */}
       <div className="bg-[var(--bg-secondary)] border border-[var(--border-subtle)] overflow-hidden">
         {/* Terminal header */}
