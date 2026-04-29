@@ -199,6 +199,7 @@ export default function RootLayout({
             gtag('js', new Date());
             gtag('config', 'G-98MREQY4D1', { linker: { domains: ['claru.ai', 'app.claru.ai'] } });
             gtag('config', 'AW-16922029729');
+            gtag('config', 'AW-18127763802');
           `}
         </Script>
         <PostHogProvider>

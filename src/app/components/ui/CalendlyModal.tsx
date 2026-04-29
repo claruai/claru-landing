@@ -30,6 +30,11 @@ const formSchema = z.object({
   heardAbout: z.string().min(1, "Please select an option"),
 });
 
+// localStorage idempotency for [Demand] Enquiry Submitted Google Ads conversion (AW-18127763802).
+// Shared with ContactForm via the same key — fire once per browser regardless of which demand-side
+// form (modal or inline) the user submits first. Per the Google Ads brief.
+const DEMAND_ENQUIRY_CONVERSION_FIRED_KEY = "claru_gads_demand_enquiry_conversion_fired";
+
 type FormData = z.infer<typeof formSchema>;
 
 function TerminalHeader({
@@ -117,7 +122,21 @@ function StepForm({ onSuccess }: { onSuccess: (data: FormData) => void }) {
           heard_about: data.heardAbout,
         }),
       });
-      if (!response.ok) {
+      if (response.ok) {
+        // [Demand] Enquiry Submitted — Google Ads conversion for AW-18127763802
+        if (!localStorage.getItem(DEMAND_ENQUIRY_CONVERSION_FIRED_KEY)) {
+          window.gtag?.("event", "conversion", {
+            send_to: "AW-18127763802/jUQCCISU56QcENry_sND",
+            value: 1.0,
+            currency: "USD",
+          });
+          try {
+            localStorage.setItem(DEMAND_ENQUIRY_CONVERSION_FIRED_KEY, String(Date.now()));
+          } catch {
+            // non-fatal
+          }
+        }
+      } else {
         posthog?.capture("contact_form_error", {
           source: "modal",
           status: response.status,
