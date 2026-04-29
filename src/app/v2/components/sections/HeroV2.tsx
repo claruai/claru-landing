@@ -9,6 +9,7 @@ import dynamic from "next/dynamic";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { usePostHog } from "posthog-js/react";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 import type { VideoWallCSSHandle } from "../ui/VideoWallCSS";
 
@@ -579,6 +580,7 @@ function InvestorBar({ reducedMotion }: { reducedMotion: boolean }) {
 export default function HeroV2() {
   const reducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
+  const posthog = usePostHog();
   const sectionRef = useRef<HTMLElement>(null);
   const stickyContainerRef = useRef<HTMLDivElement>(null);
   const textOverlayRef = useRef<HTMLDivElement>(null);
@@ -788,6 +790,12 @@ export default function HeroV2() {
               >
                 <Link
                   href="#contact"
+                  onClick={() =>
+                    posthog?.capture("book_call_clicked", {
+                      location: "hero_desktop",
+                      destination: "inline_form",
+                    })
+                  }
                   className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-[var(--accent-primary)] px-10 py-4 text-[15px] font-bold tracking-[-0.01em] text-[#0a0908] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(146,176,144,0.25)]"
                 >
                   <span className="relative z-10">Book a Call</span>
@@ -994,6 +1002,12 @@ export default function HeroV2() {
             >
               <Link
                 href="/api/booking-url"
+                onClick={() =>
+                  posthog?.capture("book_call_clicked", {
+                    location: "hero_mobile",
+                    destination: "calendly",
+                  })
+                }
                 className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-[var(--accent-primary)] px-12 py-5 text-[16px] font-bold tracking-[-0.01em] text-[#0a0908] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_60px_var(--accent-glow-strong)]"
                 style={{ boxShadow: "0 0 30px rgba(146, 176, 144, 0.15)" }}
               >
