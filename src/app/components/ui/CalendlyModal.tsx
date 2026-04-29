@@ -73,6 +73,7 @@ function TerminalHeader({
 function StepForm({ onSuccess }: { onSuccess: (data: FormData) => void }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const posthog = usePostHog();
+  const startedFiredRef = useRef(false);
   const {
     register,
     handleSubmit,
@@ -81,6 +82,12 @@ function StepForm({ onSuccess }: { onSuccess: (data: FormData) => void }) {
     resolver: zodResolver(formSchema),
     mode: "onChange",
   });
+
+  const handleFormFocus = () => {
+    if (startedFiredRef.current) return;
+    startedFiredRef.current = true;
+    posthog?.capture("contact_form_started", { source: "modal" });
+  };
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
@@ -99,7 +106,7 @@ function StepForm({ onSuccess }: { onSuccess: (data: FormData) => void }) {
     });
 
     try {
-      await fetch("/api/contact", {
+      const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -110,15 +117,27 @@ function StepForm({ onSuccess }: { onSuccess: (data: FormData) => void }) {
           heard_about: data.heardAbout,
         }),
       });
-    } catch {
-      // Silently handle — still advance to confirmation
+      if (!response.ok) {
+        posthog?.capture("contact_form_error", {
+          source: "modal",
+          status: response.status,
+          stage: "api_response",
+        });
+      }
+    } catch (err) {
+      posthog?.capture("contact_form_error", {
+        source: "modal",
+        stage: "network",
+        message: err instanceof Error ? err.message : String(err),
+      });
+      // Still advance to confirmation — server may have actually received it.
     }
     setIsSubmitting(false);
     onSuccess(data);
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
+    <form onSubmit={handleSubmit(onSubmit)} onFocus={handleFormFocus} className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto p-6 space-y-5">
         <div className="font-mono text-sm text-[var(--text-secondary)]">
           <span className="text-[var(--accent-primary)]">&gt;</span>{" "}

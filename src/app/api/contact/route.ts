@@ -25,21 +25,32 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  const { name, email, company, project_description, heard_about } = body;
+  const { name: rawName, email, company, project_description, heard_about, source } = body;
 
-  if (!name || !email || !company) {
+  // Email + company are the floor — the inline hero collector sends only those two.
+  // For full contact forms, name is provided; for the inline form, we backfill from email.
+  if (!email || !company) {
     return NextResponse.json(
-      { error: "Name, email, and company are required" },
+      { error: "Email and company are required" },
       { status: 400 }
     );
   }
+
+  // Fall back to the local-part of the email when name is omitted.
+  const name = (rawName && rawName.trim()) || email.split("@")[0] || "(no name)";
 
   try {
     const ph = getPostHogServer();
     ph?.capture({
       distinctId: email,
       event: "contact_form_server",
-      properties: { company, has_project_description: !!project_description, heard_about },
+      properties: {
+        company,
+        has_project_description: !!project_description,
+        heard_about,
+        source: source || "modal",
+        name_provided: !!(rawName && rawName.trim()),
+      },
     });
 
     // 1. Send notification email to team

@@ -78,27 +78,11 @@ const GRID_VIDEOS: (string | null)[][] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Active playback set — only these 12 tiles render <video>; the rest show a
-// poster frame as <img>. Cap exists because 60+ simultaneous H.264 decoders
-// exhaust hardware decode budget on most consumer GPUs (real complaint from
-// users on fast machines: "background videos too intense"). Picks favor
-// high-motion content + annotation overlays so the wall still reads "alive"
-// and "this is annotated data."
+// Every tile renders <video> with poster fallback. Concurrent decode pressure
+// is mitigated by IntersectionObserver-driven lazy play (see VideoTile below)
+// + preload="none" + per-tile small file sizes — the previous "image-only" cap
+// was dropped because users want the wall fully alive.
 // ---------------------------------------------------------------------------
-
-const ACTIVE_VIDEO_FILES = new Set<string>([
-  "mosaic-driving.mp4",
-  "robot-arm.mp4",
-  "mosaic-teleop.mp4",
-  "pancake-cooking.mp4",
-  "kling-simlab.mp4",
-  "annotated-bbox-01.mp4",
-  "annotated-depth-01.mp4",
-  "annotated-seg-01.mp4",
-  "annotated-pose-manip.mp4",
-  "hmr2-triptych.mp4",
-  "vla-telemetry.mp4",
-]);
 
 function posterFor(videoPath: string): string {
   // /videos/mosaic/foo.mp4 → /videos/mosaic/foo-poster.jpg
@@ -221,12 +205,9 @@ const VideoTile = memo(function VideoTile({
   onRef: (id: string, el: HTMLDivElement | null) => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const fileName = config.video.split("/").pop() ?? "";
-  const isActive = ACTIVE_VIDEO_FILES.has(fileName);
   const poster = posterFor(config.video);
 
   useEffect(() => {
-    if (!isActive) return;
     const video = videoRef.current;
     if (!video) return;
     const observer = new IntersectionObserver(
@@ -238,7 +219,7 @@ const VideoTile = memo(function VideoTile({
     );
     observer.observe(video);
     return () => observer.disconnect();
-  }, [isActive]);
+  }, []);
 
   return (
     <div
@@ -254,36 +235,21 @@ const VideoTile = memo(function VideoTile({
         opacity: 0,
       }}
     >
-      {isActive ? (
-        <video
-          ref={videoRef}
-          src={config.video}
-          poster={poster}
-          muted
-          loop
-          playsInline
-          preload="none"
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            display: "block",
-          }}
-        />
-      ) : (
-        <img
-          src={poster}
-          alt=""
-          loading="lazy"
-          decoding="async"
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            display: "block",
-          }}
-        />
-      )}
+      <video
+        ref={videoRef}
+        src={config.video}
+        poster={poster}
+        muted
+        loop
+        playsInline
+        preload="none"
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          display: "block",
+        }}
+      />
     </div>
   );
 });
