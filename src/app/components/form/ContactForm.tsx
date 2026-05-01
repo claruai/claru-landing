@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { usePostHog } from "posthog-js/react";
+import { trackContact } from "@/lib/meta/pixel";
 
 const HEARD_ABOUT_OPTIONS = [
   { value: "linkedin", label: "LinkedIn" },
@@ -98,6 +99,8 @@ export default function ContactForm() {
 
       // Fire analytics only on confirmed server success AND only once per browser per tag.
       if (response.ok) {
+        const responseBody = await response.json().catch(() => ({}));
+        trackContact(responseBody?.meta_event_id);
         if (!localStorage.getItem(LEAD_CONVERSION_FIRED_KEY)) {
           window.gtag?.("event", "conversion", {
             send_to: "AW-16922029729/kmelCJ6Ss6EcEKHdhoU_",
