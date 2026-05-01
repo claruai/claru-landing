@@ -129,12 +129,14 @@ export async function sendCapiEvent(event: MetaCapiEvent): Promise<void> {
         ...(event.customData ? { custom_data: event.customData } : {}),
       },
     ],
+    // Pass token in body, not the URL — URLs leak into proxy/CDN/runtime logs.
+    access_token: accessToken,
   };
 
   const testCode = process.env.META_TEST_EVENT_CODE;
   if (testCode) payload.test_event_code = testCode;
 
-  const url = `https://graph.facebook.com/${GRAPH_API_VERSION}/${pixelId}/events?access_token=${encodeURIComponent(accessToken)}`;
+  const url = `https://graph.facebook.com/${GRAPH_API_VERSION}/${pixelId}/events`;
 
   try {
     const res = await fetch(url, {
