@@ -1,6 +1,8 @@
+import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getPostHogServer } from "@/lib/posthog-server";
+import { sendCapiEvent } from "@/lib/meta/capi";
 
 let _resend: Resend | null = null;
 function getResend() {
@@ -37,7 +39,37 @@ export async function POST(request: NextRequest) {
   }
 
   // Fall back to the local-part of the email when name is omitted.
-  const name = (rawName && rawName.trim()) || email.split("@")[0] || "(no name)";
+  const hasRealName = !!(rawName && rawName.trim());
+  const name = hasRealName ? rawName!.trim() : email.split("@")[0] || "(no name)";
+
+  // Fire Meta CAPI Contact event up-front. Doing this before Resend means
+  // a Resend outage can't lose the conversion event. The fire itself is
+  // already non-fatal (errors only logged, never thrown).
+  const metaEventId = crypto.randomUUID();
+  try {
+    const xff = request.headers.get("x-forwarded-for");
+    const clientIp = xff ? xff.split(",")[0]!.trim() : null;
+    const referer = request.headers.get("referer") || "https://claru.ai";
+    const [firstName, ...lastParts] = hasRealName ? name.split(" ") : [];
+    await sendCapiEvent({
+      eventName: "Contact",
+      eventId: metaEventId,
+      eventSourceUrl: referer,
+      actionSource: "website",
+      userData: {
+        email,
+        firstName: hasRealName ? firstName : null,
+        lastName: hasRealName && lastParts.length ? lastParts.join(" ") : null,
+        externalId: email,
+        clientIpAddress: clientIp,
+        clientUserAgent: request.headers.get("user-agent"),
+        fbc: request.cookies.get("_fbc")?.value || null,
+        fbp: request.cookies.get("_fbp")?.value || null,
+      },
+    });
+  } catch (err) {
+    console.warn("[POST /api/contact] Meta CAPI send failed", err);
+  }
 
   try {
     const ph = getPostHogServer();
@@ -137,9 +169,11 @@ export async function POST(request: NextRequest) {
       console.warn("[POST /api/contact] Failed to upsert lead", email);
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, meta_event_id: metaEventId });
   } catch (err) {
     console.error("[POST /api/contact]", err);
-    return NextResponse.json({ success: true }); // Don't leak errors to client
+    // Resend/DB failed but CAPI already fired — still return the event_id
+    // so the client-side Pixel fires Contact with the matching dedupe key.
+    return NextResponse.json({ success: true, meta_event_id: metaEventId });
   }
 }

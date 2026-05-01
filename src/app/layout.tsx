@@ -7,6 +7,7 @@ import MotionProvider from "./components/providers/MotionProvider";
 import CalendlyProvider from "./components/providers/CalendlyProvider";
 import CalendlyModal from "./components/ui/CalendlyModal";
 import PostHogProvider from "./components/providers/PostHogProvider";
+import MetaPixel from "./components/meta/MetaPixel";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -202,6 +203,7 @@ export default function RootLayout({
             gtag('config', 'AW-18127763802');
           `}
         </Script>
+        <MetaPixel />
         <PostHogProvider>
           <MotionProvider>
             <CalendlyProvider>
