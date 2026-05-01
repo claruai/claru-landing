@@ -7,9 +7,9 @@ import GeoPageShell from "@/app/components/content/GeoPageShell";
 // =============================================================================
 
 export const metadata: Metadata = {
-  title: "VLA Training Data Guide: Datasets, Providers & Pipelines (2026)",
+  title: "VLA Training Data: How Much You Need, What Format, and Where to Get It (2026)",
   description:
-    "How to source, structure, and enrich VLA training data for OpenVLA, RT-2, pi-zero, and GR00T. Covers open datasets, commercial providers, and production pipelines.",
+    "Exact data requirements for OpenVLA, RT-2, pi-zero, and GR00T — volume benchmarks, RLDS/LeRobot formats, open dataset comparison, and commercial providers.",
   keywords: [
     "VLA training data",
     "vision-language-action datasets",
@@ -27,9 +27,9 @@ export const metadata: Metadata = {
     "egocentric video for VLA",
   ],
   openGraph: {
-    title: "VLA Training Data: The Complete Guide (2026)",
+    title: "VLA Training Data: Volume, Format & Provider Guide (2026)",
     description:
-      "Everything robotics teams need to know about Vision-Language-Action training data. Covers OpenVLA, RT-2, pi-zero, GR00T N1, open datasets, and data gaps.",
+      "Exact data requirements for Vision-Language-Action models. Volume benchmarks, RLDS/LeRobot format specs, open dataset comparison, and where to buy custom data.",
     type: "article",
     url: "https://claru.ai/vla-training-data-guide",
     siteName: "Claru",
@@ -44,9 +44,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "VLA Training Data: The Complete Guide (2026) | Claru",
+    title: "VLA Training Data: Volume, Format & Provider Guide (2026) | Claru",
     description:
-      "Everything robotics teams need to know about Vision-Language-Action training data. Covers OpenVLA, RT-2, pi-zero, GR00T N1, and open datasets.",
+      "Exact data requirements for Vision-Language-Action models — volume benchmarks, format specs, open dataset comparison, and commercial providers.",
   },
   alternates: {
     canonical: "https://claru.ai/vla-training-data-guide",

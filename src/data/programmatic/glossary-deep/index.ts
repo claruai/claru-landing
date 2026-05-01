@@ -115,6 +115,7 @@ import dataEnrichment from "./data-enrichment";
 import benchmarkCuration from "./benchmark-curation";
 import dataDeduplication from "./data-deduplication";
 import interAnnotatorAgreement from "./inter-annotator-agreement";
+import dataProvenance from "./data-provenance";
 import rlhf from "./rlhf";
 import dataQualityScoring from "./data-quality-scoring";
 import datasetDiversity from "./dataset-diversity";
@@ -185,6 +186,10 @@ import sensorFusion from "./sensor-fusion";
 import taskDecomposition from "./task-decomposition";
 import trajectoryPrediction from "./trajectory-prediction";
 import visualGrounding from "./visual-grounding";
+// Wave 4 — spatial intelligence
+import spatialIntelligence from "./spatial-intelligence";
+// Additional deep pages
+import dataFlywheel from "./data-flywheel";
 
 // Register all pages
 [
@@ -195,7 +200,7 @@ import visualGrounding from "./visual-grounding";
   syntheticData, keypointAnnotation, temporalAnnotation, actionSegmentation,
   semanticSegmentation, instanceSegmentation, activityAnnotation,
   boundingBoxAnnotation, preferenceAnnotation, dataEnrichment, benchmarkCuration,
-  dataDeduplication, interAnnotatorAgreement, rlhf, dataQualityScoring,
+  dataDeduplication, interAnnotatorAgreement, dataProvenance, rlhf, dataQualityScoring,
   datasetDiversity, activeLearning, opticalFlow, monocularDepthEstimation,
   poseEstimation, handObjectInteraction, objectTracking, videoPrediction,
   sam, panopticSegmentation, domainRandomization, actionChunking, rewardModel,
@@ -217,6 +222,10 @@ import visualGrounding from "./visual-grounding";
   neuralRadianceField, occupancyGrid, policyDistillation,
   rewardShaping, safetyConstraintLearning, sensorFusion,
   taskDecomposition, trajectoryPrediction, visualGrounding,
+  // Wave 4 — spatial intelligence
+  spatialIntelligence,
+  // Additional deep pages
+  dataFlywheel,
 ].forEach((page) => {
   validatePage(page);
   register(page);
