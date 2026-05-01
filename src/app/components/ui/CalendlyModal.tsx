@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useCalendly } from "../providers/CalendlyProvider";
 import { usePostHog } from "posthog-js/react";
+import { trackContact } from "@/lib/meta/pixel";
 
 const HEARD_ABOUT_OPTIONS = [
   { value: "linkedin", label: "LinkedIn" },
@@ -123,6 +124,8 @@ function StepForm({ onSuccess }: { onSuccess: (data: FormData) => void }) {
         }),
       });
       if (response.ok) {
+        const responseBody = await response.json().catch(() => ({}));
+        trackContact(responseBody?.meta_event_id);
         // [Demand] Enquiry Submitted — Google Ads conversion for AW-18127763802
         if (!localStorage.getItem(DEMAND_ENQUIRY_CONVERSION_FIRED_KEY)) {
           window.gtag?.("event", "conversion", {

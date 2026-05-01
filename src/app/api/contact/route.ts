@@ -1,6 +1,8 @@
+import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getPostHogServer } from "@/lib/posthog-server";
+import { sendCapiEvent } from "@/lib/meta/capi";
 
 let _resend: Resend | null = null;
 function getResend() {
@@ -137,7 +139,35 @@ export async function POST(request: NextRequest) {
       console.warn("[POST /api/contact] Failed to upsert lead", email);
     }
 
-    return NextResponse.json({ success: true });
+    // 4. Fire Meta Conversions API "Contact" event. Same event_id is returned
+    // to the client so the browser-side Pixel fire dedupes against this server call.
+    const metaEventId = crypto.randomUUID();
+    try {
+      const xff = request.headers.get("x-forwarded-for");
+      const clientIp = xff ? xff.split(",")[0]!.trim() : null;
+      const referer = request.headers.get("referer") || "https://claru.ai";
+      const [firstName, ...lastParts] = name.split(" ");
+      await sendCapiEvent({
+        eventName: "Contact",
+        eventId: metaEventId,
+        eventSourceUrl: referer,
+        actionSource: "website",
+        userData: {
+          email,
+          firstName,
+          lastName: lastParts.join(" ") || null,
+          externalId: email,
+          clientIpAddress: clientIp,
+          clientUserAgent: request.headers.get("user-agent"),
+          fbc: request.cookies.get("_fbc")?.value || null,
+          fbp: request.cookies.get("_fbp")?.value || null,
+        },
+      });
+    } catch (err) {
+      console.warn("[POST /api/contact] Meta CAPI send failed", err);
+    }
+
+    return NextResponse.json({ success: true, meta_event_id: metaEventId });
   } catch (err) {
     console.error("[POST /api/contact]", err);
     return NextResponse.json({ success: true }); // Don't leak errors to client
