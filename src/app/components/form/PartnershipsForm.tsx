@@ -23,24 +23,32 @@ const BUSINESS_TYPES = [
   { value: "other", label: "Other" },
 ] as const;
 
+const TEAM_SIZES = [
+  { value: "1-5", label: "1–5" },
+  { value: "6-20", label: "6–20" },
+  { value: "21-50", label: "21–50" },
+  { value: "51-200", label: "51–200" },
+  { value: "200+", label: "200+" },
+] as const;
+
 const PARTNERSHIPS_LEAD_FIRED_KEY = "claru_gads_partnerships_lead_fired";
 
 const formSchema = z.object({
-  name: z.string().min(2, "Name is required"),
   email: z.string().email("Please enter a valid email"),
-  business: z
-    .string()
-    .min(3, "Tell us your business name and city"),
-  business_type: z.string().min(1, "Please pick a category"),
-  description: z
-    .string()
-    .min(20, "A sentence or two — what does your team do? How many people?")
-    .max(500, "Keep it under 500 characters"),
-  sample_link: z
+  website: z
     .string()
     .url("Please enter a valid URL (include https://)")
     .optional()
     .or(z.literal("")),
+  location: z
+    .string()
+    .min(3, "Tell us your country and city"),
+  business_type: z.string().min(1, "Please pick a category"),
+  team_size: z.string().min(1, "Please pick a team size"),
+  description: z
+    .string()
+    .min(20, "A sentence or two — what does your team do?")
+    .max(500, "Keep it under 500 characters"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -75,10 +83,11 @@ export default function PartnershipsForm() {
     });
 
     posthog?.identify(data.email, {
-      name: data.name,
       email: data.email,
-      business: data.business,
+      website: data.website || null,
+      location: data.location,
       business_type: data.business_type,
+      team_size: data.team_size,
       channel: "supply",
     });
 
@@ -87,12 +96,12 @@ export default function PartnershipsForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: data.name,
           email: data.email,
-          business: data.business,
+          website: data.website || null,
+          location: data.location,
           business_type: data.business_type,
+          team_size: data.team_size,
           description: data.description,
-          sample_link: data.sample_link || null,
         }),
       });
 
@@ -161,7 +170,7 @@ export default function PartnershipsForm() {
               &gt; Got it. We reply to every submission within 5 business days.
             </div>
             <h3 className="text-xl font-bold text-white">
-              Thanks, {submitted.name}.
+              Thanks for reaching out.
             </h3>
             <p className="text-sm text-[var(--text-muted)] font-mono">
               If your operation is a fit, we&apos;ll reach out at{" "}
@@ -203,15 +212,6 @@ export default function PartnershipsForm() {
             <span className="text-[var(--accent-primary)]">&gt;</span> Tell us about your business...
           </div>
 
-          <FormField label="name" required error={errors.name?.message}>
-            <input
-              type="text"
-              {...register("name")}
-              className={inputCls}
-              placeholder="Your name"
-            />
-          </FormField>
-
           <FormField label="email" required error={errors.email?.message}>
             <input
               type="email"
@@ -222,16 +222,29 @@ export default function PartnershipsForm() {
           </FormField>
 
           <FormField
-            label="business_and_city"
+            label="business_site"
+            hint="Optional — website, IG, FB, Yelp; whatever's easiest."
+            error={errors.website?.message}
+          >
+            <input
+              type="url"
+              {...register("website")}
+              className={inputCls}
+              placeholder="https://"
+            />
+          </FormField>
+
+          <FormField
+            label="country_and_city"
             required
-            hint="What's your business called and where are you?"
-            error={errors.business?.message}
+            hint="Where do you operate?"
+            error={errors.location?.message}
           >
             <input
               type="text"
-              {...register("business")}
+              {...register("location")}
               className={inputCls}
-              placeholder="e.g., Joe's Cafe in Austin, TX"
+              placeholder="e.g., USA — Austin, TX"
             />
           </FormField>
 
@@ -258,9 +271,31 @@ export default function PartnershipsForm() {
           </FormField>
 
           <FormField
+            label="team_size"
+            required
+            hint="How many people work in the operation?"
+            error={errors.team_size?.message}
+          >
+            <select
+              {...register("team_size")}
+              className={`${inputCls} appearance-none`}
+              defaultValue=""
+            >
+              <option value="" className="text-[var(--text-muted)]">
+                -- Select --
+              </option>
+              {TEAM_SIZES.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </FormField>
+
+          <FormField
             label="what_you_do"
             required
-            hint="2–3 sentences: what does your team do, and how many workers?"
+            hint="2–3 sentences — what does your team do?"
             error={errors.description?.message}
           >
             <textarea
@@ -269,19 +304,6 @@ export default function PartnershipsForm() {
               maxLength={500}
               className={`${inputCls} resize-none`}
               placeholder="e.g., We run a small cafe in Austin with 4 baristas. We're open 7 days a week and would love to capture POV footage of our espresso work."
-            />
-          </FormField>
-
-          <FormField
-            label="sample_link"
-            hint="Optional — Drive / Dropbox / YouTube link of any existing footage."
-            error={errors.sample_link?.message}
-          >
-            <input
-              type="url"
-              {...register("sample_link")}
-              className={inputCls}
-              placeholder="https://"
             />
           </FormField>
         </div>
