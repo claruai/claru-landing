@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import TextScramble from "../../effects/TextScramble";
+import { useLazyVideo } from "../../../hooks/useLazyVideo";
 
 type Tile = {
   code: string;
@@ -70,13 +71,6 @@ const TILES: Tile[] = [
   },
 ];
 
-function formatTC(seconds: number): string {
-  const mm = Math.floor(seconds / 60).toString().padStart(2, "0");
-  const ss = Math.floor(seconds % 60).toString().padStart(2, "0");
-  const ff = Math.floor((seconds % 1) * 24).toString().padStart(2, "0");
-  return `${mm}:${ss}:${ff}`;
-}
-
 function WorkforceTile({
   tile,
   idx,
@@ -91,16 +85,10 @@ function WorkforceTile({
   onLeave: () => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [tc, setTc] = useState(0);
+  const tcRef = useRef<HTMLSpanElement>(null);
   const [scrambleKey, setScrambleKey] = useState(0);
 
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    const onTime = () => setTc(v.currentTime);
-    v.addEventListener("timeupdate", onTime);
-    return () => v.removeEventListener("timeupdate", onTime);
-  }, []);
+  useLazyVideo(videoRef, { tcRef });
 
   const isDimmed = hovered !== null && hovered !== idx;
 
@@ -169,7 +157,7 @@ function WorkforceTile({
           />
           REC
         </span>
-        <span className="tabular-nums">{formatTC(tc)}</span>
+        <span ref={tcRef} className="tabular-nums">00:00:00</span>
       </div>
 
       {/* HUD: bottom-left location */}

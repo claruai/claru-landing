@@ -60,11 +60,12 @@ export default function Hero() {
       >
         <video
           src={HERO_VIDEO_SRC}
+          poster="/videos/hero/workforce-warp-v8.jpg"
           autoPlay
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           className="h-full w-full object-cover"
           style={{
             filter:
