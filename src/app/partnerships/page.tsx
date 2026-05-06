@@ -3,7 +3,7 @@ import PartnershipsContent from "./PartnershipsContent";
 
 const TITLE = "Get Paid For Your Footage — Claru Partnerships";
 const DESCRIPTION =
-  "Cafes, factories, farms, fleets, retail — frontier AI labs pay for footage of real work. License your archive, get paid to capture, or co-supply. Net-15.";
+  "Cafes, factories, farms, fleets, retail — AI labs pay for footage of real work. License, get paid to capture, or co-supply. Net-15 payouts.";
 
 export const metadata: Metadata = {
   title: TITLE,
