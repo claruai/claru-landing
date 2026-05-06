@@ -96,7 +96,6 @@ function StepRow({ step, idx }: { step: Step; idx: number }) {
           ref={videoRef}
           src={step.src}
           poster={step.poster}
-          autoPlay
           muted
           loop
           playsInline
