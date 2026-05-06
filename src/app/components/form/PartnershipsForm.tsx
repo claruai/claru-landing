@@ -298,7 +298,7 @@ export default function PartnershipsForm() {
           className="btn-primary font-mono disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto px-8"
           whileHover={{
             scale: 1.02,
-            boxShadow: "0 0 30px rgba(0, 255, 136, 0.3)",
+            boxShadow: "0 0 30px rgba(146, 176, 144, 0.3)",
           }}
           whileTap={{ scale: 0.98 }}
         >

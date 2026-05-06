@@ -300,8 +300,16 @@ export default function EarningsCalculator() {
   );
 
   const rate = useMemo(() => {
-    if (mode === "residential") return RESIDENTIAL_RATES[region];
-    return COMMERCIAL_RATES[region][vertical.tier];
+    // Defensive lookups — if a future state-source passes an invalid region
+    // (URL state, A/B variant, etc.) we fall back to the most expensive band
+    // rather than throw at render.
+    const fallback = { low: 15, high: 25 };
+    if (mode === "residential") {
+      return RESIDENTIAL_RATES[region] ?? fallback;
+    }
+    const tierTable = COMMERCIAL_RATES[region];
+    if (!tierTable) return fallback;
+    return tierTable[vertical.tier] ?? fallback;
   }, [mode, region, vertical]);
 
   const { monthlyLow, monthlyHigh, annualLow, annualHigh } = useMemo(() => {
