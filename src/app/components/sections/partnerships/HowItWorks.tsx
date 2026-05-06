@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { motion } from "framer-motion";
+import { useLazyVideo } from "../../../hooks/useLazyVideo";
 
 type Step = {
   code: string;
@@ -45,7 +46,7 @@ const STEPS: Step[] = [
     code: "04",
     slug: "you_capture",
     title: "You capture.",
-    body: "Your team wears the rigs and does their normal work. No acting. No scripts. Cameras roll while you do what you already do.",
+    body: "Your team wears the rigs and does their normal work. No acting. No scripts. Cameras roll while you do what you already do — and we auto-scrub any customer faces, payment cards, license plates, and other PII captured incidentally before delivery.",
     meta: "// capture_active",
     src: "/videos/howitworks/04_you_capture.mp4",
     poster: "/videos/howitworks/04_you_capture.jpg",
@@ -73,22 +74,9 @@ const STEPS: Step[] = [
 function StepRow({ step, idx }: { step: Step; idx: number }) {
   const reversed = idx % 2 === 1;
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [tc, setTc] = useState(0);
+  const tcRef = useRef<HTMLSpanElement>(null);
 
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    const onTime = () => setTc(v.currentTime);
-    v.addEventListener("timeupdate", onTime);
-    return () => v.removeEventListener("timeupdate", onTime);
-  }, []);
-
-  const formatTC = (s: number) => {
-    const mm = Math.floor(s / 60).toString().padStart(2, "0");
-    const ss = Math.floor(s % 60).toString().padStart(2, "0");
-    const ff = Math.floor((s % 1) * 24).toString().padStart(2, "0");
-    return `${mm}:${ss}:${ff}`;
-  };
+  useLazyVideo(videoRef, { tcRef });
 
   return (
     <motion.div
@@ -153,7 +141,7 @@ function StepRow({ step, idx }: { step: Step; idx: number }) {
             />
             REC
           </span>
-          <span className="tabular-nums">{formatTC(tc)}</span>
+          <span ref={tcRef} className="tabular-nums">00:00:00</span>
         </div>
 
         {/* HUD: bottom-left meta */}
