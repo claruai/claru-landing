@@ -13,6 +13,7 @@ const navLinks = [
   { href: "/labeling", label: "Expert Labeling" },
   { href: "/case-studies", label: "Case Studies" },
   { href: "/for-annotators", label: "For Annotators" },
+  { href: "/partnerships", label: "Partnerships" },
 ];
 
 export default function Header({ opaque = false }: { opaque?: boolean }) {

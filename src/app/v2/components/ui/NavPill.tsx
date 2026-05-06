@@ -31,6 +31,12 @@ export default function NavPill() {
         {/* Section links — hidden on mobile to prevent overflow */}
         <div className="hidden items-center gap-4 sm:flex">
           <Link
+            href="/partnerships"
+            className="min-h-[44px] flex items-center font-mono text-[11px] text-white/35 transition-colors hover:text-white/60"
+          >
+            Partnerships
+          </Link>
+          <Link
             href="/for-annotators"
             className="min-h-[44px] flex items-center font-mono text-[11px] text-white/35 transition-colors hover:text-white/60"
           >
