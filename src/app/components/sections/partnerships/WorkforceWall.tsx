@@ -112,7 +112,6 @@ function WorkforceTile({
       <video
         ref={videoRef}
         src={tile.src}
-        autoPlay
         muted
         loop
         playsInline
