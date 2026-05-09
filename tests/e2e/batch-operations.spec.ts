@@ -1,11 +1,13 @@
 import { test, expect } from '@playwright/test';
+import {
+  ADMIN_EMAIL as adminEmail,
+  ADMIN_PASSWORD as adminPassword,
+} from './helpers/admin-credentials';
 
 /**
  * E2E tests for batch editing, batch delete, and pagination (US-016).
  */
 test.describe('Sample Management — Batch Operations & Pagination', () => {
-  const adminEmail = process.env.ADMIN_EMAIL ?? 'team@claru.ai';
-  const adminPassword = process.env.ADMIN_PASSWORD ?? 'qweqwe123!';
 
   /** Helper: login and navigate to a dataset edit page */
   async function loginAndNavigateToDataset(page: import('@playwright/test').Page) {

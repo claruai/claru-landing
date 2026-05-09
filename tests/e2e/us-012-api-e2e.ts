@@ -15,9 +15,9 @@
  * Run: npx tsx tests/e2e/us-012-api-e2e.ts
  */
 
+import { ADMIN_EMAIL, ADMIN_PASSWORD } from './helpers/admin-credentials';
+
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3001';
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'team@claru.ai';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'qweqwe123!';
 
 const TEST_LEAD_NAME = 'Test Invite User';
 const TEST_LEAD_EMAIL = 'test-e2e-invite@example.com';

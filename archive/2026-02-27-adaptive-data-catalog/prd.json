@@ -193,7 +193,7 @@
       ],
       "priority": 10,
       "passes": true,
-      "notes": "Dev server on localhost:3001. Admin credentials: team@claru.ai / qweqwe123!. Use Playwright MCP browser tools. If admin auth is needed, PAUSE and ask user to authenticate. Use Ergo1.csv as reference for realistic enrichment JSON content. Use general-purpose agent with Playwright MCP."
+      "notes": "Dev server on localhost:3001. Admin credentials: team@claru.ai / <REDACTED>. Use Playwright MCP browser tools. If admin auth is needed, PAUSE and ask user to authenticate. Use Ergo1.csv as reference for realistic enrichment JSON content. Use general-purpose agent with Playwright MCP."
     }
   ]
 }

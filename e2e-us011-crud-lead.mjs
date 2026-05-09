@@ -10,9 +10,11 @@
  * so we drive the API layer directly.
  */
 
-const BASE_URL = 'http://localhost:3001';
-const ADMIN_EMAIL = 'team@claru.ai';
-const ADMIN_PASSWORD = 'qweqwe123!';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3001';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'team@claru.ai';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? (() => {
+  throw new Error('ADMIN_PASSWORD env var is required for E2E tests. Set it in .env.local or your CI secrets.');
+})();
 const TEST_NAME = 'Test E2E User';
 const TEST_EMAIL = 'test-e2e-crud@example.com';
 const TEST_COMPANY = 'Test Corp';
