@@ -9,6 +9,7 @@ import {
   getGrantedDatasetIds,
   getDatasetIdsForClipId,
   getDatasetIdsForObjectKey,
+  getAllowedKeysForClipId,
   hasOverlap,
 } from "@/lib/portal/access-control";
 
@@ -165,6 +166,19 @@ export async function POST(request: NextRequest) {
 
   if (!hasOverlap(candidateDatasetIds, grantedDatasetIds)) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
+  }
+
+  // When the caller passes a clipId, also verify the requested objectKey is
+  // one of the clip's allowed keys. Without this, a portal user with a grant
+  // on clipId X can fetch ANY annotation key in the bucket by pairing X's
+  // clipId with an arbitrary objectKey. (The lookupId-based dataset overlap
+  // check above only proves the clip is in a granted dataset, not that the
+  // requested key belongs to that clip.)
+  if (lookupId) {
+    const allowedKeys = await getAllowedKeysForClipId(lookupId);
+    if (!allowedKeys || !allowedKeys.has(objectKey)) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
   }
 
   // Use admin client for clips lookup (service role bypasses RLS --
