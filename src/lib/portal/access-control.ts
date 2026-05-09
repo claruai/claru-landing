@@ -51,35 +51,39 @@ export async function getGrantedDatasetIds(
 
 /**
  * Look up every dataset_id that contains a clip whose s3_key,
- * ann_annotation_key, or ann_metadata.files[].objectId matches `objectKey`.
+ * ann_annotation_key, ann_specs_key, or ann_metadata.files[].objectId
+ * matches `objectKey`.
+ *
  * Uses admin client because clips/dataset_clips have service-role-only RLS.
+ *
+ * SECURITY: each predicate is a separate query with the value passed as a
+ * parameter to .eq() / .filter(). Do NOT collapse these into a single .or()
+ * with template-string interpolation — PostgREST parses .or() filter strings
+ * and a comma-or-paren in user input lets an attacker inject extra predicates
+ * (e.g. matching clips they shouldn't) and bypass the overlap check.
  */
 export async function getDatasetIdsForObjectKey(
   objectKey: string
 ): Promise<string[]> {
   const admin = createSupabaseAdminClient();
 
-  // Match on s3_key, ann_annotation_key, or ann_specs_key.
-  const { data: directClips } = await admin
-    .from("clips")
-    .select("id")
-    .or(
-      `s3_key.eq.${objectKey},ann_annotation_key.eq.${objectKey},ann_specs_key.eq.${objectKey}`
-    );
+  const [s3KeyHits, annKeyHits, specsKeyHits, filesHits] = await Promise.all([
+    admin.from("clips").select("id").eq("s3_key", objectKey),
+    admin.from("clips").select("id").eq("ann_annotation_key", objectKey),
+    admin.from("clips").select("id").eq("ann_specs_key", objectKey),
+    // jsonb containment: ann_metadata->files contains an element with objectId = key
+    admin
+      .from("clips")
+      .select("id")
+      .filter("ann_metadata->files", "cs", JSON.stringify([{ objectId: objectKey }])),
+  ]);
 
-  const clipIds = new Set<string>(
-    (directClips ?? []).map((c: { id: string }) => c.id)
-  );
-
-  // Also match the key inside ann_metadata.files[].objectId.
-  // jsonb path filter via "cs" (contains): files array has an element
-  // with objectId = key.
-  const { data: filesClips } = await admin
-    .from("clips")
-    .select("id")
-    .filter("ann_metadata->files", "cs", JSON.stringify([{ objectId: objectKey }]));
-
-  for (const c of filesClips ?? []) clipIds.add((c as { id: string }).id);
+  const clipIds = new Set<string>();
+  for (const result of [s3KeyHits, annKeyHits, specsKeyHits, filesHits]) {
+    for (const row of result.data ?? []) {
+      clipIds.add((row as { id: string }).id);
+    }
+  }
 
   if (clipIds.size === 0) return [];
 
@@ -91,6 +95,48 @@ export async function getDatasetIdsForObjectKey(
   return Array.from(
     new Set((dcRows ?? []).map((r: { dataset_id: string }) => r.dataset_id))
   );
+}
+
+/**
+ * Returns the set of object keys that are valid for a given clip:
+ *   - clips.s3_key
+ *   - clips.ann_annotation_key
+ *   - clips.ann_specs_key
+ *   - every ann_metadata.files[].objectId
+ *
+ * Used by routes that accept a (clipId, objectKey) pair to ensure the
+ * objectKey actually belongs to the clip — without this, an attacker with a
+ * grant on clip A can pass arbitrary objectKeys and have them signed/fetched.
+ *
+ * Returns null if the clip doesn't exist.
+ */
+export async function getAllowedKeysForClipId(
+  clipId: string
+): Promise<Set<string> | null> {
+  const admin = createSupabaseAdminClient();
+
+  const { data: clip, error } = await admin
+    .from("clips")
+    .select("s3_key, ann_annotation_key, ann_specs_key, ann_metadata")
+    .eq("id", clipId)
+    .maybeSingle();
+
+  if (error || !clip) return null;
+
+  const allowed = new Set<string>();
+  if (clip.s3_key) allowed.add(clip.s3_key as string);
+  if (clip.ann_annotation_key) allowed.add(clip.ann_annotation_key as string);
+  if (clip.ann_specs_key) allowed.add(clip.ann_specs_key as string);
+
+  const meta = (clip.ann_metadata ?? {}) as Record<string, unknown>;
+  const files = Array.isArray(meta.files) ? meta.files : [];
+  for (const f of files) {
+    if (f && typeof f === "object" && typeof (f as { objectId?: unknown }).objectId === "string") {
+      allowed.add((f as { objectId: string }).objectId);
+    }
+  }
+
+  return allowed;
 }
 
 /**
