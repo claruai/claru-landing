@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getPostHogServer } from "@/lib/posthog-server";
 import { sendCapiEvent } from "@/lib/meta/capi";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 let _resend: Resend | null = null;
 function getResend() {
@@ -31,6 +32,26 @@ interface PartnershipsPayload {
 const ALLOWED_TEAM_SIZES = new Set(["1-5", "6-20", "21-50", "51-200", "200+"]);
 
 export async function POST(request: NextRequest) {
+  // Per-IP rate limit — first line of defense against scripted submissions.
+  const ip = getClientIp(request);
+  const ipRl = rateLimit({
+    key: `partnerships-ip:${ip}`,
+    limit: 5,
+    windowMs: 60_000,
+  });
+  if (!ipRl.ok) {
+    return new Response(
+      JSON.stringify({ error: "Too many requests. Try again later." }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": String(ipRl.retryAfterSec),
+        },
+      },
+    );
+  }
+
   let body: PartnershipsPayload;
   try {
     body = await request.json();
@@ -66,6 +87,25 @@ export async function POST(request: NextRequest) {
   }
   if (!ALLOWED_TEAM_SIZES.has(team_size)) {
     return NextResponse.json({ error: "Invalid team size" }, { status: 400 });
+  }
+
+  // Per-email rate limit — same address can't hammer the form for a day.
+  const emailRl = rateLimit({
+    key: `partnerships-email:${email.toLowerCase().trim()}`,
+    limit: 3,
+    windowMs: 24 * 60 * 60 * 1000,
+  });
+  if (!emailRl.ok) {
+    return new Response(
+      JSON.stringify({ error: "Too many requests. Try again later." }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": String(emailRl.retryAfterSec),
+        },
+      },
+    );
   }
   // website is optional, but if provided must be http(s). Reject javascript:,
   // data:, file:, etc. — those would render as scripted hrefs in the inbound

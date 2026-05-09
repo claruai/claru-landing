@@ -75,13 +75,22 @@ export async function GET(request: NextRequest) {
 
   // Flow 2: Direct token hash verification (admin-generated links or
   // custom email templates that skip Supabase's /auth/v1/verify)
+  const ALLOWED_OTP_TYPES = ["magiclink", "email"] as const;
+  type AllowedOtpType = (typeof ALLOWED_OTP_TYPES)[number];
+
   if (tokenHash && type) {
+    if (!ALLOWED_OTP_TYPES.includes(type as AllowedOtpType)) {
+      const loginUrl = new URL("/portal/login", request.url);
+      loginUrl.searchParams.set("error", "invalid_type");
+      return NextResponse.redirect(loginUrl);
+    }
+
     const response = NextResponse.redirect(redirectTo);
     const supabase = makeClient(response);
 
     const { error: verifyError } = await supabase.auth.verifyOtp({
       token_hash: tokenHash,
-      type: type as "magiclink" | "email",
+      type: type as AllowedOtpType,
     });
 
     if (!verifyError) {

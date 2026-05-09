@@ -647,7 +647,7 @@ export default function AdminLeadsTable({ leads }: AdminLeadsTableProps) {
                   {/* Temp Password */}
                   <td className="px-4 py-3">
                     <code className="text-xs font-mono text-[var(--text-muted)] bg-[var(--bg-secondary)] px-2 py-1 rounded border border-[var(--border-subtle)]">
-                      {lead.name.split(" ")[0].toLowerCase()}!123
+                      shown on create
                     </code>
                   </td>
 

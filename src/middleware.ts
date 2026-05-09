@@ -175,7 +175,14 @@ export async function middleware(request: NextRequest) {
   }
 
   // --- Admin routes (existing JWT-based auth) ---
-  if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
+  // /api/blog is included as defense-in-depth: each handler also calls
+  // getAdminSession(), but middleware enforcement guarantees no handler
+  // can be reached without a valid admin-token cookie.
+  if (
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/api/admin") ||
+    pathname.startsWith("/api/blog")
+  ) {
     return handleAdminAuth(request);
   }
 
@@ -191,6 +198,7 @@ export const config = {
   matcher: [
     "/admin/:path*",
     "/api/admin/:path*",
+    "/api/blog/:path*",
     "/portal/:path*",
     "/api/portal/:path*",
   ],
