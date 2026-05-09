@@ -45,7 +45,7 @@ export async function GET(
   // Verify clip belongs to this dataset
   const { data: clipRow } = await supabase
     .from("dataset_clips")
-    .select("clips(ann_annotation_key)")
+    .select("clips(s3_key, ann_annotation_key, ann_specs_key, ann_metadata)")
     .eq("dataset_id", dataset.id)
     .eq("clip_id", clipId)
     .limit(1)
@@ -58,9 +58,38 @@ export async function GET(
     );
   }
 
-  // Clip ownership verified above — that's sufficient to authorize the key.
-  // The gz files referenced in annotation.files[] live at paths independent of
-  // ann_annotation_key, so path-prefix validation is omitted here.
+  // Build allowlist of every object key this clip is permitted to expose:
+  // its primary s3_key, annotation/specs keys, and every objectId in the
+  // ann_metadata.files[] array.
+  const clipData = (clipRow as unknown as {
+    clips:
+      | {
+          s3_key: string | null;
+          ann_annotation_key: string | null;
+          ann_specs_key: string | null;
+          ann_metadata: Record<string, unknown> | null;
+        }
+      | null;
+  }).clips;
+
+  const allowedKeys = new Set<string>();
+  if (clipData?.s3_key) allowedKeys.add(clipData.s3_key);
+  if (clipData?.ann_annotation_key) allowedKeys.add(clipData.ann_annotation_key);
+  if (clipData?.ann_specs_key) allowedKeys.add(clipData.ann_specs_key);
+
+  const files = (clipData?.ann_metadata?.files ?? []) as Array<
+    Record<string, unknown>
+  >;
+  if (Array.isArray(files)) {
+    for (const f of files) {
+      const oid = f?.objectId;
+      if (typeof oid === "string" && oid.length > 0) allowedKeys.add(oid);
+    }
+  }
+
+  if (!allowedKeys.has(key)) {
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
+  }
 
   const signedUrl = await getS3SignedUrl(key, 300);
   if (!signedUrl) {

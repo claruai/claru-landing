@@ -5,6 +5,12 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { fetchAnnotationJson } from "@/lib/s3/annotation";
 import { fetchAnnotationParquet } from "@/lib/s3/annotation-parquet";
 import { scrubS3Urls } from "@/lib/scrub-s3-urls";
+import {
+  getGrantedDatasetIds,
+  getDatasetIdsForClipId,
+  getDatasetIdsForObjectKey,
+  hasOverlap,
+} from "@/lib/portal/access-control";
 
 // =============================================================================
 // POST /api/portal/s3-annotation
@@ -144,6 +150,22 @@ export async function POST(request: NextRequest) {
   // Prefer clipId; fall back to sampleId for backward compatibility
   // (sampleId is now treated as a clip ID since clips replaced dataset_samples)
   const lookupId = clipId ?? sampleId;
+
+  // Authorization: verify the requested clip / objectKey belongs to a dataset
+  // the user has access to. lead_dataset_access lookup uses the AUTHED client
+  // (RLS applies); clips/dataset_clips lookups use admin (service-role only RLS).
+  const grantedDatasetIds = await getGrantedDatasetIds(supabase, user.id);
+  if (!grantedDatasetIds || grantedDatasetIds.size === 0) {
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
+  }
+
+  const candidateDatasetIds = lookupId
+    ? await getDatasetIdsForClipId(lookupId)
+    : await getDatasetIdsForObjectKey(objectKey);
+
+  if (!hasOverlap(candidateDatasetIds, grantedDatasetIds)) {
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
+  }
 
   // Use admin client for clips lookup (service role bypasses RLS --
   // the clips table has no per-user SELECT policy)

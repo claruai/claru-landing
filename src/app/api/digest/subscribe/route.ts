@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 let _resend: Resend | null = null;
 function getResend() {
@@ -10,6 +11,26 @@ function getResend() {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request: NextRequest) {
+  // Per-IP rate limit — stop scripted subscribes from a single source.
+  const ip = getClientIp(request);
+  const ipRl = rateLimit({
+    key: `digest-ip:${ip}`,
+    limit: 10,
+    windowMs: 60_000,
+  });
+  if (!ipRl.ok) {
+    return new Response(
+      JSON.stringify({ error: "Too many requests. Try again later." }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": String(ipRl.retryAfterSec),
+        },
+      },
+    );
+  }
+
   let body: Record<string, string>;
   try {
     body = await request.json();
@@ -23,6 +44,25 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: "A valid email address is required" },
       { status: 400 },
+    );
+  }
+
+  // Per-email rate limit — same address can only subscribe a few times/day.
+  const emailRl = rateLimit({
+    key: `digest-email:${email.toLowerCase().trim()}`,
+    limit: 5,
+    windowMs: 24 * 60 * 60 * 1000,
+  });
+  if (!emailRl.ok) {
+    return new Response(
+      JSON.stringify({ error: "Too many requests. Try again later." }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": String(emailRl.retryAfterSec),
+        },
+      },
     );
   }
 

@@ -517,16 +517,12 @@ function registerCreateLeadAuthUser(server: McpServer) {
     async ({ lead_id, password: customPassword }) => {
       const supabase = createSupabaseAdminClient();
 
-      // Generate a temp password if not provided -- use firstname!123 convention
+      // Generate a 32-char URL-safe random temp password if none provided.
+      // Predictable patterns (e.g. firstname!123) let anyone with email+name log in.
       let tempPassword = customPassword;
       if (!tempPassword) {
-        const { data: leadForName } = await supabase
-          .from("leads")
-          .select("name")
-          .eq("id", lead_id)
-          .single();
-        const firstName = (leadForName?.name ?? "user").split(" ")[0].toLowerCase();
-        tempPassword = `${firstName}!123`;
+        const { randomBytes } = await import("node:crypto");
+        tempPassword = randomBytes(24).toString("base64url");
       }
 
       // Fetch lead

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getPostHogServer } from "@/lib/posthog-server";
 import { sendCapiEvent } from "@/lib/meta/capi";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 let _resend: Resend | null = null;
 function getResend() {
@@ -20,6 +21,26 @@ function escapeHtml(str: string): string {
 }
 
 export async function POST(request: NextRequest) {
+  // Per-IP rate limit — stops scripted form abuse from a single source.
+  const ip = getClientIp(request);
+  const ipRl = rateLimit({
+    key: `contact-ip:${ip}`,
+    limit: 5,
+    windowMs: 60_000,
+  });
+  if (!ipRl.ok) {
+    return new Response(
+      JSON.stringify({ error: "Too many requests. Try again later." }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": String(ipRl.retryAfterSec),
+        },
+      },
+    );
+  }
+
   let body: Record<string, string>;
   try {
     body = await request.json();
@@ -35,6 +56,25 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: "Email and company are required" },
       { status: 400 }
+    );
+  }
+
+  // Per-email rate limit — stop the same address spamming us 24h.
+  const emailRl = rateLimit({
+    key: `contact-email:${email.toLowerCase().trim()}`,
+    limit: 3,
+    windowMs: 24 * 60 * 60 * 1000,
+  });
+  if (!emailRl.ok) {
+    return new Response(
+      JSON.stringify({ error: "Too many requests. Try again later." }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": String(emailRl.retryAfterSec),
+        },
+      },
     );
   }
 

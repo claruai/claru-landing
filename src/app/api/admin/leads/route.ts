@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { randomBytes } from "node:crypto";
 import { verifyAdminToken } from "@/lib/admin-auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -38,11 +39,13 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * Generate a temp password from the lead's first name: firstname!123
+ * Generate a cryptographically random 32-char URL-safe temp password.
+ * The admin receives this in the API response and passes it to the lead;
+ * the lead is expected to reset it on first login (force_password_reset
+ * flag is set in user_metadata for a future hook to enforce).
  */
-function generateTempPassword(name: string): string {
-  const firstName = name.split(" ")[0].toLowerCase();
-  return `${firstName}!123`;
+function generateTempPassword(): string {
+  return randomBytes(24).toString("base64url");
 }
 
 /**
@@ -86,7 +89,7 @@ export async function POST(request: NextRequest) {
   }
 
   const supabase = createSupabaseAdminClient();
-  const tempPassword = generateTempPassword(name);
+  const tempPassword = generateTempPassword();
 
   // Step 1: Create Supabase auth user with temp password
   const { data: authUser, error: authError } =
@@ -94,6 +97,7 @@ export async function POST(request: NextRequest) {
       email,
       password: tempPassword,
       email_confirm: true, // Skip email verification
+      user_metadata: { force_password_reset: true },
     });
 
   if (authError) {

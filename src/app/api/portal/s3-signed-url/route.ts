@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getS3SignedUrl } from "@/lib/s3/presigner";
+import {
+  getGrantedDatasetIds,
+  getDatasetIdsForObjectKey,
+  hasOverlap,
+} from "@/lib/portal/access-control";
 
 /**
  * Zod schema for the request body.
@@ -58,10 +63,24 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // ---------- Log the request ----------
-  console.log(
-    `[s3-signed-url] objectKey="${objectKey}" userId="${user.id}" timestamp="${new Date().toISOString()}"`
-  );
+  // ---------- Authorization: verify user has access to a dataset that
+  // contains this object key ----------
+  const grantedDatasetIds = await getGrantedDatasetIds(supabase, user.id);
+  if (!grantedDatasetIds || grantedDatasetIds.size === 0) {
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
+  }
+
+  const candidateDatasetIds = await getDatasetIdsForObjectKey(objectKey);
+  if (!hasOverlap(candidateDatasetIds, grantedDatasetIds)) {
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
+  }
+
+  // ---------- Log the request (no userId — PII in Vercel logs) ----------
+  if (process.env.NODE_ENV !== "production") {
+    console.log(
+      `[s3-signed-url] objectKey="${objectKey}" timestamp="${new Date().toISOString()}"`
+    );
+  }
 
   // ---------- Generate presigned URL ----------
   try {
