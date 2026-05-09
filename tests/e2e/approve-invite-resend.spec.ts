@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { ADMIN_EMAIL, ADMIN_PASSWORD } from './helpers/admin-credentials';
 
 /**
  * US-012 -- E2E: Approve with Invite and Re-send Flow
@@ -14,9 +15,6 @@ import { test, expect } from '@playwright/test';
  * Resend may not be configured in dev — the test accepts both
  * "invite sent" and "invite failed" toasts as valid outcomes.
  */
-
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'team@claru.ai';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'qweqwe123!';
 
 const TEST_LEAD_NAME = 'Test Invite User';
 const TEST_LEAD_EMAIL = 'test-e2e-invite@example.com';

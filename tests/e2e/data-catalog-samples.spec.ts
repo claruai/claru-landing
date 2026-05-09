@@ -1,4 +1,8 @@
 import { test, expect } from '@playwright/test';
+import {
+  ADMIN_EMAIL as adminEmail,
+  ADMIN_PASSWORD as adminPassword,
+} from './helpers/admin-credentials';
 
 test.describe('Data Catalog — Admin Sample Management (US-010)', () => {
   /* ===================================================================
@@ -6,12 +10,9 @@ test.describe('Data Catalog — Admin Sample Management (US-010)', () => {
      panel. They verify UI structure and validation behavior for the
      sample management features (Add Sample via URL, Bulk Import).
 
-     To run: set ADMIN_EMAIL and ADMIN_PASSWORD env vars, or they
-     will use the defaults for local dev.
+     To run: set ADMIN_EMAIL and ADMIN_PASSWORD env vars (required —
+     no fallback). The helper throws if ADMIN_PASSWORD is unset.
      =================================================================== */
-
-  const adminEmail = process.env.ADMIN_EMAIL ?? 'team@claru.ai';
-  const adminPassword = process.env.ADMIN_PASSWORD ?? 'qweqwe123!';
 
   /* ===================================================================
      LOGIN + NAVIGATE TO CATALOG

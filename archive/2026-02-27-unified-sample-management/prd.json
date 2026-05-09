@@ -221,7 +221,7 @@
       "title": "Playwright E2E — Create, Edit, Delete Lead Flow",
       "description": "As QA, I need an end-to-end test verifying the complete lead CRUD lifecycle via the admin portal.",
       "acceptanceCriteria": [
-        "Navigate to admin portal at localhost:3001/admin/leads (authenticate with team@claru.ai / qweqwe123! or pause for manual auth)",
+        "Navigate to admin portal at localhost:3001/admin/leads (authenticate with team@claru.ai / <REDACTED> or pause for manual auth)",
         "Test create: click [+ new lead], verify slide-over opens, try empty submit (verify validation), fill name 'Test E2E User' + email 'test-e2e@example.com' + company 'Test Corp', submit, verify success toast, verify lead appears in table",
         "Test edit: click [view] on new lead, click [edit], verify fields become inputs, change company to 'Updated Corp', click [save], verify toast and updated value",
         "Test delete: click [delete lead], verify confirmation dialog, type email, confirm, verify redirect to /admin/leads, verify lead gone from table",
@@ -231,7 +231,7 @@
       ],
       "priority": 11,
       "passes": false,
-      "notes": "Dev server on localhost:3001. Admin credentials: team@claru.ai / qweqwe123!. Use Playwright MCP browser tools. If admin auth is needed, PAUSE and ask user to authenticate. Use general-purpose agent with Playwright MCP."
+      "notes": "Dev server on localhost:3001. Admin credentials: team@claru.ai / <REDACTED>. Use Playwright MCP browser tools. If admin auth is needed, PAUSE and ask user to authenticate. Use general-purpose agent with Playwright MCP."
     },
     {
       "id": "US-012",
@@ -248,7 +248,7 @@
       ],
       "priority": 12,
       "passes": false,
-      "notes": "Dev server on localhost:3001. Admin credentials: team@claru.ai / qweqwe123!. Resend may not be configured in test env — the invite_sent field and toast should gracefully handle this. Use general-purpose agent with Playwright MCP."
+      "notes": "Dev server on localhost:3001. Admin credentials: team@claru.ai / <REDACTED>. Resend may not be configured in test env — the invite_sent field and toast should gracefully handle this. Use general-purpose agent with Playwright MCP."
     }
   ]
 }

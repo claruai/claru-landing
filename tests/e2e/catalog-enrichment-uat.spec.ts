@@ -1,7 +1,5 @@
 import { test, expect, request } from "@playwright/test";
-
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "team@claru.ai";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "qweqwe123!";
+import { ADMIN_EMAIL, ADMIN_PASSWORD } from "./helpers/admin-credentials";
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
 const MCP_TOKEN = process.env.ADMIN_MCP_TOKEN || "";
 
