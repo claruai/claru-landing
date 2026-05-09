@@ -4,14 +4,14 @@ import { test, expect, type Page } from '@playwright/test';
  * US-011: E2E Playwright test for admin lead CRUD lifecycle.
  *
  * Tests the full create -> edit -> delete flow for a lead in the admin portal.
- * Dev server: localhost:3001, admin credentials: team@claru.ai / qweqwe123!
+ * Dev server: localhost:3001. Admin credentials come from ADMIN_EMAIL and
+ * ADMIN_PASSWORD env vars (required — no fallback).
  *
  * Uses test.serial to enforce execution order since each step depends on the
  * previous one (edit needs the created lead, delete needs the edited lead).
  */
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'team@claru.ai';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'qweqwe123!';
+import { ADMIN_EMAIL, ADMIN_PASSWORD } from './helpers/admin-credentials';
 
 const TEST_LEAD = {
   name: 'Test E2E User',
