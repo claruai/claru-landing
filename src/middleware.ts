@@ -120,7 +120,7 @@ async function handlePortalAuth(request: NextRequest): Promise<NextResponse> {
   }
 
   // Strip x-admin-preview from all non-privileged requests to prevent
-  // client spoofing — portal users must not be able to bypass assertAdmin().
+  // client spoofing — portal users must not be able to spoof admin access.
   const requestHeaders = new Headers(request.headers);
   requestHeaders.delete("x-admin-preview");
 
@@ -162,19 +162,7 @@ async function handlePortalAuth(request: NextRequest): Promise<NextResponse> {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // --- New CRM admin routes (Supabase portal session auth) ---
-  // These pages use assertAdmin() which checks Supabase session,
-  // so they go through portal auth, not the legacy JWT admin auth.
-  if (
-    pathname.startsWith("/admin/queue") ||
-    pathname.startsWith("/admin/pipeline") ||
-    pathname.startsWith("/admin/prospects") ||
-    pathname.startsWith("/api/admin/smartlead-campaigns")
-  ) {
-    return handlePortalAuth(request);
-  }
-
-  // --- Admin routes (existing JWT-based auth) ---
+  // --- Admin routes (JWT-based auth) ---
   // /api/blog is included as defense-in-depth: each handler also calls
   // getAdminSession(), but middleware enforcement guarantees no handler
   // can be reached without a valid admin-token cookie.
