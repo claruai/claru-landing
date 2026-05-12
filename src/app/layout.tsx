@@ -8,6 +8,7 @@ import CalendlyProvider from "./components/providers/CalendlyProvider";
 import CalendlyModal from "./components/ui/CalendlyModal";
 import PostHogProvider from "./components/providers/PostHogProvider";
 import MetaPixel from "./components/meta/MetaPixel";
+import OpenAIPixel from "./components/openai/OpenAIPixel";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -204,6 +205,7 @@ export default function RootLayout({
           `}
         </Script>
         <MetaPixel />
+        <OpenAIPixel />
         <PostHogProvider>
           <MotionProvider>
             <CalendlyProvider>

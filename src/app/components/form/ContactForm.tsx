@@ -8,6 +8,7 @@ import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { usePostHog } from "posthog-js/react";
 import { trackContact } from "@/lib/meta/pixel";
+import { trackLeadCreated } from "@/lib/openai/pixel";
 
 const HEARD_ABOUT_OPTIONS = [
   { value: "linkedin", label: "LinkedIn" },
@@ -101,6 +102,7 @@ export default function ContactForm() {
       if (response.ok) {
         const responseBody = await response.json().catch(() => ({}));
         trackContact(responseBody?.meta_event_id);
+        trackLeadCreated();
         if (!localStorage.getItem(LEAD_CONVERSION_FIRED_KEY)) {
           window.gtag?.("event", "conversion", {
             send_to: "AW-16922029729/kmelCJ6Ss6EcEKHdhoU_",
