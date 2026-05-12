@@ -34,8 +34,8 @@ export default function NavPill() {
             href="/partnerships"
             className="min-h-[44px] flex items-center whitespace-nowrap font-mono text-[10px] sm:text-[11px] text-white/35 transition-colors hover:text-white/60"
           >
-            Partners
-            <span className="hidden sm:inline">hips</span>
+            <span className="sm:hidden">Partners</span>
+            <span className="hidden sm:inline">Partnerships</span>
           </Link>
           <Link
             href="/for-annotators"
