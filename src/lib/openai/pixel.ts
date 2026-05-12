@@ -9,21 +9,11 @@ declare global {
   }
 }
 
-type CustomerAction = "lead_created" | "appointment_scheduled";
-
-function measure(event: CustomerAction): void {
+export function trackLeadCreated(): void {
   if (typeof window === "undefined" || typeof window.oaiq !== "function") return;
   try {
-    window.oaiq("measure", event, { type: "customer_action" });
+    window.oaiq("measure", "lead_created", { type: "customer_action" });
   } catch {
     // Pixel not available — non-fatal.
   }
-}
-
-export function trackLeadCreated(): void {
-  measure("lead_created");
-}
-
-export function trackAppointmentScheduled(): void {
-  measure("appointment_scheduled");
 }
