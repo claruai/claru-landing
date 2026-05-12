@@ -828,7 +828,7 @@ export default function HeroV2() {
         /* ================================================================= */
         /* Mobile / Reduced Motion fallback: flat layout, no scroll anim     */
         /* ================================================================= */
-        <div className="relative flex min-h-screen items-center justify-center overflow-hidden">
+        <div className="relative flex min-h-screen items-center justify-center overflow-hidden pt-24 sm:pt-0">
           {/* Layer 2: Video grid */}
           <div
             className="absolute inset-0 flex items-center justify-center"
