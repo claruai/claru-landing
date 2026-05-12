@@ -8,6 +8,7 @@ import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { usePostHog } from "posthog-js/react";
 import { trackContact } from "@/lib/meta/pixel";
+import { trackLeadCreated } from "@/lib/openai/pixel";
 
 const BUSINESS_TYPES = [
   { value: "cafe_restaurant", label: "Cafe / restaurant" },
@@ -118,6 +119,7 @@ export default function PartnershipsForm() {
         // Reuse Meta Contact event — it's the closest standard event for "lead intake".
         // The CAPI route receives our channel:supply tagging server-side.
         trackContact(responseBody?.meta_event_id);
+        trackLeadCreated();
 
         if (!localStorage.getItem(PARTNERSHIPS_LEAD_FIRED_KEY)) {
           window.gtag?.("event", "generate_lead", {

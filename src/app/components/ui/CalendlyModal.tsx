@@ -10,6 +10,7 @@ import { z } from "zod";
 import { useCalendly } from "../providers/CalendlyProvider";
 import { usePostHog } from "posthog-js/react";
 import { trackContact } from "@/lib/meta/pixel";
+import { trackLeadCreated } from "@/lib/openai/pixel";
 
 const HEARD_ABOUT_OPTIONS = [
   { value: "linkedin", label: "LinkedIn" },
@@ -126,6 +127,7 @@ function StepForm({ onSuccess }: { onSuccess: (data: FormData) => void }) {
       if (response.ok) {
         const responseBody = await response.json().catch(() => ({}));
         trackContact(responseBody?.meta_event_id);
+        trackLeadCreated();
         // [Demand] Enquiry Submitted — Google Ads conversion for AW-18127763802
         if (!localStorage.getItem(DEMAND_ENQUIRY_CONVERSION_FIRED_KEY)) {
           window.gtag?.("event", "conversion", {
