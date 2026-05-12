@@ -50,7 +50,7 @@ export default function Hero() {
   return (
     <section
       ref={ref}
-      className="relative overflow-hidden h-screen min-h-[760px] border-b border-[var(--border-subtle)]"
+      className="relative overflow-hidden min-h-[100svh] md:min-h-[760px] md:h-screen border-b border-[var(--border-subtle)]"
     >
       {/* video layer */}
       <div
@@ -126,14 +126,14 @@ export default function Hero() {
       </div>
 
       {/* hero copy */}
-      <div className="relative z-10 flex h-full items-center">
+      <div className="relative z-10 flex h-full min-h-[inherit] items-center pt-20 pb-12 md:py-0">
         <div className="container">
           <div className="mx-auto max-w-4xl text-center">
             <motion.h1
               initial={{ opacity: 1, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.1 }}
-              className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 text-white"
+              className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-5 md:mb-6 text-white"
               style={{
                 textShadow: "0 2px 40px rgba(10,9,8,0.85)",
               }}
@@ -145,7 +145,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-lg md:text-xl text-white/85 leading-relaxed max-w-2xl mx-auto mb-10"
+              className="text-base sm:text-lg md:text-xl text-white/85 leading-relaxed max-w-2xl mx-auto mb-7 md:mb-10"
               style={{ textShadow: "0 2px 24px rgba(10,9,8,0.85)" }}
             >
               Frontier labs pay for footage of real work in real environments —
@@ -158,7 +158,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.5 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16"
+              className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-10 md:mb-16"
             >
               <a
                 href="#apply"
@@ -178,14 +178,14 @@ export default function Hero() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.7 }}
-              className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-12 max-w-3xl mx-auto pt-8 border-t border-white/15"
+              className="grid grid-cols-3 gap-3 sm:gap-6 md:gap-12 max-w-3xl mx-auto pt-6 md:pt-8 border-t border-white/15"
             >
               {STATS.map((stat) => (
                 <div key={stat.label} className="text-center">
-                  <div className="text-2xl md:text-4xl font-bold text-[var(--accent-primary)] font-mono mb-2">
+                  <div className="text-xl sm:text-2xl md:text-4xl font-bold text-[var(--accent-primary)] font-mono mb-1.5 md:mb-2">
                     {stat.value}
                   </div>
-                  <div className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-white/60 font-mono">
+                  <div className="text-[9px] sm:text-[10px] md:text-xs uppercase tracking-[0.18em] md:tracking-[0.2em] text-white/60 font-mono leading-tight">
                     {stat.label}
                   </div>
                 </div>
