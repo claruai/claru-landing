@@ -6,9 +6,11 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 /**
  * GET /api/admin/catalog
  *
- * Returns all datasets (id, name, slug) for use in selectors.
+ * Returns all datasets (id, name, slug) for use in selectors. Pass
+ * `?include_showcase_counts=1` to also attach showcase_count per dataset
+ * (used by the Send Sample Pack modal).
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   const cookieStore = await cookies();
   const token = cookieStore.get("admin-token");
   if (!token?.value || !(await verifyAdminToken(token.value))) {
@@ -16,8 +18,9 @@ export async function GET() {
   }
 
   const supabase = createSupabaseAdminClient();
+  const includeShowcase = request.nextUrl.searchParams.get("include_showcase_counts") === "1";
 
-  const { data, error } = await supabase
+  const { data: datasets, error } = await supabase
     .from("datasets")
     .select("id, name, slug")
     .order("name");
@@ -30,7 +33,28 @@ export async function GET() {
     );
   }
 
-  return NextResponse.json({ datasets: data });
+  if (!includeShowcase) {
+    return NextResponse.json({ datasets });
+  }
+
+  // Attach per-dataset showcase counts (base entries only).
+  const { data: counts } = await supabase
+    .from("dataset_clips")
+    .select("dataset_id")
+    .eq("is_showcase", true)
+    .is("lead_id", null);
+
+  const byId = new Map<string, number>();
+  for (const r of counts ?? []) {
+    byId.set(r.dataset_id, (byId.get(r.dataset_id) ?? 0) + 1);
+  }
+
+  return NextResponse.json({
+    datasets: (datasets ?? []).map((d) => ({
+      ...d,
+      showcase_count: byId.get(d.id) ?? 0,
+    })),
+  });
 }
 
 /**

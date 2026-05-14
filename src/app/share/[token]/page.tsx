@@ -19,7 +19,7 @@ const getShareData = cache(async (token: string) => {
   const { data: dataset } = await supabase
     .from("datasets")
     .select(
-      "id, name, description, s3_bucket, share_expires_at, share_first_viewed_at, share_view_count"
+      "id, name, description, s3_bucket, share_expires_at, share_first_viewed_at, share_view_count, share_mode"
     )
     .eq("share_token", token)
     .single();
@@ -101,13 +101,26 @@ export default async function SharePage({ params }: SharePageProps) {
   // sets share_first_viewed_at = COALESCE(share_first_viewed_at, now()) in one shot
   await supabase.rpc("increment_share_view", { p_dataset_id: dataset.id });
 
-  const { data: rows } = await supabase
+  // Apply share_mode filtering. 'all' (default) preserves the historical
+  // behavior of returning every clip; 'showcase' returns only is_showcase=true
+  // base-entry clips (lead_id IS NULL) so we never leak a clip curated for
+  // a different specific lead.
+  const shareMode: "all" | "showcase" =
+    (dataset as { share_mode?: "all" | "showcase" }).share_mode ?? "all";
+
+  let clipsQuery = supabase
     .from("dataset_clips")
     .select(
       "clip_id, clips(id, filename, mime_type, s3_bucket, s3_key, ann_metadata, ann_annotation_key, ai_enrichment_json, ai_caption, tech_duration_seconds, tech_resolution_width, tech_resolution_height, tech_fps, tech_file_size_bytes, tech_codec, tech_bit_depth)"
     )
     .eq("dataset_id", dataset.id)
     .order("created_at", { ascending: true });
+
+  if (shareMode === "showcase") {
+    clipsQuery = clipsQuery.eq("is_showcase", true).is("lead_id", null);
+  }
+
+  const { data: rows } = await clipsQuery;
 
   // Deduplicate rows first, then sign URLs in parallel
   const seen = new Set<string>();

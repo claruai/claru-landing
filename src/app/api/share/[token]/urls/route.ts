@@ -17,7 +17,7 @@ export async function POST(
 
   const { data: dataset } = await supabase
     .from("datasets")
-    .select("id, s3_bucket, share_expires_at")
+    .select("id, s3_bucket, share_expires_at, share_mode")
     .eq("share_token", token)
     .single();
 
@@ -35,13 +35,22 @@ export async function POST(
     );
   }
 
-  const { data: rows } = await supabase
+  const shareMode: "all" | "showcase" =
+    (dataset as { share_mode?: "all" | "showcase" }).share_mode ?? "all";
+
+  let clipsQuery = supabase
     .from("dataset_clips")
     .select(
       "clip_id, clips(id, s3_bucket, s3_key)"
     )
     .eq("dataset_id", dataset.id)
     .order("created_at", { ascending: true });
+
+  if (shareMode === "showcase") {
+    clipsQuery = clipsQuery.eq("is_showcase", true).is("lead_id", null);
+  }
+
+  const { data: rows } = await clipsQuery;
 
   // Deduplicate rows first, then sign URLs in parallel
   const seen = new Set<string>();
