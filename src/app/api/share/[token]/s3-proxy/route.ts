@@ -27,7 +27,7 @@ export async function GET(
 
   const { data: dataset } = await supabase
     .from("datasets")
-    .select("id, share_expires_at")
+    .select("id, share_expires_at, share_mode")
     .eq("share_token", token)
     .single();
 
@@ -42,14 +42,21 @@ export async function GET(
     );
   }
 
-  // Verify clip belongs to this dataset
-  const { data: clipRow } = await supabase
+  const shareMode: "all" | "showcase" =
+    (dataset as { share_mode?: "all" | "showcase" }).share_mode ?? "all";
+
+  // Verify clip belongs to this dataset AND is reachable under share_mode
+  let clipRowQuery = supabase
     .from("dataset_clips")
     .select("clips(s3_key, ann_annotation_key, ann_specs_key, ann_metadata)")
     .eq("dataset_id", dataset.id)
-    .eq("clip_id", clipId)
-    .limit(1)
-    .single();
+    .eq("clip_id", clipId);
+
+  if (shareMode === "showcase") {
+    clipRowQuery = clipRowQuery.eq("is_showcase", true).is("lead_id", null);
+  }
+
+  const { data: clipRow } = await clipRowQuery.limit(1).single();
 
   if (!clipRow) {
     return NextResponse.json(

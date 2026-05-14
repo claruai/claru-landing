@@ -34,6 +34,48 @@ export async function PATCH(
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
+  // ---------------------------------------------------------------------
+  // Special-case: is_showcase lives on dataset_clips (the join), not clips.
+  // If the caller is *only* toggling is_showcase, handle it here and return.
+  // ---------------------------------------------------------------------
+  if ("is_showcase" in body && typeof body.is_showcase === "boolean") {
+    const supabaseDc = createSupabaseAdminClient();
+    const { error: dcErr, count } = await supabaseDc
+      .from("dataset_clips")
+      .update({ is_showcase: body.is_showcase }, { count: "exact" })
+      .eq("dataset_id", datasetId)
+      .eq("clip_id", clipId)
+      .is("lead_id", null);
+
+    if (dcErr) {
+      return NextResponse.json({ error: dcErr.message }, { status: 500 });
+    }
+    if (!count || count === 0) {
+      return NextResponse.json(
+        { error: "No matching dataset_clips row (clip may be lead-bound only)" },
+        { status: 404 },
+      );
+    }
+
+    const { count: showcaseCount } = await supabaseDc
+      .from("dataset_clips")
+      .select("clip_id", { count: "exact", head: true })
+      .eq("dataset_id", datasetId)
+      .eq("is_showcase", true)
+      .is("lead_id", null);
+
+    // If only is_showcase was sent, return early. If other clip fields were
+    // also sent, fall through to update the clips table too.
+    const otherKeys = Object.keys(body).filter((k) => k !== "is_showcase");
+    if (otherKeys.length === 0) {
+      return NextResponse.json({
+        ok: true,
+        is_showcase: body.is_showcase,
+        current_showcase_count: showcaseCount ?? 0,
+      });
+    }
+  }
+
   const allowedFields = [
     "s3_key",
     "ann_annotation_key",

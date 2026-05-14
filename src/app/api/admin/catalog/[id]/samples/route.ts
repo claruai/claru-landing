@@ -39,7 +39,7 @@ export async function GET(
   let query = supabase
     .from("dataset_clips")
     .select(
-      "id, dataset_id, clip_id, lead_id, added_by, note, created_at, clips(*)",
+      "id, dataset_id, clip_id, lead_id, is_showcase, added_by, note, created_at, clips(*)",
       paginated ? { count: "exact" } : {}
     )
     .eq("dataset_id", id)
@@ -71,6 +71,7 @@ export async function GET(
         ...clip,
         dataset_clip_id: dc.id,
         lead_id: dc.lead_id,
+        is_showcase: dc.is_showcase,
         added_by: dc.added_by,
         note: dc.note,
       };
@@ -471,12 +472,15 @@ async function linkClipToDataset(
     return null; // Already linked
   }
 
+  // is_showcase default false — showcase is opt-in via the per-clip toggle
+  // (`PATCH /api/admin/catalog/[id]/samples/[clipId]`). Setting true on every
+  // attach would mean every new add becomes publicly visible to portal users.
   const { error } = await supabase
     .from("dataset_clips")
     .insert({
       dataset_id: datasetId,
       clip_id: clipId,
-      is_showcase: true,
+      is_showcase: false,
       added_by: "admin",
     });
 
