@@ -260,6 +260,29 @@ async function main() {
       mixedRes.body.rejected_fields.includes("ai_caption"),
   );
 
+  // ---------- 6c. Admin samples — showcase-only filter ----------
+  console.log("\n[6c] GET /api/admin/catalog/[id]/samples?showcase=true");
+  const allRes = await api(`/api/admin/catalog/${salon!.id}/samples?page=1&per_page=200`, { method: "GET" }, cookie);
+  const showcaseFiltered = await api(
+    `/api/admin/catalog/${salon!.id}/samples?page=1&per_page=200&showcase=true`,
+    { method: "GET" },
+    cookie,
+  );
+  assertEq("unfiltered status", allRes.status, 200);
+  assertEq("filtered status", showcaseFiltered.status, 200);
+  const allCount = allRes.body?.samples?.length ?? 0;
+  const showcaseCount = showcaseFiltered.body?.samples?.length ?? 0;
+  assertTrue(
+    "filter narrows result set",
+    showcaseCount > 0 && showcaseCount < allCount,
+    `all=${allCount}, showcase=${showcaseCount}`,
+  );
+  assertTrue(
+    "every filtered clip has is_showcase=true",
+    (showcaseFiltered.body?.samples?.length ?? 0) > 0 &&
+      showcaseFiltered.body.samples.every((s: { is_showcase: boolean }) => s.is_showcase === true),
+  );
+
   // ---------- 7. Auth gate on each new endpoint ----------
   console.log("\n[7] Auth-gate regression — no cookie ⇒ 307 redirect");
   for (const [method, path] of [

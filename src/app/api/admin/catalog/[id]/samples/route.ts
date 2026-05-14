@@ -27,13 +27,15 @@ export async function GET(
   const { id } = await params;
   const supabase = createSupabaseAdminClient();
 
-  // Parse optional pagination params
+  // Parse optional pagination + filter params
   const url = new URL(request.url);
   const pageParam = url.searchParams.get("page");
   const perPageParam = url.searchParams.get("per_page");
+  const showcaseParam = url.searchParams.get("showcase");
   const paginated = pageParam != null || perPageParam != null;
   const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
   const perPage = Math.max(1, Math.min(200, parseInt(perPageParam ?? "50", 10) || 50));
+  const showcaseOnly = showcaseParam === "true" || showcaseParam === "1";
 
   // Query dataset_clips JOIN clips for this dataset
   let query = supabase
@@ -44,6 +46,10 @@ export async function GET(
     )
     .eq("dataset_id", id)
     .order("created_at", { ascending: false });
+
+  if (showcaseOnly) {
+    query = query.eq("is_showcase", true);
+  }
 
   if (paginated) {
     const from = (page - 1) * perPage;

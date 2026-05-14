@@ -5,6 +5,7 @@ import { register as registerCatalog } from "./tools/catalog";
 import { register as registerQa } from "./tools/qa";
 import { register as registerPipeline } from "./tools/pipeline";
 import { register as registerSamplePacks } from "./tools/sample-packs";
+import { register as registerCapabilities } from "./tools/capabilities";
 
 // Re-export auth utilities for backward compatibility with route.ts
 export { validateBearerToken, checkRateLimit } from "./auth";
@@ -25,6 +26,7 @@ export function createMcpServer(): McpServer {
   registerQa(server);
   registerPipeline(server);
   registerSamplePacks(server);
+  registerCapabilities(server);
 
   return server;
 }
