@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -71,6 +71,8 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
   const [formatIssueCounts, setFormatIssueCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  /** Non-error feedback from a batch op (e.g. "X marked, Y skipped"). */
+  const [batchInfo, setBatchInfo] = useState<string | null>(null);
 
   // Selection
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -245,12 +247,18 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
     [patchShowcaseOne],
   );
 
+  // Monotonic counter — discard stale batch results when the user
+  // rapidly clicks Mark / Unmark in succession.
+  const batchSeqRef = useRef(0);
+
   const handleBatchShowcase = useCallback(
     async (makeShowcase: boolean) => {
       const ids = Array.from(selectedIds);
       if (ids.length === 0) return;
+      const seq = ++batchSeqRef.current;
       setBatchShowcasing(true);
       setError(null);
+      setBatchInfo(null);
       // Optimistic update for non-lead-bound clips
       setSamples((prev) =>
         prev.map((s) =>
@@ -260,6 +268,8 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
       const results = await Promise.allSettled(
         ids.map((id) => patchShowcaseOne(id, makeShowcase)),
       );
+      // If a newer batch fired while we were awaiting, drop our results.
+      if (seq !== batchSeqRef.current) return;
       const tally = { ok: 0, skipped: 0, failed: 0 };
       for (const r of results) {
         if (r.status === "rejected") tally.failed++;
@@ -273,9 +283,18 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
             tally.skipped > 0 ? ` (${tally.skipped} skipped — lead-bound)` : ""
           }`,
         );
-        // Reload to be sure UI matches server
-        fetchSamples(page);
+      } else if (tally.skipped > 0) {
+        // Surface the skipped count even on otherwise-success so the user
+        // knows lead-bound clips didn't change.
+        setBatchInfo(
+          `${tally.ok} updated · ${tally.skipped} skipped (lead-bound clips can't be showcased here)`,
+        );
+      } else {
+        setBatchInfo(`${tally.ok} clip${tally.ok === 1 ? "" : "s"} ${makeShowcase ? "marked as" : "removed from"} showcase`);
       }
+      // Always re-fetch the page so the UI reflects authoritative server state
+      // (defends against optimistic drift if the server applies side effects).
+      fetchSamples(page);
     },
     [selectedIds, patchShowcaseOne, fetchSamples, page],
   );
@@ -388,6 +407,22 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
           <span className="text-xs font-mono text-[var(--error)]">{error}</span>
           <button
             onClick={() => setError(null)}
+            className="text-xs font-mono text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* Batch info banner (success / partial-skip feedback) */}
+      {batchInfo && (
+        <div
+          data-testid="batch-info-banner"
+          className="flex items-center justify-between rounded-md border border-[var(--accent-primary)] bg-[var(--accent-primary)]/10 px-4 py-2"
+        >
+          <span className="text-xs font-mono text-[var(--accent-primary)]">{batchInfo}</span>
+          <button
+            onClick={() => setBatchInfo(null)}
             className="text-xs font-mono text-[var(--text-muted)] hover:text-[var(--text-primary)]"
           >
             Dismiss
