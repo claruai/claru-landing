@@ -91,23 +91,91 @@ describe("buildSamplePack", () => {
     expect(result.clip_count).toBe(4);
   });
 
-  it("pre-existing leads are NOT cleaned up when buildSamplePack fails after find-or-create", async () => {
-    // The lead is created by an earlier test in this file; here we trigger a
-    // failure (no showcase source) and confirm the lead row still exists.
-    // This exercises the leadCreated=false branch of cleanupLeadIfNew.
+  // ---------------------------------------------------------------------
+  // Rollback tests — verify cleanupLeadIfNew() actually runs and only
+  // touches newly-created leads. We force a post-find-or-create failure
+  // by wrapping the supabase client in a Proxy that makes the very next
+  // `datasets.insert(...).select().single()` resolve with a PG error.
+  // ---------------------------------------------------------------------
+  function makeFailingDatasetsInsert() {
+    return new Proxy(supabase, {
+      get(target, prop, receiver) {
+        if (prop !== "from") return Reflect.get(target, prop, receiver);
+        return (table: string) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const builder: any = target.from(table);
+          if (table !== "datasets") return builder;
+          const origInsert = builder.insert.bind(builder);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          builder.insert = (...args: any[]) => {
+            const realChain = origInsert(...args);
+            return new Proxy(realChain, {
+              get(t, p) {
+                if (p !== "select") return Reflect.get(t, p);
+                return () => ({
+                  single: () =>
+                    Promise.resolve({
+                      data: null,
+                      error: {
+                        message:
+                          "INJECTED: duplicate key value violates unique constraint datasets_slug_key",
+                        code: "23505",
+                      },
+                    }),
+                });
+              },
+            });
+          };
+          return builder;
+        };
+      },
+    });
+  }
+
+  it("rollback path: pre-existing lead survives a forced dataset-insert failure", async () => {
+    // The lead with TEST_EMAIL was created by the first test in this file.
+    // Inject a failure at the datasets.insert step (which runs AFTER
+    // findOrCreateLeadByEmail) and confirm:
+    //   1. buildSamplePack throws
+    //   2. The pre-existing lead row is still in the DB (leadCreated=false
+    //      branch of cleanupLeadIfNew did not delete it)
+    const failing = makeFailingDatasetsInsert();
     await expect(
-      buildSamplePack(supabase, {
-        sourceDatasetSlugs: ["egocentric-household-tasks-global"], // 0 showcase clips → fails pre-flight
+      buildSamplePack(failing, {
+        sourceDatasetSlugs: ["egocentric-long-form-salon-healthcare"],
         recipient: { name: "QA Prospect", email: TEST_EMAIL, company: TEST_COMPANY },
         testIsolation: true,
       }),
-    ).rejects.toThrow();
+    ).rejects.toThrow(/Failed to create sample pack dataset/);
+
     const { data: stillThere } = await supabase
       .from("leads")
       .select("id")
       .eq("id", createdLeadId!)
       .maybeSingle();
     expect(stillThere?.id).toBe(createdLeadId);
+  });
+
+  it("rollback path: newly-created lead is cleaned up on forced dataset-insert failure", async () => {
+    // Fresh email this test owns. cleanupLeadIfNew should delete the row
+    // because leadCreated will be true.
+    const FRESH_EMAIL = `qa+rollback-new-${Date.now()}@claru.ai`;
+    const failing = makeFailingDatasetsInsert();
+
+    await expect(
+      buildSamplePack(failing, {
+        sourceDatasetSlugs: ["egocentric-long-form-salon-healthcare"],
+        recipient: { name: "QA Rollback", email: FRESH_EMAIL, company: "QA Rollback Co" },
+        testIsolation: true,
+      }),
+    ).rejects.toThrow(/Failed to create sample pack dataset/);
+
+    const { data: orphan } = await supabase
+      .from("leads")
+      .select("id")
+      .eq("email", FRESH_EMAIL)
+      .maybeSingle();
+    expect(orphan).toBeNull();
   });
 
   it("rejects unknown source slugs", async () => {

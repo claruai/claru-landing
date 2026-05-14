@@ -45,6 +45,41 @@ describe("sanitizeError", () => {
     expect(sanitizeError(err)).toBe("Database constraint violation. Check your inputs and try again.");
   });
 
+  it("collapses data exceptions (SQLSTATE 22001 — string too long)", () => {
+    const err = Object.assign(new Error("value too long for type character varying(50)"), {
+      code: "22001",
+    });
+    const out = sanitizeError(err);
+    expect(out).toBe("Database constraint violation. Check your inputs and try again.");
+    expect(out).not.toContain("character varying");
+  });
+
+  it("collapses invalid-text-representation (SQLSTATE 22P02)", () => {
+    const err = Object.assign(new Error("invalid input syntax for type uuid: \"foo\""), {
+      code: "22P02",
+    });
+    expect(sanitizeError(err)).toBe("Database constraint violation. Check your inputs and try again.");
+  });
+
+  it("maps transient transaction errors (SQLSTATE 40001) to a retry-friendly message", () => {
+    const err = Object.assign(new Error("could not serialize access due to concurrent update"), {
+      code: "40001",
+    });
+    expect(sanitizeError(err)).toBe("Transient database error. Retry the request.");
+  });
+
+  it("maps deadlocks (SQLSTATE 40P01) to retry-friendly message", () => {
+    const err = Object.assign(new Error("deadlock detected"), { code: "40P01" });
+    expect(sanitizeError(err)).toBe("Transient database error. Retry the request.");
+  });
+
+  it("collapses function-not-found via text pattern (no code)", () => {
+    const err = new Error("function public.match_clips(vector, integer) does not exist");
+    const out = sanitizeError(err);
+    expect(out).not.toContain("match_clips");
+    expect(out).not.toContain("public.");
+  });
+
   it("passes through friendly application errors unchanged", () => {
     const err = new Error("No showcase clips found across source datasets.");
     expect(sanitizeError(err)).toBe("No showcase clips found across source datasets.");

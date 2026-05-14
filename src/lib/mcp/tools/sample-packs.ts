@@ -21,14 +21,17 @@ const errText = (msg: string) => okText({ error: msg });
  * see.
  *
  * Coverage:
- *  - Integrity-class errors (PG SQLSTATE 23xxx): unique violations, FK violations,
- *    NOT NULL violations, CHECK violations.
+ *  - Integrity-class errors (PG SQLSTATE 23xxx): unique, FK, NOT NULL, CHECK.
+ *  - Data-exception errors (SQLSTATE 22xxx): bad input types, length overflow.
  *  - Authorization errors (SQLSTATE 42501): "permission denied for table".
- *  - Schema/syntax errors that leak column or relation names
+ *  - Schema/syntax errors that leak column / relation / function names
  *    (SQLSTATE 42P*, 42703, 42883).
+ *  - Transient transaction errors (SQLSTATE 40xxx): serialization failure,
+ *    deadlock — these are retry-friendly and we surface that distinction.
  *  - PostgREST text patterns even when no `code` is present: "violates X
  *    constraint", "column ... of relation", "duplicate key value",
- *    "null value in column", "permission denied", "relation ... does not exist".
+ *    "null value in column", "permission denied", "relation ... does not
+ *    exist", "function ... does not exist".
  *
  * Anything not matched falls through unchanged — errors thrown by our own
  * code are already user-friendly. Original message is always logged before
@@ -41,21 +44,39 @@ export function sanitizeError(err: unknown): string {
   const msg = err instanceof Error ? err.message : String(err);
 
   const INTEGRITY_TEXT =
-    /violates .* constraint|column .* of relation|duplicate key value|null value in column|permission denied|relation .* does not exist/i;
+    /violates .* constraint|column .* of relation|duplicate key value|null value in column|permission denied|relation .* does not exist|function .* does not exist/i;
 
   const codeIsIntegrity = typeof pgCode === "string" && /^23\d{3}$/.test(pgCode);
+  const codeIsDataException =
+    typeof pgCode === "string" && /^22(\d{3}|P\d{2})$/.test(pgCode);
   const codeIsAuthz = pgCode === "42501";
   const codeLeaksSchema =
     typeof pgCode === "string" && /^42(P\d{2}|703|883)$/.test(pgCode);
+  const codeIsTransient =
+    typeof pgCode === "string" && /^40(\d{3}|P\d{2})$/.test(pgCode);
 
-  if (codeIsIntegrity || codeIsAuthz || codeLeaksSchema || INTEGRITY_TEXT.test(msg)) {
+  if (
+    codeIsIntegrity ||
+    codeIsDataException ||
+    codeIsAuthz ||
+    codeLeaksSchema ||
+    codeIsTransient ||
+    INTEGRITY_TEXT.test(msg)
+  ) {
     console.error(
       `[mcp:sample-packs] suppressed error${pgCode ? ` (${pgCode})` : ""}: ${msg}`,
     );
     if (codeIsAuthz || /permission denied/i.test(msg)) {
       return "Permission denied. Contact an admin.";
     }
-    if (codeIsIntegrity || /duplicate key|null value in column|violates .* constraint/i.test(msg)) {
+    if (codeIsTransient) {
+      return "Transient database error. Retry the request.";
+    }
+    if (
+      codeIsIntegrity ||
+      codeIsDataException ||
+      /duplicate key|null value in column|violates .* constraint/i.test(msg)
+    ) {
       return "Database constraint violation. Check your inputs and try again.";
     }
     return "Database error. Check your inputs and try again.";
