@@ -27,7 +27,7 @@ export async function GET(
 
   const { data: dataset } = await supabase
     .from("datasets")
-    .select("id, share_expires_at, share_mode")
+    .select("id, s3_bucket, share_expires_at, share_mode")
     .eq("share_token", token)
     .single();
 
@@ -48,7 +48,7 @@ export async function GET(
   // Verify clip belongs to this dataset AND is reachable under share_mode
   let clipRowQuery = supabase
     .from("dataset_clips")
-    .select("clips(s3_key, ann_annotation_key, ann_specs_key, ann_metadata)")
+    .select("clips(s3_bucket, s3_key, ann_annotation_key, ann_specs_key, ann_metadata)")
     .eq("dataset_id", dataset.id)
     .eq("clip_id", clipId);
 
@@ -71,6 +71,7 @@ export async function GET(
   const clipData = (clipRow as unknown as {
     clips:
       | {
+          s3_bucket: string | null;
           s3_key: string | null;
           ann_annotation_key: string | null;
           ann_specs_key: string | null;
@@ -98,7 +99,18 @@ export async function GET(
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
-  const signedUrl = await getS3SignedUrl(key, 300);
+  // Propagate cross-bucket clip storage (e.g. mv-artlist-external) to the
+  // signer. urls/route.ts has this fallback already; matching it here keeps
+  // the proxy + URL paths consistent.
+  const bucket =
+    clipData?.s3_bucket &&
+    clipData.s3_bucket !== "moonvalley-annotation-platform"
+      ? clipData.s3_bucket
+      : dataset.s3_bucket &&
+          dataset.s3_bucket !== "moonvalley-annotation-platform"
+        ? dataset.s3_bucket
+        : undefined;
+  const signedUrl = await getS3SignedUrl(key, 300, bucket);
   if (!signedUrl) {
     return NextResponse.json(
       { error: "Failed to sign URL" },

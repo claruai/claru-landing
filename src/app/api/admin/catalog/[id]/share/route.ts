@@ -48,7 +48,7 @@ export async function POST(
           mode: body.mode,
           expiresInDays: body.expires_in_days,
         });
-    return NextResponse.json(result, { status: 200 });
+    return NextResponse.json({ ...result, url: result.share_url }, { status: 200 });
   } catch (err) {
     if (err instanceof DatasetNotFoundError) {
       return NextResponse.json({ error: err.message }, { status: 404 });

@@ -15,6 +15,26 @@ const okText = (obj: unknown) => ({
 const errText = (msg: string) => okText({ error: msg });
 
 /**
+ * Strip Postgres / Supabase internals from error messages before returning
+ * to MCP callers. Keeps the high-signal "what went wrong" but drops constraint
+ * names, column lists, and other schema details that an LLM caller shouldn't
+ * see.
+ */
+function sanitizeError(err: unknown): string {
+  if (err instanceof Error) {
+    const msg = err.message;
+    // PostgREST constraint violations expose internal names — collapse to a
+    // generic message and log the full one server-side for triage.
+    if (/violates .* constraint/i.test(msg) || /column .* of relation/i.test(msg)) {
+      console.error("[mcp:sample-packs] suppressed error:", msg);
+      return "Database constraint violation. Check your inputs and try again.";
+    }
+    return msg;
+  }
+  return String(err);
+}
+
+/**
  * mint_showcase_share_link
  *
  * Convenience wrapper around mintShareToken with mode='showcase' and a long
@@ -76,7 +96,7 @@ function registerMintShowcaseShareLink(server: McpServer) {
           });
         }
         if (err instanceof DatasetNotFoundError) return errText(err.message);
-        return errText(err instanceof Error ? err.message : String(err));
+        return errText(sanitizeError(err));
       }
     },
   );
@@ -140,7 +160,7 @@ function registerSendSamplePack(server: McpServer) {
           per_source_breakdown: result.per_source_breakdown,
         });
       } catch (err) {
-        return errText(err instanceof Error ? err.message : String(err));
+        return errText(sanitizeError(err));
       }
     },
   );
@@ -171,7 +191,7 @@ function registerSetClipShowcase(server: McpServer) {
         .eq("clip_id", clip_id)
         .is("lead_id", null);
 
-      if (updateErr) return errText(updateErr.message);
+      if (updateErr) return errText(sanitizeError(updateErr));
       if (!count || count === 0) {
         return errText(
           "No matching dataset_clips row (clip may not be attached as a base entry).",
@@ -235,7 +255,7 @@ function registerListSamplePacksForLead(server: McpServer) {
         .eq("created_for_lead_id", resolvedLeadId)
         .order("created_at", { ascending: false });
 
-      if (error) return errText(error.message);
+      if (error) return errText(sanitizeError(error));
 
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://claru.ai";
       const packs = (datasets ?? []).map((d) => ({

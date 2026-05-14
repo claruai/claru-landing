@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { findOrCreateLeadByEmail, type LeadRow } from "@/lib/leads/find-or-create";
 import { mintShareToken } from "@/lib/share/mint-token";
@@ -109,7 +110,10 @@ export async function buildSamplePack(
   const baseName = `Sample — ${input.recipient.company} — ${today}`;
   const isolation = input.testIsolation ?? false;
   const slugPrefix = isolation ? "test-sample-" : "sample-";
-  const slug = `${slugPrefix}${slugify(input.recipient.company)}-${today}-${Math.random().toString(36).slice(2, 6)}`;
+  // 8 hex chars (~4B combos) from crypto.randomBytes — collision-resistant
+  // across many same-day packs for the same company. UNIQUE constraint on
+  // datasets.slug still acts as a final safety net.
+  const slug = `${slugPrefix}${slugify(input.recipient.company)}-${today}-${randomBytes(4).toString("hex")}`;
 
   const totalDurationHours = 0; // can be recomputed later from clip durations
 
@@ -143,11 +147,36 @@ export async function buildSamplePack(
     throw new Error(`Failed to create sample pack dataset: ${insertErr?.message}`);
   }
 
-  // Helper: rollback dataset if any later step fails
+  // Helper: rollback dataset if any later step fails. Logs each step
+  // explicitly so a half-failed rollback can be triaged from prod logs.
   const rollback = async () => {
-    await supabase.from("dataset_clips").delete().eq("dataset_id", newDataset.id);
-    await supabase.from("lead_dataset_access").delete().eq("dataset_id", newDataset.id);
-    await supabase.from("datasets").delete().eq("id", newDataset.id);
+    const { error: dcErr } = await supabase
+      .from("dataset_clips")
+      .delete()
+      .eq("dataset_id", newDataset.id);
+    if (dcErr) {
+      console.error(
+        `[buildSamplePack:rollback] dataset_clips delete failed for ${newDataset.id}: ${dcErr.message}`,
+      );
+    }
+    const { error: ldaErr } = await supabase
+      .from("lead_dataset_access")
+      .delete()
+      .eq("dataset_id", newDataset.id);
+    if (ldaErr) {
+      console.error(
+        `[buildSamplePack:rollback] lead_dataset_access delete failed for ${newDataset.id}: ${ldaErr.message}`,
+      );
+    }
+    const { error: dsErr } = await supabase
+      .from("datasets")
+      .delete()
+      .eq("id", newDataset.id);
+    if (dsErr) {
+      console.error(
+        `[buildSamplePack:rollback] datasets delete failed for ${newDataset.id}: ${dsErr.message}`,
+      );
+    }
   };
 
   try {

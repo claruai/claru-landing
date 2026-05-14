@@ -9,6 +9,8 @@ interface ShareInfo {
   share_expires_at: string | null;
   share_first_viewed_at: string | null;
   share_view_count: number | null;
+  /** Server-resolved share URL — trust this for copy/open over locally-constructed URLs. */
+  share_url?: string | null;
 }
 
 interface ShareTabPanelProps {
@@ -16,9 +18,6 @@ interface ShareTabPanelProps {
   datasetName: string;
   initialShareInfo?: ShareInfo;
 }
-
-const siteUrl =
-  typeof window !== "undefined" ? window.location.origin : "https://claru.ai";
 
 export default function ShareTabPanel({ datasetId, datasetName, initialShareInfo }: ShareTabPanelProps) {
   const [info, setInfo] = useState<ShareInfo | null>(initialShareInfo ?? null);
@@ -32,13 +31,16 @@ export default function ShareTabPanel({ datasetId, datasetName, initialShareInfo
     try {
       const res = await fetch(`/api/admin/catalog/${datasetId}`);
       if (res.ok) {
-        const d = await res.json();
+        const payload = await res.json();
+        // GET /api/admin/catalog/[id] returns `{ dataset: {...} }`
+        const d = payload.dataset ?? payload;
         setInfo({
           share_token: d.share_token,
           share_mode: d.share_mode,
           share_expires_at: d.share_expires_at,
           share_first_viewed_at: d.share_first_viewed_at,
           share_view_count: d.share_view_count,
+          share_url: null,
         });
       }
     } finally {
@@ -80,6 +82,8 @@ export default function ShareTabPanel({ datasetId, datasetName, initialShareInfo
         share_expires_at: data.expires_at,
         share_first_viewed_at: null,
         share_view_count: 0,
+        // Always trust the server-returned share_url (it knows NEXT_PUBLIC_SITE_URL)
+        share_url: data.share_url ?? null,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Network error");
@@ -101,6 +105,7 @@ export default function ShareTabPanel({ datasetId, datasetName, initialShareInfo
           share_expires_at: null,
           share_first_viewed_at: null,
           share_view_count: 0,
+          share_url: null,
         });
       }
     } finally {
@@ -108,7 +113,14 @@ export default function ShareTabPanel({ datasetId, datasetName, initialShareInfo
     }
   };
 
-  const url = info?.share_token ? `${siteUrl}/share/${info.share_token}` : null;
+  // Prefer server-supplied share_url (respects NEXT_PUBLIC_SITE_URL).
+  // Fall back to constructing from window.origin so the tab still works
+  // before the first refresh resolves.
+  const url =
+    info?.share_url ??
+    (info?.share_token
+      ? `${typeof window !== "undefined" ? window.location.origin : ""}/share/${info.share_token}`
+      : null);
 
   const copy = () => {
     if (!url) return;

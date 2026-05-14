@@ -10,6 +10,8 @@ export interface MintTokenResult {
   mode: ShareMode;
   reused: boolean;
   dataset_name: string;
+  /** Alias of `share_url` for callers that read `url` directly. */
+  url?: string;
 }
 
 export interface MintTokenOptions {

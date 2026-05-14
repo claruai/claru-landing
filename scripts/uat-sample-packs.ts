@@ -246,6 +246,20 @@ async function main() {
   assertEq("toggle OFF status", offRes.status, 200);
   assertEq("showcase count back to 4", offRes.body?.current_showcase_count, 4);
 
+  // ---------- 6b. PATCH mixed-payload rejection ----------
+  console.log("\n[6b] PATCH rejects mixed is_showcase + clip-field payloads");
+  const mixedRes = await api(
+    `/api/admin/catalog/${salon!.id}/samples/${clipId}`,
+    { method: "PATCH", body: JSON.stringify({ is_showcase: true, ai_caption: "should not stick" }) },
+    cookie,
+  );
+  assertEq("mixed payload returns 400", mixedRes.status, 400);
+  assertTrue(
+    "rejection lists offending fields",
+    Array.isArray(mixedRes.body?.rejected_fields) &&
+      mixedRes.body.rejected_fields.includes("ai_caption"),
+  );
+
   // ---------- 7. Auth gate on each new endpoint ----------
   console.log("\n[7] Auth-gate regression — no cookie ⇒ 307 redirect");
   for (const [method, path] of [
@@ -260,17 +274,56 @@ async function main() {
 
   // ---------- Cleanup ----------
   console.log("\n[cleanup]");
-  await supabase
-    .from("dataset_clips")
-    .delete()
-    .eq("dataset_id", packRes.body.dataset_id);
-  await supabase
-    .from("lead_dataset_access")
-    .delete()
-    .eq("dataset_id", packRes.body.dataset_id);
-  await supabase.from("datasets").delete().eq("id", packRes.body.dataset_id);
-  await supabase.from("leads").delete().eq("id", packRes.body.lead.id);
-  console.log("  cleaned up sample pack + lead");
+  const cleanupErrors: string[] = [];
+  const runStep = async (label: string, fn: () => Promise<{ error: unknown } | void>) => {
+    try {
+      const res = await fn();
+      const err = (res as { error?: unknown })?.error;
+      if (err) cleanupErrors.push(`${label}: ${(err as { message?: string })?.message ?? String(err)}`);
+    } catch (err) {
+      cleanupErrors.push(`${label}: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  };
+
+  await runStep("dataset_clips delete", () =>
+    supabase.from("dataset_clips").delete().eq("dataset_id", packRes.body.dataset_id),
+  );
+  await runStep("lead_dataset_access delete", () =>
+    supabase.from("lead_dataset_access").delete().eq("dataset_id", packRes.body.dataset_id),
+  );
+  await runStep("datasets delete", () =>
+    supabase.from("datasets").delete().eq("id", packRes.body.dataset_id),
+  );
+  await runStep("leads delete", () =>
+    supabase.from("leads").delete().eq("id", packRes.body.lead.id),
+  );
+
+  if (cleanupErrors.length === 0) {
+    console.log("  cleaned up sample pack + lead");
+  } else {
+    console.log("  cleanup partial — errors:");
+    cleanupErrors.forEach((e) => console.log(`    • ${e}`));
+  }
+
+  // Post-cleanup leftover assertions — UAT must leave the catalog clean.
+  console.log("\n[leftover scan]");
+  const { count: leftoverPacks } = await supabase
+    .from("datasets")
+    .select("id", { count: "exact", head: true })
+    .eq("created_for_lead_id", packRes.body.lead.id);
+  assertEq("no leftover sample-pack datasets for test lead", leftoverPacks ?? 0, 0);
+
+  const { count: leftoverDatasets } = await supabase
+    .from("datasets")
+    .select("id", { count: "exact", head: true })
+    .like("slug", "test-sample-%");
+  assertEq("no orphan test-sample-* datasets", leftoverDatasets ?? 0, 0);
+
+  const { count: leftoverLeads } = await supabase
+    .from("leads")
+    .select("id", { count: "exact", head: true })
+    .like("email", `qa+${RUN_ID}%`);
+  assertEq("no leftover qa+ leads for this run", leftoverLeads ?? 0, 0);
 
   // ---------- Final ----------
   console.log("\n--- UAT summary ---");
@@ -282,7 +335,20 @@ async function main() {
   }
 }
 
-main().catch((err) => {
+main().catch(async (err) => {
   console.error("\nUAT crashed:", err);
+  // Best-effort leftover scan even when main crashes — surfaces orphans
+  // from a partial run so they can be cleaned up manually.
+  try {
+    const { count } = await supabase
+      .from("datasets")
+      .select("id", { count: "exact", head: true })
+      .like("slug", "test-sample-%");
+    if ((count ?? 0) > 0) {
+      console.error(`  ⚠ ${count} orphan test-sample-* dataset(s) left behind. Inspect & clean.`);
+    }
+  } catch {
+    /* ignore secondary failures */
+  }
   process.exit(1);
 });
