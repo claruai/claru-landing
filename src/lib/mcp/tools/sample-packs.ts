@@ -19,19 +19,70 @@ const errText = (msg: string) => okText({ error: msg });
  * to MCP callers. Keeps the high-signal "what went wrong" but drops constraint
  * names, column lists, and other schema details that an LLM caller shouldn't
  * see.
+ *
+ * Coverage:
+ *  - Integrity-class errors (PG SQLSTATE 23xxx): unique, FK, NOT NULL, CHECK.
+ *  - Data-exception errors (SQLSTATE 22xxx): bad input types, length overflow.
+ *  - Authorization errors (SQLSTATE 42501): "permission denied for table".
+ *  - Schema/syntax errors that leak column / relation / function names
+ *    (SQLSTATE 42P*, 42703, 42883).
+ *  - Transient transaction errors (SQLSTATE 40xxx): serialization failure,
+ *    deadlock — these are retry-friendly and we surface that distinction.
+ *  - PostgREST text patterns even when no `code` is present: "violates X
+ *    constraint", "column ... of relation", "duplicate key value",
+ *    "null value in column", "permission denied", "relation ... does not
+ *    exist", "function ... does not exist".
+ *
+ * Anything not matched falls through unchanged — errors thrown by our own
+ * code are already user-friendly. Original message is always logged before
+ * sanitisation so prod triage isn't blocked.
  */
-function sanitizeError(err: unknown): string {
-  if (err instanceof Error) {
-    const msg = err.message;
-    // PostgREST constraint violations expose internal names — collapse to a
-    // generic message and log the full one server-side for triage.
-    if (/violates .* constraint/i.test(msg) || /column .* of relation/i.test(msg)) {
-      console.error("[mcp:sample-packs] suppressed error:", msg);
+export function sanitizeError(err: unknown): string {
+  // Supabase PostgrestError shape: { message, code, details, hint }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pgCode: string | undefined = (err as any)?.code;
+  const msg = err instanceof Error ? err.message : String(err);
+
+  const INTEGRITY_TEXT =
+    /violates .* constraint|column .* of relation|duplicate key value|null value in column|permission denied|relation .* does not exist|function .* does not exist/i;
+
+  const codeIsIntegrity = typeof pgCode === "string" && /^23\d{3}$/.test(pgCode);
+  const codeIsDataException =
+    typeof pgCode === "string" && /^22(\d{3}|P\d{2})$/.test(pgCode);
+  const codeIsAuthz = pgCode === "42501";
+  const codeLeaksSchema =
+    typeof pgCode === "string" && /^42(P\d{2}|703|883)$/.test(pgCode);
+  const codeIsTransient =
+    typeof pgCode === "string" && /^40(\d{3}|P\d{2})$/.test(pgCode);
+
+  if (
+    codeIsIntegrity ||
+    codeIsDataException ||
+    codeIsAuthz ||
+    codeLeaksSchema ||
+    codeIsTransient ||
+    INTEGRITY_TEXT.test(msg)
+  ) {
+    console.error(
+      `[mcp:sample-packs] suppressed error${pgCode ? ` (${pgCode})` : ""}: ${msg}`,
+    );
+    if (codeIsAuthz || /permission denied/i.test(msg)) {
+      return "Permission denied. Contact an admin.";
+    }
+    if (codeIsTransient) {
+      return "Transient database error. Retry the request.";
+    }
+    if (
+      codeIsIntegrity ||
+      codeIsDataException ||
+      /duplicate key|null value in column|violates .* constraint/i.test(msg)
+    ) {
       return "Database constraint violation. Check your inputs and try again.";
     }
-    return msg;
+    return "Database error. Check your inputs and try again.";
   }
-  return String(err);
+
+  return msg;
 }
 
 /**

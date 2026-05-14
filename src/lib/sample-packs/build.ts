@@ -105,6 +105,19 @@ export async function buildSamplePack(
     source: "sample-pack",
   });
 
+  // Helper: undo a *newly-created* lead row only. Pre-existing leads
+  // (leadCreated=false) are independently useful and must not be deleted.
+  // Called when any later step fails so we don't leak orphan leads.
+  const cleanupLeadIfNew = async () => {
+    if (!leadCreated) return;
+    const { error: leadErr } = await supabase.from("leads").delete().eq("id", lead.id);
+    if (leadErr) {
+      console.error(
+        `[buildSamplePack:rollback] orphan lead delete failed for ${lead.id}: ${leadErr.message}`,
+      );
+    }
+  };
+
   // 4. Create the curation dataset
   const today = new Date().toISOString().slice(0, 10);
   const baseName = `Sample — ${input.recipient.company} — ${today}`;
@@ -144,11 +157,15 @@ export async function buildSamplePack(
     .single();
 
   if (insertErr || !newDataset) {
+    // Dataset insert failed — clean up the orphan lead before throwing.
+    await cleanupLeadIfNew();
     throw new Error(`Failed to create sample pack dataset: ${insertErr?.message}`);
   }
 
   // Helper: rollback dataset if any later step fails. Logs each step
   // explicitly so a half-failed rollback can be triaged from prod logs.
+  // Cleans up the orphan lead too (so a 5-step pack always leaves an
+  // all-or-nothing footprint).
   const rollback = async () => {
     const { error: dcErr } = await supabase
       .from("dataset_clips")
@@ -177,6 +194,7 @@ export async function buildSamplePack(
         `[buildSamplePack:rollback] datasets delete failed for ${newDataset.id}: ${dsErr.message}`,
       );
     }
+    await cleanupLeadIfNew();
   };
 
   try {
