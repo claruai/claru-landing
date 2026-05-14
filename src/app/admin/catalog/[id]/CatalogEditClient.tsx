@@ -6,6 +6,7 @@ import { Loader2, Save, Trash2, UserPlus, Check, X } from "lucide-react";
 import AddSampleForm from "./AddSampleForm";
 import BulkCsvUploader from "./BulkCsvUploader";
 import SamplesList from "./SamplesList";
+import ShareTabPanel from "./ShareTabPanel";
 import type { Dataset, DatasetCategory, DatasetType } from "@/types/data-catalog";
 
 // ---------------------------------------------------------------------------
@@ -46,7 +47,7 @@ export default function CatalogEditClient({
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   // Samples tab state
-  const [activeTab, setActiveTab] = useState<"samples" | "add" | "bulk">("samples");
+  const [activeTab, setActiveTab] = useState<"samples" | "add" | "bulk" | "share">("samples");
   const [samplesRefreshKey, setSamplesRefreshKey] = useState(0);
 
   // When a sample is added or import completes, switch to Samples tab and refresh
@@ -379,6 +380,7 @@ export default function CatalogEditClient({
                 { key: "samples", label: "Samples" },
                 { key: "add", label: "Add Sample" },
                 { key: "bulk", label: "Bulk Import" },
+                { key: "share", label: "Share" },
               ] as const
             ).map((tab) => (
               <button
@@ -421,6 +423,24 @@ export default function CatalogEditClient({
               <BulkCsvUploader
                 datasetId={dataset.id}
                 onImportComplete={handleImportComplete}
+              />
+            )}
+
+            {activeTab === "share" && (
+              <ShareTabPanel
+                datasetId={dataset.id}
+                datasetName={dataset.name}
+                initialShareInfo={{
+                  share_token: (dataset as Dataset & { share_token?: string | null }).share_token ?? null,
+                  share_mode:
+                    (dataset as Dataset & { share_mode?: "all" | "showcase" | null }).share_mode ?? null,
+                  share_expires_at:
+                    (dataset as Dataset & { share_expires_at?: string | null }).share_expires_at ?? null,
+                  share_first_viewed_at:
+                    (dataset as Dataset & { share_first_viewed_at?: string | null }).share_first_viewed_at ?? null,
+                  share_view_count:
+                    (dataset as Dataset & { share_view_count?: number | null }).share_view_count ?? null,
+                }}
               />
             )}
           </div>

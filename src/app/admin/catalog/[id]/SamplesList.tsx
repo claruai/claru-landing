@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   List,
   LayoutGrid,
+  Star,
 } from "lucide-react";
 import type { Clip } from "@/types/data-catalog";
 import SampleEditPanel from "./SampleEditPanel";
@@ -32,6 +33,8 @@ export interface AdminClip extends Clip {
   dataset_clip_id: string;
   /** Non-null when the clip is assigned to a specific lead. */
   lead_id: string | null;
+  /** dataset_clips.is_showcase — controls visibility under share_mode='showcase'. */
+  is_showcase: boolean;
   /** Who added this clip to the dataset. */
   added_by: string | null;
   /** Optional note from dataset_clips. */
@@ -375,6 +378,9 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
                 <th className="px-3 py-2 text-center text-[var(--text-muted)] w-12">Ann.</th>
                 <th className="px-3 py-2 text-center text-[var(--text-muted)] w-12">Specs</th>
                 <th className="px-3 py-2 text-left text-[var(--text-muted)]">Metadata</th>
+                <th className="px-3 py-2 text-center text-[var(--text-muted)] w-14">
+                  <Star className="w-3 h-3 inline" aria-label="Showcase" />
+                </th>
                 <th className="px-3 py-2 text-center text-[var(--text-muted)] w-16">Issues</th>
                 <th className="px-3 py-2 text-center text-[var(--text-muted)] w-12"></th>
               </tr>
@@ -427,6 +433,19 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
                     </td>
                     <td className="px-3 py-2 text-[var(--text-secondary)] max-w-[200px] truncate">
                       {metadataPreview(sample.ann_metadata)}
+                    </td>
+                    <td className="px-3 py-2 text-center" onClick={(e) => e.stopPropagation()}>
+                      <ShowcaseToggle
+                        datasetId={datasetId}
+                        clipId={sample.id}
+                        initial={!!sample.is_showcase}
+                        disabled={!!sample.lead_id}
+                        onChange={(val) => {
+                          setSamples((prev) =>
+                            prev.map((s) => (s.id === sample.id ? { ...s, is_showcase: val } : s)),
+                          );
+                        }}
+                      />
                     </td>
                     <td className="px-3 py-2 text-center">
                       {issueCount > 0 ? (
@@ -537,5 +556,78 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
         />
       )}
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// ShowcaseToggle — star button that PATCHes dataset_clips.is_showcase
+// ---------------------------------------------------------------------------
+
+function ShowcaseToggle({
+  datasetId,
+  clipId,
+  initial,
+  disabled,
+  onChange,
+}: {
+  datasetId: string;
+  clipId: string;
+  initial: boolean;
+  disabled?: boolean;
+  onChange?: (val: boolean) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [on, setOn] = useState(initial);
+
+  useEffect(() => setOn(initial), [initial]);
+
+  const toggle = async () => {
+    if (busy || disabled) return;
+    const next = !on;
+    setBusy(true);
+    setOn(next); // optimistic
+    try {
+      // The existing PATCH endpoint accepts is_showcase under the sampleId
+      // segment; it routes to dataset_clips when is_showcase is the only field.
+      const res = await fetch(`/api/admin/catalog/${datasetId}/samples/${clipId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_showcase: next }),
+      });
+      if (!res.ok) {
+        // revert on failure
+        setOn(!next);
+      } else {
+        onChange?.(next);
+      }
+    } catch {
+      setOn(!next);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      disabled={disabled || busy}
+      title={
+        disabled
+          ? "Lead-specific clip — toggle showcase on the base attachment instead"
+          : on
+            ? "Showcase clip (click to remove)"
+            : "Not a showcase clip (click to mark)"
+      }
+      data-testid={`showcase-toggle-${clipId}`}
+      data-showcase={on ? "true" : "false"}
+      className={`inline-flex items-center justify-center w-7 h-7 rounded transition-colors ${
+        on
+          ? "text-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/10"
+          : "text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]"
+      } ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
+    >
+      <Star className="w-4 h-4" fill={on ? "currentColor" : "none"} />
+    </button>
   );
 }

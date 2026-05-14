@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import LeadStatusBadge from "@/app/components/ui/LeadStatusBadge";
+import SendSamplePackButton from "@/app/admin/leads/[id]/SendSamplePackModal";
 import type { Lead, LeadStatus, Dataset, LeadDatasetAccess } from "@/types/data-catalog";
 
 /* ------------------------------------------------------------------ */
@@ -763,6 +764,12 @@ export default function LeadDetailClient({
           >
             {isResettingToPending ? "resetting..." : "reset to pending"}
           </button>
+        )}
+        {lead.email && (
+          <SendSamplePackButton
+            leadId={lead.id}
+            recipient={{ name: lead.name, email: lead.email, company: lead.company }}
+          />
         )}
       </div>
 

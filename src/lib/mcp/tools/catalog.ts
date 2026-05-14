@@ -439,17 +439,27 @@ function registerDownloadClips(server: McpServer) {
 function registerPublishShareLink(server: McpServer) {
   server.tool(
     "publish_share_link",
-    "Generate a public share link for a dataset so prospects can view curated clips without logging in. Idempotent: returns existing token if one already exists.",
+    "Generate a public share link for a dataset so prospects can view curated clips without logging in. " +
+      "Idempotent: returns existing token if one already exists and modes match. " +
+      "share_mode='all' (default) shows every clip; share_mode='showcase' filters to is_showcase=true only.",
     {
       dataset_id: z.string().uuid().describe("Dataset UUID to share"),
       expires_in_days: z.number().min(1).max(365).default(30).describe("Days until the share link expires (default 30)"),
+      share_mode: z
+        .enum(["all", "showcase"])
+        .default("all")
+        .describe("'all' (default, backwards compatible) shows every clip; 'showcase' shows only is_showcase=true clips."),
+      force_rotate: z
+        .boolean()
+        .default(false)
+        .describe("Invalidate existing token and mint a new one (use to change share_mode)."),
     },
-    async ({ dataset_id, expires_in_days }) => {
+    async ({ dataset_id, expires_in_days, share_mode, force_rotate }) => {
       const supabase = createSupabaseAdminClient();
 
       const { data: dataset, error: fetchErr } = await supabase
         .from("datasets")
-        .select("id, name, share_token, share_expires_at")
+        .select("id, name, share_token, share_expires_at, share_mode")
         .eq("id", dataset_id)
         .single();
 
@@ -459,8 +469,24 @@ function registerPublishShareLink(server: McpServer) {
         };
       }
 
-      if (dataset.share_token) {
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://claru.ai";
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://claru.ai";
+      const currentMode = (dataset.share_mode ?? "all") as "all" | "showcase";
+
+      if (dataset.share_token && !force_rotate) {
+        if (currentMode !== share_mode) {
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: JSON.stringify({
+                  error: `Existing share link has share_mode='${currentMode}', not '${share_mode}'. Pass force_rotate=true to rotate.`,
+                  current_mode: currentMode,
+                  requested_mode: share_mode,
+                }),
+              },
+            ],
+          };
+        }
         return {
           content: [{
             type: "text" as const,
@@ -469,6 +495,8 @@ function registerPublishShareLink(server: McpServer) {
               token: dataset.share_token,
               dataset_name: dataset.name,
               expires_at: dataset.share_expires_at,
+              share_mode: currentMode,
+              reused: true,
               message: `Existing share link for "${dataset.name}"`,
             }),
           }],
@@ -480,7 +508,13 @@ function registerPublishShareLink(server: McpServer) {
 
       const { error: updateErr } = await supabase
         .from("datasets")
-        .update({ share_token: token, share_expires_at: expiresAt })
+        .update({
+          share_token: token,
+          share_expires_at: expiresAt,
+          share_mode,
+          share_view_count: 0,
+          share_first_viewed_at: null,
+        })
         .eq("id", dataset_id);
 
       if (updateErr) {
@@ -488,8 +522,6 @@ function registerPublishShareLink(server: McpServer) {
           content: [{ type: "text" as const, text: JSON.stringify({ error: updateErr.message }) }],
         };
       }
-
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://claru.ai";
 
       return {
         content: [{
@@ -499,6 +531,8 @@ function registerPublishShareLink(server: McpServer) {
             token,
             dataset_name: dataset.name,
             expires_at: expiresAt,
+            share_mode,
+            reused: false,
             message: `Share link created for "${dataset.name}", expires in ${expires_in_days} days`,
           }),
         }],
