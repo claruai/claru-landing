@@ -91,6 +91,25 @@ describe("buildSamplePack", () => {
     expect(result.clip_count).toBe(4);
   });
 
+  it("pre-existing leads are NOT cleaned up when buildSamplePack fails after find-or-create", async () => {
+    // The lead is created by an earlier test in this file; here we trigger a
+    // failure (no showcase source) and confirm the lead row still exists.
+    // This exercises the leadCreated=false branch of cleanupLeadIfNew.
+    await expect(
+      buildSamplePack(supabase, {
+        sourceDatasetSlugs: ["egocentric-household-tasks-global"], // 0 showcase clips → fails pre-flight
+        recipient: { name: "QA Prospect", email: TEST_EMAIL, company: TEST_COMPANY },
+        testIsolation: true,
+      }),
+    ).rejects.toThrow();
+    const { data: stillThere } = await supabase
+      .from("leads")
+      .select("id")
+      .eq("id", createdLeadId!)
+      .maybeSingle();
+    expect(stillThere?.id).toBe(createdLeadId);
+  });
+
   it("rejects unknown source slugs", async () => {
     await expect(
       buildSamplePack(supabase, {
