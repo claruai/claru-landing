@@ -117,7 +117,7 @@ function registerMintShowcaseShareLink(server: McpServer) {
       const supabase = createSupabaseAdminClient();
       const { data: ds, error } = await supabase
         .from("datasets")
-        .select("id, name")
+        .select("id, name, share_token, share_mode, share_expires_at, share_view_count, share_first_viewed_at")
         .eq("slug", dataset_slug)
         .single();
       if (error || !ds) return errText(`Dataset not found by slug: ${dataset_slug}`);
@@ -139,16 +139,173 @@ function registerMintShowcaseShareLink(server: McpServer) {
         });
       } catch (err) {
         if (err instanceof ShareModeMismatchError) {
+          // Surface the existing token + URL so the agent can return that
+          // URL to the user *without* rotating. If they need showcase mode
+          // specifically, they can pass force_rotate=true.
+          const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://claru.ai";
           return okText({
             error: err.message,
             current_mode: err.currentMode,
             requested_mode: err.requestedMode,
-            hint: "Pass force_rotate=true to switch the dataset to showcase mode (invalidates existing URL).",
+            existing_share: ds.share_token
+              ? {
+                  share_url: `${siteUrl}/share/${ds.share_token}`,
+                  token: ds.share_token,
+                  mode: ds.share_mode,
+                  expires_at: ds.share_expires_at,
+                  view_count: ds.share_view_count ?? 0,
+                  first_viewed_at: ds.share_first_viewed_at,
+                }
+              : null,
+            hint:
+              "The dataset's current share token is included in `existing_share` (different mode than requested). " +
+              "If the caller just needs A share URL for this dataset, return existing_share.share_url. " +
+              "Pass force_rotate=true to invalidate the existing token and mint a fresh one in the requested mode.",
           });
         }
         if (err instanceof DatasetNotFoundError) return errText(err.message);
         return errText(sanitizeError(err));
       }
+    },
+  );
+}
+
+/**
+ * get_share_link — READ-ONLY
+ *
+ * Returns the current share token + URL for a dataset (looked up by slug
+ * or id), without minting or rotating. Use this when the caller just
+ * wants to retrieve the existing share URL.
+ */
+function registerGetShareLink(server: McpServer) {
+  server.tool(
+    "get_share_link",
+    "READ-ONLY: Look up the current share link for a dataset (by slug or id) without minting or rotating. " +
+      "Returns share_url, mode, expiry, and view stats. If the dataset has no share token yet, returns " +
+      "`{ has_share_link: false }` — the caller can then call publish_share_link or mint_showcase_share_link " +
+      "to create one. Always prefer this tool when you just want to retrieve an existing URL.",
+    {
+      dataset_slug: z.string().optional().describe("Dataset slug (e.g. 'egocentric-long-form-salon-healthcare'). Provide this OR dataset_id."),
+      dataset_id: z.string().uuid().optional().describe("Dataset UUID. Provide this OR dataset_slug."),
+    },
+    async ({ dataset_slug, dataset_id }) => {
+      if (!dataset_slug && !dataset_id) {
+        return errText("Provide either dataset_slug or dataset_id.");
+      }
+      const supabase = createSupabaseAdminClient();
+      const q = supabase
+        .from("datasets")
+        .select(
+          "id, slug, name, share_token, share_mode, share_expires_at, share_view_count, share_first_viewed_at, is_published",
+        );
+      const lookup = dataset_id ? q.eq("id", dataset_id) : q.eq("slug", dataset_slug!);
+      const { data: ds, error } = await lookup.single();
+      if (error || !ds) {
+        return errText(`Dataset not found: ${dataset_slug ?? dataset_id}`);
+      }
+      if (!ds.share_token) {
+        return okText({
+          has_share_link: false,
+          dataset_id: ds.id,
+          dataset_slug: ds.slug,
+          dataset_name: ds.name,
+          is_published: ds.is_published,
+          hint:
+            "No share link minted yet. Call mint_showcase_share_link({dataset_slug}) for a showcase-only URL, " +
+            "or publish_share_link({dataset_id}) for a full-access URL.",
+        });
+      }
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://claru.ai";
+      const expired = ds.share_expires_at != null && new Date(ds.share_expires_at) < new Date();
+      return okText({
+        has_share_link: true,
+        share_url: `${siteUrl}/share/${ds.share_token}`,
+        token: ds.share_token,
+        mode: ds.share_mode ?? "all",
+        expires_at: ds.share_expires_at,
+        is_expired: expired,
+        view_count: ds.share_view_count ?? 0,
+        first_viewed_at: ds.share_first_viewed_at,
+        dataset_id: ds.id,
+        dataset_slug: ds.slug,
+        dataset_name: ds.name,
+        is_published: ds.is_published,
+      });
+    },
+  );
+}
+
+/**
+ * list_share_links — discovery / inventory
+ *
+ * Lists every dataset that currently has a share token, optionally filtered
+ * by category, mode, or expiry. Useful when the caller asks "what share
+ * links exist?" or wants to find an existing link by category/mode.
+ */
+function registerListShareLinks(server: McpServer) {
+  server.tool(
+    "list_share_links",
+    "Discovery: list every dataset with an active share link. Optional filters: category_slug (e.g. " +
+      "'egocentric'), mode ('all' or 'showcase'), include_expired (default false). Returns each link's " +
+      "URL, mode, expiry, and view stats — sorted by most recently viewed.",
+    {
+      category_slug: z
+        .string()
+        .optional()
+        .describe("Restrict to a single category slug (e.g. 'egocentric', 'gaming')."),
+      mode: z
+        .enum(["all", "showcase"])
+        .optional()
+        .describe("Filter by share mode."),
+      include_expired: z
+        .boolean()
+        .default(false)
+        .describe("Include expired share links (default false)."),
+    },
+    async ({ category_slug, mode, include_expired }) => {
+      const supabase = createSupabaseAdminClient();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let q: any = supabase
+        .from("datasets")
+        .select(
+          "id, slug, name, share_token, share_mode, share_expires_at, share_view_count, share_first_viewed_at, is_published, dataset_categories(slug,name)",
+        )
+        .not("share_token", "is", null);
+
+      if (mode) q = q.eq("share_mode", mode);
+      if (!include_expired) {
+        // Either no expiry set, or expiry in the future
+        q = q.or(`share_expires_at.is.null,share_expires_at.gt.${new Date().toISOString()}`);
+      }
+      q = q.order("share_first_viewed_at", { ascending: false, nullsFirst: false });
+
+      const { data, error } = await q;
+      if (error) return errText(sanitizeError(error));
+
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://claru.ai";
+      const rows = (data ?? [])
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .filter((r: any) => {
+          if (!category_slug) return true;
+          const cat = r.dataset_categories as { slug: string } | null;
+          return cat?.slug === category_slug;
+        })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .map((r: any) => ({
+          dataset_id: r.id,
+          dataset_slug: r.slug,
+          dataset_name: r.name,
+          category_slug: (r.dataset_categories as { slug: string } | null)?.slug ?? null,
+          category_name: (r.dataset_categories as { name: string } | null)?.name ?? null,
+          share_url: `${siteUrl}/share/${r.share_token}`,
+          mode: r.share_mode ?? "all",
+          expires_at: r.share_expires_at,
+          view_count: r.share_view_count ?? 0,
+          first_viewed_at: r.share_first_viewed_at,
+          is_published: r.is_published,
+        }));
+
+      return okText({ count: rows.length, share_links: rows });
     },
   );
 }
@@ -332,6 +489,8 @@ function registerListSamplePacksForLead(server: McpServer) {
 }
 
 export function register(server: McpServer) {
+  registerGetShareLink(server);
+  registerListShareLinks(server);
   registerMintShowcaseShareLink(server);
   registerSendSamplePack(server);
   registerSetClipShowcase(server);

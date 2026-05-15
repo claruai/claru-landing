@@ -139,6 +139,10 @@ describe("buildSamplePack", () => {
     //   1. buildSamplePack throws
     //   2. The pre-existing lead row is still in the DB (leadCreated=false
     //      branch of cleanupLeadIfNew did not delete it)
+    // NOTE: createdLeadId should exist from the first test in this file.
+    if (!createdLeadId) {
+      throw new Error("Test setup failed: expected createdLeadId from first test");
+    }
     const failing = makeFailingDatasetsInsert();
     await expect(
       buildSamplePack(failing, {
@@ -188,9 +192,10 @@ describe("buildSamplePack", () => {
   });
 
   it("fails when source has no showcase clips", async () => {
+    // Use a small legacy dataset that has clips but zero is_showcase=true entries.
     await expect(
       buildSamplePack(supabase, {
-        sourceDatasetSlugs: ["egocentric-household-tasks-global"], // has clips but 0 showcase
+        sourceDatasetSlugs: ["egocentric-country-specific-legacy"],
         recipient: { name: "x", email: `qa+y-${Date.now()}@claru.ai`, company: "x" },
         testIsolation: true,
       }),
