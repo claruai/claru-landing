@@ -228,7 +228,10 @@ export function register(server: McpServer) {
             type: "text" as const,
             text: JSON.stringify({
               server: "claru-catalog",
-              total_tools: CAPABILITY_MAP.reduce((sum, g) => sum + g.tools.length, 0) + 1,
+              // CAPABILITY_MAP already covers get_mcp_capabilities implicitly
+              // (it lives in this very tool registration); total is the sum
+              // of tools across groups.
+              total_tools: CAPABILITY_MAP.reduce((sum, g) => sum + g.tools.length, 0),
               groups: filteredGroups,
               intents: INTENT_RECIPES,
               note:

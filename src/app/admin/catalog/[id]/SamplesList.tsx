@@ -106,6 +106,10 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
 
   useEffect(() => {
     sessionStorage.setItem("admin-samples-showcase-only", String(showcaseOnly));
+    // Toggling the showcase filter should always reset to page 1 — handled
+    // here explicitly so it stays correct even if fetchSamples is memoized
+    // tighter in the future.
+    setPage(1);
   }, [showcaseOnly]);
 
   // Preview modal (grid view)
