@@ -19,7 +19,7 @@ const getShareData = cache(async (token: string) => {
   const { data: dataset } = await supabase
     .from("datasets")
     .select(
-      "id, name, description, s3_bucket, share_expires_at, share_first_viewed_at, share_view_count, share_mode"
+      "id, name, description, s3_bucket, share_expires_at, share_first_viewed_at, share_view_count, share_mode, bundle_s3_key, bundle_size_bytes, bundle_format, bundle_label"
     )
     .eq("share_token", token)
     .single();
@@ -192,12 +192,28 @@ export default async function SharePage({ params }: SharePageProps) {
     })
   );
 
+  const bundle = (dataset as {
+    bundle_s3_key?: string | null;
+    bundle_size_bytes?: number | null;
+    bundle_format?: string | null;
+    bundle_label?: string | null;
+  });
+
   return (
     <ShareCatalog
       clips={clips}
       datasetName={dataset.name}
       companyName={companyName}
       token={token}
+      bundle={
+        bundle.bundle_s3_key
+          ? {
+              size_bytes: bundle.bundle_size_bytes ?? null,
+              format: bundle.bundle_format ?? null,
+              label: bundle.bundle_label ?? null,
+            }
+          : null
+      }
     />
   );
 }
