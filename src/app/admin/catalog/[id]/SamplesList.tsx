@@ -96,6 +96,22 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
     return "table";
   });
 
+  // Showcase-only filter, persisted in sessionStorage
+  const [showcaseOnly, setShowcaseOnly] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("admin-samples-showcase-only") === "true";
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem("admin-samples-showcase-only", String(showcaseOnly));
+    // Toggling the showcase filter should always reset to page 1 — handled
+    // here explicitly so it stays correct even if fetchSamples is memoized
+    // tighter in the future.
+    setPage(1);
+  }, [showcaseOnly]);
+
   // Preview modal (grid view)
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
@@ -112,8 +128,10 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
       setLoading(true);
       setError(null);
       try {
+        const params = new URLSearchParams({ page: String(p), per_page: String(PER_PAGE) });
+        if (showcaseOnly) params.set("showcase", "true");
         const res = await fetch(
-          `/api/admin/catalog/${datasetId}/samples?page=${p}&per_page=${PER_PAGE}`
+          `/api/admin/catalog/${datasetId}/samples?${params.toString()}`
         );
         if (!res.ok) throw new Error("Failed to fetch clips");
         const data: PaginatedResponse = await res.json();
@@ -129,12 +147,12 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
         setLoading(false);
       }
     },
-    [datasetId]
+    [datasetId, showcaseOnly]
   );
 
   useEffect(() => {
     fetchSamples(1);
-    // Reset to page 1 when refreshKey changes
+    // Reset to page 1 when refreshKey or showcase filter changes
   }, [fetchSamples, refreshKey]);
 
   // -----------------------------------------------------------------------
@@ -369,11 +387,37 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
     <div className="space-y-4">
       {/* Header with count and view toggle */}
       <div className="flex items-center justify-between">
-        <h4 className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider">
-          Clips ({total})
-        </h4>
+        <div className="flex items-center gap-3">
+          <h4 className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider">
+            Clips ({total})
+          </h4>
+          {showcaseOnly && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono bg-[var(--accent-primary)]/15 text-[var(--accent-primary)]">
+              <Star className="w-2.5 h-2.5" fill="currentColor" />
+              Showcase only
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           {loading && <Loader2 className="w-4 h-4 animate-spin text-[var(--text-muted)]" />}
+
+          {/* Showcase-only filter toggle */}
+          <button
+            type="button"
+            onClick={() => setShowcaseOnly((v) => !v)}
+            data-testid="showcase-only-filter"
+            data-active={showcaseOnly ? "true" : "false"}
+            title={showcaseOnly ? "Show all clips" : "Show showcase clips only"}
+            className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-mono transition-colors ${
+              showcaseOnly
+                ? "border-[var(--accent-primary)] bg-[var(--accent-primary)] text-[var(--bg-primary)]"
+                : "border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent-primary)]/40"
+            }`}
+          >
+            <Star className="w-3 h-3" fill={showcaseOnly ? "currentColor" : "none"} />
+            Showcase
+          </button>
+
           <div className="flex items-center rounded-md border border-[var(--border-subtle)] overflow-hidden">
             <button
               onClick={() => setViewMode("table")}
