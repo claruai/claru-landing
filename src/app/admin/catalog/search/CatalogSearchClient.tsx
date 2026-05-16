@@ -604,7 +604,7 @@ function ResultDetailModal({ result, onClose, onNavigate, hasPrev, hasNext }: { 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center sm:p-4 md:p-6 lg:p-8" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black" />
       <button onClick={onClose} className="absolute top-3 right-3 sm:top-4 sm:right-4 z-[60] w-11 h-11 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)]/80 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"><X className="w-5 h-5" /></button>
       {hasPrev && <button onClick={() => onNavigate("prev")} className="hidden sm:flex absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-[60] w-10 h-10 rounded-full items-center justify-center bg-[var(--bg-tertiary)]/80 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"><ChevronLeft className="w-5 h-5" /></button>}
       {hasNext && <button onClick={() => onNavigate("next")} className="hidden sm:flex absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-[60] w-10 h-10 rounded-full items-center justify-center bg-[var(--bg-tertiary)]/80 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"><ChevronRight className="w-5 h-5" /></button>}
