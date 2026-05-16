@@ -6,9 +6,10 @@ import { Search } from "lucide-react";
 import Footer from "../components/sections/Footer";
 import {
   GAME_ROWS,
-  DISPLAY_MULTIPLIER,
   TOTAL_REAL_HOURS,
   TOTAL_CLIPS,
+  TOTAL_DISPLAY_HOURS,
+  DISPLAY_MULTIPLIER,
 } from "@/data/catalog-gaming";
 
 type SortKey = "hours" | "clips" | "name";
@@ -19,22 +20,24 @@ const fmtInt = (n: number) =>
 const fmtHours = (n: number) => {
   if (n >= 1000) return `${fmtInt(Math.round(n))} hrs`;
   if (n >= 100) return `${n.toFixed(0)} hrs`;
-  if (n >= 10) return `${n.toFixed(1)} hrs`;
   if (n > 0) return `${n.toFixed(1)} hrs`;
   return "On request";
 };
+
+const sortByName = (a: { game: string }, b: { game: string }) =>
+  a.game.localeCompare(b.game);
 
 export default function CatalogGamingPage() {
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("hours");
 
-  // Apply 1.5x multiplier + compute % share
+  // Apply display multiplier + compute % share
   const rows = useMemo(() => {
-    const totalDisplay = TOTAL_REAL_HOURS * DISPLAY_MULTIPLIER;
     return GAME_ROWS.map((r) => ({
       ...r,
       displayHours: r.realHours * DISPLAY_MULTIPLIER,
-      sharePct: totalDisplay > 0 ? (r.realHours / TOTAL_REAL_HOURS) * 100 : 0,
+      sharePct:
+        TOTAL_REAL_HOURS > 0 ? (r.realHours / TOTAL_REAL_HOURS) * 100 : 0,
     }));
   }, []);
 
@@ -44,14 +47,19 @@ export default function CatalogGamingPage() {
       ? rows.filter((r) => r.game.toLowerCase().includes(q))
       : rows;
     const sorted = [...list];
-    if (sortKey === "hours") sorted.sort((a, b) => b.displayHours - a.displayHours);
-    if (sortKey === "clips") sorted.sort((a, b) => b.clips - a.clips);
-    if (sortKey === "name") sorted.sort((a, b) => a.game.localeCompare(b.game));
+    if (sortKey === "hours") {
+      sorted.sort(
+        (a, b) => b.displayHours - a.displayHours || sortByName(a, b),
+      );
+    } else if (sortKey === "clips") {
+      sorted.sort((a, b) => b.clips - a.clips || sortByName(a, b));
+    } else {
+      sorted.sort(sortByName);
+    }
     return sorted;
   }, [rows, query, sortKey]);
 
-  const totalDisplayHours = TOTAL_REAL_HOURS * DISPLAY_MULTIPLIER;
-  const maxDisplayHours = Math.max(...rows.map((r) => r.displayHours));
+  const maxDisplayHours = Math.max(1, ...rows.map((r) => r.displayHours));
 
   return (
     <div className="min-h-screen bg-[#FAFAF7] text-[#0A0908]">
@@ -70,7 +78,7 @@ export default function CatalogGamingPage() {
             <a
               href="https://calendly.com/claru"
               target="_blank"
-              rel="noopener"
+              rel="noopener noreferrer"
               className="rounded bg-[#0A0908] px-4 py-2 text-white hover:opacity-90"
             >
               Book a call
@@ -98,7 +106,7 @@ export default function CatalogGamingPage() {
         {/* Stat hero */}
         <div className="mb-10 grid gap-4 md:grid-cols-3">
           <StatCard
-            value={fmtInt(Math.round(totalDisplayHours))}
+            value={fmtInt(Math.round(TOTAL_DISPLAY_HOURS))}
             unit="hours"
             label="Total gameplay corpus"
           />
@@ -123,6 +131,7 @@ export default function CatalogGamingPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search titles…"
+              aria-label="Search titles"
               className="w-full rounded-md border border-black/10 bg-white py-3 pl-11 pr-3 text-base text-black placeholder-black/35 focus:border-[#5A7A5A] focus:outline-none focus:ring-1 focus:ring-[#5A7A5A]"
             />
           </div>
