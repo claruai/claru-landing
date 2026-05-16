@@ -411,8 +411,8 @@ export function ClipDetailModal({
       className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 lg:p-8"
       onClick={handleBackdropClick}
     >
-      {/* Backdrop with blur */}
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" aria-hidden="true" />
+      {/* Backdrop — fully opaque so the gallery doesn't bleed through */}
+      <div className="absolute inset-0 bg-black" aria-hidden="true" />
 
       {/* Close button */}
       <button
