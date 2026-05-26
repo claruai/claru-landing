@@ -34,5 +34,19 @@
       "question": "How is compensation structured?",
       "answer": "Payment is per completed and accepted session, with quality bonuses. Rates vary by project complexity. Sessions that do not meet annotation standards may need to be repeated."
     }
-  ]
+  ],
+  "status": "open",
+  "targetCountries": [
+    "US"
+  ],
+  "subcategory": "qa",
+  "seo": {
+    "primaryKeyword": "game testing jobs remote",
+    "locales": {
+      "en": {
+        "keyword": "game testing jobs remote",
+        "monthlySearchVolume": 140
+      }
+    }
+  }
 }

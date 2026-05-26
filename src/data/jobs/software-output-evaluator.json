@@ -16,7 +16,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "EU",
   "datePosted": "2026-02-08",
-  "validThrough": "2026-05-07",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": false,
   "faqs": [
@@ -32,5 +32,6 @@
       "question": "What programming languages will I review?",
       "answer": "Most tasks involve Python, JavaScript/TypeScript, Java, or C++. Less common tasks may involve Go, Rust, or SQL. You can filter for languages you are comfortable with."
     }
-  ]
+  ],
+  "status": "closed"
 }

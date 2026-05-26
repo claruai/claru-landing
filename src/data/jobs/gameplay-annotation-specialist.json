@@ -33,5 +33,19 @@
       "question": "Is this like casual game testing?",
       "answer": "Not quite. Sessions are structured with specific objectives, strategies to try, and annotations to complete. It is more systematic than typical QA playtesting."
     }
-  ]
+  ],
+  "status": "open",
+  "targetCountries": [
+    "US"
+  ],
+  "subcategory": "annotation",
+  "seo": {
+    "primaryKeyword": "make money playing games",
+    "locales": {
+      "en": {
+        "keyword": "make money playing games",
+        "monthlySearchVolume": 9900
+      }
+    }
+  }
 }

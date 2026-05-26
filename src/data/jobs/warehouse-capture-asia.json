@@ -1,0 +1,57 @@
+{
+  "slug": "warehouse-capture-asia",
+  "title": "Warehouse & Fulfillment Video Capture — Asia",
+  "category": "video-capture",
+  "subcategory": "commercial-warehouse",
+  "description": "As a Warehouse Capture contributor, you record first-person video while moving through warehouses, fulfillment centers, and inventory rooms. The data trains robotic picking systems, autonomous forklift navigation, and warehouse-management AI.\n\nScenes include pallet navigation, shelf scanning, package handling, and item retrieval. We work with people who already have warehouse access through their day job, plus self-employed contractors who run their own micro-fulfillment.\n\nA typical capture session is 30–45 minutes during normal warehouse operations.\n\nThis variant is open to contributors across Asia — India, the Philippines, Indonesia, and Vietnam. Pay is $5/hour USD, fixed flat rate, paid via international transfer (Wise, Payoneer, or local equivalent) on a bi-weekly cadence. We're actively building a contributor base across these markets and onboarding is fast.\n\nClaru contractors are independent — no fixed hours, no minimum commitment. You take captures that fit your schedule and skip the ones that don't.",
+  "skills": [
+    "Access to a warehouse, stockroom, or fulfillment space",
+    "Smartphone or wearable camera",
+    "Comfort recording while walking through industrial environments",
+    "Safety awareness around forklifts and moving equipment",
+    "Reliable internet for upload"
+  ],
+  "compensationMin": 5,
+  "compensationMax": 5,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "IN, PH, ID, VN",
+  "targetCountries": [
+    "IN",
+    "PH",
+    "ID",
+    "VN"
+  ],
+  "datePosted": "2026-05-26",
+  "validThrough": "2026-08-24",
+  "featured": false,
+  "archived": false,
+  "status": "open",
+  "seo": {
+    "primaryKeyword": "warehouse video",
+    "locales": {
+      "en": {
+        "keyword": "warehouse video",
+        "monthlySearchVolume": 90
+      }
+    }
+  },
+  "faqs": [
+    {
+      "question": "I work at a warehouse — can I record during my shift?",
+      "answer": "Yes, with employer consent. We provide a consent template. Many warehouse workers earn meaningful extra income recording during their regular shifts."
+    },
+    {
+      "question": "Do I need a hard hat or PPE on camera?",
+      "answer": "Whatever your warehouse normally requires — we want footage that matches real operating conditions, PPE and all."
+    },
+    {
+      "question": "How much does Warehouse & Fulfillment capture pay in Asia?",
+      "answer": "Asian contributors (IN, PH, ID, VN) are paid $5/hour USD flat, via Wise/Payoneer, bi-weekly."
+    },
+    {
+      "question": "When do I get paid?",
+      "answer": "Bi-weekly. The first batch typically lands 7–10 days after your first approved capture."
+    }
+  ]
+}

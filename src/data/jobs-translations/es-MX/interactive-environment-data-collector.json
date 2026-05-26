@@ -1,0 +1,25 @@
+{
+  "title": "Recopilador de Datos de Entornos Interactivos",
+  "description": "Estamos recopilando datos de gameplay humano para entrenar agentes de IA que operan en entornos 3D interactivos. Trabajarás en escenarios guionizados en varios motores de juego, registrando tus acciones y anotando los puntos clave de decisión. Algunas sesiones requieren que juegues de manera óptima; otras te pedirán que explores intencionalmente estrategias subóptimas para que la IA pueda aprender de un rango más amplio de comportamientos. Cada sesión produce un replay file y un registro de anotaciones estructurado.\n\nDebes ser un gamer competente con experiencia en múltiples géneros: FPS, estrategia, puzles y mundo abierto. No necesitamos un nivel de habilidad de esports, pero sí necesitas sentirte cómodo aprendiendo nuevas mecánicas de juego rápidamente y jugando de manera sistemática en lugar de casual. La familiaridad con motores de juego (Unity, Unreal) es útil para depurar problemas de sesión, pero no es obligatoria.\n\nEl trabajo es por proyecto, con ventanas de sesión fijas. Te inscribirás en los espacios de sesión disponibles a través de nuestro portal de programación. El pago es por sesión completada, con bonificaciones por calidad de anotación. El compromiso típico es de 10 a 20 horas por semana.",
+  "skills": [
+    "PC confiable que cumpla con los requisitos mínimos de hardware",
+    "Experiencia con juegos de PC y motores de juego comunes",
+    "Amplia experiencia en juegos de múltiples géneros",
+    "Comodidad para seguir protocolos de juego guionizados",
+    "La familiaridad con Unity o Unreal Engine es un plus"
+  ],
+  "faqs": [
+    {
+      "question": "¿Cómo se estructura la compensación?",
+      "answer": "El pago es por sesión completada y aceptada, con bonificaciones por calidad. Las tarifas varían según la complejidad del proyecto. Las sesiones que no cumplan con los estándares de anotación podrían necesitar ser repetidas."
+    },
+    {
+      "question": "¿Qué tipo de juegos jugaré?",
+      "answer": "Los proyectos abarcan múltiples géneros, incluyendo exploración en primera persona, juegos de estrategia, entornos de puzles y simulaciones de física. Los juegos específicos dependen de lo que estén entrenando nuestros socios del laboratorio de IA."
+    },
+    {
+      "question": "¿Necesito una PC gaming de alta gama?",
+      "answer": "Necesitas una PC razonablemente capaz. Proporcionaremos las especificaciones mínimas durante la incorporación, pero generalmente una GPU de gama media de los últimos 3-4 años y 16 GB de RAM serán suficientes."
+    }
+  ]
+}

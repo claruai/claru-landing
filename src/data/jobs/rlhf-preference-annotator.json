@@ -18,7 +18,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "US",
   "datePosted": "2026-02-11",
-  "validThrough": "2026-05-10",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": false,
   "faqs": [
@@ -30,5 +30,6 @@
       "question": "What does a typical workday look like?",
       "answer": "You receive batches of prompt-response pairs to evaluate. Each batch includes a rubric. Most annotators work 4-6 hour focused sessions and choose their own schedules within project deadlines."
     }
-  ]
+  ],
+  "status": "closed"
 }

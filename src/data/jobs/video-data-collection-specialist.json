@@ -17,7 +17,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "US",
   "datePosted": "2026-02-03",
-  "validThrough": "2026-05-02",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": false,
   "faqs": [
@@ -33,5 +33,19 @@
       "question": "Do I need my own camera equipment?",
       "answer": "No. We ship all cameras and accessories to you at no charge. Equipment must be returned when the engagement ends."
     }
-  ]
+  ],
+  "status": "closed",
+  "targetCountries": [
+    "US"
+  ],
+  "subcategory": "commercial-retail",
+  "seo": {
+    "primaryKeyword": "data annotation work from home",
+    "locales": {
+      "en": {
+        "keyword": "data annotation work from home",
+        "monthlySearchVolume": 70
+      }
+    }
+  }
 }

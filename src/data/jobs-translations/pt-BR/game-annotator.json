@@ -1,0 +1,30 @@
+{
+  "title": "Anotador de Jogos",
+  "description": "Contratamos anotadores de jogos para rotular filmagens de gameplay e inserir dados para treinamento de IA. Você assistirá a sessões de gameplay gravadas, identificará ações e eventos, e os marcará usando nossa plataforma de anotação. Alguns projetos envolvem a rotulagem de interações de objetos, decisões de jogadores e mudanças de ambiente quadro a quadro. Outros se concentram em classificar estratégias de gameplay, padrões de movimento e sequências de combate em diferentes gêneros de jogos.\n\nEsta função é ideal se você joga regularmente e consegue descrever com precisão o que está acontecendo na tela. Você precisa distinguir entre diferentes tipos de ações no jogo (movimento, combate, gerenciamento de inventário, exploração) e aplicar rótulos consistentes em centenas de clipes. Experiência anterior em anotação ou QA é útil, mas não obrigatória.\n\nA maioria dos projetos envolve títulos populares como Valorant, Minecraft, GTA V, Counter-Strike e Genshin Impact. As sessões são flexíveis e podem ser concluídas no seu próprio horário. Fornecemos diretrizes detalhadas de anotação e sessões de calibração antes de cada novo projeto.",
+  "skills": [
+    "Jogador ativo de PC ou console familiarizado com múltiplos gêneros",
+    "Capacidade de identificar e rotular ações no jogo de forma consistente",
+    "Atenção aos detalhes em longas sessões de anotação",
+    "Confortável usando ferramentas de anotação baseadas na web",
+    "Inglês escrito forte para rotulagem e anotações",
+    "Conexão de internet confiável para streaming de clipes de vídeo"
+  ],
+  "faqs": [
+    {
+      "question": "O que faz um anotador de jogos?",
+      "answer": "Um anotador de jogos assiste a filmagens de gameplay gravadas e rotula eventos, ações e objetos no jogo. Esses rótulos são usados para treinar modelos de IA que compreendem ambientes de jogo, comportamento do jogador e raciocínio espacial."
+    },
+    {
+      "question": "Quais jogos irei anotar?",
+      "answer": "Os projetos atuais abrangem títulos FPS (Valorant, Counter-Strike 2, Call of Duty), jogos de mundo aberto (GTA V, Red Dead Redemption 2, Minecraft) e outros gêneros. Novos títulos de jogos são adicionados regularmente com base nas necessidades do cliente."
+    },
+    {
+      "question": "Preciso de experiência prévia em anotação?",
+      "answer": "Não. Fornecemos treinamento e sessões de calibração. O que mais importa é que você jogue regularmente e consiga descrever eventos na tela com precisão e consistência."
+    },
+    {
+      "question": "Quantas horas por semana posso trabalhar?",
+      "answer": "A maioria dos anotadores trabalha de 10 a 20 horas por semana. As sessões são flexíveis e estão disponíveis continuamente. Anotadores de alta qualidade recebem acesso prioritário a novos projetos."
+    }
+  ]
+}

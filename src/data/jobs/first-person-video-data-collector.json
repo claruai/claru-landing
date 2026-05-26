@@ -19,7 +19,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "US, CA",
   "datePosted": "2026-04-23",
-  "validThrough": "2026-07-23",
+  "validThrough": "2026-05-26",
   "featured": true,
   "archived": false,
   "faqs": [
@@ -63,5 +63,20 @@
       "question": "When will I start recording?",
       "answer": "Apply now to get on the roster. Once approved, you are invited to active projects as they launch. We run multiple projects at a time and new ones start on a rolling basis."
     }
-  ]
+  ],
+  "status": "closed",
+  "targetCountries": [
+    "US",
+    "CA"
+  ],
+  "subcategory": "residential-indoor",
+  "seo": {
+    "primaryKeyword": "first person video",
+    "locales": {
+      "en": {
+        "keyword": "first person video",
+        "monthlySearchVolume": 140
+      }
+    }
+  }
 }

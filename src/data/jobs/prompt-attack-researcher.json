@@ -17,7 +17,7 @@
   "employmentType": "CONTRACTOR",
   "locationType": "TELECOMMUTE",
   "datePosted": "2026-02-07",
-  "validThrough": "2026-05-06",
+  "validThrough": "2026-05-26",
   "featured": true,
   "archived": false,
   "faqs": [
@@ -33,5 +33,6 @@
       "question": "How are findings prioritized?",
       "answer": "We use a severity scale similar to CVSS. Critical findings (reliable jailbreaks, PII leakage) are escalated immediately. Lower-severity issues (mild bias, style inconsistencies) are batched for review."
     }
-  ]
+  ],
+  "status": "closed"
 }

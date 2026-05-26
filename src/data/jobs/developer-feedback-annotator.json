@@ -15,7 +15,7 @@
   "employmentType": "CONTRACTOR",
   "locationType": "TELECOMMUTE",
   "datePosted": "2026-02-16",
-  "validThrough": "2026-05-15",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": true,
   "faqs": [
@@ -27,5 +27,6 @@
       "question": "Can I specialize in one language?",
       "answer": "Yes, though reviewers who cover multiple languages get access to more tasks and higher volume. We recommend being comfortable in at least two languages."
     }
-  ]
+  ],
+  "status": "closed"
 }

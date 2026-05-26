@@ -37,5 +37,22 @@
       "question": "How many hours per week can I work?",
       "answer": "Most annotators work 10-20 hours per week. Sessions are self-paced and available on a rolling basis. High-quality annotators get priority access to new projects."
     }
-  ]
+  ],
+  "status": "open",
+  "targetCountries": [
+    "US",
+    "CA",
+    "MX",
+    "BR"
+  ],
+  "subcategory": "annotation",
+  "seo": {
+    "primaryKeyword": "make money playing games",
+    "locales": {
+      "en": {
+        "keyword": "make money playing games",
+        "monthlySearchVolume": 9900
+      }
+    }
+  }
 }

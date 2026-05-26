@@ -1,0 +1,59 @@
+{
+  "slug": "retail-capture-latam",
+  "title": "Retail Store Video Capture — LATAM",
+  "category": "video-capture",
+  "subcategory": "commercial-retail",
+  "description": "As a Retail Store Capture contributor, you will record first-person video while walking, browsing, and interacting inside grocery stores, pharmacies, big-box retailers, and convenience stores. Your footage trains AI systems that need to understand product placement, shelf navigation, and shopper behavior.\n\nA typical shift is 30–60 minutes of recording across one or two stores. You'll capture aisle traversal, product pickups, checkout flow, and natural pauses to read labels. We provide a brief listing the scenes we need; you choose stores and times that work for your schedule.\n\nYou'll use a smartphone or a wearable camera (we accept both). Recordings are uploaded the same day. The data feeds models that power smart-cart, planogram, and inventory tools.\n\nThis variant is open to contributors across Latin America — Mexico, Brazil, Argentina, Colombia, Chile, and Peru. Pay is $7/hour USD, fixed flat rate, paid via international transfer (Wise, Payoneer, or local equivalent) on a bi-weekly cadence. USD purchasing power makes this a meaningful supplemental income across the region.\n\nClaru contractors are independent — no fixed hours, no minimum commitment. You take captures that fit your schedule and skip the ones that don't.",
+  "skills": [
+    "Smartphone or wearable camera",
+    "Comfort recording in public retail spaces",
+    "Reliable internet for upload",
+    "Ability to follow a brief precisely",
+    "Same-day turnaround on assigned scenes"
+  ],
+  "compensationMin": 7,
+  "compensationMax": 7,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "MX, BR, AR, CO, CL, PE",
+  "targetCountries": [
+    "MX",
+    "BR",
+    "AR",
+    "CO",
+    "CL",
+    "PE"
+  ],
+  "datePosted": "2026-05-26",
+  "validThrough": "2026-08-24",
+  "featured": false,
+  "archived": false,
+  "status": "open",
+  "seo": {
+    "primaryKeyword": "retail video recording job",
+    "locales": {
+      "en": {
+        "keyword": "retail video recording job",
+        "monthlySearchVolume": 0
+      }
+    }
+  },
+  "faqs": [
+    {
+      "question": "Do I need to ask store permission to record?",
+      "answer": "We provide guidance per store chain. Most general aisle footage in big-box stores is acceptable; some specialty retailers require explicit permission, and the brief tells you which."
+    },
+    {
+      "question": "What happens to footage with other shoppers in frame?",
+      "answer": "Our review pipeline blurs incidental faces before training. You don't need to do anything special during capture — just record naturally."
+    },
+    {
+      "question": "How much does Retail Store capture pay in LATAM?",
+      "answer": "LATAM contributors (MX, BR, AR, CO, CL, PE) are paid $7/hour USD flat, via Wise/Payoneer, bi-weekly."
+    },
+    {
+      "question": "When do I get paid?",
+      "answer": "Bi-weekly. The first batch typically lands 7–10 days after your first approved capture."
+    }
+  ]
+}

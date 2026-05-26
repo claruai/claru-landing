@@ -17,7 +17,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "EU",
   "datePosted": "2026-02-08",
-  "validThrough": "2026-05-07",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": false,
   "faqs": [
@@ -33,5 +33,6 @@
       "question": "What tools are used?",
       "answer": "Our proprietary annotation platform runs in any modern browser. No special hardware or software needed beyond a stable internet connection and a keyboard."
     }
-  ]
+  ],
+  "status": "closed"
 }

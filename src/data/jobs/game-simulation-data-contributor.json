@@ -15,7 +15,7 @@
   "employmentType": "CONTRACTOR",
   "locationType": "TELECOMMUTE",
   "datePosted": "2026-02-07",
-  "validThrough": "2026-05-06",
+  "validThrough": "2026-08-24",
   "featured": false,
   "archived": false,
   "faqs": [
@@ -31,5 +31,22 @@
       "question": "What kinds of games will I play?",
       "answer": "Projects span multiple genres including first-person exploration, strategy games, puzzle environments, and physics simulations. The specific games depend on what our AI lab partners are training."
     }
-  ]
+  ],
+  "status": "open",
+  "targetCountries": [
+    "US",
+    "CA",
+    "MX",
+    "BR"
+  ],
+  "subcategory": "capture",
+  "seo": {
+    "primaryKeyword": "play games for ai training",
+    "locales": {
+      "en": {
+        "keyword": "play games for ai training",
+        "monthlySearchVolume": 0
+      }
+    }
+  }
 }
