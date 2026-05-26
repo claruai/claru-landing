@@ -287,9 +287,11 @@ export default function JobBoard({
     return counts;
   }, [allOpenJobs]);
 
-  // Closed pagination uses its own visible-count, reset whenever filters change.
-  const closedVisibleCount = closedExpanded ? PAGE_SIZE : 0;
-  const visibleClosedJobs = filteredClosedJobs.slice(0, closedVisibleCount);
+  // Closed roles are subordinate — show all on expand rather than paginating.
+  // The disclosure button promises a specific count; rendering only PAGE_SIZE
+  // would silently drop the rest. The section is collapsed by default, so the
+  // render cost is bounded by intent.
+  const visibleClosedJobs = closedExpanded ? filteredClosedJobs : [];
 
   if (!mounted) return null;
 

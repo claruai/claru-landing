@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getAllCaseStudies } from "@/lib/case-studies";
-import { getAllJobs } from "@/lib/jobs";
+import { getAllJobs, hasTranslation } from "@/lib/jobs";
 import { getAllContentPages } from "@/data/content-pages";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getAllGlossaryDeepSlugs } from "@/data/programmatic/glossary-deep/index";
@@ -172,12 +172,56 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
 
   // ── Dynamic: Jobs ──────────────────────────────────────────────────
-  const jobPages: MetadataRoute.Sitemap = getAllJobs().map((job) => ({
+  // Only open roles get sitemap entries (closed roles are noindex, including
+  // them triggers Search Console "Submitted URL marked noindex" warnings).
+  // Locale URLs are emitted only for slugs with translation overlays — same
+  // contract as the generateStaticParams filter on the locale routes.
+  const openJobs = getAllJobs().filter((j) => j.status !== "closed");
+  const enJobPages: MetadataRoute.Sitemap = openJobs.map((job) => ({
     url: `${BASE}/jobs/${job.slug}`,
     lastModified: now,
     changeFrequency: "weekly" as const,
     priority: 0.7,
   }));
+  const esMxJobIndex: MetadataRoute.Sitemap = [
+    {
+      url: `${BASE}/es-mx/jobs`,
+      lastModified: now,
+      changeFrequency: "daily" as const,
+      priority: 0.85,
+    },
+  ];
+  const ptBrJobIndex: MetadataRoute.Sitemap = [
+    {
+      url: `${BASE}/pt-br/jobs`,
+      lastModified: now,
+      changeFrequency: "daily" as const,
+      priority: 0.85,
+    },
+  ];
+  const esMxJobPages: MetadataRoute.Sitemap = openJobs
+    .filter((j) => hasTranslation(j.slug, "es-MX"))
+    .map((job) => ({
+      url: `${BASE}/es-mx/jobs/${job.slug}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    }));
+  const ptBrJobPages: MetadataRoute.Sitemap = openJobs
+    .filter((j) => hasTranslation(j.slug, "pt-BR"))
+    .map((job) => ({
+      url: `${BASE}/pt-br/jobs/${job.slug}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    }));
+  const jobPages: MetadataRoute.Sitemap = [
+    ...enJobPages,
+    ...esMxJobIndex,
+    ...esMxJobPages,
+    ...ptBrJobIndex,
+    ...ptBrJobPages,
+  ];
 
   // ── Dynamic: Solution Pages ───────────────────────────────────────
   const solutionPages: MetadataRoute.Sitemap = getAllContentPages().map(

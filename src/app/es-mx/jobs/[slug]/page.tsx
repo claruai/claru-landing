@@ -12,7 +12,13 @@ import { JOB_CATEGORIES } from "@/types/job";
 import JobDetailClient from "@/app/jobs/[slug]/JobDetailClient";
 
 export async function generateStaticParams() {
-  return getAllJobs().map((job) => ({ slug: job.slug }));
+  // Locale routes only exist for open roles WITH a translation overlay.
+  // Untranslated and closed roles fall back to the EN route — preventing
+  // English bodies from claiming inLanguage: es-MX in JobPosting schema,
+  // and keeping the en↔es-MX↔pt-BR hreflang cluster equivalent-content.
+  return getAllJobs()
+    .filter((j) => j.status !== "closed" && hasTranslation(j.slug, "es-MX"))
+    .map((job) => ({ slug: job.slug }));
 }
 
 export async function generateMetadata({
@@ -34,7 +40,7 @@ export async function generateMetadata({
     ...(isClosed ? { robots: { index: false, follow: true } } : {}),
     alternates: {
       canonical: `/es-mx/jobs/${job.slug}`,
-      languages: jobsHreflangAlternates(`/jobs/${job.slug}`),
+      languages: jobsHreflangAlternates(`/jobs/${job.slug}`, job.slug),
     },
     openGraph: {
       title,
@@ -60,7 +66,11 @@ export default async function EsMxJobDetailPage({
 }) {
   const { slug } = await params;
   const job = getJobBySlug(slug, "es-MX");
-  if (!job) notFound();
+  // Defensive: even if a request hits a slug without a translation overlay,
+  // 404 instead of rendering an English body that claims inLanguage=es-MX.
+  if (!job || job.status === "closed" || !hasTranslation(slug, "es-MX")) {
+    notFound();
+  }
 
   const sentences = job.description.match(/[^.!?]+[.!?]+/g) || [];
   const answerSummary =
@@ -77,53 +87,49 @@ export default async function EsMxJobDetailPage({
   const categoryLabel =
     JOB_CATEGORIES[job.category as keyof typeof JOB_CATEGORIES] || job.category;
 
-  const isClosed = job.status === "closed";
-  const jsonLd = isClosed
-    ? null
-    : {
-        "@context": "https://schema.org",
-        "@type": "JobPosting",
-        title: job.title,
-        description: job.description,
-        datePosted: job.datePosted,
-        validThrough: job.validThrough,
-        employmentType: "CONTRACTOR",
-        hiringOrganization: {
-          "@type": "Organization",
-          name: "Claru",
-          sameAs: "https://claru.ai",
-        },
-        jobLocationType: "TELECOMMUTE",
-        applicantLocationRequirements:
-          job.targetCountries && job.targetCountries.length > 0
-            ? job.targetCountries.length > 1
-              ? job.targetCountries.map((c) => ({
-                  "@type": "Country" as const,
-                  name: c,
-                }))
-              : { "@type": "Country" as const, name: job.targetCountries[0] }
-            : { "@type": "Country" as const, name: "MX" },
-        baseSalary: {
-          "@type": "MonetaryAmount",
-          currency: "USD",
-          value: {
-            "@type": "QuantitativeValue",
-            minValue: job.compensationMin,
-            maxValue: job.compensationMax,
-            unitText: "HOUR",
-          },
-        },
-        inLanguage: "es-MX",
-      };
+  // Closed roles are filtered out above (404), so we always emit JobPosting here.
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: job.title,
+    description: job.description,
+    datePosted: job.datePosted,
+    validThrough: job.validThrough,
+    employmentType: "CONTRACTOR",
+    hiringOrganization: {
+      "@type": "Organization",
+      name: "Claru",
+      sameAs: "https://claru.ai",
+    },
+    jobLocationType: "TELECOMMUTE",
+    applicantLocationRequirements:
+      job.targetCountries && job.targetCountries.length > 0
+        ? job.targetCountries.length > 1
+          ? job.targetCountries.map((c) => ({
+              "@type": "Country" as const,
+              name: c,
+            }))
+          : { "@type": "Country" as const, name: job.targetCountries[0] }
+        : { "@type": "Country" as const, name: "MX" },
+    baseSalary: {
+      "@type": "MonetaryAmount",
+      currency: "USD",
+      value: {
+        "@type": "QuantitativeValue",
+        minValue: job.compensationMin,
+        maxValue: job.compensationMax,
+        unitText: "HOUR",
+      },
+    },
+    inLanguage: "es-MX",
+  };
 
   return (
     <>
-      {jsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      )}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <JobDetailClient
         job={job}
         answerSummary={answerSummary}

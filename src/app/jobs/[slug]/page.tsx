@@ -44,7 +44,7 @@ export async function generateMetadata({
     ...(isClosed ? { robots: { index: false, follow: true } } : {}),
     alternates: {
       canonical: `/jobs/${job.slug}`,
-      languages: jobsHreflangAlternates(`/jobs/${job.slug}`),
+      languages: jobsHreflangAlternates(`/jobs/${job.slug}`, job.slug),
     },
     openGraph: {
       title,
