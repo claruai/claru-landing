@@ -1,0 +1,54 @@
+{
+  "slug": "restaurant-capture-us",
+  "title": "Restaurant & QSR Video Capture — United States",
+  "category": "video-capture",
+  "subcategory": "commercial-restaurant",
+  "description": "As a Restaurant Capture contributor, you record first-person video of restaurant operations — front-of-house dining, drive-thru, line preparation, plating, and customer interactions. The footage trains AI systems used in QSR back-of-house tooling, drive-thru ordering, and restaurant inventory.\n\nShifts are typically 45–90 minutes spanning a meal service. We need both eat-in scenes (your perspective as a diner, including ordering and table service) and back-of-house captures when arranged with the venue.\n\nThis work pairs well with people who already work in or frequent restaurants — you blend in naturally and the recording feels invisible.\n\nThis variant is open to contributors based in the United States. Pay is $15/hour USD, fixed flat rate, paid via direct deposit (ACH) on a bi-weekly cadence. US contributors typically run two to four captures per week and complete the first paid batch within 7–10 days of approval.\n\nClaru contractors are independent — no fixed hours, no minimum commitment. You take captures that fit your schedule and skip the ones that don't.",
+  "skills": [
+    "Smartphone or wearable camera",
+    "Comfort recording in food-service environments",
+    "Willingness to dine and capture across multiple visits",
+    "Reliable internet for upload",
+    "Ability to follow scene briefs precisely"
+  ],
+  "compensationMin": 15,
+  "compensationMax": 15,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "US",
+  "targetCountries": [
+    "US"
+  ],
+  "datePosted": "2026-05-26",
+  "validThrough": "2026-08-24",
+  "featured": false,
+  "archived": false,
+  "status": "open",
+  "seo": {
+    "primaryKeyword": "restaurant video recording",
+    "locales": {
+      "en": {
+        "keyword": "restaurant video recording",
+        "monthlySearchVolume": 0
+      }
+    }
+  },
+  "faqs": [
+    {
+      "question": "Can I capture during my regular shift if I work in a restaurant?",
+      "answer": "Yes, provided the operator approves. We have a one-page consent template you can share with management. Approved shifts pay the same rate as our standard captures."
+    },
+    {
+      "question": "Does drive-thru count?",
+      "answer": "Yes. Drive-thru ordering, payment, and food handoff are some of our highest-value scene types."
+    },
+    {
+      "question": "How much does Restaurant & QSR capture pay in United States?",
+      "answer": "US contributors are paid $15/hour USD flat, via ACH, bi-weekly."
+    },
+    {
+      "question": "When do I get paid?",
+      "answer": "Bi-weekly. The first batch typically lands 7–10 days after your first approved capture."
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "title": "Especialista em Anotação de Gameplay",
+  "description": "Seu trabalho é gerar dados de demonstração humana de alta qualidade jogando jogos e simulações sob condições controladas. Você seguirá protocolos de sessão que especificam o jogo, o cenário, os objetivos e os requisitos de anotação. Após cada sessão, você preencherá um formulário estruturado documentando suas estratégias, erros e pontos de virada importantes. Esses dados são usados para treinar e avaliar agentes de IA de jogos.\n\nEstamos procurando pessoas que consigam jogar de forma sistemática e documentar seu raciocínio. Experiência em jogos é importante, mas também é a capacidade de seguir protocolos e produzir registros de anotação claros. Se você já fez QA de jogos, speedrunning ou jogos competitivos, essas experiências se encaixam bem.\n\nAs sessões duram de 2 a 4 horas e são agendadas com antecedência. A maioria dos colaboradores completa 3-4 sessões por semana. Você precisará de um PC que atenda às especificações mínimas para os motores de jogo que usamos (forneceremos estas durante o onboarding). Uma conexão de internet estável é necessária para o upload de dados em tempo real.",
+  "skills": [
+    "PC confiável que atenda aos requisitos mínimos de hardware",
+    "Familiaridade com Unity ou Unreal Engine é um diferencial",
+    "Confortável em seguir protocolos de jogabilidade roteirizados",
+    "Experiência com jogos de PC e motores de jogo comuns",
+    "Atenção aos detalhes no registro e anotação",
+    "Paciência para repetições de cenários"
+  ],
+  "faqs": [
+    {
+      "question": "Que tipos de jogos irei jogar?",
+      "answer": "Os projetos abrangem múltiplos gêneros, incluindo exploração em primeira pessoa, jogos de estratégia, ambientes de quebra-cabeça e simulações de física. Os jogos específicos dependem do que nossos parceiros de laboratório de IA estão treinando."
+    },
+    {
+      "question": "Preciso de um PC gamer de ponta?",
+      "answer": "Você precisa de um PC razoavelmente capaz. Forneceremos as especificações mínimas durante o onboarding, mas geralmente uma GPU de médio porte dos últimos 3-4 anos e 16GB de RAM serão suficientes."
+    },
+    {
+      "question": "Isso é como um teste de jogo casual?",
+      "answer": "Não exatamente. As sessões são estruturadas com objetivos específicos, estratégias a serem testadas e anotações a serem completadas. É mais sistemático do que o playtesting de QA típico."
+    }
+  ]
+}

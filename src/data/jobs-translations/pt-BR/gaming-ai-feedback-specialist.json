@@ -1,0 +1,21 @@
+{
+  "title": "Especialista em Feedback de IA de Jogos",
+  "description": "Seu trabalho é gerar dados de demonstração humana de alta qualidade jogando jogos e simulações sob condições controladas. Você seguirá protocolos de sessão que especificam o jogo, o cenário, os objetivos e os requisitos de anotação. Após cada sessão, você preencherá um formulário estruturado documentando suas estratégias, erros e pontos de virada cruciais. Esses dados são usados para treinar e avaliar agentes de IA que jogam.\n\nForte raciocínio espacial e a capacidade de articular seu processo de tomada de decisão são as habilidades essenciais aqui. Você frequentemente precisará explicar por que escolheu uma ação específica, o que significa que você precisa ser reflexivo sobre seu gameplay, em vez de puramente intuitivo. Experiência com jogos de estratégia, jogos de quebra-cabeça ou qualquer gênero que exija pensamento deliberado é particularmente valiosa.\n\nO onboarding inclui uma sessão de prática onde você se familiariza com as ferramentas de anotação e o fluxo de trabalho de registro. Depois disso, você receberá atribuições de sessão semanalmente. O tempo de dedicação é flexível dentro dos prazos do projeto, mas pedimos um mínimo de 10 horas por semana.",
+  "skills": [
+    "PC confiável que atenda aos requisitos mínimos de hardware",
+    "Familiaridade com Unity ou Unreal Engine é um diferencial",
+    "Atenção aos detalhes no registro e anotação",
+    "Confortável em seguir protocolos de playthrough roteirizados",
+    "Experiência com jogos de PC e engines de jogos comuns"
+  ],
+  "faqs": [
+    {
+      "question": "Preciso de um PC gamer de ponta?",
+      "answer": "Você precisa de um PC razoavelmente capaz. Forneceremos as especificações mínimas durante o onboarding, mas geralmente uma GPU de médio porte dos últimos 3-4 anos e 16GB de RAM serão suficientes."
+    },
+    {
+      "question": "Como a compensação é estruturada?",
+      "answer": "O pagamento é por sessão concluída e aceita, com bônus de qualidade. As taxas variam de acordo com a complexidade do projeto. Sessões que não atendem aos padrões de anotação podem precisar ser repetidas."
+    }
+  ]
+}

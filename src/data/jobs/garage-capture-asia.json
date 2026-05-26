@@ -1,0 +1,57 @@
+{
+  "slug": "garage-capture-asia",
+  "title": "Garage & DIY Video Capture — Asia",
+  "category": "video-capture",
+  "subcategory": "residential-garage",
+  "description": "As a Garage & DIY Capture contributor, you record first-person video of vehicle maintenance, tool use, hobbyist projects, and workshop tasks. The data trains AI systems for power-tool safety, vehicle diagnostics, and home-improvement assistants.\n\nScenes include oil changes, basic auto work, woodworking, electrical projects, and tool storage organization. A typical session is one project, 30–90 minutes long.\n\nStrong fit for hobbyists, gearheads, and anyone with regular workshop time.\n\nThis variant is open to contributors across Asia — India, the Philippines, Indonesia, and Vietnam. Pay is $5/hour USD, fixed flat rate, paid via international transfer (Wise, Payoneer, or local equivalent) on a bi-weekly cadence. We're actively building a contributor base across these markets and onboarding is fast.\n\nClaru contractors are independent — no fixed hours, no minimum commitment. You take captures that fit your schedule and skip the ones that don't.",
+  "skills": [
+    "Access to a garage, workshop, or DIY space",
+    "Smartphone or wearable camera",
+    "Familiarity with hand and power tools",
+    "Reliable internet for upload",
+    "Ability to follow scene briefs precisely"
+  ],
+  "compensationMin": 5,
+  "compensationMax": 5,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "IN, PH, ID, VN",
+  "targetCountries": [
+    "IN",
+    "PH",
+    "ID",
+    "VN"
+  ],
+  "datePosted": "2026-05-26",
+  "validThrough": "2026-08-24",
+  "featured": false,
+  "archived": false,
+  "status": "open",
+  "seo": {
+    "primaryKeyword": "ai data collection jobs",
+    "locales": {
+      "en": {
+        "keyword": "ai data collection jobs",
+        "monthlySearchVolume": 50
+      }
+    }
+  },
+  "faqs": [
+    {
+      "question": "Do I need expensive tools?",
+      "answer": "No — we need real-world tool use, not professional setups. A basic socket set, drill, and saw covers most briefs."
+    },
+    {
+      "question": "Can I record dangerous tasks like grinding or welding?",
+      "answer": "Only if you have the safety equipment you'd normally use. PPE in frame is a feature, not a bug — we want realistic safety practices captured."
+    },
+    {
+      "question": "How much does Garage & DIY capture pay in Asia?",
+      "answer": "Asian contributors (IN, PH, ID, VN) are paid $5/hour USD flat, via Wise/Payoneer, bi-weekly."
+    },
+    {
+      "question": "When do I get paid?",
+      "answer": "Bi-weekly. The first batch typically lands 7–10 days after your first approved capture."
+    }
+  ]
+}

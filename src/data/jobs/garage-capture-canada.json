@@ -1,0 +1,54 @@
+{
+  "slug": "garage-capture-canada",
+  "title": "Garage & DIY Video Capture — Canada",
+  "category": "video-capture",
+  "subcategory": "residential-garage",
+  "description": "As a Garage & DIY Capture contributor, you record first-person video of vehicle maintenance, tool use, hobbyist projects, and workshop tasks. The data trains AI systems for power-tool safety, vehicle diagnostics, and home-improvement assistants.\n\nScenes include oil changes, basic auto work, woodworking, electrical projects, and tool storage organization. A typical session is one project, 30–90 minutes long.\n\nStrong fit for hobbyists, gearheads, and anyone with regular workshop time.\n\nThis variant is open to contributors based in Canada. Pay is $10/hour USD, fixed flat rate, paid via international wire or Wise transfer on a bi-weekly cadence. Canadian contributors typically run two to four captures per week.\n\nClaru contractors are independent — no fixed hours, no minimum commitment. You take captures that fit your schedule and skip the ones that don't.",
+  "skills": [
+    "Access to a garage, workshop, or DIY space",
+    "Smartphone or wearable camera",
+    "Familiarity with hand and power tools",
+    "Reliable internet for upload",
+    "Ability to follow scene briefs precisely"
+  ],
+  "compensationMin": 10,
+  "compensationMax": 10,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "CA",
+  "targetCountries": [
+    "CA"
+  ],
+  "datePosted": "2026-05-26",
+  "validThrough": "2026-08-24",
+  "featured": false,
+  "archived": false,
+  "status": "open",
+  "seo": {
+    "primaryKeyword": "ai data collection jobs",
+    "locales": {
+      "en": {
+        "keyword": "ai data collection jobs",
+        "monthlySearchVolume": 50
+      }
+    }
+  },
+  "faqs": [
+    {
+      "question": "Do I need expensive tools?",
+      "answer": "No — we need real-world tool use, not professional setups. A basic socket set, drill, and saw covers most briefs."
+    },
+    {
+      "question": "Can I record dangerous tasks like grinding or welding?",
+      "answer": "Only if you have the safety equipment you'd normally use. PPE in frame is a feature, not a bug — we want realistic safety practices captured."
+    },
+    {
+      "question": "How much does Garage & DIY capture pay in Canada?",
+      "answer": "Canadian contributors are paid $10/hour USD flat, via wire or Wise, bi-weekly."
+    },
+    {
+      "question": "When do I get paid?",
+      "answer": "Bi-weekly. The first batch typically lands 7–10 days after your first approved capture."
+    }
+  ]
+}

@@ -16,7 +16,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "US",
   "datePosted": "2026-02-17",
-  "validThrough": "2026-05-16",
+  "validThrough": "2026-08-24",
   "featured": true,
   "archived": false,
   "faqs": [
@@ -32,5 +32,19 @@
       "question": "Do I need a high-end gaming PC?",
       "answer": "You need a reasonably capable PC. We will provide minimum specs during onboarding, but generally a mid-range GPU from the last 3-4 years and 16GB of RAM will suffice."
     }
-  ]
+  ],
+  "status": "open",
+  "targetCountries": [
+    "US"
+  ],
+  "subcategory": "capture",
+  "seo": {
+    "primaryKeyword": "get paid to play video games",
+    "locales": {
+      "en": {
+        "keyword": "get paid to play video games",
+        "monthlySearchVolume": 590
+      }
+    }
+  }
 }

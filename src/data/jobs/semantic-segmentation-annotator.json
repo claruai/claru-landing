@@ -17,7 +17,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "US",
   "datePosted": "2026-02-11",
-  "validThrough": "2026-05-10",
+  "validThrough": "2026-05-26",
   "featured": true,
   "archived": false,
   "faqs": [
@@ -33,5 +33,6 @@
       "question": "What is the turnaround time for feedback?",
       "answer": "Quality scores update daily. If an annotation is rejected, you receive specific feedback within 24 hours explaining what to correct."
     }
-  ]
+  ],
+  "status": "closed"
 }

@@ -1,0 +1,34 @@
+{
+  "title": "Recolector de Datos de Juegos",
+  "description": "Estamos contratando recolectores de datos de juegos para jugar videojuegos mientras nuestro software graba tu gameplay y las entradas de teclado/ratón simultáneamente. Las grabaciones se utilizan para entrenar modelos de IA que aprenden de demostraciones de gameplay humano. Tú juegas normalmente mientras nuestra herramienta de captura se ejecuta en segundo plano, registrando cada pulsación de tecla, movimiento del ratón y clic con precisión de microsegundos junto con la transmisión de video.\n\nNecesitamos jugadores de diversos niveles de habilidad, desde casuales hasta competitivos. Algunos métodos de entrenamiento de IA funcionan mejor con gameplay experto. Otros necesitan demostraciones diversas de muchos niveles de habilidad. De cualquier manera, tú solo juegas y nosotros nos encargamos de la gestión de datos.\n\nLas campañas de recolección actuales cubren Valorant, Counter-Strike 2, Minecraft, GTA V, Roblox, Genshin Impact, Euro Truck Simulator 2, Marvel Rivals y otros títulos. Se añaden nuevos juegos según la demanda del cliente. Las sesiones duran de 1 a 3 horas y tú eliges tu propio horario.",
+  "skills": [
+    "Jugador habitual de PC con experiencia en uno o más títulos objetivo",
+    "Cómodo instalando una aplicación de captura ligera",
+    "PC con al menos 16GB de RAM y una GPU dedicada de los últimos 4 años",
+    "Conexión a internet estable para subir las grabaciones de las sesiones",
+    "Disposición a jugar escenarios o mapas específicos cuando se solicite",
+    "Disponible al menos 5 horas a la semana"
+  ],
+  "faqs": [
+    {
+      "question": "¿Qué datos se recolectan mientras juego?",
+      "answer": "Nuestra herramienta de captura graba tu pantalla (video de gameplay) y tus entradas de teclado y ratón con marcas de tiempo precisas. No se recolectan datos personales, grabaciones de webcam ni audio. Los datos se utilizan exclusivamente para el entrenamiento de IA."
+    },
+    {
+      "question": "¿Afectará la herramienta de captura el rendimiento de mi juego?",
+      "answer": "La herramienta es ligera y se ejecuta en segundo plano. La mayoría de los jugadores no notan un impacto significativo en los FPS. Realizamos pruebas en una variedad de configuraciones de hardware y proporcionamos las especificaciones mínimas durante la incorporación."
+    },
+    {
+      "question": "¿Necesito ser un jugador hábil?",
+      "answer": "No. Recolectamos datos de jugadores de todos los niveles de habilidad. Los modelos de IA entrenados con gameplay diverso aprenden comportamientos más generalizables. Tanto los jugadores casuales como los competitivos son valiosos."
+    },
+    {
+      "question": "¿Qué juegos tienen demanda actualmente?",
+      "answer": "Las campañas activas incluyen Valorant, Counter-Strike 2, Minecraft, GTA V, Roblox, Genshin Impact, Euro Truck Simulator 2 y Marvel Rivals. Añadimos nuevos títulos regularmente y notificamos a los recolectores cuando hay nuevos juegos disponibles."
+    },
+    {
+      "question": "¿Cómo funciona el pago?",
+      "answer": "El pago es por sesión aceptada, basado en la duración de la sesión y la complejidad del juego. Las tarifas oscilan entre $15 y $25 por hora. Los pagos se procesan semanalmente."
+    }
+  ]
+}

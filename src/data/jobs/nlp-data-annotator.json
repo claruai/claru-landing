@@ -18,7 +18,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "US",
   "datePosted": "2026-02-07",
-  "validThrough": "2026-05-06",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": false,
   "faqs": [
@@ -30,5 +30,6 @@
       "question": "Is there a minimum weekly time commitment?",
       "answer": "Most projects require 10-15 hours per week minimum. Higher-volume contributors typically get priority access to new projects."
     }
-  ]
+  ],
+  "status": "closed"
 }

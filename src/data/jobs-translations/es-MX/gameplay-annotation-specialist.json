@@ -1,0 +1,26 @@
+{
+  "title": "Especialista en Anotación de Gameplay",
+  "description": "Tu trabajo es generar datos de demostración humana de alta calidad jugando videojuegos y simulaciones bajo condiciones controladas. Seguirás protocolos de sesión que especifican el juego, el escenario, los objetivos y los requisitos de anotación. Después de cada sesión, llenarás un formulario estructurado documentando tus estrategias, errores y puntos clave de inflexión. Estos datos se utilizan para entrenar y evaluar agentes de IA que juegan videojuegos.\n\nBuscamos personas que puedan jugar de manera sistemática y documentar su razonamiento. La experiencia en videojuegos es importante, pero también lo es la capacidad de seguir protocolos y producir registros de anotación claros. Si tienes experiencia en QA de videojuegos, speedrunning o juegos competitivos, esos antecedentes son muy valiosos.\n\nLas sesiones duran de 2 a 4 horas y se programan con anticipación. La mayoría de los colaboradores completan de 3 a 4 sesiones por semana. Necesitarás una PC que cumpla con las especificaciones mínimas para los motores de juego que utilizamos (las proporcionaremos durante la incorporación). Se requiere una conexión a internet estable para la carga de datos en tiempo real.",
+  "skills": [
+    "PC confiable que cumpla con los requisitos mínimos de hardware",
+    "Familiaridad con Unity o Unreal Engine es un plus",
+    "Comodidad siguiendo protocolos de juego guionizados",
+    "Experiencia con juegos de PC y motores de juego comunes",
+    "Atención al detalle en el registro y la anotación",
+    "Paciencia para repeticiones de escenarios repetitivos"
+  ],
+  "faqs": [
+    {
+      "question": "¿Qué tipos de juegos jugaré?",
+      "answer": "Los proyectos abarcan múltiples géneros, incluyendo exploración en primera persona, juegos de estrategia, entornos de rompecabezas y simulaciones de física. Los juegos específicos dependen de lo que nuestros socios del laboratorio de IA estén entrenando."
+    },
+    {
+      "question": "¿Necesito una PC gamer de alta gama?",
+      "answer": "Necesitas una PC razonablemente capaz. Proporcionaremos las especificaciones mínimas durante la incorporación, pero generalmente una GPU de gama media de los últimos 3-4 años y 16GB de RAM serán suficientes."
+    },
+    {
+      "question": "¿Esto es como el testeo casual de juegos?",
+      "answer": "No exactamente. Las sesiones están estructuradas con objetivos específicos, estrategias a probar y anotaciones a completar. Es más sistemático que el playtesting de QA típico."
+    }
+  ]
+}

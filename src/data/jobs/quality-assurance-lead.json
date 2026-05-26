@@ -16,7 +16,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "US",
   "datePosted": "2026-02-02",
-  "validThrough": "2026-05-01",
+  "validThrough": "2026-05-26",
   "featured": true,
   "archived": true,
   "faqs": [
@@ -28,5 +28,6 @@
       "question": "How is my own accuracy evaluated?",
       "answer": "A random sample of your reviews is audited by a senior reviewer each week. Your review accuracy score is shared with you and factors into bonus calculations."
     }
-  ]
+  ],
+  "status": "closed"
 }

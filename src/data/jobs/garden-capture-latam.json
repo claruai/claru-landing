@@ -1,0 +1,59 @@
+{
+  "slug": "garden-capture-latam",
+  "title": "Garden & Outdoor Home Video Capture — LATAM",
+  "category": "video-capture",
+  "subcategory": "residential-garden",
+  "description": "As a Garden & Outdoor Capture contributor, you record first-person video of lawn mowing, gardening, planting, pruning, outdoor cleaning, and general yard maintenance. The data trains AI systems for robotic mowers, plant-identification tools, and outdoor home robotics.\n\nScenes are typically 20–60 minutes of one task — one mow, one weeding session, one round of planting. Seasonal variation matters; we collect across spring, summer, fall, and winter where applicable.\n\nBest fit for homeowners and renters with garden access.\n\nThis variant is open to contributors across Latin America — Mexico, Brazil, Argentina, Colombia, Chile, and Peru. Pay is $7/hour USD, fixed flat rate, paid via international transfer (Wise, Payoneer, or local equivalent) on a bi-weekly cadence. USD purchasing power makes this a meaningful supplemental income across the region.\n\nClaru contractors are independent — no fixed hours, no minimum commitment. You take captures that fit your schedule and skip the ones that don't.",
+  "skills": [
+    "Access to a yard, garden, or outdoor home space",
+    "Smartphone or wearable camera",
+    "Comfort recording while doing outdoor work",
+    "Reliable internet for upload",
+    "Ability to follow scene briefs precisely"
+  ],
+  "compensationMin": 7,
+  "compensationMax": 7,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "MX, BR, AR, CO, CL, PE",
+  "targetCountries": [
+    "MX",
+    "BR",
+    "AR",
+    "CO",
+    "CL",
+    "PE"
+  ],
+  "datePosted": "2026-05-26",
+  "validThrough": "2026-08-24",
+  "featured": false,
+  "archived": false,
+  "status": "open",
+  "seo": {
+    "primaryKeyword": "ai data collection jobs",
+    "locales": {
+      "en": {
+        "keyword": "ai data collection jobs",
+        "monthlySearchVolume": 50
+      }
+    }
+  },
+  "faqs": [
+    {
+      "question": "What if I live in an apartment without a yard?",
+      "answer": "Balcony gardens and container plantings count. Community-garden plots also count."
+    },
+    {
+      "question": "Does mowing the lawn pay well per minute?",
+      "answer": "Lawn-care captures are among our most consistently requested. A 30-minute mow at the flat geo rate is a typical good-value capture."
+    },
+    {
+      "question": "How much does Garden & Outdoor Home capture pay in LATAM?",
+      "answer": "LATAM contributors (MX, BR, AR, CO, CL, PE) are paid $7/hour USD flat, via Wise/Payoneer, bi-weekly."
+    },
+    {
+      "question": "When do I get paid?",
+      "answer": "Bi-weekly. The first batch typically lands 7–10 days after your first approved capture."
+    }
+  ]
+}

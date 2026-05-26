@@ -1,0 +1,27 @@
+{
+  "title": "Anotador de Testes de Jogos",
+  "description": "Estamos coletando dados de gameplay humanos para treinar agentes de IA que operam em ambientes 3D interativos. Você trabalhará em cenários roteirizados em várias engines de jogo, registrando suas ações e anotando pontos de decisão chave. Algumas sessões exigem que você jogue de forma otimizada; outras pedem que você explore intencionalmente estratégias subótimas para que a IA possa aprender com uma gama mais ampla de comportamentos. Cada sessão produz um arquivo de replay e um registro de anotação estruturado.\n\nProcuramos pessoas que possam jogar de forma sistemática e documentar seu raciocínio. Experiência em jogos é importante, mas também a capacidade de seguir protocolos e produzir registros de anotação claros. Se você tem experiência em QA de jogos, speedrunning ou jogos competitivos, essas experiências se encaixam bem.\n\nAs sessões duram de 2 a 4 horas e são agendadas com antecedência. A maioria dos colaboradores completa de 3 a 4 sessões por semana. Você precisará de um PC que atenda às especificações mínimas para as engines de jogo que usamos (forneceremos estas durante o onboarding). Uma conexão de internet estável é necessária para o upload de dados em tempo real.",
+  "skills": [
+    "Familiaridade com Unity ou Unreal Engine é um diferencial",
+    "Atenção aos detalhes no registro e anotação",
+    "PC confiável que atenda aos requisitos mínimos de hardware",
+    "Conforto em seguir protocolos de jogabilidade roteirizada",
+    "Experiência com jogos de PC e engines de jogo comuns",
+    "Capacidade de articular processos de tomada de decisão claramente",
+    "Forte raciocínio espacial e pensamento estratégico"
+  ],
+  "faqs": [
+    {
+      "question": "Que tipos de jogos irei jogar?",
+      "answer": "Os projetos abrangem múltiplos gêneros, incluindo exploração em primeira pessoa, jogos de estratégia, ambientes de quebra-cabeça e simulações de física. Os jogos específicos dependem do que nossos parceiros de laboratório de IA estão treinando."
+    },
+    {
+      "question": "Isso é como um teste de jogo casual?",
+      "answer": "Não exatamente. As sessões são estruturadas com objetivos específicos, estratégias para experimentar e anotações para completar. É mais sistemático do que o playtesting de QA típico."
+    },
+    {
+      "question": "Como a compensação é estruturada?",
+      "answer": "O pagamento é por sessão concluída e aceita, com bônus de qualidade. As taxas variam de acordo com a complexidade do projeto. Sessões que não atendem aos padrões de anotação podem precisar ser repetidas."
+    }
+  ]
+}

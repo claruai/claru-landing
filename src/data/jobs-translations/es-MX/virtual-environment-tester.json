@@ -1,0 +1,22 @@
+{
+  "title": "Tester de Entornos Virtuales",
+  "description": "Tu trabajo es generar datos de demostración humana de alta calidad jugando videojuegos y simulaciones bajo condiciones controladas. Seguirás protocolos de sesión que especifican el juego, el escenario, los objetivos y los requisitos de anotación. Después de cada sesión, completarás un formulario estructurado documentando tus estrategias, errores y puntos clave. Estos datos se utilizan para entrenar y evaluar agentes de IA que juegan.\n\nDebes ser un gamer competente con experiencia en múltiples géneros -- FPS, estrategia, puzles y mundo abierto. No necesitamos una habilidad de nivel de esports, pero sí debes sentirte cómodo aprendiendo nuevas mecánicas de juego rápidamente y jugando de manera sistemática en lugar de casual. La familiaridad con motores de juego (Unity, Unreal) es útil para depurar problemas de sesión, pero no es obligatoria.\n\nLas sesiones duran de 2 a 4 horas y se programan con antelación. La mayoría de los colaboradores completan de 3 a 4 sesiones por semana. Necesitarás una PC que cumpla con las especificaciones mínimas para los motores de juego que utilizamos (las proporcionaremos durante la incorporación). Se requiere una conexión a internet estable para la carga de datos en tiempo real.",
+  "skills": [
+    "Habilidad para articular claramente los procesos de toma de decisiones",
+    "Amplia experiencia en videojuegos en múltiples géneros",
+    "Experiencia con juegos de PC y motores de juego comunes",
+    "Buena comunicación escrita para los registros de anotación",
+    "Atención al detalle en el registro y la anotación",
+    "Comodidad siguiendo protocolos de juego guionizados"
+  ],
+  "faqs": [
+    {
+      "question": "¿Es esto como una prueba de juego casual?",
+      "answer": "No exactamente. Las sesiones están estructuradas con objetivos específicos, estrategias a probar y anotaciones a completar. Es más sistemático que el playtesting de QA típico."
+    },
+    {
+      "question": "¿Cómo se estructura la compensación?",
+      "answer": "El pago es por sesión completada y aceptada, con bonificaciones por calidad. Las tarifas varían según la complejidad del proyecto. Las sesiones que no cumplan con los estándares de anotación podrían necesitar ser repetidas."
+    }
+  ]
+}

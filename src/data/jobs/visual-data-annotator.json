@@ -16,7 +16,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "EU",
   "datePosted": "2026-02-11",
-  "validThrough": "2026-05-10",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": true,
   "faqs": [
@@ -28,5 +28,6 @@
       "question": "Can I work on multiple project types?",
       "answer": "Yes. After completing calibration for a project type, you can take on tasks from that category. Most annotators qualify for 2-3 project types within their first month."
     }
-  ]
+  ],
+  "status": "closed"
 }

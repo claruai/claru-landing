@@ -22,7 +22,7 @@ function escapeXml(str: string): string {
 }
 
 export async function GET() {
-  const jobs = getAllJobs(); // excludes archived by default, sorted newest-first
+  const jobs = getAllJobs().filter((j) => j.status !== "closed");
 
   const items = jobs
     .map((job) => {

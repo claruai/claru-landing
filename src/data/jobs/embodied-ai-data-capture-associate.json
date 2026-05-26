@@ -17,7 +17,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "US",
   "datePosted": "2026-02-13",
-  "validThrough": "2026-05-12",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": false,
   "faqs": [
@@ -29,5 +29,19 @@
       "question": "What happens if my footage does not pass quality checks?",
       "answer": "You will get specific feedback about what went wrong -- usually lighting, framing, or protocol deviations -- and can re-record the session. Re-captures are not penalized as long as they are completed within the project window."
     }
-  ]
+  ],
+  "status": "closed",
+  "targetCountries": [
+    "US"
+  ],
+  "subcategory": "commercial-warehouse",
+  "seo": {
+    "primaryKeyword": "wearable camera",
+    "locales": {
+      "en": {
+        "keyword": "wearable camera",
+        "monthlySearchVolume": 1900
+      }
+    }
+  }
 }

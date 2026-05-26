@@ -17,7 +17,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "US",
   "datePosted": "2026-01-27",
-  "validThrough": "2026-04-26",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": true,
   "faqs": [
@@ -33,5 +33,6 @@
       "question": "Will I be exposed to disturbing content?",
       "answer": "Yes. Red teaming by definition involves attempting to elicit harmful outputs. We provide content warnings, mental health resources, and encourage regular breaks. You should be confident in your ability to work with this material professionally."
     }
-  ]
+  ],
+  "status": "closed"
 }
