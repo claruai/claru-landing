@@ -1,0 +1,59 @@
+{
+  "slug": "kitchen-capture-latam",
+  "title": "Kitchen & Cooking Video Capture — LATAM",
+  "category": "video-capture",
+  "subcategory": "residential-kitchen",
+  "description": "As a Kitchen Capture contributor, you record first-person video of cooking, meal prep, cleanup, and kitchen tool use in your home kitchen. The footage trains AI systems used in cooking assistants, recipe tools, and kitchen robotics.\n\nScenes include knife work, stovetop cooking, oven loading, dishwashing, and food storage. Each capture is one full cooking task (a single recipe or meal prep block), typically 20–60 minutes.\n\nThis is one of our most popular sub-categories — flexible scheduling, work-from-home, and the cooking you'd be doing anyway.\n\nThis variant is open to contributors across Latin America — Mexico, Brazil, Argentina, Colombia, Chile, and Peru. Pay is $7/hour USD, fixed flat rate, paid via international transfer (Wise, Payoneer, or local equivalent) on a bi-weekly cadence. USD purchasing power makes this a meaningful supplemental income across the region.\n\nClaru contractors are independent — no fixed hours, no minimum commitment. You take captures that fit your schedule and skip the ones that don't.",
+  "skills": [
+    "Own a functional home kitchen",
+    "Smartphone or wearable camera",
+    "Comfort cooking on camera",
+    "Reliable internet for upload",
+    "Ability to follow scene briefs precisely"
+  ],
+  "compensationMin": 7,
+  "compensationMax": 7,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "MX, BR, AR, CO, CL, PE",
+  "targetCountries": [
+    "MX",
+    "BR",
+    "AR",
+    "CO",
+    "CL",
+    "PE"
+  ],
+  "datePosted": "2026-05-26",
+  "validThrough": "2026-08-24",
+  "featured": false,
+  "archived": false,
+  "status": "open",
+  "seo": {
+    "primaryKeyword": "kitchen pov video",
+    "locales": {
+      "en": {
+        "keyword": "kitchen pov video",
+        "monthlySearchVolume": 0
+      }
+    }
+  },
+  "faqs": [
+    {
+      "question": "Do I need to cook a specific recipe?",
+      "answer": "Each brief includes recipe categories (e.g. 'one-pot meals', 'breakfast', 'baking') with room to pick within them. We rarely require a specific recipe."
+    },
+    {
+      "question": "Can I include kids or family members in the kitchen?",
+      "answer": "Children in frame complicate post-processing. We prefer adult-only captures. Captures featuring children require a separate consent flow."
+    },
+    {
+      "question": "How much does Kitchen & Cooking capture pay in LATAM?",
+      "answer": "LATAM contributors (MX, BR, AR, CO, CL, PE) are paid $7/hour USD flat, via Wise/Payoneer, bi-weekly."
+    },
+    {
+      "question": "When do I get paid?",
+      "answer": "Bi-weekly. The first batch typically lands 7–10 days after your first approved capture."
+    }
+  ]
+}

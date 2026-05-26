@@ -16,7 +16,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "EU",
   "datePosted": "2026-02-13",
-  "validThrough": "2026-05-12",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": false,
   "faqs": [
@@ -28,5 +28,6 @@
       "question": "How subjective are the judgments?",
       "answer": "The rubric constrains most subjectivity. You will find that roughly 70% of comparisons have a clear best answer. The remaining 30% involve genuine tradeoffs, and those are where your written justifications matter most."
     }
-  ]
+  ],
+  "status": "closed"
 }

@@ -1,0 +1,57 @@
+{
+  "slug": "office-capture-asia",
+  "title": "Office & Coworking Video Capture — Asia",
+  "category": "video-capture",
+  "subcategory": "commercial-office",
+  "description": "As an Office Capture contributor, you record first-person video of meeting rooms, hot desks, coworking spaces, and informal collaboration. The footage trains AI assistants that need to understand office work — calendar tools, meeting transcription, document handling, and collaboration software.\n\nTypical scenes include walking into a meeting room, sitting down, opening a laptop, navigating between paper and screen, and side-of-desk conversations. Sessions run 30–60 minutes.\n\nThis pairs naturally with knowledge workers, freelancers, and anyone using coworking memberships.\n\nThis variant is open to contributors across Asia — India, the Philippines, Indonesia, and Vietnam. Pay is $5/hour USD, fixed flat rate, paid via international transfer (Wise, Payoneer, or local equivalent) on a bi-weekly cadence. We're actively building a contributor base across these markets and onboarding is fast.\n\nClaru contractors are independent — no fixed hours, no minimum commitment. You take captures that fit your schedule and skip the ones that don't.",
+  "skills": [
+    "Access to an office, coworking space, or shared work environment",
+    "Smartphone or wearable camera",
+    "Comfort recording during meetings and desk work",
+    "Reliable internet for upload",
+    "Ability to follow scene briefs precisely"
+  ],
+  "compensationMin": 5,
+  "compensationMax": 5,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "IN, PH, ID, VN",
+  "targetCountries": [
+    "IN",
+    "PH",
+    "ID",
+    "VN"
+  ],
+  "datePosted": "2026-05-26",
+  "validThrough": "2026-08-24",
+  "featured": false,
+  "archived": false,
+  "status": "open",
+  "seo": {
+    "primaryKeyword": "data annotation work from home",
+    "locales": {
+      "en": {
+        "keyword": "data annotation work from home",
+        "monthlySearchVolume": 70
+      }
+    }
+  },
+  "faqs": [
+    {
+      "question": "What about recording coworkers without consent?",
+      "answer": "Our review pipeline blurs incidental faces before training. For scenes featuring identifiable colleagues, we provide a short consent form they can sign — captures with signed consent pay a premium."
+    },
+    {
+      "question": "Can I capture remote work-from-home office scenes?",
+      "answer": "Yes — home office captures fall under our Residential Indoor category instead."
+    },
+    {
+      "question": "How much does Office & Coworking capture pay in Asia?",
+      "answer": "Asian contributors (IN, PH, ID, VN) are paid $5/hour USD flat, via Wise/Payoneer, bi-weekly."
+    },
+    {
+      "question": "When do I get paid?",
+      "answer": "Bi-weekly. The first batch typically lands 7–10 days after your first approved capture."
+    }
+  ]
+}

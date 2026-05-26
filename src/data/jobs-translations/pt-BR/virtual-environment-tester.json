@@ -1,0 +1,22 @@
+{
+  "title": "Testador de Ambiente Virtual",
+  "description": "Seu trabalho é gerar dados de demonstração humana de alta qualidade jogando games e simulações sob condições controladas. Você seguirá protocolos de sessão que especificam o game, o cenário, os objetivos e os requisitos de anotação. Após cada sessão, você preencherá um formulário estruturado documentando suas estratégias, erros e pontos de virada cruciais. Esses dados são usados para treinar e avaliar agentes de IA que jogam games.\n\nVocê deve ser um gamer competente com experiência em múltiplos gêneros -- FPS, estratégia, puzzle e mundo aberto. Não precisamos de habilidade de nível esports, mas você precisa se sentir confortável aprendendo novas mecânicas de jogo rapidamente e jogando de forma sistemática, em vez de casualmente. Familiaridade com game engines (Unity, Unreal) é útil para depurar problemas de sessão, mas não é obrigatória.\n\nAs sessões duram de 2 a 4 horas e são agendadas com antecedência. A maioria dos colaboradores completa 3-4 sessões por semana. Você precisará de um PC que atenda às especificações mínimas para os game engines que usamos (forneceremos estas durante o onboarding). Uma conexão de internet estável é necessária para o upload de dados em tempo real.",
+  "skills": [
+    "Capacidade de articular processos de tomada de decisão claramente",
+    "Ampla experiência em games em múltiplos gêneros",
+    "Experiência com PC gaming e game engines comuns",
+    "Boa comunicação escrita para logs de anotação",
+    "Atenção aos detalhes no registro e anotação",
+    "Confortável em seguir protocolos de playthrough roteirizados"
+  ],
+  "faqs": [
+    {
+      "question": "Isso é como teste de game casual?",
+      "answer": "Não exatamente. As sessões são estruturadas com objetivos específicos, estratégias para tentar e anotações para completar. É mais sistemático do que o playtesting de QA típico."
+    },
+    {
+      "question": "Como a compensação é estruturada?",
+      "answer": "O pagamento é por sessão concluída e aceita, com bônus de qualidade. As taxas variam de acordo com a complexidade do projeto. Sessões que não atendem aos padrões de anotação podem precisar ser repetidas."
+    }
+  ]
+}

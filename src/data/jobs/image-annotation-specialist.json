@@ -18,7 +18,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "EU",
   "datePosted": "2026-02-08",
-  "validThrough": "2026-05-07",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": false,
   "faqs": [
@@ -30,5 +30,6 @@
       "question": "Do I need special hardware?",
       "answer": "A computer with a mouse (trackpad is not recommended for precision tasks) and a monitor of at least 1080p. A graphics tablet is optional but can improve segmentation speed."
     }
-  ]
+  ],
+  "status": "closed"
 }

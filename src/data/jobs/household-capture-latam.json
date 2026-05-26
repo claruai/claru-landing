@@ -1,0 +1,59 @@
+{
+  "slug": "household-capture-latam",
+  "title": "Household Chores Video Capture — LATAM",
+  "category": "video-capture",
+  "subcategory": "residential-household",
+  "description": "As a Household Capture contributor, you record first-person video of common home chores — cleaning, laundry, vacuuming, organizing, and small repairs. The data trains household robotics and smart-home AI.\n\nScenes are typically 15–45 minutes each, focused on a single task (e.g. one room cleaning pass, one laundry cycle from start to fold). We need real, lived-in scenes — not staged perfection.\n\nPairs well with anyone managing their own household, including stay-at-home parents and remote workers.\n\nThis variant is open to contributors across Latin America — Mexico, Brazil, Argentina, Colombia, Chile, and Peru. Pay is $7/hour USD, fixed flat rate, paid via international transfer (Wise, Payoneer, or local equivalent) on a bi-weekly cadence. USD purchasing power makes this a meaningful supplemental income across the region.\n\nClaru contractors are independent — no fixed hours, no minimum commitment. You take captures that fit your schedule and skip the ones that don't.",
+  "skills": [
+    "Live in a household where you handle chores",
+    "Smartphone or wearable camera",
+    "Comfort recording day-to-day home activity",
+    "Reliable internet for upload",
+    "Ability to follow scene briefs precisely"
+  ],
+  "compensationMin": 7,
+  "compensationMax": 7,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "MX, BR, AR, CO, CL, PE",
+  "targetCountries": [
+    "MX",
+    "BR",
+    "AR",
+    "CO",
+    "CL",
+    "PE"
+  ],
+  "datePosted": "2026-05-26",
+  "validThrough": "2026-08-24",
+  "featured": false,
+  "archived": false,
+  "status": "open",
+  "seo": {
+    "primaryKeyword": "ai data collection jobs",
+    "locales": {
+      "en": {
+        "keyword": "ai data collection jobs",
+        "monthlySearchVolume": 50
+      }
+    }
+  },
+  "faqs": [
+    {
+      "question": "Do I need to clean my whole house?",
+      "answer": "No — each capture is a single task. You might record one bathroom clean today and a vacuum pass next week."
+    },
+    {
+      "question": "Can I record while doing laundry across multiple loads?",
+      "answer": "Yes — multi-load laundry sessions are explicitly requested in some briefs."
+    },
+    {
+      "question": "How much does Household Chores capture pay in LATAM?",
+      "answer": "LATAM contributors (MX, BR, AR, CO, CL, PE) are paid $7/hour USD flat, via Wise/Payoneer, bi-weekly."
+    },
+    {
+      "question": "When do I get paid?",
+      "answer": "Bi-weekly. The first batch typically lands 7–10 days after your first approved capture."
+    }
+  ]
+}

@@ -16,7 +16,7 @@
   "employmentType": "CONTRACTOR",
   "locationType": "TELECOMMUTE",
   "datePosted": "2026-01-24",
-  "validThrough": "2026-04-23",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": false,
   "faqs": [
@@ -32,5 +32,6 @@
       "question": "Will I review work from the same annotators repeatedly?",
       "answer": "Reviews are typically assigned randomly to avoid bias. Occasionally, targeted reviews are assigned when a specific annotator needs additional QA oversight."
     }
-  ]
+  ],
+  "status": "closed"
 }

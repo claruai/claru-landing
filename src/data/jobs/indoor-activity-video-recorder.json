@@ -17,7 +17,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "EU",
   "datePosted": "2026-02-15",
-  "validThrough": "2026-05-14",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": false,
   "faqs": [
@@ -29,5 +29,22 @@
       "question": "Is my face visible in the recordings?",
       "answer": "Egocentric cameras face outward, so your face is generally not visible. Hands, arms, and torso may appear depending on the activity. All footage is used solely for model training and is not published."
     }
-  ]
+  ],
+  "status": "closed",
+  "targetCountries": [
+    "US",
+    "CA",
+    "MX",
+    "BR"
+  ],
+  "subcategory": "residential-household",
+  "seo": {
+    "primaryKeyword": "ai data collection jobs",
+    "locales": {
+      "en": {
+        "keyword": "ai data collection jobs",
+        "monthlySearchVolume": 50
+      }
+    }
+  }
 }

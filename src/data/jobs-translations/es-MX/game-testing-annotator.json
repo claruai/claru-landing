@@ -1,0 +1,27 @@
+{
+  "title": "Anotador de Game Testing",
+  "description": "Estamos recopilando datos de gameplay humanos para entrenar agentes de IA que operan en entornos 3D interactivos. Trabajarás en escenarios guionizados en varios motores de juego, registrando tus acciones y anotando los puntos clave de decisión. Algunas sesiones requieren que juegues de forma óptima; otras te pedirán que explores intencionalmente estrategias subóptimas para que la IA pueda aprender de un rango más amplio de comportamientos. Cada sesión produce un archivo de repetición y un registro de anotaciones estructurado.\n\nBuscamos personas que puedan jugar de forma sistemática y documentar su razonamiento. La experiencia en videojuegos es importante, pero también lo es la capacidad de seguir protocolos y producir registros de anotaciones claros. Si has trabajado en QA de juegos, speedrunning o juegos competitivos, esas experiencias son muy relevantes.\n\nLas sesiones duran de 2 a 4 horas y se programan con antelación. La mayoría de los colaboradores completan de 3 a 4 sesiones por semana. Necesitarás una PC que cumpla con las especificaciones mínimas para los motores de juego que utilizamos (las proporcionaremos durante la incorporación). Se requiere una conexión a internet estable para la carga de datos en tiempo real.",
+  "skills": [
+    "Familiaridad con Unity o Unreal Engine es un plus",
+    "Atención al detalle en el registro y la anotación",
+    "PC confiable que cumpla con los requisitos mínimos de hardware",
+    "Comodidad siguiendo protocolos de juego guionizados",
+    "Experiencia con juegos de PC y motores de juego comunes",
+    "Capacidad para articular claramente los procesos de toma de decisiones",
+    "Fuerte razonamiento espacial y pensamiento estratégico"
+  ],
+  "faqs": [
+    {
+      "question": "¿Qué tipo de juegos jugaré?",
+      "answer": "Los proyectos abarcan múltiples géneros, incluyendo exploración en primera persona, juegos de estrategia, entornos de puzles y simulaciones de física. Los juegos específicos dependen de lo que estén entrenando nuestros socios del laboratorio de IA."
+    },
+    {
+      "question": "¿Esto es como un game testing casual?",
+      "answer": "No exactamente. Las sesiones están estructuradas con objetivos específicos, estrategias a probar y anotaciones a completar. Es más sistemático que el playtesting de QA típico."
+    },
+    {
+      "question": "¿Cómo se estructura la compensación?",
+      "answer": "El pago es por sesión completada y aceptada, con bonificaciones por calidad. Las tarifas varían según la complejidad del proyecto. Las sesiones que no cumplan con los estándares de anotación podrían necesitar ser repetidas."
+    }
+  ]
+}

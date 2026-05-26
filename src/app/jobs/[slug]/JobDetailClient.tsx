@@ -16,8 +16,10 @@ import {
 import Header from "@/app/components/layout/Header";
 import Footer from "@/app/components/sections/Footer";
 import FadeIn from "@/app/components/effects/FadeIn";
-import type { Job } from "@/types/job";
+import type { Job, JobLocale } from "@/types/job";
 import { JOB_CATEGORIES } from "@/types/job";
+import { buildJobsCtaUrl } from "@/lib/tracking/jobs";
+import { jobsI18n } from "@/lib/jobs-i18n";
 
 /* ==========================================================================
    FAQ ACCORDION ITEM
@@ -101,7 +103,9 @@ function RelatedJobCard({ job, index }: { job: Job; index: number }) {
           {/* Bottom row */}
           <div className="flex items-center justify-between pt-3 border-t border-[var(--border-subtle)]">
             <span className="font-mono text-sm font-semibold text-[var(--accent-primary)]">
-              ${job.compensationMin}&ndash;{job.compensationMax}/hr
+              {job.compensationMin === job.compensationMax
+                ? `$${job.compensationMin}/hr`
+                : `$${job.compensationMin}–${job.compensationMax}/hr`}
             </span>
             <span className="font-mono text-xs text-[var(--text-muted)] group-hover:text-[var(--accent-primary)] transition-colors flex items-center gap-1">
               View
@@ -124,6 +128,13 @@ interface JobDetailClientProps {
   postedDate: string;
   categoryLabel: string;
   relatedJobs: Job[];
+  locale?: JobLocale;
+  basePath?: string;
+  /**
+   * When true, the role body is shown in English on a non-English locale.
+   * Triggers the "translation in progress" banner. Default `false`.
+   */
+  englishFallback?: boolean;
 }
 
 export default function JobDetailClient({
@@ -132,12 +143,29 @@ export default function JobDetailClient({
   postedDate,
   categoryLabel,
   relatedJobs,
+  locale = "en",
+  basePath = "/jobs",
+  englishFallback = false,
 }: JobDetailClientProps) {
+  const t = jobsI18n(locale);
+
   // Split description into paragraphs
   const paragraphs = job.description
     .split("\n\n")
     .map((p) => p.trim())
     .filter(Boolean);
+
+  const isClosed = job.status === "closed";
+  const generalApplyHref = buildJobsCtaUrl({
+    slug: "general-application",
+    placement: "general",
+    locale,
+  });
+  const applyHref = (placement: "top" | "sticky" | "related") =>
+    isClosed
+      ? generalApplyHref
+      : buildJobsCtaUrl({ slug: job.slug, placement, locale });
+  const applyLabel = isClosed ? t.applyGenerally : t.applyNow;
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
@@ -162,7 +190,7 @@ export default function JobDetailClient({
               </Link>
               <ChevronRight className="w-3.5 h-3.5" />
               <Link
-                href="/jobs"
+                href={basePath}
                 className="hover:text-[var(--text-primary)] transition-colors"
               >
                 Jobs
@@ -210,6 +238,12 @@ export default function JobDetailClient({
                 {/* Meta row */}
                 <FadeIn delay={0.1}>
                   <div className="flex flex-wrap items-center gap-3 mb-8">
+                    {isClosed && (
+                      <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full bg-[var(--text-muted)]/15 text-[var(--text-muted)] border border-[var(--text-muted)]/30">
+                        {t.closedChip}
+                      </span>
+                    )}
+
                     {/* Category badge */}
                     <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/20">
                       <Tag className="w-3 h-3" />
@@ -219,7 +253,9 @@ export default function JobDetailClient({
                     {/* Compensation */}
                     <span className="inline-flex items-center gap-1.5 font-mono text-xs px-2.5 py-1 rounded-full bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border-subtle)]">
                       <DollarSign className="w-3 h-3 text-[var(--accent-primary)]" />
-                      ${job.compensationMin}&ndash;{job.compensationMax}/hr
+                      {job.compensationMin === job.compensationMax
+                        ? `$${job.compensationMin}/hr`
+                        : `$${job.compensationMin}–${job.compensationMax}/hr`}
                     </span>
 
                     {/* Remote badge */}
@@ -240,6 +276,15 @@ export default function JobDetailClient({
                     </span>
                   </div>
                 </FadeIn>
+
+                {/* English-fallback banner — only when no translation exists. */}
+                {englishFallback && locale !== "en" && t.englishOnlyBanner && (
+                  <FadeIn delay={0.12}>
+                    <div className="mb-6 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-tertiary)]/40 p-3 font-mono text-xs text-[var(--text-muted)]">
+                      {t.englishOnlyBanner}
+                    </div>
+                  </FadeIn>
+                )}
 
                 {/* Description */}
                 <FadeIn delay={0.15}>
@@ -284,12 +329,17 @@ export default function JobDetailClient({
                 {/* Apply CTA */}
                 <FadeIn delay={0.25}>
                   <div className="mb-12">
+                    {isClosed && (
+                      <p className="font-mono text-xs text-[var(--text-muted)] mb-3">
+                        {t.closedDetailNote}
+                      </p>
+                    )}
                     <a
-                      href="https://app.claru.ai/signup"
+                      href={applyHref("top")}
                       className="btn-cta-glitch !px-8 !py-3.5 !text-sm"
                     >
                       <span className="relative z-10 inline-flex items-center gap-2">
-                        Apply Now <ArrowRight className="w-4 h-4" />
+                        {applyLabel} <ArrowRight className="w-4 h-4" />
                       </span>
                     </a>
                   </div>
@@ -346,8 +396,9 @@ export default function JobDetailClient({
                               Compensation
                             </p>
                             <p className="text-sm text-[var(--text-primary)] font-semibold">
-                              ${job.compensationMin}&ndash;{job.compensationMax}
-                              /hr
+                              {job.compensationMin === job.compensationMax
+                                ? `$${job.compensationMin}/hr`
+                                : `$${job.compensationMin}–${job.compensationMax}/hr`}
                             </p>
                           </div>
                         </div>
@@ -393,11 +444,11 @@ export default function JobDetailClient({
 
                       {/* Sidebar CTA */}
                       <a
-                        href="https://app.claru.ai/signup"
+                        href={applyHref("sticky")}
                         className="btn-cta-glitch w-full !py-3 !text-sm"
                       >
                         <span className="relative z-10 inline-flex items-center justify-center gap-2 w-full">
-                          Apply Now <ArrowRight className="w-4 h-4" />
+                          {applyLabel} <ArrowRight className="w-4 h-4" />
                         </span>
                       </a>
                     </div>
@@ -406,7 +457,7 @@ export default function JobDetailClient({
                   {/* Back to all jobs */}
                   <FadeIn delay={0.3} direction="right">
                     <Link
-                      href="/jobs"
+                      href={basePath}
                       className="mt-4 flex items-center gap-2 font-mono text-xs text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors group"
                     >
                       <ChevronRight className="w-3 h-3 rotate-180 group-hover:-translate-x-1 transition-transform" />
@@ -444,7 +495,7 @@ export default function JobDetailClient({
               <FadeIn delay={0.2}>
                 <div className="mt-8 text-center">
                   <Link
-                    href="/jobs"
+                    href={basePath}
                     className="inline-flex items-center gap-2 font-mono text-sm text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors group"
                   >
                     View all open positions
@@ -474,11 +525,11 @@ export default function JobDetailClient({
                   working on frontier AI projects.
                 </p>
                 <a
-                  href="https://app.claru.ai/signup"
+                  href={applyHref("related")}
                   className="btn-cta-glitch !px-8 !py-3 !text-sm"
                 >
                   <span className="relative z-10 inline-flex items-center gap-2">
-                    Apply Now <ArrowRight className="w-4 h-4" />
+                    {applyLabel} <ArrowRight className="w-4 h-4" />
                   </span>
                 </a>
               </div>

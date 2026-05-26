@@ -1,0 +1,56 @@
+{
+  "slug": "indoor-capture-asia",
+  "title": "Indoor Activity Video Capture — Asia",
+  "category": "video-capture",
+  "subcategory": "residential-indoor",
+  "description": "As an Indoor Activity Capture contributor, you record first-person video of everyday indoor scenes that don't fall into the more specific household, kitchen, or garage categories. Reading, watching TV, gaming on a console, working at a home office, eating, hosting friends — all are in scope.\n\nSessions are typically 15–60 minutes. We need ambient, naturalistic footage. The data trains general-purpose home AI assistants that need to understand the full breadth of indoor activity.\n\nThis is a great catch-all category if you spend a lot of time at home.\n\nThis variant is open to contributors across Asia — India, the Philippines, Indonesia, and Vietnam. Pay is $5/hour USD, fixed flat rate, paid via international transfer (Wise, Payoneer, or local equivalent) on a bi-weekly cadence. We're actively building a contributor base across these markets and onboarding is fast.\n\nClaru contractors are independent — no fixed hours, no minimum commitment. You take captures that fit your schedule and skip the ones that don't.",
+  "skills": [
+    "Smartphone or wearable camera",
+    "Comfort recording your normal indoor routines",
+    "Reliable internet for upload",
+    "Ability to follow scene briefs precisely"
+  ],
+  "compensationMin": 5,
+  "compensationMax": 5,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "IN, PH, ID, VN",
+  "targetCountries": [
+    "IN",
+    "PH",
+    "ID",
+    "VN"
+  ],
+  "datePosted": "2026-05-26",
+  "validThrough": "2026-08-24",
+  "featured": false,
+  "archived": false,
+  "status": "open",
+  "seo": {
+    "primaryKeyword": "first person video",
+    "locales": {
+      "en": {
+        "keyword": "first person video",
+        "monthlySearchVolume": 140
+      }
+    }
+  },
+  "faqs": [
+    {
+      "question": "Can I record while watching TV or movies?",
+      "answer": "Yes — TV-watching and gaming scenes are explicitly requested. Copyrighted content on screen is acceptable for training; we don't redistribute it."
+    },
+    {
+      "question": "What counts as 'indoor activity'?",
+      "answer": "Anything happening inside your home that isn't kitchen, household chores, or garage work. Reading, TV, hobbies, eating, hosting, working from home, etc."
+    },
+    {
+      "question": "How much does Indoor Activity capture pay in Asia?",
+      "answer": "Asian contributors (IN, PH, ID, VN) are paid $5/hour USD flat, via Wise/Payoneer, bi-weekly."
+    },
+    {
+      "question": "When do I get paid?",
+      "answer": "Bi-weekly. The first batch typically lands 7–10 days after your first approved capture."
+    }
+  ]
+}

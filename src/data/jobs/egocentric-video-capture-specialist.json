@@ -15,7 +15,7 @@
   "employmentType": "CONTRACTOR",
   "locationType": "TELECOMMUTE",
   "datePosted": "2026-02-15",
-  "validThrough": "2026-05-14",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": false,
   "faqs": [
@@ -31,5 +31,22 @@
       "question": "Do I need my own camera equipment?",
       "answer": "No. We ship all cameras and accessories to you at no charge. Equipment must be returned when the engagement ends."
     }
-  ]
+  ],
+  "status": "closed",
+  "targetCountries": [
+    "US",
+    "CA",
+    "MX",
+    "BR"
+  ],
+  "subcategory": "residential-indoor",
+  "seo": {
+    "primaryKeyword": "first person video",
+    "locales": {
+      "en": {
+        "keyword": "first person video",
+        "monthlySearchVolume": 140
+      }
+    }
+  }
 }

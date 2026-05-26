@@ -1,0 +1,54 @@
+{
+  "slug": "household-capture-canada",
+  "title": "Household Chores Video Capture — Canada",
+  "category": "video-capture",
+  "subcategory": "residential-household",
+  "description": "As a Household Capture contributor, you record first-person video of common home chores — cleaning, laundry, vacuuming, organizing, and small repairs. The data trains household robotics and smart-home AI.\n\nScenes are typically 15–45 minutes each, focused on a single task (e.g. one room cleaning pass, one laundry cycle from start to fold). We need real, lived-in scenes — not staged perfection.\n\nPairs well with anyone managing their own household, including stay-at-home parents and remote workers.\n\nThis variant is open to contributors based in Canada. Pay is $10/hour USD, fixed flat rate, paid via international wire or Wise transfer on a bi-weekly cadence. Canadian contributors typically run two to four captures per week.\n\nClaru contractors are independent — no fixed hours, no minimum commitment. You take captures that fit your schedule and skip the ones that don't.",
+  "skills": [
+    "Live in a household where you handle chores",
+    "Smartphone or wearable camera",
+    "Comfort recording day-to-day home activity",
+    "Reliable internet for upload",
+    "Ability to follow scene briefs precisely"
+  ],
+  "compensationMin": 10,
+  "compensationMax": 10,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "CA",
+  "targetCountries": [
+    "CA"
+  ],
+  "datePosted": "2026-05-26",
+  "validThrough": "2026-08-24",
+  "featured": false,
+  "archived": false,
+  "status": "open",
+  "seo": {
+    "primaryKeyword": "ai data collection jobs",
+    "locales": {
+      "en": {
+        "keyword": "ai data collection jobs",
+        "monthlySearchVolume": 50
+      }
+    }
+  },
+  "faqs": [
+    {
+      "question": "Do I need to clean my whole house?",
+      "answer": "No — each capture is a single task. You might record one bathroom clean today and a vacuum pass next week."
+    },
+    {
+      "question": "Can I record while doing laundry across multiple loads?",
+      "answer": "Yes — multi-load laundry sessions are explicitly requested in some briefs."
+    },
+    {
+      "question": "How much does Household Chores capture pay in Canada?",
+      "answer": "Canadian contributors are paid $10/hour USD flat, via wire or Wise, bi-weekly."
+    },
+    {
+      "question": "When do I get paid?",
+      "answer": "Bi-weekly. The first batch typically lands 7–10 days after your first approved capture."
+    }
+  ]
+}

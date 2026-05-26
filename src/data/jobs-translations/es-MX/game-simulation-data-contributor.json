@@ -1,0 +1,25 @@
+{
+  "title": "Colaborador de Datos de Simulación de Juegos",
+  "description": "Tu trabajo es generar datos de demostración humana de alta calidad jugando juegos y simulaciones bajo condiciones controladas. Seguirás protocolos de sesión que especifican el juego, el escenario, los objetivos y los requisitos de anotación. Después de cada sesión, llenarás un formulario estructurado documentando tus estrategias, errores y puntos clave de inflexión. Estos datos se utilizan para entrenar y evaluar agentes de IA de juego.\n\nUn fuerte razonamiento espacial y la capacidad de articular tu proceso de toma de decisiones son las habilidades clave aquí. A menudo necesitarás explicar por qué elegiste una acción particular, lo que significa que debes ser reflexivo sobre tu gameplay en lugar de puramente intuitivo. La experiencia con juegos de estrategia, juegos de rompecabezas o cualquier género que requiera pensamiento deliberado es particularmente valiosa.\n\nEl trabajo es por proyecto con ventanas de sesión fijas. Te inscribes para los espacios de sesión disponibles a través de nuestro portal de programación. El pago es por sesión completada, con bonificaciones por calidad de anotación. El compromiso típico es de 10 a 20 horas por semana.",
+  "skills": [
+    "Paciencia para repeticiones de escenarios",
+    "Atención al detalle en el registro y la anotación",
+    "Comodidad siguiendo protocolos de juego guionizados",
+    "Experiencia con juegos de PC y motores de juego comunes",
+    "Buena comunicación escrita para registros de anotación"
+  ],
+  "faqs": [
+    {
+      "question": "¿Esto es como un testeo de juegos casual?",
+      "answer": "No exactamente. Las sesiones están estructuradas con objetivos específicos, estrategias a probar y anotaciones a completar. Es más sistemático que el playtesting de QA típico."
+    },
+    {
+      "question": "¿Cómo se estructura la compensación?",
+      "answer": "El pago es por sesión completada y aceptada, con bonificaciones por calidad. Las tarifas varían según la complejidad del proyecto. Las sesiones que no cumplan con los estándares de anotación podrían necesitar ser repetidas."
+    },
+    {
+      "question": "¿Qué tipo de juegos jugaré?",
+      "answer": "Los proyectos abarcan múltiples géneros, incluyendo exploración en primera persona, juegos de estrategia, entornos de rompecabezas y simulaciones de física. Los juegos específicos dependen de lo que nuestros socios de laboratorio de IA estén entrenando."
+    }
+  ]
+}
