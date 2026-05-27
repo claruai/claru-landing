@@ -29,10 +29,10 @@ const T = {
     submit: "Quero ganhar em USD →",
     submitting: "Enviando…",
     microcopy: "Sem taxa. Sem pegadinha. Resposta em 24h por e-mail.",
-    // Non-LATAM (generic): we've got the lead, we'll follow up by email.
-    successHeader: "Recebemos. Pode fechar essa aba tranquilo.",
+    // Non-LATAM (generic): no promise of follow-up — just acknowledge + review.
+    successHeader: "Recebemos seu cadastro.",
     successBody:
-      "Vamos te enviar o guia de gravação e um exemplo aceito em até 24 horas por e-mail. Sem taxa. Sem curso. Sem MLM.",
+      "Vamos analisar e entrar em contato se houver algum projeto compatível com o seu perfil.",
     // LATAM: project is live, push them to signup now.
     successLiveHeader: "Recebemos. O projeto já está aberto.",
     successLiveBody:
@@ -51,9 +51,9 @@ const T = {
     submit: "Start earning in USD →",
     submitting: "Sending…",
     microcopy: "No fee. No catch. Reply by email within 24h.",
-    successHeader: "Got it. You can close this tab.",
+    successHeader: "We got your application.",
     successBody:
-      "We'll email you the filming guide and an accepted example within 24 hours. No fee. No course. No MLM.",
+      "We'll review and reach out if a project matches your profile.",
     successLiveHeader: "Got it. The project is live.",
     successLiveBody:
       "Create your account now to unlock the filming guide and the pilot clip. We've also emailed you the link. No fee, ever.",
