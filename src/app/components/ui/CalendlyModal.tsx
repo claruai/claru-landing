@@ -9,6 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useCalendly } from "../providers/CalendlyProvider";
 import { usePostHog } from "posthog-js/react";
+import { trackContact } from "@/lib/meta/pixel";
+import { trackLeadCreated } from "@/lib/openai/pixel";
 
 const HEARD_ABOUT_OPTIONS = [
   { value: "linkedin", label: "LinkedIn" },
@@ -29,6 +31,11 @@ const formSchema = z.object({
   projectDescription: z.string().min(10, "Please describe your project (at least 10 characters)"),
   heardAbout: z.string().min(1, "Please select an option"),
 });
+
+// localStorage idempotency for [Demand] Enquiry Submitted Google Ads conversion (AW-18127763802).
+// Shared with ContactForm via the same key — fire once per browser regardless of which demand-side
+// form (modal or inline) the user submits first. Per the Google Ads brief.
+const DEMAND_ENQUIRY_CONVERSION_FIRED_KEY = "claru_gads_demand_enquiry_conversion_fired";
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -117,7 +124,24 @@ function StepForm({ onSuccess }: { onSuccess: (data: FormData) => void }) {
           heard_about: data.heardAbout,
         }),
       });
-      if (!response.ok) {
+      if (response.ok) {
+        const responseBody = await response.json().catch(() => ({}));
+        trackContact(responseBody?.meta_event_id);
+        trackLeadCreated();
+        // [Demand] Enquiry Submitted — Google Ads conversion for AW-18127763802
+        if (!localStorage.getItem(DEMAND_ENQUIRY_CONVERSION_FIRED_KEY)) {
+          window.gtag?.("event", "conversion", {
+            send_to: "AW-18127763802/jUQCCISU56QcENry_sND",
+            value: 1.0,
+            currency: "USD",
+          });
+          try {
+            localStorage.setItem(DEMAND_ENQUIRY_CONVERSION_FIRED_KEY, String(Date.now()));
+          } catch {
+            // non-fatal
+          }
+        }
+      } else {
         posthog?.capture("contact_form_error", {
           source: "modal",
           status: response.status,

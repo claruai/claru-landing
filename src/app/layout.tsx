@@ -7,6 +7,8 @@ import MotionProvider from "./components/providers/MotionProvider";
 import CalendlyProvider from "./components/providers/CalendlyProvider";
 import CalendlyModal from "./components/ui/CalendlyModal";
 import PostHogProvider from "./components/providers/PostHogProvider";
+import MetaPixel from "./components/meta/MetaPixel";
+import OpenAIPixel from "./components/openai/OpenAIPixel";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -199,8 +201,11 @@ export default function RootLayout({
             gtag('js', new Date());
             gtag('config', 'G-98MREQY4D1', { linker: { domains: ['claru.ai', 'app.claru.ai'] } });
             gtag('config', 'AW-16922029729');
+            gtag('config', 'AW-18127763802');
           `}
         </Script>
+        <MetaPixel />
+        <OpenAIPixel />
         <PostHogProvider>
           <MotionProvider>
             <CalendlyProvider>

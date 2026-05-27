@@ -17,7 +17,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "US",
   "datePosted": "2026-01-31",
-  "validThrough": "2026-04-30",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": false,
   "faqs": [
@@ -33,5 +33,6 @@
       "question": "How is annotation quality measured?",
       "answer": "We measure IoU (intersection over union) for bounding boxes and segmentation masks, and classification accuracy for label tasks. Your scores are visible in your dashboard."
     }
-  ]
+  ],
+  "status": "closed"
 }

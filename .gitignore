@@ -24,7 +24,12 @@
 .DS_Store
 *.pem
 .!*!._*
-.mcp.json
+.mcp.json*
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
 
 # claude code local settings and skills
 .claude/settings.local.json

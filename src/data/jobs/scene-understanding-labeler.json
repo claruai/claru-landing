@@ -15,7 +15,7 @@
   "employmentType": "CONTRACTOR",
   "locationType": "TELECOMMUTE",
   "datePosted": "2026-02-16",
-  "validThrough": "2026-05-15",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": false,
   "faqs": [
@@ -27,5 +27,6 @@
       "question": "Do I need special hardware?",
       "answer": "A computer with a mouse (trackpad is not recommended for precision tasks) and a monitor of at least 1080p. A graphics tablet is optional but can improve segmentation speed."
     }
-  ]
+  ],
+  "status": "closed"
 }

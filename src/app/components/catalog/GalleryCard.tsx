@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, type MouseEvent } from "react";
+import { Star } from "lucide-react";
 import type { DatasetSample, Clip } from "@/types/data-catalog";
 
 // ---------------------------------------------------------------------------
@@ -72,6 +73,20 @@ export interface GalleryCardProps {
   onSelect: (index: number) => void;
   /** Custom footer label. Defaults to sample_NNN.ext */
   footerLabel?: string;
+  /** When true, shows a checkbox overlay (top-right). */
+  selectable?: boolean;
+  /** Selected state for the checkbox overlay. */
+  isSelected?: boolean;
+  /** Called when the checkbox is toggled (event already stopPropagation'd). */
+  onToggleSelect?: () => void;
+  /** When defined, shows the showcase star toggle (top-right, under checkbox). */
+  isShowcase?: boolean;
+  /** Called when the showcase star is clicked. Optimistic state managed by parent. */
+  onToggleShowcase?: () => void;
+  /** Disable showcase toggle (e.g. clip is lead-bound). */
+  showcaseDisabled?: boolean;
+  /** When true, dims the showcase button until hover (otherwise always visible if isShowcase=true). */
+  showcaseDimWhenOff?: boolean;
 }
 
 export function GalleryCard({
@@ -80,6 +95,13 @@ export function GalleryCard({
   index,
   onSelect,
   footerLabel,
+  selectable,
+  isSelected,
+  onToggleSelect,
+  isShowcase,
+  onToggleShowcase,
+  showcaseDisabled,
+  showcaseDimWhenOff = true,
 }: GalleryCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -229,6 +251,56 @@ export function GalleryCard({
             <span className="inline-block px-2 py-0.5 rounded bg-black/60 border border-white/10 font-mono text-[10px] text-white/90 backdrop-blur-sm leading-tight">
               {subcategory}
             </span>
+          </div>
+        )}
+
+        {/* Selection checkbox + showcase star — top right (admin only) */}
+        {(selectable || onToggleShowcase) && (
+          <div className="absolute top-2 right-2 z-20 flex items-center gap-1.5">
+            {onToggleShowcase && (
+              <button
+                type="button"
+                disabled={showcaseDisabled}
+                onClick={(e: MouseEvent) => {
+                  e.stopPropagation();
+                  if (!showcaseDisabled) onToggleShowcase();
+                }}
+                title={
+                  showcaseDisabled
+                    ? "Lead-specific clip — toggle showcase on the base attachment instead"
+                    : isShowcase
+                      ? "Showcase clip (click to remove)"
+                      : "Click to mark as showcase"
+                }
+                data-testid={`grid-showcase-toggle-${sample.id}`}
+                data-showcase={isShowcase ? "true" : "false"}
+                className={`inline-flex h-7 w-7 items-center justify-center rounded-md border backdrop-blur-sm transition-all ${
+                  isShowcase
+                    ? "bg-[var(--accent-primary)]/90 border-[var(--accent-primary)] text-[var(--bg-primary)]"
+                    : `bg-black/60 border-white/20 text-white/80 hover:bg-black/80 ${showcaseDimWhenOff ? "opacity-0 group-hover:opacity-100" : ""}`
+                } ${showcaseDisabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
+              >
+                <Star className="h-3.5 w-3.5" fill={isShowcase ? "currentColor" : "none"} />
+              </button>
+            )}
+            {selectable && (
+              <label
+                onClick={(e: MouseEvent) => e.stopPropagation()}
+                className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-black/60 border border-white/20 backdrop-blur-sm cursor-pointer hover:bg-black/80 transition-colors"
+                title={isSelected ? "Deselect" : "Select"}
+              >
+                <input
+                  type="checkbox"
+                  checked={!!isSelected}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    onToggleSelect?.();
+                  }}
+                  data-testid={`grid-select-${sample.id}`}
+                  className="h-4 w-4 accent-[var(--accent-primary)] cursor-pointer"
+                />
+              </label>
+            )}
           </div>
         )}
 

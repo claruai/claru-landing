@@ -16,7 +16,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "US",
   "datePosted": "2026-01-26",
-  "validThrough": "2026-04-25",
+  "validThrough": "2026-05-26",
   "featured": true,
   "archived": false,
   "faqs": [
@@ -28,5 +28,6 @@
       "question": "Do I need a technical background?",
       "answer": "It helps but is not strictly required. We look for creative, methodical thinkers. Some of our most effective red teamers come from non-technical backgrounds like investigative journalism or legal analysis."
     }
-  ]
+  ],
+  "status": "closed"
 }

@@ -64,6 +64,13 @@ export interface Dataset {
   is_published: boolean;
   show_enrichment: boolean;
   s3_bucket: string | null;
+  // Share link / showcase fields — added 2026-05-14 (Sample Pack workflow)
+  share_token?: string | null;
+  share_mode?: "all" | "showcase" | null;
+  share_expires_at?: string | null;
+  share_first_viewed_at?: string | null;
+  share_view_count?: number | null;
+  created_for_lead_id?: string | null;
   created_at: string;
   updated_at: string;
 }

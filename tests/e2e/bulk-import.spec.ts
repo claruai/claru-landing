@@ -1,12 +1,14 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
+import {
+  ADMIN_EMAIL as adminEmail,
+  ADMIN_PASSWORD as adminPassword,
+} from './helpers/admin-credentials';
 
 /**
  * E2E tests for CSV bulk import and duplicate detection (US-015).
  */
 test.describe('Sample Management — CSV Bulk Import', () => {
-  const adminEmail = process.env.ADMIN_EMAIL ?? 'team@claru.ai';
-  const adminPassword = process.env.ADMIN_PASSWORD ?? 'qweqwe123!';
   const fixtureCSV = path.resolve(__dirname, '../fixtures/test-samples.csv');
 
   /** Helper: login and navigate to a dataset edit page */

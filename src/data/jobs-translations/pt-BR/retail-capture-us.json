@@ -1,0 +1,29 @@
+{
+  "title": "Captura de Vídeo em Lojas de Varejo — United States",
+  "description": "Como colaborador de Captura em Lojas de Varejo, você gravará vídeos em primeira pessoa enquanto caminha, navega e interage dentro de supermercados, farmácias, grandes varejistas (big-box) e lojas de conveniência. Sua filmagem treina sistemas de IA que precisam entender a disposição de produtos, a navegação em prateleiras e o comportamento do comprador.\n\nUm turno típico consiste em 30 a 60 minutos de gravação em uma ou duas lojas. Você capturará a travessia de corredores, a retirada de produtos, o fluxo de checkout e pausas naturais para ler rótulos. Nós fornecemos um briefing listando as cenas que precisamos; você escolhe as lojas e horários que se encaixam na sua agenda.\n\nVocê usará um smartphone ou uma câmera vestível (aceitamos ambos). As gravações são enviadas no mesmo dia. Os dados alimentam modelos que impulsionam ferramentas de smart-cart, planograma e inventário.\n\nEsta variante está aberta a colaboradores baseados nos Estados Unidos. O pagamento é de $15/hour USD, taxa fixa, pago via depósito direto (ACH) em uma cadência quinzenal. Colaboradores dos EUA geralmente realizam de duas a quatro capturas por semana e completam o primeiro lote pago dentro de 7 a 10 dias após a aprovação.\n\nOs contratados da Claru são independentes — sem horários fixos, sem compromisso mínimo. Você realiza as capturas que se encaixam na sua agenda e pula as que não se encaixam.",
+  "skills": [
+    "Smartphone ou câmera vestível",
+    "Conforto para gravar em espaços de varejo públicos",
+    "Internet confiável para upload",
+    "Capacidade de seguir um briefing com precisão",
+    "Entrega no mesmo dia para as cenas atribuídas"
+  ],
+  "faqs": [
+    {
+      "question": "Preciso pedir permissão à loja para gravar?",
+      "answer": "Fornecemos orientações por rede de lojas. A maioria das filmagens gerais de corredores em grandes varejistas (big-box) é aceitável; alguns varejistas especializados exigem permissão explícita, e o briefing informa quais."
+    },
+    {
+      "question": "O que acontece com filmagens que incluem outros compradores?",
+      "answer": "Nosso pipeline de revisão borra rostos incidentais antes do treinamento. Você não precisa fazer nada especial durante a captura — apenas grave naturalmente."
+    },
+    {
+      "question": "Quanto paga a captura em Lojas de Varejo nos Estados Unidos?",
+      "answer": "Colaboradores dos EUA são pagos $15/hour USD fixos, via ACH, quinzenalmente."
+    },
+    {
+      "question": "Quando serei pago?",
+      "answer": "Quinzenalmente. O primeiro lote geralmente é pago 7 a 10 dias após sua primeira captura aprovada."
+    }
+  ]
+}

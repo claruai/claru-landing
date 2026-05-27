@@ -1,7 +1,5 @@
 import { test, expect } from "@playwright/test";
-
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "team@claru.ai";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "qweqwe123!";
+import { ADMIN_EMAIL, ADMIN_PASSWORD } from "./helpers/admin-credentials";
 
 /**
  * E2E tests for full corpus search + lead curation (Phase 2).

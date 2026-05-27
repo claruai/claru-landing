@@ -1,0 +1,76 @@
+{
+  "slug": "household-capture-latam",
+  "title": "Egocentric Household Tasks Capture — Latin America",
+  "category": "video-capture",
+  "subcategory": "residential-household",
+  "description": "Record first-person (egocentric) video of everyday household tasks using your smartphone and a head mount. Footage trains household robotics and embodied AI on how real people move through real homes.\n\nYou choose what to capture across four task categories: laundry (folding, sorting, loading/unloading), kitchen tidy-up — not cooking (wiping counters, dishes, dishwasher, pantry), organizing a single room (making the bed, closet, shelves), and other household tasks (vacuuming, sweeping, mopping, cleaning mirrors). We pay for a roughly even mix across all four categories — no hard cap on hours.\n\nEach clip is 2–30 minutes, one task per clip, recorded in landscape at 1080p / 30fps with the camera at 0.5x (widest) zoom. The head mount sits at forehead or eye level and is angled slightly downward so your full palms and fingers stay visible while you work. Hands should be in frame for at least 90% of every clip. Record naturally — no narration, no staged movements.\n\nThis program is open to contributors across Latin America. Pay is $6/hour USD of accepted footage, flat rate, paid via international transfer (Wise / Payoneer / local equivalent). Most contributors earn around $40 USD per day (~6–7 hours of footage) or $300 USD per week recording on the side of their normal routine. You set your own schedule — record as much or as little as you want.",
+  "skills": [
+    "Live in a household where you regularly do chores",
+    "Approved smartphone (recent iPhone, Pixel 6+, or Galaxy S21+)",
+    "Head mount for the smartphone (forehead / eye level)",
+    "Comfort recording everyday home activity in first-person POV",
+    "Reliable internet to upload long-form 1080p clips",
+    "Ability to follow recording specs precisely (90% hand visibility, 0.5x zoom, landscape)"
+  ],
+  "compensationMin": 6,
+  "compensationMax": 6,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "MX, BR, AR, CO, CL, PE",
+  "targetCountries": [
+    "MX",
+    "BR",
+    "AR",
+    "CO",
+    "CL",
+    "PE"
+  ],
+  "datePosted": "2026-05-27",
+  "validThrough": "2026-08-25",
+  "featured": false,
+  "archived": false,
+  "status": "open",
+  "seo": {
+    "primaryKeyword": "egocentric video data collection",
+    "locales": {
+      "en": {
+        "keyword": "egocentric video data collection",
+        "monthlySearchVolume": 50
+      }
+    }
+  },
+  "faqs": [
+    {
+      "question": "What kinds of tasks am I recording?",
+      "answer": "Four categories: laundry (folding, sorting, loading/unloading), kitchen tidy-up — NOT cooking (wiping counters, washing dishes, dishwasher, organizing pantry), organizing a single room (making the bed, closet, shelves), and other household tasks (vacuuming, sweeping, mopping, cleaning mirrors). We need a roughly even mix across all four."
+    },
+    {
+      "question": "How long should each clip be?",
+      "answer": "2–30 minutes, one task per clip. If a task takes 29 minutes start to finish, record it as one continuous 29-minute clip rather than splitting it up."
+    },
+    {
+      "question": "What phones are accepted?",
+      "answer": "iPhone 11 and newer (excluding 16e and 17e), Pixel 6 through Pixel 9 Pro, and Samsung Galaxy S21 through S24 series. No other phones can be used."
+    },
+    {
+      "question": "Do I need to buy a head mount?",
+      "answer": "Yes — you need a head mount that holds your phone at forehead or eye level, angled slightly downward. Any sturdy smartphone head strap works; details on accepted mounts are sent with onboarding."
+    },
+    {
+      "question": "How much does this pay?",
+      "answer": "$6/hour USD of accepted footage, flat rate. There's no cap on how many hours you can record as long as you keep a roughly even mix across the four task categories. Paid via Wise, Payoneer, or local equivalent."
+    },
+    {
+      "question": "How much do most people earn?",
+      "answer": "Most contributors earn around $40 USD per day or about $300 USD per week, doing 6–7 hours of household footage on the side of their normal routine. Some record more, some less — there's no minimum or cap."
+    },
+    {
+      "question": "What will get my footage rejected?",
+      "answer": "Obstructed, tilted, shaky, or poorly lit footage; robotic or staged behavior; hands out of frame for more than 10% of the clip; long pauses or incomplete tasks; seated recordings; narration or commentary; using a phone that isn't on the approved list."
+    },
+    {
+      "question": "Will my face be in the footage?",
+      "answer": "No. Egocentric means first-person POV — the camera looks out from your head, so your face isn't visible. Hands, forearms, and the task in front of you are what get captured."
+    }
+  ]
+}

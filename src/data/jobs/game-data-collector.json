@@ -41,5 +41,22 @@
       "question": "How does payment work?",
       "answer": "Payment is per accepted session, based on session length and game complexity. Rates range from $15 to $25 per hour. Payments are processed weekly."
     }
-  ]
+  ],
+  "status": "open",
+  "targetCountries": [
+    "US",
+    "CA",
+    "MX",
+    "BR"
+  ],
+  "subcategory": "capture",
+  "seo": {
+    "primaryKeyword": "get paid to play games",
+    "locales": {
+      "en": {
+        "keyword": "get paid to play games",
+        "monthlySearchVolume": 2400
+      }
+    }
+  }
 }

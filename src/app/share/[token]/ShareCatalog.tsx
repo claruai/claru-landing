@@ -52,11 +52,18 @@ export interface ShareClip {
   };
 }
 
+export interface ShareBundle {
+  size_bytes: number | null;
+  format: string | null;
+  label: string | null;
+}
+
 interface ShareCatalogProps {
   clips: ShareClip[];
   datasetName: string;
   companyName: string | null;
   token: string;
+  bundle?: ShareBundle | null;
 }
 
 type TabType = "annotation" | "enrichment" | "technical" | "input_stream" | "data_files";
@@ -1406,9 +1413,9 @@ function ClipDetailModal({
       className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 lg:p-8"
       onClick={handleBackdropClick}
     >
-      {/* Backdrop */}
+      {/* Backdrop — fully opaque so the gallery doesn't bleed through */}
       <div
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+        className="absolute inset-0 bg-black"
         aria-hidden="true"
       />
 
@@ -1639,6 +1646,7 @@ export default function ShareCatalog({
   datasetName,
   companyName,
   token,
+  bundle = null,
 }: ShareCatalogProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -1870,6 +1878,29 @@ export default function ShareCatalog({
               ? `${filteredClips.length} of ${clips.length} clips`
               : `${clips.length} ${clips.length === 1 ? "clip" : "clips"}`}
           </p>
+
+          {bundle && (
+            <a
+              href={`/api/share/${token}/bundle`}
+              download
+              data-testid="bundle-download-link"
+              className="mt-5 inline-flex items-center gap-2 rounded-md border px-4 py-2 font-mono text-sm transition-colors"
+              style={{
+                color: "var(--accent-primary)",
+                borderColor: "var(--accent-primary)",
+                backgroundColor: "transparent",
+              }}
+            >
+              <Download className="w-4 h-4" />
+              <span>
+                {bundle.label ?? "Download bundle"}
+                {bundle.format ? ` (${bundle.format})` : ""}
+              </span>
+              {bundle.size_bytes ? (
+                <span style={{ color: "var(--text-muted)" }}>· {formatBytes(bundle.size_bytes)}</span>
+              ) : null}
+            </a>
+          )}
         </div>
 
         {/* Search bar */}

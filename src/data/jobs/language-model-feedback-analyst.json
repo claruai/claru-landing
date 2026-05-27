@@ -15,7 +15,7 @@
   "employmentType": "CONTRACTOR",
   "locationType": "TELECOMMUTE",
   "datePosted": "2026-01-21",
-  "validThrough": "2026-04-20",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": false,
   "faqs": [
@@ -31,5 +31,6 @@
       "question": "Is there a calibration process?",
       "answer": "Yes. Onboarding includes a calibration exam where your ratings are compared against gold-standard responses. You receive detailed feedback and must reach a threshold accuracy before starting live work."
     }
-  ]
+  ],
+  "status": "closed"
 }

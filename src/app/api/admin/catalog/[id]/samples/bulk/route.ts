@@ -331,7 +331,8 @@ export async function POST(
         return {
           dataset_id: datasetId,
           clip_id: clipId,
-          is_showcase: true,
+          // is_showcase default false — opt-in via per-clip toggle
+          is_showcase: false,
           added_by: "admin",
         };
       })

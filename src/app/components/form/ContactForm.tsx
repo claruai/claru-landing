@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { usePostHog } from "posthog-js/react";
+import { trackContact } from "@/lib/meta/pixel";
+import { trackLeadCreated } from "@/lib/openai/pixel";
 
 const HEARD_ABOUT_OPTIONS = [
   { value: "linkedin", label: "LinkedIn" },
@@ -20,8 +22,11 @@ const HEARD_ABOUT_OPTIONS = [
   { value: "other", label: "Other" },
 ] as const;
 
-// localStorage key for contact form conversion idempotency — "fire only once per user" per the Google Ads brief.
+// localStorage keys for conversion idempotency — "fire only once per user" per the Google Ads brief.
+// Firing on submit (incl. failures) or on refresh would poison Smart Bidding.
+// Separate keys per Ads account so each tag fires independently if added/removed.
 const LEAD_CONVERSION_FIRED_KEY = "claru_gads_lead_conversion_fired";
+const DEMAND_ENQUIRY_CONVERSION_FIRED_KEY = "claru_gads_demand_enquiry_conversion_fired";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -93,22 +98,39 @@ export default function ContactForm() {
         });
       }
 
-      // Fire analytics only on confirmed server success AND only once per browser.
-      // Firing on submit (incl. failures) or on refresh would poison Smart Bidding.
-      if (response.ok && !localStorage.getItem(LEAD_CONVERSION_FIRED_KEY)) {
-        window.gtag?.("event", "conversion", {
-          send_to: "AW-16922029729/kmelCJ6Ss6EcEKHdhoU_",
-          value: 1.0,
-          currency: "USD",
-        });
-        window.gtag?.("event", "generate_lead", {
-          form_name: "contact",
-          page_location: typeof window !== "undefined" ? window.location.href : undefined,
-        });
-        try {
-          localStorage.setItem(LEAD_CONVERSION_FIRED_KEY, String(Date.now()));
-        } catch {
-          // localStorage may be unavailable (Safari private mode) — non-fatal
+      // Fire analytics only on confirmed server success AND only once per browser per tag.
+      if (response.ok) {
+        const responseBody = await response.json().catch(() => ({}));
+        trackContact(responseBody?.meta_event_id);
+        trackLeadCreated();
+        if (!localStorage.getItem(LEAD_CONVERSION_FIRED_KEY)) {
+          window.gtag?.("event", "conversion", {
+            send_to: "AW-16922029729/kmelCJ6Ss6EcEKHdhoU_",
+            value: 1.0,
+            currency: "USD",
+          });
+          window.gtag?.("event", "generate_lead", {
+            form_name: "contact",
+            page_location: typeof window !== "undefined" ? window.location.href : undefined,
+          });
+          try {
+            localStorage.setItem(LEAD_CONVERSION_FIRED_KEY, String(Date.now()));
+          } catch {
+            // localStorage may be unavailable (Safari private mode) — non-fatal
+          }
+        }
+        // [Demand] Enquiry Submitted — Google Ads conversion for AW-18127763802
+        if (!localStorage.getItem(DEMAND_ENQUIRY_CONVERSION_FIRED_KEY)) {
+          window.gtag?.("event", "conversion", {
+            send_to: "AW-18127763802/jUQCCISU56QcENry_sND",
+            value: 1.0,
+            currency: "USD",
+          });
+          try {
+            localStorage.setItem(DEMAND_ENQUIRY_CONVERSION_FIRED_KEY, String(Date.now()));
+          } catch {
+            // non-fatal
+          }
         }
       }
     } catch (err) {

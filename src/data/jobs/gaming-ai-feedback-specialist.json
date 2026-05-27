@@ -15,7 +15,7 @@
   "employmentType": "CONTRACTOR",
   "locationType": "TELECOMMUTE",
   "datePosted": "2026-01-23",
-  "validThrough": "2026-04-22",
+  "validThrough": "2026-08-24",
   "featured": true,
   "archived": false,
   "faqs": [
@@ -27,5 +27,22 @@
       "question": "How is compensation structured?",
       "answer": "Payment is per completed and accepted session, with quality bonuses. Rates vary by project complexity. Sessions that do not meet annotation standards may need to be repeated."
     }
-  ]
+  ],
+  "status": "open",
+  "targetCountries": [
+    "US",
+    "CA",
+    "MX",
+    "BR"
+  ],
+  "subcategory": "qa",
+  "seo": {
+    "primaryKeyword": "ai training jobs",
+    "locales": {
+      "en": {
+        "keyword": "ai training jobs",
+        "monthlySearchVolume": 12100
+      }
+    }
+  }
 }

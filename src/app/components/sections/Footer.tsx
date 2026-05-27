@@ -47,6 +47,7 @@ const columns = [
     label: "COMPANY",
     links: [
       { href: "/for-annotators", label: "For Annotators" },
+      { href: "/partnerships", label: "Partnerships" },
       { href: "/#contact", label: "Contact" },
       { href: "/legal", label: "Legal" },
     ],

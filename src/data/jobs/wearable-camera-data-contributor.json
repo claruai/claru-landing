@@ -16,7 +16,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "US",
   "datePosted": "2026-02-06",
-  "validThrough": "2026-05-05",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": false,
   "faqs": [
@@ -32,5 +32,19 @@
       "question": "Where do recordings take place?",
       "answer": "Mostly in your home or a similar everyday environment. You will need access to spaces like a kitchen, living room, or home office depending on the recording protocol for that session."
     }
-  ]
+  ],
+  "status": "closed",
+  "targetCountries": [
+    "US"
+  ],
+  "subcategory": "residential-household",
+  "seo": {
+    "primaryKeyword": "wearable camera",
+    "locales": {
+      "en": {
+        "keyword": "wearable camera",
+        "monthlySearchVolume": 1900
+      }
+    }
+  }
 }

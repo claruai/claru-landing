@@ -1,4 +1,8 @@
 import { test, expect } from '@playwright/test';
+import {
+  ADMIN_EMAIL as adminEmail,
+  ADMIN_PASSWORD as adminPassword,
+} from './helpers/admin-credentials';
 
 /**
  * E2E tests for unified sample management (US-014).
@@ -7,8 +11,6 @@ import { test, expect } from '@playwright/test';
  * and keyboard shortcuts using the new tabbed interface.
  */
 test.describe('Sample Management — Single Sample Flows', () => {
-  const adminEmail = process.env.ADMIN_EMAIL ?? 'team@claru.ai';
-  const adminPassword = process.env.ADMIN_PASSWORD ?? 'qweqwe123!';
 
   /** Helper: login and navigate to a dataset edit page */
   async function loginAndNavigateToDataset(page: import('@playwright/test').Page) {

@@ -16,7 +16,7 @@
   "employmentType": "CONTRACTOR",
   "locationType": "TELECOMMUTE",
   "datePosted": "2026-02-11",
-  "validThrough": "2026-05-10",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": false,
   "faqs": [
@@ -32,5 +32,6 @@
       "question": "How is my own accuracy evaluated?",
       "answer": "A random sample of your reviews is audited by a senior reviewer each week. Your review accuracy score is shared with you and factors into bonus calculations."
     }
-  ]
+  ],
+  "status": "closed"
 }

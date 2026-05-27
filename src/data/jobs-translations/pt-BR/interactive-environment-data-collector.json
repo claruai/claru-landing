@@ -1,0 +1,25 @@
+{
+  "title": "Coletor de Dados de Ambiente Interativo",
+  "description": "Estamos coletando dados de gameplay humano para treinar agentes de IA que operam em ambientes 3D interativos. Você trabalhará em cenários roteirizados em várias game engines, registrando suas ações e anotando pontos de decisão importantes. Algumas sessões exigem que você jogue de forma otimizada; outras pedem que você explore intencionalmente estratégias subótimas para que a IA possa aprender com uma gama mais ampla de comportamentos. Cada sessão produz um arquivo de replay e um log de anotação estruturado.\n\nVocê deve ser um gamer competente com experiência em múltiplos gêneros -- FPS, estratégia, puzzle e mundo aberto. Não precisamos de habilidades de nível de esports, mas você precisa se sentir confortável aprendendo novas mecânicas de jogo rapidamente e jogando de forma sistemática, em vez de casualmente. Familiaridade com game engines (Unity, Unreal) é útil para depurar problemas de sessão, mas não é obrigatória.\n\nO trabalho é baseado em projetos com janelas de sessão fixas. Você se inscreve para os slots de sessão disponíveis através do nosso portal de agendamento. O pagamento é por sessão concluída, com bônus pela qualidade da anotação. O compromisso típico é de 10-20 horas por semana.",
+  "skills": [
+    "PC confiável que atenda aos requisitos mínimos de hardware",
+    "Experiência com PC gaming e game engines comuns",
+    "Ampla experiência em gaming em múltiplos gêneros",
+    "Confortável em seguir protocolos de playthrough roteirizados",
+    "Familiaridade com Unity ou Unreal Engine é um diferencial"
+  ],
+  "faqs": [
+    {
+      "question": "Como a compensação é estruturada?",
+      "answer": "O pagamento é por sessão concluída e aceita, com bônus de qualidade. As taxas variam de acordo com a complexidade do projeto. Sessões que não atendem aos padrões de anotação podem precisar ser repetidas."
+    },
+    {
+      "question": "Que tipos de jogos irei jogar?",
+      "answer": "Os projetos abrangem múltiplos gêneros, incluindo exploração em primeira pessoa, jogos de estratégia, ambientes de puzzle e simulações de física. Os jogos específicos dependem do que nossos parceiros de laboratório de IA estão treinando."
+    },
+    {
+      "question": "Preciso de um PC gamer de alta performance?",
+      "answer": "Você precisa de um PC razoavelmente capaz. Forneceremos as especificações mínimas durante o onboarding, mas geralmente uma GPU de médio porte dos últimos 3-4 anos e 16GB de RAM serão suficientes."
+    }
+  ]
+}

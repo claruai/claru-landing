@@ -18,7 +18,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "EU",
   "datePosted": "2026-02-04",
-  "validThrough": "2026-05-03",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": false,
   "faqs": [
@@ -30,5 +30,6 @@
       "question": "What types of images will I annotate?",
       "answer": "Projects cover autonomous driving scenes, medical imagery, satellite photos, retail product images, and more. You will be assigned projects based on your skills and clearances."
     }
-  ]
+  ],
+  "status": "closed"
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   List,
   LayoutGrid,
+  Star,
 } from "lucide-react";
 import type { Clip } from "@/types/data-catalog";
 import SampleEditPanel from "./SampleEditPanel";
@@ -32,6 +33,8 @@ export interface AdminClip extends Clip {
   dataset_clip_id: string;
   /** Non-null when the clip is assigned to a specific lead. */
   lead_id: string | null;
+  /** dataset_clips.is_showcase — controls visibility under share_mode='showcase'. */
+  is_showcase: boolean;
   /** Who added this clip to the dataset. */
   added_by: string | null;
   /** Optional note from dataset_clips. */
@@ -68,6 +71,8 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
   const [formatIssueCounts, setFormatIssueCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  /** Non-error feedback from a batch op (e.g. "X marked, Y skipped"). */
+  const [batchInfo, setBatchInfo] = useState<string | null>(null);
 
   // Selection
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -91,6 +96,22 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
     return "table";
   });
 
+  // Showcase-only filter, persisted in sessionStorage
+  const [showcaseOnly, setShowcaseOnly] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("admin-samples-showcase-only") === "true";
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem("admin-samples-showcase-only", String(showcaseOnly));
+    // Toggling the showcase filter should always reset to page 1 — handled
+    // here explicitly so it stays correct even if fetchSamples is memoized
+    // tighter in the future.
+    setPage(1);
+  }, [showcaseOnly]);
+
   // Preview modal (grid view)
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
@@ -107,8 +128,10 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
       setLoading(true);
       setError(null);
       try {
+        const params = new URLSearchParams({ page: String(p), per_page: String(PER_PAGE) });
+        if (showcaseOnly) params.set("showcase", "true");
         const res = await fetch(
-          `/api/admin/catalog/${datasetId}/samples?page=${p}&per_page=${PER_PAGE}`
+          `/api/admin/catalog/${datasetId}/samples?${params.toString()}`
         );
         if (!res.ok) throw new Error("Failed to fetch clips");
         const data: PaginatedResponse = await res.json();
@@ -124,12 +147,12 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
         setLoading(false);
       }
     },
-    [datasetId]
+    [datasetId, showcaseOnly]
   );
 
   useEffect(() => {
     fetchSamples(1);
-    // Reset to page 1 when refreshKey changes
+    // Reset to page 1 when refreshKey or showcase filter changes
   }, [fetchSamples, refreshKey]);
 
   // -----------------------------------------------------------------------
@@ -196,6 +219,103 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
     }
     fetchSamples(page);
   }, [datasetId, selectedIds, fetchSamples, page]);
+
+  // -----------------------------------------------------------------------
+  // Showcase toggling — single + bulk. Both hit the existing PATCH endpoint
+  // which honors is_showcase. Lead-bound clips are skipped (server returns
+  // 404; we surface that count as "skipped" rather than as an error).
+  // -----------------------------------------------------------------------
+
+  const [batchShowcasing, setBatchShowcasing] = useState(false);
+
+  const patchShowcaseOne = useCallback(
+    async (clipId: string, value: boolean): Promise<"ok" | "skipped" | "failed"> => {
+      const res = await fetch(
+        `/api/admin/catalog/${datasetId}/samples/${clipId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ is_showcase: value }),
+        },
+      );
+      if (res.ok) return "ok";
+      if (res.status === 404) return "skipped"; // lead-bound clip
+      return "failed";
+    },
+    [datasetId],
+  );
+
+  const handleToggleShowcase = useCallback(
+    async (clip: AdminClip) => {
+      if (clip.lead_id) return; // safety: lead-bound clips can't toggle showcase here
+      const next = !clip.is_showcase;
+      // Optimistic update
+      setSamples((prev) =>
+        prev.map((s) => (s.id === clip.id ? { ...s, is_showcase: next } : s)),
+      );
+      const result = await patchShowcaseOne(clip.id, next);
+      if (result === "failed") {
+        // Revert
+        setSamples((prev) =>
+          prev.map((s) => (s.id === clip.id ? { ...s, is_showcase: !next } : s)),
+        );
+        setError(`Failed to update showcase flag on ${clip.id.slice(0, 8)}`);
+      }
+    },
+    [patchShowcaseOne],
+  );
+
+  // Monotonic counter — discard stale batch results when the user
+  // rapidly clicks Mark / Unmark in succession.
+  const batchSeqRef = useRef(0);
+
+  const handleBatchShowcase = useCallback(
+    async (makeShowcase: boolean) => {
+      const ids = Array.from(selectedIds);
+      if (ids.length === 0) return;
+      const seq = ++batchSeqRef.current;
+      setBatchShowcasing(true);
+      setError(null);
+      setBatchInfo(null);
+      // Optimistic update for non-lead-bound clips
+      setSamples((prev) =>
+        prev.map((s) =>
+          ids.includes(s.id) && !s.lead_id ? { ...s, is_showcase: makeShowcase } : s,
+        ),
+      );
+      const results = await Promise.allSettled(
+        ids.map((id) => patchShowcaseOne(id, makeShowcase)),
+      );
+      // If a newer batch fired while we were awaiting, drop our results.
+      if (seq !== batchSeqRef.current) return;
+      const tally = { ok: 0, skipped: 0, failed: 0 };
+      for (const r of results) {
+        if (r.status === "rejected") tally.failed++;
+        else tally[r.value]++;
+      }
+      setBatchShowcasing(false);
+      setSelectedIds(new Set());
+      if (tally.failed > 0) {
+        setError(
+          `${tally.failed} of ${ids.length} showcase updates failed${
+            tally.skipped > 0 ? ` (${tally.skipped} skipped — lead-bound)` : ""
+          }`,
+        );
+      } else if (tally.skipped > 0) {
+        // Surface the skipped count even on otherwise-success so the user
+        // knows lead-bound clips didn't change.
+        setBatchInfo(
+          `${tally.ok} updated · ${tally.skipped} skipped (lead-bound clips can't be showcased here)`,
+        );
+      } else {
+        setBatchInfo(`${tally.ok} clip${tally.ok === 1 ? "" : "s"} ${makeShowcase ? "marked as" : "removed from"} showcase`);
+      }
+      // Always re-fetch the page so the UI reflects authoritative server state
+      // (defends against optimistic drift if the server applies side effects).
+      fetchSamples(page);
+    },
+    [selectedIds, patchShowcaseOne, fetchSamples, page],
+  );
 
   // -----------------------------------------------------------------------
   // Pagination
@@ -267,11 +387,37 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
     <div className="space-y-4">
       {/* Header with count and view toggle */}
       <div className="flex items-center justify-between">
-        <h4 className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider">
-          Clips ({total})
-        </h4>
+        <div className="flex items-center gap-3">
+          <h4 className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider">
+            Clips ({total})
+          </h4>
+          {showcaseOnly && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono bg-[var(--accent-primary)]/15 text-[var(--accent-primary)]">
+              <Star className="w-2.5 h-2.5" fill="currentColor" />
+              Showcase only
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           {loading && <Loader2 className="w-4 h-4 animate-spin text-[var(--text-muted)]" />}
+
+          {/* Showcase-only filter toggle */}
+          <button
+            type="button"
+            onClick={() => setShowcaseOnly((v) => !v)}
+            data-testid="showcase-only-filter"
+            data-active={showcaseOnly ? "true" : "false"}
+            title={showcaseOnly ? "Show all clips" : "Show showcase clips only"}
+            className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-mono transition-colors ${
+              showcaseOnly
+                ? "border-[var(--accent-primary)] bg-[var(--accent-primary)] text-[var(--bg-primary)]"
+                : "border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent-primary)]/40"
+            }`}
+          >
+            <Star className="w-3 h-3" fill={showcaseOnly ? "currentColor" : "none"} />
+            Showcase
+          </button>
+
           <div className="flex items-center rounded-md border border-[var(--border-subtle)] overflow-hidden">
             <button
               onClick={() => setViewMode("table")}
@@ -312,12 +458,46 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
         </div>
       )}
 
-      {/* Batch action bar (table view only) */}
-      {viewMode === "table" && selectedIds.size > 0 && (
-        <div className="flex items-center gap-3 rounded-md border border-[var(--accent-primary)] bg-[var(--bg-secondary)] px-4 py-2">
+      {/* Batch info banner (success / partial-skip feedback) */}
+      {batchInfo && (
+        <div
+          data-testid="batch-info-banner"
+          className="flex items-center justify-between rounded-md border border-[var(--accent-primary)] bg-[var(--accent-primary)]/10 px-4 py-2"
+        >
+          <span className="text-xs font-mono text-[var(--accent-primary)]">{batchInfo}</span>
+          <button
+            onClick={() => setBatchInfo(null)}
+            className="text-xs font-mono text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* Batch action bar — visible in both table & grid view whenever clips are selected. */}
+      {selectedIds.size > 0 && (
+        <div className="flex flex-wrap items-center gap-3 rounded-md border border-[var(--accent-primary)] bg-[var(--bg-secondary)] px-4 py-2">
           <span className="text-sm font-mono text-[var(--accent-primary)]">
             {selectedIds.size} selected
           </span>
+          <button
+            onClick={() => handleBatchShowcase(true)}
+            disabled={batchShowcasing}
+            data-testid="batch-mark-showcase"
+            className="flex items-center gap-1 rounded-md border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-mono text-[var(--accent-primary)] hover:border-[var(--accent-primary)] transition-colors disabled:opacity-50"
+          >
+            {batchShowcasing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Star className="w-3 h-3" fill="currentColor" />}
+            Mark as Showcase
+          </button>
+          <button
+            onClick={() => handleBatchShowcase(false)}
+            disabled={batchShowcasing}
+            data-testid="batch-unmark-showcase"
+            className="flex items-center gap-1 rounded-md border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-mono text-[var(--text-secondary)] hover:border-[var(--accent-primary)] transition-colors disabled:opacity-50"
+          >
+            <Star className="w-3 h-3" />
+            Remove from Showcase
+          </button>
           <button
             onClick={() => setShowBatchEdit(true)}
             className="flex items-center gap-1 rounded-md border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-mono text-[var(--text-primary)] hover:border-[var(--accent-primary)] transition-colors"
@@ -354,6 +534,12 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
               </button>
             </div>
           )}
+          <button
+            onClick={() => setSelectedIds(new Set())}
+            className="ml-auto text-xs font-mono text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+          >
+            Clear
+          </button>
         </div>
       )}
 
@@ -375,6 +561,9 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
                 <th className="px-3 py-2 text-center text-[var(--text-muted)] w-12">Ann.</th>
                 <th className="px-3 py-2 text-center text-[var(--text-muted)] w-12">Specs</th>
                 <th className="px-3 py-2 text-left text-[var(--text-muted)]">Metadata</th>
+                <th className="px-3 py-2 text-center text-[var(--text-muted)] w-14">
+                  <Star className="w-3 h-3 inline" aria-label="Showcase" />
+                </th>
                 <th className="px-3 py-2 text-center text-[var(--text-muted)] w-16">Issues</th>
                 <th className="px-3 py-2 text-center text-[var(--text-muted)] w-12"></th>
               </tr>
@@ -428,6 +617,19 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
                     <td className="px-3 py-2 text-[var(--text-secondary)] max-w-[200px] truncate">
                       {metadataPreview(sample.ann_metadata)}
                     </td>
+                    <td className="px-3 py-2 text-center" onClick={(e) => e.stopPropagation()}>
+                      <ShowcaseToggle
+                        datasetId={datasetId}
+                        clipId={sample.id}
+                        initial={!!sample.is_showcase}
+                        disabled={!!sample.lead_id}
+                        onChange={(val) => {
+                          setSamples((prev) =>
+                            prev.map((s) => (s.id === sample.id ? { ...s, is_showcase: val } : s)),
+                          );
+                        }}
+                      />
+                    </td>
                     <td className="px-3 py-2 text-center">
                       {issueCount > 0 ? (
                         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] bg-[var(--error)]/20 text-[var(--error)]">
@@ -458,7 +660,10 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
       {viewMode === "grid" && (
         <SamplesGrid
           samples={samples}
-          onSelectSample={(sample, index) => setPreviewIndex(index)}
+          onSelectSample={(_sample, index) => setPreviewIndex(index)}
+          selectedIds={selectedIds}
+          onToggleSelect={toggleSelect}
+          onToggleShowcase={handleToggleShowcase}
         />
       )}
 
@@ -534,8 +739,82 @@ export default function SamplesList({ datasetId, refreshKey }: SamplesListProps)
             setPreviewIndex(null);
             setEditingSample(sample);
           }}
+          onToggleShowcase={handleToggleShowcase}
         />
       )}
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// ShowcaseToggle — star button that PATCHes dataset_clips.is_showcase
+// ---------------------------------------------------------------------------
+
+function ShowcaseToggle({
+  datasetId,
+  clipId,
+  initial,
+  disabled,
+  onChange,
+}: {
+  datasetId: string;
+  clipId: string;
+  initial: boolean;
+  disabled?: boolean;
+  onChange?: (val: boolean) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [on, setOn] = useState(initial);
+
+  useEffect(() => setOn(initial), [initial]);
+
+  const toggle = async () => {
+    if (busy || disabled) return;
+    const next = !on;
+    setBusy(true);
+    setOn(next); // optimistic
+    try {
+      // The existing PATCH endpoint accepts is_showcase under the sampleId
+      // segment; it routes to dataset_clips when is_showcase is the only field.
+      const res = await fetch(`/api/admin/catalog/${datasetId}/samples/${clipId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_showcase: next }),
+      });
+      if (!res.ok) {
+        // revert on failure
+        setOn(!next);
+      } else {
+        onChange?.(next);
+      }
+    } catch {
+      setOn(!next);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      disabled={disabled || busy}
+      title={
+        disabled
+          ? "Lead-specific clip — toggle showcase on the base attachment instead"
+          : on
+            ? "Showcase clip (click to remove)"
+            : "Not a showcase clip (click to mark)"
+      }
+      data-testid={`showcase-toggle-${clipId}`}
+      data-showcase={on ? "true" : "false"}
+      className={`inline-flex items-center justify-center w-7 h-7 rounded transition-colors ${
+        on
+          ? "text-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/10"
+          : "text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]"
+      } ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
+    >
+      <Star className="w-4 h-4" fill={on ? "currentColor" : "none"} />
+    </button>
   );
 }

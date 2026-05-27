@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getS3SignedUrl } from "@/lib/s3/presigner";
+import {
+  getGrantedDatasetIds,
+  getDatasetIdsForObjectKey,
+  hasOverlap,
+} from "@/lib/portal/access-control";
 
 /**
  * GET /api/portal/s3-proxy?key=...
@@ -25,6 +30,17 @@ export async function GET(request: NextRequest) {
 
   if (key.includes("..")) {
     return NextResponse.json({ error: "Invalid key" }, { status: 400 });
+  }
+
+  // Authorization: verify user has access to a dataset that contains this key.
+  const grantedDatasetIds = await getGrantedDatasetIds(supabase, user.id);
+  if (!grantedDatasetIds || grantedDatasetIds.size === 0) {
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
+  }
+
+  const candidateDatasetIds = await getDatasetIdsForObjectKey(key);
+  if (!hasOverlap(candidateDatasetIds, grantedDatasetIds)) {
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
   try {

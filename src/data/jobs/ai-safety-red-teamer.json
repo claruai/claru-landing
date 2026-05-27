@@ -16,7 +16,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "EU",
   "datePosted": "2026-02-08",
-  "validThrough": "2026-05-07",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": false,
   "faqs": [
@@ -32,5 +32,6 @@
       "question": "What models will I be testing?",
       "answer": "We work with frontier language models from several major AI labs. Specific model details are shared under NDA during onboarding."
     }
-  ]
+  ],
+  "status": "closed"
 }

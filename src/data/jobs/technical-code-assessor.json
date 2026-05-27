@@ -17,7 +17,7 @@
   "locationType": "TELECOMMUTE",
   "locationRequirements": "EU",
   "datePosted": "2026-02-16",
-  "validThrough": "2026-05-15",
+  "validThrough": "2026-05-26",
   "featured": true,
   "archived": false,
   "faqs": [
@@ -33,5 +33,6 @@
       "question": "How long does each review take?",
       "answer": "Simple function-level tasks take 5-10 minutes. More complex multi-file evaluations can take 15-30 minutes. Compensation scales with task complexity."
     }
-  ]
+  ],
+  "status": "closed"
 }

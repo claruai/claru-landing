@@ -34,6 +34,59 @@ export async function PATCH(
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
+  // ---------------------------------------------------------------------
+  // is_showcase lives on dataset_clips (the join), not on the clip itself.
+  // Reject mixed payloads — callers should use one PATCH for the showcase
+  // toggle (`{ is_showcase: bool }`) and another for clip-table edits.
+  // Doing both atomically in this single endpoint risks half-applied writes
+  // (one succeeds, the other 500s, no rollback path), which would silently
+  // leave the catalog inconsistent.
+  // ---------------------------------------------------------------------
+  if ("is_showcase" in body && typeof body.is_showcase === "boolean") {
+    const otherKeys = Object.keys(body).filter((k) => k !== "is_showcase");
+    if (otherKeys.length > 0) {
+      return NextResponse.json(
+        {
+          error:
+            "Mixed payload not supported: send `is_showcase` in its own PATCH; clip-table fields in another.",
+          rejected_fields: otherKeys,
+        },
+        { status: 400 },
+      );
+    }
+
+    const supabaseDc = createSupabaseAdminClient();
+    const { error: dcErr, count } = await supabaseDc
+      .from("dataset_clips")
+      .update({ is_showcase: body.is_showcase }, { count: "exact" })
+      .eq("dataset_id", datasetId)
+      .eq("clip_id", clipId)
+      .is("lead_id", null);
+
+    if (dcErr) {
+      return NextResponse.json({ error: dcErr.message }, { status: 500 });
+    }
+    if (!count || count === 0) {
+      return NextResponse.json(
+        { error: "No matching dataset_clips row (clip may be lead-bound only)" },
+        { status: 404 },
+      );
+    }
+
+    const { count: showcaseCount } = await supabaseDc
+      .from("dataset_clips")
+      .select("clip_id", { count: "exact", head: true })
+      .eq("dataset_id", datasetId)
+      .eq("is_showcase", true)
+      .is("lead_id", null);
+
+    return NextResponse.json({
+      ok: true,
+      is_showcase: body.is_showcase,
+      current_showcase_count: showcaseCount ?? 0,
+    });
+  }
+
   const allowedFields = [
     "s3_key",
     "ann_annotation_key",

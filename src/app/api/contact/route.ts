@@ -1,6 +1,9 @@
+import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getPostHogServer } from "@/lib/posthog-server";
+import { sendCapiEvent } from "@/lib/meta/capi";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 let _resend: Resend | null = null;
 function getResend() {
@@ -18,6 +21,26 @@ function escapeHtml(str: string): string {
 }
 
 export async function POST(request: NextRequest) {
+  // Per-IP rate limit — stops scripted form abuse from a single source.
+  const ip = getClientIp(request);
+  const ipRl = rateLimit({
+    key: `contact-ip:${ip}`,
+    limit: 5,
+    windowMs: 60_000,
+  });
+  if (!ipRl.ok) {
+    return new Response(
+      JSON.stringify({ error: "Too many requests. Try again later." }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": String(ipRl.retryAfterSec),
+        },
+      },
+    );
+  }
+
   let body: Record<string, string>;
   try {
     body = await request.json();
@@ -36,8 +59,57 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Per-email rate limit — stop the same address spamming us 24h.
+  const emailRl = rateLimit({
+    key: `contact-email:${email.toLowerCase().trim()}`,
+    limit: 3,
+    windowMs: 24 * 60 * 60 * 1000,
+  });
+  if (!emailRl.ok) {
+    return new Response(
+      JSON.stringify({ error: "Too many requests. Try again later." }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": String(emailRl.retryAfterSec),
+        },
+      },
+    );
+  }
+
   // Fall back to the local-part of the email when name is omitted.
-  const name = (rawName && rawName.trim()) || email.split("@")[0] || "(no name)";
+  const hasRealName = !!(rawName && rawName.trim());
+  const name = hasRealName ? rawName!.trim() : email.split("@")[0] || "(no name)";
+
+  // Fire Meta CAPI Contact event up-front. Doing this before Resend means
+  // a Resend outage can't lose the conversion event. The fire itself is
+  // already non-fatal (errors only logged, never thrown).
+  const metaEventId = crypto.randomUUID();
+  try {
+    const xff = request.headers.get("x-forwarded-for");
+    const clientIp = xff ? xff.split(",")[0]!.trim() : null;
+    const referer = request.headers.get("referer") || "https://claru.ai";
+    const [firstName, ...lastParts] = hasRealName ? name.split(" ") : [];
+    await sendCapiEvent({
+      eventName: "Contact",
+      eventId: metaEventId,
+      eventSourceUrl: referer,
+      actionSource: "website",
+      userData: {
+        email,
+        firstName: hasRealName ? firstName : null,
+        lastName: hasRealName && lastParts.length ? lastParts.join(" ") : null,
+        externalId: email,
+        clientIpAddress: clientIp,
+        clientUserAgent: request.headers.get("user-agent"),
+        fbc: request.cookies.get("_fbc")?.value || null,
+        fbp: request.cookies.get("_fbp")?.value || null,
+      },
+    });
+  } catch (err) {
+    console.warn("[POST /api/contact] Meta CAPI send failed", err);
+  }
 
   try {
     const ph = getPostHogServer();
@@ -137,9 +209,11 @@ export async function POST(request: NextRequest) {
       console.warn("[POST /api/contact] Failed to upsert lead", email);
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, meta_event_id: metaEventId });
   } catch (err) {
     console.error("[POST /api/contact]", err);
-    return NextResponse.json({ success: true }); // Don't leak errors to client
+    // Resend/DB failed but CAPI already fired — still return the event_id
+    // so the client-side Pixel fires Contact with the matching dedupe key.
+    return NextResponse.json({ success: true, meta_event_id: metaEventId });
   }
 }

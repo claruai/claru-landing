@@ -1,0 +1,54 @@
+{
+  "slug": "hospitality-capture-us",
+  "title": "Hospitality (Hotel, Gym, Salon) Video Capture — United States",
+  "category": "video-capture",
+  "subcategory": "commercial-hospitality",
+  "description": "As a Hospitality Capture contributor, you record first-person video inside hotels (check-in, room navigation, amenities), gyms (equipment use, locker rooms, classes), salons, dental offices, and similar service environments. The data trains AI systems used in concierge tools, equipment-use detection, and customer-experience analytics.\n\nScenes are short and specific — checking into a hotel room, completing a gym circuit, sitting in a salon chair. A typical session is 20–45 minutes, often during normal use of the service.\n\nThis works particularly well for frequent travelers and gym regulars.\n\nThis variant is open to contributors based in the United States. Pay is $15/hour USD, fixed flat rate, paid via direct deposit (ACH) on a bi-weekly cadence. US contributors typically run two to four captures per week and complete the first paid batch within 7–10 days of approval.\n\nClaru contractors are independent — no fixed hours, no minimum commitment. You take captures that fit your schedule and skip the ones that don't.",
+  "skills": [
+    "Smartphone or wearable camera",
+    "Comfort recording in semi-public service settings",
+    "Active use of hotels, gyms, or other hospitality services",
+    "Reliable internet for upload",
+    "Ability to follow scene briefs precisely"
+  ],
+  "compensationMin": 15,
+  "compensationMax": 15,
+  "employmentType": "CONTRACTOR",
+  "locationType": "TELECOMMUTE",
+  "locationRequirements": "US",
+  "targetCountries": [
+    "US"
+  ],
+  "datePosted": "2026-05-26",
+  "validThrough": "2026-08-24",
+  "featured": false,
+  "archived": false,
+  "status": "open",
+  "seo": {
+    "primaryKeyword": "ai data collection jobs",
+    "locales": {
+      "en": {
+        "keyword": "ai data collection jobs",
+        "monthlySearchVolume": 50
+      }
+    }
+  },
+  "faqs": [
+    {
+      "question": "Are locker rooms okay to record?",
+      "answer": "Generally no — we focus on equipment, lobby, and class areas. The brief specifies excluded zones for every capture."
+    },
+    {
+      "question": "Do hotels need to know I'm recording?",
+      "answer": "Public-area recordings (lobby, fitness center, breakfast area) typically don't require notice. In-room captures don't require notice. Spa and treatment areas do require explicit consent."
+    },
+    {
+      "question": "How much does Hospitality (Hotel, Gym, Salon) capture pay in United States?",
+      "answer": "US contributors are paid $15/hour USD flat, via ACH, bi-weekly."
+    },
+    {
+      "question": "When do I get paid?",
+      "answer": "Bi-weekly. The first batch typically lands 7–10 days after your first approved capture."
+    }
+  ]
+}

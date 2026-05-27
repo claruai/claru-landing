@@ -1,33 +1,44 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { ogImageUrl } from "@/lib/og";
+import { jobsHreflangAlternates } from "@/lib/jobs-hreflang";
 
 export const metadata: Metadata = {
-  title: "Remote AI Annotation Jobs | Claru",
+  title: "Remote AI Training Jobs — Pay in USD | Claru",
   description:
-    "Browse remote data annotation jobs at Claru. Join frontier AI labs as a contractor — RLHF, red teaming, coding review, vision annotation, and more. AI training jobs with expert-tier pay ($20\u2013100/hr).",
+    "Remote contractor roles in egocentric video capture and gameplay capture for frontier AI labs. Flat geo-tiered pay in USD ($15/hr US, $10/hr Canada, $7/hr LATAM, $5/hr Asia), bi-weekly, fully remote.",
   keywords: [
-    "data annotation jobs remote",
-    "AI training jobs",
-    "remote annotation work",
-    "RLHF jobs",
-    "AI labeling jobs",
-    "data labeling remote",
-    "machine learning annotation",
-    "AI safety jobs",
-    "red teaming jobs",
-    "coding review jobs",
+    "ai training jobs",
+    "remote ai jobs",
+    "data labeling jobs",
+    "ai data collection jobs",
+    "data annotation work from home",
+    "first person video data",
+    "egocentric video capture",
+    "gameplay capture jobs",
+    "get paid to play games",
+    "make money playing games",
+    "outlier ai alternative",
+    "scale ai jobs",
+    "remotasks alternative",
   ],
   openGraph: {
-    title: "Remote AI Annotation Jobs | Claru",
+    title: "Remote AI Training Jobs — Pay in USD | Claru",
     description:
-      "Browse remote data annotation jobs at Claru. Join frontier AI labs as a contractor with expert-tier pay.",
+      "Egocentric video capture and gameplay capture roles. Flat USD pay, bi-weekly, fully remote.",
     type: "website",
     url: "https://claru.ai/jobs",
-    images: [{ url: ogImageUrl("Remote AI Annotation Jobs", { category: "job" }), width: 1200, height: 630 }],
+    images: [
+      {
+        url: ogImageUrl("Remote AI Training Jobs", { category: "job" }),
+        width: 1200,
+        height: 630,
+      },
+    ],
   },
   alternates: {
     canonical: "/jobs",
+    languages: jobsHreflangAlternates("/jobs"),
     types: {
       "application/rss+xml": [
         { url: "/jobs/feed.xml", title: "Claru AI Jobs" },

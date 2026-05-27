@@ -17,7 +17,7 @@
   "employmentType": "CONTRACTOR",
   "locationType": "TELECOMMUTE",
   "datePosted": "2026-01-26",
-  "validThrough": "2026-04-25",
+  "validThrough": "2026-05-26",
   "featured": false,
   "archived": false,
   "faqs": [
@@ -33,5 +33,6 @@
       "question": "Do I interact with annotators directly?",
       "answer": "Generally no. Your rejection notes are the primary feedback channel. If a systemic issue arises, the project lead handles the conversation with the annotation team."
     }
-  ]
+  ],
+  "status": "closed"
 }

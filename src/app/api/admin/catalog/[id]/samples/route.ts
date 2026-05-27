@@ -27,23 +27,29 @@ export async function GET(
   const { id } = await params;
   const supabase = createSupabaseAdminClient();
 
-  // Parse optional pagination params
+  // Parse optional pagination + filter params
   const url = new URL(request.url);
   const pageParam = url.searchParams.get("page");
   const perPageParam = url.searchParams.get("per_page");
+  const showcaseParam = url.searchParams.get("showcase");
   const paginated = pageParam != null || perPageParam != null;
   const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
   const perPage = Math.max(1, Math.min(200, parseInt(perPageParam ?? "50", 10) || 50));
+  const showcaseOnly = showcaseParam === "true" || showcaseParam === "1";
 
   // Query dataset_clips JOIN clips for this dataset
   let query = supabase
     .from("dataset_clips")
     .select(
-      "id, dataset_id, clip_id, lead_id, added_by, note, created_at, clips(*)",
+      "id, dataset_id, clip_id, lead_id, is_showcase, added_by, note, created_at, clips(*)",
       paginated ? { count: "exact" } : {}
     )
     .eq("dataset_id", id)
     .order("created_at", { ascending: false });
+
+  if (showcaseOnly) {
+    query = query.eq("is_showcase", true);
+  }
 
   if (paginated) {
     const from = (page - 1) * perPage;
@@ -71,6 +77,7 @@ export async function GET(
         ...clip,
         dataset_clip_id: dc.id,
         lead_id: dc.lead_id,
+        is_showcase: dc.is_showcase,
         added_by: dc.added_by,
         note: dc.note,
       };
@@ -471,12 +478,15 @@ async function linkClipToDataset(
     return null; // Already linked
   }
 
+  // is_showcase default false — showcase is opt-in via the per-clip toggle
+  // (`PATCH /api/admin/catalog/[id]/samples/[clipId]`). Setting true on every
+  // attach would mean every new add becomes publicly visible to portal users.
   const { error } = await supabase
     .from("dataset_clips")
     .insert({
       dataset_id: datasetId,
       clip_id: clipId,
-      is_showcase: true,
+      is_showcase: false,
       added_by: "admin",
     });
 
