@@ -58,8 +58,8 @@ const COPY = {
     formNote: "Cadastro de 30 segundos. Resposta em 24h por e-mail.",
     stickyCta: "Quero ganhar em USD →",
 
-    trustHeader: "Quem está pagando",
-    trustLine: "Pagamento internacional em USD. Sem taxa, nunca.",
+    trustHeader: "Quem está por trás",
+    trustLine: "Apoiada por uma empresa de IA dos EUA. Pagamento internacional via Wise, PayPal ou transferência bancária.",
     trustClaru:
       "Claru AI é uma empresa Reka AI, apoiada pela NVIDIA. Treinamos os robôs domésticos da próxima geração.",
 
@@ -185,8 +185,8 @@ const COPY = {
     formNote: "30-second signup. Reply by email within 24h.",
     stickyCta: "Start earning in USD →",
 
-    trustHeader: "Who's paying",
-    trustLine: "International payment in USD. No fee, ever.",
+    trustHeader: "Who's behind this",
+    trustLine: "Backed by a US AI company. International payment via Wise, PayPal, or bank transfer.",
     trustClaru:
       "Claru AI is a Reka AI company, backed by NVIDIA. We're training the next generation of household robots.",
 
@@ -572,12 +572,6 @@ function PageInner() {
             <Wordmark>NVIDIA</Wordmark>
             <WordmarkDivider />
             <Wordmark>REKA AI</Wordmark>
-            <WordmarkDivider />
-            <Wordmark>WISE</Wordmark>
-            <WordmarkDivider />
-            <Wordmark>PAYPAL</Wordmark>
-            <WordmarkDivider />
-            <Wordmark>BANK</Wordmark>
           </div>
           <p className="mt-5 text-center text-xs sm:text-sm text-white/55 max-w-xl mx-auto leading-relaxed">
             {t.trustClaru}
