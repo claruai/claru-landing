@@ -102,3 +102,10 @@ trigger/node_modules/
 
 # Video candidate comparison artifacts (local QA, not shipped)
 public/videos/synthetic/robotics/candidates/
+
+# UGC pipeline workspace (large, separate project)
+ugc-studio/
+
+# Local screenshot artifacts
+*.jpeg
+*.jpg

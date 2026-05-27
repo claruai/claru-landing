@@ -99,7 +99,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: `default-src 'self'; script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://us.i.posthog.com https://vercel.live; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://us.i.posthog.com https://*.ingest.us.sentry.io https://vercel.live https://*.amazonaws.com https://*.cloudfront.net wss://vercel.live; frame-src 'self' https://calendly.com https://vercel.live; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://calendly.com;`,
+            value: `default-src 'self'; script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://us.i.posthog.com https://vercel.live https://analytics.tiktok.com https://*.tiktokcdn.com https://www.redditstatic.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://us.i.posthog.com https://*.ingest.us.sentry.io https://vercel.live https://*.amazonaws.com https://*.cloudfront.net wss://vercel.live https://analytics.tiktok.com https://*.tiktok.com https://*.reddit.com https://*.google-analytics.com; frame-src 'self' https://calendly.com https://vercel.live; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://calendly.com;`,
           },
         ],
       },
