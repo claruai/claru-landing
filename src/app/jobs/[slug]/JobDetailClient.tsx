@@ -135,7 +135,18 @@ interface JobDetailClientProps {
    * Triggers the "translation in progress" banner. Default `false`.
    */
   englishFallback?: boolean;
+  /**
+   * URLs for each locale that has a translation available for this role.
+   * Used to render the language switcher.
+   */
+  localeUrls?: Partial<Record<JobLocale, string>>;
 }
+
+const LOCALE_LABELS: Record<JobLocale, { short: string; long: string }> = {
+  en: { short: "EN", long: "English" },
+  "es-MX": { short: "ES", long: "Español" },
+  "pt-BR": { short: "PT", long: "Português" },
+};
 
 export default function JobDetailClient({
   job,
@@ -146,6 +157,7 @@ export default function JobDetailClient({
   locale = "en",
   basePath = "/jobs",
   englishFallback = false,
+  localeUrls,
 }: JobDetailClientProps) {
   const t = jobsI18n(locale);
 
@@ -234,6 +246,60 @@ export default function JobDetailClient({
                     {job.title}
                   </motion.h1>
                 </FadeIn>
+
+                {/* Language switcher */}
+                {localeUrls && Object.keys(localeUrls).length > 1 && (
+                  <FadeIn delay={0.08}>
+                    <div className="mb-6 flex items-center gap-2">
+                      <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-muted)]">
+                        {"// LANGUAGE"}
+                      </span>
+                      <div className="inline-flex items-center rounded-md border border-[var(--border-subtle)] bg-[var(--bg-tertiary)]/60 p-0.5">
+                        {(Object.keys(LOCALE_LABELS) as JobLocale[]).map((loc) => {
+                          const href = localeUrls[loc];
+                          const isActive = loc === locale;
+                          const isAvailable = Boolean(href);
+                          const label = LOCALE_LABELS[loc];
+                          const baseClasses =
+                            "font-mono text-[11px] uppercase tracking-wider px-2.5 py-1 rounded transition-colors duration-150";
+                          if (isActive) {
+                            return (
+                              <span
+                                key={loc}
+                                className={`${baseClasses} bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] cursor-default`}
+                                aria-current="page"
+                                title={label.long}
+                              >
+                                {label.short}
+                              </span>
+                            );
+                          }
+                          if (!isAvailable) {
+                            return (
+                              <span
+                                key={loc}
+                                className={`${baseClasses} text-[var(--text-muted)]/40 cursor-not-allowed`}
+                                title={`${label.long} — translation not available`}
+                              >
+                                {label.short}
+                              </span>
+                            );
+                          }
+                          return (
+                            <Link
+                              key={loc}
+                              href={href!}
+                              className={`${baseClasses} text-[var(--text-secondary)] hover:text-[var(--accent-primary)] hover:bg-[var(--bg-tertiary)]`}
+                              title={label.long}
+                            >
+                              {label.short}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </FadeIn>
+                )}
 
                 {/* Meta row */}
                 <FadeIn delay={0.1}>

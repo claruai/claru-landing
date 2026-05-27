@@ -137,6 +137,13 @@ export default async function PtBrJobDetailPage({
         locale="pt-BR"
         basePath="/pt-br/jobs"
         englishFallback={!hasTranslation(job.slug, "pt-BR")}
+        localeUrls={{
+          en: `/jobs/${job.slug}`,
+          ...(hasTranslation(job.slug, "es-MX")
+            ? { "es-MX": `/es-mx/jobs/${job.slug}` }
+            : {}),
+          "pt-BR": `/pt-br/jobs/${job.slug}`,
+        }}
       />
     </>
   );

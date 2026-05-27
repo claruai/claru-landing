@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ogImageUrl } from "@/lib/og";
-import { getAllJobs, getJobBySlug, getJobsByCategory } from "@/lib/jobs";
+import { getAllJobs, getJobBySlug, getJobsByCategory, hasTranslation } from "@/lib/jobs";
 import { jobsHreflangAlternates } from "@/lib/jobs-hreflang";
 import { JOB_CATEGORIES } from "@/types/job";
 import JobDetailClient from "./JobDetailClient";
@@ -163,6 +163,15 @@ export default async function JobDetailPage({
         postedDate={postedDate}
         categoryLabel={categoryLabel}
         relatedJobs={related}
+        localeUrls={{
+          en: `/jobs/${job.slug}`,
+          ...(hasTranslation(job.slug, "es-MX")
+            ? { "es-MX": `/es-mx/jobs/${job.slug}` }
+            : {}),
+          ...(hasTranslation(job.slug, "pt-BR")
+            ? { "pt-BR": `/pt-br/jobs/${job.slug}` }
+            : {}),
+        }}
       />
     </>
   );

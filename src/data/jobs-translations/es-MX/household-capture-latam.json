@@ -1,29 +1,46 @@
 {
-  "title": "Captura de Video de Quehaceres del Hogar — LATAM",
-  "description": "Como colaborador de Captura de Quehaceres del Hogar, grabarás videos en primera persona de quehaceres domésticos comunes: limpieza, lavandería, aspirado, organización y pequeñas reparaciones. Los datos entrenan robots domésticos e IA para hogares inteligentes.\n\nLas escenas suelen durar entre 15 y 45 minutos cada una, centradas en una sola tarea (ej. una pasada de limpieza de una habitación, un ciclo de lavandería de principio a fin). Necesitamos escenas reales, vividas, no una perfección escenificada.\n\nIdeal para cualquier persona que gestione su propio hogar, incluyendo padres/madres que se quedan en casa y trabajadores remotos.\n\nEsta variante está abierta a colaboradores de toda América Latina: México, Brasil, Argentina, Colombia, Chile y Perú. El pago es de $7/hora USD, tarifa plana fija, pagado mediante transferencia internacional (Wise, Payoneer o equivalente local) con una cadencia quincenal. El poder adquisitivo del USD convierte esto en un ingreso suplementario significativo en toda la región.\n\nLos contratistas de Claru son independientes: sin horarios fijos, sin compromiso mínimo. Tomas las capturas que se ajustan a tu horario y omites las que no.",
+  "title": "Captura Egocéntrica de Tareas del Hogar — América Latina",
+  "description": "Graba video en primera persona (egocéntrico) de tareas domésticas cotidianas usando tu smartphone y un soporte para cabeza. Las grabaciones entrenan a robots domésticos e IA encarnada para que entiendan cómo se mueven personas reales en hogares reales.\n\nTú eliges qué grabar dentro de cuatro categorías de tareas: lavandería (doblar, separar, cargar/descargar), orden de cocina — no cocinar (limpiar superficies, lavar platos, lavavajillas, despensa), organizar una sola habitación (tender la cama, clóset, estantes) y otras tareas del hogar (aspirar, barrer, trapear, limpiar espejos). Pagamos por una mezcla razonablemente pareja entre las cuatro categorías — sin límite máximo de horas.\n\nCada clip dura entre 2 y 30 minutos, una tarea por clip, grabado en horizontal a 1080p / 30fps con la cámara en zoom 0.5x (el más amplio disponible). El soporte va a la altura de la frente o los ojos, ligeramente inclinado hacia abajo, para que tus palmas y dedos se vean completos mientras trabajas. Las manos deben aparecer en cuadro al menos el 90% de cada clip. Graba con naturalidad — sin narración, sin movimientos forzados.\n\nEste programa está abierto a colaboradores en toda América Latina. El pago es de $6 USD por hora de grabación aprobada, tarifa plana, pagado por transferencia internacional (Wise / Payoneer / equivalente local). La mayoría de los colaboradores gana alrededor de $40 USD por día (~6–7 horas de grabación) o $300 USD por semana grabando al margen de su rutina normal. Tú defines tu horario — graba tanto o tan poco como quieras.",
   "skills": [
-    "Vivir en un hogar donde te encargas de los quehaceres",
-    "Smartphone o cámara portátil",
-    "Comodidad grabando actividades domésticas diarias",
-    "Internet confiable para subir archivos",
-    "Capacidad para seguir las instrucciones de las escenas con precisión"
+    "Vivir en un hogar donde haces tareas domésticas regularmente",
+    "Smartphone aprobado (iPhone reciente, Pixel 6+ o Galaxy S21+)",
+    "Soporte para cabeza para el smartphone (altura de frente / ojos)",
+    "Comodidad grabando actividad doméstica cotidiana en primera persona",
+    "Internet confiable para subir clips largos en 1080p",
+    "Capacidad de seguir las especificaciones con precisión (90% de manos en cuadro, zoom 0.5x, horizontal)"
   ],
   "faqs": [
     {
-      "question": "¿Necesito limpiar toda mi casa?",
-      "answer": "No, cada captura es una sola tarea. Podrías grabar la limpieza de un baño hoy y una pasada de aspiradora la próxima semana."
+      "question": "¿Qué tipo de tareas voy a grabar?",
+      "answer": "Cuatro categorías: lavandería (doblar, separar, cargar/descargar), orden de cocina — NO cocinar (limpiar superficies, lavar platos, lavavajillas, organizar despensa), organizar una sola habitación (tender la cama, clóset, estantes) y otras tareas del hogar (aspirar, barrer, trapear, limpiar espejos). Necesitamos una mezcla razonablemente pareja entre las cuatro."
     },
     {
-      "question": "¿Puedo grabar mientras lavo ropa en varias cargas?",
-      "answer": "Sí, las sesiones de lavandería de varias cargas se solicitan explícitamente en algunas instrucciones."
+      "question": "¿Cuánto debe durar cada clip?",
+      "answer": "Entre 2 y 30 minutos, una tarea por clip. Si una tarea toma 29 minutos de principio a fin, grábala como un solo clip continuo de 29 minutos en vez de dividirla."
     },
     {
-      "question": "¿Cuánto pagan las capturas de Quehaceres del Hogar en LATAM?",
-      "answer": "A los colaboradores de LATAM (MX, BR, AR, CO, CL, PE) se les paga $7/hora USD fijos, a través de Wise/Payoneer, quincenalmente."
+      "question": "¿Qué teléfonos están aprobados?",
+      "answer": "iPhone 11 en adelante (excepto 16e y 17e), Pixel 6 hasta Pixel 9 Pro, y la serie Samsung Galaxy S21 hasta S24. No se pueden usar otros teléfonos."
     },
     {
-      "question": "¿Cuándo me pagan?",
-      "answer": "Quincenalmente. El primer pago suele llegar entre 7 y 10 días después de tu primera captura aprobada."
+      "question": "¿Tengo que comprar un soporte para cabeza?",
+      "answer": "Sí — necesitas un soporte que sostenga tu teléfono a la altura de la frente o los ojos, ligeramente inclinado hacia abajo. Cualquier arnés sólido para smartphone funciona; te enviamos detalles de soportes aprobados durante el onboarding."
+    },
+    {
+      "question": "¿Cuánto paga?",
+      "answer": "$6 USD por hora de grabación aprobada, tarifa plana. No hay límite de horas mientras mantengas una mezcla pareja entre las cuatro categorías. Pago por Wise, Payoneer o equivalente local."
+    },
+    {
+      "question": "¿Cuánto gana la mayoría de las personas?",
+      "answer": "La mayoría de los colaboradores gana alrededor de $40 USD por día o cerca de $300 USD por semana, grabando 6–7 horas de tareas del hogar al margen de su rutina normal. Algunos graban más, otros menos — no hay mínimo ni tope."
+    },
+    {
+      "question": "¿Qué hace que rechacen mi material?",
+      "answer": "Grabaciones obstruidas, inclinadas, temblorosas o con mala luz; comportamiento robótico o forzado; manos fuera de cuadro más del 10% del clip; pausas largas o tareas incompletas; grabaciones sentado; narración o comentarios; usar un teléfono que no esté en la lista aprobada."
+    },
+    {
+      "question": "¿Se va a ver mi cara en el video?",
+      "answer": "No. Egocéntrico significa primera persona — la cámara mira hacia afuera desde tu cabeza, así que tu cara no aparece. Lo que se captura son las manos, antebrazos y la tarea frente a ti."
     }
   ]
 }
