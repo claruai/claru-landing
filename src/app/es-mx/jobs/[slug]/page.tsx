@@ -139,6 +139,13 @@ export default async function EsMxJobDetailPage({
         locale="es-MX"
         basePath="/es-mx/jobs"
         englishFallback={!hasTranslation(job.slug, "es-MX")}
+        localeUrls={{
+          en: `/jobs/${job.slug}`,
+          "es-MX": `/es-mx/jobs/${job.slug}`,
+          ...(hasTranslation(job.slug, "pt-BR")
+            ? { "pt-BR": `/pt-br/jobs/${job.slug}` }
+            : {}),
+        }}
       />
     </>
   );
