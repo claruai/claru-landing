@@ -74,6 +74,13 @@ const nextConfig: NextConfig = {
         destination: "/data-catalog",
         permanent: true,
       },
+      // Vanity URL for the BR collector recruitment campaign. Temporary (307)
+      // so the short link can be repointed to a different LP later.
+      {
+        source: "/br",
+        destination: "/br/collect/captura-domestica",
+        permanent: false,
+      },
     ];
   },
   async headers() {
