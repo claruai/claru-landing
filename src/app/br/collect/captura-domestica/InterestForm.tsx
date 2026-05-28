@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import {
   trackTikTokEvent,
@@ -116,6 +116,23 @@ export default function InterestForm({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isLatamConversion, setIsLatamConversion] = useState(false);
   const [signupUrl, setSignupUrl] = useState<string | null>(null);
+
+  // Mid-funnel signal: fire ClickButton once the visitor first engages with
+  // the form (field focus). Gives TikTok the ViewContent → ClickButton →
+  // CompleteRegistration ladder it wants for funnel optimization, filling the
+  // gap flagged by the "missing vertical funnel events" diagnostic. Not
+  // geo-gated — the ad group targets BR exclusively, so engaged traffic is
+  // already the paid audience; richer funnel signal helps the algorithm.
+  const engagedRef = useRef(false);
+  function handleEngage() {
+    if (engagedRef.current) return;
+    engagedRef.current = true;
+    trackTikTokEvent("ClickButton", {
+      contents: [PIXEL_CONTENT],
+      event_id: makeEventId(),
+      extra: utm,
+    });
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -329,6 +346,7 @@ export default function InterestForm({
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onFocus={handleEngage}
             required
             autoComplete="email"
             enterKeyHint="send"
@@ -365,6 +383,7 @@ export default function InterestForm({
               type="tel"
               value={whatsapp}
               onChange={(e) => setWhatsapp(formatBrPhone(e.target.value))}
+              onFocus={handleEngage}
               inputMode="tel"
               autoComplete="tel-national"
               placeholder={t.whatsappPlaceholder}
