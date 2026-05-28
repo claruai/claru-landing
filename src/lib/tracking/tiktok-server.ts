@@ -8,9 +8,13 @@
  * Required env:
  *   TIKTOK_ACCESS_TOKEN     — long-lived token from TikTok Events
  *                             Manager → Manage → Settings.
- *   TIKTOK_EVENT_SOURCE_ID  — the numeric pixel_id (NOT the
- *                             alphanumeric pixel_code shown in UI).
- *                             Use list_tiktok_pixels to look up.
+ *   TIKTOK_EVENT_SOURCE_ID  — the alphanumeric pixel CODE (e.g.
+ *                             D8BM3RJC77UDFA3HMG2G), matching the
+ *                             client pixel id. An Events-API token
+ *                             generated in Events Manager is scoped to
+ *                             this code — the numeric Marketing-API
+ *                             pixel_id returns 40001 "No permission to
+ *                             operate event source id".
  *
  * Optional env:
  *   TIKTOK_TEST_EVENT_CODE  — when set, the payload includes
