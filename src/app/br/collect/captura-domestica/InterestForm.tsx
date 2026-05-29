@@ -135,8 +135,15 @@ export default function InterestForm({
   }
 
   // Stage 1 — form rendered into view (proxy for "reached the form").
+  // Only the hero instance fires this. The page renders InterestForm twice
+  // (hero above the fold + a "full" copy near the footer) and this effect runs
+  // on mount regardless of scroll position, so firing from both would
+  // double-count form_view against a single pageview and corrupt the funnel
+  // denominator. The hero form is always above the fold, so its mount ≈ one
+  // "reached the form" per pageview.
   const viewedRef = useRef(false);
   useEffect(() => {
+    if (variant !== "hero") return;
     if (viewedRef.current) return;
     viewedRef.current = true;
     track("form_view");
@@ -366,6 +373,7 @@ export default function InterestForm({
   return (
     <form
       onSubmit={onSubmit}
+      noValidate
       className={
         compact
           ? "rounded-2xl p-4 sm:p-5"
