@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
+import { usePostHog } from "posthog-js/react";
 import {
   trackTikTokEvent,
   identifyTikTokUser,
@@ -106,6 +107,7 @@ export default function InterestForm({
   variant?: "hero" | "full";
 }) {
   const t = T[lang];
+  const posthog = usePostHog();
 
   const [email, setEmail] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -117,16 +119,37 @@ export default function InterestForm({
   const [isLatamConversion, setIsLatamConversion] = useState(false);
   const [signupUrl, setSignupUrl] = useState<string | null>(null);
 
-  // Mid-funnel signal: fire ClickButton once the visitor first engages with
-  // the form (field focus). Gives TikTok the ViewContent → ClickButton →
-  // CompleteRegistration ladder it wants for funnel optimization, filling the
-  // gap flagged by the "missing vertical funnel events" diagnostic. Not
-  // geo-gated — the ad group targets BR exclusively, so engaged traffic is
-  // already the paid audience; richer funnel signal helps the algorithm.
+  // ── Micro-funnel instrumentation (PostHog) ──────────────────────────────
+  // Locate where BR collector traffic leaks: form_view → form_start →
+  // email_filled → submit_attempt → (validation_error | submitted) → cta_*.
+  // PostHog is geo-agnostic (vs the LATAM-gated TikTok pixel), so this is the
+  // source of truth for funnel diagnosis regardless of the visitor's country.
+  // Common props on every step so we can break down by source/variant/utm.
+  const funnelProps = {
+    form_variant: variant,
+    lang,
+    ...utm,
+  };
+  function track(stage: string, extra?: Record<string, unknown>) {
+    posthog?.capture(`br_collect_${stage}`, { ...funnelProps, ...extra });
+  }
+
+  // Stage 1 — form rendered into view (proxy for "reached the form").
+  const viewedRef = useRef(false);
+  useEffect(() => {
+    if (viewedRef.current) return;
+    viewedRef.current = true;
+    track("form_view");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Stage 2 — first engagement (field focus). Also fires the TikTok
+  // ClickButton mid-funnel pixel event (ViewContent → ClickButton → Register).
   const engagedRef = useRef(false);
   function handleEngage() {
     if (engagedRef.current) return;
     engagedRef.current = true;
+    track("form_start");
     trackTikTokEvent("ClickButton", {
       contents: [PIXEL_CONTENT],
       event_id: makeEventId(),
@@ -134,22 +157,38 @@ export default function InterestForm({
     });
   }
 
+  // Stage 3 — email field completed with a plausible value (blur).
+  const emailFilledRef = useRef(false);
+  function handleEmailBlur() {
+    if (emailFilledRef.current) return;
+    const v = email.trim();
+    if (v && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+      emailFilledRef.current = true;
+      track("email_filled");
+    }
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    // Stage 4 — submit attempted (before validation gates).
+    track("submit_attempt");
     const trimmedEmail = email.trim();
     if (!trimmedEmail) {
+      track("validation_error", { field: "email", reason: "required" });
       setErrorMsg(t.errorEmailRequired);
       setState("error");
       return;
     }
     // Cheap email shape check — server is authoritative.
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      track("validation_error", { field: "email", reason: "invalid" });
       setErrorMsg(t.errorEmailInvalid);
       setState("error");
       return;
     }
     // WhatsApp is optional now; only validate if provided.
     if (whatsapp.trim() && !whatsappDigitsValid(whatsapp)) {
+      track("validation_error", { field: "whatsapp", reason: "invalid" });
       setErrorMsg(t.errorWhatsapp);
       setState("error");
       return;
@@ -203,6 +242,7 @@ export default function InterestForm({
       });
 
       if (!res.ok) {
+        track("submit_failed", { status: res.status });
         setErrorMsg(t.errorSend);
         setState("error");
         return;
@@ -217,6 +257,11 @@ export default function InterestForm({
       const latam = !!json.is_latam_conversion;
       setIsLatamConversion(latam);
       setSignupUrl(json.signup_url ?? null);
+
+      // Stage 5 — server-confirmed submit (the real conversion). identify so
+      // PostHog stitches this person's funnel + later signup-CTA click.
+      posthog?.identify(trimmedEmail);
+      track("submitted", { is_latam_conversion: latam });
 
       // Reddit Lead fires for every successful submit — it's our generic
       // funnel signal, not the paid-channel conversion gate.
@@ -298,6 +343,7 @@ export default function InterestForm({
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="cta-signup-latam"
+                onClick={() => track("signup_cta_click")}
                 className="mt-4 inline-flex items-center justify-center w-full sm:w-auto px-6 py-3.5 rounded-full font-semibold text-base transition-all duration-200 hover:opacity-95 active:scale-[0.99]"
                 style={{
                   background: "#ffffff",
@@ -347,6 +393,7 @@ export default function InterestForm({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             onFocus={handleEngage}
+            onBlur={handleEmailBlur}
             required
             autoComplete="email"
             enterKeyHint="send"
