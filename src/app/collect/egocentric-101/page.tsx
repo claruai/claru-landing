@@ -8,16 +8,16 @@ import Logo from "@/app/components/ui/Logo";
 /**
  * Egocentric Capture 101 — an English-language explainer that teaches what
  * first-person ("egocentric") video capture is, why AI labs pay for it, and
- * what good capture looks like, then hands off to the live household-capture
- * project page (`/br/collect/captura-domestica`).
+ * what good capture looks like, then sends collectors to sign up.
  *
- * Deliberately educational, not a signup funnel: there's no form and no app
- * download/invite-code here. The single conversion action is "start the
- * project", which links to the project LP where the actual recruiting lives.
+ * Deliberately educational: there's no form on the page itself. Every CTA
+ * points at the signup app (app.claru.ai/signup) where the actual onboarding
+ * happens.
  */
 
-// The project this 101 leads into. Kept as a const so every CTA points at one place.
-const PROJECT_URL = "/br/collect/captura-domestica";
+// Every CTA points here — the signup app (different subdomain, so cookies don't
+// carry; attribution is handled app-side).
+const SIGNUP_URL = "https://app.claru.ai/signup";
 
 // Real egocentric clips from the Claru dataset catalog. clip_1 is a generic
 // first-person walking POV (used to *define* egocentric); clip_2–4 are the
@@ -65,7 +65,7 @@ export default function EgocentricOneOhOnePage() {
             <Logo size="sm" />
           </Link>
           <Link
-            href={PROJECT_URL}
+            href={SIGNUP_URL}
             data-testid="cta-project-topbar"
             className="text-xs font-mono tracking-wide px-3 py-1.5 rounded-full transition-colors"
             style={{
@@ -130,7 +130,7 @@ export default function EgocentricOneOhOnePage() {
               className="mt-10 flex flex-col sm:flex-row gap-3 items-start sm:items-center"
             >
               <Link
-                href={PROJECT_URL}
+                href={SIGNUP_URL}
                 data-testid="cta-project-hero"
                 className="px-8 py-4 rounded-full font-medium text-base transition-all duration-300 hover:opacity-90 inline-flex items-center justify-center"
                 style={{
@@ -630,7 +630,7 @@ export default function EgocentricOneOhOnePage() {
                   through signing up, recording your first clip, and getting
                   paid in USD.{" "}
                   <Link
-                    href={PROJECT_URL}
+                    href={SIGNUP_URL}
                     className="underline underline-offset-2 hover:text-white transition-colors"
                   >
                     Open the project →
@@ -653,7 +653,7 @@ export default function EgocentricOneOhOnePage() {
             project is where you put it to work and actually get paid.
           </p>
           <Link
-            href={PROJECT_URL}
+            href={SIGNUP_URL}
             data-testid="cta-project-final"
             className="mt-8 inline-flex items-center justify-center px-8 py-4 rounded-full font-medium text-base transition-all duration-300 hover:opacity-90"
             style={{
@@ -1319,7 +1319,7 @@ function LiveProjectCard() {
 
       <div className="mt-6 flex flex-col sm:flex-row sm:items-center gap-4">
         <Link
-          href={PROJECT_URL}
+          href={SIGNUP_URL}
           data-testid="cta-project-card"
           className="px-7 py-3.5 rounded-full font-medium text-sm transition-all duration-300 hover:opacity-90 inline-flex items-center justify-center flex-shrink-0"
           style={{
