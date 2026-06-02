@@ -49,14 +49,14 @@ const UTM_KEYS = [
 const COPY = {
   pt: {
     antiChip: "Não é renda extra. Não é curso. Não é app de vídeo curto.",
-    payAmount: "$300",
-    payUnit: "USD / semana",
-    payBrl: "≈ R$1.500 · pago em dólar via Wise, PayPal ou transferência bancária",
-    heroSub: "para filmar tarefas de casa com o celular.",
+    payAmount: "Pesquisa de IA",
+    payUnit: "dos EUA",
+    payBrl: "Grave tarefas de casa pelo celular · pago em dólar pela sua contribuição",
+    heroSub: "Receba em dólar pra ajudar a treinar robôs domésticos.",
     mechanism:
-      "Um laboratório de IA dos EUA precisa de vídeos de pessoas reais fazendo tarefas domésticas pra treinar robôs. Você grava, eles pagam em dólar.",
+      "Um laboratório de IA dos EUA precisa de vídeos de pessoas reais fazendo tarefas domésticas pra treinar robôs. Você grava em casa e recebe em dólar pela sua contribuição.",
     formNote: "Cadastro de 30 segundos. Resposta em 24h por e-mail.",
-    stickyCta: "Quero ganhar em USD →",
+    stickyCta: "Quero participar →",
 
     trustHeader: "Quem está por trás",
     trustLine: "Apoiada por uma empresa de IA dos EUA. Pagamento internacional via Wise, PayPal ou transferência bancária.",
@@ -73,14 +73,14 @@ const COPY = {
       "Em dólar, na conta no seu nome",
     ],
 
-    payHeader: "O que você ganha",
+    payHeader: "Como é o pagamento",
     payCards: [
-      { big: "$6", unit: "USD/hora", sub: "≈ R$30" },
-      { big: "$40", unit: "USD/dia", sub: "6–7h gravando · ≈ R$200" },
-      { big: "$300", unit: "USD/semana", sub: "no tempo livre · ≈ R$1.500" },
+      { big: "USD", unit: "em dólar", sub: "Wise, PayPal ou transferência" },
+      { big: "R$0", unit: "de taxa", sub: "você nunca paga nada pra entrar" },
+      { big: "Você", unit: "decide quando", sub: "grava no seu tempo livre" },
     ],
     payNote:
-      "Pago via Wise, PayPal ou transferência bancária. Sem taxa inicial. Sem limite de horas.",
+      "Pago em dólar depois do piloto aprovado. Sem taxa inicial.",
 
     reqLabel: "O que precisa",
     reqH: "Quatro coisas. Honesto.",
@@ -155,7 +155,7 @@ const COPY = {
       },
     ],
 
-    finalH: "Pronto pra ganhar em dólar?",
+    finalH: "Pronto pra participar?",
     finalSub: "30 segundos pra se cadastrar. A gente cuida do resto.",
     footerCo: (
       <>
@@ -176,14 +176,14 @@ const COPY = {
   },
   en: {
     antiChip: "Not a side hustle. Not a course. Not another short-video app.",
-    payAmount: "$300",
-    payUnit: "USD / week",
-    payBrl: "≈ R$1,500 · paid in USD via Wise, PayPal, or bank transfer",
-    heroSub: "to film household chores on your phone.",
+    payAmount: "AI research",
+    payUnit: "from the US",
+    payBrl: "Film house chores on your phone · paid in USD for your contribution",
+    heroSub: "Get paid in dollars to help train home robots.",
     mechanism:
-      "A US AI lab needs videos of real people doing household tasks to train robots. You film, they pay in USD.",
+      "A US AI lab needs videos of real people doing household tasks to train robots. You film at home and get paid in USD for your contribution.",
     formNote: "30-second signup. Reply by email within 24h.",
-    stickyCta: "Start earning in USD →",
+    stickyCta: "I want in →",
 
     trustHeader: "Who's behind this",
     trustLine: "Backed by a US AI company. International payment via Wise, PayPal, or bank transfer.",
@@ -200,14 +200,14 @@ const COPY = {
       "In USD, to an account in your name",
     ],
 
-    payHeader: "What you earn",
+    payHeader: "How payment works",
     payCards: [
-      { big: "$6", unit: "USD/hour", sub: "≈ R$30" },
-      { big: "$40", unit: "USD/day", sub: "6–7h filming · ≈ R$200" },
-      { big: "$300", unit: "USD/week", sub: "on the side · ≈ R$1,500" },
+      { big: "USD", unit: "in dollars", sub: "Wise, PayPal or bank" },
+      { big: "$0", unit: "fees", sub: "you never pay to join" },
+      { big: "You", unit: "pick when", sub: "film in your free time" },
     ],
     payNote:
-      "Paid via Wise, PayPal, or direct bank transfer. No upfront fee. No cap on hours.",
+      "Paid in USD after your pilot is approved. No upfront fee.",
 
     reqLabel: "What you need",
     reqH: "Four things. Be honest.",
@@ -282,7 +282,7 @@ const COPY = {
       },
     ],
 
-    finalH: "Ready to earn in USD?",
+    finalH: "Ready to join?",
     finalSub: "30 seconds to sign up. We handle the rest.",
     footerCo: (
       <>

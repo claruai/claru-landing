@@ -27,7 +27,7 @@ const T = {
     emailPlaceholder: "voce@exemplo.com",
     whatsapp: "WhatsApp (opcional)",
     whatsappPlaceholder: "(11) 91234-5678",
-    submit: "Quero ganhar em USD →",
+    submit: "Quero participar →",
     submitting: "Enviando…",
     microcopy: "Sem taxa. Sem pegadinha. Resposta em 24h por e-mail.",
     // Non-LATAM (generic): no promise of follow-up — just acknowledge + review.
@@ -49,7 +49,7 @@ const T = {
     emailPlaceholder: "you@example.com",
     whatsapp: "WhatsApp (optional)",
     whatsappPlaceholder: "(11) 91234-5678",
-    submit: "Start earning in USD →",
+    submit: "I want in →",
     submitting: "Sending…",
     microcopy: "No fee. No catch. Reply by email within 24h.",
     successHeader: "We got your application.",
