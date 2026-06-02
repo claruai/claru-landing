@@ -19,6 +19,19 @@ import Logo from "@/app/components/ui/Logo";
 // carry; attribution is handled app-side).
 const SIGNUP_URL = "https://app.claru.ai/signup";
 
+// Per-CTA attribution: each CTA stamps a distinct utm_content so a completed
+// signup can be traced back to the exact button that drove it (cookies don't
+// carry across the claru.ai to app.claru.ai subdomain hop).
+function signupUrl(slot: string): string {
+  const params = new URLSearchParams({
+    utm_source: "claru-landing",
+    utm_medium: "lp_cta",
+    utm_campaign: "egocentric-101",
+    utm_content: slot,
+  });
+  return `${SIGNUP_URL}?${params.toString()}`;
+}
+
 // Real egocentric clips from the Claru dataset catalog. clip_1 is a generic
 // first-person walking POV (used to *define* egocentric); clip_2–4 are the
 // three household task buckets this project actually collects.
@@ -65,7 +78,7 @@ export default function EgocentricOneOhOnePage() {
             <Logo size="sm" />
           </Link>
           <Link
-            href={SIGNUP_URL}
+            href={signupUrl("topbar")}
             data-testid="cta-project-topbar"
             className="text-xs font-mono tracking-wide px-3 py-1.5 rounded-full transition-colors"
             style={{
@@ -74,7 +87,7 @@ export default function EgocentricOneOhOnePage() {
               border: "1px solid rgba(146, 176, 144, 0.3)",
             }}
           >
-            View the project →
+            Sign up →
           </Link>
         </div>
       </header>
@@ -130,7 +143,7 @@ export default function EgocentricOneOhOnePage() {
               className="mt-10 flex flex-col sm:flex-row gap-3 items-start sm:items-center"
             >
               <Link
-                href={SIGNUP_URL}
+                href={signupUrl("hero")}
                 data-testid="cta-project-hero"
                 className="px-8 py-4 rounded-full font-medium text-base transition-all duration-300 hover:opacity-90 inline-flex items-center justify-center"
                 style={{
@@ -139,7 +152,7 @@ export default function EgocentricOneOhOnePage() {
                   boxShadow: "0 8px 40px rgba(146, 176, 144, 0.45)",
                 }}
               >
-                Start the household project →
+                Sign up to get paid →
               </Link>
               <a
                 href="#what"
@@ -630,10 +643,10 @@ export default function EgocentricOneOhOnePage() {
                   through signing up, recording your first clip, and getting
                   paid in USD.{" "}
                   <Link
-                    href={SIGNUP_URL}
+                    href={signupUrl("faq")}
                     className="underline underline-offset-2 hover:text-white transition-colors"
                   >
-                    Open the project →
+                    create your account →
                   </Link>
                 </>
               }
@@ -653,7 +666,7 @@ export default function EgocentricOneOhOnePage() {
             project is where you put it to work and actually get paid.
           </p>
           <Link
-            href={SIGNUP_URL}
+            href={signupUrl("final")}
             data-testid="cta-project-final"
             className="mt-8 inline-flex items-center justify-center px-8 py-4 rounded-full font-medium text-base transition-all duration-300 hover:opacity-90"
             style={{
@@ -662,7 +675,7 @@ export default function EgocentricOneOhOnePage() {
               boxShadow: "0 8px 40px rgba(146, 176, 144, 0.45)",
             }}
           >
-            Go to the household project →
+            Sign up and start earning →
           </Link>
         </div>
       </section>
@@ -1319,7 +1332,7 @@ function LiveProjectCard() {
 
       <div className="mt-6 flex flex-col sm:flex-row sm:items-center gap-4">
         <Link
-          href={SIGNUP_URL}
+          href={signupUrl("card")}
           data-testid="cta-project-card"
           className="px-7 py-3.5 rounded-full font-medium text-sm transition-all duration-300 hover:opacity-90 inline-flex items-center justify-center flex-shrink-0"
           style={{
@@ -1328,7 +1341,7 @@ function LiveProjectCard() {
             boxShadow: "0 8px 30px rgba(146, 176, 144, 0.35)",
           }}
         >
-          Start the project →
+          Sign up now →
         </Link>
         <p className="text-xs text-white/55 max-w-xs leading-relaxed">
           No head mount yet? Order one from Amazon (around $10–20) and we&apos;ll
